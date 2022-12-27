@@ -8,6 +8,7 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Giraffe.ViewEngine
+open System.IO
 
 let datasetsPage = html [] [
         head [] [
@@ -26,6 +27,8 @@ let webApp =
         route "/" >=> htmlView datasetsPage ]
 
 let configureApp (app : IApplicationBuilder) =
+    app.UseStaticFiles()
+    app.UseDefaultFiles()
     app.UseGiraffe webApp
 
 let configureServices (services : IServiceCollection) =
@@ -33,10 +36,14 @@ let configureServices (services : IServiceCollection) =
 
 [<EntryPoint>]
 let main _ =
+    let contentRoot = Directory.GetCurrentDirectory()
+    let webRoot     = Path.Combine(contentRoot, "WebRoot")
     Host.CreateDefaultBuilder()
         .ConfigureWebHostDefaults(
             fun webHostBuilder ->
                 webHostBuilder
+                    .UseContentRoot(contentRoot)
+                    .UseWebRoot(webRoot)
                     .Configure(configureApp)
                     .ConfigureServices(configureServices)
                     |> ignore)

@@ -7,7 +7,10 @@ See ligature.dev for more information on Ligature.
 This project assumes you have .NET Core setup.
 Currently to run the application simply run
 
-`dotnet run --project src/LigatureLab`
+```
+cd src/LigatureLab
+dotnet run
+```
 
 in the root directory of this project.
 
