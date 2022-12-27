@@ -2,18 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
     <Compile Include="Wander.fs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Giraffe" Version="6.0.0" />
-    <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
-  </ItemGroup>
-
 </Project>

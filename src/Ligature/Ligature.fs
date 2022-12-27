@@ -6,8 +6,11 @@ module Ligature
 
 type Identifier = private Identifier of System.String
 
+//TODO doesn't validate/should return Result type
 let identifier id = Identifier id
 
+let readIdentifier (identifier: Identifier) =
+    match identifier with
+    | Identifier(id) -> id
 
-
-//type Value = 
+//type Value =
