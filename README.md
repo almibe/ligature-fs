@@ -5,10 +5,14 @@ Keep in mind that the docs below might not be up to date.
 See https://ligature.dev for more information on Ligature.
 
 ## Use
-This project assumes you have .NET Core setup.
-See https://dotnet.microsoft.com/en-us/download to download the SDK.
+This project assumes you have .NET Core and npm setup.
+
+See https://nodejs.org/en/download/ to download node/npm, the current LTS version is fine.
+
+See https://dotnet.microsoft.com/en-us/download to download the SDK for .NET Core.
 Version 6.x is required (7.x won't work currently since this project uses Fable 3).
-Currently to run the application simply run
+
+To run the application simply run
 
 ```
 cd src/LigatureLab
