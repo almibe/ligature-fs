@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="LigatureDesktop.MainWindow"
+        Title="LigatureDesktop">
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <TextBlock>Datasets:</TextBlock>
+            <ComboBox>
+            </ComboBox>
+            <Button Click="AddDatasetClick">Add Dataset</Button>
+            <Button Click="RemoveDatasetClick">Remove Dataset</Button>
+            <Button Click="RefreshDatasetClick">Refresh Datasets</Button>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+            <TextBlock>Actions:</TextBlock>
+            <ComboBox SelectedIndex="0">
+                <ComboBoxItem>Query</ComboBoxItem>
+                <ComboBoxItem>Add Statements</ComboBoxItem>
+                <ComboBoxItem>Remove Statements</ComboBoxItem>
+            </ComboBox>
+            <Button Click="RunClick">Run</Button>
+            <Button Click="ClearClick">Clear</Button>
+        </StackPanel>
+        <Grid RowDefinitions="*, 4, *">
+            <TextBox Grid.Row="0" AcceptsReturn="True" TextWrapping="Wrap"></TextBox>
+            <GridSplitter Grid.Row="1" Background="Black" ResizeDirection="Rows"/>
+            <TextBox Grid.Row="2" AcceptsReturn="True" TextWrapping="Wrap"></TextBox>
+        </Grid>
+    </DockPanel>
+</Window>
