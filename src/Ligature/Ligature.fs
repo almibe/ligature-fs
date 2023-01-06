@@ -61,3 +61,26 @@ type Statement = {
     Attribute: Identifier
     Value: Value
 }
+
+type QueryTx =
+    abstract member AllStatements: unit -> Result<Statement array, LigatureError>
+    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Statement array
+    //TODO add MatchStatementsRange
+    
+type WriteTx =
+    abstract member NewIdentifier: unit -> Result<Identifier, LigatureError>
+    abstract member AddStatement: Statement -> Result<unit, LigatureError>
+    abstract member RemoveStatement: Statement -> Result<unit, LigatureError>
+
+type Query<'r> = QueryTx -> 'r
+
+type Write = WriteTx -> unit
+
+type Ligature =
+    abstract member AllDatasets: unit -> Result<Dataset array, LigatureError>
+    abstract member DatasetExists: Dataset -> bool
+    abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
+    abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
+    abstract member Query: Dataset -> Query<'r> -> 'r
+    abstract member Write: Dataset -> Write -> unit
+    abstract member Close: unit -> Result<Unit, LigatureError>
