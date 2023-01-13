@@ -11,7 +11,7 @@ type Gaze<'input> = {
 
 type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
 
-let private explode (s:string) =
+let explode (s:string) =
         [| for c in s -> c |]
 
 /// Create an instance of Gaze that works with a String as input. 
@@ -50,15 +50,14 @@ let check nibbler gaze =
 let attempt nibbler gaze =
     let startOffset = gaze.offset
     match nibbler gaze with
-        | Some(res) -> Some(res)
-        | None ->
-            gaze.offset <- startOffset
-            None
+    | Some(res) -> Some(res)
+    | None ->
+        gaze.offset <- startOffset
+        None
 
 let offset gaze = gaze.offset
 
 let map nibbler mapper gaze =
     match attempt nibbler gaze with
-        | Some(result) ->
-            Some(mapper(result))
-        | None -> None
+    | Some(result) -> Some(mapper(result))
+    | None -> None
