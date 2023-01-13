@@ -2,3 +2,4 @@ bin/
 obj/
 *.fs.js
 .fake
+*.trx
