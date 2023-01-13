@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
   </ItemGroup>
 
 </Project>

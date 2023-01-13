@@ -6,8 +6,9 @@ open Ligature
 let tests =
   testList "Identifier Tests" [
     testCase "Create Valid Identifier" <| fun _ ->
-      let id = identifier("hello")
-      Expect.equal (readIdentifier id) "hello" "Identifiers should be equal"
+      match identifier "hello" with
+        | Ok id -> Expect.equal (readIdentifier id) "hello" "Identifiers should be equal"
+        | Error (_) -> failtest "Error parsing Identifier."
   ]
 
 [<EntryPoint>]
