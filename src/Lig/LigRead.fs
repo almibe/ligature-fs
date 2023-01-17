@@ -9,7 +9,7 @@ open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let identifierPattern = Regex(@"^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
+let identifierPattern = Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
 
 let identifierCharacterNibbler = Nibblers.takeWhile (fun c ->
     identifierPattern.IsMatch(c.ToString()))
@@ -74,7 +74,8 @@ let readValue gaze =
         | None -> error "Could not read Value." None
         | Some(result) -> Ok(result)
 
-let unwrap result = Result.defaultWith (todo) result
+//TODO remove need for unwrap function
+let unwrap result = Result.defaultWith (fun _ -> todo) result
 
 /// <summary>Reads in a String and returns a List of Statements or an Error.</summary>
 /// <param name="lig">The input String in lig format.</param>
