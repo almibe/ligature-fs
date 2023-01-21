@@ -10,6 +10,7 @@ type Gaze<'input> = {
 }
 
 type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
+//type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
 
 let explode (s:string) =
         [| for c in s -> c |]

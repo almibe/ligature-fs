@@ -4,6 +4,15 @@
 
 module Nibblers
 
+// /// <summary>Create a Nibbler that take a single literal value.</summary>
+// /// <param name="t">The literal to take.</param>
+// /// <returns>A Nibbler that takes a single literal.</returns>
+// let take t (input: list<'a>) =
+//     if input[0] = t then
+//         Ok((t, input[1..]))
+//     else
+//         Error($"Could not match {t}")
+
 /// <summary>Create a Nibbler that take a single literal value.</summary>
 /// <param name="t">The literal to take.</param>
 /// <returns>A Nibbler that takes a single literal.</returns>
