@@ -63,6 +63,14 @@ let takeCond predicate gaze =
             Some(value)
     | _ -> None
 
+/// <summary>Create a Nibbler that takes values if they are within a set of given ranges.</summary>
+/// <param name="ranges">The ranges to match against.</param>
+/// <returns>The newly created Nibbler.</returns>
+let takeInRange (ranges: ('t * 't) list) = 
+    takeCond (fun toMatch ->
+        ranges |> List.exists (fun range -> toMatch >= (fst range) && toMatch <= (snd range))    
+    )
+
 /// <summary>Create a Nibbler that accepts input based on a function that recieves the current token
 /// and returns a bool.</summary>
 /// <param name="predicate">The function used to decide if a token matches.</param>
@@ -152,6 +160,21 @@ let repeat nibbler gaze =
         match Gaze.attempt nibbler gaze with
         | Some(result) ->
             results <- results @ [result]
+        | None -> cont <- false
+    if results = [] then
+        None
+    else
+        Some(results)
+
+let repeatN nibbler n gaze =
+    let mutable cont = true
+    let mutable results = []
+    while cont do
+        match Gaze.attempt nibbler gaze with
+        | Some(result) ->
+            results <- results @ [result]
+            if (List.length results) >= n then
+                cont <- false
         | None -> cont <- false
     if results = [] then
         None

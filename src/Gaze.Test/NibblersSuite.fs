@@ -57,6 +57,16 @@ let tests = testList "Nibbler Tests" [
             Expect.isFalse (Gaze.isComplete gaze) ""
     ]
 
+    testList "Take In Range Suite" [
+        testCase "basic range test" <| fun _ ->
+            let gaze = Gaze.fromArray [|1;2;3|]
+            Expect.equal (Gaze.attempt(Nibblers.takeInRange [(1,10)]) gaze) (Some(1)) ""
+            Expect.equal (Gaze.attempt(Nibblers.takeInRange [(5,10)]) gaze) None ""
+            Expect.equal (Gaze.attempt(Nibblers.takeInRange [(1,10)]) gaze) (Some(2)) ""
+            Expect.equal (Gaze.attempt(Nibblers.takeInRange [(5,10); (-1, 1); (0, 1)]) gaze) None ""
+            Expect.equal (Gaze.attempt(Nibblers.takeInRange [(5,10); (-1, 1); (2, 3)]) gaze) (Some(3)) ""
+    ]
+
     testList "Take While Suite" [
         testCase "takeWhile with a single value" <| fun _ ->
             let gaze = Gaze.fromString("a")
