@@ -11,7 +11,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 type WanderToken =
 | Boolean of bool
 | WhiteSpace of string
-| Identifier of string
+| Identifier of Identifier
 | Integer of int64
 | Comment of string 
 | NewLine of string
@@ -42,7 +42,11 @@ let implode (chars: char list) =
 let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
-let identifierTokenNibbler = Gaze.map Lig.Read.identifierNibbler (fun identifier -> identifier |> implode |> Identifier)
+let identifierTokenNibbler = Gaze.map Lig.Read.identifierNibbler (fun chars -> 
+    match chars |> implode |> identifier with
+    | Ok(identifier) -> Identifier(identifier)
+    | Error(_) -> todo //TODO fix this when Gaze works with Results instead of Options
+)
 
 let integerTokenNibbler = Gaze.map Lig.Read.integerNibbler (fun int64 -> Integer(int64))
 
