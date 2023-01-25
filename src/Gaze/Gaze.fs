@@ -26,6 +26,11 @@ let fromArray array = {
     offset = 0
 }
 
+let fromList list = {
+    content = List.toArray list
+    offset = 0
+}
+
 let isComplete gaze = gaze.offset >= Array.length(gaze.content)
 
 let peek gaze = 
