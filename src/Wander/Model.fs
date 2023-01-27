@@ -6,8 +6,6 @@ module Ligature.Wander.Model
 
 open Ligature
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 type WanderType =
 | Any
 | Unspecified
@@ -18,12 +16,14 @@ type WanderType =
 | Seq
 | Function
 | Graph
+| Nothing
 
 type WanderValue =
 | Integer of int64
 | String of string
 | Boolean of bool
 | Identifier of Identifier
+| Nothing
 
 type Parameter = {
     name: string
