@@ -9,7 +9,11 @@ open Ligature.Wander.Model
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let interpret (ast: Expression list) =
-    match List.head ast with
+let eval expression =
+    match expression with
     | Value(value) -> Ok(value)
-    | _ -> error "Could not interpret." None
+    | _ -> error $"Could not eval {expression}" None
+
+let interpret (ast: Expression list) =
+    let results = ast |> List.map eval
+    List.last results

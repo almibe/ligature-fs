@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="Model.fs" />
-    <Compile Include="WanderLexer.fs" />
     <Compile Include="WanderParser.fs" />
     <Compile Include="WanderInterpreter.fs" />
     <Compile Include="Wander.fs" />

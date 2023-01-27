@@ -4,14 +4,10 @@
 
 module Ligature.Wander.Main
 
-open Ligature
-
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let run (input: string) =
-    match Wander.Lexer.tokenize input with
-    | Ok(tokens) ->
-        match Parser.parse tokens with
-        | Ok(ast) -> Interpreter.interpret ast
-        | Error(err) -> Error(err)
+    match Parser.parse input with
+    | Ok(ast) ->
+        Interpreter.interpret ast
     | Error(err) -> Error(err)
