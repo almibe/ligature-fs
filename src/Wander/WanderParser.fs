@@ -9,32 +9,6 @@ open Ligature.Wander.Model
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-// type WanderToken =
-// | Boolean of bool
-// | WhiteSpace of string
-// | Identifier of Identifier
-// | Integer of int64
-// | Comment of string 
-// | NewLine of string
-// | StringLiteral of string
-// | BytesLiteral of byte array
-// | LetKeyword
-// | EqualSign
-// | Name of string
-// | OpenBrace
-// | CloseBrace
-// | Colon
-// | OpenParen
-// | CloseParen
-// | OpenSquare
-// | CloseSquare
-// | Arrow
-// | Dot
-// | QuestionMark
-// | IfKeyword
-// | ElsifKeyword
-// | ElseKeyword
-
 let implode (chars: char list) =
     chars
     |> Array.ofList
@@ -74,22 +48,19 @@ let commentNibbler = Nibblers.takeAll [
 
 // let whiteSpaceNibbler = Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> WhiteSpace)
 
-// let createNameOrKeyword (name: string) =
-//     match name with
-//     | "if" -> IfKeyword
-//     | "elsif" -> ElsifKeyword
-//     | "else" -> ElseKeyword
-//     | "let" -> LetKeyword
-//     | "true" -> Boolean(true)
-//     | "false" -> Boolean(false)
-//     | _ -> Name(name)
+let strToBool str =
+    match str with
+    | "true" -> true
+    | _ -> false
 
-// let nameOrKeywordTokenNibbler = Gaze.map nameNibbler (fun chars -> 
-//     chars
-//     |> List.concat
-//     |> implode
-//     |> createNameOrKeyword
-// )
+let booleanNibbler = Gaze.map (Nibblers.takeFirst [
+    (Nibblers.takeString "true")
+    (Nibblers.takeString "false")]) (fun chars ->
+    chars
+    |> implode
+    |> strToBool
+    |> Boolean
+    |> Value)
 
 // let tokenNibbler = Nibblers.repeat(Nibblers.takeFirst([
 //     whiteSpaceNibbler
@@ -121,6 +92,11 @@ let commentNibbler = Nibblers.takeAll [
 //     | Some(tokens) -> Ok(tokens)
 //     | None -> error "Could not read token" None
 
+let whiteSpaceNibbler = Gaze.map (Nibblers.takeFirst [
+    Nibblers.repeat (Nibblers.takeString " ")
+    Nibblers.repeat (Nibblers.takeString "\n")
+    Nibblers.repeat (Nibblers.takeString "\r\n")]) (fun _ -> None)
+
 let integerNibbler = Gaze.map Lig.Read.integerNibbler (fun value -> 
     value 
     |> Integer 
@@ -128,7 +104,9 @@ let integerNibbler = Gaze.map Lig.Read.integerNibbler (fun value ->
     )
 
 let parserNibbler = Nibblers.repeat (Nibblers.takeFirst [
+    //whiteSpaceNibbler
     integerNibbler
+    booleanNibbler
     nameNibbler
     ])
 
@@ -145,9 +123,6 @@ let parse input: Result<list<Expression>, LigatureError> =
 // open Ligature
 // open Lexer
 
-// let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-// let nextName tokens index = todo
 
 // // let nextLetStatement tokens index =
 // //     if (not tokens[index] = LetKeyword) || (not tokens[index+2] = EqualSign) then

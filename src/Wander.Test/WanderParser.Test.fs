@@ -23,7 +23,7 @@ let tests =
         testCase "parse booleans" <| fun _ ->
             Expect.equal (parse "true") (Ok([Value(Boolean(true))])) ""
             Expect.equal (parse "false")  (Ok([Value(Boolean(false))])) ""
-        testCase "parse whitespace" <| fun _ ->
+        ftestCase "parse whitespace" <| fun _ ->
             Expect.equal (parse " ") (Ok([])) ""
             Expect.equal (parse "   ") (Ok([])) ""
             //Expect.equal (parse "\t") (Ok([WhiteSpace("\t")])) ""
