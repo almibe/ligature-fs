@@ -10,7 +10,9 @@ open Wander.Parser
 open Wander.Lexer
 open Wander.Model
 
-let ident id = Identifier(match identifier id with | Ok(v) -> v | Error(_) -> todo)
+let unsafe result = match result with Ok(v) -> v | Error(_) -> todo
+
+let ident id = Identifier(unsafe (identifier id))
 
 [<Tests>]
 let tests =
@@ -19,6 +21,10 @@ let tests =
             let tokens = [WanderToken.Integer(345)]
             let ast = parse tokens
             Expect.equal ast (Ok([Value(Integer(345))])) ""
+        testCase "Parse Let Statements" <| fun _ ->
+            let tokens = Wander.Lexer.tokenize "let x = 5"
+            let ast = parse (unsafe tokens)
+            Expect.equal ast (Ok([LetStatement("x", Value(Integer(5)))])) ""
         // testCase "Parse Integer" <| fun _ ->
         //     Expect.equal (parse "123") (Ok([Value(Integer(123))])) ""
         //     Expect.equal (parse "0") (Ok([Value(Integer(0))])) ""

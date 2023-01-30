@@ -11,7 +11,7 @@ open Lexer
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let integerNibbler =
-    Nibblers.takeCond (fun (token: WanderToken) ->
+    Nibblers.takeCond (fun token ->
         match token with
         | Integer(_) -> true
         | _ -> false)
@@ -43,8 +43,25 @@ let valueNibbler =
         | Identifier(i) -> Value(WanderValue.Identifier(i))
         | _ -> todo) //error $"Token {e} can not start an expression or statement." None)
 
+let nameNibbler =
+    Nibblers.takeCond (fun token ->
+        match token with
+        | Name(_) -> true
+        | _ -> false)
+
+let letStatementNibbler = 
+    Gaze.map (Nibblers.takeAll [
+        Nibblers.take LetKeyword
+        nameNibbler
+        Nibblers.take EqualSign
+        integerNibbler
+        ]) (fun tokens -> 
+            match tokens with
+            | [_; Name(name); _; Integer(i)] -> LetStatement(name, Value(WanderValue.Integer(i)))
+            | _ -> todo)
+
 let expressionNibbler =
-    Nibblers.repeat valueNibbler
+    Nibblers.repeat (Nibblers.takeFirst [valueNibbler; letStatementNibbler])
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>

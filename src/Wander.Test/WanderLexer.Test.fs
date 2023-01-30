@@ -18,6 +18,7 @@ let tests =
             Expect.equal (tokenize "0") (Ok([Integer(0)])) ""
             Expect.equal (tokenize "-4123") (Ok([Integer(-4123)])) ""
         testCase "Read Names" <| fun _ ->
+            Expect.equal (tokenize "x") (Ok([Name("x")])) ""
             Expect.equal (tokenize "hello") (Ok([Name("hello")])) ""
         testCase "tokenize booleans" <| fun _ ->
             Expect.equal (tokenize "true") (Ok([Boolean(true)])) ""
@@ -75,5 +76,8 @@ let tests =
             Expect.equal (tokenize "else") (Ok([ElseKeyword])) ""
         testCase "read question mark" <| fun _ ->
             Expect.equal (tokenize "?") (Ok([QuestionMark])) ""
+        testCase "read simple let statement" <| fun _ ->
+            let ws = WhiteSpace(" ")
+            Expect.equal (tokenize "let x = 5") (Ok([LetKeyword; ws; Name("x"); ws; EqualSign; ws; Integer(5)])) ""
     ]
     
