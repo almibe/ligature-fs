@@ -18,21 +18,21 @@ let tests =
             let script = "1235"
             let result = run script
             Expect.equal result (Ok(Integer(1235))) ""
-        // testCase "Run String" <| fun _ ->
-        //     let script = "\"Hello\""
-        //     let result = run script
-        //     Expect.equal result (Ok(String("Hello"))) ""
-        // testCase "Run Booleans" <| fun _ ->
-        //     let script = "true"
-        //     let result = run script
-        //     Expect.equal result (Ok(Boolean(true))) ""
-        //     let script = "false"
-        //     let result = run script
-        //     Expect.equal result (Ok(Boolean(false))) ""
-        // testCase "Run Identifier" <| fun _ ->
-        //     let script = "<hello>"
-        //     let result = run script
-        //     Expect.equal result (Ok(ident "hello")) ""
+        testCase "Run String" <| fun _ ->
+            let script = "\"Hello\""
+            let result = run script
+            Expect.equal result (Ok(String("Hello"))) ""
+        testCase "Run Booleans" <| fun _ ->
+            let script = "true"
+            let result = run script
+            Expect.equal result (Ok(Boolean(true))) ""
+            let script = "false"
+            let result = run script
+            Expect.equal result (Ok(Boolean(false))) ""
+        testCase "Run Identifier" <| fun _ ->
+            let script = "<hello>"
+            let result = run script
+            Expect.equal result (Ok(ident "hello")) ""
         // testCase "Handle WhiteSpace" <| fun _ ->
         //     let script = "  \n  5   "
         //     let result = run script

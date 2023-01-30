@@ -76,3 +76,4 @@ let tests =
         testCase "read question mark" <| fun _ ->
             Expect.equal (tokenize "?") (Ok([QuestionMark])) ""
     ]
+    

@@ -10,30 +10,46 @@ open Lexer
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let nextToken (tokens: WanderToken array) index =
-    match tokens[index] with
-    | Integer(value) -> Ok((Value(WanderValue.Integer(value)), index + 1))
-    | StringLiteral(value) -> Ok((Value(WanderValue.String(value))), index + 1)
-    | Boolean(value) -> Ok((Value(WanderValue.Boolean(value))), index + 1)
-    | Identifier(value) -> Ok((Value(WanderValue.Identifier(value))), index + 1)
-    | e -> error $"Token {e} can not start an expression or statement." None
+let integerNibbler =
+    Nibblers.takeCond (fun (token: WanderToken) ->
+        match token with
+        | Integer(_) -> true
+        | _ -> false)
+
+let stringNibbler =
+    Nibblers.takeCond (fun token ->
+        match token with
+        | StringLiteral(_) -> true
+        | _ -> false)
+
+let booleanNibbler =
+    Nibblers.takeCond (fun token ->
+        match token with
+        | Boolean(_) -> true
+        | _ -> false)
+
+let identifierNibbler = 
+    Nibblers.takeCond (fun token ->
+        match token with
+        | Identifier(_) -> true
+        | _ -> false)
+
+let valueNibbler =
+    Gaze.map (Nibblers.takeFirst [ integerNibbler; stringNibbler; booleanNibbler; identifierNibbler ]) (fun token ->
+        match token with
+        | Integer(i) -> Value(WanderValue.Integer(i))
+        | StringLiteral(s) -> Value(WanderValue.String(s))
+        | Boolean(b) -> Value(WanderValue.Boolean(b))
+        | Identifier(i) -> Value(WanderValue.Identifier(i))
+        | _ -> todo) //error $"Token {e} can not start an expression or statement." None)
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
 let parse (tokens: Lexer.WanderToken list) =
-    let tokens = List.toArray tokens
-    let mutable index = 0
-    let mutable ast = []
-    let mutable error = None
-    while index < (Array.length tokens) && error.IsNone do
-        let nextToken = nextToken tokens index
-        match nextToken with
-        | Error(err) -> error <- Some(err)
-        | Ok((token, newIndex)) -> 
-            ast <- List.append ast [token]
-            index <- newIndex
-    match error with
-    | None -> Ok(ast)
-    | Some(err) -> Error(err)
-    
+    let gaze = Gaze.fromList tokens
+    let res = Gaze.attempt valueNibbler gaze
+
+    match res with
+    | Some(ast) -> Ok([ ast ])
+    | None -> todo
