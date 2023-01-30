@@ -33,14 +33,14 @@ let tests =
             let script = "<hello>"
             let result = run script
             Expect.equal result (Ok(ident "hello")) ""
-        // testCase "Handle WhiteSpace" <| fun _ ->
-        //     let script = "  \n  5   "
-        //     let result = run script
-        //     Expect.equal result (Ok(Integer(5))) ""
-        // testCase "Handle Multiple Values and White Space" <| fun _ ->
-        //     let script = " 1  true  \n  \"hello\" \r\n 5  321 \n"
-        //     let result = run script
-        //     Expect.equal result (Ok(Integer(321))) ""
+        testCase "Handle WhiteSpace" <| fun _ ->
+            let script = "  \n  5   "
+            let result = run script
+            Expect.equal result (Ok(Integer(5))) ""
+        testCase "Handle Multiple Values and White Space" <| fun _ ->
+            let script = " 1  true  \n  \"hello\" \r\n 5  321 \n"
+            let result = run script
+            Expect.equal result (Ok(Integer(321))) ""
         // testCase "Let Statement" <| fun _ ->
         //     let script = "let x = 5"
         //     let result = run script

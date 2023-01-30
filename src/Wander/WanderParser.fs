@@ -43,13 +43,17 @@ let valueNibbler =
         | Identifier(i) -> Value(WanderValue.Identifier(i))
         | _ -> todo) //error $"Token {e} can not start an expression or statement." None)
 
+let expressionNibbler =
+    Nibblers.repeat valueNibbler
+
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
 let parse (tokens: Lexer.WanderToken list) =
+    let tokens = List.filter (fun token -> match token with | WhiteSpace(_) | NewLine(_) -> false | _ -> true) tokens
     let gaze = Gaze.fromList tokens
-    let res = Gaze.attempt valueNibbler gaze
+    let res = Gaze.attempt expressionNibbler gaze
 
     match res with
-    | Some(ast) -> Ok([ ast ])
+    | Some(ast) -> Ok(ast)
     | None -> todo
