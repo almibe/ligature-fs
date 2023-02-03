@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Bindings.Test.fs" />
     <Compile Include="WanderLexer.Test.fs" />
     <Compile Include="WanderParser.Test.fs" />
     <Compile Include="Wander.Test.fs" />
