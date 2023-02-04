@@ -25,6 +25,10 @@ let tests =
             let tokens = Wander.Lexer.tokenize "let x = 5"
             let ast = parse (unsafe tokens)
             Expect.equal ast (Ok([LetStatement("x", Value(Integer(5)))])) ""
+        testCase "Parse Let Statement with Name" <| fun _ ->
+            let tokens = Wander.Lexer.tokenize "let x = 5\nx"
+            let ast = parse (unsafe tokens)
+            Expect.equal ast (Ok([LetStatement("x", Value(Integer(5))); Name("x")])) ""
         // testCase "Parse Integer" <| fun _ ->
         //     Expect.equal (parse "123") (Ok([Value(Integer(123))])) ""
         //     Expect.equal (parse "0") (Ok([Value(Integer(0))])) ""

@@ -41,8 +41,12 @@ let tests =
             let script = " 1  true  \n  \"hello\" \r\n 5  321 \n"
             let result = run script
             Expect.equal result (Ok(Integer(321))) ""
-        // testCase "Let Statement" <| fun _ ->
-        //     let script = "let x = 5"
-        //     let result = run script
-        //     Expect.equal result (Ok(Nothing)) ""
+        testCase "Let Statement" <| fun _ ->
+            let script = "let x = 5"
+            let result = run script
+            Expect.equal result (Ok(Nothing)) ""
+        testCase "Let Statement with Value Reference" <| fun _ ->
+            let script = "let x = 5\nx"
+            let result = run script
+            Expect.equal result (Ok(Integer(5))) ""
     ]

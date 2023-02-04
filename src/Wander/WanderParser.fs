@@ -49,6 +49,9 @@ let nameNibbler =
         | Name(_) -> true
         | _ -> false)
 
+let nameExpressionNibbler =
+    Gaze.map nameNibbler (fun name -> match name with | Name(name) -> Expression.Name(name) | _ -> todo)
+
 let letStatementNibbler = 
     Gaze.map (Nibblers.takeAll [
         Nibblers.take LetKeyword
@@ -61,7 +64,7 @@ let letStatementNibbler =
             | _ -> todo)
 
 let expressionNibbler =
-    Nibblers.repeat (Nibblers.takeFirst [valueNibbler; letStatementNibbler])
+    Nibblers.repeat (Nibblers.takeFirst [valueNibbler; letStatementNibbler; nameExpressionNibbler])
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
