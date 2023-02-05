@@ -2,19 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Test
+module Ligature.InMemory.Test
+
 open Expecto
-open Ligature
-open LigatureInMemory
+open Ligature.TestSuite
 
 [<Tests>]
-let tests =
-  testList "Datasets Tests" [
-    testCase "Start with no Datasets" <| fun _ ->
-      let instance = new LigatureInMemory() :> Ligature
-      let datasets = instance.AllDatasets()
-      Expect.equal (datasets) (Ok Array.empty) "Datasets should be empty."
-  ]
+let tests = ligatureTestSuite ()
 
 [<EntryPoint>]
 let main argv =
