@@ -5,12 +5,11 @@
 module Ligature.TestSuite
 open Expecto
 open Ligature
-open LigatureInMemory
 
-let ligatureTestSuite = fun () ->
+let ligatureTestSuite (createInstance: Unit -> Ligature) =
   testList "Datasets Tests" [
     testCase "Start with no Datasets" <| fun _ ->
-      let instance = new LigatureInMemory.LigatureInMemory() :> Ligature
+      let instance = createInstance ()
       let datasets = instance.AllDatasets()
       Expect.equal (datasets) (Ok Array.empty) "Datasets should be empty."
   ]
