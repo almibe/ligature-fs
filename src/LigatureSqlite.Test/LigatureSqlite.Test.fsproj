@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
+    <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     <ProjectReference Include="..\LigatureTestSuite\LigatureTestSuite.fsproj" />
   </ItemGroup>
 

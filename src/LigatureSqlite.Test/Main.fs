@@ -2,14 +2,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.LiteDB.Test
+module Ligature.Sqlite.Test
 
 open Expecto
 open Ligature.TestSuite
 
 [<Tests>]
-let tests = ligatureTestSuite (fun () -> new Ligature.LiteDB.LigatureLiteDB())
+let tests = ligatureTestSuite (fun () ->
+    let instance = new LigatureSqlite()
+    instance.initialize () |> ignore
+    instance)
 
 [<EntryPoint>]
 let main argv =
-    Tests.runTestsInAssembly defaultConfig argv
+    runTestsInAssembly defaultConfig argv
