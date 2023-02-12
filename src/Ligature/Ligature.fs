@@ -7,8 +7,8 @@ module Ligature
 open System.Text.RegularExpressions
 
 type LigatureError = { 
-    userMessage: System.String
-    debugMessage: System.String option
+    userMessage: string
+    debugMessage: string option
 }
 
 let error userMessage debugMessage = Error({
@@ -16,11 +16,11 @@ let error userMessage debugMessage = Error({
     debugMessage = debugMessage
 })
 
-type Dataset = private Dataset of System.String
+type Dataset = private Dataset of string
 
 let datasetPattern = Regex(@"^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$", RegexOptions.Compiled)
 
-let invalidDataset (datasetName: System.String) =
+let invalidDataset (datasetName: string) =
     error $"Invalid Dataset name, {datasetName}" None
 
 let dataset name = 
@@ -33,11 +33,11 @@ let readDataset dataset =
     match dataset with
     | Dataset(name) -> name
 
-type Identifier = private Identifier of System.String
+type Identifier = private Identifier of string
 
 let identifierPattern = Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
 
-let invalidIdentifier (id: System.String) = 
+let invalidIdentifier (id: string) = 
     error $"Invalid Identifier, {id}" None
 
 let identifier id =
@@ -52,7 +52,7 @@ let readIdentifier (identifier: Identifier) =
 
 type Value =
     | Identifier of Identifier
-    | String of System.String
+    | String of string
     | Integer of int64
     //TODO add Bytes
 
@@ -64,7 +64,7 @@ type Statement = {
 
 type QueryTx =
     abstract member AllStatements: unit -> Result<Statement array, LigatureError>
-    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Statement array
+    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Result<Statement array, LigatureError>
     //TODO add MatchStatementsRange
     
 type WriteTx =
@@ -72,15 +72,15 @@ type WriteTx =
     abstract member AddStatement: Statement -> Result<unit, LigatureError>
     abstract member RemoveStatement: Statement -> Result<unit, LigatureError>
 
-type Query<'r> = QueryTx -> 'r
+type Query<'r> = QueryTx -> Result<'r, LigatureError>
 
-type Write = WriteTx -> unit
+type Write = WriteTx -> Result<unit, LigatureError>
 
 type Ligature =
     abstract member AllDatasets: unit -> Result<Dataset array, LigatureError>
-    abstract member DatasetExists: Dataset -> bool
+    abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
     abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
     abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
-    abstract member Query: Dataset -> Query<'r> -> 'r
-    abstract member Write: Dataset -> Write -> unit
+    abstract member Query: Dataset -> Query<'r> -> Result<'r, LigatureError>
+    abstract member Write: Dataset -> Write -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
