@@ -62,28 +62,31 @@ type LigatureSqlite() =
                 |> Db.newCommand sql
                 |> Db.setParams param
                 |> Db.query (fun x -> x.ReadString "name")
-            todo
+            match results with
+            | Ok(results) -> results.Length > 0 |> Ok
+            | Error(_) -> Ok false
         member this.CreateDataset dataset =
             let instance = this :> Ligature
-            if instance.DatasetExists dataset then
-                todo
-            else
+            match instance.DatasetExists dataset with
+            | Ok(true) -> todo
+            | Ok(false) ->
                 let sql = "insert into dataset (name) values (@name)"
                 let param = [ "name", SqlType.String (readDataset dataset) ]
                 let results =
                     conn
                     |> Db.newCommand sql
                     |> Db.setParams param
-                    |> Db.query (fun x -> x.ReadString "name")
+                    |> Db.exec
                 match results with
-                | Ok(results) -> todo
-                | Error(error) -> todo
+                | Ok(_) -> Ok ()
+                | Error(_) -> error $"Could not create dataset {dataset}" None
+            | Error(error) -> Error(error)
         member this.RemoveDataset dataset =
             let instance = this :> Ligature
-            if instance.DatasetExists dataset then
-                todo
-            else
-                todo
+            match instance.DatasetExists dataset with
+            | Ok(true) -> todo
+            | Ok(false) -> todo
+            | Error(error) -> Error(error)
         member this.Query dataset query = todo
         member this.Write dataset write = todo
         member this.Close () =
