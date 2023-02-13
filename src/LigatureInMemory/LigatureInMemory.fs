@@ -8,29 +8,69 @@ open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
+type LigatureInMemoryQueryTx (statements: Set<Statement>) =
+    interface QueryTx with
+        member _.AllStatements () =
+            Ok (Array.ofSeq statements)
+        member _.MatchStatements entity attribute value =
+            let results =
+                match entity with
+                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) statements
+                | None -> statements
+            let results = 
+                match attribute with
+                | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
+                | None -> results
+            let results =
+                match value with
+                | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
+                | None -> results
+            Array.ofSeq results |> Ok
+
+type LigatureInMemoryWriteTx(dataset: Dataset, datasets: Map<Dataset, Set<Statement>> ref) =
+    interface WriteTx with
+        member _.NewIdentifier () =
+            todo
+        member _.AddStatement statement =
+            let statements = Map.find dataset datasets.Value
+            let statements = Set.add statement statements
+            datasets.Value <- Map.add dataset statements datasets.Value
+            Ok ()
+        member _.RemoveStatement statement =
+            let statements = Map.find dataset datasets.Value
+            let statements = Set.remove statement statements
+            datasets.Value <- Map.add dataset statements datasets.Value
+            Ok ()
+
 type LigatureInMemory() =
-    let datasets: Set<Dataset> ref = ref Set.empty
+    let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
     interface Ligature with
-        member this.AllDatasets ()  =
-            Ok (Set.toArray datasets.Value) //Ok datasets.Value
-        member this.DatasetExists dataset =
-            todo
+        member _.AllDatasets ()  =
+            Ok (Map.keys datasets.Value |> Seq.cast |> Array.ofSeq) //Ok datasets.Value
+        member _.DatasetExists dataset =
+            Map.containsKey dataset datasets.Value |> Ok
         member this.CreateDataset dataset = 
             lock this (fun () ->
-                datasets.Value <- Set.add dataset datasets.Value
+                datasets.Value <- Map.add dataset Set.empty datasets.Value//Set.add dataset datasets.Value
                 Ok ()
             )
         member this.RemoveDataset dataset =
             lock this (fun () ->
-                datasets.Value <- Set.remove dataset datasets.Value
+                datasets.Value <- Map.remove dataset datasets.Value
                 Ok ()
             )
-        member this.Query dataset query = todo //-> int -> int = failwith "" //TODO this is wrong
-        member this.Write dataset write = todo //-> int -> int = failwith "" //TODO this is wrong
+        member _.Query dataset query =
+            let tx = new LigatureInMemoryQueryTx (Map.find dataset datasets.Value)
+            query tx
+        member this.Write dataset write =
+            lock this (fun () ->
+                let tx = new LigatureInMemoryWriteTx (dataset, datasets)
+                write tx
+            )
         member this.Close () =
             lock this (fun () ->
                 isOpen <- false
-                datasets.Value <- Set.empty
+                datasets.Value <- Map.empty
                 Ok ()            
             )
