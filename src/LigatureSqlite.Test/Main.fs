@@ -4,6 +4,7 @@
 
 module Ligature.Sqlite.Test
 
+open Ligature.Sqlite.Main
 open Expecto
 open Ligature.TestSuite
 
