@@ -63,8 +63,8 @@ type Statement = {
 }
 
 type QueryTx =
-    abstract member AllStatements: unit -> Result<Statement array, LigatureError>
-    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Result<Statement array, LigatureError>
+    abstract member AllStatements: unit -> Result<Statement list, LigatureError>
+    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
     //TODO add MatchStatementsRange
     
 type WriteTx =
@@ -77,7 +77,7 @@ type Query<'r> = QueryTx -> Result<'r, LigatureError>
 type Write = WriteTx -> Result<unit, LigatureError>
 
 type Ligature =
-    abstract member AllDatasets: unit -> Result<Dataset array, LigatureError>
+    abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
     abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
     abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
     abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
