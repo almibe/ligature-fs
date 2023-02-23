@@ -4,6 +4,8 @@
 
 namespace LigatureDesktop
 
+open Ligature.InMemory
+
 module Datasets =
     open Ligature
     open Avalonia.FuncUI
@@ -22,7 +24,7 @@ module Datasets =
     let createModel () = { 
         Datasets = []
         Output = ""
-        Ligature = new LigatureInMemory.LigatureInMemory() :> Ligature
+        Ligature = new LigatureInMemory() :> Ligature
         NewDataset = ""
         SelectedDataset = ""
         }
