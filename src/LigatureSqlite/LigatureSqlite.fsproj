@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
     <PackageReference Include="Donald" Version="9.0.1" />
   </ItemGroup>

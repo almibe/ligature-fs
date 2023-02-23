@@ -13,18 +13,34 @@ open Donald
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let rec makeDatasets (names: string list) (datasets: Dataset array): Result<Dataset array, LigatureError> =
+let rec makeDatasets (names: string list) (datasets: Dataset list): Result<Dataset list, LigatureError> =
     if List.isEmpty names then
         Ok (datasets)
     else
         match dataset (List.head names) with
-        | Ok(dataset) -> makeDatasets (List.tail names) (Array.append datasets [|dataset|])
+        | Ok(dataset) -> makeDatasets (List.tail names) (List.append datasets [dataset])
         | Error(error) -> Error(error)
 
-type LigatureSqlite() =
+type LigatureSqlite() = //(datasource: string) =
     let datasetDataReader (rd : IDataReader) : string = rd.ReadString "name"
     let conn = new SQLiteConnection("Data Source=:memory:")
-    member this.initialize () =
+//    let confBuilder = new SQLiteConnectionStringBuilder()
+//    do
+//        confBuilder.DataSource = datasource
+    //let conn = new SQLiteConnection("Data Source=test.sqlite3")
+    let lookupDataset dataset tx: Result<int64, LigatureError> =
+        let sql = "select rowid, name from dataset where name = @name"
+        let param = [ "name", SqlType.String (readDataset dataset) ]
+        let results =
+            conn
+            |> Db.newCommand sql
+            |> Db.setTransaction tx
+            |> Db.setParams param
+            |> Db.query (fun x -> x.ReadInt64 "rowid", x.ReadString "name") //TODO use Db.read not Db.query
+        match results with
+        | Ok([result]) -> Ok (fst result)
+        | _ -> error $"Could not lookup Dataset {dataset}" None
+    member _.initialize () =
         let sql = "
         create table if not exists dataset (
         name String not null
@@ -55,7 +71,7 @@ type LigatureSqlite() =
                 |> Db.newCommand sql
                 |> Db.query datasetDataReader
             match results with
-            | Ok(results) -> makeDatasets results Array.empty //Ok (List.toArray results)
+            | Ok(results) -> makeDatasets results List.empty //Ok (List.toArray results)
             | Error(_) -> error "Oops" None
 
         member _.DatasetExists dataset =
@@ -73,7 +89,7 @@ type LigatureSqlite() =
         member this.CreateDataset dataset =
             let instance = this :> Ligature
             match instance.DatasetExists dataset with
-            | Ok(true) -> todo
+            | Ok(true) -> Ok ()
             | Ok(false) ->
                 let sql = "insert into dataset (name) values (@name)"
                 let param = [ "name", SqlType.String (readDataset dataset) ]
@@ -104,16 +120,28 @@ type LigatureSqlite() =
             | Ok(false) -> Ok ()
             | Error(error) -> Error(error)
         
-        member this.Query dataset query =
+        member _.Query dataset query =
             let dbTx = conn.TryBeginTransaction()
-            let tx = new LigatureSqliteQueryTx(dataset, conn, dbTx)
-            query tx
+            let datasetId = lookupDataset dataset dbTx
+            match datasetId with
+            | Ok(id) ->
+                let tx = new LigatureSqliteQueryTx(dataset, id, conn, dbTx)
+                let res = query tx
+                dbTx.Rollback()
+                res
+            | Error(err) -> Error(err)
         
-        member this.Write dataset write =
+        member _.Write dataset write =
             let dbTx = conn.TryBeginTransaction()
-            let tx = new LigatureSqliteWriteTx(dataset, conn, dbTx)
-            write tx
+            let datasetId = lookupDataset dataset dbTx
+            match datasetId with
+            | Ok(id) ->
+                let tx = new LigatureSqliteWriteTx(dataset, id, conn, dbTx)
+                write tx
+                dbTx.Commit()
+                Ok ()
+            | Error(err) -> Error(err)
         
-        member this.Close () =
+        member _.Close () =
             conn.Close()
             Ok ()
