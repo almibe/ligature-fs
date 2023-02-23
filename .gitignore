@@ -3,3 +3,4 @@ obj/
 *.fs.js
 .fake
 *.trx
+*.sqlite3
