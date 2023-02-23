@@ -35,18 +35,18 @@ let ligatureTestSuite (createInstance: Unit -> Ligature) =
     let jvNumber = statement "character:1" "prisonerNumber" (Integer 24601)
     let javertName = statement "character:2" "name" (String "Inspector Javert")
     let nemesis = statement "character:2" "hasNemesis" (id "character:1" |> Identifier) 
-    let statements = Array.sort [|jvName; jvNumber; javertName; nemesis|]
+    let statements = List.sort [jvName; jvNumber; javertName; nemesis]
 
     testList "Ligature Test Suite" [
         testCase "start with no Datasets" <| fun _ ->
             let instance = createInstance ()
             let datasets = instance.AllDatasets()
-            Expect.equal (datasets) (Ok Array.empty) "Datasets should be empty."
+            Expect.equal (datasets) (Ok List.empty) "Datasets should be empty."
         testCase "add a Dataset" <| fun _ ->
             let instance = createInstance ()
             instance.CreateDataset (helloDS) |> ignore
             let datasets = instance.AllDatasets()
-            Expect.equal (datasets) (Ok [|helloDS|]) "Dataset should contain hello Dataset."
+            Expect.equal (datasets) (Ok [helloDS]) "Dataset should contain hello Dataset."
         testCase "check if Dataset exists" <| fun _ ->
             let instance = createInstance ()
             Expect.equal (instance.DatasetExists helloDS) (Ok false) "Dataset shouldn't exist before adding."
@@ -62,50 +62,75 @@ let ligatureTestSuite (createInstance: Unit -> Ligature) =
             instance.RemoveDataset helloDS |> ignore
             instance.RemoveDataset hello3DS |> ignore
             let datasets = instance.AllDatasets ()
-            Expect.equal datasets (Ok [|hello2DS|]) "Dataset should only contain hello2 Dataset."
+            Expect.equal datasets (Ok [hello2DS]) "Dataset should only contain hello2 Dataset."
 
         testCase "new Dataset should be empty" <| fun _ ->
             let instance = createInstance ()
             instance.CreateDataset (helloDS) |> ignore
             let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
-            Expect.equal result (Ok [||]) "Newly created Dataset should be empty."
-        testCase "add new Statements to Dataset" <| fun _ ->
+            Expect.equal result (Ok []) "Newly created Dataset should be empty."
+        testCase "add Statement with Identifier Value to instance" <| fun _ ->
             let instance = createInstance ()
-            instance.CreateDataset (helloDS) |> ignore
-            instance.Write helloDS (fun tx -> Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements; Ok ()) |> ignore
+            Expect.isOk (instance.CreateDataset (helloDS)) ""
+            let statement = statement "a" "b" (Identifier (id "a"))
+            let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+            Expect.isOk writeRes "Could not write statements."
             let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
-            let result = Result.map (fun statements -> Array.sort statements) result
+            Expect.equal result (Ok [statement]) "Dataset should contain new Statements."
+        testCase "add Statement with Integer Value to instance" <| fun _ ->
+            let instance = createInstance ()
+            Expect.isOk (instance.CreateDataset (helloDS)) ""
+            let statement = statement "a" "b" (Integer 12345)
+            let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+            Expect.isOk writeRes "Could not write statements."
+            let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
+            Expect.equal result (Ok [statement]) "Dataset should contain new Statements."
+        testCase "add Statement with String Value to instance" <| fun _ ->
+            let instance = createInstance ()
+            Expect.isOk (instance.CreateDataset (helloDS)) ""
+            let statement = statement "a" "b" (String "hello, world")
+            let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+            Expect.isOk writeRes "Could not write statements."
+            let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
+            Expect.equal result (Ok [statement]) "Dataset should contain new Statements."
+        testCase "add multiple Statements to Dataset" <| fun _ ->
+            let instance = createInstance ()
+            Expect.isOk (instance.CreateDataset (helloDS)) ""
+            let writeRes = instance.Write helloDS (fun tx -> List.iter (fun statement -> tx.AddStatement statement |> ignore) statements; Ok ())
+            Expect.isOk writeRes "Could not write statements."
+            let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
+            let result = Result.map (fun statements -> List.sort statements) result
             Expect.equal result (Ok statements) "Dataset should contain new Statements."
         testCase "add new Statements to Dataset with dupes" <| fun _ ->
             let instance = createInstance ()
             instance.CreateDataset (helloDS) |> ignore
             instance.Write helloDS (fun tx ->
-                Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements
+                List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
+                List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
+                List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
                 Ok ()) |> ignore
             let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
-            let result = Result.map (fun statements -> Array.sort statements) result
+            let result = Result.map (fun statements -> List.sort statements) result
             Expect.equal result (Ok statements) "Dataset should contain new Statements."
         //TODO - add new Identifier test
         testCase "removing Statements from Dataset" <| fun _ ->
             let instance = createInstance ()
             instance.CreateDataset (helloDS) |> ignore
             instance.Write helloDS (fun tx ->
-                Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements
+                List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
                 tx.RemoveStatement nemesis |> ignore
                 Ok ()) |> ignore
             let result = instance.Query helloDS (fun tx -> tx.AllStatements ())
-            let result = Result.map (fun statements -> Array.sort statements) result
-            Expect.equal result (Ok (Array.filter (fun statement -> statement = nemesis |> not) statements)) "Dataset should contain all but removed Statements."
+            let result = Result.map (fun statements -> List.sort statements) result
+            Expect.equal result (Ok (List.filter (fun statement -> statement = nemesis |> not) statements)) "Dataset should contain all but removed Statements."
         testCase "matching Statements in Dataset" <| fun _ ->
             let instance = createInstance ()
             instance.CreateDataset (helloDS) |> ignore
             instance.Write helloDS (fun tx ->
-                Array.iter (fun statement -> tx.AddStatement statement |> ignore) statements
+                List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
                 Ok ()) |> ignore
             let results = instance.Query helloDS (fun tx -> tx.MatchStatements None None None)
-            let results = Result.map (fun statements -> Array.sort statements) results
+            let results = Result.map (fun statements -> List.sort statements) results
             Expect.equal results (Ok statements) ""
             //TODO add more query cases
     ]
