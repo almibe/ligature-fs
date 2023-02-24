@@ -21,13 +21,8 @@ let rec makeDatasets (names: string list) (datasets: Dataset list): Result<Datas
         | Ok(dataset) -> makeDatasets (List.tail names) (List.append datasets [dataset])
         | Error(error) -> Error(error)
 
-type LigatureSqlite() = //(datasource: string) =
+type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
     let datasetDataReader (rd : IDataReader) : string = rd.ReadString "name"
-    let conn = new SQLiteConnection("Data Source=:memory:")
-//    let confBuilder = new SQLiteConnectionStringBuilder()
-//    do
-//        confBuilder.DataSource = datasource
-    //let conn = new SQLiteConnection("Data Source=test.sqlite3")
     let lookupDataset dataset tx: Result<int64, LigatureError> =
         let sql = "select rowid, name from dataset where name = @name"
         let param = [ "name", SqlType.String (readDataset dataset) ]
