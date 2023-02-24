@@ -11,7 +11,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 type LigatureInMemoryQueryTx (statements: Set<Statement>) =
     interface QueryTx with
         member _.AllStatements () =
-            Ok (Array.ofSeq statements)
+            Ok (List.ofSeq statements)
         member _.MatchStatements entity attribute value =
             let results =
                 match entity with
@@ -25,7 +25,7 @@ type LigatureInMemoryQueryTx (statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
-            Array.ofSeq results |> Ok
+            List.ofSeq results |> Ok
 
 type LigatureInMemoryWriteTx(dataset: Dataset, datasets: Map<Dataset, Set<Statement>> ref) =
     interface WriteTx with
@@ -47,7 +47,7 @@ type LigatureInMemory() =
     let mutable isOpen = true
     interface Ligature with
         member _.AllDatasets ()  =
-            Ok (Map.keys datasets.Value |> Seq.cast |> Array.ofSeq) //Ok datasets.Value
+            Ok (Map.keys datasets.Value |> Seq.cast |> List.ofSeq) //Ok datasets.Value
         member _.DatasetExists dataset =
             Map.containsKey dataset datasets.Value |> Ok
         member this.CreateDataset dataset = 
