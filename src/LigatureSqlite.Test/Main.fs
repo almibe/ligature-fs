@@ -7,13 +7,10 @@ module Ligature.Sqlite.Test
 open Ligature.Sqlite.Main
 open Expecto
 open Ligature.TestSuite
-open System.Data.SQLite
 
 [<Tests>]
-let tests = ligatureTestSuite (fun () ->
-    let instance = new LigatureSqlite(new SQLiteConnection("Data Source=:memory:"))
-    instance.initialize () |> ignore
-    instance)
+let tests =
+    ligatureTestSuite (fun () -> ligatureSqlite InMemory)
 
 [<EntryPoint>]
 let main argv =

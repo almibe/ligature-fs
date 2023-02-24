@@ -140,3 +140,19 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         member _.Close () =
             conn.Close()
             Ok ()
+
+type LigatureSqliteConfig =
+| InMemory
+| File of string
+
+let ligatureSqlite (config: LigatureSqliteConfig): Ligature =
+    let instance =
+        match config with
+        | InMemory -> 
+            new LigatureSqlite(new SQLiteConnection("Data Source=:memory:"))
+        | File(path) ->
+            let builder = new SQLiteConnectionStringBuilder()
+            builder.DataSource <- path
+            new LigatureSqlite(new SQLiteConnection(builder.ToString()))
+    instance.initialize () |> ignore
+    instance
