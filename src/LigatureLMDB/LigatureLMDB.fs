@@ -10,7 +10,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 type LigatureLMDB() =
     member this.initialize () =        
-        todo
+        ()
     interface Ligature with
         member this.AllDatasets ()  =
             Ok []
