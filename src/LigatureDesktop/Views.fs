@@ -17,33 +17,57 @@ module Views =
     let reportError (error: LigatureError) =
         printfn $"{error.userMessage}"
 
-    let datasets (state: IWritable<UIModel>) =
-        //Component(fun (ctx: IComponentContext) ->
-        
-        //)
+    let refreshDatasets (state: IWritable<UIModel>) =
+        let datasets = state.Current.Ligature.AllDatasets ()
+        match datasets with
+        | Ok(datasets) ->
+            let datasets = List.map (fun d -> readDataset d) datasets
+            state.Set { state.Current with Datasets = datasets }
+        | Error(err) -> reportError err
 
-        let refreshDatasets () =
-            let datasets = state.Current.Ligature.AllDatasets ()
-            match datasets with
-            | Ok(datasets) ->
-                let datasets = List.map (fun d -> readDataset d) datasets
-                state.Set { state.Current with Datasets = datasets }
-            | Error(err) -> reportError err
-
+    let addDatasetForm (state: IWritable<UIModel>) =
         let addDataset () =
             match dataset state.Current.NewDataset with
             | Ok(dataset) ->
                 match state.Current.Ligature.CreateDataset dataset with
-                | Ok () -> refreshDatasets ()
+                | Ok () -> refreshDatasets state
                 | Error(err) -> reportError err
             | Error(err) -> reportError err
-            
+    
+        StackPanel.create [
+            StackPanel.children [
+                TextBlock.create [
+                    TextBlock.text "Dataset Name:"
+                ]
+                TextBox.create [
+                    TextBox.onTextChanged (fun newDataset -> state.Set { state.Current with NewDataset = newDataset })
+                ]
+                Button.create [
+                    Button.content "Add"
+                    Button.onClick (fun _ -> addDataset ())
+                ]
+            ]
+        ]
+
+    let removeDatasetForm (state: IWritable<UIModel>) =
         let removeDataset () =
             let datasetName = state.Current.SelectedDataset
             printfn "remove"
 
         StackPanel.create [
-            StackPanel.dock Dock.Top
+        StackPanel.children [
+            TextBlock.create [
+                TextBlock.text "Remove?"
+            ]
+            Button.create [
+                Button.content "Yes"
+                Button.onClick (fun _ -> removeDataset ())
+            ]
+        ]
+    ]
+
+    let datasets (state: IWritable<UIModel>) =
+        StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
             StackPanel.children [
                 TextBlock.create [
@@ -64,22 +88,7 @@ module Views =
                     Button.flyout (
                         Flyout.create [
                             Flyout.placement FlyoutPlacementMode.Bottom
-                            Flyout.content (
-                                StackPanel.create [
-                                    StackPanel.children [
-                                        TextBlock.create [
-                                            TextBlock.text "Dataset Name:"
-                                        ]
-                                        TextBox.create [
-                                            TextBox.onTextChanged (fun newDataset -> state.Set { state.Current with NewDataset = newDataset })
-                                        ]
-                                        Button.create [
-                                            Button.content "Add"
-                                            Button.onClick (fun _ -> addDataset ())
-                                        ]
-                                    ]
-                                ]
-                            )
+                            Flyout.content (addDatasetForm state)
                         ]
                     )
                 ]
@@ -90,19 +99,7 @@ module Views =
                     Button.flyout (
                         Flyout.create [
                             Flyout.placement FlyoutPlacementMode.Bottom
-                            Flyout.content (
-                                StackPanel.create [
-                                    StackPanel.children [
-                                        TextBlock.create [
-                                            TextBlock.text "Remove?"
-                                        ]
-                                        Button.create [
-                                            Button.content "Yes"
-                                            Button.onClick (fun _ -> removeDataset ())
-                                        ]
-                                    ]
-                                ]
-                            )
+                            Flyout.content (removeDatasetForm state)
                         ]
                     )
                 ]
@@ -110,7 +107,74 @@ module Views =
                     Button.verticalAlignment VerticalAlignment.Center
                     Button.margin (10, 0, 10, 0)
                     Button.content "Refresh Datasets"
-                    Button.onClick (fun _ -> refreshDatasets ())
+                    Button.onClick (fun _ -> refreshDatasets state)
+                ]
+            ]
+        ]
+
+    let actions (state: IWritable<UIModel>) =
+        StackPanel.create [
+            StackPanel.orientation Orientation.Horizontal
+            StackPanel.children [
+                TextBlock.create [
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.margin (10, 0, 0, 0)
+                    TextBlock.text "Action:"
+                ]
+                ComboBox.create [
+                    ComboBox.verticalAlignment VerticalAlignment.Center
+                    ComboBox.margin (5, 0, 10, 0)
+                    ComboBox.dataItems [
+                        "Query"
+                        "Add Statements"
+                        "Remove Statements"
+                    ]
+                    ComboBox.selectedIndex 0
+                ]
+                Button.create [
+                    Button.verticalAlignment VerticalAlignment.Center
+                    Button.margin (10, 0, 10, 0)
+                    Button.content "Run"
+                    //Button.onClick (fun _ -> refreshDatasets ())
+                ]
+                Button.create [
+                    Button.verticalAlignment VerticalAlignment.Center
+                    Button.margin (10, 0, 10, 0)
+                    Button.content "Clear"
+                    Button.onClick (fun _ -> state.Set { state.Current with Output = "" })
+                ]
+            ]
+        ]
+
+    let topControls (state: IWritable<UIModel>) =
+        StackPanel.create [
+            StackPanel.orientation Orientation.Vertical
+            DockPanel.dock Dock.Top
+            StackPanel.children [
+                datasets state
+                actions state
+            ]
+        ]
+
+    let editor (state: IWritable<UIModel>) =
+        Grid.create [
+            Grid.rowDefinitions "*, 1, *"
+            Grid.children [
+                TextBox.create [
+                    Grid.row 0
+                    TextBox.acceptsReturn true
+                    TextBox.classes [ "code" ]
+                ]
+                GridSplitter.create [
+                    Grid.row 1
+                    GridSplitter.background "Gray"
+                ]
+                TextBox.create [
+                    Grid.row 2
+                    TextBox.acceptsReturn true
+                    TextBox.classes [ "code" ]
+                    TextBox.isReadOnly true
+                    TextBox.text state.Current.Output
                 ]
             ]
         ]
@@ -122,61 +186,8 @@ module Views =
             
             DockPanel.create [
                 DockPanel.children [
-                    datasets (state)
-                    StackPanel.create [
-                        StackPanel.orientation Orientation.Horizontal
-                        DockPanel.dock Dock.Bottom
-                        StackPanel.children [
-                            TextBlock.create [
-                                TextBlock.verticalAlignment VerticalAlignment.Center
-                                TextBlock.margin (10, 0, 0, 0)
-                                TextBlock.text "Action:"
-                            ]
-                            ComboBox.create [
-                                ComboBox.verticalAlignment VerticalAlignment.Center
-                                ComboBox.margin (5, 0, 10, 0)
-                                ComboBox.dataItems [
-                                    "Query"
-                                    "Add Statements"
-                                    "Remove Statements"
-                                ]
-                                ComboBox.selectedIndex 0
-                            ]
-                            Button.create [
-                                Button.verticalAlignment VerticalAlignment.Center
-                                Button.margin (10, 0, 10, 0)
-                                Button.content "Run"
-                                //Button.onClick (fun _ -> refreshDatasets ())
-                            ]
-                            Button.create [
-                                Button.verticalAlignment VerticalAlignment.Center
-                                Button.margin (10, 0, 10, 0)
-                                Button.content "Clear"
-                                Button.onClick (fun _ -> state.Set { state.Current with Output = "" })
-                            ]
-                        ]
-                    ]
-                    Grid.create [
-                        Grid.rowDefinitions "*, 1, *"
-                        Grid.children [
-                            TextBox.create [
-                                Grid.row 0
-                                TextBox.acceptsReturn true
-                                TextBox.classes [ "code" ]
-                            ]
-                            GridSplitter.create [
-                                Grid.row 1
-                                GridSplitter.background "Gray"
-                            ]
-                            TextBox.create [
-                                Grid.row 2
-                                TextBox.acceptsReturn true
-                                TextBox.classes [ "code" ]
-                                TextBox.isReadOnly true
-                                TextBox.text state.Current.Output
-                            ]
-                        ]
-                    ]
+                    topControls state
+                    editor state
                 ]
             ]
         )
