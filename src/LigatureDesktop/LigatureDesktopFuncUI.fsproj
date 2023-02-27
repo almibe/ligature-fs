@@ -21,6 +21,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+        <ProjectReference Include="..\Lig\Lig.fsproj" />
+        <ProjectReference Include="..\Wander\Wander.fsproj" />
         <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
         <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     </ItemGroup>

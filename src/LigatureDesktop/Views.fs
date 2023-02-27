@@ -180,7 +180,7 @@ module Views =
         ]
 
     let main () =
-        let model = createModel ()
+        let model = initializeModel ()
         Component (fun (ctx: IComponentContext) ->
             let state = ctx.useState (model)
             

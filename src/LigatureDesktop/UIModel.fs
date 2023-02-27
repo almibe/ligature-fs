@@ -5,10 +5,6 @@
 namespace LigatureDesktop
 
 open Ligature
-open Avalonia.FuncUI
-open Avalonia.Controls
-open Avalonia.FuncUI.DSL
-open Avalonia.Layout
 open Ligature.Sqlite.Main
 
 module Model =
@@ -23,12 +19,22 @@ module Model =
     let defaultFile () =
         File "test.sqlite3"
 
+    /// This function initializes and returns an instance of UIModel.
+    /// Initialization includes querying all Datasets in the instance and
+    /// Selecting the first Dataset as the default.
+    let initializeModel () = 
+        let ligature = ligatureSqlite (defaultFile ())
+        let (output, selectedDataset, datasets) = 
+            match ligature.AllDatasets () with
+            | Ok(datasets) ->
+                let datasets = List.map (fun ds -> readDataset ds) datasets
+                ("", List.head datasets, datasets)
+            | Error(err) -> ($"Error\n{err.userMessage}\n{err.debugMessage}", "", [])
 
-    let createModel () = { 
-        Datasets = []
-        Output = ""
-        Ligature = ligatureSqlite (defaultFile ()) //InMemory// :> Ligature
-        NewDataset = ""
-        SelectedDataset = ""
+        {
+            Datasets = datasets
+            Output = output
+            Ligature = ligature
+            NewDataset = ""
+            SelectedDataset = selectedDataset
         }
-
