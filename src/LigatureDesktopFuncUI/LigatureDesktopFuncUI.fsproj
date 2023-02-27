@@ -6,7 +6,6 @@
 
     <ItemGroup>
         <Compile Include="Datasets.fs" />
-        <Compile Include="Shell.fs" />
         <Compile Include="Program.fs" />
         <AvaloniaResource Include="**\*.xaml" />
     </ItemGroup>
@@ -22,5 +21,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Ligature\Ligature.fsproj" />
         <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
+        <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     </ItemGroup>
 </Project>

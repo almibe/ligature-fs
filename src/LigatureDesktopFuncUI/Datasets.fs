@@ -4,7 +4,7 @@
 
 namespace LigatureDesktop
 
-open Ligature.InMemory
+open Ligature.Sqlite.Main
 
 module Datasets =
     open Ligature
@@ -21,25 +21,44 @@ module Datasets =
         NewDataset: string
     }
 
+    let defaultFile () =
+        File "test.sqlite3"
+
     let createModel () = { 
         Datasets = []
         Output = ""
-        Ligature = new LigatureInMemory() :> Ligature
+        Ligature = ligatureSqlite (defaultFile ()) //InMemory// :> Ligature
         NewDataset = ""
         SelectedDataset = ""
         }
 
-    let view =
-        Component.create("Datasets",fun (ctx: IComponentContext) ->
+    let view () =
+        Component (fun (ctx: IComponentContext) ->
             let state = ctx.useState (createModel ())
 
-            let addDataset () =
-                let datasetName = state.Current.NewDataset
-                let x = datasetName :: state.Current.Datasets
-                printfn "%A" x
-                state.Set { state.Current with Datasets = datasetName :: state.Current.Datasets }
-                printfn "test"
+            let reportError (error: LigatureError) =
+                printfn $"{error.userMessage}"
 
+            let refreshDatasets () =
+                let datasets = state.Current.Ligature.AllDatasets ()
+                match datasets with
+                | Ok(datasets) ->
+                    let datasets = List.map (fun d -> readDataset d) datasets
+                    state.Set { state.Current with Datasets = datasets }
+                | Error(err) -> reportError err
+
+            let addDataset () =
+                match dataset state.Current.NewDataset with
+                | Ok(dataset) ->
+                    match state.Current.Ligature.CreateDataset dataset with
+                    | Ok () -> refreshDatasets ()
+                    | Error(err) -> reportError err
+                | Error(err) -> reportError err
+                
+            let removeDataset () =
+                let datasetName = state.Current.SelectedDataset
+                printfn "remove"
+            
             DockPanel.create [
                 DockPanel.children [
                     StackPanel.create [
@@ -75,7 +94,7 @@ module Datasets =
                                                     ]
                                                     Button.create [
                                                         Button.content "Add"
-                                                        Button.onClick (fun x -> addDataset ())
+                                                        Button.onClick (fun _ -> addDataset ())
                                                     ]
                                                 ]
                                             ]
@@ -91,8 +110,16 @@ module Datasets =
                                     Flyout.create [
                                         Flyout.placement FlyoutPlacementMode.Bottom
                                         Flyout.content (
-                                            TextBlock.create [
-                                                TextBlock.text "Hi, I am flyout"
+                                            StackPanel.create [
+                                                StackPanel.children [
+                                                    TextBlock.create [
+                                                        TextBlock.text "Remove?"
+                                                    ]
+                                                    Button.create [
+                                                        Button.content "Yes"
+                                                        Button.onClick (fun _ -> removeDataset ())
+                                                    ]
+                                                ]
                                             ]
                                         )
                                     ]
@@ -102,7 +129,7 @@ module Datasets =
                                 Button.verticalAlignment VerticalAlignment.Center
                                 Button.margin (10, 0, 10, 0)
                                 Button.content "Refresh Datasets"
-                                //Button.onClick (fun _ -> refreshDatasets ())
+                                Button.onClick (fun _ -> refreshDatasets ())
                             ]
                         ]
                     ]
