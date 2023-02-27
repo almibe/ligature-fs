@@ -20,7 +20,7 @@ module Shell =
             base.Height <- 600.0
             base.MinWidth <- 800.0
             base.MinHeight <- 600.0
-            base.Content <- Datasets.view ()
+            base.Content <- Views.main ()
 
 type App() =
     inherit Application()

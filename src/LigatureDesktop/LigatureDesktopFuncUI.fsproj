@@ -5,7 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Datasets.fs" />
+        <Compile Include="UIModel.fs" />
+        <Compile Include="Views.fs" />
         <Compile Include="Program.fs" />
         <AvaloniaResource Include="**\*.xaml" />
     </ItemGroup>
