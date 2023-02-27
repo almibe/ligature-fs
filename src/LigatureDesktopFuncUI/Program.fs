@@ -9,6 +9,19 @@ open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 open Avalonia.Themes.Fluent
 
+module Shell =
+    open Avalonia.FuncUI.Hosts
+
+    type MainWindow() =
+        inherit HostWindow()
+        do
+            base.Title <- "Ligature"
+            base.Width <- 800.0
+            base.Height <- 600.0
+            base.MinWidth <- 800.0
+            base.MinHeight <- 600.0
+            base.Content <- Datasets.view ()
+
 type App() =
     inherit Application()
 
