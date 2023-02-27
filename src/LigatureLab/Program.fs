@@ -9,17 +9,28 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Giraffe.ViewEngine
 open System.IO
+open Ligature.Sqlite.Main
+open Ligature
+
+let ligature = ligatureSqlite(InMemory)
+
+let datasets () = 
+    ligature.AllDatasets ()
+    |> Result.map (fun s -> s |> List.map (fun ds -> readDataset ds))
+
+let datasetList () =
+    match datasets () with
+    | Ok(ds) -> (List.map (fun ds -> p [] [ str ds]) ds)
+    | Error(err) -> [ p [] [ str "Error reading Datasets."]]
 
 let datasetsPage = html [] [
         head [] [
             title [] [ str "Ligature Lab" ]
         ]
-        body [] [
+        body [] (List.append [
             h1 [] [ str "Ligature Lab" ]
-            p [ _class "some-css-class"; _id "someId" ] [
-                str "Datasets:"
-            ]
-        ]
+            h2 [] [ str "Datasets:"]
+        ] (datasetList ()))
     ]
 
 let webApp =
@@ -27,8 +38,8 @@ let webApp =
         route "/" >=> htmlView datasetsPage ]
 
 let configureApp (app : IApplicationBuilder) =
-    app.UseStaticFiles()
-    app.UseDefaultFiles()
+    app.UseStaticFiles() |> ignore
+    app.UseDefaultFiles() |> ignore
     app.UseGiraffe webApp
 
 let configureServices (services : IServiceCollection) =

@@ -14,5 +14,10 @@
     <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
+    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
+  </ItemGroup>
 
 </Project>
