@@ -10,12 +10,18 @@ open Giraffe
 open Giraffe.ViewEngine
 open System.IO
 open Ligature.Sqlite.Main
+open Ligature.Lig.Write
 open Ligature
+open Microsoft.Extensions.Logging
+open Microsoft.AspNetCore.Http
 
-let ligature = ligatureSqlite(InMemory)
+let instance = ligatureSqlite(InMemory)
+
+let handleError (ctx: HttpContext) err =
+    ctx.WriteStringAsync(err.userMessage) //TODO return error code, not 200
 
 let datasets () = 
-    ligature.AllDatasets ()
+    instance.AllDatasets ()
     |> Result.map (fun s -> s |> List.map (fun ds -> readDataset ds))
 
 let datasetList () =
