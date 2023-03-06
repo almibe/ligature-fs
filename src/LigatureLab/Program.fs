@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+module Ligature.Lab.Main
+
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
@@ -11,9 +13,12 @@ open Giraffe.ViewEngine
 open System.IO
 open Ligature.Sqlite.Main
 open Ligature.Lig.Write
+open Ligature.Lab.Config
 open Ligature
 open Microsoft.Extensions.Logging
 open Microsoft.AspNetCore.Http
+
+let config = readConfig ()
 
 let instance = ligatureSqlite(InMemory)
 
@@ -59,6 +64,7 @@ let main _ =
         .ConfigureWebHostDefaults(
             fun webHostBuilder ->
                 webHostBuilder
+                    .UseUrls(config.url)
                     .UseContentRoot(contentRoot)
                     .UseWebRoot(webRoot)
                     .Configure(configureApp)
