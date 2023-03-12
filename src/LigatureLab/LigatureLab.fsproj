@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Backend.fs" />
     <Compile Include="Config.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -13,7 +14,6 @@
   <ItemGroup>
     <PackageReference Include="Giraffe" Version="6.0.0" />
     <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
