@@ -14,6 +14,7 @@ open System.IO
 open Ligature.Sqlite.Main
 open Ligature.Lig.Write
 open Ligature.Lab.Config
+open Ligature.Lab.Backend
 open Ligature
 open Microsoft.Extensions.Logging
 open Microsoft.AspNetCore.Http
@@ -27,7 +28,7 @@ let handleError (ctx: HttpContext) err =
 
 let datasets () = 
     instance.AllDatasets ()
-    |> Result.map (fun s -> s |> List.map (fun ds -> readDataset ds))
+    |> Result.map (fun s -> s |> List.map (fun ds -> datasetName ds))
 
 let datasetList () =
     match datasets () with
@@ -41,12 +42,20 @@ let datasetsPage = html [] [
         body [] (List.append [
             h1 [] [ str "Ligature Lab" ]
             h2 [] [ str "Datasets:"]
+            div [] [ 
+                p [] [ str "Add Dataset:" ]
+                form [ _action "/addDataset" ] [
+                    
+                ]
+             ]
         ] (datasetList ()))
     ]
 
 let webApp =
     choose [
-        route "/" >=> htmlView datasetsPage ]
+        choose [
+            route "/" >=> htmlView datasetsPage ]
+        backendWebApp () ]
 
 let configureApp (app : IApplicationBuilder) =
     app.UseStaticFiles() |> ignore
