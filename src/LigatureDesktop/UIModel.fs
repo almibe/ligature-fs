@@ -27,7 +27,7 @@ module Model =
         let (output, selectedDataset, datasets) = 
             match ligature.AllDatasets () with
             | Ok(datasets) ->
-                let datasets = List.map (fun ds -> readDataset ds) datasets
+                let datasets = List.map (fun ds -> datasetName ds) datasets
                 ("", List.head datasets, datasets)
             | Error(err) -> ($"Error\n{err.userMessage}\n{err.debugMessage}", "", [])
 

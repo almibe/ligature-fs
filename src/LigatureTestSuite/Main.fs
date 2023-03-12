@@ -8,12 +8,6 @@ open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-/// Unsafe helper function for creating Datasets.
-let ds name =
-    match dataset name with
-    | Ok (ds) -> ds
-    | Error (_) -> todo
-
 /// Unsafe helper function for creating Identifiers.
 let id ident =
     match identifier ident with
@@ -27,9 +21,9 @@ let statement (entity: string) (attribute: string) (value: Value) =
     { Entity = e; Attribute = a; Value = value; }
 
 let ligatureTestSuite (createInstance: Unit -> Ligature) =
-    let helloDS = ds "hello"
-    let hello2DS = ds "hello2"
-    let hello3DS = ds "hello3"
+    let helloDS = Dataset "hello"
+    let hello2DS = Dataset "hello2"
+    let hello3DS = Dataset "hello3"
 
     let jvName = statement "character:1" "name" (String "Jean Valjean")
     let jvNumber = statement "character:1" "prisonerNumber" (Integer 24601)

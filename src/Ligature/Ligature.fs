@@ -16,22 +16,9 @@ let error userMessage debugMessage = Error({
     debugMessage = debugMessage
 })
 
-type Dataset = private Dataset of string
+type Dataset = Dataset of string
 
-let datasetPattern = Regex(@"^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$", RegexOptions.Compiled)
-
-let invalidDataset (datasetName: string) =
-    error $"Invalid Dataset name, {datasetName}" None
-
-let dataset name = 
-    if datasetPattern.IsMatch(name) then
-        Ok(Dataset name)
-    else
-        invalidDataset name
-
-let readDataset dataset =
-    match dataset with
-    | Dataset(name) -> name
+let datasetName (Dataset name) = name
 
 type Identifier = private Identifier of string
 

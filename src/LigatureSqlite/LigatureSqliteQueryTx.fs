@@ -82,7 +82,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
                 left join Identifier as Value on Statement.value_identifier = Value.rowid
                 where dataset.name = @name"            
-            let param = [ "name", SqlType.String (readDataset dataset) ]
+            let param = [ "name", SqlType.String (datasetName dataset) ]
             let results =
                 conn
                 |> Db.newCommand sql
@@ -128,7 +128,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 where dataset.name = @name
                 {queryCondition}"
             //let param = [ "dataset", SqlType.Int64 datasetId ] //TODO rewrite query above to use Dataset id not name
-            let param = [ "name", SqlType.String (readDataset dataset) ]
+            let param = [ "name", SqlType.String (datasetName dataset) ]
             let results =
                 conn
                 |> Db.newCommand sql

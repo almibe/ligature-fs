@@ -16,26 +16,25 @@ module Views =
         printfn $"{error.userMessage}"
 
     let runScript (script: string) (state: IWritable<UIModel>) =
-        let result = match Wander.Main.run script with
-        | Ok(result) -> $"{result}"
-        | Error(err) -> $"Error:\n{err.userMessage}\nDebug:\n{err.debugMessage}"
+        let result = 
+            match Wander.Main.run script with
+            | Ok(result) -> $"{result}"
+            | Error(err) -> $"Error:\n{err.userMessage}\nDebug:\n{err.debugMessage}"
         state.Set { state.Current with Output = state.Current.Output + $"\n{result}" }
 
     let refreshDatasets (state: IWritable<UIModel>) =
         let datasets = state.Current.Ligature.AllDatasets ()
         match datasets with
         | Ok(datasets) ->
-            let datasets = List.map (fun d -> readDataset d) datasets
+            let datasets = List.map (fun d -> datasetName d) datasets
             state.Set { state.Current with Datasets = datasets }
         | Error(err) -> reportError err
 
     let addDatasetForm (state: IWritable<UIModel>) =
         let addDataset () =
-            match dataset state.Current.NewDataset with
-            | Ok(dataset) ->
-                match state.Current.Ligature.CreateDataset dataset with
-                | Ok () -> refreshDatasets state
-                | Error(err) -> reportError err
+            let dataset = Dataset state.Current.NewDataset
+            match state.Current.Ligature.CreateDataset dataset with
+            | Ok () -> refreshDatasets state
             | Error(err) -> reportError err
     
         StackPanel.create [

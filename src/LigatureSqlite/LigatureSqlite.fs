@@ -13,19 +13,11 @@ open Donald
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let rec makeDatasets (names: string list) (datasets: Dataset list): Result<Dataset list, LigatureError> =
-    if List.isEmpty names then
-        Ok (datasets)
-    else
-        match dataset (List.head names) with
-        | Ok(dataset) -> makeDatasets (List.tail names) (List.append datasets [dataset])
-        | Error(error) -> Error(error)
-
 type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
     let datasetDataReader (rd : IDataReader) : string = rd.ReadString "name"
     let lookupDataset dataset tx: Result<int64, LigatureError> =
         let sql = "select rowid, name from dataset where name = @name"
-        let param = [ "name", SqlType.String (readDataset dataset) ]
+        let param = [ "name", SqlType.String (datasetName dataset) ]
         let results =
             conn
             |> Db.newCommand sql
@@ -66,12 +58,12 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 |> Db.newCommand sql
                 |> Db.query datasetDataReader
             match results with
-            | Ok(results) -> makeDatasets results List.empty //Ok (List.toArray results)
-            | Error(_) -> error "Oops" None
+            | Ok(results) -> results |> List.map (fun s -> Dataset s) |> Ok //Ok (List.toArray results)
+            | Error(_) -> error "Could not read all Datasets." None
 
         member _.DatasetExists dataset =
             let sql = "select name from dataset where name = @name"
-            let param = [ "name", SqlType.String (readDataset dataset) ]
+            let param = [ "name", SqlType.String (datasetName dataset) ]
             let results =
                 conn
                 |> Db.newCommand sql
@@ -87,7 +79,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Ok(true) -> Ok ()
             | Ok(false) ->
                 let sql = "insert into dataset (name) values (@name)"
-                let param = [ "name", SqlType.String (readDataset dataset) ]
+                let param = [ "name", SqlType.String (datasetName dataset) ]
                 let results =
                     conn
                     |> Db.newCommand sql
@@ -103,7 +95,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             match instance.DatasetExists dataset with
             | Ok(true) ->
                 let sql = "delete from dataset where name = @name"
-                let param = [ "name", SqlType.String (readDataset dataset) ]
+                let param = [ "name", SqlType.String (datasetName dataset) ]
                 let results =
                     conn
                     |> Db.newCommand sql
