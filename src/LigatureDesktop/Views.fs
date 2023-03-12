@@ -4,8 +4,6 @@
 
 namespace LigatureDesktop
 
-open Ligature.Sqlite.Main
-
 module Views =
     open Ligature
     open Avalonia.FuncUI
@@ -13,9 +11,15 @@ module Views =
     open Avalonia.FuncUI.DSL
     open Avalonia.Layout
     open LigatureDesktop.Model
-    
+
     let reportError (error: LigatureError) =
         printfn $"{error.userMessage}"
+
+    let runScript (script: string) (state: IWritable<UIModel>) =
+        let result = match Wander.Main.run script with
+        | Ok(result) -> $"{result}"
+        | Error(err) -> $"Error:\n{err.userMessage}\nDebug:\n{err.debugMessage}"
+        state.Set { state.Current with Output = state.Current.Output + $"\n{result}" }
 
     let refreshDatasets (state: IWritable<UIModel>) =
         let datasets = state.Current.Ligature.AllDatasets ()
@@ -78,7 +82,7 @@ module Views =
                 ComboBox.create [
                     ComboBox.verticalAlignment VerticalAlignment.Center
                     ComboBox.margin (5, 0, 10, 0)
-                    ComboBox.dataItems state.Current.Datasets //[ "No Datasets" ]
+                    ComboBox.dataItems state.Current.Datasets
                     ComboBox.selectedIndex 0
                 ]
                 Button.create [
@@ -135,7 +139,7 @@ module Views =
                     Button.verticalAlignment VerticalAlignment.Center
                     Button.margin (10, 0, 10, 0)
                     Button.content "Run"
-                    //Button.onClick (fun _ -> refreshDatasets ())
+                    Button.onClick (fun _ -> runScript "true" state)
                 ]
                 Button.create [
                     Button.verticalAlignment VerticalAlignment.Center
