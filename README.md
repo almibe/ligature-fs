@@ -29,5 +29,13 @@ This repo is made up of a couple of different projects, below is a description o
 | ------------- | -------------------------------------------------------- |
 | Ligature      | Main code base including the main logic and types.       |
 | Ligature.Test | Test code for Ligature.                                  |
-| LigatureLab   | A server for working with Ligature.                      |
+| LigatureLab   | A web application for working with Ligature.             |
 | LigatureLabJS | Front-end JS code (created using Fable) for LigatureLab. |
+
+## Setup
+
+After checking out this project run.
+
+`dotnet tool restore`
+
+This is will setup tools used by this project.

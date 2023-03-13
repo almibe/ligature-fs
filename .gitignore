@@ -4,3 +4,5 @@ obj/
 .fake
 *.trx
 *.sqlite3
+./paket/
+paket-files/
