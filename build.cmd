@@ -1,6 +1,4 @@
-rem @echo off
-cls
-
+echo Restoring dotnet tools...
 dotnet tool restore
-dotnet paket restore
-dotnet fake build %*
+
+dotnet run --project ./src/build/build.fsproj -- -t %*
