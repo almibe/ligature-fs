@@ -8,16 +8,10 @@
         "fantomas"
       ]
     },
-    "fake-cli": {
-      "version": "6.0.0",
+    "dotnet-fsharplint": {
+      "version": "0.21.3",
       "commands": [
-        "fake"
-      ]
-    },
-    "paket": {
-      "version": "7.2.1",
-      "commands": [
-        "paket"
+        "dotnet-fsharplint"
       ]
     }
   }
