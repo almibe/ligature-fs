@@ -10,7 +10,6 @@ This project assumes you have .NET Core and npm setup.
 See https://nodejs.org/en/download/ to download node/npm, the current LTS version is fine.
 
 See https://dotnet.microsoft.com/en-us/download to download the SDK for .NET Core.
-Version 6.x is required (7.x won't work currently since this project uses Fable 3).
 
 To run the application simply run
 
@@ -25,12 +24,18 @@ in the root directory of this project and open http://localhost:5000.
 
 This repo is made up of a couple of different projects, below is a description of each.
 
-| Project       | Description                                              |
-| ------------- | -------------------------------------------------------- |
-| Ligature      | Main code base including the main logic and types.       |
-| Ligature.Test | Test code for Ligature.                                  |
-| LigatureLab   | A web application for working with Ligature.             |
-| LigatureLabJS | Front-end JS code (created using Fable) for LigatureLab. |
+| Project           | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| build             | 
+| Gaze              | A parsing library.                                                 |
+| Lig               | Support for the Lig serialization language.                        |
+| Ligature          | Main code base including the main logic and types.                 |
+| LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
+| LigatureLab       | A web application for working with Ligature.                       |
+| LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
+| LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
+| LigatureTestSuite | A common test suite for Ligature implementations.                  |
+| Wander            | The Wander scripting language.                                     |
 
 ## Setup
 
