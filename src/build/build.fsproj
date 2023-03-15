@@ -12,5 +12,6 @@
   <ItemGroup>
     <PackageReference Include="Fake.Core.Target" Version="6.0.0" />
     <PackageReference Include="Fake.JavaScript.Npm" Version="6.0.0" />
+    <PackageReference Include="Fake.DotNet.Cli" Version="6.0.0" />
   </ItemGroup>
 </Project>
