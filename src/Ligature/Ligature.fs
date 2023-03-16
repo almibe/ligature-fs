@@ -22,20 +22,18 @@ let datasetName (Dataset name) = name
 
 type Identifier = private Identifier of string
 
-let identifierPattern = Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
-
 let invalidIdentifier (id: string) = 
     error $"Invalid Identifier, {id}" None
 
-let identifier id =
-    if identifierPattern.IsMatch(id) then
-        Ok(Identifier id)
-    else
-        invalidIdentifier id
+let identifier =
+    let identifierPattern = Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
+    fun (id: string) ->
+        if identifierPattern.IsMatch(id) then
+            Ok(Identifier id)
+        else
+            invalidIdentifier id
 
-let readIdentifier (identifier: Identifier) =
-    match identifier with
-    | Identifier(id) -> id
+let readIdentifier (Identifier identifier) = identifier
 
 type Value =
     | Identifier of Identifier
