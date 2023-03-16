@@ -65,9 +65,7 @@ let newLineTokenNibbler =
     Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> NewLine)
 
 let commentNibbler =
-    Nibblers.takeAll
-        [ Nibblers.takeString "--"
-          Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
+    Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
 
 let commentTokenNibbler =
     Gaze.map commentNibbler (fun commentText -> commentText |> List.concat |> implode |> Comment)
