@@ -44,3 +44,9 @@ After checking out this project run.
 `dotnet tool restore`
 
 This is will setup tools used by this project.
+
+## Formatting
+
+Example to run the formatter
+
+`dotnet fantomas ./src/Ligature/`

@@ -8,33 +8,30 @@ open Ligature
 open Ligature.Sqlite.Main
 
 module Model =
-    type UIModel = {
-        Ligature: Ligature
-        Datasets: string list
-        SelectedDataset: string
-        Output: string
-        NewDataset: string
-    }
+    type UIModel =
+        { Ligature: Ligature
+          Datasets: string list
+          SelectedDataset: string
+          Output: string
+          NewDataset: string }
 
-    let defaultFile () =
-        File "test.sqlite3"
+    let defaultFile () = File "test.sqlite3"
 
     /// This function initializes and returns an instance of UIModel.
     /// Initialization includes querying all Datasets in the instance and
     /// Selecting the first Dataset as the default.
-    let initializeModel () = 
+    let initializeModel () =
         let ligature = ligatureSqlite (defaultFile ())
-        let (output, selectedDataset, datasets) = 
-            match ligature.AllDatasets () with
+
+        let (output, selectedDataset, datasets) =
+            match ligature.AllDatasets() with
             | Ok(datasets) ->
                 let datasets = List.map (fun ds -> datasetName ds) datasets
                 ("", List.head datasets, datasets)
             | Error(err) -> ($"Error\n{err.userMessage}\n{err.debugMessage}", "", [])
 
-        {
-            Datasets = datasets
-            Output = output
-            Ligature = ligature
-            NewDataset = ""
-            SelectedDataset = selectedDataset
-        }
+        { Datasets = datasets
+          Output = output
+          Ligature = ligature
+          NewDataset = ""
+          SelectedDataset = selectedDataset }

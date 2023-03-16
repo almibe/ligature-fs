@@ -15,4 +15,3 @@ let run (input: string) =
         | Ok(ast) -> Interpreter.interpret ast
         | Error(err) -> Error(err)
     | Error(err) -> Error(err)
-    

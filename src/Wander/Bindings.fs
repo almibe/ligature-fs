@@ -8,15 +8,9 @@ open Ligature.Wander.Model
 
 type Scope = Map<string, WanderValue>
 
-type Bindings = {
-    current: Scope
-    stack: Scope list
-}
+type Bindings = { current: Scope; stack: Scope list }
 
-let newBindings () = {
-    current = Map []
-    stack = []
-}
+let newBindings () = { current = Map []; stack = [] }
 
 let bind name value bindings =
     let current' = Map.add name value bindings.current
@@ -24,25 +18,18 @@ let bind name value bindings =
 
 let addScope bindings =
     let current: Map<string, WanderValue> = Map []
-    let stack = List.append [bindings.current] bindings.stack
-    {
-        current = current
-        stack = stack
-    }
+    let stack = List.append [ bindings.current ] bindings.stack
+    { current = current; stack = stack }
 
 let removeScope bindings =
     let current = List.head bindings.stack
     let stack = List.tail bindings.stack
-    {
-        current = current
-        stack = stack
-    }
+    { current = current; stack = stack }
 
 let rec read name bindings =
     if Map.containsKey name bindings.current then
         Some(Map.find name bindings.current)
+    else if List.isEmpty bindings.stack then
+        None
     else
-        if List.isEmpty bindings.stack then
-            None
-        else
-            read name (removeScope bindings)
+        read name (removeScope bindings)

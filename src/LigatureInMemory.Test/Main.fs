@@ -11,5 +11,4 @@ open Ligature.TestSuite
 let tests = ligatureTestSuite (fun () -> new LigatureInMemory())
 
 [<EntryPoint>]
-let main argv =
-    runTestsInAssembly defaultConfig argv
+let main argv = runTestsInAssembly defaultConfig argv

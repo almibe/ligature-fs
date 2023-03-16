@@ -6,15 +6,15 @@ module Ligature
 
 open System.Text.RegularExpressions
 
-type LigatureError = { 
-    userMessage: string
-    debugMessage: string option
-}
+type LigatureError =
+    { userMessage: string
+      debugMessage: string option }
 
-let error userMessage debugMessage = Error({
-    userMessage = userMessage
-    debugMessage = debugMessage
-})
+let error userMessage debugMessage =
+    Error(
+        { userMessage = userMessage
+          debugMessage = debugMessage }
+    )
 
 type Dataset = Dataset of string
 
@@ -22,11 +22,12 @@ let datasetName (Dataset name) = name
 
 type Identifier = private Identifier of string
 
-let invalidIdentifier (id: string) = 
-    error $"Invalid Identifier, {id}" None
+let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
 
 let identifier =
-    let identifierPattern = Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
+    let identifierPattern =
+        Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
+
     fun (id: string) ->
         if identifierPattern.IsMatch(id) then
             Ok(Identifier id)
@@ -39,19 +40,20 @@ type Value =
     | Identifier of Identifier
     | String of string
     | Integer of int64
-    //TODO add Bytes
+//TODO add Bytes
 
-type Statement = {
-    Entity: Identifier
-    Attribute: Identifier
-    Value: Value
-}
+type Statement =
+    { Entity: Identifier
+      Attribute: Identifier
+      Value: Value }
 
 type QueryTx =
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
-    abstract member MatchStatements: Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
-    //TODO add MatchStatementsRange
-    
+
+    abstract member MatchStatements:
+        Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
+//TODO add MatchStatementsRange
+
 type WriteTx =
     abstract member NewIdentifier: unit -> Result<Identifier, LigatureError>
     abstract member AddStatement: Statement -> Result<unit, LigatureError>

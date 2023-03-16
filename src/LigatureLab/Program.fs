@@ -19,44 +19,44 @@ open Microsoft.AspNetCore.Http
 
 let config = readConfig ()
 
-let instance = ligatureSqlite(InMemory)
+let instance = ligatureSqlite (InMemory)
 
-let handleError (ctx: HttpContext) err =
-    ctx.WriteStringAsync(err.userMessage) //TODO return error code, not 200
+let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.userMessage) //TODO return error code, not 200
 
-let datasets () = 
-    instance.AllDatasets ()
+let datasets () =
+    instance.AllDatasets()
     |> Result.map (fun s -> s |> List.map (fun ds -> datasetName ds))
 
 let datasetList () =
     match datasets () with
-    | Ok(ds) -> (List.map (fun ds -> p [] [ str ds]) ds)
-    | Error(err) -> [ p [] [ str "Error reading Datasets."]]
+    | Ok(ds) -> (List.map (fun ds -> p [] [ str ds ]) ds)
+    | Error(err) -> [ p [] [ str "Error reading Datasets." ] ]
 
 let webApp = backendWebApp ()
 
-let configureApp (app : IApplicationBuilder) =
+let configureApp (app: IApplicationBuilder) =
     app.UseStaticFiles() |> ignore
     app.UseDefaultFiles() |> ignore
     app.UseGiraffe webApp
 
-let configureServices (services : IServiceCollection) =
-    services.AddGiraffe() |> ignore
+let configureServices (services: IServiceCollection) = services.AddGiraffe() |> ignore
 
 [<EntryPoint>]
 let main _ =
     let contentRoot = Directory.GetCurrentDirectory()
-    let webRoot     = Path.Combine(contentRoot, "WebRoot")
-    Host.CreateDefaultBuilder()
-        .ConfigureWebHostDefaults(
-            fun webHostBuilder ->
-                webHostBuilder
-                    .UseUrls(config.url)
-                    .UseContentRoot(contentRoot)
-                    .UseWebRoot(webRoot)
-                    .Configure(configureApp)
-                    .ConfigureServices(configureServices)
-                    |> ignore)
+    let webRoot = Path.Combine(contentRoot, "WebRoot")
+
+    Host
+        .CreateDefaultBuilder()
+        .ConfigureWebHostDefaults(fun webHostBuilder ->
+            webHostBuilder
+                .UseUrls(config.url)
+                .UseContentRoot(contentRoot)
+                .UseWebRoot(webRoot)
+                .Configure(configureApp)
+                .ConfigureServices(configureServices)
+            |> ignore)
         .Build()
         .Run()
+
     0

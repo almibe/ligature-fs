@@ -14,6 +14,7 @@ module Shell =
 
     type MainWindow() =
         inherit HostWindow()
+
         do
             base.Title <- "Ligature"
             base.Width <- 800.0
@@ -26,7 +27,7 @@ type App() =
     inherit Application()
 
     override this.Initialize() =
-        this.Styles.Add (FluentTheme(baseUri = null, Mode = FluentThemeMode.Light))
+        this.Styles.Add(FluentTheme(baseUri = null, Mode = FluentThemeMode.Light))
         this.Styles.Load "avares://LigatureDesktopFuncUI/Styles.xaml"
 
     override this.OnFrameworkInitializationCompleted() =
@@ -37,8 +38,9 @@ type App() =
 
 module Program =
     [<EntryPoint>]
-    let main (args: string []) =
-        AppBuilder.Configure<App>()
+    let main (args: string[]) =
+        AppBuilder
+            .Configure<App>()
             .UsePlatformDetect()
             .UseSkia()
             .StartWithClassicDesktopLifetime(args)

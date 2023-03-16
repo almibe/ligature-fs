@@ -8,17 +8,14 @@ type Auth = | NoAuth
 
 type Mode = | SingleUser
 
-type Config = {
-    url: string
-    auth: Auth
-    mode: Mode
-    sqliteConnectionString: string
-}
+type Config =
+    { url: string
+      auth: Auth
+      mode: Mode
+      sqliteConnectionString: string }
 
 let readConfig () =
-    {
-        url = "http://localhost:5000"
-        auth = NoAuth
-        mode = SingleUser
-        sqliteConnectionString = ""
-    }
+    { url = "http://localhost:5000"
+      auth = NoAuth
+      mode = SingleUser
+      sqliteConnectionString = "" }

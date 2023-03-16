@@ -9,9 +9,7 @@ open Expecto
 open Ligature.TestSuite
 
 [<Tests>]
-let tests =
-    ligatureTestSuite (fun () -> ligatureSqlite InMemory)
+let tests = ligatureTestSuite (fun () -> ligatureSqlite InMemory)
 
 [<EntryPoint>]
-let main argv =
-    runTestsInAssembly defaultConfig argv
+let main argv = runTestsInAssembly defaultConfig argv

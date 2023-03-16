@@ -9,18 +9,13 @@ open Ligature
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 type LigatureLMDB() =
-    member this.initialize () =        
-        ()
+    member this.initialize() = ()
+
     interface Ligature with
-        member this.AllDatasets ()  =
-            Ok []
-        member this.DatasetExists dataset =
-            todo
-        member this.CreateDataset dataset = 
-            todo
-        member this.RemoveDataset dataset =
-            todo
+        member this.AllDatasets() = Ok []
+        member this.DatasetExists dataset = todo
+        member this.CreateDataset dataset = todo
+        member this.RemoveDataset dataset = todo
         member this.Query dataset query = todo
         member this.Write dataset write = todo
-        member this.Close () =
-            todo
+        member this.Close() = todo

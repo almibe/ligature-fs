@@ -4,43 +4,37 @@
 
 module Gaze
 
-type Gaze<'input> = {
-    content: 'input array
-    mutable offset: int
-}
+type Gaze<'input> =
+    { content: 'input array
+      mutable offset: int }
 
 type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
 //type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
 
-let explode (s:string) =
-        [| for c in s -> c |]
+let explode (s: string) = [| for c in s -> c |]
 
-/// Create an instance of Gaze that works with a String as input. 
-let fromString string = {
-    content = explode(string)
-    offset = 0
-}
+/// Create an instance of Gaze that works with a String as input.
+let fromString string =
+    { content = explode (string)
+      offset = 0 }
 
-let fromArray array = {
-    content = array
-    offset = 0
-}
+let fromArray array = { content = array; offset = 0 }
 
-let fromList list = {
-    content = List.toArray list
-    offset = 0
-}
+let fromList list =
+    { content = List.toArray list
+      offset = 0 }
 
-let isComplete gaze = gaze.offset >= Array.length(gaze.content)
+let isComplete gaze =
+    gaze.offset >= Array.length (gaze.content)
 
-let peek gaze = 
+let peek gaze =
     if isComplete gaze then
         None
     else
         Some(gaze.content[gaze.offset])
 
-let next gaze = 
-    if isComplete(gaze) then
+let next gaze =
+    if isComplete (gaze) then
         None
     else
         let result = gaze.content[gaze.offset]
@@ -55,6 +49,7 @@ let check nibbler gaze =
 
 let attempt nibbler gaze =
     let startOffset = gaze.offset
+
     match nibbler gaze with
     | Some(res) -> Some(res)
     | None ->
@@ -65,5 +60,5 @@ let offset gaze = gaze.offset
 
 let map nibbler mapper gaze =
     match attempt nibbler gaze with
-    | Some(result) -> Some(mapper(result))
+    | Some(result) -> Some(mapper (result))
     | None -> None

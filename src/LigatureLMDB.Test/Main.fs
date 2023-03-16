@@ -9,11 +9,11 @@ open Expecto
 open Ligature.TestSuite
 
 [<Tests>]
-let tests = ligatureTestSuite (fun () ->
-    let instance = new LigatureLMDB()
-    instance.initialize () |> ignore
-    instance)
+let tests =
+    ligatureTestSuite (fun () ->
+        let instance = new LigatureLMDB()
+        instance.initialize () |> ignore
+        instance)
 
 [<EntryPoint>]
-let main argv =
-    runTestsInAssembly defaultConfig argv
+let main argv = runTestsInAssembly defaultConfig argv

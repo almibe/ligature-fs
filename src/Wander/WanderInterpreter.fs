@@ -17,9 +17,10 @@ let evalName name bindings =
 let rec evalExpression bindings expression =
     match expression with
     | Value(value) -> Ok((value, bindings))
-    | Name(name) -> evalName name bindings//Ok((Nothing, bindings))
+    | Name(name) -> evalName name bindings //Ok((Nothing, bindings))
     | LetStatement(name, expression) ->
         let res = evalExpression bindings expression
+
         match res with
         | Ok((value, _)) ->
             let bindings = Bindings.bind name value bindings
@@ -32,6 +33,7 @@ let rec eval (bindings: Bindings.Bindings) (expressions: Expression list) =
     | [] -> Ok(Nothing)
     | _ ->
         let evalResult = evalExpression bindings (List.head expressions)
+
         match (evalResult, (List.tail expressions)) with
         | (Ok((value, _)), []) -> Ok(value)
         | (Ok(_, bindings), tail) -> eval bindings tail

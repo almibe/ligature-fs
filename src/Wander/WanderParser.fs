@@ -28,7 +28,7 @@ let booleanNibbler =
         | Boolean(_) -> true
         | _ -> false)
 
-let identifierNibbler = 
+let identifierNibbler =
     Nibblers.takeCond (fun token ->
         match token with
         | Identifier(_) -> true
@@ -50,27 +50,39 @@ let nameNibbler =
         | _ -> false)
 
 let nameExpressionNibbler =
-    Gaze.map nameNibbler (fun name -> match name with | Name(name) -> Expression.Name(name) | _ -> todo)
+    Gaze.map nameNibbler (fun name ->
+        match name with
+        | Name(name) -> Expression.Name(name)
+        | _ -> todo)
 
-let letStatementNibbler = 
-    Gaze.map (Nibblers.takeAll [
-        Nibblers.take LetKeyword
-        nameNibbler
-        Nibblers.take EqualSign
-        integerNibbler
-        ]) (fun tokens -> 
+let letStatementNibbler =
+    Gaze.map
+        (Nibblers.takeAll
+            [ Nibblers.take LetKeyword
+              nameNibbler
+              Nibblers.take EqualSign
+              integerNibbler ])
+        (fun tokens ->
             match tokens with
-            | [_; Name(name); _; Integer(i)] -> LetStatement(name, Value(WanderValue.Integer(i)))
+            | [ _; Name(name); _; Integer(i) ] -> LetStatement(name, Value(WanderValue.Integer(i)))
             | _ -> todo)
 
 let expressionNibbler =
-    Nibblers.repeat (Nibblers.takeFirst [valueNibbler; letStatementNibbler; nameExpressionNibbler])
+    Nibblers.repeat (Nibblers.takeFirst [ valueNibbler; letStatementNibbler; nameExpressionNibbler ])
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
 let parse (tokens: Lexer.WanderToken list) =
-    let tokens = List.filter (fun token -> match token with | WhiteSpace(_) | NewLine(_) -> false | _ -> true) tokens
+    let tokens =
+        List.filter
+            (fun token ->
+                match token with
+                | WhiteSpace(_)
+                | NewLine(_) -> false
+                | _ -> true)
+            tokens
+
     let gaze = Gaze.fromList tokens
     let res = Gaze.attempt expressionNibbler gaze
 
