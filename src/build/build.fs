@@ -7,20 +7,28 @@ Fake.Core.Context.setExecutionContext (Fake.Core.Context.RuntimeContext.Fake exe
 
 open Fake
 open Fake.Core
-open Fake.JavaScript
 open Fake.DotNet
 
-Target.create "RunLigatureLab" (fun _ ->
-    Npm.install (fun o ->
-        { o with
-            WorkingDirectory = "./src/LigatureLab/node"
-        })
-    Npm.run "build" (fun o ->
-        { o with
-            WorkingDirectory = "./src/LigatureLab/node"
-        }
-    )
-    DotNet.exec (fun o -> o) "run" "--project ./src/LigatureLab/LigatureLab.fsproj" |> ignore
+Target.create "RunAllTests" (fun tp ->
+    let testProjects = [
+        "./src/Gaze.Test/Gaze.Test.fsproj"
+        "./src/Lig.Test/Lig.Test.fsproj"
+        "./src/Ligature.Test/Ligature.Test.fsproj"
+        "./src/LigatureInMemory.Test/LigatureInMemory.Test.fsproj"
+        "./src/LigatureLab.Test/LigatureLab.Test.fsproj"
+        "./src/LigatureLMDB.Test/LigatureLMDB.Test.fsproj"
+        "./src/LigatureSqlite.Test/LigatureSqlite.Test.fsproj"
+        "./src/Wander.Test/Wander.Test.fsproj"
+    ]
+    let failed = 
+        testProjects
+        |> List.filter (fun proj ->
+            let res = DotNet.exec (fun o -> o) "run" $"--project {proj}"
+            not res.OK)
+    if not failed.IsEmpty then
+        printfn "Tests failed in:"
+        List.iter (fun proj -> printfn $" - {proj}") failed
+        System.Environment.Exit(-1)
 )
 
-Target.runOrDefault "RunLigatureLab"
+Target.runOrDefault "RunAllTests"
