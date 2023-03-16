@@ -12,11 +12,9 @@ open Giraffe
 open Giraffe.ViewEngine
 open System.IO
 open Ligature.Sqlite.Main
-open Ligature.Lig.Write
 open Ligature.Lab.Config
 open Ligature.Lab.Backend
 open Ligature
-open Microsoft.Extensions.Logging
 open Microsoft.AspNetCore.Http
 
 let config = readConfig ()
@@ -35,27 +33,7 @@ let datasetList () =
     | Ok(ds) -> (List.map (fun ds -> p [] [ str ds]) ds)
     | Error(err) -> [ p [] [ str "Error reading Datasets."]]
 
-let datasetsPage = html [] [
-        head [] [
-            title [] [ str "Ligature Lab" ]
-        ]
-        body [] (List.append [
-            h1 [] [ str "Ligature Lab" ]
-            h2 [] [ str "Datasets:"]
-            div [] [ 
-                p [] [ str "Add Dataset:" ]
-                form [ _action "/addDataset" ] [
-                    
-                ]
-             ]
-        ] (datasetList ()))
-    ]
-
-let webApp =
-    choose [
-        choose [
-            route "/" >=> htmlView datasetsPage ]
-        backendWebApp () ]
+let webApp = backendWebApp ()
 
 let configureApp (app : IApplicationBuilder) =
     app.UseStaticFiles() |> ignore
