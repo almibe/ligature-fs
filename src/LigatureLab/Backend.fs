@@ -21,7 +21,7 @@ let runWander () : HttpHandler =
         let x = ctx.ReadBodyFromRequestAsync ()
         let res = run x.Result
         match res with
-        | Ok(_) -> ctx.WriteStringAsync "Completed"
+        | Ok(res) -> ctx.WriteStringAsync (sprintf "%A" res)
         | Error(err) -> handleError ctx err)
 
 let backendWebApp () =
