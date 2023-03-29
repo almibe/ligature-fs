@@ -21,7 +21,7 @@ let config = readConfig ()
 
 let instance = ligatureSqlite (InMemory)
 
-let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.userMessage) //TODO return error code, not 200
+let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200
 
 let datasets () =
     instance.AllDatasets()

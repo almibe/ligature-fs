@@ -95,7 +95,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         |> fst
         |> fun v -> $"{v} = @{v}"
 
-    interface QueryTx with
+    interface IQueryTx with
         member _.AllStatements() =
             let sql =
                 "select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,

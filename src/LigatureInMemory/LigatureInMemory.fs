@@ -9,7 +9,7 @@ open Ligature
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 type LigatureInMemoryQueryTx(statements: Set<Statement>) =
-    interface QueryTx with
+    interface IQueryTx with
         member _.AllStatements() = Ok(List.ofSeq statements)
 
         member _.MatchStatements entity attribute value =
@@ -31,7 +31,7 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
             List.ofSeq results |> Ok
 
 type LigatureInMemoryWriteTx(dataset: Dataset, datasets: Map<Dataset, Set<Statement>> ref) =
-    interface WriteTx with
+    interface IWriteTx with
         member _.NewIdentifier() = todo
 
         member _.AddStatement statement =
@@ -50,7 +50,7 @@ type LigatureInMemory() =
     let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
-    interface Ligature with
+    interface ILigature with
         member _.AllDatasets() =
             Ok(Map.keys datasets.Value |> Seq.cast |> List.ofSeq) //Ok datasets.Value
 

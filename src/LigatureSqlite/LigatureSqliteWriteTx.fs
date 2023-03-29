@@ -114,8 +114,8 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
         Result.mapError
             (fun err ->
-                { userMessage = "Could not insert Statement."
-                  debugMessage = (Some $"DB Error - {err}") })
+                { UserMessage = "Could not insert Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
             result
 
     let insertStatement
@@ -145,8 +145,8 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
         Result.mapError
             (fun err ->
-                { userMessage = "Could not insert Statement."
-                  debugMessage = (Some $"DB Error - {err}") })
+                { UserMessage = "Could not insert Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
             result
 
     let deleteStatement
@@ -187,11 +187,11 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
         Result.mapError
             (fun err ->
-                { userMessage = $"Could not remove Statement."
-                  debugMessage = (Some $"DB Error - {err}") })
+                { UserMessage = $"Could not remove Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
             result
 
-    interface WriteTx with
+    interface IWriteTx with
         member _.NewIdentifier() : Result<Identifier, LigatureError> = Guid.NewGuid().ToString() |> identifier
 
         member _.AddStatement(statement: Statement) : Result<unit, LigatureError> =

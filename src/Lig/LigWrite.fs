@@ -12,7 +12,7 @@ let writeIdentifier identifier = "<" + (readIdentifier identifier) + ">"
 
 let writeString string =
     let chars = [| for c in string -> c |]
-    let buffer = new System.Text.StringBuilder()
+    let buffer = System.Text.StringBuilder()
     buffer.Append("\"") |> ignore
 
     for c in chars do
@@ -39,7 +39,7 @@ let writeStatement (statement: Statement) =
     + writeValue (statement.Value)
 
 let writeLig (statements: List<Statement>) =
-    let sb = new System.Text.StringBuilder()
+    let sb = System.Text.StringBuilder()
 
     for statement in statements do
         sb.Append((writeStatement statement) + "\n") |> ignore

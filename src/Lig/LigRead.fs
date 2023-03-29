@@ -24,14 +24,14 @@ let stringContentNibbler =
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.
 let stringNibbler =
-    Gaze.map (Nibblers.between '"' stringContentNibbler '"') (fun c -> new System.String(c |> List.toArray))
+    Gaze.map (Nibblers.between '"' stringContentNibbler '"') (fun c -> System.String(c |> List.toArray))
 
 let stringValueNibbler = Gaze.map stringNibbler (fun s -> String(s))
 
 let charInRange char start stop = char >= start && char <= stop
 
 let charListToInt i =
-    int64 (new System.String(List.concat i |> List.toArray))
+    int64 (System.String(List.concat i |> List.toArray))
 
 /// A Nibbler that consumes an integer as defined by lig.
 /// TODO: this doesn't handle all cases well like too small or large of a number
@@ -64,7 +64,7 @@ let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')
 let readIdentifier gaze =
     match Gaze.attempt identifierNibbler gaze with
     | None -> error "Could not read Identifier." None
-    | Some(result) -> identifier (new System.String(List.toArray result))
+    | Some(result) -> identifier (System.String(List.toArray result))
 
 /// <summary>Reads a Value in lig format from a Gaze of chars.
 /// This could be an Identifier, String, Byte Array, or Integer.</summary>

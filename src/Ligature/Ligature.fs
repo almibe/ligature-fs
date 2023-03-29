@@ -7,13 +7,13 @@ module Ligature
 open System.Text.RegularExpressions
 
 type LigatureError =
-    { userMessage: string
-      debugMessage: string option }
+    { UserMessage: string
+      DebugMessage: string option }
 
 let error userMessage debugMessage =
     Error(
-        { userMessage = userMessage
-          debugMessage = debugMessage }
+        { UserMessage = userMessage
+          DebugMessage = debugMessage }
     )
 
 type Dataset = Dataset of string
@@ -47,23 +47,23 @@ type Statement =
       Attribute: Identifier
       Value: Value }
 
-type QueryTx =
+type IQueryTx =
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
 //TODO add MatchStatementsRange
 
-type WriteTx =
+type IWriteTx =
     abstract member NewIdentifier: unit -> Result<Identifier, LigatureError>
     abstract member AddStatement: Statement -> Result<unit, LigatureError>
     abstract member RemoveStatement: Statement -> Result<unit, LigatureError>
 
-type Query<'r> = QueryTx -> Result<'r, LigatureError>
+type Query<'R> = IQueryTx -> Result<'R, LigatureError>
 
-type Write = WriteTx -> Result<unit, LigatureError>
+type Write = IWriteTx -> Result<unit, LigatureError>
 
-type Ligature =
+type ILigature =
     abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
     abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
     abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>

@@ -53,7 +53,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
 
         conn |> Db.newCommand sql |> Db.exec
 
-    interface Ligature with
+    interface ILigature with
         member _.AllDatasets() =
             let sql = "select * from dataset"
             let results = conn |> Db.newCommand sql |> Db.query datasetDataReader
@@ -77,7 +77,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Error(_) -> Ok false
 
         member this.CreateDataset dataset =
-            let instance = this :> Ligature
+            let instance = this :> ILigature
 
             match instance.DatasetExists dataset with
             | Ok(true) -> Ok()
@@ -92,7 +92,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Error(error) -> Error(error)
 
         member this.RemoveDataset dataset =
-            let instance = this :> Ligature
+            let instance = this :> ILigature
 
             match instance.DatasetExists dataset with
             | Ok(true) ->
@@ -138,7 +138,7 @@ type LigatureSqliteConfig =
     | InMemory
     | File of string
 
-let ligatureSqlite (config: LigatureSqliteConfig) : Ligature =
+let ligatureSqlite (config: LigatureSqliteConfig) : ILigature =
     let instance =
         match config with
         | InMemory -> new LigatureSqlite(new SQLiteConnection("Data Source=:memory:"))
