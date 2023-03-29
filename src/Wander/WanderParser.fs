@@ -78,14 +78,23 @@ let parse (tokens: Lexer.WanderToken list) =
         List.filter
             (fun token ->
                 match token with
+                | Comment(_)
                 | WhiteSpace(_)
                 | NewLine(_) -> false
                 | _ -> true)
             tokens
 
-    let gaze = Gaze.fromList tokens
-    let res = Gaze.attempt expressionNibbler gaze
+    if tokens.IsEmpty then
+        Ok([])
+    else    
+        let gaze = Gaze.fromList tokens
+        let res = Gaze.attempt expressionNibbler gaze
 
-    match res with
-    | Some(ast) -> Ok(ast)
-    | None -> todo
+        match res with
+        | Some(ast) -> Ok(ast)
+        | None -> error $"No match {tokens}" None
+
+let parseString (input: string) =
+    match tokenize input with
+    | Ok(tokens) -> parse tokens
+    | Error(err) -> Error(err)

@@ -36,44 +36,44 @@ let tests =
               let tokens = Wander.Lexer.tokenize "let x = 5\nx"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ LetStatement("x", Value(Integer(5))); Name("x") ])) ""
-          // testCase "Parse Integer" <| fun _ ->
-          //     Expect.equal (parse "123") (Ok([Value(Integer(123))])) ""
-          //     Expect.equal (parse "0") (Ok([Value(Integer(0))])) ""
-          //     Expect.equal (parse "-4123") (Ok([Value(Integer(-4123))])) ""
-          // testCase "Read Names" <| fun _ ->
-          //     Expect.equal (parse "hello") (Ok([Name("hello")])) ""
-          // testCase "parse booleans" <| fun _ ->
-          //     Expect.equal (parse "true") (Ok([Value(Boolean(true))])) ""
-          //     Expect.equal (parse "false")  (Ok([Value(Boolean(false))])) ""
-          // ftestCase "parse whitespace" <| fun _ ->
-          //     Expect.equal (parse " ") (Ok([])) ""
-          //     Expect.equal (parse "   ") (Ok([])) ""
-          //     //Expect.equal (parse "\t") (Ok([WhiteSpace("\t")])) ""
-          //     //Expect.equal (parse "\t  ") (Ok([WhiteSpace("\t  ")])) ""
-          // testCase "parse new lines" <| fun _ ->
-          //     Expect.equal (parse "\n") (Ok([])) ""
-          //     Expect.equal (parse "\r\n") (Ok([])) ""
-          //     Expect.equal (parse "\r\n\r\n\r\n\n") (Ok([])) ""
-          // testCase "Read Identifiers" <| fun _ ->
-          //     Expect.equal (parse "<a>") (Ok([Value(ident "a")])) ""
-          //     Expect.equal (parse "<https://ligature.dev/#>") (Ok([Value(ident "https://ligature.dev/#")])) ""
-          // testCase "Read comments" <| fun _ ->
-          //     Expect.equal (parse "--") (Ok([])) ""
-          //     Expect.equal (parse "--hello") (Ok([])) ""
-          //     Expect.equal (parse "-- this is a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
-          //     Expect.equal (parse "-- this is \n--  a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
-          // testCase "read String Literal" <| fun _ ->
-          //     Expect.equal (parse @"""hello""") (Ok([Value(String("hello"))])) ""
+          testCase "Parse Integers" <| fun _ ->
+              Expect.equal (parseString "123") (Ok([Value(Integer(123))])) ""
+              Expect.equal (parseString "0") (Ok([Value(Integer(0))])) ""
+              Expect.equal (parseString "-4123") (Ok([Value(Integer(-4123))])) ""
+          testCase "Read Names" <| fun _ ->
+              Expect.equal (parseString "hello") (Ok([Name("hello")])) ""
+          testCase "parse booleans" <| fun _ ->
+              Expect.equal (parseString "true") (Ok([Value(Boolean(true))])) ""
+              Expect.equal (parseString "false")  (Ok([Value(Boolean(false))])) ""
+          testCase "parse whitespace" <| fun _ ->
+              Expect.equal (parseString " ") (Ok([])) ""
+              Expect.equal (parseString "   ") (Ok([])) ""
+              //Expect.equal (parse "\t") (Ok([WhiteSpace("\t")])) ""
+              //Expect.equal (parse "\t  ") (Ok([WhiteSpace("\t  ")])) ""
+          testCase "parse new lines" <| fun _ ->
+              Expect.equal (parseString "\n") (Ok([])) ""
+              Expect.equal (parseString "\r\n") (Ok([])) ""
+              Expect.equal (parseString "\r\n\r\n\r\n\n") (Ok([])) ""
+          testCase "Read Identifiers" <| fun _ ->
+              Expect.equal (parseString "<a>") (Ok([Value(ident "a")])) ""
+              Expect.equal (parseString "<https://ligature.dev/#>") (Ok([Value(ident "https://ligature.dev/#")])) ""
+          testCase "Read comments" <| fun _ ->
+              Expect.equal (parseString "--") (Ok([])) ""
+              Expect.equal (parseString "--hello") (Ok([])) ""
+              Expect.equal (parseString "-- this is a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
+              Expect.equal (parseString "-- this is \n--  a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
+          testCase "read String Literal" <| fun _ ->
+              Expect.equal (parseString @"""hello""") (Ok([Value(String("hello"))])) ""
           // // testCase "read Bytes Literal" <| fun _ ->
           // //     Expect.equal (parse "0x55") (Ok([Bytes("0x55")])) ""
-          // testCase "read let statement" <| fun _ ->
-          //     Expect.equal (parse "let x = 6") (Ok([LetStatement("x", Value(Integer(6)))])) ""
-          //     Expect.equal (parse "let x=8") (Ok([LetStatement("x", Value(Integer(6)))])) ""
-          //     Expect.equal (parse "let x = \n true") (Ok([LetStatement("x", Value(Boolean(true)))])) ""
-          // testCase "read let with scope" <| fun _ ->
-          //     Expect.equal (parse "let x = { true }") (Ok([todo])) ""
-          //     Expect.equal (parse "{ let x = 6 }") (Ok([todo])) ""
-          //     Expect.equal (parse "{ let x = { false } }") (Ok([todo])) ""
+          testCase "read let statement" <| fun _ ->
+              Expect.equal (parseString "let x = 6") (Ok([LetStatement("x", Value(Integer(6)))])) ""
+              Expect.equal (parseString "let x=8") (Ok([LetStatement("x", Value(Integer(8)))])) ""
+              Expect.equal (parseString "let x = \n true") (Ok([LetStatement("x", Value(Boolean(true)))])) ""
+        //   testCase "read let with scope" <| fun _ ->
+        //       Expect.equal (parseString "let x = { true }") (Ok([todo])) ""
+        //       Expect.equal (parseString "{ let x = 6 }") (Ok([todo])) ""
+        //       Expect.equal (parseString "{ let x = { false } }") (Ok([todo])) ""
           // // testCase "read colon" <| fun _ ->
           // //     Expect.equal (parse ":") (Ok([Colon])) ""
           // //     Expect.equal (parse "::::") (Ok([Colon; Colon; Colon; Colon])) ""
