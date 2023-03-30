@@ -70,32 +70,10 @@ let tests =
               Expect.equal (parseString "let x = 6") (Ok([LetStatement("x", Value(Integer(6)))])) ""
               Expect.equal (parseString "let x=8") (Ok([LetStatement("x", Value(Integer(8)))])) ""
               Expect.equal (parseString "let x = \n true") (Ok([LetStatement("x", Value(Boolean(true)))])) ""
-        //   testCase "read let with scope" <| fun _ ->
-        //       Expect.equal (parseString "let x = { true }") (Ok([todo])) ""
-        //       Expect.equal (parseString "{ let x = 6 }") (Ok([todo])) ""
-        //       Expect.equal (parseString "{ let x = { false } }") (Ok([todo])) ""
-          // // testCase "read colon" <| fun _ ->
-          // //     Expect.equal (parse ":") (Ok([Colon])) ""
-          // //     Expect.equal (parse "::::") (Ok([Colon; Colon; Colon; Colon])) ""
-          // // testCase "read dot" <| fun _ ->
-          // //     Expect.equal (parse ".") (Ok([Dot])) ""
-          // //     Expect.equal (parse "....") (Ok([Dot; Dot; Dot; Dot])) ""
-          // // testCase "read parens" <| fun _ ->
-          // //     Expect.equal (parse "(") (Ok([OpenParen])) ""
-          // //     Expect.equal (parse ")") (Ok([CloseParen])) ""
-          // //     Expect.equal (parse "(()))") (Ok([OpenParen; OpenParen; CloseParen; CloseParen; CloseParen])) ""
-          // // testCase "read square brackets" <| fun _ ->
-          // //     Expect.equal (parse "[") (Ok([OpenSquare])) ""
-          // //     Expect.equal (parse "]") (Ok([CloseSquare])) ""
-          // //     Expect.equal (parse "[[]]]") (Ok([OpenSquare; OpenSquare; CloseSquare; CloseSquare; CloseSquare])) ""
-          // // testCase "read arrow" <| fun _ ->
-          // //     Expect.equal (parse "->") (Ok([Arrow])) ""
-          // //     Expect.equal (parse "->->") (Ok([Arrow; Arrow])) ""
-          // //     Expect.equal (parse "->->->") (Ok([Arrow; Arrow; Arrow])) ""
-          // // testCase "read if and else keywords" <| fun _ ->
-          // //     Expect.equal (parse "if") (Ok([IfKeyword])) ""
-          // //     Expect.equal (parse "elsif") (Ok([ElsifKeyword])) ""
-          // //     Expect.equal (parse "else") (Ok([ElseKeyword])) ""
-          // // testCase "read question mark" <| fun _ ->
-          // //     Expect.equal (parse "?") (Ok([QuestionMark])) ""
+              Expect.equal (parseString @"let x = ""true""") (Ok([LetStatement("x", Value(String("true")))])) ""
+              Expect.equal (parseString "let x = <a>") (Ok([LetStatement("x", Value(ident "a"))])) ""
+          testCase "read let with scope" <| fun _ ->
+              Expect.equal (parseString "let x = { true }") (Ok([LetStatement("x", Scope([Value(Boolean(true))]))])) ""
+              Expect.equal (parseString "{ let x = 6 }") (Ok([Scope([LetStatement("x", Value(Integer(6)))])])) ""
+              Expect.equal (parseString "{ let x = { false } }") (Ok([Scope([LetStatement("x", Scope([Value(Boolean(false))]))])])) ""
           ]

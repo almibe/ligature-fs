@@ -34,8 +34,10 @@ let identifierNibbler =
         | Identifier(_) -> true
         | _ -> false)
 
+let simpleValueNibbler = (Nibblers.takeFirst [ integerNibbler; stringNibbler; booleanNibbler; identifierNibbler ])
+
 let valueNibbler =
-    Gaze.map (Nibblers.takeFirst [ integerNibbler; stringNibbler; booleanNibbler; identifierNibbler ]) (fun token ->
+    Gaze.map simpleValueNibbler (fun token ->
         match token with
         | Integer(i) -> Value(WanderValue.Integer(i))
         | StringLiteral(s) -> Value(WanderValue.String(s))
@@ -61,10 +63,13 @@ let letStatementNibbler =
             [ Nibblers.take LetKeyword
               nameNibbler
               Nibblers.take EqualSign
-              integerNibbler ])
+              simpleValueNibbler ])
         (fun tokens ->
             match tokens with
             | [ _; Name(name); _; Integer(i) ] -> LetStatement(name, Value(WanderValue.Integer(i)))
+            | [ _; Name(name); _; Boolean(b) ] -> LetStatement(name, Value(WanderValue.Boolean(b)))
+            | [ _; Name(name); _; StringLiteral(s)  ] -> LetStatement(name, Value(WanderValue.String(s)))
+            | [ _; Name(name); _; Identifier(i)] -> LetStatement(name, Value(WanderValue.Identifier(i)))
             | _ -> todo)
 
 let expressionNibbler =
