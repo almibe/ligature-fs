@@ -32,7 +32,7 @@ This repo is made up of a couple of different projects, below is a description o
 | Ligature          | Main code base including the main logic and types.                 |
 | LigatureConsole   | A Console application for interacting with Ligature.               |
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
-| LigatureLab       | A web application for working with Ligature.                       |
+| LigatureHttp      | A web backend for working with Ligature.                           |
 | LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
 | LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations.                  |

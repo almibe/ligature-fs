@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Lab.Main
+module Ligature.Http.Main
 
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
@@ -12,8 +12,8 @@ open Giraffe
 open Giraffe.ViewEngine
 open System.IO
 open Ligature.Sqlite.Main
-open Ligature.Lab.Config
-open Ligature.Lab.Backend
+open Ligature.Http.Config
+open Ligature.Http.Backend
 open Ligature
 open Microsoft.AspNetCore.Http
 

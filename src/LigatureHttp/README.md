@@ -1,4 +1,4 @@
-# Ligature Lab
+# Ligature Http
 
 This project provides a backend sever for working with Ligature.
 
