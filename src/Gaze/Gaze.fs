@@ -6,7 +6,8 @@ module Gaze
 
 type Gaze<'input> =
     { content: 'input array
-      mutable offset: int }
+      mutable offset: int 
+      mutable mark: int }
 
 type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
 //type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
@@ -16,13 +17,15 @@ let explode (s: string) = [| for c in s -> c |]
 /// Create an instance of Gaze that works with a String as input.
 let fromString string =
     { content = explode (string)
-      offset = 0 }
+      offset = 0
+      mark = 0 }
 
-let fromArray array = { content = array; offset = 0 }
+let fromArray array = { content = array; offset = 0; mark = 0 }
 
 let fromList list =
     { content = List.toArray list
-      offset = 0 }
+      offset = 0
+      mark = 0 }
 
 let isComplete gaze =
     gaze.offset >= Array.length (gaze.content)
@@ -55,6 +58,12 @@ let attempt nibbler gaze =
     | None ->
         gaze.offset <- startOffset
         None
+
+let mark (gaze: Gaze<_>) =
+    gaze.mark <- gaze.offset
+
+let backtrack (gaze: Gaze<_>) =
+    gaze.offset <- gaze.mark
 
 let offset gaze = gaze.offset
 
