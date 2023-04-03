@@ -4,10 +4,12 @@
 
 module Gaze
 
+open System.Collections.Generic
+
 type Gaze<'input> =
     { content: 'input array
       mutable offset: int 
-      mutable mark: int }
+      mutable mark: Stack<int> }
 
 type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
 //type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
@@ -18,14 +20,14 @@ let explode (s: string) = [| for c in s -> c |]
 let fromString string =
     { content = explode (string)
       offset = 0
-      mark = 0 }
+      mark = new Stack<int>() }
 
-let fromArray array = { content = array; offset = 0; mark = 0 }
+let fromArray array = { content = array; offset = 0; mark = new Stack<int>() }
 
 let fromList list =
     { content = List.toArray list
       offset = 0
-      mark = 0 }
+      mark = new Stack<int>() }
 
 let isComplete gaze =
     gaze.offset >= Array.length (gaze.content)
@@ -60,10 +62,13 @@ let attempt nibbler gaze =
         None
 
 let mark (gaze: Gaze<_>) =
-    gaze.mark <- gaze.offset
+    gaze.mark.Push(gaze.offset)
+
+let removeMark (gaze: Gaze<_>) =
+    gaze.mark.Pop() |> ignore
 
 let backtrack (gaze: Gaze<_>) =
-    gaze.offset <- gaze.mark
+    gaze.offset <- gaze.mark.Pop()
 
 let offset gaze = gaze.offset
 
