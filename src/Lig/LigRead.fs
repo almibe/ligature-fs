@@ -63,8 +63,8 @@ let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')
 /// <returns>An Identifier or Error.</returns>
 let readIdentifier gaze =
     match Gaze.attempt identifierNibbler gaze with
-    | None -> error "Could not read Identifier." None
-    | Some(result) -> identifier (System.String(List.toArray result))
+    | Error(_) -> error "Could not read Identifier." None
+    | Ok(result) -> identifier (System.String(List.toArray result))
 
 /// <summary>Reads a Value in lig format from a Gaze of chars.
 /// This could be an Identifier, String, Byte Array, or Integer.</summary>
@@ -77,8 +77,8 @@ let readValue gaze =
     | Ok(i) -> Ok(Identifier(i))
     | Error(_) ->
         match (Gaze.attempt valueNibbler gaze) with
-        | None -> error "Could not read Value." None
-        | Some(result) -> Ok(result)
+        | Error _ -> error "Could not read Value." None
+        | Ok result -> Ok(result)
 
 //TODO remove need for unwrap function
 let unwrap result =
