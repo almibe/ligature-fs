@@ -6,6 +6,8 @@ module GazeSuite
 
 open Expecto
 
+let noMatch = (Error Gaze.GazeError.NoMatch)
+
 [<Tests>]
 let tests =
     testList
@@ -14,36 +16,36 @@ let tests =
           <| fun _ ->
               let gaze = Gaze.fromString ("")
               Expect.isTrue (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) None ""
-              Expect.equal (Gaze.peek gaze) None ""
+              Expect.equal (Gaze.peek gaze) noMatch ""
+              Expect.equal (Gaze.peek gaze) noMatch ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 
           testCase "empty array input"
           <| fun _ ->
               let gaze = Gaze.fromArray ([||])
               Expect.isTrue (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) None ""
-              Expect.equal (Gaze.peek gaze) None ""
+              Expect.equal (Gaze.peek gaze) noMatch ""
+              Expect.equal (Gaze.peek gaze) noMatch ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 
           testCase "init Gaze with one value"
           <| fun _ ->
               let gaze = Gaze.fromArray ([| 'a' |])
               Expect.isFalse (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) (Some('a')) ""
-              Expect.equal (Gaze.peek gaze) (Some('a')) ""
-              Expect.equal (Gaze.next gaze) (Some('a')) ""
-              Expect.equal (Gaze.next gaze) None ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a') ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a') ""
+              Expect.equal (Gaze.next gaze) (Ok 'a') ""
+              Expect.equal (Gaze.next gaze) noMatch ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 
           testCase "init Gaze with single char String"
           <| fun _ ->
               let gaze = Gaze.fromString ("a")
               Expect.isFalse (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) (Ok('a')) ""
-              Expect.equal (Gaze.peek gaze) (Ok('a')) ""
-              Expect.equal (Gaze.next gaze) (Ok('a')) ""
-              Expect.equal (Gaze.next gaze) (Error(Gaze.GazeError.NoInput)) ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a' ) ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a' ) ""
+              Expect.equal (Gaze.next gaze) (Ok 'a' ) ""
+              Expect.equal (Gaze.next gaze) (Error(Gaze.GazeError.NoMatch)) ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 
           testCase "map digit"

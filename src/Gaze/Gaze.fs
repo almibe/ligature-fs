@@ -11,7 +11,7 @@ type Gaze<'input> =
       mutable offset: int 
       mutable mark: Stack<int> }
 
-type GazeError = | NoMatch | NoInput
+type GazeError = | NoMatch
 
 type Nibbler<'input, 'output> = Gaze<'input> -> Result<'output, GazeError>
 //type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
@@ -36,13 +36,13 @@ let isComplete (gaze: Gaze<_>) =
 
 let peek (gaze: Gaze<_>): Result<_, GazeError> =
     if isComplete gaze then
-        Error(NoInput)
+        Error(NoMatch)
     else
         Ok(gaze.content[gaze.offset])
 
 let next (gaze: Gaze<_>): Result<_, GazeError> =
     if isComplete (gaze) then
-        Error(NoInput)
+        Error(NoMatch)
     else
         let result = gaze.content[gaze.offset]
         gaze.offset <- gaze.offset + 1

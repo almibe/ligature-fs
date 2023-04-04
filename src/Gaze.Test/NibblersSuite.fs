@@ -73,7 +73,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeCond (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        None
+                        (Error Gaze.GazeError.NoMatch)
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) "" ]
@@ -84,9 +84,9 @@ let tests =
                 <| fun _ ->
                     let gaze = Gaze.fromArray [| 1; 2; 3 |]
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(1)) ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10) ]) gaze) None ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10) ]) gaze) (Error Gaze.GazeError.NoMatch) ""
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(2)) ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (0, 1) ]) gaze) None ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (0, 1) ]) gaze) (Error Gaze.GazeError.NoMatch) ""
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (2, 3) ]) gaze) (Ok(3)) "" ]
 
           testList
@@ -122,7 +122,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeWhile (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        None
+                        (Error Gaze.GazeError.NoMatch)
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) "" ]

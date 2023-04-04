@@ -85,7 +85,7 @@ let takeWhile predicate gaze =
             results <- results @ [ value ]
         | _ -> cont <- false
 
-    if List.length (results) = 0 then None else Some results
+    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok results
 
 /// <summary>Create a Nibbler that accepts input based on a function that recieves the current token
 /// with index starting at 0 and returns a bool.</summary>
@@ -157,7 +157,7 @@ let repeat nibbler gaze =
         | Ok(result) -> results <- results @ [ result ]
         | Error(_) -> cont <- false
 
-    if results = [] then None else Some(results)
+    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
 
 let repeatN nibbler n gaze =
     let mutable cont = true
@@ -172,7 +172,7 @@ let repeatN nibbler n gaze =
                 cont <- false
         | Error(_) -> cont <- false
 
-    if results = [] then None else Some(results)
+    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
 
 /// <summary>Create a Nibbler that accepts a List of Nibblers and only succeeds if all of the
 /// passed in Nibblers succeed in order.</summary>
@@ -192,16 +192,16 @@ let takeAll nibblers gaze =
         | Error(_) -> nibblerIndex <- -1
 
     if results = [] || nibblerIndex = -1 then
-        None
+        Error(Gaze.GazeError.NoMatch)
     else
-        Some(results)
+        Ok(results)
 
 /// <summary>Create a Nibbler that accepts a List of Nibblers and matches on the first that succeeds.
 /// If all fail the created Nibbler will fail as well.</summary>
 /// <param name="nibblers">A list of Nibblers to check.</param>
 /// <returns>The newly created Nibbler.</returns>
 let takeFirst nibblers gaze =
-    let mutable result = None
+    let mutable result = Error(Gaze.GazeError.NoMatch)
     let mutable nibblerIndex = 0
 
     while nibblerIndex >= 0 && nibblerIndex < List.length (nibblers) do
@@ -209,7 +209,7 @@ let takeFirst nibblers gaze =
 
         match Gaze.attempt nibbler gaze with
         | Ok(res) ->
-            result <- Some(res)
+            result <- Ok(res)
             nibblerIndex <- -1
         | Error(_) -> nibblerIndex <- nibblerIndex + 1
 
