@@ -40,15 +40,15 @@ let tests =
           <| fun _ ->
               let gaze = Gaze.fromString ("a")
               Expect.isFalse (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) (Some('a')) ""
-              Expect.equal (Gaze.peek gaze) (Some('a')) ""
-              Expect.equal (Gaze.next gaze) (Some('a')) ""
-              Expect.equal (Gaze.next gaze) None ""
+              Expect.equal (Gaze.peek gaze) (Ok('a')) ""
+              Expect.equal (Gaze.peek gaze) (Ok('a')) ""
+              Expect.equal (Gaze.next gaze) (Ok('a')) ""
+              Expect.equal (Gaze.next gaze) (Error(Gaze.GazeError.NoInput)) ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 
           testCase "map digit"
           <| fun _ ->
               let gaze = Gaze.fromString ("1")
-              let result = Some(1)
+              let result = Ok(1)
               let nibbler = Gaze.map Gaze.next (fun char -> int (string char))
               Expect.equal (Gaze.attempt nibbler gaze) result "" ]

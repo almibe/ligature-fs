@@ -17,7 +17,7 @@ module Nibblers
 /// <param name="t">The literal to take.</param>
 /// <returns>A Nibbler that takes a single literal.</returns>
 let take t gaze =
-    if Gaze.next gaze = Some(t) then Some(t) else None
+    if Gaze.next gaze = Ok(t) then Ok(t) else Error(Gaze.GazeError.NoMatch)
 
 /// <summary>Create a Nibbler that takes a list of tokens.</summary>
 /// <param name="list">The list of tokens to take.</param>
@@ -31,14 +31,14 @@ let takeList list gaze =
         let next = Gaze.next (gaze)
 
         match next with
-        | Some value ->
+        | Ok value ->
             if value = list.Item(index) then
                 index <- index + 1
             else
                 cont <- false
-        | None -> cont <- false
+        | Error(_) -> cont <- false
 
-    if cont && index = length then Some list else None
+    if cont && index = length then Ok list else Error Gaze.GazeError.NoMatch
 
 /// <summary>Create a Nibbler that takes a String when working with a Gaze of Chars.
 /// This is just a helper function that relies on takeList.</summary>
@@ -55,10 +55,10 @@ let takeCond predicate gaze =
     let next = Gaze.peek (gaze)
 
     match next with
-    | Some(value) when predicate (value) ->
+    | Ok(value) when predicate (value) ->
         Gaze.next (gaze) |> ignore
-        Some(value)
-    | _ -> None
+        Ok(value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
 
 /// <summary>Create a Nibbler that takes values if they are within a set of given ranges.</summary>
 /// <param name="ranges">The ranges to match against.</param>
@@ -80,7 +80,7 @@ let takeWhile predicate gaze =
         let next = Gaze.peek (gaze)
 
         match next with
-        | Some value when predicate value ->
+        | Ok value when predicate value ->
             Gaze.next (gaze) |> ignore
             results <- results @ [ value ]
         | _ -> cont <- false
@@ -100,13 +100,13 @@ let takeWhileIndex predicate gaze =
         let next = Gaze.peek (gaze)
 
         match next with
-        | Some(value) when predicate (value, index) ->
+        | Ok(value) when predicate (value, index) ->
             Gaze.next (gaze) |> ignore
             results <- results @ [ value ]
             index <- index + 1
         | _ -> cont <- false
 
-    if List.length (results) = 0 then None else Some(results)
+    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok(results)
 
 /// <summary>Create a Nibbler that consumes input until the given Nibbler succeeds.</summary>
 /// <param name="nibbler">The Nibbler used to test.</param>
@@ -119,12 +119,13 @@ let takeUntil nibbler gaze =
         let res = Gaze.check nibbler gaze
 
         match res with
-        | Some(_) -> cont <- false
-        | None ->
-            let next = Gaze.next (gaze)
-            results <- results @ [ next.Value ] //???
+        | Ok(_) -> cont <- false
+        | Error(_) ->
+            match Gaze.next gaze with
+            | Ok(next) -> results <- results @ [ next ] //???
+            | Error(err) -> cont <- false //???
 
-    Some(results)
+    Ok(results)
 
 /// <summary>Create a Nibbler that accepts a start.</summary>
 /// <param name="start">The starting token.</param>
@@ -132,20 +133,20 @@ let takeUntil nibbler gaze =
 /// <param name="end">The ending token.</param>
 /// <returns>A Nibbler that consumes a starting and ending token and returns the content that matches in between.</returns>
 let between start content last gaze =
-    if Gaze.next (gaze) = Some(start) then
+    if Gaze.next gaze = Ok(start) then
         match Gaze.attempt content gaze with
-        | Some(result) -> if Gaze.next (gaze) = Some(last) then Some(result) else None
-        | None -> None
+        | Ok(result) -> if Gaze.next (gaze) = Ok(last) then Ok(result) else Error(Gaze.NoMatch)
+        | Error(err) -> Error(err)
     else
-        None
+        Error(Gaze.NoMatch)
 
 /// <summary>Creates a Nibbler that wraps another Nibbler and will never fail but will instead return an empty List.</summary>
 /// <param name="nibbler">The Nibbler to wrap.</param>
 /// <returns>The newly created Nibbler.</returns>
 let optional nibbler gaze =
     match Gaze.attempt nibbler gaze with
-    | Some(res) -> Some(res)
-    | None -> Some([])
+    | Ok(res) -> Ok(res)
+    | Error(_) -> Ok([])
 
 let repeat nibbler gaze =
     let mutable cont = true
@@ -153,8 +154,8 @@ let repeat nibbler gaze =
 
     while cont do
         match Gaze.attempt nibbler gaze with
-        | Some(result) -> results <- results @ [ result ]
-        | None -> cont <- false
+        | Ok(result) -> results <- results @ [ result ]
+        | Error(_) -> cont <- false
 
     if results = [] then None else Some(results)
 
@@ -164,12 +165,12 @@ let repeatN nibbler n gaze =
 
     while cont do
         match Gaze.attempt nibbler gaze with
-        | Some(result) ->
+        | Ok(result) ->
             results <- results @ [ result ]
 
             if (List.length results) >= n then
                 cont <- false
-        | None -> cont <- false
+        | Error(_) -> cont <- false
 
     if results = [] then None else Some(results)
 
@@ -185,10 +186,10 @@ let takeAll nibblers gaze =
         let nibbler = nibblers.Item(nibblerIndex)
 
         match Gaze.attempt nibbler gaze with
-        | Some(result) ->
+        | Ok(result) ->
             results <- results @ [ result ]
             nibblerIndex <- nibblerIndex + 1
-        | None -> nibblerIndex <- -1
+        | Error(_) -> nibblerIndex <- -1
 
     if results = [] || nibblerIndex = -1 then
         None
@@ -207,9 +208,9 @@ let takeFirst nibblers gaze =
         let nibbler = nibblers.Item(nibblerIndex)
 
         match Gaze.attempt nibbler gaze with
-        | Some(res) ->
+        | Ok(res) ->
             result <- Some(res)
             nibblerIndex <- -1
-        | None -> nibblerIndex <- nibblerIndex + 1
+        | Error(_) -> nibblerIndex <- nibblerIndex + 1
 
     result

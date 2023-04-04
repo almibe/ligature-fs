@@ -15,7 +15,7 @@ let tests =
               [ testCase "take with single value"
                 <| fun _ ->
                     let gaze = Gaze.fromString ("a")
-                    Expect.equal (Gaze.attempt (Nibblers.take 'a') gaze) (Some('a')) ""
+                    Expect.equal (Gaze.attempt (Nibblers.take 'a') gaze) (Ok('a')) ""
                     Expect.isTrue (Gaze.isComplete gaze) "" ]
 
           testList
@@ -24,8 +24,8 @@ let tests =
                 <| fun _ ->
                     let gaze = Gaze.fromString ("hello, world")
                     let list = [ 'h'; 'e'; 'l'; 'l'; 'o' ]
-                    Expect.equal (Gaze.attempt (Nibblers.takeList list) gaze) (Some(list)) ""
-                    Expect.equal (Gaze.peek gaze) (Some(',')) "" ]
+                    Expect.equal (Gaze.attempt (Nibblers.takeList list) gaze) (Ok(list)) ""
+                    Expect.equal (Gaze.peek gaze) (Ok(',')) "" ]
 
           testList
               "Take String Suite"
@@ -35,17 +35,17 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeString "hello") gaze)
-                        (Some([ 'h'; 'e'; 'l'; 'l'; 'o' ]))
+                        (Ok([ 'h'; 'e'; 'l'; 'l'; 'o' ]))
                         ""
 
-                    Expect.equal (Gaze.peek gaze) (Some(',')) "" ]
+                    Expect.equal (Gaze.peek gaze) (Ok(',')) "" ]
 
           testList
               "Take Cond Suite"
               [ testCase "takeCond with a single value"
                 <| fun _ ->
                     let gaze = Gaze.fromString ("a")
-                    Expect.equal (Gaze.attempt (Nibblers.takeCond (fun c -> c = 'a')) gaze) (Some('a')) ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeCond (fun c -> c = 'a')) gaze) (Ok('a')) ""
                     assert (Gaze.isComplete (gaze))
                 testCase "takeCond with multiple values"
                 <| fun _ ->
@@ -53,7 +53,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeCond (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        (Some('c'))
+                        (Ok('c'))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
@@ -63,7 +63,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeCond (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        (Some('a'))
+                        (Ok('a'))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
@@ -83,18 +83,18 @@ let tests =
               [ testCase "basic range test"
                 <| fun _ ->
                     let gaze = Gaze.fromArray [| 1; 2; 3 |]
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Some(1)) ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(1)) ""
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10) ]) gaze) None ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Some(2)) ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(2)) ""
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (0, 1) ]) gaze) None ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (2, 3) ]) gaze) (Some(3)) "" ]
+                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (2, 3) ]) gaze) (Ok(3)) "" ]
 
           testList
               "Take While Suite"
               [ testCase "takeWhile with a single value"
                 <| fun _ ->
                     let gaze = Gaze.fromString ("a")
-                    Expect.equal (Gaze.attempt (Nibblers.takeWhile (fun c -> c = 'a')) gaze) (Some([ 'a' ])) ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeWhile (fun c -> c = 'a')) gaze) (Ok([ 'a' ])) ""
                     Expect.isTrue (Gaze.isComplete gaze) ""
                 testCase "takeWhile with multiple values"
                 <| fun _ ->
@@ -102,7 +102,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeWhile (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        (Some([ 'c'; 'a'; 'b' ]))
+                        (Ok([ 'c'; 'a'; 'b' ]))
                         ""
 
                     Expect.isTrue (Gaze.isComplete gaze) ""
@@ -112,7 +112,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeWhile (fun c -> List.contains c [ 'a'; 'b'; 'c'; 'd' ])) gaze)
-                        (Some([ 'a'; 'b'; 'c' ]))
+                        (Ok([ 'a'; 'b'; 'c' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
@@ -137,7 +137,7 @@ let tests =
                         (Gaze.attempt
                             (Nibblers.takeWhileIndex (fun (c, i) -> (c = 'a' && i = 0) || (c = 'b' && i = 1)))
                             gaze)
-                        (Some([ 'a'; 'b' ]))
+                        (Ok([ 'a'; 'b' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) "" ]
@@ -150,10 +150,10 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.takeUntil (Nibblers.take ',')) gaze)
-                        (Some([ 'h'; 'e'; 'l'; 'l'; 'o' ]))
+                        (Ok([ 'h'; 'e'; 'l'; 'l'; 'o' ]))
                         ""
 
-                    Expect.equal (Gaze.peek gaze) (Some(',')) "" ]
+                    Expect.equal (Gaze.peek gaze) (Ok(',')) "" ]
 
           testList
               "Between Suite"
@@ -163,7 +163,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.between 'a' (Nibblers.takeWhile (fun c -> c = 'b')) 'c') gaze)
-                        (Some([ 'b'; 'b'; 'b'; 'b'; 'b' ]))
+                        (Ok([ 'b'; 'b'; 'b'; 'b'; 'b' ]))
                         ""
 
                     Expect.isTrue (Gaze.isComplete gaze) "" ]
@@ -176,10 +176,10 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.optional (Gaze.map (Nibblers.take 'b') (fun r -> [ r ]))) gaze)
-                        (Some([]))
+                        (Ok([]))
                         ""
 
-                    Expect.equal (Gaze.peek gaze) (Some('a')) "" ]
+                    Expect.equal (Gaze.peek gaze) (Ok('a')) "" ]
 
           testList
               "Repeat Suite"
@@ -189,21 +189,21 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.repeat (Nibblers.takeCond (fun c -> c = 'a'))) gaze)
-                        (Some([ 'a'; 'a'; 'a'; 'a' ]))
+                        (Ok([ 'a'; 'a'; 'a'; 'a' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.repeat (Nibblers.takeCond (fun c -> c = 'b'))) gaze)
-                        (Some([ 'b'; 'b'; 'b'; 'b'; 'b' ]))
+                        (Ok([ 'b'; 'b'; 'b'; 'b'; 'b' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.repeat (Nibblers.takeCond (fun c -> c = 'c'))) gaze)
-                        (Some([ 'c' ]))
+                        (Ok([ 'c' ]))
                         ""
 
                     Expect.isTrue (Gaze.isComplete gaze) "" ]
@@ -220,7 +220,7 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt takeAll gaze)
-                        (Some([ [ 'a'; 'a'; 'a'; 'a' ]; [ 'b'; 'b'; 'b'; 'b'; 'b' ]; [ 'c' ] ]))
+                        (Ok([ [ 'a'; 'a'; 'a'; 'a' ]; [ 'b'; 'b'; 'b'; 'b'; 'b' ]; [ 'c' ] ]))
                         ""
 
                     Expect.isTrue (Gaze.isComplete gaze) "" ]
@@ -234,5 +234,5 @@ let tests =
                     let takeBs = Nibblers.repeat (Nibblers.takeCond (fun c -> c = 'b'))
                     let takeCs = Nibblers.repeat (Nibblers.takeCond (fun c -> c = 'c'))
                     let takeFirst = Nibblers.takeFirst [ takeCs; takeBs; takeAs ]
-                    Expect.equal (Gaze.attempt takeFirst gaze) (Some([ 'a'; 'a'; 'a'; 'a' ])) ""
+                    Expect.equal (Gaze.attempt takeFirst gaze) (Ok([ 'a'; 'a'; 'a'; 'a' ])) ""
                     Expect.isFalse (Gaze.isComplete gaze) "" ] ]

@@ -11,7 +11,9 @@ type Gaze<'input> =
       mutable offset: int 
       mutable mark: Stack<int> }
 
-type Nibbler<'input, 'output> = Gaze<'input> -> 'output option
+type GazeError = | NoMatch | NoInput
+
+type Nibbler<'input, 'output> = Gaze<'input> -> Result<'output, GazeError>
 //type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
 
 let explode (s: string) = [| for c in s -> c |]
@@ -29,37 +31,37 @@ let fromList list =
       offset = 0
       mark = new Stack<int>() }
 
-let isComplete gaze =
+let isComplete (gaze: Gaze<_>) =
     gaze.offset >= Array.length (gaze.content)
 
-let peek gaze =
+let peek (gaze: Gaze<_>): Result<_, GazeError> =
     if isComplete gaze then
-        None
+        Error(NoInput)
     else
-        Some(gaze.content[gaze.offset])
+        Ok(gaze.content[gaze.offset])
 
-let next gaze =
+let next (gaze: Gaze<_>): Result<_, GazeError> =
     if isComplete (gaze) then
-        None
+        Error(NoInput)
     else
         let result = gaze.content[gaze.offset]
         gaze.offset <- gaze.offset + 1
-        Some(result)
+        Ok(result)
 
-let check nibbler gaze =
+let check (nibbler: Nibbler<_, _>) (gaze: Gaze<_>) =
     let startOffset = gaze.offset
     let res = nibbler gaze
     gaze.offset <- startOffset
     res
 
-let attempt nibbler gaze =
+let attempt (nibbler: Nibbler<_, _>) (gaze: Gaze<_>) =
     let startOffset = gaze.offset
 
-    match nibbler gaze with
-    | Some(res) -> Some(res)
-    | None ->
+    match nibbler (gaze: Gaze<_>) with
+    | Ok(res) -> Ok(res)
+    | Error(err) ->
         gaze.offset <- startOffset
-        None
+        Error(err)
 
 let mark (gaze: Gaze<_>) =
     gaze.mark.Push(gaze.offset)
@@ -70,9 +72,9 @@ let removeMark (gaze: Gaze<_>) =
 let backtrack (gaze: Gaze<_>) =
     gaze.offset <- gaze.mark.Pop()
 
-let offset gaze = gaze.offset
+let offset (gaze: Gaze<_>) = gaze.offset
 
-let map nibbler mapper gaze =
+let map (nibbler: Nibbler<_, _>) mapper (gaze: Gaze<_>) =
     match attempt nibbler gaze with
-    | Some(result) -> Some(mapper (result))
-    | None -> None
+    | Ok(result) -> Ok(mapper (result))
+    | Error(err) -> Error(err)
