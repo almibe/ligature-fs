@@ -8,8 +8,7 @@ open System.Collections.Generic
 
 type Gaze<'input> =
     { content: 'input array
-      mutable offset: int 
-      mutable mark: Stack<int> }
+      mutable offset: int }
 
 type GazeError = | NoMatch
 
@@ -21,15 +20,13 @@ let explode (s: string) = [| for c in s -> c |]
 /// Create an instance of Gaze that works with a String as input.
 let fromString string =
     { content = explode (string)
-      offset = 0
-      mark = new Stack<int>() }
+      offset = 0 }
 
-let fromArray array = { content = array; offset = 0; mark = new Stack<int>() }
+let fromArray array = { content = array; offset = 0 }
 
 let fromList list =
     { content = List.toArray list
-      offset = 0
-      mark = new Stack<int>() }
+      offset = 0 }
 
 let isComplete (gaze: Gaze<_>) =
     gaze.offset >= Array.length (gaze.content)
@@ -62,15 +59,6 @@ let attempt (nibbler: Nibbler<_, _>) (gaze: Gaze<_>) =
     | Error(err) ->
         gaze.offset <- startOffset
         Error(err)
-
-let mark (gaze: Gaze<_>) =
-    gaze.mark.Push(gaze.offset)
-
-let removeMark (gaze: Gaze<_>) =
-    gaze.mark.Pop() |> ignore
-
-let backtrack (gaze: Gaze<_>) =
-    gaze.offset <- gaze.mark.Pop()
 
 let offset (gaze: Gaze<_>) = gaze.offset
 
