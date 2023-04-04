@@ -24,6 +24,7 @@ type WanderValue =
     | Boolean of bool
     | Identifier of Identifier
     | Nothing
+    | Lambda //TODO not fully defined
 
 type Parameter =
     { name: string; wanderType: WanderType }
@@ -33,3 +34,5 @@ type Expression =
     | Name of string
     | Scope of Expression list
     | Value of WanderValue
+    | FunctionCall //TODO not fully defined
+    | Conditional //TODO not fully defined
