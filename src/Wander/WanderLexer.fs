@@ -117,5 +117,5 @@ let tokenize script =
     let tokens = Gaze.attempt tokenNibbler gaze
 
     match tokens with
-    | Some(tokens) -> Ok(tokens)
-    | None -> error "Could not read token" None
+    | Ok(tokens) -> Ok(tokens)
+    | Error _ -> error "Could not read token" None

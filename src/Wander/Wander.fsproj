@@ -18,5 +18,8 @@
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
     <ProjectReference Include="..\Lig\Lig.fsproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+  </ItemGroup>
 
 </Project>
