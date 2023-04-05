@@ -18,21 +18,28 @@ type WanderType =
     | Graph
     | Nothing
 
-type WanderValue =
+type WanderValue<'Body> =
     | Integer of int64
     | String of string
     | Boolean of bool
     | Identifier of Identifier
     | Nothing
-    | Lambda //TODO not fully defined
+    | Lambda of paramters: string list * body: 'Body list
 
 type Parameter =
     { name: string; wanderType: WanderType }
 
+type Case<'Condition, 'Body> = { condition: 'Condition; body: 'Body }
+
+type Conditional<'Condition, 'Body> =
+    { ifCase: Case<'Condition, 'Body>
+    ; elsifCases: Case<'Condition, 'Body> list
+    ; elseBody: 'Body option }
+
 type Expression =
-    | LetStatement of string * Expression
+    | LetStatement of name: string * value: Expression
     | Name of string
     | Scope of Expression list
-    | Value of WanderValue
-    | FunctionCall //TODO not fully defined
-    | Conditional //TODO not fully defined
+    | Value of WanderValue<Expression>
+    | FunctionCall of name: string * arguments: Expression list
+    | Conditional of Conditional<Expression, Expression>
