@@ -66,3 +66,5 @@ let map (nibbler: Nibbler<_, _>) mapper (gaze: Gaze<_>) =
     match attempt nibbler gaze with
     | Ok(result) -> Ok(mapper (result))
     | Error(err) -> Error(err)
+
+let remaining (gaze: Gaze<_>) = gaze.content[gaze.offset..]

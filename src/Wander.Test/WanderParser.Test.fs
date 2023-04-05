@@ -79,13 +79,13 @@ let tests =
               Expect.equal (parseString "let x = \n true") (Ok([LetStatement("x", Value(Boolean(true)))])) ""
               Expect.equal (parseString @"let x = ""true""") (Ok([LetStatement("x", Value(String("true")))])) ""
               Expect.equal (parseString "let x = <a>") (Ok([LetStatement("x", Value(ident "a"))])) ""
-          ftestCase "read Scopes" <| fun _ ->
-              Expect.equal (parseString "{}") (Ok [Scope [] ]) ""
+          testCase "read Scopes" <| fun _ ->
+              Expect.equal (parseString "{ true }") (Ok [Scope [Value(Boolean(true))] ]) ""
               Expect.equal (parseString "{ 55 }") (Ok [Scope [Value(Integer(55))] ]) ""
-        //   testCase "read let with scope" <| fun _ ->
-        //       Expect.equal (parseString "let x = { true }") (Ok([LetStatement("x", Scope([Value(Boolean(true))]))])) ""
-        //       Expect.equal (parseString "{ let x = 6 }") (Ok([Scope([LetStatement("x", Value(Integer(6)))])])) ""
-        //       Expect.equal (parseString "{ let x = { false } }") (Ok([Scope([LetStatement("x", Scope([Value(Boolean(false))]))])])) ""
+          testCase "read let with scope" <| fun _ ->
+              Expect.equal (parseString "let x = { true }") (Ok([LetStatement("x", Scope([Value(Boolean(true))]))])) ""
+              Expect.equal (parseString "{ let x = 6 }") (Ok([Scope([LetStatement("x", Value(Integer(6)))])])) ""
+              Expect.equal (parseString "{ let x = { false } }") (Ok([Scope([LetStatement("x", Scope([Value(Boolean(false))]))])])) ""
         //TODO parsing conditionals
         //TODO parsing lambdas
           ]

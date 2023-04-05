@@ -11,35 +11,15 @@ open FsToolkit.ErrorHandling
 
 let todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-//let simpleValueNibbler = (Nibblers.takeFirst [ integerNibbler; stringNibbler; booleanNibbler; identifierNibbler ])
-
-// let valueNibbler gaze =
-//     Gaze.attempt (fun gaze ->
-//         match Gaze.next gaze with
-//         | Ok(Integer(i)) -> Ok(WanderValue.Integer(i))
-//         | Ok(StringLiteral(s)) -> Ok(WanderValue.String(s))
-//         | Ok(Boolean(b)) -> Ok(WanderValue.Boolean(b))
-//         | Ok(Identifier(i)) -> Ok(WanderValue.Identifier(i))
-//         | _ -> todo) //error $"Token {e} can not start an expression or statement." None)
-//         gaze
-
-// let valueExpressionNibbler =
-//     Gaze.map simpleValueNibbler (fun token ->
-//         match token with
-//         | Integer(i) -> Value(WanderValue.Integer(i))
-//         | StringLiteral(s) -> Value(WanderValue.String(s))
-//         | Boolean(b) -> Value(WanderValue.Boolean(b))
-//         | Identifier(i) -> Value(WanderValue.Identifier(i))
-//         | _ -> Value(WanderValue.Nothing)) //error $"Token {e} can not start an expression or statement." None)
-
 let readScope gaze =
-    todo
-    //Nibblers.between OpenBrace expressionNibbler CloseBrace
-
-let scopeExpressionNibbler =
-    todo
-//    Gaze.map (scopeNibbler ()) (fun expr ->
-//        Scope [])
+    Gaze.attempt (fun gaze ->
+        result {
+            let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
+            let! expression = readExpression gaze //TODO needs updated
+            let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
+            return Scope ([expression])
+        })
+        gaze
 
 let nameStrNibbler (gaze: Gaze.Gaze<WanderToken>): Result<string, Gaze.GazeError> =
     Gaze.attempt (fun gaze ->
@@ -58,29 +38,6 @@ let nameExpressionNibbler gaze =
     Gaze.attempt (fun gaze ->
         todo)
         gaze
-
-// let letStatementNibbler =
-//     Gaze.map
-//         (Nibblers.takeAll
-//             [ Nibblers.take LetKeyword
-//               nameNibbler
-//               Nibblers.take EqualSign
-//               simpleValueNibbler ])
-//         (fun tokens ->
-//             match tokens with
-//             | [ _; Name(name); _; Integer(i) ] -> LetStatement(name, Value(WanderValue.Integer(i)))
-//             | [ _; Name(name); _; Boolean(b) ] -> LetStatement(name, Value(WanderValue.Boolean(b)))
-//             | [ _; Name(name); _; StringLiteral(s)  ] -> LetStatement(name, Value(WanderValue.String(s)))
-//             | [ _; Name(name); _; Identifier(i)] -> LetStatement(name, Value(WanderValue.Identifier(i)))
-//             | _ -> todo)
-
-// let expressionNibbler =
-//     Nibblers.repeat (Nibblers.takeFirst [
-//         scopeExpressionNibbler
-//         valueExpressionNibbler
-//         letStatementNibbler
-//         nameExpressionNibbler
-//         ])
 
 let readNextElement (gaze: Gaze.Gaze<WanderToken>): Expression option =
     todo
@@ -137,6 +94,7 @@ let readExpression (gaze: Gaze.Gaze<WanderToken>): Result<Expression, Gaze.GazeE
     match next with
     | Error(err) -> Error err
     | Ok(LetKeyword) -> readLetStatement gaze
+    | Ok(OpenBrace) -> readScope gaze
     | Ok(Integer(_)) -> readInteger gaze
     | Ok(Boolean(_)) -> readBoolean gaze
     | Ok(Identifier(_)) -> readIdentifier gaze
@@ -153,7 +111,8 @@ let readExpressions (gaze: Gaze.Gaze<WanderToken>): Result<Expression list, Liga
         | Error _ -> cont <- false
         | Ok(exp) -> res <- res @ [exp]
     if Gaze.isComplete gaze then Ok(res)
-    else error $"Could not match {(Gaze.peek gaze)}." None
+    else error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    //    printfn "%A" (sprintf "%A" (tokenize input))
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
