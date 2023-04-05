@@ -5,7 +5,6 @@
 module rec Ligature.Wander.Parser
 
 open Ligature.Wander.Model
-open Ligature
 open Lexer
 open FsToolkit.ErrorHandling
 
@@ -15,9 +14,9 @@ let readScope gaze =
     Gaze.attempt (fun gaze ->
         result {
             let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
-            let! expression = readExpression gaze //TODO needs updated
+            let! expression = readScopeExpressions gaze //TODO needs updated
             let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
-            return Scope ([expression])
+            return Scope (expression)
         })
         gaze
 
@@ -103,7 +102,7 @@ let readExpression (gaze: Gaze.Gaze<WanderToken>): Result<Expression, Gaze.GazeE
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 /// Read all of the Expressions from a given instance of Gaze<WanderToken>
-let readExpressions (gaze: Gaze.Gaze<WanderToken>): Result<Expression list, LigatureError> =
+let readExpressions (gaze: Gaze.Gaze<WanderToken>): Result<Expression list, Gaze.GazeError> =
     let mutable res = []
     let mutable cont = true
     while cont do
@@ -111,8 +110,26 @@ let readExpressions (gaze: Gaze.Gaze<WanderToken>): Result<Expression list, Liga
         | Error _ -> cont <- false
         | Ok(exp) -> res <- res @ [exp]
     if Gaze.isComplete gaze then Ok(res)
-    else error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
     //    printfn "%A" (sprintf "%A" (tokenize input))
+
+/// This function is similar to readExpressions but when it reaches an Error it returns all matched expressions
+/// instead of an Error.
+let readScopeExpressions (gaze: Gaze.Gaze<WanderToken>): Result<Expression list, Gaze.GazeError> =
+    let mutable res = []
+    let mutable cont = true
+    let mutable err = false
+    while cont do
+        match Gaze.peek gaze with
+        | Ok(CloseBrace) -> cont <- false
+        | Error _ -> cont <- false; err <- true
+        | Ok _ ->
+            let expr = readExpression gaze
+            match expr with
+            | Ok(expr) -> res <- res @ [expr]
+            | Error _ -> cont <- false; err <- true
+    if not err then Ok(res)
+    else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
 /// <summary></summary>
 /// <param name="tokens">The list of WanderTokens to be parsered.</param>
@@ -138,4 +155,5 @@ let parse (tokens: Lexer.WanderToken list) =
 let parseString (input: string) =
     match tokenize input with
     | Ok(tokens) -> parse tokens
-    | Error(err) -> Error(err)
+    | Error(err) ->  Error(err) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    //    printfn "%A" (sprintf "%A" (tokenize input))

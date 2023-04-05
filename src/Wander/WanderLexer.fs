@@ -114,8 +114,4 @@ let tokenNibbler =
 
 let tokenize script =
     let gaze = Gaze.fromString (script)
-    let tokens = Gaze.attempt tokenNibbler gaze
-
-    match tokens with
-    | Ok(tokens) -> Ok(tokens)
-    | Error _ -> error "Could not read token" None
+    Gaze.attempt tokenNibbler gaze

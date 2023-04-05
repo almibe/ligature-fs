@@ -82,10 +82,12 @@ let tests =
           testCase "read Scopes" <| fun _ ->
               Expect.equal (parseString "{ true }") (Ok [Scope [Value(Boolean(true))] ]) ""
               Expect.equal (parseString "{ 55 }") (Ok [Scope [Value(Integer(55))] ]) ""
+              Expect.equal (parseString @"{ 1 true 3 ""Hello""}") (Ok [Scope [Value(Integer(1)); Value(Boolean(true)); Value(Integer(3)); Value(String("Hello")) ]]) ""
           testCase "read let with scope" <| fun _ ->
               Expect.equal (parseString "let x = { true }") (Ok([LetStatement("x", Scope([Value(Boolean(true))]))])) ""
               Expect.equal (parseString "{ let x = 6 }") (Ok([Scope([LetStatement("x", Value(Integer(6)))])])) ""
               Expect.equal (parseString "{ let x = { false } }") (Ok([Scope([LetStatement("x", Scope([Value(Boolean(false))]))])])) ""
         //TODO parsing conditionals
+        //TODO parsing function calls
         //TODO parsing lambdas
           ]

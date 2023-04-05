@@ -17,7 +17,8 @@ let evalName name bindings =
 let rec evalExpression bindings expression =
     match expression with
     | Value(value) -> Ok((value, bindings))
-    | Name(name) -> evalName name bindings //Ok((Nothing, bindings))
+    | Name(name) -> evalName name bindings
+    | Scope(expressions) -> evalExpressions bindings expressions
     | LetStatement(name, expression) ->
         let res = evalExpression bindings expression
 
@@ -27,6 +28,22 @@ let rec evalExpression bindings expression =
             Ok((Nothing, bindings))
         | Error(_) -> res
     | _ -> error $"Could not eval {expression}" None
+
+and evalExpressions (bindings: Bindings.Bindings) (expressions: Expression list): Result<(WanderValue * Bindings.Bindings), LigatureError> =
+    match List.length expressions with
+    | 0 -> Ok (Nothing, bindings)
+    | 1 -> evalExpression bindings (List.head expressions)
+    | _ ->
+        let mutable result = Ok (Nothing, bindings)
+        let mutable cont = true
+        while cont do
+            result <- evalExpression bindings (List.head expressions)
+            match result with
+            | Ok(res) -> result <- Ok(res)
+            | Error(err) ->
+                result <- Error(err)
+                cont <- false
+        result
 
 let rec eval (bindings: Bindings.Bindings) (expressions: Expression list) =
     match expressions with

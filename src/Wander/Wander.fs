@@ -9,9 +9,9 @@ open Ligature
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let run (input: string) =
-    match Wander.Lexer.tokenize input with
+    match Lexer.tokenize input with
     | Ok(tokens) ->
         match Parser.parse tokens with
-        | Ok(ast) -> Interpreter.interpret ast
-        | Error(err) -> Error(err)
-    | Error(err) -> Error(err)
+        | Ok ast -> Interpreter.interpret ast
+        | Error _ -> error "Error parsing." None
+    | Error _ -> error "Error tokenizing." None
