@@ -27,22 +27,53 @@ let rec evalExpression bindings expression =
             let bindings = Bindings.bind name value bindings
             Ok((Nothing, bindings))
         | Error(_) -> res
+    | Conditional(conditional) ->
+        let ifCondition = evalExpression bindings conditional.ifCase.condition
+        let mutable result = None
+
+        result <-
+            match ifCondition with
+            | Ok(Boolean(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
+            | Ok(Boolean(false), _) -> None
+            | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
+            | Error x -> Some(Error x)
+
+        let mutable elsifCases = conditional.elsifCases
+        while Option.isNone result && not elsifCases.IsEmpty do
+            let case = elsifCases.Head
+            result <- 
+                match evalExpression bindings case.condition with
+                | Ok(Boolean(true), bindings) -> Some (evalExpression bindings case.body)
+                | Ok(Boolean(false), _) -> None
+                | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
+                | Error x -> Some(Error x)
+            elsifCases <- elsifCases.Tail
+
+        match result with
+        | None -> evalExpression bindings conditional.elseBody
+        | Some(result) -> result
     | _ -> error $"Could not eval {expression}" None
 
-and evalExpressions (bindings: Bindings.Bindings) (expressions: Expression list): Result<(WanderValue * Bindings.Bindings), LigatureError> =
+and evalExpressions
+    (bindings: Bindings.Bindings)
+    (expressions: Expression list)
+    : Result<(WanderValue * Bindings.Bindings), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok (Nothing, bindings)
+    | 0 -> Ok(Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok (Nothing, bindings)
+        let mutable result = Ok(Nothing, bindings)
         let mutable cont = true
+
         while cont do
             result <- evalExpression bindings (List.head expressions)
+
             match result with
             | Ok(res) -> result <- Ok(res)
             | Error(err) ->
                 result <- Error(err)
                 cont <- false
+
         result
 
 let rec eval (bindings: Bindings.Bindings) (expressions: Expression list) =

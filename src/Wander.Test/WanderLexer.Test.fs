@@ -70,7 +70,11 @@ let tests =
               Expect.equal (tokenize "{") (Ok([ OpenBrace ])) ""
               Expect.equal (tokenize "}") (Ok([ CloseBrace ])) ""
               Expect.equal (tokenize "{{}}}") (Ok([ OpenBrace; OpenBrace; CloseBrace; CloseBrace; CloseBrace ])) ""
-              Expect.equal (tokenize "{ true }") (Ok([OpenBrace; WhiteSpace(" "); Boolean(true); WhiteSpace(" "); CloseBrace])) ""
+
+              Expect.equal
+                  (tokenize "{ true }")
+                  (Ok([ OpenBrace; WhiteSpace(" "); Boolean(true); WhiteSpace(" "); CloseBrace ]))
+                  ""
           testCase "read colon"
           <| fun _ ->
               Expect.equal (tokenize ":") (Ok([ Colon ])) ""

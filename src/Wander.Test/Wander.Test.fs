@@ -62,4 +62,9 @@ let tests =
           <| fun _ ->
               let script = "let x = 5\nx"
               let result = run script
-              Expect.equal result (Ok(Integer(5))) "" ]
+              Expect.equal result (Ok(Integer(5))) ""
+          testCase "If Expression"
+          <| fun _ ->
+              let script = "if true false else true"
+              let result = run script
+              Expect.equal result (Ok(Boolean(false))) "" ]

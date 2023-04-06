@@ -33,8 +33,8 @@ type Case<'Condition, 'Body> = { condition: 'Condition; body: 'Body }
 
 type Conditional<'Condition, 'Body> =
     { ifCase: Case<'Condition, 'Body>
-    ; elsifCases: Case<'Condition, 'Body> list
-    ; elseBody: 'Body option }
+      elsifCases: Case<'Condition, 'Body> list
+      elseBody: 'Body }
 
 type Expression =
     | LetStatement of name: string * value: Expression
@@ -43,3 +43,7 @@ type Expression =
     | Value of WanderValue<Expression>
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
+
+type WanderValue = WanderValue<Expression>
+type Case = Case<Expression, Expression>
+type Conditional = Conditional<Expression, Expression>
