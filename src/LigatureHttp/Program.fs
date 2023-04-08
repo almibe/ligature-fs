@@ -19,7 +19,9 @@ open Microsoft.AspNetCore.Http
 
 let config = readConfig ()
 
-let instance = ligatureSqlite (InMemory)
+let instance =
+    match config.persistance with
+    | Sqlite config -> ligatureSqlite config
 
 let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200
 

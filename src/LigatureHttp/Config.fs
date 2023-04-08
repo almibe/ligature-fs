@@ -4,18 +4,22 @@
 
 module Ligature.Http.Config
 
+open Ligature.Sqlite.Main
+
 type Auth = | NoAuth
 
 type Mode = | SingleUser
+
+type Persistance = | Sqlite of connectionString: LigatureSqliteConfig
 
 type Config =
     { url: string
       auth: Auth
       mode: Mode
-      sqliteConnectionString: string }
+      persistance: Persistance }
 
 let readConfig () =
-    { url = "http://localhost:5000"
+    { url = "http://localhost:4200"
       auth = NoAuth
       mode = SingleUser
-      sqliteConnectionString = "" }
+      persistance = Sqlite InMemory }
