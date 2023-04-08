@@ -4,20 +4,18 @@
 
 module Ligature.Wander.Bindings
 
-open Ligature.Wander.Model
+type Scope<'K, 'V when 'K: comparison> = Map<'K, 'V>
 
-type Scope = Map<string, WanderValue>
+type Bindings<'K, 'V when 'K: comparison> = { current: Scope<'K, 'V>; stack: Scope<'K, 'V> list }
 
-type Bindings = { current: Scope; stack: Scope list }
-
-let newBindings () = { current = Map []; stack = [] }
+let newBindings () = { current = Map<'K, 'V> []; stack = [] }
 
 let bind name value bindings =
     let current' = Map.add name value bindings.current
     { bindings with current = current' }
 
 let addScope bindings =
-    let current: Map<string, WanderValue> = Map []
+    let current = Map []
     let stack = List.append [ bindings.current ] bindings.stack
     { current = current; stack = stack }
 

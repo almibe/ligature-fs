@@ -18,13 +18,17 @@ type WanderType =
     | Graph
     | Nothing
 
-type WanderValue<'Body> =
+type NativeFunction<'T, 'Output>(eval: 'T list -> Result<'Output, LigatureError>) =
+    member _.Run(args) = eval args
+
+type WanderValue<'T> =
     | Integer of int64
     | String of string
     | Boolean of bool
     | Identifier of Identifier
     | Nothing
-    | Lambda of paramters: string list * body: 'Body list
+    | Lambda of paramters: string list * body: 'T list
+    | NativeFunction of NativeFunction<'T, WanderValue<'T>>
 
 type Parameter =
     { name: string; wanderType: WanderType }
@@ -47,3 +51,4 @@ type Expression =
 type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>
 type Conditional = Conditional<Expression, Expression>
+type NativeFunction = NativeFunction<Expression, WanderValue>

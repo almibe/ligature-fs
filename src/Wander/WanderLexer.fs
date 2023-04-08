@@ -87,28 +87,31 @@ let nameOrKeywordTokenNibbler =
     Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> createNameOrKeyword)
 
 let tokenNibbler =
-    Nibblers.repeat (
-        Nibblers.takeFirst (
-            [ whiteSpaceNibbler
-              nameOrKeywordTokenNibbler
-              integerTokenNibbler
-              newLineTokenNibbler
-              identifierTokenNibbler
-              stringLiteralTokenNibbler
-              takeAndMap "=" EqualSign
-              takeAndMap "->" Arrow
-              takeAndMap "(" OpenParen
-              takeAndMap ")" CloseParen
-              takeAndMap "{" OpenBrace
-              takeAndMap "}" CloseBrace
-              takeAndMap "." Dot
-              takeAndMap "[" OpenSquare
-              takeAndMap "]" CloseSquare
-              takeAndMap "{" OpenBrace
-              takeAndMap "}" CloseBrace
-              takeAndMap ":" Colon
-              takeAndMap "?" QuestionMark
-              commentTokenNibbler ]
+    Nibblers.optional (
+        Nibblers.repeat (
+            Nibblers.takeFirst (
+                [
+                whiteSpaceNibbler
+                nameOrKeywordTokenNibbler
+                integerTokenNibbler
+                newLineTokenNibbler
+                identifierTokenNibbler
+                stringLiteralTokenNibbler
+                takeAndMap "=" EqualSign
+                takeAndMap "->" Arrow
+                takeAndMap "(" OpenParen
+                takeAndMap ")" CloseParen
+                takeAndMap "{" OpenBrace
+                takeAndMap "}" CloseBrace
+                takeAndMap "." Dot
+                takeAndMap "[" OpenSquare
+                takeAndMap "]" CloseSquare
+                takeAndMap "{" OpenBrace
+                takeAndMap "}" CloseBrace
+                takeAndMap ":" Colon
+                takeAndMap "?" QuestionMark
+                commentTokenNibbler ]
+            )
         )
     )
 

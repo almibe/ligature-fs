@@ -15,7 +15,7 @@ let readScope gaze =
         (fun gaze ->
             result {
                 let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
-                let! expression = readScopeExpressions gaze //TODO needs updated
+                let! expression = readExpressionsUntil CloseBrace gaze //TODO needs updated
                 let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
                 return Scope(expression)
             })
@@ -59,11 +59,26 @@ let readIdentifier (gaze: Gaze.Gaze<WanderToken>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let readName (gaze: Gaze.Gaze<WanderToken>) =
+let readArguments (gaze: Gaze.Gaze<WanderToken>) =
+    result {
+        let! _ = Gaze.attempt (Nibblers.take OpenParen) gaze
+        let! arguments = readExpressionsUntil CloseParen gaze
+        let! _ = Gaze.attempt (Nibblers.take CloseParen) gaze
+        return arguments
+    }
+
+let readNameOrFunctionCall (gaze: Gaze.Gaze<WanderToken>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Name(name)) -> Ok(Expression.Name(name))
+            | Ok(Name(name)) ->
+                match Gaze.peek gaze with
+                | Ok(OpenParen) ->
+                    let arguments = readArguments gaze
+                    match arguments with
+                    | Ok(arguments) -> Ok(FunctionCall(name, arguments))
+                    | _ -> Error(Gaze.GazeError.NoMatch)
+                | _ -> Ok(Expression.Name(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -131,7 +146,7 @@ let readExpression (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.Gaze
     | Ok(Integer(_)) -> readInteger gaze
     | Ok(Boolean(_)) -> readBoolean gaze
     | Ok(Identifier(_)) -> readIdentifier gaze
-    | Ok(Name(_)) -> readName gaze //TODO will need to also handle function calls here
+    | Ok(Name(_)) -> readNameOrFunctionCall gaze //TODO will need to also handle function calls here
     | Ok(IfKeyword) -> readConditional gaze
     | Ok(StringLiteral(_)) -> readString gaze
     | _ -> Error(Gaze.GazeError.NoMatch)
@@ -154,26 +169,27 @@ let readExpressions (gaze: Gaze.Gaze<WanderToken>) : Result<Expression list, Gaz
 
 /// This function is similar to readExpressions but when it reaches an Error it returns all matched expressions
 /// instead of an Error.
-let readScopeExpressions (gaze: Gaze.Gaze<WanderToken>) : Result<Expression list, Gaze.GazeError> =
+let readExpressionsUntil (stopToken: WanderToken) (gaze: Gaze.Gaze<WanderToken>) : Result<Expression list, Gaze.GazeError> =
     let mutable res = []
     let mutable cont = true
     let mutable err = false
 
     while cont do
         match Gaze.peek gaze with
-        | Ok(CloseBrace) -> cont <- false
+        | Ok(nextToken) ->
+            if nextToken = stopToken then
+                cont <- false
+            else
+                let expr = readExpression gaze
+                match expr with
+                | Ok(expr) -> res <- res @ [ expr ]
+                | Error _ ->
+                    cont <- false
+                    err <- true
         | Error _ ->
             cont <- false
             err <- true
-        | Ok _ ->
-            let expr = readExpression gaze
-
-            match expr with
-            | Ok(expr) -> res <- res @ [ expr ]
-            | Error _ ->
-                cont <- false
-                err <- true
-
+    
     if not err then Ok(res) else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
 /// <summary></summary>

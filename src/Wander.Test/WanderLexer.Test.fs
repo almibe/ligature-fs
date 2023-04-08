@@ -19,7 +19,10 @@ let ident id =
 let tests =
     testList
         "Lexer Test"
-        [ testCase "Read Integer Token"
+        [ testCase "Allow empty input"
+          <| fun _ ->
+              Expect.equal (tokenize "") (Ok[]) ""
+          testCase "Read Integer Token"
           <| fun _ ->
               Expect.equal (tokenize "123") (Ok([ Integer(123) ])) ""
               Expect.equal (tokenize "0") (Ok([ Integer(0) ])) ""

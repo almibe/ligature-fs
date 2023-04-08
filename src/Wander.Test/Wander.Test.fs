@@ -67,4 +67,14 @@ let tests =
           <| fun _ ->
               let script = "if true false else true"
               let result = run script
-              Expect.equal result (Ok(Boolean(false))) "" ]
+              Expect.equal result (Ok(Boolean(false))) ""
+          testCase "Calling Native Function"
+          <| fun _ ->
+              let script = "not(true)"
+              let result = run script
+              Expect.equal result (Ok(Boolean(false))) ""
+          testCase "Nesting Native Function Calls"
+          <| fun _ ->
+              let script = "not(not(true))"
+              let result = run script
+              Expect.equal result (Ok(Boolean(true))) "" ]

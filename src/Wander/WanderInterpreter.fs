@@ -27,6 +27,25 @@ let rec evalExpression bindings expression =
             let bindings = Bindings.bind name value bindings
             Ok((Nothing, bindings))
         | Error(_) -> res
+    | FunctionCall(name, args) ->
+        let args = List.map ( fun a -> 
+            match evalExpression bindings a with
+            | Ok(v, _) -> Value(v)
+            | Error(err) -> Value(Nothing)) //TODO this is wrong, don't ignore Errors
+                    args
+
+        match Bindings.read name bindings with
+        | Some(NativeFunction(funct)) -> 
+            match funct.Run args with
+            | Ok res -> Ok (res, bindings)
+            | _ -> todo
+        //TODO add check for Lambda
+        | None -> todo //not found
+        | _ -> todo //type error
+        //TODO look up name in bindings
+        //TODO check if looked up value exists/is a NativeFunction/Lambda
+        //TODO call method on NativeFunction/Lambda
+        //TODO return result
     | Conditional(conditional) ->
         let ifCondition = evalExpression bindings conditional.ifCase.condition
         let mutable result = None
@@ -55,9 +74,9 @@ let rec evalExpression bindings expression =
     | _ -> error $"Could not eval {expression}" None
 
 and evalExpressions
-    (bindings: Bindings.Bindings)
+    (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(WanderValue * Bindings.Bindings), LigatureError> =
+    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
     | 0 -> Ok(Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)
@@ -76,7 +95,7 @@ and evalExpressions
 
         result
 
-let rec eval (bindings: Bindings.Bindings) (expressions: Expression list) =
+let rec eval (bindings: Bindings.Bindings<_, _>) (expressions: Expression list) =
     match expressions with
     | [] -> Ok(Nothing)
     | _ ->
@@ -88,5 +107,7 @@ let rec eval (bindings: Bindings.Bindings) (expressions: Expression list) =
         | (Error(error), _) -> Error(error)
 
 let interpret (ast: Expression list) =
-    let bindings = Bindings.newBindings ()
+    let bindings = 
+        Bindings.newBindings ()
+        |> Preludes.bindStandardLibrary
     eval bindings ast

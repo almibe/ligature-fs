@@ -130,6 +130,12 @@ let tests =
                               elseBody = Value(Boolean(true)) } ]
                   ))
                   ""
-          //TODO parsing function calls
+          testCase "parsing function calls"
+          <| fun _ ->
+              Expect.equal (parseString "hello()") (Ok([FunctionCall("hello", [])])) ""
+              Expect.equal (parseString @"hello(""world"")") (Ok([FunctionCall("hello", [Value(String"world")])])) ""
+              Expect.equal (parseString "let four = add(1 3)") (Ok([
+                LetStatement("four", FunctionCall("add", [Value(Integer(1)); Value(Integer(3))]))
+              ])) ""
           //TODO parsing lambdas
           ]
