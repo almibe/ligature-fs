@@ -10,16 +10,35 @@ open FsToolkit.ErrorHandling
 
 let todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let readScope gaze =
-    Gaze.attempt
-        (fun gaze ->
-            result {
-                let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
-                let! expression = readExpressionsUntil CloseBrace gaze //TODO needs updated
-                let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
-                return Scope(expression)
-            })
-        gaze
+let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
+    let scopeAttempt = 
+        Gaze.attempt
+            (fun gaze ->
+                result {
+                    let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
+                    let! expressions = readExpressionsUntil CloseBrace gaze
+                    let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
+                    return Scope(expressions)
+                })
+            gaze
+    if Result.isOk scopeAttempt then
+        scopeAttempt
+    else
+        Gaze.attempt
+            (fun gaze ->
+                result {
+                    let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
+                    let! names = readExpressionsUntil Arrow gaze //TODO need to make sure all read Expressions are Names
+                    let names = List.map (fun expression ->
+                        match expression with
+                        | Expression.Name(name) -> name
+                        | _ -> todo) names
+                    let! _ = Gaze.attempt (Nibblers.take Arrow) gaze
+                    let! expressions = readExpressionsUntil CloseBrace gaze
+                    let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
+                    return Value (Lambda (names, expressions))
+                })
+            gaze
 
 let nameStrNibbler (gaze: Gaze.Gaze<WanderToken>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -142,7 +161,7 @@ let readExpression (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.Gaze
     match next with
     | Error(err) -> Error err
     | Ok(LetKeyword) -> readLetStatement gaze
-    | Ok(OpenBrace) -> readScope gaze
+    | Ok(OpenBrace) -> readScopeOrLambda gaze
     | Ok(Integer(_)) -> readInteger gaze
     | Ok(Boolean(_)) -> readBoolean gaze
     | Ok(Identifier(_)) -> readIdentifier gaze

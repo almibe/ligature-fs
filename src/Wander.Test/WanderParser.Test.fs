@@ -137,5 +137,11 @@ let tests =
               Expect.equal (parseString "let four = add(1 3)") (Ok([
                 LetStatement("four", FunctionCall("add", [Value(Integer(1)); Value(Integer(3))]))
               ])) ""
-          //TODO parsing lambdas
-          ]
+          testCase "parsing lambdas"
+          <| fun _ ->
+              Expect.equal (parseString "{ -> }") (Ok([Value(Lambda([], []))])) ""
+              Expect.equal (parseString "{ x -> x }") (Ok([Value(Lambda(["x"], [Name("x")]))])) ""
+              Expect.equal (parseString "{ x -> func(x 3) }") (Ok([Value(Lambda(["x"], [FunctionCall("func", [Name("x"); Value(Integer(3L))])]))])) ""
+              Expect.equal (parseString "let addThree = { x -> add(3 x) }") (Ok([
+                LetStatement("addThree", Value(Lambda(["x"], [FunctionCall("add", [Value(Integer(3L)); Name("x")])])))
+              ])) "" ]

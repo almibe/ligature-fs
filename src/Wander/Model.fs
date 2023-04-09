@@ -52,3 +52,4 @@ type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>
 type Conditional = Conditional<Expression, Expression>
 type NativeFunction = NativeFunction<Expression, WanderValue>
+type Bindings = Bindings.Bindings<string, WanderValue>

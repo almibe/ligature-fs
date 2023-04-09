@@ -6,6 +6,7 @@ module Ligature.Wander.Interpreter
 
 open Ligature
 open Ligature.Wander.Model
+open Ligature.Wander.Bindings
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -15,6 +16,20 @@ let evalName name bindings =
     | Some(value) -> Ok((value, bindings))
 
 let rec evalExpression bindings expression =
+    let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, LigatureError> =
+        if List.length args <> List.length parameters then
+            todo
+        else if List.isEmpty args && List.isEmpty parameters then
+            Ok bindings
+        else
+            let arg = List.head args
+            let parameter = List.head parameters
+            let value = evalExpression bindings arg
+            match value with
+            | Ok (value, _) ->
+                Ok(Bindings.bind parameter value bindings)
+            | Error(err) -> Error(err)
+
     match expression with
     | Value(value) -> Ok((value, bindings))
     | Name(name) -> evalName name bindings
@@ -31,14 +46,18 @@ let rec evalExpression bindings expression =
         let args = List.map ( fun a -> 
             match evalExpression bindings a with
             | Ok(v, _) -> Value(v)
-            | Error(err) -> Value(Nothing)) //TODO this is wrong, don't ignore Errors
+            | Error(err) -> todo)
                     args
 
         match Bindings.read name bindings with
         | Some(NativeFunction(funct)) -> 
             match funct.Run args with
             | Ok res -> Ok (res, bindings)
-            | _ -> todo
+            | Error(err) -> Error(err)
+        | Some(Lambda(parameters, body)) ->
+            match bindArguments args parameters bindings with
+            | Ok(bindings) -> evalExpressions bindings body
+            | Error(err) -> Error(err)
         //TODO add check for Lambda
         | None -> todo //not found
         | _ -> todo //type error

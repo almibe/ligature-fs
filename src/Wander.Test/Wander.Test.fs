@@ -77,4 +77,19 @@ let tests =
           <| fun _ ->
               let script = "not(not(true))"
               let result = run script
+              Expect.equal result (Ok(Boolean(true))) ""
+          testCase "Define and call lambda"
+          <| fun _ ->
+              let script = "let x = { -> true}\nx()"
+              let result = run script
+              Expect.equal result (Ok(Boolean(true))) ""
+          testCase "Define and call lambda with parameter"
+          <| fun _ ->
+              let script = "let id = { x -> x }\nid(true)"
+              let result = run script
+              Expect.equal result (Ok(Boolean(true))) ""
+          testCase "Define and call lambda with parameter and native function calls"
+          <| fun _ ->
+              let script = "let same = { x -> not(not(x)) }\nlet y = true\nsame(y)"
+              let result = run script
               Expect.equal result (Ok(Boolean(true))) "" ]
