@@ -11,7 +11,7 @@ open Ligature.Wander.Bindings
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let evalName name bindings =
-    match Bindings.read name bindings with
+    match read name bindings with
     | None -> todo
     | Some(value) -> Ok((value, bindings))
 
@@ -27,19 +27,21 @@ let rec evalExpression bindings expression =
             let value = evalExpression bindings arg
             match value with
             | Ok (value, _) ->
-                Ok(Bindings.bind parameter value bindings)
+                Ok(bind parameter value bindings)
             | Error(err) -> Error(err)
 
     match expression with
     | Value(value) -> Ok((value, bindings))
     | Name(name) -> evalName name bindings
-    | Scope(expressions) -> evalExpressions bindings expressions
+    | Scope(expressions) ->
+        let bindings = addScope bindings
+        evalExpressions bindings expressions
     | LetStatement(name, expression) ->
         let res = evalExpression bindings expression
 
         match res with
         | Ok((value, _)) ->
-            let bindings = Bindings.bind name value bindings
+            let bindings = bind name value bindings
             Ok((Nothing, bindings))
         | Error(_) -> res
     | FunctionCall(name, args) ->
@@ -90,7 +92,20 @@ let rec evalExpression bindings expression =
         match result with
         | None -> evalExpression bindings conditional.elseBody
         | Some(result) -> result
-    | _ -> error $"Could not eval {expression}" None
+    | TupleExpression(expressions) ->
+        let mutable error = None
+        let res: WanderValue list = 
+            //TODO this doesn't short circuit on first error
+            List.map (fun e ->
+                match evalExpression bindings e with
+                | Ok(value, _) -> value
+                | Error(err) -> 
+                    if Option.isNone error then error <- Some(err)
+                    Nothing
+                        ) expressions
+        match error with
+        | None -> Ok((Tuple(res), bindings))
+        | Some(err) -> Error(err)
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
@@ -102,16 +117,18 @@ and evalExpressions
     | _ ->
         let mutable result = Ok(Nothing, bindings)
         let mutable cont = true
-
-        while cont do
+        let mutable bindings = bindings
+        let mutable expressions = expressions
+        while cont && not (List.isEmpty expressions) do
             result <- evalExpression bindings (List.head expressions)
-
+            expressions <- List.tail expressions
             match result with
-            | Ok(res) -> result <- Ok(res)
+            | Ok((res, b)) ->
+                bindings <- b
+                result <- Ok((res, b))
             | Error(err) ->
                 result <- Error(err)
                 cont <- false
-
         result
 
 let rec eval (bindings: Bindings.Bindings<_, _>) (expressions: Expression list) =

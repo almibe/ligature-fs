@@ -21,6 +21,8 @@ type WanderType =
 type NativeFunction<'T, 'Output>(eval: 'T list -> Result<'Output, LigatureError>) =
     member _.Run(args) = eval args
 
+type Tuple<'T> = 'T list
+
 type WanderValue<'T> =
     | Integer of int64
     | String of string
@@ -29,6 +31,7 @@ type WanderValue<'T> =
     | Nothing
     | Lambda of paramters: string list * body: 'T list
     | NativeFunction of NativeFunction<'T, WanderValue<'T>>
+    | Tuple of Tuple<WanderValue<'T>>
 
 type Parameter =
     { name: string; wanderType: WanderType }
@@ -47,6 +50,7 @@ type Expression =
     | Value of WanderValue<Expression>
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
+    | TupleExpression of Expression list
 
 type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>

@@ -114,8 +114,8 @@ let tests =
               Expect.equal (parseString "{ let x = 6 }") (Ok([ Scope([ LetStatement("x", Value(Integer(6))) ]) ])) ""
 
               Expect.equal
-                  (parseString "{ let x = { false } }")
-                  (Ok([ Scope([ LetStatement("x", Scope([ Value(Boolean(false)) ])) ]) ]))
+                  (parseString "{ let x = { false } x }")
+                  (Ok([ Scope([ LetStatement("x", Scope([ Value(Boolean(false)) ])); Name("x") ]) ]))
                   ""
           testCase "parse conditionals"
           <| fun _ ->
@@ -144,4 +144,13 @@ let tests =
               Expect.equal (parseString "{ x -> func(x 3) }") (Ok([Value(Lambda(["x"], [FunctionCall("func", [Name("x"); Value(Integer(3L))])]))])) ""
               Expect.equal (parseString "let addThree = { x -> add(3 x) }") (Ok([
                 LetStatement("addThree", Value(Lambda(["x"], [FunctionCall("add", [Value(Integer(3L)); Name("x")])])))
-              ])) "" ]
+              ])) ""
+          testCase "parsing tuples"
+          <| fun _ ->
+              Expect.equal (parseString "()") (Ok([TupleExpression([])])) "Parse Empty Tuple"
+              Expect.equal (parseString "(x)") (Ok([TupleExpression([Name("x")])])) ""
+              Expect.equal (parseString "(x 3)") (Ok([TupleExpression([Name("x"); Value(Integer(3))])])) ""
+              Expect.equal (parseString "let x3 = (x 3)") (Ok([
+                LetStatement("x3", TupleExpression([Name("x"); Value(Integer(3L))]))
+              ])) "" 
+            ]

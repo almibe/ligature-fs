@@ -63,6 +63,11 @@ let tests =
               let script = "let x = 5\nx"
               let result = run script
               Expect.equal result (Ok(Integer(5))) ""
+          testCase "Let Statement with Value Reference In Scope"
+          <| fun _ ->
+              let script = "{ let x = 5\nx }"
+              let result = run script
+              Expect.equal result (Ok(Integer(5))) ""
           testCase "If Expression"
           <| fun _ ->
               let script = "if true false else true"
@@ -92,4 +97,12 @@ let tests =
           <| fun _ ->
               let script = "let same = { x -> not(not(x)) }\nlet y = true\nsame(y)"
               let result = run script
-              Expect.equal result (Ok(Boolean(true))) "" ]
+              Expect.equal result (Ok(Boolean(true))) "" 
+          testCase "Basic Tuple Tests"
+          <| fun _ ->
+              Expect.equal (run "()") (Ok(Tuple([]))) "Empty tuple"
+              Expect.equal (run "(true false 1 2 \"hello\")") (Ok(Tuple([Boolean(true); Boolean(false); Integer(1); Integer(2); String("hello")]))) "Tuple with Values"
+              Expect.equal (run "( if true false else true )") (Ok(Tuple([Boolean(false)]))) "Tuple with Conditional"
+              Expect.equal (run "( { let x = 5 x} 5 6)") (Ok(Tuple([Integer(5); Integer(5); Integer(6)]))) ""
+              //Expect.equal (run "( { x -> x }(5) )") (Ok(Tuple([Integer(5)]))) ""
+              ]

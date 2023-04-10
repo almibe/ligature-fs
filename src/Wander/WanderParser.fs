@@ -154,6 +154,14 @@ let readConditional (gaze: Gaze.Gaze<WanderToken>) =
             })
         gaze
 
+let readTuple (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (Nibblers.take OpenParen) gaze
+        let! arguments = readExpressionsUntil CloseParen gaze
+        let! _ = Gaze.attempt (Nibblers.take CloseParen) gaze
+        return TupleExpression(arguments)
+    }
+
 /// Read the next Expression from the given instance of Gaze<WanderToken>
 let readExpression (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.GazeError> =
     let next = Gaze.peek gaze
@@ -162,6 +170,7 @@ let readExpression (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.Gaze
     | Error(err) -> Error err
     | Ok(LetKeyword) -> readLetStatement gaze
     | Ok(OpenBrace) -> readScopeOrLambda gaze
+    | Ok(OpenParen) -> readTuple gaze
     | Ok(Integer(_)) -> readInteger gaze
     | Ok(Boolean(_)) -> readBoolean gaze
     | Ok(Identifier(_)) -> readIdentifier gaze
