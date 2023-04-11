@@ -7,7 +7,6 @@ module Ligature.Http.Backend
 open Giraffe
 open Ligature
 open Ligature.InMemory
-open Ligature.Lig.Write
 open Ligature.Wander.Main
 open Microsoft.AspNetCore.Http
 
@@ -19,7 +18,8 @@ let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) /
 let runWander () : HttpHandler =
     handleContext (fun ctx ->
         let x = ctx.ReadBodyFromRequestAsync ()
-        let res = run x.Result
+        let bindings = Wander.Preludes.instancePrelude instance
+        let res = run x.Result bindings
         match res with
         | Ok(res) -> ctx.WriteStringAsync (sprintf "%A" res)
         | Error(err) -> handleError ctx err)

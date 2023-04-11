@@ -61,7 +61,7 @@ let rec evalExpression bindings expression =
             | Ok(bindings) -> evalExpressions bindings body
             | Error(err) -> Error(err)
         //TODO add check for Lambda
-        | None -> todo //not found
+        | None -> error $"{name} function not found." None //not found
         | _ -> todo //type error
         //TODO look up name in bindings
         //TODO check if looked up value exists/is a NativeFunction/Lambda
@@ -142,8 +142,5 @@ let rec eval (bindings: Bindings.Bindings<_, _>) (expressions: Expression list) 
         | (Ok(_, bindings), tail) -> eval bindings tail
         | (Error(error), _) -> Error(error)
 
-let interpret (ast: Expression list) =
-    let bindings = 
-        Bindings.newBindings ()
-        |> Preludes.bindStandardLibrary
+let interpret (ast: Expression list) bindings =
     eval bindings ast

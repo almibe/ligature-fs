@@ -5,13 +5,14 @@
 module Ligature.Wander.Main
 
 open Ligature
+open Ligature.Wander.Model
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let run (input: string) =
+let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with
     | Ok(tokens) ->
         match Parser.parse tokens with
-        | Ok ast -> Interpreter.interpret ast
+        | Ok ast -> Interpreter.interpret ast bindings
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
