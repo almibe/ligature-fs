@@ -34,8 +34,10 @@ let rec evalExpression bindings expression =
     | Value(value) -> Ok((value, bindings))
     | Name(name) -> evalName name bindings
     | Scope(expressions) ->
-        let bindings = addScope bindings
-        evalExpressions bindings expressions
+        let bindings' = addScope bindings
+        match evalExpressions bindings' expressions with
+        | Error(err) -> Error(err)
+        | Ok((res, _)) -> Ok((res, bindings))
     | LetStatement(name, expression) ->
         let res = evalExpression bindings expression
 

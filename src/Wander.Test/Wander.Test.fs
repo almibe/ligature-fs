@@ -70,11 +70,21 @@ let tests =
               let script = "{ let x = 5\nx }"
               let result = run script bindings
               Expect.equal result (Ok(Integer(5))) ""
+          testCase "Let Statement with Value Reference Outside Scope"
+          <| fun _ ->
+              let script = "let x = 4 { let x = 5\nx } x"
+              let result = run script bindings
+              Expect.equal result (Ok(Integer(4))) ""
           testCase "If Expression"
           <| fun _ ->
               let script = "if true false else true"
               let result = run script bindings
               Expect.equal result (Ok(Boolean(false))) ""
+          testCase "Testing Scopes with If Expressions"
+          <| fun _ ->
+              let script = "let x = 5 if { let x = 4 true} x else true"
+              let result = run script bindings
+              Expect.equal result (Ok(Integer(5))) ""
           testCase "Calling Native Function"
           <| fun _ ->
               let script = "not(true)"
