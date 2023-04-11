@@ -47,6 +47,13 @@ type Statement =
       Attribute: Identifier
       Value: Value }
 
+let statement entity attribute value =
+    {
+        Entity = entity
+        Attribute = attribute
+        Value = value
+    }
+
 type IQueryTx =
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 

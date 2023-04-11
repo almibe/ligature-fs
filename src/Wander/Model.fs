@@ -18,8 +18,8 @@ type WanderType =
     | Graph
     | Nothing
 
-type NativeFunction<'T, 'Output>(eval: 'T list -> Result<'Output, LigatureError>) =
-    member _.Run(args) = eval args
+type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, LigatureError>) =
+    member _.Run args bindings = eval args bindings
 
 type Tuple<'T> = 'T list
 

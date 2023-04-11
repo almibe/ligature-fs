@@ -55,20 +55,15 @@ let rec evalExpression bindings expression =
 
         match Bindings.read name bindings with
         | Some(NativeFunction(funct)) -> 
-            match funct.Run args with
+            match funct.Run args bindings with
             | Ok res -> Ok (res, bindings)
             | Error(err) -> Error(err)
         | Some(Lambda(parameters, body)) ->
             match bindArguments args parameters bindings with
             | Ok(bindings) -> evalExpressions bindings body
             | Error(err) -> Error(err)
-        //TODO add check for Lambda
-        | None -> error $"{name} function not found." None //not found
+        | None -> error $"{name} function not found." None
         | _ -> todo //type error
-        //TODO look up name in bindings
-        //TODO check if looked up value exists/is a NativeFunction/Lambda
-        //TODO call method on NativeFunction/Lambda
-        //TODO return result
     | Conditional(conditional) ->
         let ifCondition = evalExpression bindings conditional.ifCase.condition
         let mutable result = None
