@@ -11,6 +11,7 @@
     <Compile Include="WanderLexer.Test.fs" />
     <Compile Include="WanderParser.Test.fs" />
     <Compile Include="Wander.Test.fs" />
+    <Compile Include="Wander.Instance.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
@@ -24,8 +25,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
     <ProjectReference Include="..\Lig\Lig.fsproj" />
     <ProjectReference Include="..\Wander\Wander.fsproj" />
+
   </ItemGroup>
 
 </Project>
