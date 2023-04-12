@@ -12,13 +12,13 @@ module private Boolean =
         new Model.NativeFunction((fun args _ ->
             match args.Head with
             | Model.Expression.Value(Model.WanderValue.Boolean(value)) -> Ok(Model.WanderValue.Boolean(not value))
-            | _ -> error "" None)))
+            | _ -> error "Invalid call to not function." None)))
 
     let andFunction = Model.WanderValue.NativeFunction (
         new Model.NativeFunction((fun args _ ->
             match args.Head with
             | Model.Expression.Value(Model.WanderValue.Boolean(value)) -> Ok(Model.WanderValue.Boolean(not value))
-            | _ -> error "" None)))
+            | _ -> error "Invalid call to and function." None)))
 
 module private Instance = 
     let datasetsFunction (instance: ILigature) = Model.WanderValue.NativeFunction (
@@ -62,24 +62,28 @@ module private Instance =
     let allStatements (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             let datasetName = args.Head
-            let queryLambda = args.Tail.Head
-            match (datasetName, queryLambda) with
-            | (Value(String(name)), (Value(Lambda(_, _)))) ->
-                error $"Could not run query on {name}." None
-            | _ -> error "Improper arguments could not run query." None
+            match datasetName with
+            | Value(String(name)) ->
+                let dataset = Dataset name
+                instance.Query dataset (fun tx ->
+                    match tx.AllStatements () with
+                    | Ok(statements) -> Ok Tuple[]
+                    | Error(err) -> Error(err)
+                )
+            | _ -> error "Improper arguments could not run allStatements." None
         ))
 
     let query (instance: ILigature) = WanderValue.NativeFunction (
-        new Model.NativeFunction(fun args _ ->
+        new Model.NativeFunction(fun args bindings ->
             let datasetName = args.Head
             let queryLambda = args.Tail.Head
             match (datasetName, queryLambda) with
             | (Value(String(name)), (Value(Lambda(parameters, body)))) ->
                 let dataset = Dataset(name)
                 let res = instance.Query dataset (fun tx ->
-                    let matchName = parameters.Head
+                    //Bindings.bind "match"
                     
-                    error "todo" None)
+                    error "todo - inside query" None)
                 res
             | _ -> error "Improper arguments could not run query." None
         ))
@@ -106,8 +110,8 @@ module private Instance =
                                     match tx.AddStatement (Ligature.statement entity attribute (Value.Identifier(value))) with
                                     | Ok _ -> addStatement statements
                                     | Error err -> Error err
-                                | _ -> error "" None
-                            | _ -> error "" None
+                                | _ -> error "Error reading input Statement-1." None
+                            | _ -> error "Error reading input Statement-2." None
                         else
                             Ok ()
                     addStatement statements)
