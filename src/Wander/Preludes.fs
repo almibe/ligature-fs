@@ -7,6 +7,8 @@ module Ligature.Wander.Preludes
 open Ligature
 open Ligature.Wander.Model
 
+let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
+
 module private Boolean =
     let notFunction = Model.WanderValue.NativeFunction (
         new Model.NativeFunction((fun args _ ->
@@ -59,6 +61,22 @@ module private Instance =
                 | Error(err) -> Error(err)
             | _ -> error "Could not check for Dataset" None))
 
+    let valueToWanderValue (value: Value): WanderValue =
+        match value with
+        | Value.Identifier i -> Identifier i
+        | Value.Integer i -> Integer i
+        | Value.String s -> String s
+
+    let rec statementsToTuple (statements: Statement list) (results: Tuple<WanderValue>): Tuple<WanderValue> =
+        if List.isEmpty statements then
+            results
+        else
+            let statement = statements.Head
+            let entity = Identifier(statement.Entity)
+            let attribute = Identifier(statement.Attribute)
+            let value = valueToWanderValue statement.Value
+            statementsToTuple (statements.Tail) (List.append results [Tuple[entity; attribute; value]])
+
     let allStatements (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             let datasetName = args.Head
@@ -67,22 +85,29 @@ module private Instance =
                 let dataset = Dataset name
                 instance.Query dataset (fun tx ->
                     match tx.AllStatements () with
-                    | Ok(statements) -> Ok Tuple[]
+                    | Ok(statements) ->
+                        Ok(Tuple(statementsToTuple statements []))
                     | Error(err) -> Error(err)
                 )
             | _ -> error "Improper arguments could not run allStatements." None
         ))
+
+    let matchStatements (query: IQueryTx) = WanderValue.NativeFunction (
+        new Model.NativeFunction(fun args bindings ->
+            error "todo - inside match" None
+        )
+    )
 
     let query (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args bindings ->
             let datasetName = args.Head
             let queryLambda = args.Tail.Head
             match (datasetName, queryLambda) with
-            | (Value(String(name)), (Value(Lambda(parameters, body)))) ->
+            | (Value(String(name)), (Value(Lambda(_parameters, body)))) ->
                 let dataset = Dataset(name)
                 let res = instance.Query dataset (fun tx ->
-                    //Bindings.bind "match"
-                    
+                    let bindings' = Bindings.bind "match" (matchStatements tx) bindings
+                                        
                     error "todo - inside query" None)
                 res
             | _ -> error "Improper arguments could not run query." None
@@ -93,25 +118,28 @@ module private Instance =
     let write (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             let datasetName = args.Head
-            let statements = args.Tail
-            match datasetName with
-            | Value(String(name)) ->
+            let statements = args.Tail.Head
+            match (datasetName, statements) with
+            | (Value(String(name)), Value(Tuple(statements))) ->
                 let dataset = Dataset(name)
                 let writeRes = instance.Write dataset (fun tx ->
-                    let rec addStatement (statements: Model.Expression list) =
-                        if List.isEmpty statements.Tail then
-                            match statements.Head with
-                            | Value(Tuple(statement)) ->
+                    let rec addStatement (statements: Tuple<WanderValue>) =
+                        if not (List.isEmpty statements) then
+                            let statement = statements.Head
+                            // match statements.Head with
+                            // | Tuple(statement) ->
+                            match statement with
+                            | Tuple(statement) ->
                                 let entity = statement.Head
                                 let attribute = statement.Tail.Head
                                 let value = statement.Tail.Tail.Head
                                 match (entity, attribute, value) with
                                 | (Identifier(entity), Identifier(attribute), Identifier(value)) ->
                                     match tx.AddStatement (Ligature.statement entity attribute (Value.Identifier(value))) with
-                                    | Ok _ -> addStatement statements
+                                    | Ok _ -> addStatement statements.Tail
                                     | Error err -> Error err
-                                | _ -> error "Error reading input Statement-1." None
-                            | _ -> error "Error reading input Statement-2." None
+                                | _ -> error "Invalid Statement contents." None
+                            | _ -> error "Error Statements must be expressed as Tuples." None
                         else
                             Ok ()
                     addStatement statements)

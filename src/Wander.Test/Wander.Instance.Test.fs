@@ -36,7 +36,7 @@ let tests =
           <| fun _ ->
               let script = """
               createDataset("hello")
-              write("hello" { -> addStatement((<a> <b> <c>)) })
+              write("hello" ((<a> <b> <c>)))
               allStatements("hello")
               """
               let result = run script bindings

@@ -8,10 +8,10 @@
   <ItemGroup>
     <Compile Include="Bindings.fs" />
     <Compile Include="Model.fs" />
-    <Compile Include="Preludes.fs" />
     <Compile Include="WanderLexer.fs" />
     <Compile Include="WanderParser.fs" />
     <Compile Include="WanderInterpreter.fs" />
+    <Compile Include="Preludes.fs" />
     <Compile Include="Wander.fs" />
   </ItemGroup>
   <ItemGroup>
