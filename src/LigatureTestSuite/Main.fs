@@ -24,7 +24,7 @@ let statement (entity: string) (attribute: string) (value: Value) =
       Attribute = a
       Value = value }
 
-let ligatureTestSuite (createInstance: Unit -> Ligature) =
+let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let helloDS = Dataset "hello"
     let hello2DS = Dataset "hello2"
     let hello3DS = Dataset "hello3"
