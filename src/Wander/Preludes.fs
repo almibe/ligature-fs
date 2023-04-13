@@ -28,65 +28,65 @@ module private Instance =
             match instance.AllDatasets() with
             | Ok(datasets) ->
                 let datasets = List.map (fun d -> Model.WanderValue.String(datasetName d)) datasets
-                Ok(Model.Tuple(datasets))
+                Ok(WanderValue.Tuple(datasets))
             | Error(err) -> Error(err)))
 
     let addDataset (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             match args.Head with
-            | Value(String(name)) -> 
+            | Expression.Value(WanderValue.String(name)) -> 
                 let dataset = Dataset(name)
                 match instance.CreateDataset dataset with
-                | Ok(_) -> Ok(Nothing)
+                | Ok(_) -> Ok(WanderValue.Nothing)
                 | Error(err) -> Error(err)
             | _ -> error "Could not add Dataset" None))
 
     let removeDataset (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             match args.Head with
-            | Value(String(name)) -> 
+            | Expression.Value(WanderValue.String(name)) -> 
                 let dataset = Dataset(name)
                 match instance.RemoveDataset dataset with
-                | Ok(_) -> Ok(Nothing)
+                | Ok(_) -> Ok(WanderValue.Nothing)
                 | Error(err) -> Error(err)
             | _ -> error "Could not remove Dataset" None))
 
     let datasetExists (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             match args.Head with
-            | Value(String(name)) -> 
+            | Expression.Value(WanderValue.String(name)) -> 
                 let dataset = Dataset(name)
                 match instance.DatasetExists dataset with
-                | Ok(result) -> Ok(Boolean(result))
+                | Ok(result) -> Ok(WanderValue.Boolean(result))
                 | Error(err) -> Error(err)
             | _ -> error "Could not check for Dataset" None))
 
     let valueToWanderValue (value: Value): WanderValue =
         match value with
-        | Value.Identifier i -> Identifier i
-        | Value.Integer i -> Integer i
-        | Value.String s -> String s
+        | Identifier i -> WanderValue.Identifier i
+        | Integer i -> WanderValue.Integer i
+        | String s -> WanderValue.String s
 
     let rec statementsToTuple (statements: Statement list) (results: Tuple<WanderValue>): Tuple<WanderValue> =
         if List.isEmpty statements then
             results
         else
             let statement = statements.Head
-            let entity = Identifier(statement.Entity)
-            let attribute = Identifier(statement.Attribute)
+            let entity = WanderValue.Identifier(statement.Entity)
+            let attribute = WanderValue.Identifier(statement.Attribute)
             let value = valueToWanderValue statement.Value
-            statementsToTuple (statements.Tail) (List.append results [Tuple[entity; attribute; value]])
+            statementsToTuple (statements.Tail) (List.append results [WanderValue.Tuple[entity; attribute; value]])
 
     let allStatements (instance: ILigature) = WanderValue.NativeFunction (
         new Model.NativeFunction(fun args _ ->
             let datasetName = args.Head
             match datasetName with
-            | Value(String(name)) ->
+            | Expression.Value(WanderValue.String(name)) ->
                 let dataset = Dataset name
                 instance.Query dataset (fun tx ->
                     match tx.AllStatements () with
                     | Ok(statements) ->
-                        Ok(Tuple(statementsToTuple statements []))
+                        Ok(WanderValue.Tuple(statementsToTuple statements []))
                     | Error(err) -> Error(err)
                 )
             | _ -> error "Improper arguments could not run allStatements." None
@@ -103,7 +103,7 @@ module private Instance =
             let datasetName = args.Head
             let queryLambda = args.Tail.Head
             match (datasetName, queryLambda) with
-            | (Value(String(name)), (Value(Lambda(_parameters, body)))) ->
+            | (Expression.Value(WanderValue.String(name)), (Expression.Value(WanderValue.Lambda(_parameters, body)))) ->
                 let dataset = Dataset(name)
                 let res = instance.Query dataset (fun tx ->
                     let bindings' = Bindings.bind "match" (matchStatements tx) bindings
@@ -120,7 +120,7 @@ module private Instance =
             let datasetName = args.Head
             let statements = args.Tail.Head
             match (datasetName, statements) with
-            | (Value(String(name)), Value(Tuple(statements))) ->
+            | (Expression.Value(WanderValue.String(name)), Expression.Value(WanderValue.Tuple(statements))) ->
                 let dataset = Dataset(name)
                 let writeRes = instance.Write dataset (fun tx ->
                     let rec addStatement (statements: Tuple<WanderValue>) =
@@ -129,12 +129,12 @@ module private Instance =
                             // match statements.Head with
                             // | Tuple(statement) ->
                             match statement with
-                            | Tuple(statement) ->
+                            | WanderValue.Tuple(statement) ->
                                 let entity = statement.Head
                                 let attribute = statement.Tail.Head
                                 let value = statement.Tail.Tail.Head
                                 match (entity, attribute, value) with
-                                | (Identifier(entity), Identifier(attribute), Identifier(value)) ->
+                                | (WanderValue.Identifier(entity), WanderValue.Identifier(attribute), WanderValue.Identifier(value)) ->
                                     match tx.AddStatement (Ligature.statement entity attribute (Value.Identifier(value))) with
                                     | Ok _ -> addStatement statements.Tail
                                     | Error err -> Error err
@@ -144,7 +144,7 @@ module private Instance =
                             Ok ()
                     addStatement statements)
                 match writeRes with
-                | Ok _ -> Ok Nothing
+                | Ok _ -> Ok WanderValue.Nothing
                 | Error err -> Error err
             | _ -> error "Improper call to addStatements." None
         ))

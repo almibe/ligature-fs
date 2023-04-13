@@ -4,9 +4,9 @@
 
 module rec Ligature.Wander.Parser
 
-open Ligature.Wander.Model
 open Lexer
 open FsToolkit.ErrorHandling
+open Ligature.Wander.Model
 
 let todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -18,7 +18,7 @@ let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
                     let! _ = Gaze.attempt (Nibblers.take OpenBrace) gaze
                     let! expressions = readExpressionsUntil CloseBrace gaze
                     let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
-                    return Scope(expressions)
+                    return Expression.Scope(expressions)
                 })
             gaze
     if Result.isOk scopeAttempt then
@@ -36,7 +36,7 @@ let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
                     let! _ = Gaze.attempt (Nibblers.take Arrow) gaze
                     let! expressions = readExpressionsUntil CloseBrace gaze
                     let! _ = Gaze.attempt (Nibblers.take CloseBrace) gaze
-                    return Value (Lambda (names, expressions))
+                    return Expression.Value (WanderValue.Lambda (names, expressions))
                 })
             gaze
 
@@ -66,7 +66,7 @@ let readLetStatement gaze =
                 let! name = Gaze.attempt nameStrNibbler gaze
                 let! _ = Gaze.attempt (Nibblers.take EqualSign) gaze
                 let! v = readExpression gaze
-                return LetStatement(name, v)
+                return Expression.LetStatement(name, v)
             })
         gaze
 
@@ -95,7 +95,7 @@ let readNameOrFunctionCall (gaze: Gaze.Gaze<WanderToken>) =
                 | Ok(OpenParen) ->
                     let arguments = readArguments gaze
                     match arguments with
-                    | Ok(arguments) -> Ok(FunctionCall(name, arguments))
+                    | Ok(arguments) -> Ok(Expression.FunctionCall(name, arguments))
                     | _ -> Error(Gaze.GazeError.NoMatch)
                 | _ -> Ok(Expression.Name(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
@@ -113,7 +113,7 @@ let readInteger (gaze: Gaze.Gaze<WanderToken>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Integer(i)) -> Ok(Value(WanderValue.Integer(i)))
+            | Ok(Integer(i)) -> Ok(Expression.Value(WanderValue.Integer(i)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -121,7 +121,7 @@ let readBoolean (gaze: Gaze.Gaze<WanderToken>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Boolean(b)) -> Ok(Value(WanderValue.Boolean(b)))
+            | Ok(Boolean(b)) -> Ok(Expression.Value(WanderValue.Boolean(b)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -145,7 +145,7 @@ let readConditional (gaze: Gaze.Gaze<WanderToken>) =
                 let! elseBody = readExpression gaze
 
                 return
-                    Conditional
+                    Expression.Conditional
                         { ifCase =
                             { condition = ifConditional
                               body = ifBody }
@@ -159,7 +159,7 @@ let readTuple (gaze: Gaze.Gaze<WanderToken>) : Result<Expression, Gaze.GazeError
         let! _ = Gaze.attempt (Nibblers.take OpenParen) gaze
         let! arguments = readExpressionsUntil CloseParen gaze
         let! _ = Gaze.attempt (Nibblers.take CloseParen) gaze
-        return TupleExpression(arguments)
+        return Expression.TupleExpression(arguments)
     }
 
 /// Read the next Expression from the given instance of Gaze<WanderToken>

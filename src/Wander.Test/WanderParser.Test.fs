@@ -15,7 +15,7 @@ let unsafe result =
     | Ok(v) -> v
     | Error(_) -> todo
 
-let ident id = Identifier(unsafe (identifier id))
+let ident id = WanderValue.Identifier(unsafe (identifier id))
 
 [<Tests>]
 let tests =
@@ -25,37 +25,37 @@ let tests =
           <| fun _ ->
               let tokens = [ WanderToken.Integer(345) ]
               let ast = parse tokens
-              Expect.equal ast (Ok([ Value(Integer(345)) ])) ""
+              Expect.equal ast (Ok([ Expression.Value(WanderValue.Integer(345)) ])) ""
           testCase "Parse Let Statements"
           <| fun _ ->
               let tokens = Wander.Lexer.tokenize "let x = 5"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ LetStatement("x", Value(Integer(5))) ])) ""
+              Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))) ])) ""
           testCase "Parse Let Statement with Name"
           <| fun _ ->
               let tokens = Wander.Lexer.tokenize "let x = 5\nx"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ LetStatement("x", Value(Integer(5))); Name("x") ])) ""
+              Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))); Expression.Name("x") ])) ""
           testCase "Parse Integers"
           <| fun _ ->
-              Expect.equal (parseString "123") (Ok([ Value(Integer(123)) ])) ""
-              Expect.equal (parseString "0") (Ok([ Value(Integer(0)) ])) ""
-              Expect.equal (parseString "-4123") (Ok([ Value(Integer(-4123)) ])) ""
+              Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""
+              Expect.equal (parseString "0") (Ok([ Expression.Value(WanderValue.Integer(0)) ])) ""
+              Expect.equal (parseString "-4123") (Ok([ Expression.Value(WanderValue.Integer(-4123)) ])) ""
           testCase "Read Names"
-          <| fun _ -> Expect.equal (parseString "hello") (Ok([ Name("hello") ])) ""
+          <| fun _ -> Expect.equal (parseString "hello") (Ok([ Expression.Name("hello") ])) ""
           testCase "parse booleans"
           <| fun _ ->
-              Expect.equal (parseString "true") (Ok([ Value(Boolean(true)) ])) ""
-              Expect.equal (parseString "false") (Ok([ Value(Boolean(false)) ])) ""
+              Expect.equal (parseString "true") (Ok([ Expression.Value(WanderValue.Boolean(true)) ])) ""
+              Expect.equal (parseString "false") (Ok([ Expression.Value(WanderValue.Boolean(false)) ])) ""
 
               Expect.equal
                   (parseString "true false    true \n false false")
                   (Ok(
-                      [ Value(Boolean(true))
-                        Value(Boolean(false))
-                        Value(Boolean(true))
-                        Value(Boolean(false))
-                        Value(Boolean(false)) ]
+                      [ Expression.Value(WanderValue.Boolean(true))
+                        Expression.Value(WanderValue.Boolean(false))
+                        Expression.Value(WanderValue.Boolean(true))
+                        Expression.Value(WanderValue.Boolean(false))
+                        Expression.Value(WanderValue.Boolean(false)) ]
                   ))
                   ""
           testCase "parse whitespace"
@@ -71,8 +71,8 @@ let tests =
               Expect.equal (parseString "\r\n\r\n\r\n\n") (Ok([])) ""
           testCase "Read Identifiers"
           <| fun _ ->
-              Expect.equal (parseString "<a>") (Ok([ Value(ident "a") ])) ""
-              Expect.equal (parseString "<https://ligature.dev/#>") (Ok([ Value(ident "https://ligature.dev/#") ])) ""
+              Expect.equal (parseString "<a>") (Ok([ Expression.Value(ident "a") ])) ""
+              Expect.equal (parseString "<https://ligature.dev/#>") (Ok([ Expression.Value(ident "https://ligature.dev/#") ])) ""
           testCase "Read comments"
           <| fun _ ->
               Expect.equal (parseString "--") (Ok([])) ""
@@ -80,77 +80,77 @@ let tests =
               Expect.equal (parseString "-- this is a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
               Expect.equal (parseString "-- this is \n--  a@#$@%$#@$%@ comment;;;;  ") (Ok([])) ""
           testCase "read String Literal"
-          <| fun _ -> Expect.equal (parseString @"""hello""") (Ok([ Value(String("hello")) ])) ""
+          <| fun _ -> Expect.equal (parseString @"""hello""") (Ok([ Expression.Value(WanderValue.String("hello")) ])) ""
           // // testCase "read Bytes Literal" <| fun _ ->
           // //     Expect.equal (parse "0x55") (Ok([Bytes("0x55")])) ""
           testCase "read let statement"
           <| fun _ ->
-              Expect.equal (parseString "let x = 6") (Ok([ LetStatement("x", Value(Integer(6))) ])) ""
-              Expect.equal (parseString "let x=8") (Ok([ LetStatement("x", Value(Integer(8))) ])) ""
-              Expect.equal (parseString "let x = \n true") (Ok([ LetStatement("x", Value(Boolean(true))) ])) ""
-              Expect.equal (parseString @"let x = ""true""") (Ok([ LetStatement("x", Value(String("true"))) ])) ""
-              Expect.equal (parseString "let x = <a>") (Ok([ LetStatement("x", Value(ident "a")) ])) ""
+              Expect.equal (parseString "let x = 6") (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(6))) ])) ""
+              Expect.equal (parseString "let x=8") (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(8))) ])) ""
+              Expect.equal (parseString "let x = \n true") (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Boolean(true))) ])) ""
+              Expect.equal (parseString @"let x = ""true""") (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.String("true"))) ])) ""
+              Expect.equal (parseString "let x = <a>") (Ok([ Expression.LetStatement("x", Expression.Value(ident "a")) ])) ""
           testCase "read Scopes"
           <| fun _ ->
-              Expect.equal (parseString "{ true }") (Ok [ Scope [ Value(Boolean(true)) ] ]) ""
-              Expect.equal (parseString "{ 55 }") (Ok [ Scope [ Value(Integer(55)) ] ]) ""
+              Expect.equal (parseString "{ true }") (Ok [ Expression.Scope [ Expression.Value(WanderValue.Boolean(true)) ] ]) ""
+              Expect.equal (parseString "{ 55 }") (Ok [ Expression.Scope [ Expression.Value(WanderValue.Integer(55)) ] ]) ""
 
               Expect.equal
                   (parseString @"{ 1 true 3 ""Hello""}")
                   (Ok
-                      [ Scope
-                            [ Value(Integer(1))
-                              Value(Boolean(true))
-                              Value(Integer(3))
-                              Value(String("Hello")) ] ])
+                      [ Expression.Scope
+                            [ Expression.Value(WanderValue.Integer(1))
+                              Expression.Value(WanderValue.Boolean(true))
+                              Expression.Value(WanderValue.Integer(3))
+                              Expression.Value(WanderValue.String("Hello")) ] ])
                   ""
           testCase "read let with scope"
           <| fun _ ->
               Expect.equal
                   (parseString "let x = { true }")
-                  (Ok([ LetStatement("x", Scope([ Value(Boolean(true)) ])) ]))
+                  (Ok([ Expression.LetStatement("x", Expression.Scope([ Expression.Value(WanderValue.Boolean(true)) ])) ]))
                   ""
 
-              Expect.equal (parseString "{ let x = 6 }") (Ok([ Scope([ LetStatement("x", Value(Integer(6))) ]) ])) ""
+              Expect.equal (parseString "{ let x = 6 }") (Ok([ Expression.Scope([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(6))) ]) ])) ""
 
               Expect.equal
                   (parseString "{ let x = { false } x }")
-                  (Ok([ Scope([ LetStatement("x", Scope([ Value(Boolean(false)) ])); Name("x") ]) ]))
+                  (Ok([ Expression.Scope([ Expression.LetStatement("x", Expression.Scope([ Expression.Value(WanderValue.Boolean(false)) ])); Expression.Name("x") ]) ]))
                   ""
           testCase "parse conditionals"
           <| fun _ ->
               Expect.equal
                   (parseString "if true false else true")
                   (Ok(
-                      [ Conditional
+                      [ Expression.Conditional
                             { ifCase =
-                                { condition = Value(Boolean(true))
-                                  body = Value(Boolean(false)) }
+                                { condition = Expression.Value(WanderValue.Boolean(true))
+                                  body = Expression.Value(WanderValue.Boolean(false)) }
                               elsifCases = []
-                              elseBody = Value(Boolean(true)) } ]
+                              elseBody = Expression.Value(WanderValue.Boolean(true)) } ]
                   ))
                   ""
           testCase "parsing function calls"
           <| fun _ ->
-              Expect.equal (parseString "hello()") (Ok([FunctionCall("hello", [])])) ""
-              Expect.equal (parseString @"hello(""world"")") (Ok([FunctionCall("hello", [Value(String"world")])])) ""
+              Expect.equal (parseString "hello()") (Ok([Expression.FunctionCall("hello", [])])) ""
+              Expect.equal (parseString @"hello(""world"")") (Ok([Expression.FunctionCall("hello", [Expression.Value(WanderValue.String"world")])])) ""
               Expect.equal (parseString "let four = add(1 3)") (Ok([
-                LetStatement("four", FunctionCall("add", [Value(Integer(1)); Value(Integer(3))]))
+                Expression.LetStatement("four", Expression.FunctionCall("add", [Expression.Value(WanderValue.Integer(1)); Expression.Value(WanderValue.Integer(3))]))
               ])) ""
           testCase "parsing lambdas"
           <| fun _ ->
-              Expect.equal (parseString "{ -> }") (Ok([Value(Lambda([], []))])) ""
-              Expect.equal (parseString "{ x -> x }") (Ok([Value(Lambda(["x"], [Name("x")]))])) ""
-              Expect.equal (parseString "{ x -> func(x 3) }") (Ok([Value(Lambda(["x"], [FunctionCall("func", [Name("x"); Value(Integer(3L))])]))])) ""
+              Expect.equal (parseString "{ -> }") (Ok([Expression.Value(WanderValue.Lambda([], []))])) ""
+              Expect.equal (parseString "{ x -> x }") (Ok([Expression.Value(WanderValue.Lambda(["x"], [Expression.Name("x")]))])) ""
+              Expect.equal (parseString "{ x -> func(x 3) }") (Ok([Expression.Value(WanderValue.Lambda(["x"], [Expression.FunctionCall("func", [Expression.Name("x"); Expression.Value(WanderValue.Integer(3L))])]))])) ""
               Expect.equal (parseString "let addThree = { x -> add(3 x) }") (Ok([
-                LetStatement("addThree", Value(Lambda(["x"], [FunctionCall("add", [Value(Integer(3L)); Name("x")])])))
+                Expression.LetStatement("addThree", Expression.Value(WanderValue.Lambda(["x"], [Expression.FunctionCall("add", [Expression.Value(WanderValue.Integer(3L)); Expression.Name("x")])])))
               ])) ""
           testCase "parsing tuples"
           <| fun _ ->
-              Expect.equal (parseString "()") (Ok([TupleExpression([])])) "Parse Empty Tuple"
-              Expect.equal (parseString "(x)") (Ok([TupleExpression([Name("x")])])) ""
-              Expect.equal (parseString "(x 3)") (Ok([TupleExpression([Name("x"); Value(Integer(3))])])) ""
+              Expect.equal (parseString "()") (Ok([Expression.TupleExpression([])])) "Parse Empty Tuple"
+              Expect.equal (parseString "(x)") (Ok([Expression.TupleExpression([Expression.Name("x")])])) ""
+              Expect.equal (parseString "(x 3)") (Ok([Expression.TupleExpression([Expression.Name("x"); Expression.Value(WanderValue.Integer(3))])])) ""
               Expect.equal (parseString "let x3 = (x 3)") (Ok([
-                LetStatement("x3", TupleExpression([Name("x"); Value(Integer(3L))]))
+                Expression.LetStatement("x3", Expression.TupleExpression([Expression.Name("x"); Expression.Value(WanderValue.Integer(3L))]))
               ])) "" 
             ]

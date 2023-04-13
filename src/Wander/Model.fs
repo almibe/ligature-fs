@@ -6,6 +6,7 @@ module Ligature.Wander.Model
 
 open Ligature
 
+[<RequireQualifiedAccess>]
 type WanderType =
     | Any
     | Unspecified
@@ -23,6 +24,7 @@ type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Out
 
 type Tuple<'T> = 'T list
 
+[<RequireQualifiedAccess>]
 type WanderValue<'T> =
     | Integer of int64
     | String of string
@@ -43,6 +45,7 @@ type Conditional<'Condition, 'Body> =
       elsifCases: Case<'Condition, 'Body> list
       elseBody: 'Body }
 
+[<RequireQualifiedAccess>]
 type Expression =
     | LetStatement of name: string * value: Expression
     | Name of string
@@ -57,3 +60,17 @@ type Case = Case<Expression, Expression>
 type Conditional = Conditional<Expression, Expression>
 type NativeFunction = NativeFunction<Expression, WanderValue>
 type Bindings = Bindings.Bindings<string, WanderValue>
+
+let rec prettyPrint (value: WanderValue): string =
+    match value with
+    | WanderValue.Integer i -> sprintf "%i" i
+    | WanderValue.String s -> s
+    | WanderValue.Boolean b -> sprintf "%b" b
+    | WanderValue.Identifier i -> $"<{(readIdentifier i)}>"
+    | WanderValue.Nothing -> "Nothing"
+    | WanderValue.Lambda(_, _) -> "Lambda"
+    | WanderValue.NativeFunction(_) -> "NativeFunction"
+    | WanderValue.Tuple(contents) -> $"[{prettyPrintTuple contents}]"
+
+and prettyPrintTuple tuple =
+    List.fold (fun res v -> $"{res}{prettyPrint v}") "" tuple

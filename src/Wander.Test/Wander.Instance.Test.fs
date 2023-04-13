@@ -10,7 +10,7 @@ open Ligature.Wander.Model
 open Ligature.Wander.Main
 
 let ident id =
-    Identifier(
+    WanderValue.Identifier(
         match identifier id with
         | Ok(v) -> v
         | Error(_) -> todo
@@ -31,7 +31,7 @@ let tests =
               allStatements("hello")
               """
               let result = run script bindings
-              Expect.equal result (Ok(Tuple[])) ""
+              Expect.equal result (Ok(WanderValue.Tuple[])) ""
           testCase "Writing Statements to a new Dataset"
           <| fun _ ->
               let script = """
@@ -40,5 +40,5 @@ let tests =
               allStatements("hello")
               """
               let result = run script bindings
-              Expect.equal result (Ok(Tuple[Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
+              Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
         ]
