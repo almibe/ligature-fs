@@ -41,4 +41,15 @@ let tests =
               """
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
+          testCase "Calling createDataset shouldn't affect Datasets that already exist"
+          <| fun _ ->
+              let script = """
+              createDataset("hello")
+              write("hello" ((<a> <b> <c>)))
+              createDataset("hello")
+              allStatements("hello")
+              """
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
+
         ]

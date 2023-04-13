@@ -59,7 +59,8 @@ type LigatureInMemory() =
 
         member this.CreateDataset dataset =
             lock this (fun () ->
-                datasets.Value <- Map.add dataset Set.empty datasets.Value //Set.add dataset datasets.Value
+                if not (datasets.Value.ContainsKey dataset) then
+                    datasets.Value <- Map.add dataset Set.empty datasets.Value //Set.add dataset datasets.Value
                 Ok())
 
         member this.RemoveDataset dataset =
