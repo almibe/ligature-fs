@@ -21,7 +21,7 @@ let runWander () : HttpHandler =
         let bindings = Wander.Preludes.instancePrelude instance
         let res = run x.Result bindings
         match res with
-        | Ok(res) -> ctx.WriteStringAsync (sprintf "%A" res)
+        | Ok(res) -> ctx.WriteStringAsync (Wander.Model.prettyPrint res)
         | Error(err) -> handleError ctx err)
 
 let backendWebApp () =
