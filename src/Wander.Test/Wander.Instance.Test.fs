@@ -16,9 +16,7 @@ let ident id =
         | Error(_) -> todo
     )
 
-//TODO move this to test setup
-let instance = InMemory.LigatureInMemory ()
-let bindings = Wander.Preludes.instancePrelude instance
+let bindings () = Wander.Preludes.instancePrelude (InMemory.LigatureInMemory ())
 
 [<Tests>]
 let tests =
@@ -30,7 +28,7 @@ let tests =
               createDataset("hello")
               allStatements("hello")
               """
-              let result = run script bindings
+              let result = run script (bindings())
               Expect.equal result (Ok(WanderValue.Tuple[])) ""
           testCase "Writing Statements to a new Dataset"
           <| fun _ ->
@@ -39,7 +37,7 @@ let tests =
               write("hello" ((<a> <b> <c>)))
               allStatements("hello")
               """
-              let result = run script bindings
+              let result = run script (bindings())
               Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
           testCase "Calling createDataset shouldn't affect Datasets that already exist"
           <| fun _ ->
@@ -49,7 +47,15 @@ let tests =
               createDataset("hello")
               allStatements("hello")
               """
-              let result = run script bindings
+              let result = run script (bindings())
               Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
-
+          testCase "Writing Statements to a new Dataset and calling match"
+          <| fun _ ->
+              let script = """
+              createDataset("hello")
+              write("hello" ((<a> <b> <c>) (<d> <e> <f>)))
+              match("hello" <a> <b> <c>)
+              """
+              let result = run script (bindings())
+              Expect.equal result (Ok(WanderValue.Tuple[WanderValue.Tuple[(ident "a"); (ident "b"); (ident "c")]])) ""
         ]
