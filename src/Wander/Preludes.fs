@@ -113,6 +113,43 @@ module private Instance =
             | _ -> error "Improper arguments could not run query." None
         ))
 
+    /// A NativeFunction that does a single match against a given Dataset.
+    /// Internally it starts a query transaction and then runs a single function in the tx.
+    let matchCommand (instance: ILigature) = WanderValue.NativeFunction (
+        new Model.NativeFunction(fun args bindings ->
+            let datasetName = args.Head
+            let entity = args.Tail.Head
+            let attribute = args.Tail.Tail.Head
+            let value = args.Tail.Tail.Tail.Head
+            match (datasetName, entity, attribute, value) with
+            | (Expression.Value(WanderValue.String(name)), 
+                Expression.Value(entity), 
+                Expression.Value(attribute),
+                Expression.Value(value)) ->
+                    let dataset = Dataset(name)
+                    let entity =
+                        match entity with
+                        | WanderValue.Identifier(i) -> Ok (Some i)
+                        | WanderValue.Nothing -> Ok None
+                        | _ -> error "Invalid Entity passed to match." None
+                    let attribute =
+                        match attribute with
+                        | WanderValue.Identifier(i) -> Ok (Some i)
+                        | WanderValue.Nothing -> Ok None
+                        | _ -> error "Invalid Attribute passed to match." None
+                    let value = Ok None
+                    match (entity, attribute, value) with
+                    | (Ok(entity), Ok(attribute), Ok(value)) ->
+                        instance.Query dataset (fun tx ->
+                            match tx.MatchStatements entity attribute value with
+                            | Ok(results) -> Ok(WanderValue.Tuple(statementsToTuple results []))
+                            | Error(err) -> Error(err)
+                        )
+                    | _ -> error "Could not call match." None //TODO should return actual error
+            | _ -> error "Improper arguments passed to match." None
+        )
+    )
+
     /// A Native Function that write Statements to a Dataset.
     /// Example: addStatements("dataset" (<a> <b> <c>)(<a> <b> "Test") (<a> <b> 432))
     let write (instance: ILigature) = WanderValue.NativeFunction (
@@ -163,6 +200,7 @@ let bindInstanceLevelFunctions instance bindings =
     |> Bindings.bind "query" (Instance.query instance)
     |> Bindings.bind "write" (Instance.write instance)
     |> Bindings.bind "allStatements" (Instance.allStatements instance)
+    |> Bindings.bind "match" (Instance.matchCommand instance)
 
 let standardPrelude () = 
     bindStandardLibrary (Bindings.newBindings ())
