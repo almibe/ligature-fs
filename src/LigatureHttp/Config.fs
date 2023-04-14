@@ -5,6 +5,24 @@
 module Ligature.Http.Config
 
 open Ligature.Sqlite.Main
+open Argu
+open System
+
+type CliArguments =
+    | Port of port:string
+    | Sqlite of file:string
+    | In_Memory
+    | Single_User
+    | No_Auth
+
+    interface IArgParserTemplate with
+        member s.Usage =
+            match s with
+            | Port _ -> "specify access port."
+            | Sqlite _ -> "use Sqlite3 for storage using the passed file."
+            | In_Memory -> "use a temporary in-memeory only store."
+            | Single_User -> "start server in single user mode."
+            | No_Auth -> failwith "start server with no authenication."
 
 type Auth = | NoAuth
 
@@ -18,8 +36,13 @@ type Config =
       mode: Mode
       persistance: Persistance }
 
+let defaultDBFile () =
+    let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+    let pathCharacter = System.IO.Path.DirectorySeparatorChar.ToString()
+    $"{homeDir}{pathCharacter}.ligature{pathCharacter}sqlite.db"
+
 let readConfig () =
     { url = "http://localhost:4200"
       auth = NoAuth
       mode = SingleUser
-      persistance = Sqlite InMemory }
+      persistance = Sqlite (File (defaultDBFile ())) }

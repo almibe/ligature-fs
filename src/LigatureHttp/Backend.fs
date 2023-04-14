@@ -6,16 +6,12 @@ module Ligature.Http.Backend
 
 open Giraffe
 open Ligature
-open Ligature.InMemory
 open Ligature.Wander.Main
 open Microsoft.AspNetCore.Http
 
-//TODO should be a param or service and not a local
-let instance: ILigature = LigatureInMemory()
-
 let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200
 
-let runWander () : HttpHandler =
+let runWander instance : HttpHandler =
     handleContext (fun ctx ->
         let x = ctx.ReadBodyFromRequestAsync ()
         let bindings = Wander.Preludes.instancePrelude instance
@@ -24,8 +20,8 @@ let runWander () : HttpHandler =
         | Ok(res) -> ctx.WriteStringAsync (Wander.Model.prettyPrint res)
         | Error(err) -> handleError ctx err)
 
-let backendWebApp () =
+let backendWebApp instance =
     choose
         [ POST
           >=> choose
-              [ route "/wander" >=> runWander () ] ]
+              [ route "/wander" >=> runWander instance ] ]

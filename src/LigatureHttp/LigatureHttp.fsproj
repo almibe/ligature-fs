@@ -12,8 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Argu" Version="6.1.1" />
     <PackageReference Include="Giraffe" Version="6.0.0" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
     <ProjectReference Include="..\Lig\Lig.fsproj" />

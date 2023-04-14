@@ -34,7 +34,7 @@ let datasetList () =
     | Ok(ds) -> (List.map (fun ds -> p [] [ str ds ]) ds)
     | Error(err) -> [ p [] [ str "Error reading Datasets." ] ]
 
-let webApp = backendWebApp ()
+let webApp = backendWebApp instance
 
 let configureApp (app: IApplicationBuilder) =
     app.UseStaticFiles() |> ignore
