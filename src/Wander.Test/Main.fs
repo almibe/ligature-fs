@@ -25,7 +25,7 @@ let main argv =
     let parser =  ArgumentParser.Create<CliArguments>()
     let results = parser.Parse(argv, configurationReader=reader).GetAllResults()
     match results with
-    | [] | [InMemory] -> Instance.backend <- InMemory.LigatureInMemory ()
-    | [SqliteInMemory] -> Instance.backend <- ligatureSqlite LigatureSqliteConfig.InMemory
+    | [] | [InMemory] -> Instance.backend <- (fun () -> InMemory.LigatureInMemory () )
+    | [SqliteInMemory] -> Instance.backend <- (fun () -> ligatureSqlite LigatureSqliteConfig.InMemory )
     | _ -> failwith $"Unexpected configuration. {results}"    
     runTestsInAssembly defaultConfig [||]//argv

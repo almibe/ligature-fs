@@ -16,8 +16,8 @@ let ident id =
         | Error _ -> todo
     )
 
-let mutable backend: ILigature = InMemory.LigatureInMemory ()
-let bindings () = Wander.Preludes.instancePrelude backend
+let mutable backend: Unit -> ILigature = (fun () -> InMemory.LigatureInMemory ())
+let bindings () = Wander.Preludes.instancePrelude (backend ())
 
 [<Tests>]
 let tests =
