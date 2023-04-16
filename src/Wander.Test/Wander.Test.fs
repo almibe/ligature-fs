@@ -12,8 +12,8 @@ open Ligature.Wander.Main
 let ident id =
     WanderValue.Identifier(
         match identifier id with
-        | Ok(v) -> v
-        | Error(_) -> todo
+        | Ok v -> v
+        | Error _ -> todo
     )
 
 let bindings = Ligature.Wander.Preludes.standardPrelude ()

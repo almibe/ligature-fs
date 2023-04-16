@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Instance.Test
+module Ligature.Wander.Test.Instance
 
 open Expecto
 open Ligature
@@ -12,11 +12,12 @@ open Ligature.Wander.Main
 let ident id =
     WanderValue.Identifier(
         match identifier id with
-        | Ok(v) -> v
-        | Error(_) -> todo
+        | Ok v -> v
+        | Error _ -> todo
     )
 
-let bindings () = Wander.Preludes.instancePrelude (InMemory.LigatureInMemory ())
+let mutable backend: ILigature = InMemory.LigatureInMemory ()
+let bindings () = Wander.Preludes.instancePrelude backend
 
 [<Tests>]
 let tests =

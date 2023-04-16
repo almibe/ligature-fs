@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Argu" Version="6.1.1" />
     <PackageReference Include="Expecto" Version="9.*" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
@@ -26,6 +27,7 @@
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
     <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
+    <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     <ProjectReference Include="..\Lig\Lig.fsproj" />
     <ProjectReference Include="..\Wander\Wander.fsproj" />
 
