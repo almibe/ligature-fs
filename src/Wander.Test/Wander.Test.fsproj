@@ -30,7 +30,6 @@
     <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     <ProjectReference Include="..\Lig\Lig.fsproj" />
     <ProjectReference Include="..\Wander\Wander.fsproj" />
-
   </ItemGroup>
 
 </Project>
