@@ -82,7 +82,9 @@ let readValue gaze =
 
 //TODO remove need for unwrap function
 let unwrap result =
-    Result.defaultWith (fun _ -> todo) result
+    match result with
+    | Ok(result) -> result
+    | Error _ -> todo
 
 /// <summary>Reads in a String and returns a List of Statements or an Error.</summary>
 /// <param name="lig">The input String in lig format.</param>
@@ -106,14 +108,15 @@ let readLig (lig: string) =
         Gaze.attempt (Nibblers.repeat (Nibblers.takeWhile (fun c -> c = ' ' || c = '\t' || c = '\n' || c = '\r'))) gaze
         |> ignore
 
-        if (Result.isOk (entity) && Result.isOk (attribute) && Result.isOk (value)) then
+        match (entity, attribute, value) with
+        | ((Ok _), (Ok _), (Ok _)) ->
             let statement: Statement =
                 { Entity = unwrap (entity)
                   Attribute = unwrap (attribute)
                   Value = unwrap (value) }
-
             statements <- List.append statements [ statement ]
-
+        | _ -> ()
+    
     if cont then
         Ok(statements)
     else

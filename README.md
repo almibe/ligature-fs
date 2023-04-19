@@ -27,12 +27,14 @@ test suite for the other project.
 | Gaze              | A parsing library.                                                 |
 | Lig               | Support for the Lig serialization language.                        |
 | Ligature          | Main code base including the main logic and types.                 |
-| LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
+| LigatureFable     | A project for producing JavaScript code using Fable 4.             |
 | LigatureHttp      | A web backend for working with Ligature.                           |
+| LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
 | LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
 | LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 | Wander            | The Wander scripting language.                                     |
+| Wander.Experiment | An experimental rewrite of the Wander scripting language.          |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 
@@ -57,3 +59,18 @@ Examples running the formatter
 Examples running the linter
 
 `dotnet fsharplint lint ./src/Lig/LigRead.fs`
+
+## Running LigatureHttp
+
+`dotnet run --project src/LigatureHttp`
+
+## Building LigatureHttp
+
+To build for your current platform
+
+```
+cd src/LigatureHttp
+dotnet publish
+```
+
+See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
