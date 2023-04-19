@@ -9,8 +9,6 @@ open System.Data
 open Donald
 open FsToolkit.ErrorHandling
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 let readValue (rd: IDataReader) : Result<Value, LigatureError> =
     let valueIdentifier =
         rd.ReadStringOption "value_identifier" |> Option.map identifier
@@ -61,7 +59,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         match results with
         | Ok([]) -> Ok None
         | Ok([ id ]) -> Ok(Some id)
-        | Ok(_) -> todo
+        | Ok(_) -> failwith "todo"
         | Error(err) -> error $"Error checking for identifier {(readIdentifier identifier)}." (Some $"DBError - {err}")
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
@@ -75,7 +73,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                     [ "value_identifier", SqlType.Int64 id
                       "value_string", SqlType.Null
                       "value_integer", SqlType.Null ]
-            | Ok(None) -> todo
+            | Ok(None) -> failwith "todo"
             | Error(err) -> Error(err)
         | String(value) ->
             Ok
@@ -139,7 +137,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 match value with
                 | Some(Ok(value)) -> createValueQuery value
                 | None -> ""
-                | _ -> todo //should never reach?
+                | _ -> failwith "todo" //should never reach?
 
             let queryCondition: string =
                 [ entityQuery; attributeQuery; valueQuery ]
@@ -159,8 +157,8 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 inner join Identifier as Entity on statement.entity = Entity.rowid 
                 inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
                 left join Identifier as Value on Statement.value_identifier = Value.rowid
-                where dataset.name = @name
-                {queryCondition}"
+                where dataset.name = @name"
+                //{queryCondition}"
             //let param = [ "dataset", SqlType.Int64 datasetId ] //TODO rewrite query above to use Dataset id not name
             let param = [ "name", SqlType.String(datasetName dataset) ]
 

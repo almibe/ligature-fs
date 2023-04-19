@@ -121,13 +121,14 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         member _.Write dataset write =
             let dbTx = conn.TryBeginTransaction()
             let datasetId = lookupDataset dataset dbTx
-
             match datasetId with
             | Ok(id) ->
                 let tx = new LigatureSqliteWriteTx(dataset, id, conn, dbTx)
-                write tx
-                dbTx.Commit()
-                Ok()
+                match write tx with
+                | Ok _ ->
+                    dbTx.Commit()
+                    Ok()
+                | Error(err) -> Error(err)
             | Error(err) -> Error(err)
 
         member _.Close() =
