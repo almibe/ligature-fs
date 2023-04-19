@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <Compile Include="Bindings.Test.fs" />
-    <Compile Include="WanderLexer.Test.fs" />
-    <Compile Include="WanderParser.Test.fs" />
+    <Compile Include="Lexer.Test.fs" />
+    <Compile Include="Parser.Test.fs" />
     <Compile Include="Wander.Test.fs" />
-    <Compile Include="Wander.Instance.Test.fs" />
+    <Compile Include="Instance.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

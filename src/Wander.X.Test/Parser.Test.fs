@@ -21,16 +21,16 @@ let ident id = WanderValue.Identifier(unsafe (identifier id))
 let tests =
     testList
         "Parser Suite"
-        [ //testCase "Parse Integer"
-        //   <| fun _ ->
-        //       let tokens = [ WanderToken.Integer(345) ]
-        //       let ast = parse tokens
-        //       Expect.equal ast (Ok([ Expression.Value(WanderValue.Integer(345)) ])) ""
-        //   testCase "Parse Let Statements"
-        //   <| fun _ ->
-        //       let tokens = Wander.Lexer.tokenize "let x = 5"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))) ])) ""
+        [ testCase "Parse Integer"
+          <| fun _ ->
+              let tokens = [ WanderToken.Integer(345) ]
+              let ast = parse tokens
+              Expect.equal ast (Ok([ Expression.Value(WanderValue.Integer(345)) ])) ""
+          testCase "Parse Let Statements"
+          <| fun _ ->
+              let tokens = Wander.Lexer.tokenize "let x = 5"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))) ])) ""
         //   testCase "Parse Let Statement with Name"
         //   <| fun _ ->
         //       let tokens = Wander.Lexer.tokenize "let x = 5\nx"
