@@ -11,7 +11,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with
-    | Ok(tokens) ->
+    | Ok tokens ->
         match Parser.parse tokens with
         | Ok ast -> Interpreter.interpret ast bindings
         | Error _ -> error "Error parsing." None

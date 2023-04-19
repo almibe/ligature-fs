@@ -6,9 +6,8 @@ module Ligature.Wander.Lexer
 
 open Ligature
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-type WanderToken =
+[<RequireQualifiedAccess>]
+type Token =
     | Boolean of bool
     | WhiteSpace of string
     | Identifier of Identifier
@@ -43,15 +42,15 @@ let takeAndMap toTake toMap =
 let identifierTokenNibbler =
     Gaze.map Lig.Read.identifierNibbler (fun chars ->
         match chars |> implode |> identifier with
-        | Ok(identifier) -> Identifier(identifier)
-        | Error(_) -> todo //TODO fix this when Gaze works with Results instead of Options
+        | Ok identifier -> Token.Identifier(identifier)
+        | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
 let integerTokenNibbler =
-    Gaze.map Lig.Read.integerNibbler (fun int64 -> Integer(int64))
+    Gaze.map Lig.Read.integerNibbler (fun int64 -> Token.Integer(int64))
 
 let stringLiteralTokenNibbler =
-    Gaze.map Lig.Read.stringNibbler (fun string -> StringLiteral(string))
+    Gaze.map Lig.Read.stringNibbler (fun string -> Token.StringLiteral(string))
 
 let nameNibbler =
     Nibblers.takeAll
@@ -62,26 +61,26 @@ let newLineNibbler =
     Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]
 
 let newLineTokenNibbler =
-    Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> NewLine)
+    Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> Token.NewLine)
 
 let commentNibbler =
     Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
 
 let commentTokenNibbler =
-    Gaze.map commentNibbler (fun commentText -> commentText |> List.concat |> implode |> Comment)
+    Gaze.map commentNibbler (fun commentText -> commentText |> List.concat |> implode |> Token.Comment)
 
 let whiteSpaceNibbler =
-    Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> WhiteSpace)
+    Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let createNameOrKeyword (name: string) =
     match name with
-    | "if" -> IfKeyword
-    | "elsif" -> ElsifKeyword
-    | "else" -> ElseKeyword
-    | "let" -> LetKeyword
-    | "true" -> Boolean(true)
-    | "false" -> Boolean(false)
-    | _ -> Name(name)
+    | "if" -> Token.IfKeyword
+    | "elsif" -> Token.ElsifKeyword
+    | "else" -> Token.ElseKeyword
+    | "let" -> Token.LetKeyword
+    | "true" -> Token.Boolean(true)
+    | "false" -> Token.Boolean(false)
+    | _ -> Token.Name(name)
 
 let nameOrKeywordTokenNibbler =
     Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> createNameOrKeyword)
@@ -97,19 +96,19 @@ let tokenNibbler =
                 newLineTokenNibbler
                 identifierTokenNibbler
                 stringLiteralTokenNibbler
-                takeAndMap "=" EqualSign
-                takeAndMap "->" Arrow
-                takeAndMap "(" OpenParen
-                takeAndMap ")" CloseParen
-                takeAndMap "{" OpenBrace
-                takeAndMap "}" CloseBrace
-                takeAndMap "." Dot
-                takeAndMap "[" OpenSquare
-                takeAndMap "]" CloseSquare
-                takeAndMap "{" OpenBrace
-                takeAndMap "}" CloseBrace
-                takeAndMap ":" Colon
-                takeAndMap "?" QuestionMark
+                takeAndMap "=" Token.EqualSign
+                takeAndMap "->" Token.Arrow
+                takeAndMap "(" Token.OpenParen
+                takeAndMap ")" Token.CloseParen
+                takeAndMap "{" Token.OpenBrace
+                takeAndMap "}" Token.CloseBrace
+                takeAndMap "." Token.Dot
+                takeAndMap "[" Token.OpenSquare
+                takeAndMap "]" Token.CloseSquare
+                takeAndMap "{" Token.OpenBrace
+                takeAndMap "}" Token.CloseBrace
+                takeAndMap ":" Token.Colon
+                takeAndMap "?" Token.QuestionMark
                 commentTokenNibbler ]
             )
         )

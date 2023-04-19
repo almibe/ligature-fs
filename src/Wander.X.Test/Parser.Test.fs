@@ -8,14 +8,13 @@ open Expecto
 open Ligature
 open Wander.Parser
 open Wander.Lexer
-open Wander.Model
 
 let unsafe result =
     match result with
     | Ok(v) -> v
-    | Error(_) -> todo
+    | Error(_) -> failwith "Error"
 
-let ident id = WanderValue.Identifier(unsafe (identifier id))
+//let ident id = WanderValue.Identifier(unsafe (identifier id))
 
 [<Tests>]
 let tests =
@@ -23,17 +22,17 @@ let tests =
         "Parser Suite"
         [ testCase "Parse Integer"
           <| fun _ ->
-              let tokens = [ WanderToken.Integer(345) ]
-              let ast = parse tokens
-              Expect.equal ast (Ok([ Expression.Value(WanderValue.Integer(345)) ])) ""
-          testCase "Parse Let Statements"
-          <| fun _ ->
-              let tokens = Wander.Lexer.tokenize "let x = 5"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))) ])) ""
+              let tokens = [ Token.Integer(345) ]
+              let elements = parse tokens
+              Expect.equal elements (Ok([ Element.Integer(345) ])) ""
+        //   testCase "Parse Let Statements"
+        //   <| fun _ ->
+        //       let tokens = tokenize "(let [x 5])"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))) ])) ""
         //   testCase "Parse Let Statement with Name"
         //   <| fun _ ->
-        //       let tokens = Wander.Lexer.tokenize "let x = 5\nx"
+        //       let tokens = tokenize "let x = 5\nx"
         //       let ast = parse (unsafe tokens)
         //       Expect.equal ast (Ok([ Expression.LetStatement("x", Expression.Value(WanderValue.Integer(5))); Expression.Name("x") ])) ""
         //   testCase "Parse Integers"
