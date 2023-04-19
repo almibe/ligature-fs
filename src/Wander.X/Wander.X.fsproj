@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Bindings.fs" />
+    <Compile Include="Model.fs" />
+    <Compile Include="WanderLexer.fs" />
+    <Compile Include="WanderParser.fs" />
+    <Compile Include="WanderInterpreter.fs" />
+    <Compile Include="Preludes.fs" />
+    <Compile Include="Wander.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gaze\Gaze.fsproj" />
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\Lig\Lig.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
