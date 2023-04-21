@@ -1,0 +1,20 @@
+{
+    "name": "@ligature/ligature",
+    "private": true,
+    "version": "0.2.0",
+    "description": "JavaScript support for Ligature. This project is generated from F# code using Fable (https://fable.io).",
+    "main": "Ligature.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/almibe/ligature-fs.git"
+    },
+    "author": "Alex Michael Berry <alexmiberry@gmail.com>",
+    "license": "MPL-2.0",
+    "bugs": {
+      "url": "https://github.com/almibe/ligature-fs/issues"
+    },
+    "homepage": "https://ligature.dev"
+  }

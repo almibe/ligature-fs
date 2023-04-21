@@ -60,11 +60,15 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Lig/LigRead.fs`
 
-## Running LigatureHttp
+## LigatureHttp
+
+LigatureHttp is a project that allows running Wander code against an instance of Ligature via HTTP.
+
+### Running LigatureHttp
 
 `dotnet run --project src/LigatureHttp`
 
-## Building LigatureHttp
+### Building LigatureHttp
 
 To build for your current platform
 
@@ -74,3 +78,20 @@ dotnet publish
 ```
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
+
+## LigatureFable
+
+LigatureFable is a project that uses [Fable](https://fable.io) to generate an NPM package for Ligature projects that are compatiable with the browser and node.
+
+### Building LigatureFable
+
+Run the following commands from the root of this project (and yes there are two src dirs that's not a typo).
+
+```
+cd src/LigatureFable/src
+dotnet fable -o npmProject
+```
+
+This is generate all of the JavaScript files and place them in the npmProject subdirectory.
+If you then go into that directory you'll notice that there is a package.json file there already.
+All .js files are in the .gitignore file for this subproject since they are generated.
