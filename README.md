@@ -34,7 +34,6 @@ test suite for the other project.
 | LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 | Wander            | The Wander scripting language.                                     |
-| Wander.X          | An experimental rewrite of the Wander scripting language.          |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 
