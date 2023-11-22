@@ -8,8 +8,8 @@ type ScriptResult =
   | String of string
   | Integer of int64
   | Nothing
-  | Identifier of Identifier
-  | Boolean of boolean
+//  | Identifier of Identifier
+  | Boolean of bool
   | List
   | Tuple
   | Graph
@@ -23,4 +23,4 @@ let readScriptResult (input: string) =
     //TODO read list
     //TODO read tuple
     //TODO read lig
-    ScriptResult.Nothing
+    ScriptResult.List

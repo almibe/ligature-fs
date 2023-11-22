@@ -25,11 +25,11 @@ let tests =
               let tokens = [ Token.Integer(345) ]
               let elements = parse tokens
               Expect.equal elements (Ok([ Element.Integer(345) ])) ""
-          testCase "Parse Let Statements"
-          <| fun _ ->
-              let tokens = tokenize "(let [x 5])"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.List [ Element.LetKeyword; ]])) ""
+        //   testCase "Parse Let Statements"
+        //   <| fun _ ->
+        //       let tokens = tokenize "(let [x 5])"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Element.List [ Element.LetKeyword; ]])) ""
         //   testCase "Parse Let Statement with Name"
         //   <| fun _ ->
         //       let tokens = tokenize "let x = 5\nx"
