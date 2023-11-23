@@ -5,9 +5,11 @@
 module Ligature.Wander.Main.Test
 
 open Expecto
-open Ligature
 open Ligature.Wander.Model
 open Ligature.Wander.Main
+open Ligature.Wander.Identifier
+
+let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let ident id =
     WanderValue.Identifier(

@@ -4,10 +4,9 @@
 
 module Ligature.Wander.Main
 
-open Ligature
 open Ligature.Wander.Model
+open Error
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with

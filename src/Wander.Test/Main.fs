@@ -21,11 +21,11 @@ type CliArguments =
 
 [<EntryPoint>]
 let main argv =
-    let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
-    let parser =  ArgumentParser.Create<CliArguments>()
-    let results = parser.Parse(argv, configurationReader=reader).GetAllResults()
-    match results with
-    | [] | [InMemory] -> Instance.backend <- (fun () -> InMemory.LigatureInMemory () )
-    | [SqliteInMemory] -> Instance.backend <- (fun () -> ligatureSqlite LigatureSqliteConfig.InMemory )
-    | _ -> failwith $"Unexpected configuration. {results}"    
+    // let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
+    // let parser =  ArgumentParser.Create<CliArguments>()
+    // let results = parser.Parse(argv, configurationReader=reader).GetAllResults()
+    // match results with
+    // | [] | [InMemory] -> Instance.backend <- (fun () -> InMemory.LigatureInMemory () )
+    // | [SqliteInMemory] -> Instance.backend <- (fun () -> ligatureSqlite LigatureSqliteConfig.InMemory )
+    // | _ -> failwith $"Unexpected configuration. {results}"    
     runTestsInAssembly defaultConfig [||]//argv

@@ -6,16 +6,18 @@ module rec Ligature.Wander.Parser
 
 open Lexer
 open FsToolkit.ErrorHandling
-open Ligature
+open Error
 
 [<RequireQualifiedAccess>]
 type Element =
 | Name of string
 | String of string
-| Integer of int64
-| Identifier of Identifier
-| List of Element list
-
+| Int of int64
+| Bool of bool
+| Identifier of Ligature.Wander.Identifier.Identifier
+| Array of Element list
+| Set of Element list //TODO fix type
+| Let of string * Element
 
 // let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
 //     let scopeAttempt = 
@@ -47,13 +49,13 @@ type Element =
 //                 })
 //             gaze
 
-// let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.Name(value)) -> Ok(value)
-//             | _ -> Error Gaze.GazeError.NoMatch)
-//         gaze
+let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.Name(value)) -> Ok(value)
+            | _ -> Error Gaze.GazeError.NoMatch)
+        gaze
 
 // let nameNibbler =
 //     Nibblers.takeCond (fun token ->
@@ -71,7 +73,6 @@ type Element =
 //             result {
 //                 let! _ = Gaze.attempt (Nibblers.take Token.LetKeyword) gaze
 //                 let! name = Gaze.attempt nameStrNibbler gaze
-//                 let! _ = Gaze.attempt (Nibblers.take Token.EqualSign) gaze
 //                 let! v = readExpression gaze
 //                 return Expression.LetStatement(name, v)
 //             })
@@ -120,7 +121,7 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Integer(i)) -> Ok(Element.Integer(i))
+            | Ok(Token.Integer(i)) -> Ok(Element.Int(i))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -201,30 +202,31 @@ let readElements (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError>
         Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
 
-// /// This function is similar to readExpressions but when it reaches an Error it returns all matched expressions
-// /// instead of an Error.
-// let readExpressionsUntil (stopToken: Token) (gaze: Gaze.Gaze<Token>) : Result<Expression list, Gaze.GazeError> =
-//     let mutable res = []
-//     let mutable cont = true
-//     let mutable err = false
+/// This function is similar to readExpressions but when it reaches an Error it returns all matched expressions
+/// instead of an Error.
+let readExpressionsUntil (stopToken: Token) (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
+    let mutable res = []
+    let mutable cont = true
+    let mutable err = false
 
-//     while cont do
-//         match Gaze.peek gaze with
-//         | Ok(nextToken) ->
-//             if nextToken = stopToken then
-//                 cont <- false
-//             else
-//                 let expr = readExpression gaze
-//                 match expr with
-//                 | Ok(expr) -> res <- res @ [ expr ]
-//                 | Error _ ->
-//                     cont <- false
-//                     err <- true
-//         | Error _ ->
-//             cont <- false
-//             err <- true
-    
-//     if not err then Ok(res) else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    while cont do
+        match Gaze.peek gaze with
+        | Ok(nextToken) ->
+            if nextToken = stopToken then
+                cont <- false
+            else
+                todo
+                // let expr = readExpression gaze
+                // match expr with
+                // | Ok(expr) -> res <- res @ [ expr ]
+                // | Error _ ->
+                //     cont <- false
+                //     err <- true
+        | Error _ ->
+            cont <- false
+            err <- true
+
+    if not err then Ok(res) else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

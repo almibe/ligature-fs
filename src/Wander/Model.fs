@@ -3,8 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Wander.Model
-
-open Ligature
+open Identifier
+open Error
 
 [<RequireQualifiedAccess>]
 type WanderType =
@@ -19,7 +19,7 @@ type WanderType =
     | Graph
     | Nothing
 
-type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, LigatureError>) =
+type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, WanderError>) =
     member _.Run args bindings = eval args bindings
 
 type Tuple<'T> = 'T list

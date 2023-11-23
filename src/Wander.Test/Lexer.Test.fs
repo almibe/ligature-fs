@@ -54,20 +54,16 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""
               Expect.equal (tokenize "--hello") (Ok([ Token.Comment("--hello") ])) ""
-
               Expect.equal
                   (tokenize "-- this is a@#$@%$#@$%@ comment;;;;  ")
                   (Ok([ Token.Comment("-- this is a@#$@%$#@$%@ comment;;;;  ") ]))
                   ""
-          //TODO add test with multiple comments separated by \n
           testCase "read String Literal"
           <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok([ Token.StringLiteral("hello") ])) ""
           // testCase "read Bytes Literal" <| fun _ ->
           //     Expect.equal (tokenize "0x55") (Ok([Bytes("0x55")])) ""
           testCase "read let keyword"
           <| fun _ -> Expect.equal (tokenize "let") (Ok([ Token.LetKeyword ])) ""
-          testCase "read equals sign"
-          <| fun _ -> Expect.equal (tokenize "=") (Ok([ Token.EqualSign ])) ""
           testCase "read braces"
           <| fun _ ->
               Expect.equal (tokenize "{") (Ok([ Token.OpenBrace ])) ""
@@ -96,20 +92,20 @@ let tests =
               Expect.equal (tokenize "[") (Ok([ Token.OpenSquare ])) ""
               Expect.equal (tokenize "]") (Ok([ Token.CloseSquare ])) ""
               Expect.equal (tokenize "[[]]]") (Ok([ Token.OpenSquare; Token.OpenSquare; Token.CloseSquare; Token.CloseSquare; Token.CloseSquare ])) ""
-          testCase "read arrow"
+          testCase "read arrows and hash"
           <| fun _ ->
               Expect.equal (tokenize "->") (Ok([ Token.Arrow ])) ""
+              Expect.equal (tokenize "=>") (Ok([ Token.WideArrow ])) ""
+              Expect.equal (tokenize "#") (Ok([ Token.Hash ])) ""
               Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
               Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
-          testCase "read if and else keywords"
+          testCase "read when keyword"
           <| fun _ ->
-              Expect.equal (tokenize "if") (Ok([ Token.IfKeyword ])) ""
-              Expect.equal (tokenize "elsif") (Ok([ Token.ElsifKeyword ])) ""
-              Expect.equal (tokenize "else") (Ok([ Token.ElseKeyword ])) ""
+              Expect.equal (tokenize "when") (Ok([ Token.WhenKeyword ])) ""
           testCase "read question mark"
           <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.QuestionMark ])) ""
-          testCase "read simple let statement"
+          testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")
-              Expect.equal (tokenize "let x = 5") (Ok([ Token.LetKeyword; ws; Token.Name("x"); ws; Token.EqualSign; ws; Token.Integer(5) ])) "" 
+              Expect.equal (tokenize "let x 5") (Ok([ Token.LetKeyword; ws; Token.Name("x"); ws; Token.Integer(5) ])) "" 
 ]

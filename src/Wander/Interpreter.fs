@@ -4,9 +4,9 @@
 
 module Ligature.Wander.Interpreter
 
-open Ligature
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
+open Error
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -16,7 +16,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 //     | Some(value) -> Ok((value, bindings))
 
 let rec evalExpression bindings expression =
-    let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, LigatureError> =
+    let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, WanderError> =
         if List.length args <> List.length parameters then
             todo
         else if List.isEmpty args && List.isEmpty parameters then
@@ -107,7 +107,7 @@ let rec evalExpression bindings expression =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
+    : Result<(WanderValue * Bindings.Bindings<_, _>), WanderError> =
     match List.length expressions with
     | 0 -> Ok(WanderValue.Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)
@@ -139,6 +139,6 @@ let rec eval (bindings: Bindings.Bindings<_, _>) (expressions: Expression list) 
         | (Ok(_, bindings), tail) -> eval bindings tail
         | (Error(error), _) -> Error(error)
 
-let interpret (elements: Parser.Element list) (bindings: Bindings): Result<WanderValue, LigatureError> =
+let interpret (elements: Parser.Element list) (bindings: Bindings): Result<WanderValue, WanderError> =
     failwith "TODO fixme"
     //eval bindings elements

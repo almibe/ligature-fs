@@ -3,8 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Wander.Lexer
-
-open Ligature
+open Identifier
 
 [<RequireQualifiedAccess>]
 type Token =
@@ -17,7 +16,6 @@ type Token =
     | StringLiteral of string
     | BytesLiteral of byte array
     | LetKeyword
-    | EqualSign
     | Name of string
     | OpenBrace
     | CloseBrace
@@ -27,11 +25,12 @@ type Token =
     | OpenSquare
     | CloseSquare
     | Arrow
+    | WideArrow
     | Dot
     | QuestionMark
-    | IfKeyword
-    | ElsifKeyword
-    | ElseKeyword
+    | WhenKeyword
+    | Hash
+    | Nothing
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -74,12 +73,11 @@ let whiteSpaceNibbler =
 
 let createNameOrKeyword (name: string) =
     match name with
-    | "if" -> Token.IfKeyword
-    | "elsif" -> Token.ElsifKeyword
-    | "else" -> Token.ElseKeyword
+    | "when" -> Token.WhenKeyword
     | "let" -> Token.LetKeyword
     | "true" -> Token.Boolean(true)
     | "false" -> Token.Boolean(false)
+    | "nothing" -> Token.Nothing
     | _ -> Token.Name(name)
 
 let nameOrKeywordTokenNibbler =
@@ -96,8 +94,9 @@ let tokenNibbler =
                 newLineTokenNibbler
                 identifierTokenNibbler
                 stringLiteralTokenNibbler
-                takeAndMap "=" Token.EqualSign
+                takeAndMap "=>" Token.WideArrow
                 takeAndMap "->" Token.Arrow
+                takeAndMap "#" Token.Hash
                 takeAndMap "(" Token.OpenParen
                 takeAndMap ")" Token.CloseParen
                 takeAndMap "{" Token.OpenBrace
