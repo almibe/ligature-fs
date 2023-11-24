@@ -4,19 +4,20 @@
 
 module Ligature.Wander.Lexer
 open Identifier
+open LexerUtil
 
 [<RequireQualifiedAccess>]
 type Token =
-    | Boolean of bool
+    | Bool of bool
     | WhiteSpace of string
     | Identifier of Identifier
-    | Integer of int64
+    | Int of int64
     | Comment of string
     | NewLine of string
     | StringLiteral of string
     | BytesLiteral of byte array
-    | LetKeyword
     | Name of string
+    | LetKeyword
     | OpenBrace
     | CloseBrace
     | Colon
@@ -39,17 +40,17 @@ let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
 let identifierTokenNibbler =
-    Gaze.map Lig.Read.identifierNibbler (fun chars ->
+    Gaze.map identifierNibbler (fun chars ->
         match chars |> implode |> identifier with
         | Ok identifier -> Token.Identifier(identifier)
         | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
 let integerTokenNibbler =
-    Gaze.map Lig.Read.integerNibbler (fun int64 -> Token.Integer(int64))
+    Gaze.map integerNibbler (fun int64 -> Token.Int(int64))
 
 let stringLiteralTokenNibbler =
-    Gaze.map Lig.Read.stringNibbler (fun string -> Token.StringLiteral(string))
+    Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
 
 let nameNibbler =
     Nibblers.takeAll
@@ -75,8 +76,8 @@ let createNameOrKeyword (name: string) =
     match name with
     | "when" -> Token.WhenKeyword
     | "let" -> Token.LetKeyword
-    | "true" -> Token.Boolean(true)
-    | "false" -> Token.Boolean(false)
+    | "true" -> Token.Bool(true)
+    | "false" -> Token.Bool(false)
     | "nothing" -> Token.Nothing
     | _ -> Token.Name(name)
 

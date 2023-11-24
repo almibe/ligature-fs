@@ -121,7 +121,7 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Integer(i)) -> Ok(Element.Int(i))
+            | Ok(Token.Int(i)) -> Ok(Element.Int(i))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -178,7 +178,7 @@ let readElement (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     // | Ok(Token.LetKeyword) -> readLetStatement gaze
     // | Ok(Token.OpenBrace) -> readScopeOrLambda gaze
     // | Ok(Token.OpenParen) -> readTuple gaze
-    | Ok(Token.Integer(_)) -> readInteger gaze
+    | Ok(Token.Int(_)) -> readInteger gaze
     // | Ok(Token.Boolean(_)) -> readBoolean gaze
     // | Ok(Token.Identifier(_)) -> readIdentifier gaze
     // | Ok(Token.Name(_)) -> readNameOrFunctionCall gaze //TODO will need to also handle function calls here

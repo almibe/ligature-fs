@@ -22,7 +22,7 @@ let tests =
         "Parser Suite"
         [ testCase "Parse Integer"
           <| fun _ ->
-              let tokens = [ Token.Integer(345) ]
+              let tokens = [ Token.Int(345) ]
               let elements = parse tokens
               Expect.equal elements (Ok([ Element.Int(345) ])) ""
           testCase "Parse Bool"

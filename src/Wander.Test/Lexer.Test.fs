@@ -5,8 +5,8 @@
 module Wander.Lexer.Test
 
 open Expecto
-open Ligature
-open Wander.Lexer
+open Ligature.Wander.Lexer
+open Ligature.Wander.Identifier
 
 let ident id =
     Token.Identifier(
@@ -24,17 +24,17 @@ let tests =
               Expect.equal (tokenize "") (Ok[]) ""
           testCase "Read Integer Token"
           <| fun _ ->
-              Expect.equal (tokenize "123") (Ok([ Token.Integer(123) ])) ""
-              Expect.equal (tokenize "0") (Ok([ Token.Integer(0) ])) ""
-              Expect.equal (tokenize "-4123") (Ok([ Token.Integer(-4123) ])) ""
+              Expect.equal (tokenize "123") (Ok([ Token.Int(123) ])) ""
+              Expect.equal (tokenize "0") (Ok([ Token.Int(0) ])) ""
+              Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123) ])) ""
           testCase "Read Names"
           <| fun _ ->
               Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
               Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
           testCase "tokenize booleans"
           <| fun _ ->
-              Expect.equal (tokenize "true") (Ok([ Token.Boolean(true) ])) ""
-              Expect.equal (tokenize "false") (Ok([ Token.Boolean(false) ])) ""
+              Expect.equal (tokenize "true") (Ok([ Token.Bool(true) ])) ""
+              Expect.equal (tokenize "false") (Ok([ Token.Bool(false) ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -72,7 +72,7 @@ let tests =
 
               Expect.equal
                   (tokenize "{ true }")
-                  (Ok([ Token.OpenBrace; Token.WhiteSpace(" "); Token.Boolean(true); Token.WhiteSpace(" "); Token.CloseBrace ]))
+                  (Ok([ Token.OpenBrace; Token.WhiteSpace(" "); Token.Bool(true); Token.WhiteSpace(" "); Token.CloseBrace ]))
                   ""
           testCase "read colon"
           <| fun _ ->
@@ -107,5 +107,5 @@ let tests =
           testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")
-              Expect.equal (tokenize "let x 5") (Ok([ Token.LetKeyword; ws; Token.Name("x"); ws; Token.Integer(5) ])) "" 
+              Expect.equal (tokenize "let x 5") (Ok([ Token.LetKeyword; ws; Token.Name("x"); ws; Token.Int(5) ])) "" 
 ]

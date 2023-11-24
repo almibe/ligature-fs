@@ -10,6 +10,7 @@
     <Compile Include="Bindings.fs" />
     <Compile Include="Identifier.fs" />
     <Compile Include="Model.fs" />
+    <Compile Include="LexerUtil.fs" />
     <Compile Include="Lexer.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
@@ -18,8 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
-    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\Lig\Lig.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
