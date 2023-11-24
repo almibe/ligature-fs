@@ -8,13 +8,17 @@ open Expecto
 open Ligature
 open Wander.Parser
 open Wander.Lexer
+open Ligature.Wander.Identifier
 
 let unsafe result =
     match result with
     | Ok(v) -> v
     | Error(_) -> failwith "Error"
 
-//let ident id = WanderValue.Identifier(unsafe (identifier id))
+let ident id =
+    match identifier id with
+    | Ok(v) -> v
+    | Error(_) -> failwith "todo"
 
 [<Tests>]
 let tests =
@@ -30,6 +34,12 @@ let tests =
               let tokens = tokenize "true"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Bool(true) ])) ""
+          testCase "Parse Identifier"
+          <| fun _ ->
+              let tokens = tokenize "<hello>"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([ Element.Identifier(ident "hello") ])) ""
+
         //   testCase "Parse Let Statements"
         //   <| fun _ ->
         //       let tokens = tokenize "let x 5"
