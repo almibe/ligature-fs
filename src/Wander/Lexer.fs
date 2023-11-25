@@ -32,6 +32,7 @@ type Token =
     | WhenKeyword
     | Hash
     | Nothing
+    | Lambda
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -109,6 +110,7 @@ let tokenNibbler =
                 takeAndMap "}" Token.CloseBrace
                 takeAndMap ":" Token.Colon
                 takeAndMap "?" Token.QuestionMark
+                takeAndMap "\\" Token.Lambda
                 commentTokenNibbler ]
             )
         )

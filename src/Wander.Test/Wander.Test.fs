@@ -24,29 +24,29 @@ let bindings = Ligature.Wander.Preludes.standardPrelude ()
 let tests =
     testList
         "Main Test"
-        [ //testCase "Run Integer"
-        //   <| fun _ ->
-        //       let script = "1235"
-        //       let result = run script bindings
-        //       Expect.equal result (Ok(WanderValue.Integer(1235))) ""
-        //   testCase "Run String"
-        //   <| fun _ ->
-        //       let script = "\"Hello\""
-        //       let result = run script bindings
-        //       Expect.equal result (Ok(WanderValue.String("Hello"))) ""
-        //   testCase "Run Booleans"
-        //   <| fun _ ->
-        //       let script = "true"
-        //       let result = run script bindings
-        //       Expect.equal result (Ok(WanderValue.Boolean(true))) ""
-        //       let script = "false"
-        //       let result = run script bindings
-        //       Expect.equal result (Ok(WanderValue.Boolean(false))) ""
-        //   testCase "Run Identifier"
-        //   <| fun _ ->
-        //       let script = "<hello>"
-        //       let result = run script bindings
-        //       Expect.equal result (Ok(ident "hello")) ""
+        [ testCase "Run Integer"
+          <| fun _ ->
+              let script = "1235"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Int(1235))) ""
+          testCase "Run String"
+          <| fun _ ->
+              let script = "\"Hello\""
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.String("Hello"))) ""
+          testCase "Run Booleans"
+          <| fun _ ->
+              let script = "true"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Bool(true))) ""
+              let script = "false"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Bool(false))) ""
+          testCase "Run Identifier"
+          <| fun _ ->
+              let script = "<hello>"
+              let result = run script bindings
+              Expect.equal result (Ok(ident "hello")) ""
         //   testCase "Handle WhiteSpace"
         //   <| fun _ ->
         //       let script = "  \n  5   "

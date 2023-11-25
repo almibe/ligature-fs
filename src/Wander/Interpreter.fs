@@ -8,13 +8,6 @@ open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Error
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-// let evalName (name: WanderValue.) bindings =
-//     match read name bindings with
-//     | None -> todo
-//     | Some(value) -> Ok((value, bindings))
-
 let rec evalExpression bindings expression =
     let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, WanderError> =
         if List.length args <> List.length parameters then
@@ -31,14 +24,13 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
 
     match expression with
-    | Expression.Value(value) -> Ok((value, bindings))
     | Expression.Name(name) -> failwith "todo"//evalName name bindings
-    | Expression.Scope(expressions) ->
+    | Expression.Grouping(expressions) ->
         let bindings' = addScope bindings
         match evalExpressions bindings' expressions with
         | Error(err) -> Error(err)
         | Ok((res, _)) -> Ok((res, bindings))
-    | Expression.LetStatement(name, expression) ->
+    | Expression.Let(name, expression) ->
         let res = evalExpression bindings expression
 
         match res with
@@ -49,7 +41,7 @@ let rec evalExpression bindings expression =
     | Expression.FunctionCall(name, args) ->
         let args = List.map ( fun a -> 
             match evalExpression bindings a with
-            | Ok(v, _) -> Expression.Value(v)
+            | Ok(v, _) -> failwith "todo" //Expression.Value(v)
             | Error(err) -> todo)
                     args
 
@@ -70,8 +62,8 @@ let rec evalExpression bindings expression =
 
         result <-
             match ifCondition with
-            | Ok(WanderValue.Boolean(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
-            | Ok(WanderValue.Boolean(false), _) -> None
+            | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
+            | Ok(WanderValue.Bool(false), _) -> None
             | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
             | Error x -> Some(Error x)
 
@@ -80,8 +72,8 @@ let rec evalExpression bindings expression =
             let case = elsifCases.Head
             result <- 
                 match evalExpression bindings case.condition with
-                | Ok(WanderValue.Boolean(true), bindings) -> Some (evalExpression bindings case.body)
-                | Ok(WanderValue.Boolean(false), _) -> None
+                | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings case.body)
+                | Ok(WanderValue.Bool(false), _) -> None
                 | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
                 | Error x -> Some(Error x)
             elsifCases <- elsifCases.Tail
@@ -89,20 +81,25 @@ let rec evalExpression bindings expression =
         match result with
         | None -> evalExpression bindings conditional.elseBody
         | Some(result) -> result
-    | Expression.TupleExpression(expressions) ->
-        let mutable error = None
-        let res: WanderValue list = 
-            //TODO this doesn't short circuit on first error
-            List.map (fun e ->
-                match evalExpression bindings e with
-                | Ok(value, _) -> value
-                | Error(err) -> 
-                    if Option.isNone error then error <- Some(err)
-                    WanderValue.Nothing
-                        ) expressions
-        match error with
-        | None -> Ok((WanderValue.Tuple(res), bindings))
-        | Some(err) -> Error(err)
+    | Expression.Nothing -> Ok (WanderValue.Nothing, bindings)
+    | Expression.Int value -> Ok (WanderValue.Int value, bindings)
+    | Expression.String value -> Ok (WanderValue.String value, bindings)
+    | Expression.Bool value -> Ok (WanderValue.Bool value, bindings)
+    | Expression.Identifier id -> Ok (WanderValue.Identifier id, bindings)
+    // | Expression.TupleExpression(expressions) ->
+    //     let mutable error = None
+    //     let res: WanderValue list = 
+    //         //TODO this doesn't short circuit on first error
+    //         List.map (fun e ->
+    //             match evalExpression bindings e with
+    //             | Ok(value, _) -> value
+    //             | Error(err) -> 
+    //                 if Option.isNone error then error <- Some(err)
+    //                 WanderValue.Nothing
+    //                     ) expressions
+    //     match error with
+    //     | None -> Ok((WanderValue.Tuple(res), bindings))
+    //     | Some(err) -> Error(err)
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
@@ -127,18 +124,3 @@ and evalExpressions
                 result <- Error(err)
                 cont <- false
         result
-
-let rec eval (bindings: Bindings.Bindings<_, _>) (expressions: Expression list) =
-    match expressions with
-    | [] -> Ok(WanderValue.Nothing)
-    | _ ->
-        let evalResult = evalExpression bindings (List.head expressions)
-
-        match (evalResult, (List.tail expressions)) with
-        | (Ok((value, _)), []) -> Ok(value)
-        | (Ok(_, bindings), tail) -> eval bindings tail
-        | (Error(error), _) -> Error(error)
-
-let interpret (elements: Parser.Element list) (bindings: Bindings): Result<WanderValue, WanderError> =
-    failwith "TODO fixme"
-    //eval bindings elements

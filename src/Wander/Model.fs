@@ -6,19 +6,6 @@ module Ligature.Wander.Model
 open Identifier
 open Error
 
-[<RequireQualifiedAccess>]
-type WanderType =
-    | Any
-    | Unspecified
-    | Integer
-    | String
-    | Boolean
-    | Identifier
-    | Seq
-    | Function
-    | Graph
-    | Nothing
-
 type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, WanderError>) =
     member _.Run args bindings = eval args bindings
 
@@ -26,17 +13,18 @@ type Tuple<'T> = 'T list
 
 [<RequireQualifiedAccess>]
 type WanderValue<'T> =
-    | Integer of int64
+    | Int of int64
     | String of string
-    | Boolean of bool
+    | Bool of bool
     | Identifier of Identifier
     | Nothing
     | Lambda of paramters: string list * body: 'T list
     | NativeFunction of NativeFunction<'T, WanderValue<'T>>
-    | Tuple of Tuple<WanderValue<'T>>
+    | List of WanderValue<'T> list
+//    | Set of FSharp.Collections.Set<WanderValue<'T>> //TODO fix type
 
 type Parameter =
-    { name: string; wanderType: WanderType }
+    { name: string; tag: string }
 
 type Case<'Condition, 'Body> = { condition: 'Condition; body: 'Body }
 
@@ -47,13 +35,16 @@ type Conditional<'Condition, 'Body> =
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | LetStatement of name: string * value: Expression
+    | Nothing
+    | Int of int64
+    | String of string
+    | Bool of bool
+    | Identifier of Identifier.Identifier
+    | Let of name: string * value: Expression
     | Name of string
-    | Scope of Expression list
-    | Value of WanderValue<Expression>
+    | Grouping of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
-    | TupleExpression of Expression list
 
 type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>
@@ -63,14 +54,15 @@ type Bindings = Bindings.Bindings<string, WanderValue>
 
 let rec prettyPrint (value: WanderValue): string =
     match value with
-    | WanderValue.Integer i -> sprintf "%i" i
+    | WanderValue.Int i -> sprintf "%i" i
     | WanderValue.String s -> s
-    | WanderValue.Boolean b -> sprintf "%b" b
+    | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"<{(readIdentifier i)}>"
     | WanderValue.Nothing -> "Nothing"
     | WanderValue.Lambda(_, _) -> "Lambda"
     | WanderValue.NativeFunction(_) -> "NativeFunction"
-    | WanderValue.Tuple(contents) -> $"[{prettyPrintTuple contents}]"
+    | WanderValue.List(_) -> failwith "Not Implemented"
+ //   | WanderValue.Set(_) -> failwith "Not Implemented"
 
 and prettyPrintTuple tuple =
     List.fold (fun res v -> $"{res}{prettyPrint v}") "" tuple

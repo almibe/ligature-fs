@@ -7,14 +7,17 @@ module rec Ligature.Wander.Parser
 open Lexer
 open FsToolkit.ErrorHandling
 open Error
+open Model
 
 [<RequireQualifiedAccess>]
 type Element =
 | Name of string
+| Nothing
+| Grouping of Element list
 | String of string
 | Int of int64
 | Bool of bool
-| Identifier of Ligature.Wander.Identifier.Identifier
+| Identifier of Identifier.Identifier
 | Array of Element list
 | Set of Element list //TODO fix type
 | Let of string * Element
@@ -171,23 +174,23 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
 
 /// Read the next Element from the given instance of Gaze<Token>
 let readElement (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    let next = Gaze.peek gaze
+    let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
     // | Ok(Token.LetKeyword) -> readLetStatement gaze
     // | Ok(Token.OpenBrace) -> readScopeOrLambda gaze
     // | Ok(Token.OpenParen) -> readTuple gaze
-    | Ok(Token.Int(_)) -> readInteger gaze
-    // | Ok(Token.Boolean(_)) -> readBoolean gaze
-    // | Ok(Token.Identifier(_)) -> readIdentifier gaze
+    | Ok(Token.Int(value)) -> Ok(Element.Int value)
+    | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
+    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     // | Ok(Token.Name(_)) -> readNameOrFunctionCall gaze //TODO will need to also handle function calls here
     // | Ok(Token.IfKeyword) -> readConditional gaze
-    // | Ok(Token.StringLiteral(_)) -> readString gaze
+    | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 /// Read all of the Elements from a given instance of Gaze<Token>
-let readElements (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
+let readElements (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let mutable res = []
     let mutable cont = true
 
@@ -197,7 +200,12 @@ let readElements (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError>
         | Ok(exp) -> res <- res @ [ exp ]
 
     if Gaze.isComplete gaze then
-        Ok(res)
+        if res.IsEmpty then
+            Ok(Element.Nothing)
+        else if res.Length = 1 then
+            Ok(res.Head)
+        else
+            Ok(Element.Grouping res)
     else
         Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
@@ -231,7 +239,7 @@ let readExpressionsUntil (stopToken: Token) (gaze: Gaze.Gaze<Token>) : Result<El
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list): Result<Element list, Gaze.GazeError> =
+let parse (tokens: Token list): Result<Element, Gaze.GazeError> =
     let tokens =
         List.filter
             (fun token ->
@@ -243,7 +251,7 @@ let parse (tokens: Token list): Result<Element list, Gaze.GazeError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok []
+        Ok Element.Nothing
     else
         let gaze = Gaze.fromList tokens
         readElements gaze
@@ -254,3 +262,16 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> Error err //error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
+
+let express (element: Element) =
+    match element with
+    | Element.Int value -> Expression.Int value
+    | Element.Array value -> failwith "todo"
+    | Element.Bool value -> Expression.Bool value
+    | Element.Grouping elements -> failwith "todo"
+    | Element.Name name -> Expression.Name name
+    | Element.Nothing -> Expression.Nothing
+    | Element.String value -> Expression.String value
+    | Element.Identifier id -> Expression.Identifier id
+    | Element.Set(_) -> failwith "Not Implemented"
+    | Element.Let(_, _) -> failwith "Not Implemented"

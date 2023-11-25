@@ -28,23 +28,27 @@ let tests =
           <| fun _ ->
               let tokens = [ Token.Int(345) ]
               let elements = parse tokens
-              Expect.equal elements (Ok([ Element.Int(345) ])) ""
+              Expect.equal elements (Ok(Element.Int(345))) ""
           testCase "Parse Bool"
           <| fun _ ->
               let tokens = tokenize "true"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Bool(true) ])) ""
+              Expect.equal ast (Ok(Element.Bool(true))) ""
           testCase "Parse Identifier"
           <| fun _ ->
               let tokens = tokenize "<hello>"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Identifier(ident "hello") ])) ""
-
-        //   testCase "Parse Let Statements"
-        //   <| fun _ ->
-        //       let tokens = tokenize "let x 5"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Element.List [ (Element.Let ("x", Element.Integer(5))); ]])) ""
+              Expect.equal ast (Ok(Element.Identifier(ident "hello"))) ""
+          testCase "Parse String"
+          <| fun _ ->
+              let tokens = tokenize "\"hello\""
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.String("hello"))) ""
+          testCase "Parse Let Statements"
+          <| fun _ ->
+              let tokens = tokenize "let x 5"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.Let ("x", Element.Int(5)))) ""
         //   testCase "Parse Let Statement with Name"
         //   <| fun _ ->
         //       let tokens = tokenize "let x = 5\nx"

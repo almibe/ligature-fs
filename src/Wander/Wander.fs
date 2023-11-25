@@ -6,12 +6,13 @@ module Ligature.Wander.Main
 
 open Ligature.Wander.Model
 open Error
+open Parser
 
 
 let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with
     | Ok tokens ->
-        match Parser.parse tokens with
-        | Ok ast -> Interpreter.interpret ast bindings
+        match parse tokens with
+        | Ok ast -> Interpreter.evalExpression bindings (express ast) |> Result.map (fun (res, _) -> res)
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None

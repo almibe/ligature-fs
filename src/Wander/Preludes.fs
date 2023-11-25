@@ -12,13 +12,13 @@ module private Boolean =
     let notFunction = Model.WanderValue.NativeFunction (
         new Model.NativeFunction((fun args _ ->
             match args.Head with
-            | Model.Expression.Value(Model.WanderValue.Boolean(value)) -> Ok(Model.WanderValue.Boolean(not value))
+            | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
             | _ -> error "Invalid call to not function." None)))
 
     let andFunction = Model.WanderValue.NativeFunction (
         new Model.NativeFunction((fun args _ ->
             match args.Head with
-            | Model.Expression.Value(Model.WanderValue.Boolean(value)) -> Ok(Model.WanderValue.Boolean(not value))
+            | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
             | _ -> error "Invalid call to and function." None)))
 
 // module private Instance = 
