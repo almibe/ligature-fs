@@ -6,21 +6,24 @@ module rec Ligature.Wander.Parser
 
 open Lexer
 open FsToolkit.ErrorHandling
-open Error
 open Model
+open Nibblers
 
 [<RequireQualifiedAccess>]
 type Element =
 | Name of string
 | Nothing
 | Grouping of Element list
+| Application of Element list
 | String of string
 | Int of int64
 | Bool of bool
 | Identifier of Identifier.Identifier
 | Array of Element list
-| Set of Element list //TODO fix type
 | Let of string * Element
+| When of (Element * Element) list
+| Lambda of string list * Element
+| Record of (string * Element) list
 
 // let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
 //     let scopeAttempt = 
@@ -70,16 +73,16 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 
 // let readNextElement (gaze: Gaze.Gaze<Token>) : Expression option = failwith "todo"
 
-// let readLetStatement gaze =
-//     Gaze.attempt
-//         (fun gaze ->
-//             result {
-//                 let! _ = Gaze.attempt (Nibblers.take Token.LetKeyword) gaze
-//                 let! name = Gaze.attempt nameStrNibbler gaze
-//                 let! v = readExpression gaze
-//                 return Expression.LetStatement(name, v)
-//             })
-//         gaze
+let readLetStatement gaze =
+    Gaze.attempt
+        (fun gaze ->
+            result {
+                let! _ = Gaze.attempt (take Token.LetKeyword) gaze
+                let! name = Gaze.attempt nameStrNibbler gaze
+                let! v = elementNib gaze
+                return Element.Let(name, v)
+            })
+        gaze
 
 // let readIdentifier (gaze: Gaze.Gaze<Token>) =
 //     Gaze.attempt
@@ -128,6 +131,22 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
+let nameNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.Name(name)) -> Ok(Element.Name(name))
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
+let equalSignNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.EqualsSign) -> Ok(())
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
 // let readBoolean (gaze: Gaze.Gaze<Token>) =
 //     Gaze.attempt
 //         (fun gaze ->
@@ -164,77 +183,49 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
 //             })
 //         gaze
 
-// let readTuple (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-//     result {
-//         let! _ = Gaze.attempt (Nibblers.take Token.OpenParen) gaze
-//         let! arguments = readExpressionsUntil Token.CloseParen gaze
-//         let! _ = Gaze.attempt (Nibblers.take Token.CloseParen) gaze
-//         return Expression.TupleExpression(arguments)
-//     }
+let arrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
+        let! values = Gaze.attempt (repeat elementNib) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
+        return Element.Array(values)
+    }
+
+let declarationsNib (gaze: Gaze.Gaze<Token>) =
+    result {
+        let! name = Gaze.attempt nameStrNibbler gaze
+        let! _ = Gaze.attempt equalSignNib gaze
+        let! expression = Gaze.attempt elementNib gaze
+        return (name, expression)
+    }
+
+let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! declarations = (repeat declarationsNib) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Element.Record(declarations)
+    }
 
 /// Read the next Element from the given instance of Gaze<Token>
-let readElement (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    // | Ok(Token.LetKeyword) -> readLetStatement gaze
-    // | Ok(Token.OpenBrace) -> readScopeOrLambda gaze
-    // | Ok(Token.OpenParen) -> readTuple gaze
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
-    // | Ok(Token.Name(_)) -> readNameOrFunctionCall gaze //TODO will need to also handle function calls here
-    // | Ok(Token.IfKeyword) -> readConditional gaze
+    | Ok(Token.Name(name)) -> Ok(Element.Name(name)) //readNameOrFunctionCall gaze //TODO will need to also handle function calls here
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-/// Read all of the Elements from a given instance of Gaze<Token>
-let readElements (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    let mutable res = []
-    let mutable cont = true
-
-    while cont do
-        match readElement gaze with
-        | Error _ -> cont <- false
-        | Ok(exp) -> res <- res @ [ exp ]
-
-    if Gaze.isComplete gaze then
-        if res.IsEmpty then
-            Ok(Element.Nothing)
-        else if res.Length = 1 then
-            Ok(res.Head)
-        else
-            Ok(Element.Grouping res)
-    else
-        Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
-//    printfn "%A" (sprintf "%A" (tokenize input))
-
-/// This function is similar to readExpressions but when it reaches an Error it returns all matched expressions
-/// instead of an Error.
-let readExpressionsUntil (stopToken: Token) (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
-    let mutable res = []
-    let mutable cont = true
-    let mutable err = false
-
-    while cont do
-        match Gaze.peek gaze with
-        | Ok(nextToken) ->
-            if nextToken = stopToken then
-                cont <- false
-            else
-                todo
-                // let expr = readExpression gaze
-                // match expr with
-                // | Ok(expr) -> res <- res @ [ expr ]
-                // | Error _ ->
-                //     cont <- false
-                //     err <- true
-        | Error _ ->
-            cont <- false
-            err <- true
-
-    if not err then Ok(res) else Error(Gaze.GazeError.NoMatch) //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+let elementNib = takeFirst [
+    readValue; 
+    readLetStatement; 
+    arrayNib; 
+    recordNib
+    ]
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -249,12 +240,11 @@ let parse (tokens: Token list): Result<Element, Gaze.GazeError> =
                 | Token.NewLine(_) -> false
                 | _ -> true)
             tokens
-
     if tokens.IsEmpty then
         Ok Element.Nothing
     else
         let gaze = Gaze.fromList tokens
-        readElements gaze
+        Gaze.attempt elementNib gaze
 
 /// Helper function that handles tokienization for you.
 let parseString (input: string) =
@@ -263,15 +253,17 @@ let parseString (input: string) =
     | Error err -> Error err //error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
 
+/// This will eventually handle processing pipe operators
 let express (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
-    | Element.Array value -> failwith "todo"
     | Element.Bool value -> Expression.Bool value
-    | Element.Grouping elements -> failwith "todo"
     | Element.Name name -> Expression.Name name
     | Element.Nothing -> Expression.Nothing
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Set(_) -> failwith "Not Implemented"
-    | Element.Let(_, _) -> failwith "Not Implemented"
+    | Element.Let(name,value) -> Expression.Let(name, (express value))
+    | Element.Array values -> failwith "todo"
+    | Element.Grouping elements -> failwith "todo"
+    | Element.Application elements -> failwith "todo"
+    | Element.Record(_) -> failwith "Not Implemented"

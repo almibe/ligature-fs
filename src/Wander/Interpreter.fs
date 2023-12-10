@@ -24,7 +24,10 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
 
     match expression with
-    | Expression.Name(name) -> failwith "todo"//evalName name bindings
+    | Expression.Name(name) ->
+        match Bindings.read name bindings with
+        | Some(value) -> Ok((value, bindings))
+        | None -> error $"Could not read {name}" None
     | Expression.Grouping(expressions) ->
         let bindings' = addScope bindings
         match evalExpressions bindings' expressions with

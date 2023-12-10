@@ -27,6 +27,7 @@ type Token =
     | CloseSquare
     | Arrow
     | WideArrow
+    | EqualsSign
     | Dot
     | QuestionMark
     | WhenKeyword

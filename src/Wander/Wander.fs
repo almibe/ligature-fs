@@ -16,3 +16,8 @@ let run (input: string) (bindings: Bindings) =
         | Ok ast -> Interpreter.evalExpression bindings (express ast) |> Result.map (fun (res, _) -> res)
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
+
+let printResult (result: Result<WanderValue, WanderError>) =
+    match result with
+    | Ok value -> prettyPrint value
+    | Error err -> err.UserMessage
