@@ -6,10 +6,8 @@ module Ligature.Wander.Model
 open Identifier
 open Error
 
-type NativeFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, WanderError>) =
+type HostFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, WanderError>) =
     member _.Run args bindings = eval args bindings
-
-type Tuple<'T> = 'T list
 
 [<RequireQualifiedAccess>]
 type WanderValue<'T> =
@@ -19,7 +17,7 @@ type WanderValue<'T> =
     | Identifier of Identifier
     | Nothing
     | Lambda of paramters: string list * body: 'T list
-    | NativeFunction of NativeFunction<'T, WanderValue<'T>>
+    | HostFunction of HostFunction<'T, WanderValue<'T>>
     | List of WanderValue<'T> list
 
 type Parameter =
@@ -51,7 +49,7 @@ type Expression =
 type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>
 type Conditional = Conditional<Expression, Expression>
-type NativeFunction = NativeFunction<Expression, WanderValue>
+type HostFunction = HostFunction<Expression, WanderValue>
 type Bindings = Bindings.Bindings<string, WanderValue>
 
 let rec prettyPrint (value: WanderValue): string =
@@ -62,7 +60,7 @@ let rec prettyPrint (value: WanderValue): string =
     | WanderValue.Identifier i -> $"<{(readIdentifier i)}>"
     | WanderValue.Nothing -> "Nothing"
     | WanderValue.Lambda(_, _) -> "Lambda"
-    | WanderValue.NativeFunction(_) -> "NativeFunction"
+    | WanderValue.HostFunction(_) -> "HostFunction"
     | WanderValue.List(_) -> failwith "Not Implemented"
  //   | WanderValue.Set(_) -> failwith "Not Implemented"
 

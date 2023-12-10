@@ -49,7 +49,7 @@ let rec evalExpression bindings expression =
                     args
 
         match Bindings.read name bindings with
-        | Some(WanderValue.NativeFunction(funct)) -> 
+        | Some(WanderValue.HostFunction(funct)) -> 
             match funct.Run args bindings with
             | Ok res -> Ok (res, bindings)
             | Error(err) -> Error(err)

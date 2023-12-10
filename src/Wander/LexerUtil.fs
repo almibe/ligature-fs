@@ -8,8 +8,6 @@ open System.Text.RegularExpressions
 open Identifier
 open Error
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
 

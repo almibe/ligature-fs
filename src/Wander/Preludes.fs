@@ -9,14 +9,14 @@ open Error
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 module private Boolean =
-    let notFunction = Model.WanderValue.NativeFunction (
-        new Model.NativeFunction((fun args _ ->
+    let notFunction = Model.WanderValue.HostFunction (
+        new Model.HostFunction((fun args _ ->
             match args.Head with
             | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
             | _ -> error "Invalid call to not function." None)))
 
-    let andFunction = Model.WanderValue.NativeFunction (
-        new Model.NativeFunction((fun args _ ->
+    let andFunction = Model.WanderValue.HostFunction (
+        new Model.HostFunction((fun args _ ->
             match args.Head with
             | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
             | _ -> error "Invalid call to and function." None)))

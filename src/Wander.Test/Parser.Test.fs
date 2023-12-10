@@ -59,22 +59,27 @@ let tests =
               let tokens = tokenize "[1 2]"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok(Element.Array([Element.Int(1); Element.Int(2)]))) ""
-        //   testCase "Parse Record"
-        //   <| fun _ ->
-        //       let tokens = tokenize "{ x = 5 }"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok(Element.Record([("x", Element.Int(5))]))) ""
-        //   testCase "Parse Lambda"
-        //   <| fun _ ->
-        //       let tokens = tokenize "\\x -> x"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok(Element.Name("hello"))) ""
+          testCase "Parse Empty Record"
+          <| fun _ ->
+              let tokens = tokenize "{ }"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.Record([]))) ""
+          testCase "Parse Record"
+          <| fun _ ->
+              let tokens = tokenize "{ x = 5 }"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.Record([("x", Element.Int(5))]))) ""
+          testCase "Parse Lambda"
+          <| fun _ ->
+              let tokens = tokenize "\\x -> x"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.Lambda(["x"], Element.Name("x")))) ""
 
-        //   testCase "Parse Let Statement with Name"
-        //   <| fun _ ->
-        //       let tokens = tokenize "let x 5, x"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok(Element.Grouping([Element.Let("x" , Element.Int(5)); Element.Name("x")]))) ""
+          testCase "Parse Let Statement with Name"
+          <| fun _ ->
+              let tokens = tokenize "let x 5, x"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok(Element.Grouping([Element.Let("x" , Element.Int(5)); Element.Name("x")]))) ""
         //   testCase "Parse Integers"
         //   <| fun _ ->
         //       Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""
