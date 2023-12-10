@@ -159,6 +159,15 @@ let repeat nibbler gaze =
 
     if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
 
+let repeatOptional nibbler gaze =
+    let mutable cont = true
+    let mutable results = []
+    while cont do
+        match Gaze.attempt nibbler gaze with
+        | Ok(result) -> results <- results @ [ result ]
+        | Error(_) -> cont <- false
+    Ok(results)
+
 let repeatN nibbler n gaze =
     let mutable cont = true
     let mutable results = []

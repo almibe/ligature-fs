@@ -84,6 +84,19 @@ let readLetStatement gaze =
             })
         gaze
 
+let lambdaNib gaze =
+    Gaze.attempt
+        (fun gaze ->
+            result {
+                let! _ = Gaze.attempt (take Token.Lambda) gaze
+                let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
+                let! _ = Gaze.attempt (take Token.Arrow) gaze
+                let! body = Gaze.attempt elementNib gaze
+                return Element.Lambda(parameters, body)
+            }
+        )
+        gaze
+
 // let readIdentifier (gaze: Gaze.Gaze<Token>) =
 //     Gaze.attempt
 //         (fun gaze ->
@@ -202,7 +215,7 @@ let declarationsNib (gaze: Gaze.Gaze<Token>) =
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! declarations = (repeat declarationsNib) gaze
+        let! declarations = (repeatOptional declarationsNib) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Element.Record(declarations)
     }
@@ -224,7 +237,8 @@ let elementNib = takeFirst [
     readValue; 
     readLetStatement; 
     arrayNib; 
-    recordNib
+    recordNib;
+    lambdaNib
     ]
 
 /// <summary></summary>
@@ -253,6 +267,17 @@ let parseString (input: string) =
     | Error err -> Error err //error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
 
+let expressArray values =
+    let res = List.map (fun value -> express value) values
+    Expression.Array res
+
+let handleRecord (declarations: list<string * Element>) =
+    let res = List.map (fun (name, value) -> (name, (express value))) declarations
+    Expression.Record res
+
+let handleLambda (parameters: string list) body =
+    Expression.Lambda (parameters, (express body))
+
 /// This will eventually handle processing pipe operators
 let express (element: Element) =
     match element with
@@ -263,7 +288,9 @@ let express (element: Element) =
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
     | Element.Let(name,value) -> Expression.Let(name, (express value))
-    | Element.Array values -> failwith "todo"
+    | Element.Array values -> expressArray values
     | Element.Grouping elements -> failwith "todo"
     | Element.Application elements -> failwith "todo"
-    | Element.Record(_) -> failwith "Not Implemented"
+    | Element.Record declarations -> handleRecord declarations
+    | Element.Lambda(parameters, body) -> handleLambda parameters body
+    | Element.When(_) -> failwith "todo"

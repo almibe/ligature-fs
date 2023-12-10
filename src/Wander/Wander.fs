@@ -7,7 +7,7 @@ module Ligature.Wander.Main
 open Ligature.Wander.Model
 open Error
 open Parser
-
+open Lexer
 
 let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with
@@ -16,6 +16,19 @@ let run (input: string) (bindings: Bindings) =
         | Ok ast -> Interpreter.evalExpression bindings (express ast) |> Result.map (fun (res, _) -> res)
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
+
+type Introspect = {
+    tokens: Token list
+    element: Element
+}
+
+let introspect (input: string) =
+    match Lexer.tokenize input with
+    | Ok tokens -> 
+        match parse tokens with
+        | Ok value -> { tokens = tokens; element = value }
+        | Error err -> failwith (string err)
+    | Error err -> failwith (string err)
 
 let printResult (result: Result<WanderValue, WanderError>) =
     match result with

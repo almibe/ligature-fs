@@ -111,6 +111,7 @@ let tokenNibbler =
                 takeAndMap "}" Token.CloseBrace
                 takeAndMap ":" Token.Colon
                 takeAndMap "?" Token.QuestionMark
+                takeAndMap "=" Token.EqualsSign
                 takeAndMap "\\" Token.Lambda
                 commentTokenNibbler ]
             )

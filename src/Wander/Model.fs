@@ -21,7 +21,6 @@ type WanderValue<'T> =
     | Lambda of paramters: string list * body: 'T list
     | NativeFunction of NativeFunction<'T, WanderValue<'T>>
     | List of WanderValue<'T> list
-//    | Set of FSharp.Collections.Set<WanderValue<'T>> //TODO fix type
 
 type Parameter =
     { name: string; tag: string }
@@ -43,8 +42,11 @@ type Expression =
     | Let of name: string * value: Expression
     | Name of string
     | Grouping of Expression list
+    | Array of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
+    | Record of list<string * Expression>
+    | Lambda of list<string> * Expression
 
 type WanderValue = WanderValue<Expression>
 type Case = Case<Expression, Expression>
