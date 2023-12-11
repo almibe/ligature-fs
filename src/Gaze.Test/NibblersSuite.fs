@@ -209,6 +209,33 @@ let tests =
                     Expect.isTrue (Gaze.isComplete gaze) "" ]
 
           testList
+              "RepeatSep Suite"
+              [ testCase "repeatSep simple"
+                <| fun _ ->
+                    let gaze = Gaze.fromString ("a,a,b,b,c,")
+
+                    Expect.equal
+                        (Gaze.attempt (Nibblers.repeatSep (Nibblers.takeCond (fun c -> c = 'a')) ',') gaze)
+                        (Ok([ 'a'; 'a'; ]))
+                        ""
+
+                    Expect.isFalse (Gaze.isComplete gaze) ""
+
+                    Expect.equal
+                        (Gaze.attempt (Nibblers.repeatSep (Nibblers.takeCond (fun c -> c = 'b')) ',') gaze)
+                        (Ok([ 'b'; 'b'; ]))
+                        ""
+
+                    Expect.isFalse (Gaze.isComplete gaze) ""
+
+                    Expect.equal
+                        (Gaze.attempt (Nibblers.repeatSep (Nibblers.takeCond (fun c -> c = 'c')) ',') gaze)
+                        (Ok([ 'c' ]))
+                        ""
+
+                    Expect.isTrue (Gaze.isComplete gaze) "" ]
+
+          testList
               "Take All Suite"
               [ testCase "take all simple"
                 <| fun _ ->

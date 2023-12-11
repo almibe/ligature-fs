@@ -148,6 +148,35 @@ let optional nibbler gaze =
     | Ok(res) -> Ok(res)
     | Error(_) -> Ok([])
 
+let repeatMulti nibbler gaze =
+    let mutable cont = true
+    let mutable results = []
+
+    while cont do
+        match Gaze.attempt nibbler gaze with
+        | Ok(result) -> results <- results @ [ result ]
+        | Error(_) -> cont <- false
+
+    if results.Length < 2 then Error(Gaze.GazeError.NoMatch) else Ok(results)
+
+let repeatSep nibbler (separator: 'a) gaze =
+    let mutable cont = true
+    let mutable results = []
+
+    while cont do
+        match Gaze.attempt nibbler gaze with
+        | Ok(result) ->
+            results <- results @ [ result ]
+            if Gaze.isComplete gaze then
+                cont <- false
+            else if Gaze.peek gaze = Ok(separator) then
+                Gaze.next gaze |> ignore
+            else
+                cont <- false
+        | Error(_) -> cont <- false
+
+    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
+
 let repeat nibbler gaze =
     let mutable cont = true
     let mutable results = []
