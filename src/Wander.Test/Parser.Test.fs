@@ -28,58 +28,81 @@ let tests =
           <| fun _ ->
               let tokens = [ Token.Int(345) ]
               let elements = parse tokens
-              Expect.equal elements (Ok(Element.Int(345))) ""
+              Expect.equal elements (Ok([Element.Int(345)])) ""
           testCase "Parse Bool"
           <| fun _ ->
               let tokens = tokenize "true"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Bool(true))) ""
+              Expect.equal ast (Ok([Element.Bool(true)])) ""
           testCase "Parse Identifier"
           <| fun _ ->
               let tokens = tokenize "<hello>"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Identifier(ident "hello"))) ""
+              Expect.equal ast (Ok([Element.Identifier(ident "hello")])) ""
           testCase "Parse String"
           <| fun _ ->
               let tokens = tokenize "\"hello\""
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.String("hello"))) ""
+              Expect.equal ast (Ok([Element.String("hello")])) ""
           testCase "Parse Let Statements"
           <| fun _ ->
               let tokens = tokenize "let x 5"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Let ("x", Element.Int(5)))) ""
+              Expect.equal ast (Ok([Element.Let ("x", Element.Int(5))])) ""
           testCase "Parse Name"
           <| fun _ ->
               let tokens = tokenize "hello"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Name("hello"))) ""
-          testCase "Parse Array"
+              Expect.equal ast (Ok([Element.Name("hello")])) ""
+          testCase "Parse Empty Array"
           <| fun _ ->
-              let tokens = tokenize "[1 2]"
+              let tokens = tokenize "[]"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Array([Element.Int(1); Element.Int(2)]))) ""
+              Expect.equal ast (Ok([Element.Array([])])) ""
+          testCase "Parse Array with 1 element"
+          <| fun _ ->
+              let tokens = tokenize "[1]"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Array([Element.Int(1);])])) ""
+          testCase "Parse Array with 2 elements"
+          <| fun _ ->
+              let tokens = tokenize "[1, 2]"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Array([Element.Int(1); Element.Int(2)])])) ""
           testCase "Parse Empty Record"
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Record([]))) ""
-          testCase "Parse Record"
+              Expect.equal ast (Ok([Element.Record([])])) ""
+          testCase "Parse Record with 1 value"
           <| fun _ ->
               let tokens = tokenize "{ x = 5 }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Record([("x", Element.Int(5))]))) ""
+              Expect.equal ast (Ok([Element.Record([("x", Element.Int(5))])])) ""
+          testCase "Parse Record with 2 values"
+          <| fun _ ->
+              let tokens = tokenize "{ x = 5, y = false }"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Record([("x", Element.Int(5)); ("y", Element.Bool(false))])])) ""
           testCase "Parse Lambda"
           <| fun _ ->
               let tokens = tokenize "\\x -> x"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Lambda(["x"], Element.Name("x")))) ""
-
+              Expect.equal ast (Ok([Element.Lambda(["x"], Element.Name("x"))])) ""
+          testCase "Parse Application"
+          <| fun _ ->
+              let tokens = tokenize "Bool.and false true"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Application([
+                Element.Name("Bool.and");
+                Element.Bool(false);
+                Element.Bool(true)
+                ])])) ""
           testCase "Parse Let Statement with Name"
           <| fun _ ->
               let tokens = tokenize "let x 5, x"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok(Element.Grouping([Element.Let("x" , Element.Int(5)); Element.Name("x")]))) ""
+              Expect.equal ast (Ok([Element.Let("x" , Element.Int(5)); Element.Name("x")])) ""
         //   testCase "Parse Integers"
         //   <| fun _ ->
         //       Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""

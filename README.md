@@ -1,5 +1,5 @@
 # ligature-fs
-An experimental F# based implementation of Ligature.
+An F# based implementation of Ligature.
 This is still very early in development and not ready for any sort of use yet.
 Keep in mind that the docs below might not be up to date.
 See https://ligature.dev for more information on Ligature.
@@ -34,6 +34,8 @@ test suite for the other project.
 | LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 | Wander            | The Wander scripting language.                                     |
+| WanderFable       | Fable build for Wander.                                            |
+| WanderPad         | A simple desktop appplication for testing Wander code.             |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 

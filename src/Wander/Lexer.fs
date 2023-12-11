@@ -34,6 +34,7 @@ type Token =
     | Hash
     | Nothing
     | Lambda
+    | Comma
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -57,7 +58,7 @@ let stringLiteralTokenNibbler =
 let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('_', '_') ]) 1)
-          Nibblers.optional (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('_', '_') ])) ]
+          Nibblers.optional (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('_', '_'); ('.', '.') ])) ]
 
 let newLineNibbler =
     Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]
@@ -97,6 +98,7 @@ let tokenNibbler =
                 newLineTokenNibbler
                 identifierTokenNibbler
                 stringLiteralTokenNibbler
+                takeAndMap "," Token.Comma
                 takeAndMap "=>" Token.WideArrow
                 takeAndMap "->" Token.Arrow
                 takeAndMap "#" Token.Hash

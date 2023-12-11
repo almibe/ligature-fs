@@ -41,7 +41,10 @@ module Main =
                                 Button.horizontalContentAlignment HorizontalAlignment.Center
                             ]
                             Button.create [
-                                Button.onClick (fun _ -> ())//state.Set())
+                                Button.onClick (fun _ ->
+                                    let editorText = state.Current.EditorText
+                                    let res = string (introspect editorText)
+                                    state.Set({ ResultText = res; EditorText = editorText})) //state.Current.EditorText }))
                                 Button.content "Intro"
                                 Button.horizontalAlignment HorizontalAlignment.Stretch
                                 Button.horizontalContentAlignment HorizontalAlignment.Center
@@ -62,8 +65,6 @@ module Main =
                                 TextBox.text ""
                                 TextBox.onTextChanged (
                                     fun script ->
-                                        //let res = run script (newBindings ())
-                                        //state.Set { state.Current with ResultText = (printResult res) }
                                         state.Set { state.Current with EditorText = script }
                                     )
                             ]

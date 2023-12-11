@@ -13,20 +13,22 @@ let run (input: string) (bindings: Bindings) =
     match Lexer.tokenize input with
     | Ok tokens ->
         match parse tokens with
-        | Ok ast -> Interpreter.evalExpression bindings (express ast) |> Result.map (fun (res, _) -> res)
+        | Ok ast ->
+            let expressions = List.map (fun element -> express element) ast
+            Result.map (fun (res, _) -> res) (Interpreter.evalExpressions bindings expressions)
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
 
 type Introspect = {
     tokens: Token list
-    element: Element
+    elements: Element list
 }
 
 let introspect (input: string) =
     match Lexer.tokenize input with
     | Ok tokens -> 
         match parse tokens with
-        | Ok value -> { tokens = tokens; element = value }
+        | Ok value -> { tokens = tokens; elements = value }
         | Error err -> failwith (string err)
     | Error err -> failwith (string err)
 

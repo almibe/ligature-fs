@@ -152,6 +152,9 @@ let nameNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
+let applicationNib (gaze: Gaze.Gaze<Token>) = 
+    Gaze.map (repeatMulti applicationInnerNib) (fun elements -> Element.Application(elements)) gaze
+
 let equalSignNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
@@ -199,7 +202,7 @@ let equalSignNib (gaze: Gaze.Gaze<Token>) =
 let arrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (repeat elementNib) gaze
+        let! values = Gaze.attempt (optional (repeatSep elementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Element.Array(values)
     }
@@ -215,7 +218,7 @@ let declarationsNib (gaze: Gaze.Gaze<Token>) =
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! declarations = (repeatOptional declarationsNib) gaze
+        let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Element.Record(declarations)
     }
@@ -233,18 +236,29 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let elementNib = takeFirst [
+let applicationInnerNib = takeFirst [
     readValue; 
     readLetStatement; 
     arrayNib; 
     recordNib;
-    lambdaNib
+    lambdaNib;
     ]
+
+let elementNib = takeFirst [
+    applicationNib;
+    readValue; 
+    readLetStatement; 
+    arrayNib; 
+    recordNib;
+    lambdaNib;
+    ]
+
+let scriptNib = repeatSep elementNib Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list): Result<Element, Gaze.GazeError> =
+let parse (tokens: Token list): Result<Element list, Gaze.GazeError> =
     let tokens =
         List.filter
             (fun token ->
@@ -255,10 +269,10 @@ let parse (tokens: Token list): Result<Element, Gaze.GazeError> =
                 | _ -> true)
             tokens
     if tokens.IsEmpty then
-        Ok Element.Nothing
+        Ok [Element.Nothing]
     else
         let gaze = Gaze.fromList tokens
-        Gaze.attempt elementNib gaze
+        Gaze.attempt scriptNib gaze
 
 /// Helper function that handles tokienization for you.
 let parseString (input: string) =
