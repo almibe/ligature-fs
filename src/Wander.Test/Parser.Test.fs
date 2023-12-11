@@ -103,6 +103,11 @@ let tests =
               let tokens = tokenize "let x 5, x"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.Let("x" , Element.Int(5)); Element.Name("x")])) ""
+          testCase "Parse Grouping"
+          <| fun _ ->
+              let tokens = tokenize "(let x 5, x)"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Grouping([Element.Let("x" , Element.Int(5)); Element.Name("x")])])) ""
         //   testCase "Parse Integers"
         //   <| fun _ ->
         //       Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""

@@ -39,7 +39,7 @@ let rec evalExpression bindings expression =
         match res with
         | Ok((value, _)) ->
             let bindings = bind name value bindings
-            Ok((WanderValue.Nothing, bindings))
+            Ok((value, bindings))
         | Error(_) -> res
     | Expression.FunctionCall(name, args) ->
         let args = List.map ( fun a -> 

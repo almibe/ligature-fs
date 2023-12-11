@@ -207,6 +207,14 @@ let arrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Array(values)
     }
 
+let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! values = Gaze.attempt (optional (repeatSep elementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return Element.Grouping(values)
+    }
+
 let declarationsNib (gaze: Gaze.Gaze<Token>) =
     result {
         let! name = Gaze.attempt nameStrNibbler gaze
@@ -242,6 +250,7 @@ let applicationInnerNib = takeFirst [
     arrayNib; 
     recordNib;
     lambdaNib;
+    groupingNib;
     ]
 
 let elementNib = takeFirst [
@@ -251,6 +260,7 @@ let elementNib = takeFirst [
     arrayNib; 
     recordNib;
     lambdaNib;
+    groupingNib;
     ]
 
 let scriptNib = repeatSep elementNib Token.Comma
@@ -285,6 +295,10 @@ let expressArray values =
     let res = List.map (fun value -> express value) values
     Expression.Array res
 
+let expressGrouping values =
+    let res = List.map (fun value -> express value) values
+    Expression.Grouping res
+
 let handleRecord (declarations: list<string * Element>) =
     let res = List.map (fun (name, value) -> (name, (express value))) declarations
     Expression.Record res
@@ -303,7 +317,7 @@ let express (element: Element) =
     | Element.Identifier id -> Expression.Identifier id
     | Element.Let(name,value) -> Expression.Let(name, (express value))
     | Element.Array values -> expressArray values
-    | Element.Grouping elements -> failwith "todo"
+    | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> failwith "todo"
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
