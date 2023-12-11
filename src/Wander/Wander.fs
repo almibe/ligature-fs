@@ -20,17 +20,17 @@ let run (input: string) (bindings: Bindings) =
     | Error _ -> error "Error tokenizing." None
 
 type Introspect = {
-    tokens: Token list
-    elements: Element list
+    tokens: Result<Token list, string>
+    elements: Result<Element list, string>
 }
 
 let introspect (input: string) =
     match Lexer.tokenize input with
     | Ok tokens -> 
         match parse tokens with
-        | Ok value -> { tokens = tokens; elements = value }
-        | Error err -> failwith (string err)
-    | Error err -> failwith (string err)
+        | Ok value -> { tokens = Ok tokens; elements = Ok value }
+        | Error err -> { tokens = Ok tokens; elements = Error (string err) }
+    | Error err -> { tokens = Error (string err); elements = Error (string err) }
 
 let printResult (result: Result<WanderValue, WanderError>) =
     match result with

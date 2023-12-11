@@ -18,7 +18,7 @@ type WanderValue<'T> =
     | Nothing
     | Lambda of paramters: string list * body: 'T list
     | HostFunction of HostFunction<'T, WanderValue<'T>>
-    | List of WanderValue<'T> list
+    | Array of WanderValue<'T> list
 
 type Parameter =
     { name: string; tag: string }
@@ -44,6 +44,7 @@ type Expression =
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
     | Record of list<string * Expression>
+    | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 
 type WanderValue = WanderValue<Expression>
@@ -61,8 +62,7 @@ let rec prettyPrint (value: WanderValue): string =
     | WanderValue.Nothing -> "Nothing"
     | WanderValue.Lambda(_, _) -> "Lambda"
     | WanderValue.HostFunction(_) -> "HostFunction"
-    | WanderValue.List(_) -> failwith "Not Implemented"
- //   | WanderValue.Set(_) -> failwith "Not Implemented"
+    | WanderValue.Array(values) -> $"[{printValues values}]"
 
-and prettyPrintTuple tuple =
-    List.fold (fun res v -> $"{res}{prettyPrint v}") "" tuple
+and printValues values =
+    List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values

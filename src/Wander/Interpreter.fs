@@ -89,20 +89,32 @@ let rec evalExpression bindings expression =
     | Expression.String value -> Ok (WanderValue.String value, bindings)
     | Expression.Bool value -> Ok (WanderValue.Bool value, bindings)
     | Expression.Identifier id -> Ok (WanderValue.Identifier id, bindings)
-    // | Expression.TupleExpression(expressions) ->
-    //     let mutable error = None
-    //     let res: WanderValue list = 
-    //         //TODO this doesn't short circuit on first error
-    //         List.map (fun e ->
-    //             match evalExpression bindings e with
-    //             | Ok(value, _) -> value
-    //             | Error(err) -> 
-    //                 if Option.isNone error then error <- Some(err)
-    //                 WanderValue.Nothing
-    //                     ) expressions
-    //     match error with
-    //     | None -> Ok((WanderValue.Tuple(res), bindings))
-    //     | Some(err) -> Error(err)
+    | Expression.Array(expressions) ->
+        let mutable error = None
+        let res: WanderValue list = 
+            //TODO this doesn't short circuit on first error
+            List.map (fun e ->
+                match evalExpression bindings e with
+                | Ok(value, _) -> value
+                | Error(err) -> 
+                    if Option.isNone error then error <- Some(err)
+                    WanderValue.Nothing
+                        ) expressions
+        match error with
+        | None -> Ok((WanderValue.Array(res), bindings))
+        | Some(err) -> Error(err)
+    | Expression.Lambda(_, _) -> failwith "Implement eval for lambda"
+    | Expression.Record(_) -> failwith "Implement eval for record"
+    | Expression.When(conditionals) -> handleWhen bindings conditionals
+
+and handleWhen bindings conditionals =
+    match List.tryFind (fun (condition, body) -> 
+        match evalExpression bindings condition with
+        | Ok((WanderValue.Bool(value), _)) -> value
+        | _ -> false
+        ) conditionals with
+    | Some((_, body)) -> evalExpression bindings body
+    | None -> error "No branches matched in when expression." None
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)

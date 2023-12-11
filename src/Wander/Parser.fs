@@ -25,36 +25,6 @@ type Element =
 | Lambda of string list * Element
 | Record of (string * Element) list
 
-// let readScopeOrLambda gaze: Result<Expression, Gaze.GazeError> =
-//     let scopeAttempt = 
-//         Gaze.attempt
-//             (fun gaze ->
-//                 result {
-//                     let! _ = Gaze.attempt (Nibblers.take Token.OpenBrace) gaze
-//                     let! expressions = readExpressionsUntil Token.CloseBrace gaze
-//                     let! _ = Gaze.attempt (Nibblers.take Token.CloseBrace) gaze
-//                     return Expression.Scope(expressions)
-//                 })
-//             gaze
-//     if Result.isOk scopeAttempt then
-//         scopeAttempt
-//     else
-//         Gaze.attempt
-//             (fun gaze ->
-//                 result {
-//                     let! _ = Gaze.attempt (Nibblers.take Token.OpenBrace) gaze
-//                     let! names = readExpressionsUntil Token.Arrow gaze //TODO need to make sure all read Expressions are Names
-//                     let names = List.map (fun expression ->
-//                         match expression with
-//                         | Expression.Name(name) -> name
-//                         | _ -> failwith "todo") names
-//                     let! _ = Gaze.attempt (Nibblers.take Token.Arrow) gaze
-//                     let! expressions = readExpressionsUntil Token.CloseBrace gaze
-//                     let! _ = Gaze.attempt (Nibblers.take Token.CloseBrace) gaze
-//                     return Expression.Value (WanderValue.Lambda (names, expressions))
-//                 })
-//             gaze
-
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
         (fun gaze ->
@@ -81,6 +51,26 @@ let readLetStatement gaze =
                 let! name = Gaze.attempt nameStrNibbler gaze
                 let! v = elementNib gaze
                 return Element.Let(name, v)
+            })
+        gaze
+
+let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
+    result {
+        let! condition = Gaze.attempt elementNib gaze
+        let! _ = Gaze.attempt wideArrowNib gaze
+        let! body = Gaze.attempt elementNib gaze
+        return (condition, body)
+    }
+
+let readWhen gaze =
+    Gaze.attempt
+        (fun gaze ->
+            result {
+                let! _ = Gaze.attempt (take Token.WhenKeyword) gaze
+                let! _ = Gaze.attempt (take Token.OpenParen) gaze
+                let! conditions = Gaze.attempt (repeatSep conditionsNibbler Token.Comma) gaze
+                let! _ = Gaze.attempt (take Token.CloseParen) gaze
+                return Element.When(conditions)
             })
         gaze
 
@@ -160,6 +150,14 @@ let equalSignNib (gaze: Gaze.Gaze<Token>) =
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.EqualsSign) -> Ok(())
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
+let wideArrowNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.WideArrow) -> Ok(())
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -251,6 +249,7 @@ let applicationInnerNib = takeFirst [
     recordNib;
     lambdaNib;
     groupingNib;
+    readWhen;
     ]
 
 let elementNib = takeFirst [
@@ -261,6 +260,7 @@ let elementNib = takeFirst [
     recordNib;
     lambdaNib;
     groupingNib;
+    readWhen;
     ]
 
 let scriptNib = repeatSep elementNib Token.Comma
@@ -306,6 +306,10 @@ let handleRecord (declarations: list<string * Element>) =
 let handleLambda (parameters: string list) body =
     Expression.Lambda (parameters, (express body))
 
+let handleWhen (conditionals: list<Element * Element>) =
+    let conditionals = List.map (fun (condition, body) -> ((express condition), (express body))) conditionals
+    Expression.When conditionals
+
 /// This will eventually handle processing pipe operators
 let express (element: Element) =
     match element with
@@ -321,4 +325,4 @@ let express (element: Element) =
     | Element.Application elements -> failwith "todo"
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
-    | Element.When(_) -> failwith "todo"
+    | Element.When(conditionals) -> handleWhen conditionals
