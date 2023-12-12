@@ -6,8 +6,6 @@ module Ligature.Wander.Preludes
 
 open Error
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 module private Boolean =
     let notFunction = Model.WanderValue.HostFunction (
         new Model.HostFunction((fun args _ ->

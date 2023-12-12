@@ -59,17 +59,17 @@ let tests =
               Expect.equal result (Ok(WanderValue.Int(321))) ""
           testCase "Let Statement"
           <| fun _ ->
-              let script = "let x 5"
+              let script = "x = 5"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(5))) ""
           testCase "Let Statement with Value Reference"
           <| fun _ ->
-              let script = "let x 5,\nx"
+              let script = "x = 5,\nx"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(5))) ""
           testCase "Define and call Lambda"
           <| fun _ ->
-              let script = "let id \\x -> x,\nid 45"
+              let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(45))) ""
         //   testCase "Let Statement with Value Reference In Scope"

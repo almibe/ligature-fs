@@ -46,7 +46,7 @@ let tests =
               Expect.equal ast (Ok([Element.String("hello")])) ""
           testCase "Parse Let Statements"
           <| fun _ ->
-              let tokens = tokenize "let x 5"
+              let tokens = tokenize "x = 5"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.Let ("x", Element.Int(5))])) ""
           testCase "Parse Name"
@@ -100,12 +100,12 @@ let tests =
                 ])])) ""
           testCase "Parse Let Statement with Name"
           <| fun _ ->
-              let tokens = tokenize "let x 5, x"
+              let tokens = tokenize "x = 5, x"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.Let("x" , Element.Int(5)); Element.Name("x")])) ""
           testCase "Parse Grouping"
           <| fun _ ->
-              let tokens = tokenize "(let x 5, x)"
+              let tokens = tokenize "(x = 5, x)"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.Grouping([Element.Let("x" , Element.Int(5)); Element.Name("x")])])) ""
           testCase "Parse When Expression"

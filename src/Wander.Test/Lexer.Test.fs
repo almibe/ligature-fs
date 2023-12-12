@@ -62,8 +62,6 @@ let tests =
           <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok([ Token.StringLiteral("hello") ])) ""
           // testCase "read Bytes Literal" <| fun _ ->
           //     Expect.equal (tokenize "0x55") (Ok([Bytes("0x55")])) ""
-          testCase "read let keyword"
-          <| fun _ -> Expect.equal (tokenize "let") (Ok([ Token.LetKeyword ])) ""
           testCase "read braces"
           <| fun _ ->
               Expect.equal (tokenize "{") (Ok([ Token.OpenBrace ])) ""
@@ -107,5 +105,5 @@ let tests =
           testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")
-              Expect.equal (tokenize "let x 5") (Ok([ Token.LetKeyword; ws; Token.Name("x"); ws; Token.Int(5) ])) "" 
+              Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5) ])) "" 
 ]

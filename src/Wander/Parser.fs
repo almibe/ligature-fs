@@ -43,12 +43,12 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 
 // let readNextElement (gaze: Gaze.Gaze<Token>) : Expression option = failwith "todo"
 
-let readLetStatement gaze =
+let readAssignment gaze =
     Gaze.attempt
         (fun gaze ->
             result {
-                let! _ = Gaze.attempt (take Token.LetKeyword) gaze
                 let! name = Gaze.attempt nameStrNibbler gaze
+                let! _ = Gaze.attempt (take Token.EqualsSign) gaze
                 let! v = elementNib gaze
                 return Element.Let(name, v)
             })
@@ -244,7 +244,7 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let applicationInnerNib = takeFirst [
     readValue; 
-    readLetStatement; 
+   // readAssignment; 
     arrayNib; 
     recordNib;
     lambdaNib;
@@ -253,9 +253,9 @@ let applicationInnerNib = takeFirst [
     ]
 
 let elementNib = takeFirst [
+    readAssignment; 
     applicationNib;
     readValue; 
-    readLetStatement; 
     arrayNib; 
     recordNib;
     lambdaNib;

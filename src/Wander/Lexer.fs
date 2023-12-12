@@ -17,7 +17,6 @@ type Token =
     | StringLiteral of string
     | BytesLiteral of byte array
     | Name of string
-    | LetKeyword
     | OpenBrace
     | CloseBrace
     | Colon
@@ -78,7 +77,6 @@ let whiteSpaceNibbler =
 let createNameOrKeyword (name: string) =
     match name with
     | "when" -> Token.WhenKeyword
-    | "let" -> Token.LetKeyword
     | "true" -> Token.Bool(true)
     | "false" -> Token.Bool(false)
     | "nothing" -> Token.Nothing
