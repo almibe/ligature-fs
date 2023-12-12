@@ -310,6 +310,10 @@ let handleWhen (conditionals: list<Element * Element>) =
     let conditionals = List.map (fun (condition, body) -> ((express condition), (express body))) conditionals
     Expression.When conditionals
 
+let expressApplication elements =
+    let res = List.map (fun element -> express element) elements
+    Expression.Application res
+
 /// This will eventually handle processing pipe operators
 let express (element: Element) =
     match element with
@@ -322,7 +326,7 @@ let express (element: Element) =
     | Element.Let(name,value) -> Expression.Let(name, (express value))
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
-    | Element.Application elements -> failwith "todo"
+    | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.When(conditionals) -> handleWhen conditionals

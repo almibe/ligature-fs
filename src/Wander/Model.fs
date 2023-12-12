@@ -16,7 +16,7 @@ type WanderValue<'T> =
     | Bool of bool
     | Identifier of Identifier
     | Nothing
-    | Lambda of paramters: string list * body: 'T list
+    | Lambda of paramters: string list * body: 'T
     | HostFunction of HostFunction<'T, WanderValue<'T>>
     | Array of WanderValue<'T> list
 
@@ -41,6 +41,7 @@ type Expression =
     | Name of string
     | Grouping of Expression list
     | Array of Expression list
+    | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Conditional of Conditional<Expression, Expression>
     | Record of list<string * Expression>

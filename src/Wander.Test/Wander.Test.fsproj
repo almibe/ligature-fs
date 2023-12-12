@@ -12,6 +12,7 @@
     <Compile Include="Parser.Test.fs" />
     <Compile Include="Wander.Test.fs" />
     <Compile Include="Instance.Test.fs" />
+    <Compile Include="Preludes.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

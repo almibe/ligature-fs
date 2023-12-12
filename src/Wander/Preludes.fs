@@ -187,8 +187,8 @@ module private Boolean =
 
 let bindStandardLibrary bindings =
     bindings
-    |> Bindings.bind "not" Boolean.notFunction
-    |> Bindings.bind "and" Boolean.andFunction
+    |> Bindings.bind "Bool.not" Boolean.notFunction
+    |> Bindings.bind "Bool.and" Boolean.andFunction
 
 // let bindInstanceLevelFunctions instance bindings =
 //     bindings

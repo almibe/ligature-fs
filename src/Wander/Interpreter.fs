@@ -55,7 +55,7 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
         | Some(WanderValue.Lambda(parameters, body)) ->
             match bindArguments args parameters bindings with
-            | Ok(bindings) -> evalExpressions bindings body
+            | Ok(bindings) -> evalExpression bindings body
             | Error(err) -> Error(err)
         | None -> error $"{name} function not found." None
         | _ -> todo //type error
@@ -103,9 +103,32 @@ let rec evalExpression bindings expression =
         match error with
         | None -> Ok((WanderValue.Array(res), bindings))
         | Some(err) -> Error(err)
-    | Expression.Lambda(_, _) -> failwith "Implement eval for lambda"
+    | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(_) -> failwith "Implement eval for record"
     | Expression.When(conditionals) -> handleWhen bindings conditionals
+    | Expression.Application(values) -> handleApplication bindings values
+
+and handleApplication bindings values =
+    let arguments = List.tail values
+    match List.tryHead values with
+    | Some(Expression.Name(functionName)) ->
+        match Bindings.read functionName bindings with
+        | Some(WanderValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
+        | Some(WanderValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
+        | _ -> failwith ""
+    | Some(_) -> error "Invalid Application." None
+    | None -> error "Should never reach, evaling empty Application." None
+
+and evalHostFunction bindings hostFunction arguments =
+    match hostFunction.Run arguments bindings with
+    | Ok(res) -> Ok(res, bindings)
+    | Error(err) -> Error(err)
+
+and evalLambda bindings parameters body arguments =
+    failwith ""
+
+and handleLambda bindings parameters body =
+    Ok(WanderValue.Lambda(parameters, body), bindings)
 
 and handleWhen bindings conditionals =
     match List.tryFind (fun (condition, body) -> 
