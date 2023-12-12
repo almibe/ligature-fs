@@ -125,7 +125,24 @@ and evalHostFunction bindings hostFunction arguments =
     | Error(err) -> Error(err)
 
 and evalLambda bindings parameters body arguments =
-    failwith ""
+    let mutable i = 0
+    let mutable error = None
+    let args = Array.init (List.length parameters) (fun i -> WanderValue.Nothing)
+    List.tryFind (fun arg -> 
+        match evalExpression bindings arg with
+        | Ok((res, _)) ->
+            Array.set args i res
+            i <- i + 1
+            false
+        | Error(err) ->
+            error <- Some(err)
+            true) arguments |> ignore
+    match error with
+    | Some(err) -> Error(err)
+    | None ->
+        let mutable scope = Bindings.addScope bindings
+        List.iteri (fun i arg -> scope <- Bindings.bind (List.item i parameters) arg bindings) (Array.toList args)
+        evalExpression scope body
 
 and handleLambda bindings parameters body =
     Ok(WanderValue.Lambda(parameters, body), bindings)
