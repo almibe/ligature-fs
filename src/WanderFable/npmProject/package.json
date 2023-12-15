@@ -1,7 +1,8 @@
 {
     "name": "@wander-lang/wander",
     "description": "JS support for Wander, compiled with Fable from F# source code.",
-    "version": "0.7.6",
+    "version": "0.7.11",
+    "type": "module",
     "main": "Wander.js",
     "files": ["./"],
     "scripts": {
