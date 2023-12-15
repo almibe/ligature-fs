@@ -14,13 +14,13 @@ let unwrap result =
     Result.defaultWith (fun _ -> todo) result
 
 let statement (entity: string) (attribute: string) (value: Value) =
-    let entity = unwrap (identifier entity)
-    let attribute = unwrap (identifier attribute)
+    let entity = unwrap (label entity)
+    let attribute = unwrap (label attribute)
 
-    let statement: Statement =
-        { Entity = entity
-          Attribute = attribute
-          Value = value }
+    let statement: Edge =
+        { Source = entity
+          Label = attribute
+          Target = value }
 
     statement
 
@@ -29,10 +29,10 @@ let tests =
     testList
         "Lig Read Suite"
         [ testCase "read Identifiers"
-          <| fun _ -> Expect.equal (readIdentifier (Gaze.fromString "<a>")) (identifier "a") ""
+          <| fun _ -> Expect.equal (readIdentifier (Gaze.fromString "<a>")) (label "a") ""
 
           testCase "read Values"
-          <| fun _ -> Expect.equal (readValue (Gaze.fromString "<a>")) (Ok(Identifier(unwrap (identifier "a")))) ""
+          <| fun _ -> Expect.equal (readValue (Gaze.fromString "<a>")) (Ok(Label(unwrap (label "a")))) ""
           //TODO fix below
           //Expect.equal (readValue (Gaze.fromString "4321")) (Ok(Integer(4321L))) ""
           //Expect.equal (readValue (Gaze.fromString "\"hello\"")) (Ok(String("hello"))) ""
@@ -42,5 +42,5 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (readLig "<a> <b> <c>")
-                  (Ok([ (statement "a" "b" (Identifier(unwrap (identifier ("c"))))) ]))
+                  (Ok([ (statement "a" "b" (Label(unwrap (label ("c"))))) ]))
                   "" ]

@@ -18,7 +18,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
 
     let lookupDataset dataset tx : Result<int64, LigatureError> =
         let sql = "select rowid, name from dataset where name = @name"
-        let param = [ "name", SqlType.String(datasetName dataset) ]
+        let param = [ "name", SqlType.String(graphName dataset) ]
 
         let results =
             conn
@@ -54,17 +54,17 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         conn |> Db.newCommand sql |> Db.exec
 
     interface ILigature with
-        member _.AllDatasets() =
+        member _.AllGraphs() =
             let sql = "select * from dataset"
             let results = conn |> Db.newCommand sql |> Db.query datasetDataReader
 
             match results with
-            | Ok(results) -> results |> List.map (fun s -> Dataset s) |> Ok //Ok (List.toArray results)
+            | Ok(results) -> results |> List.map (fun s -> Graph s) |> Ok //Ok (List.toArray results)
             | Error(_) -> error "Could not read all Datasets." None
 
-        member _.DatasetExists dataset =
+        member _.GraphExists dataset =
             let sql = "select name from dataset where name = @name"
-            let param = [ "name", SqlType.String(datasetName dataset) ]
+            let param = [ "name", SqlType.String(graphName dataset) ]
 
             let results =
                 conn
@@ -76,14 +76,14 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Ok(results) -> results.Length > 0 |> Ok
             | Error(_) -> Ok false
 
-        member this.CreateDataset dataset =
+        member this.CreateGraph dataset =
             let instance = this :> ILigature
 
-            match instance.DatasetExists dataset with
+            match instance.GraphExists dataset with
             | Ok(true) -> Ok()
             | Ok(false) ->
                 let sql = "insert into dataset (name) values (@name)"
-                let param = [ "name", SqlType.String(datasetName dataset) ]
+                let param = [ "name", SqlType.String(graphName dataset) ]
                 let results = conn |> Db.newCommand sql |> Db.setParams param |> Db.exec
 
                 match results with
@@ -91,13 +91,13 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 | Error(_) -> error $"Could not create dataset {dataset}" None
             | Error(error) -> Error(error)
 
-        member this.RemoveDataset dataset =
+        member this.RemoveGraph dataset =
             let instance = this :> ILigature
 
-            match instance.DatasetExists dataset with
+            match instance.GraphExists dataset with
             | Ok(true) ->
                 let sql = "delete from dataset where name = @name"
-                let param = [ "name", SqlType.String(datasetName dataset) ]
+                let param = [ "name", SqlType.String(graphName dataset) ]
                 let results = conn |> Db.newCommand sql |> Db.setParams param |> Db.exec
 
                 match results with

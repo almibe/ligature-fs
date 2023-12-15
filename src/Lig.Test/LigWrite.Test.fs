@@ -18,9 +18,9 @@ let tests =
     testList
         "Lig Write Suite"
         [ testCase "Write Identifier"
-          <| fun _ -> Expect.equal (writeIdentifier (unwrap (identifier ("hello")))) "<hello>" ""
+          <| fun _ -> Expect.equal (writeIdentifier (unwrap (label ("hello")))) "<hello>" ""
           testCase "Write Value"
-          <| fun _ -> Expect.equal (writeValue (Identifier(unwrap (identifier ("hello"))))) "<hello>" "" // identifier
+          <| fun _ -> Expect.equal (writeValue (Label(unwrap (label ("hello"))))) "<hello>" "" // identifier
           //assertEq(writeValue(String("hello")), "\"hello\"") // string
           //Expect.equal (writeValue(Integer(4567L)), "4567") // integer
           //assertEq(writeValue(unwrap(identifier("hello"))), "<hello>") // bytes

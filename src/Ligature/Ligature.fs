@@ -16,65 +16,65 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Dataset = Dataset of string
+type Graph = Graph of string
 
-let datasetName (Dataset name) = name
+let graphName (Graph name) = name
 
-type Identifier = private Identifier of string
+type Label = private Label of string
 
-let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
+let invalidLabel (id: string) = error $"Invalid Label, {id}" None
 
-let identifier =
-    let identifierPattern =
+let label =
+    let labelPattern =
         Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
 
     fun (id: string) ->
-        if identifierPattern.IsMatch(id) then
-            Ok(Identifier id)
+        if labelPattern.IsMatch(id) then
+            Ok(Label id)
         else
-            invalidIdentifier id
+            invalidLabel id
 
-let readIdentifier (Identifier identifier) = identifier
+let readLabel (Label label) = label
 
 type Value =
-    | Identifier of Identifier
+    | Label of Label
     | String of string
     | Integer of int64
 //TODO add Bytes
 
-type Statement =
-    { Entity: Identifier
-      Attribute: Identifier
-      Value: Value }
+type Edge =
+    { Source: Label
+      Label: Label
+      Target: Value }
 
-let statement entity attribute value =
+let edge source label target =
     {
-        Entity = entity
-        Attribute = attribute
-        Value = value
+        Source = source
+        Label = label
+        Target = target
     }
 
 type IQueryTx =
-    abstract member AllStatements: unit -> Result<Statement list, LigatureError>
+    abstract member AllEdges: unit -> Result<Edge list, LigatureError>
 
-    abstract member MatchStatements:
-        Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
+    abstract member MatchEdges:
+        Label option -> Label option -> Value option -> Result<Edge list, LigatureError>
 //TODO add MatchStatementsRange
 
 type IWriteTx =
-    abstract member NewIdentifier: unit -> Result<Identifier, LigatureError>
-    abstract member AddStatement: Statement -> Result<unit, LigatureError>
-    abstract member RemoveStatement: Statement -> Result<unit, LigatureError>
+    abstract member NewLabel: unit -> Result<Label, LigatureError>
+    abstract member AddEdge: Edge -> Result<unit, LigatureError>
+    abstract member RemoveEdge: Edge -> Result<unit, LigatureError>
 
 type Query<'R> = IQueryTx -> Result<'R, LigatureError>
 
 type Write = IWriteTx -> Result<unit, LigatureError>
 
 type ILigature =
-    abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
-    abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
-    abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
-    abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
-    abstract member Query: Dataset -> Query<'r> -> Result<'r, LigatureError>
-    abstract member Write: Dataset -> Write -> Result<unit, LigatureError>
+    abstract member AllGraphs: unit -> Result<Graph list, LigatureError>
+    abstract member GraphExists: Graph -> Result<bool, LigatureError>
+    abstract member CreateGraph: Graph -> Result<Unit, LigatureError>
+    abstract member RemoveGraph: Graph -> Result<Unit, LigatureError>
+    abstract member Query: Graph -> Query<'r> -> Result<'r, LigatureError>
+    abstract member Write: Graph -> Write -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>

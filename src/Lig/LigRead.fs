@@ -64,7 +64,7 @@ let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')
 let readIdentifier gaze =
     match Gaze.attempt identifierNibbler gaze with
     | Error(_) -> error "Could not read Identifier." None
-    | Ok(result) -> identifier (System.String(List.toArray result))
+    | Ok(result) -> label (System.String(List.toArray result))
 
 /// <summary>Reads a Value in lig format from a Gaze of chars.
 /// This could be an Identifier, String, Byte Array, or Integer.</summary>
@@ -74,7 +74,7 @@ let readValue gaze =
     let id = readIdentifier gaze
 
     match id with
-    | Ok(i) -> Ok(Identifier(i))
+    | Ok(i) -> Ok(Label(i))
     | Error(_) ->
         match (Gaze.attempt valueNibbler gaze) with
         | Error _ -> error "Could not read Value." None
@@ -110,10 +110,10 @@ let readLig (lig: string) =
 
         match (entity, attribute, value) with
         | ((Ok _), (Ok _), (Ok _)) ->
-            let statement: Statement =
-                { Entity = unwrap (entity)
-                  Attribute = unwrap (attribute)
-                  Value = unwrap (value) }
+            let statement: Edge =
+                { Source = unwrap (entity)
+                  Label = unwrap (attribute)
+                  Target = unwrap (value) }
             statements <- List.append statements [ statement ]
         | _ -> ()
     

@@ -26,8 +26,8 @@ let instance =
 let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200
 
 let datasets () =
-    instance.AllDatasets()
-    |> Result.map (fun s -> s |> List.map (fun ds -> datasetName ds))
+    instance.AllGraphs()
+    |> Result.map (fun s -> s |> List.map (fun ds -> graphName ds))
 
 let datasetList () =
     match datasets () with

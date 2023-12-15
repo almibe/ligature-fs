@@ -11,27 +11,27 @@ open FsToolkit.ErrorHandling
 
 let readValue (rd: IDataReader) : Result<Value, LigatureError> =
     let valueIdentifier =
-        rd.ReadStringOption "value_identifier" |> Option.map identifier
+        rd.ReadStringOption "value_identifier" |> Option.map label
 
     let valueString = rd.ReadStringOption "value_string" |> Option.map String
     let valueInteger = rd.ReadInt64Option "value_integer" |> Option.map Integer
 
     match (valueIdentifier, valueString, valueInteger) with
-    | (Some(i), _, _) -> Result.map Identifier i
+    | (Some(i), _, _) -> Result.map Label i
     | (_, Some(s), _) -> Ok(s)
     | (_, _, Some(i)) -> Ok(i)
     | _ -> error "Could not read value." None
 
-let statementDataReader (rd: IDataReader) : Result<Statement, LigatureError> =
+let statementDataReader (rd: IDataReader) : Result<Edge, LigatureError> =
     result {
-        let! entity = rd.ReadString "entity" |> identifier
-        let! attribute = rd.ReadString "attribute" |> identifier
+        let! entity = rd.ReadString "entity" |> label
+        let! attribute = rd.ReadString "attribute" |> label
         let! value = readValue rd
 
         return
-            { Entity = entity
-              Attribute = attribute
-              Value = value }
+            { Source = entity
+              Label = attribute
+              Target = value }
     }
 
 // let makeStatement (input: string * string): Result<Statement, LigatureError> = todo
@@ -44,10 +44,10 @@ let statementDataReader (rd: IDataReader) : Result<Statement, LigatureError> =
 //         | Ok(statement) -> makeStatements (List.tail input) (Array.append statements [|statement|])
 //         | Error(error) -> Error(error)
 
-type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
-    let lookupIdentifier (identifier: Identifier) : Result<Option<int64>, LigatureError> =
+type LigatureSqliteQueryTx(dataset: Graph, datasetId: int64, conn, tx) =
+    let lookupIdentifier (identifier: Label) : Result<Option<int64>, LigatureError> =
         let sql = "select *, rowid from identifier where identifier = @identifier"
-        let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
+        let param = [ "identifier", SqlType.String(readLabel identifier) ]
 
         let results =
             conn
@@ -60,11 +60,11 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         | Ok([]) -> Ok None
         | Ok([ id ]) -> Ok(Some id)
         | Ok(_) -> failwith "todo"
-        | Error(err) -> error $"Error checking for identifier {(readIdentifier identifier)}." (Some $"DBError - {err}")
+        | Error(err) -> error $"Error checking for identifier {(readLabel identifier)}." (Some $"DBError - {err}")
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
         match value with
-        | Identifier(value) ->
+        | Label(value) ->
             let id = lookupIdentifier value
 
             match id with
@@ -94,7 +94,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         |> fun v -> $"{v} = @{v}"
 
     interface IQueryTx with
-        member _.AllStatements() =
+        member _.AllEdges() =
             let sql =
                 "select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,
                 Statement.value_string as value_string, Statement.value_integer as value_integer from Dataset
@@ -104,7 +104,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 left join Identifier as Value on Statement.value_identifier = Value.rowid
                 where dataset.name = @name"
 
-            let param = [ "name", SqlType.String(datasetName dataset) ]
+            let param = [ "name", SqlType.String(graphName dataset) ]
 
             let results =
                 conn
@@ -117,7 +117,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
             | Ok(r) -> List.traverseResultM (fun r -> r) r
             | Error(dbError) -> error "Error reading Statements." (Some $"DB Error - {dbError}")
 
-        member _.MatchStatements entity attribute value =
+        member _.MatchEdges entity attribute value =
             //TODO I'm not handling errors properly in this function
             let entity = Option.map (fun e -> lookupIdentifier e) entity
             let attribute = Option.map (fun a -> lookupIdentifier a) attribute
@@ -160,7 +160,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 where dataset.name = @name"
                 //{queryCondition}"
             //let param = [ "dataset", SqlType.Int64 datasetId ] //TODO rewrite query above to use Dataset id not name
-            let param = [ "name", SqlType.String(datasetName dataset) ]
+            let param = [ "name", SqlType.String(graphName dataset) ]
 
             let results =
                 conn

@@ -10,7 +10,7 @@ open Donald
 
 let inline todo<'T> : 'T = raise (NotImplementedException("todo"))
 
-type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
+type LigatureSqliteWriteTx(dataset: Graph, datasetId: int64, conn, tx) =
     let getLastRowId () : Result<int64, LigatureError> =
         let sql = "select last_insert_rowid()"
 
@@ -19,9 +19,9 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
         Result.mapError (fun err -> todo) result
 
-    let createIdentifier (identifier: Identifier) : Result<int64, LigatureError> =
+    let createIdentifier (identifier: Label) : Result<int64, LigatureError> =
         let sql = "insert into identifier (identifier) values (@identifier)"
-        let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
+        let param = [ "identifier", SqlType.String(readLabel identifier) ]
 
         let results =
             conn
@@ -34,9 +34,9 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
         | Ok(_) -> getLastRowId ()
         | Error(_) -> error $"Could not create dataset {dataset}" None
 
-    let checkIdentifier (identifier: Identifier) : Result<int64, LigatureError> =
+    let checkIdentifier (identifier: Label) : Result<int64, LigatureError> =
         let sql = "select *, rowid from identifier where identifier = @identifier"
-        let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
+        let param = [ "identifier", SqlType.String(readLabel identifier) ]
 
         let results =
             conn
@@ -49,11 +49,11 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
         | Ok([]) -> createIdentifier identifier
         | Ok([ id ]) -> Ok(id)
         | Ok(_) -> todo
-        | Error(err) -> error $"Error checking for identifier {(readIdentifier identifier)}." (Some $"DBError - {err}")
+        | Error(err) -> error $"Error checking for identifier {(readLabel identifier)}." (Some $"DBError - {err}")
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
         match value with
-        | Identifier(value) ->
+        | Label(value) ->
             let id = checkIdentifier value
 
             match id with
@@ -192,12 +192,12 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
             result
 
     interface IWriteTx with
-        member _.NewIdentifier() : Result<Identifier, LigatureError> = Guid.NewGuid().ToString() |> identifier
+        member _.NewLabel() : Result<Label, LigatureError> = Guid.NewGuid().ToString() |> label
 
-        member _.AddStatement(statement: Statement) : Result<unit, LigatureError> =
-            let entityId = checkIdentifier statement.Entity
-            let attributeId = checkIdentifier statement.Attribute
-            let valueParams = createValueParams statement.Value
+        member _.AddEdge(statement: Edge) : Result<unit, LigatureError> =
+            let entityId = checkIdentifier statement.Source
+            let attributeId = checkIdentifier statement.Label
+            let valueParams = createValueParams statement.Target
 
             match (entityId, attributeId, valueParams) with
             | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
@@ -207,10 +207,10 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 | Error(err) -> Error(err)
             | _ -> todo
 
-        member _.RemoveStatement(statement: Statement) : Result<unit, LigatureError> =
-            let entityId = checkIdentifier statement.Entity
-            let attributeId = checkIdentifier statement.Attribute
-            let valueParams = createValueParams statement.Value
+        member _.RemoveEdge(statement: Edge) : Result<unit, LigatureError> =
+            let entityId = checkIdentifier statement.Source
+            let attributeId = checkIdentifier statement.Label
+            let valueParams = createValueParams statement.Target
 
             match (entityId, attributeId, valueParams) with
             | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
