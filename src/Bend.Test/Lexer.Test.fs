@@ -5,8 +5,8 @@
 module Wander.Lexer.Test
 
 open Expecto
-open Ligature.Wander.Lexer
-open Ligature.Wander.Identifier
+open Ligature.Bend.Lexer
+open Ligature.Bend.Identifier
 
 let ident id =
     Token.Identifier(

@@ -1,8 +1,8 @@
 ﻿
-module Ligature.Wander.Fable
+module Ligature.Bend.Fable
 
-open Ligature.Wander.Main
-open Ligature.Wander.Bindings
+open Ligature.Bend.Main
+open Ligature.Bend.Bindings
 open Lexer
 
 let execute script = run script (newBindings())

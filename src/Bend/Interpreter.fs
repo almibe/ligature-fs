@@ -2,14 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Interpreter
+module Ligature.Bend.Interpreter
 
-open Ligature.Wander.Model
-open Ligature.Wander.Bindings
+open Ligature.Bend.Model
+open Ligature.Bend.Bindings
 open Error
 
 let rec evalExpression bindings expression =
-    let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, WanderError> =
+    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, WanderError> =
         if List.length args <> List.length parameters then
             todo
         else if List.isEmpty args && List.isEmpty parameters then

@@ -6,7 +6,7 @@ module Ligature.Http.Backend
 
 open Giraffe
 open Ligature
-open Ligature.Wander.Main
+open Ligature.Bend.Main
 open Microsoft.AspNetCore.Http
 
 let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200

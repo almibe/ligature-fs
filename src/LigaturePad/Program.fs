@@ -4,8 +4,8 @@
 
 namespace WanderPad
 
-open Ligature.Wander.Main
-open Ligature.Wander.Bindings
+open Ligature.Bend.Main
+open Ligature.Bend.Bindings
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Themes.Fluent

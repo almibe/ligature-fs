@@ -23,6 +23,7 @@ test suite for the other project.
 
 | Project           | Description                                                        |
 | ----------------- | ------------------------------------------------------------------ |
+| Bend              | The Bend scripting language.                                       |
 | build             | Fake build script.                                                 |
 | Gaze              | A parsing library.                                                 |
 | Lig               | Support for the Lig serialization language.                        |
@@ -31,11 +32,9 @@ test suite for the other project.
 | LigatureHttp      | A web backend for working with Ligature.                           |
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
 | LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
+| LigaturePad       | A simple desktop appplication for testing Ligature.                |
 | LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
-| Wander            | The Wander scripting language.                                     |
-| WanderFable       | Fable build for Wander.                                            |
-| WanderPad         | A simple desktop appplication for testing Wander code.             |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 
