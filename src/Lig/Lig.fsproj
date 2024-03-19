@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="LigRead.fs" />
+    <Compile Include="LigWrite.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\Gaze\Gaze.fsproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="LigatureSqliteQueryTx.fs" />
+    <Compile Include="LigatureSqliteWriteTx.fs" />
+    <Compile Include="LigatureSqlite.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+    <PackageReference Include="Donald" Version="9.0.1" />
+  </ItemGroup>
+
+</Project>
