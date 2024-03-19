@@ -15,7 +15,7 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="Preludes.fs" />
-    <Compile Include="Wander.fs" />
+    <Compile Include="Bend.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
