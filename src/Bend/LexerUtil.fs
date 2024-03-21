@@ -14,7 +14,7 @@ let identifierPattern =
 let identifierCharacterNibbler =
     Nibblers.takeWhile (fun c -> identifierPattern.IsMatch(c.ToString()))
 
-let identifierNibbler = Nibblers.between '<' identifierCharacterNibbler '>'
+let identifierNibbler = Nibblers.between '`' identifierCharacterNibbler '`'
 
 //TODO the below Nibbler is incorrect
 let stringContentNibbler =

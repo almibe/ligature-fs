@@ -6,9 +6,9 @@ module Ligature.Bend.Parser.Test
 
 open Expecto
 open Ligature
-open Wander.Parser
-open Wander.Lexer
-open Ligature.Bend.Identifier
+open Bend.Parser
+open Bend.Lexer
+open Bend.Identifier
 
 let unsafe result =
     match result with

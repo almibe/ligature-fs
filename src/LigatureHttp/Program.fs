@@ -60,5 +60,4 @@ let main _ =
             |> ignore)
         .Build()
         .Run()
-
     0

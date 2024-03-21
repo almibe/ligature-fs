@@ -18,6 +18,7 @@
     <Compile Include="Bend.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
   </ItemGroup>
   <ItemGroup>

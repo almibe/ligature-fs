@@ -7,16 +7,16 @@ module Ligature.Bend.Preludes
 open Error
 
 module private Boolean =
-    let notFunction = Model.WanderValue.HostFunction (
+    let notFunction = Model.BendValue.HostFunction (
         new Model.HostFunction((fun args _ ->
             match args.Head with
-            | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
+            | Model.BendValue.Bool(value) -> Ok(Model.BendValue.Bool(not value))
             | _ -> error "Invalid call to not function." None)))
 
-    let andFunction = Model.WanderValue.HostFunction (
+    let andFunction = Model.BendValue.HostFunction (
         new Model.HostFunction((fun args _ ->
             match args.Head with
-            | Model.Expression.Bool(value) -> Ok(Model.WanderValue.Bool(not value))
+            | Model.BendValue.Bool(value) -> Ok(Model.BendValue.Bool(not value))
             | _ -> error "Invalid call to and function." None)))
 
 // module private Instance = 

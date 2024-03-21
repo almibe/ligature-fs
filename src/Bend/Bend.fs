@@ -10,7 +10,7 @@ open Parser
 open Lexer
 
 let run (input: string) (bindings: Bindings) =
-    match Lexer.tokenize input with
+    match tokenize input with
     | Ok tokens ->
         match parse tokens with
         | Ok ast ->
@@ -25,14 +25,14 @@ type Introspect = {
 }
 
 let introspect (input: string) =
-    match Lexer.tokenize input with
+    match tokenize input with
     | Ok tokens -> 
         match parse tokens with
         | Ok value -> { tokens = Ok tokens; elements = Ok value }
         | Error err -> { tokens = Ok tokens; elements = Error (string err) }
     | Error err -> { tokens = Error (string err); elements = Error (string err) }
 
-let printResult (result: Result<WanderValue, WanderError>) =
+let printResult (result: Result<BendValue, BendError>) =
     match result with
     | Ok value -> prettyPrint value
     | Error err -> err.UserMessage

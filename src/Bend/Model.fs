@@ -6,29 +6,26 @@ module Ligature.Bend.Model
 open Identifier
 open Error
 
-type HostFunction<'T, 'Output>(eval: 'T list -> Bindings.Bindings<string, 'Output> -> Result<'Output, WanderError>) =
-    member _.Run args bindings = eval args bindings
-
 [<RequireQualifiedAccess>]
-type WanderValue<'T> =
+type BendValue =
     | Int of int64
     | String of string
     | Bool of bool
     | Identifier of Identifier
+    | Statement of Ligature.Statement
     | Nothing
-    | Lambda of paramters: string list * body: 'T
-    | HostFunction of HostFunction<'T, WanderValue<'T>>
-    | Array of WanderValue<'T> list
+//    | Lambda of paramters: string list * body: Expression
+    | HostFunction of HostFunction
+    | Array of BendValue list
+    | Record of Map<string, BendValue>
+    //TODO add Record
+    //TODO add Bytes
+
+and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, BendError>) =
+    member _.Run args bindings = eval args bindings
 
 type Parameter =
     { name: string; tag: string }
-
-type Case<'Condition, 'Body> = { condition: 'Condition; body: 'Body }
-
-type Conditional<'Condition, 'Body> =
-    { ifCase: Case<'Condition, 'Body>
-      elsifCases: Case<'Condition, 'Body> list
-      elseBody: 'Body }
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -43,27 +40,24 @@ type Expression =
     | Array of Expression list
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
-    | Conditional of Conditional<Expression, Expression>
     | Record of list<string * Expression>
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 
-type WanderValue = WanderValue<Expression>
-type Case = Case<Expression, Expression>
-type Conditional = Conditional<Expression, Expression>
-type HostFunction = HostFunction<Expression, WanderValue>
-type Bindings = Bindings.Bindings<string, WanderValue>
+type Bindings = Bindings.Bindings<string, BendValue>
 
-let rec prettyPrint (value: WanderValue): string =
+let rec prettyPrint (value: BendValue): string =
     match value with
-    | WanderValue.Int i -> sprintf "%i" i
-    | WanderValue.String s -> s
-    | WanderValue.Bool b -> sprintf "%b" b
-    | WanderValue.Identifier i -> $"<{(readIdentifier i)}>"
-    | WanderValue.Nothing -> "Nothing"
-    | WanderValue.Lambda(_, _) -> "Lambda"
-    | WanderValue.HostFunction(_) -> "HostFunction"
-    | WanderValue.Array(values) -> $"[{printValues values}]"
+    | BendValue.Int i -> sprintf "%i" i
+    | BendValue.String s -> s
+    | BendValue.Bool b -> sprintf "%b" b
+    | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
+    | BendValue.Nothing -> "Nothing"
+//    | BendValue.Lambda(_, _) -> "Lambda"
+    | BendValue.HostFunction(_) -> "HostFunction"
+    | BendValue.Array(values) -> $"[{printValues values}]"
+    | BendValue.Statement(_) -> failwith "Not Implemented"
+    | BendValue.Record(_) -> failwith "Not Implemented"
 
 and printValues values =
     List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values

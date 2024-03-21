@@ -4,7 +4,7 @@
 
 module Ligature.Bend.Error
 
-type WanderError =
+type BendError =
     { UserMessage: string
       DebugMessage: string option }
 

@@ -12,7 +12,7 @@ open Ligature.Bend.Identifier
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let ident id =
-    WanderValue.Identifier(
+    BendValue.Identifier(
         match identifier id with
         | Ok v -> v
         | Error _ -> todo
@@ -28,20 +28,20 @@ let tests =
           <| fun _ ->
               let script = "1235"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(1235))) ""
+              Expect.equal result (Ok(BendValue.Int(1235))) ""
           testCase "Run String"
           <| fun _ ->
               let script = "\"Hello\""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.String("Hello"))) ""
+              Expect.equal result (Ok(BendValue.String("Hello"))) ""
           testCase "Run Booleans"
           <| fun _ ->
               let script = "true"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Bool(true))) ""
+              Expect.equal result (Ok(BendValue.Bool(true))) ""
               let script = "false"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Bool(false))) ""
+              Expect.equal result (Ok(BendValue.Bool(false))) ""
           testCase "Run Identifier"
           <| fun _ ->
               let script = "<hello>"
@@ -51,27 +51,27 @@ let tests =
           <| fun _ ->
               let script = "  \n  5   "
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(BendValue.Int(5))) ""
           testCase "Handle Multiple Values and White Space"
           <| fun _ ->
               let script = " 1,  true,  \n  \"hello\", \r\n 5,  321 \n"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(321))) ""
+              Expect.equal result (Ok(BendValue.Int(321))) ""
           testCase "Let Statement"
           <| fun _ ->
               let script = "x = 5"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(BendValue.Int(5))) ""
           testCase "Let Statement with Value Reference"
           <| fun _ ->
               let script = "x = 5,\nx"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(BendValue.Int(5))) ""
           testCase "Define and call Lambda"
           <| fun _ ->
               let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(45))) ""
+              Expect.equal result (Ok(BendValue.Int(45))) ""
         //   testCase "Let Statement with Value Reference In Scope"
         //   <| fun _ ->
         //       let script = "(let x 5, x)"

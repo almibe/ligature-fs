@@ -62,7 +62,7 @@ Examples running the linter
 
 ## LigatureHttp
 
-LigatureHttp is a project that allows running Wander code against an instance of Ligature via HTTP.
+LigatureHttp is a project that allows running Bend code against an instance of Ligature via HTTP.
 
 ### Running LigatureHttp
 
