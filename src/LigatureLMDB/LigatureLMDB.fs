@@ -11,7 +11,7 @@ let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 type LigatureLMDB() =
     member this.initialize() = ()
 
-    interface Ligature with
+    interface ILigature with
         member this.AllDatasets() = Ok []
         member this.DatasetExists dataset = todo
         member this.CreateDataset dataset = todo

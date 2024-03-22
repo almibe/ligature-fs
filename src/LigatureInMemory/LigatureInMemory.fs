@@ -8,62 +8,62 @@ open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-type LigatureInMemoryQueryTx(statements: Set<Edge>) =
+type LigatureInMemoryQueryTx(statements: Set<Statement>) =
     interface IQueryTx with
-        member _.AllEdges() = Ok(List.ofSeq statements)
+        member _.AllStatements() = Ok(List.ofSeq statements)
 
-        member _.MatchEdges entity attribute value =
+        member _.MatchStatements entity attribute value =
             let results =
                 match entity with
-                | Some(entity) -> Set.filter (fun statement -> statement.Source = entity) statements
+                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) statements
                 | None -> statements
 
             let results =
                 match attribute with
-                | Some(attribute) -> Set.filter (fun statement -> statement.Label = attribute) results
+                | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
                 | None -> results
 
             let results =
                 match value with
-                | Some(value) -> Set.filter (fun statement -> statement.Target = value) results
+                | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
 
             List.ofSeq results |> Ok
 
-type LigatureInMemoryWriteTx(dataset: Graph, datasets: Map<Graph, Set<Edge>> ref) =
+type LigatureInMemoryWriteTx(dataset: Dataset, datasets: Map<Dataset, Set<Statement>> ref) =
     interface IWriteTx with
-        member _.NewLabel() = todo
+        member _.NewIdentifier() = todo
 
-        member _.AddEdge statement =
+        member _.AddStatement statement =
             let statements = Map.find dataset datasets.Value
             let statements = Set.add statement statements
             datasets.Value <- Map.add dataset statements datasets.Value
             Ok()
 
-        member _.RemoveEdge statement =
+        member _.RemoveStatement statement =
             let statements = Map.find dataset datasets.Value
             let statements = Set.remove statement statements
             datasets.Value <- Map.add dataset statements datasets.Value
             Ok()
 
 type LigatureInMemory() =
-    let datasets: Map<Graph, Set<Edge>> ref = ref Map.empty
+    let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
     interface ILigature with
-        member _.AllGraphs() =
+        member _.AllDatasets() =
             Ok(Map.keys datasets.Value |> Seq.cast |> List.ofSeq) //Ok datasets.Value
 
-        member _.GraphExists dataset =
+        member _.DatasetExists dataset =
             Map.containsKey dataset datasets.Value |> Ok
 
-        member this.CreateGraph dataset =
+        member this.CreateDataset dataset =
             lock this (fun () ->
                 if not (datasets.Value.ContainsKey dataset) then
                     datasets.Value <- Map.add dataset Set.empty datasets.Value //Set.add dataset datasets.Value
                 Ok())
 
-        member this.RemoveGraph dataset =
+        member this.RemoveDataset dataset =
             lock this (fun () ->
                 datasets.Value <- Map.remove dataset datasets.Value
                 Ok())
