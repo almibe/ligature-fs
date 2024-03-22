@@ -5,25 +5,15 @@
 module Ligature.Bend.Lib.Preludes
 open Ligature.Bend
 open Bool
+open Ligature
 
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Bool" boolLib
 
-// let bindInstanceLevelFunctions instance bindings =
-//     bindings
-//     |> Bindings.bind "datasets" (Instance.datasetsFunction instance)
-//     |> Bindings.bind "createDataset" (Instance.addDataset instance)
-//     |> Bindings.bind "removeDataset" (Instance.removeDataset instance)
-//     |> Bindings.bind "datasetExists" (Instance.datasetExists instance)
-//     |> Bindings.bind "query" (Instance.query instance)
-//     |> Bindings.bind "write" (Instance.write instance)
-//     |> Bindings.bind "allStatements" (Instance.allStatements instance)
-//     |> Bindings.bind "match" (Instance.matchCommand instance)
-
 let standardPrelude () =
     bindStandardLibrary (Bindings.newBindings ())
 
-// let instancePrelude (instance: ILigature): Bindings = 
-//     bindStandardLibrary (Bindings.newBindings ())
-//     |> bindInstanceLevelFunctions instance
+let instancePrelude instance = 
+    standardPrelude ()
+    |> Bindings.bind "Ligature" (ligatureLib instance)

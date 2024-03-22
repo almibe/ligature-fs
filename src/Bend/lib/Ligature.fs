@@ -1,3 +1,30 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+module Ligature.Bend.Lib.Ligature
+open Ligature.Bend.Model
+open Ligature.Bend
+open Ligature.Bend.Error
+
+let ligatureLib ligature = BendValue.Record (Map [
+    ("datasets", Model.BendValue.HostFunction (
+        new Model.HostFunction((fun args _ ->
+            match args with
+            | _ -> Ok(Model.BendValue.Array([]))))))
+])
+
+// let bindInstanceLevelFunctions instance bindings =
+//     bindings
+//     |> Bindings.bind "datasets" (Instance.datasetsFunction instance)
+//     |> Bindings.bind "createDataset" (Instance.addDataset instance)
+//     |> Bindings.bind "removeDataset" (Instance.removeDataset instance)
+//     |> Bindings.bind "datasetExists" (Instance.datasetExists instance)
+//     |> Bindings.bind "query" (Instance.query instance)
+//     |> Bindings.bind "write" (Instance.write instance)
+//     |> Bindings.bind "allStatements" (Instance.allStatements instance)
+//     |> Bindings.bind "match" (Instance.matchCommand instance)
+
 // module private Instance = 
 //     let datasetsFunction (instance: ILigature) = Model.WanderValue.NativeFunction (
 //         new Model.NativeFunction(fun _ _ ->
