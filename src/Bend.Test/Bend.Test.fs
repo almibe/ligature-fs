@@ -18,7 +18,7 @@ let ident id =
         | Error _ -> todo
     )
 
-let bindings = Ligature.Bend.Preludes.standardPrelude ()
+let bindings = Ligature.Bend.Lib.Preludes.standardPrelude ()
 
 [<Tests>]
 let tests =
@@ -44,7 +44,7 @@ let tests =
               Expect.equal result (Ok(BendValue.Bool(false))) ""
           testCase "Run Identifier"
           <| fun _ ->
-              let script = "<hello>"
+              let script = "`hello`"
               let result = run script bindings
               Expect.equal result (Ok(ident "hello")) ""
           testCase "Handle WhiteSpace"

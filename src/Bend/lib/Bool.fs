@@ -5,9 +5,6 @@
 module Ligature.Bend.Lib.Bool
 open Ligature.Bend.Model
 
-let boolLib = BendValue.Record (Map [
-    ("test", BendValue.Int 4)])
-
 module Boolean =
     open Ligature.Bend
     open Ligature.Bend.Error
@@ -22,3 +19,6 @@ module Boolean =
             match args.Head with
             | Model.BendValue.Bool(value) -> Ok(Model.BendValue.Bool(not value))
             | _ -> error "Invalid call to and function." None)))
+
+let boolLib = BendValue.Record (Map [
+    ("not", Boolean.notFunction);])

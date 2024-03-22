@@ -14,7 +14,7 @@ type Expression =
     | Bool of bool
     | Identifier of Identifier.Identifier
     | Let of name: string * value: Expression
-    | Name of string
+    | NamePath of string list
     | Grouping of Expression list
     | Array of Expression list
     | Application of Expression list

@@ -11,7 +11,7 @@ open Nibblers
 
 [<RequireQualifiedAccess>]
 type Element =
-| Name of string
+| NamePath of string list
 | Nothing
 | Grouping of Element list
 | Application of Element list
@@ -33,15 +33,15 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
-// let nameNibbler =
-//     Nibblers.takeCond (fun token ->
-//         match token with
-//         | Token.Name _ -> true
-//         | _ -> false)
+let nameNib (gaze: Gaze.Gaze<Token>) = 
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.Name(name)) -> Ok(Element.NamePath([name]))
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
 
-// let nameExpressionNibbler gaze = Gaze.attempt (fun gaze -> failwith "todo") gaze
-
-// let readNextElement (gaze: Gaze.Gaze<Token>) : Expression option = failwith "todo"
+let namePathNib = Gaze.map (repeatSep nameStrNibbler Token.Dot) (fun namePath -> Element.NamePath namePath)
 
 let readAssignment gaze =
     Gaze.attempt
@@ -87,22 +87,6 @@ let lambdaNib gaze =
         )
         gaze
 
-// let readIdentifier (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.Identifier(identifier)) -> Ok(Expression.Value(WanderValue.Identifier(identifier)))
-//             | _ -> Error(Gaze.GazeError.NoMatch))
-//         gaze
-
-// let readArguments (gaze: Gaze.Gaze<Token>) =
-//     result {
-//         let! _ = Gaze.attempt (Nibblers.take Token.OpenParen) gaze
-//         let! arguments = readExpressionsUntil Token.CloseParen gaze
-//         let! _ = Gaze.attempt (Nibblers.take Token.CloseParen) gaze
-//         return arguments
-//     }
-
 // let readNameOrFunctionCall (gaze: Gaze.Gaze<Token>) =
 //     Gaze.attempt
 //         (fun gaze ->
@@ -118,27 +102,11 @@ let lambdaNib gaze =
 //             | _ -> Error(Gaze.GazeError.NoMatch))
 //         gaze
 
-// let readString (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.StringLiteral(value)) -> Ok(Expression.Value(WanderValue.String(value)))
-//             | _ -> Error(Gaze.GazeError.NoMatch))
-//         gaze
-
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.Int(i)) -> Ok(Element.Int(i))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
-
-let nameNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(Element.Name(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -160,42 +128,6 @@ let wideArrowNib (gaze: Gaze.Gaze<Token>) =
             | Ok(Token.WideArrow) -> Ok(())
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
-
-// let readBoolean (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.Boolean(b)) -> Ok(Expression.Value(WanderValue.Boolean(b)))
-//             | _ -> Error(Gaze.GazeError.NoMatch))
-//         gaze
-
-// let readConditional (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             result {
-//                 let! _ = Gaze.attempt (Nibblers.take Token.IfKeyword) gaze
-//                 let! ifConditional = readExpression gaze
-//                 let! ifBody = readExpression gaze
-                
-//                 let mutable elsifCases = []
-//                 while Gaze.peek gaze = Ok(Token.ElsifKeyword) do
-//                     let! _ = Gaze.attempt (Nibblers.take Token.ElsifKeyword) gaze
-//                     let! elsifConditional = readExpression gaze
-//                     let! elsifBody = readExpression gaze
-//                     elsifCases <- elsifCases @ [{ condition = elsifConditional; body = elsifBody}]
-                
-//                 let! _ = Gaze.attempt (Nibblers.take Token.ElseKeyword) gaze
-//                 let! elseBody = readExpression gaze
-
-//                 return
-//                     Expression.Conditional
-//                         { ifCase =
-//                             { condition = ifConditional
-//                               body = ifBody }
-//                           elsifCases = elsifCases
-//                           elseBody = elseBody }
-//             })
-//         gaze
 
 let arrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -238,13 +170,13 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
-    | Ok(Token.Name(name)) -> Ok(Element.Name(name)) //readNameOrFunctionCall gaze //TODO will need to also handle function calls here
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let applicationInnerNib = takeFirst [
     readValue; 
    // readAssignment; 
+    namePathNib;
     arrayNib; 
     recordNib;
     lambdaNib;
@@ -255,6 +187,7 @@ let applicationInnerNib = takeFirst [
 let elementNib = takeFirst [
     readAssignment; 
     applicationNib;
+    namePathNib;
     readValue; 
     arrayNib; 
     recordNib;
@@ -319,7 +252,7 @@ let express (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
     | Element.Bool value -> Expression.Bool value
-    | Element.Name name -> Expression.Name name
+    | Element.NamePath namePath -> Expression.NamePath namePath
     | Element.Nothing -> Expression.Nothing
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id

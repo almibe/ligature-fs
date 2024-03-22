@@ -48,8 +48,8 @@ let tests =
               Expect.equal (tokenize "\r\n\r\n\r\n\n") (Ok([ Token.NewLine("\r\n\r\n\r\n\n") ])) ""
           testCase "Read Identifiers"
           <| fun _ ->
-              Expect.equal (tokenize "<a>") (Ok([ (ident "a") ])) ""
-              Expect.equal (tokenize "<https://ligature.dev/#>") (Ok([ ident "https://ligature.dev/#" ])) ""
+              Expect.equal (tokenize "`a`") (Ok([ (ident "a") ])) ""
+              Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
           testCase "Read comments"
           <| fun _ ->
               Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""

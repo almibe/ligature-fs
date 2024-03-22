@@ -8,6 +8,25 @@ open Ligature.Bend.Model
 open Ligature.Bend.Bindings
 open Error
 
+let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>) =
+    match read (List.head namePath) bindings with
+    | Some(value) -> 
+        match value with
+        | BendValue.Record(values) -> 
+            match namePath.Tail with
+            | [] -> Some (BendValue.Record values)
+            | namePath -> 
+                List.fold (fun values name -> 
+                    match values with
+                    | Some(BendValue.Record(values)) -> 
+                        match Map.tryFind name values with
+                        | Some(res) -> Some(res)
+                        | None -> None
+                    | None -> failwith "Not Implemented"
+                    | Some(value) -> Some value) (Some(BendValue.Record(values))) namePath
+        | value -> Some value
+    | None -> None
+
 let rec evalExpression bindings expression =
     let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, BendError> =
         if List.length args <> List.length parameters then
@@ -24,8 +43,8 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
 
     match expression with
-    | Expression.Name(name) ->
-        match Bindings.read name bindings with
+    | Expression.NamePath(name) ->
+        match readNamePath name bindings with
         | Some(value) -> Ok((value, bindings))
         | None -> error $"Could not read {name}" None
     | Expression.Grouping(expressions) ->
@@ -118,8 +137,8 @@ and handleRecord bindings values =
 and handleApplication bindings values =
     let arguments = List.tail values
     match List.tryHead values with
-    | Some(Expression.Name(functionName)) ->
-        match read functionName bindings with
+    | Some(Expression.NamePath(functionName)) ->
+        match readNamePath functionName bindings with
         | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
         | Some(BendValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
         | Some(_) -> failwith "Not Implemented"
