@@ -91,7 +91,7 @@ module Main =
 type MainWindow() =
     inherit HostWindow()
     do
-        base.Title <- "WanderPad"
+        base.Title <- "LigaturePad"
         base.Content <- Main.view ()
 
 type App() =

@@ -11,7 +11,7 @@ open Microsoft.AspNetCore.Http
 
 let handleError (ctx: HttpContext) err = ctx.WriteStringAsync(err.UserMessage) //TODO return error code, not 200
 
-let runWander instance : HttpHandler =
+let runBend instance : HttpHandler =
     handleContext (fun ctx ->
         let x = ctx.ReadBodyFromRequestAsync ()
         let bindings = Wander.Preludes.instancePrelude instance
@@ -24,4 +24,4 @@ let backendWebApp instance =
     choose
         [ POST
           >=> choose
-              [ route "/wander" >=> runWander instance ] ]
+              [ route "/bend" >=> runBend instance ] ]
