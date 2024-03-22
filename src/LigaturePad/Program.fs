@@ -6,6 +6,7 @@ namespace WanderPad
 
 open Ligature.Bend.Main
 open Ligature.Bend.Bindings
+open Ligature.Bend.Lib.Preludes
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Themes.Fluent
@@ -34,7 +35,7 @@ module Main =
                             Button.create [
                                 Button.onClick (fun _ ->
                                     let editorText = state.Current.EditorText
-                                    let res = printResult (run editorText (newBindings ()))
+                                    let res = printResult (run editorText (bindStandardLibrary (newBindings ())))
                                     state.Set({ ResultText = res; EditorText = editorText})) //state.Current.EditorText }))
                                 Button.content "Run"
                                 Button.horizontalAlignment HorizontalAlignment.Stretch

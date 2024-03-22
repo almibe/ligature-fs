@@ -1,24 +1,3 @@
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-module Ligature.Bend.Preludes
-
-open Error
-
-module private Boolean =
-    let notFunction = Model.BendValue.HostFunction (
-        new Model.HostFunction((fun args _ ->
-            match args.Head with
-            | Model.BendValue.Bool(value) -> Ok(Model.BendValue.Bool(not value))
-            | _ -> error "Invalid call to not function." None)))
-
-    let andFunction = Model.BendValue.HostFunction (
-        new Model.HostFunction((fun args _ ->
-            match args.Head with
-            | Model.BendValue.Bool(value) -> Ok(Model.BendValue.Bool(not value))
-            | _ -> error "Invalid call to and function." None)))
-
 // module private Instance = 
 //     let datasetsFunction (instance: ILigature) = Model.WanderValue.NativeFunction (
 //         new Model.NativeFunction(fun _ _ ->
@@ -182,26 +161,3 @@ module private Boolean =
 //                 | Error err -> Error err
 //             | _ -> error "Improper call to addStatements." None
 //         ))
-
-let bindStandardLibrary bindings =
-    bindings
-    |> Bindings.bind "Bool.not" Boolean.notFunction
-    |> Bindings.bind "Bool.and" Boolean.andFunction
-
-// let bindInstanceLevelFunctions instance bindings =
-//     bindings
-//     |> Bindings.bind "datasets" (Instance.datasetsFunction instance)
-//     |> Bindings.bind "createDataset" (Instance.addDataset instance)
-//     |> Bindings.bind "removeDataset" (Instance.removeDataset instance)
-//     |> Bindings.bind "datasetExists" (Instance.datasetExists instance)
-//     |> Bindings.bind "query" (Instance.query instance)
-//     |> Bindings.bind "write" (Instance.write instance)
-//     |> Bindings.bind "allStatements" (Instance.allStatements instance)
-//     |> Bindings.bind "match" (Instance.matchCommand instance)
-
-let standardPrelude () =
-    bindStandardLibrary (Bindings.newBindings ())
-
-// let instancePrelude (instance: ILigature): Bindings = 
-//     bindStandardLibrary (Bindings.newBindings ())
-//     |> bindInstanceLevelFunctions instance

@@ -102,26 +102,39 @@ let rec evalExpression bindings expression =
         match error with
         | None -> Ok((BendValue.Array(res), bindings))
         | Some(err) -> Error(err)
-//    | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
-    | Expression.Record(_) -> failwith "Implement eval for record"
+    | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
+    | Expression.Record(values) -> handleRecord bindings values
     | Expression.When(conditionals) -> handleWhen bindings conditionals
     | Expression.Application(values) -> handleApplication bindings values
+
+and handleRecord bindings values =
+    let res = List.map (fun (name, expr) -> 
+        match evalExpression bindings expr with
+        | Error(err) -> failwith "TODO"
+        | Ok((res, _))    -> (name, res)) values
+    let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
+    Ok (BendValue.Record (v), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
     match List.tryHead values with
     | Some(Expression.Name(functionName)) ->
-        match Bindings.read functionName bindings with
-        // | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
+        match read functionName bindings with
+        | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
         | Some(BendValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
-        | _ -> failwith ""
+        | Some(_) -> failwith "Not Implemented"
+        | None -> failwith $"Function {functionName} not found."
     | Some(_) -> error "Invalid Application." None
     | None -> error "Should never reach, evaling empty Application." None
 
-and evalHostFunction bindings hostFunction arguments = failwith "TODO"
-    // match hostFunction.Run arguments bindings with
-    // | Ok(res) -> Ok(res, bindings)
-    // | Error(err) -> Error(err)
+and evalHostFunction bindings hostFunction arguments =
+    let values = List.map (fun arg -> 
+        match evalExpression bindings arg with
+        | Ok((value, _)) -> value
+        | Error(err) -> failwith "TODO") arguments
+    match hostFunction.Run values bindings with
+    | Ok(res) -> Ok(res, bindings)
+    | Error(err) -> Error(err)
 
 and evalLambda bindings parameters body arguments =
     let mutable i = 0
@@ -143,8 +156,8 @@ and evalLambda bindings parameters body arguments =
         List.iteri (fun i arg -> scope <- Bindings.bind (List.item i parameters) arg bindings) (Array.toList args)
         evalExpression scope body
 
-// and handleLambda bindings parameters body =
-//     Ok(BendValue.Lambda(parameters, body), bindings)
+and handleLambda bindings parameters body =
+    Ok(BendValue.Lambda(parameters, body), bindings)
 
 and handleWhen bindings conditionals =
     match List.tryFind (fun (condition, body) -> 

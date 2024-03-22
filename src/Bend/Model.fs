@@ -7,27 +7,6 @@ open Identifier
 open Error
 
 [<RequireQualifiedAccess>]
-type BendValue =
-    | Int of int64
-    | String of string
-    | Bool of bool
-    | Identifier of Identifier
-    | Statement of Ligature.Statement
-    | Nothing
-//    | Lambda of paramters: string list * body: Expression
-    | HostFunction of HostFunction
-    | Array of BendValue list
-    | Record of Map<string, BendValue>
-    //TODO add Record
-    //TODO add Bytes
-
-and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, BendError>) =
-    member _.Run args bindings = eval args bindings
-
-type Parameter =
-    { name: string; tag: string }
-
-[<RequireQualifiedAccess>]
 type Expression =
     | Nothing
     | Int of int64
@@ -44,6 +23,26 @@ type Expression =
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 
+[<RequireQualifiedAccess>]
+type BendValue =
+    | Int of int64
+    | String of string
+    | Bool of bool
+    | Identifier of Identifier
+    | Statement of Ligature.Statement
+    | Nothing
+    | Lambda of paramters: string list * body: Expression
+    | HostFunction of HostFunction
+    | Array of BendValue list
+    | Record of Map<string, BendValue>
+    //TODO add Bytes
+
+and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, BendError>) =
+    member _.Run args bindings = eval args bindings
+
+type Parameter =
+    { name: string; tag: string }
+
 type Bindings = Bindings.Bindings<string, BendValue>
 
 let rec prettyPrint (value: BendValue): string =
@@ -53,11 +52,12 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Bool b -> sprintf "%b" b
     | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
     | BendValue.Nothing -> "Nothing"
-//    | BendValue.Lambda(_, _) -> "Lambda"
+    | BendValue.Lambda(_, _) -> "Lambda"
     | BendValue.HostFunction(_) -> "HostFunction"
     | BendValue.Array(values) -> $"[{printValues values}]"
     | BendValue.Statement(_) -> failwith "Not Implemented"
-    | BendValue.Record(_) -> failwith "Not Implemented"
+    | BendValue.Record(values) -> 
+        "{" + values.ToString () + "}"
 
 and printValues values =
     List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values
