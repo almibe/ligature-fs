@@ -2,11 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-namespace WanderPad
+namespace LigaturePad
 
 open Ligature.Bend.Main
 open Ligature.Bend.Bindings
 open Ligature.Bend.Lib.Preludes
+open Ligature.InMemory
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Themes.Fluent
@@ -22,6 +23,9 @@ module Main =
         ResultText: string
     }
 
+    let runScript script = 
+        run script (instancePrelude (new LigatureInMemory ()))
+
     let view () =
         Component(fun ctx ->
             let state = ctx.useState ({ EditorText = ""; ResultText = "" })
@@ -35,7 +39,7 @@ module Main =
                             Button.create [
                                 Button.onClick (fun _ ->
                                     let editorText = state.Current.EditorText
-                                    let res = printResult (run editorText (bindStandardLibrary (newBindings ())))
+                                    let res = printResult (runScript editorText)
                                     state.Set({ ResultText = res; EditorText = editorText})) //state.Current.EditorText }))
                                 Button.content "Run"
                                 Button.horizontalAlignment HorizontalAlignment.Stretch
