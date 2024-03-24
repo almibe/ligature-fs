@@ -6,22 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Backend.fs" />
-    <Compile Include="Config.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Argu" Version="6.1.1" />
-    <PackageReference Include="Giraffe" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\Lig\Lig.fsproj" />
     <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
     <ProjectReference Include="..\Bend\Bend.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Radline" Version="0.7.0" />
+    <PackageReference Include="Spectre.Console" Version="0.48.0" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
   </ItemGroup>
 
 </Project>
