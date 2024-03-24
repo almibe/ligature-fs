@@ -6,6 +6,9 @@ module Ligature.TestSuite
 
 open Expecto
 open Ligature
+open FSharpPlus
+open Ligature.Bend.Main
+open Ligature.Bend.Lib.Preludes
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -23,6 +26,30 @@ let statement (entity: string) (attribute: string) (value: Value) =
     { Entity = e
       Attribute = a
       Value = value }
+
+let rec allFiles dirs =
+    if Seq.isEmpty dirs then Seq.empty else
+        seq { yield! dirs |> Seq.collect System.IO.Directory.EnumerateFiles
+              yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles }
+
+let bendTestSuite (createInstance: Unit -> ILigature) =
+    let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+    // printf "%A" ligatureTestSuite
+    // printf "%A" (allFiles [ligatureTestSuite] |> Seq.filter (fun file -> printf "%s" file; String.endsWith ".bend" file ))
+    if ligatureTestSuite <> null then
+        allFiles [ligatureTestSuite]
+        |> Seq.filter (fun file -> String.endsWith ".bend" file)
+        |> Seq.map (fun file ->
+            let script = System.IO.File.ReadLines file |> String.concat "\n"
+            testCase $"Test for {file}"
+            <| fun _ ->
+                match run script (standardPrelude ()) with
+                | Ok(_) -> ()
+                | Error(err) -> failwith "Test failed")
+        |> Seq.toList
+        |> testList "Bend tests"
+    else
+        failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
 let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let helloDS = Dataset "hello"
