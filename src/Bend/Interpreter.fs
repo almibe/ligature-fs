@@ -141,6 +141,7 @@ and handleApplication bindings values =
         match readNamePath functionName bindings with
         | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
         | Some(BendValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
+        | Some(BendValue.Array(values)) -> evalArray bindings values arguments
         | Some(_) -> failwith "Not Implemented"
         | None -> failwith $"Function {functionName} not found."
     | Some(_) -> error "Invalid Application." None
@@ -154,6 +155,11 @@ and evalHostFunction bindings hostFunction arguments =
     match hostFunction.Run values bindings with
     | Ok(res) -> Ok(res, bindings)
     | Error(err) -> Error(err)
+
+and evalArray bindings array arguments =
+    match arguments with
+    | [Expression.Int(index)] -> Ok(array.Item(int32(index)), bindings)
+    | _ -> failwith ""
 
 and evalLambda bindings parameters body arguments =
     let mutable i = 0
