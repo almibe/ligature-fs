@@ -45,7 +45,7 @@ let bendTestSuite (createInstance: Unit -> ILigature) =
             <| fun _ ->
                 match run script (standardPrelude ()) with
                 | Ok(_) -> ()
-                | Error(err) -> failwith "Test failed")
+                | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Bend tests"
     else
