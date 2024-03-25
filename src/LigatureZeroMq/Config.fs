@@ -12,8 +12,6 @@ type CliArguments =
     | Port of port:string
     | Sqlite of file:string
     | In_Memory
-    | Single_User
-    | No_Auth
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -21,19 +19,11 @@ type CliArguments =
             | Port _ -> "specify access port."
             | Sqlite _ -> "use Sqlite3 for storage using the passed file."
             | In_Memory -> "use a temporary in-memeory only store."
-            | Single_User -> "start server in single user mode."
-            | No_Auth -> failwith "start server with no authenication."
-
-type Auth = | NoAuth
-
-type Mode = | SingleUser
 
 type Persistance = | Sqlite of connectionString: LigatureSqliteConfig
 
 type Config =
     { url: string
-      auth: Auth
-      mode: Mode
       persistance: Persistance }
 
 let defaultDBFile () =
@@ -43,6 +33,4 @@ let defaultDBFile () =
 
 let readConfig () =
     { url = "http://localhost:4200"
-      auth = NoAuth
-      mode = SingleUser
       persistance = Sqlite (File (defaultDBFile ())) }
