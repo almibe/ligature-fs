@@ -18,7 +18,7 @@ type Element =
 | String of string
 | Int of int64
 | Bool of bool
-| Identifier of Identifier.Identifier
+| Identifier of Ligature.Identifier
 | Array of Element list
 | Let of string * Element
 | When of (Element * Element) list

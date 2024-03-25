@@ -5,8 +5,8 @@
 module Ligature.Bend.LexerUtil
 
 open System.Text.RegularExpressions
-open Identifier
 open Error
+open Ligature
 
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
@@ -18,7 +18,7 @@ let identifierNibbler = Nibblers.between '`' identifierCharacterNibbler '`'
 
 //TODO the below Nibbler is incorrect
 let stringContentNibbler =
-    Nibblers.takeWhile (fun c -> identifierPattern.IsMatch(c.ToString()))
+    Nibblers.takeWhile (fun c -> Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%= ]$", RegexOptions.Compiled).IsMatch(c.ToString()))
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.

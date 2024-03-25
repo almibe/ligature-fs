@@ -34,6 +34,7 @@ let identifier =
 
 let readIdentifier (Identifier identifier) = identifier
 
+[<RequireQualifiedAccess>]
 type Value =
     | Identifier of Identifier
     | String of string
@@ -54,7 +55,6 @@ let statement entity attribute value =
 
 type IQueryTx =
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
-
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
 //TODO add MatchStatementsRange

@@ -6,6 +6,7 @@ module Ligature.Bend.Interpreter
 
 open Ligature.Bend.Model
 open Ligature.Bend.Bindings
+open Ligature
 open Error
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>) =
@@ -142,10 +143,24 @@ and handleApplication bindings values =
         | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
         | Some(BendValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
         | Some(BendValue.Array(values)) -> evalArray bindings values arguments
+        | Some(BendValue.Identifier(entity)) -> evalStatement bindings entity arguments
         | Some(_) -> failwith "Not Implemented"
         | None -> failwith $"Function {functionName} not found."
+    | Some(Expression.Identifier(entity)) -> evalStatement bindings entity arguments
     | Some(_) -> error "Invalid Application." None
     | None -> error "Should never reach, evaling empty Application." None
+
+and evalStatement bindings (entity: Identifier) arguments =
+    match arguments with
+    | [Expression.Identifier(attribute); value: Expression] ->
+        let value = 
+            match value with
+            | Expression.Identifier(value) -> Value.Identifier(value)
+            | Expression.Int(value) -> Value.Integer(value)
+            | Expression.String(value) -> Value.String(value)
+            | _ -> failwith ""
+        Ok((BendValue.Statement({ Entity = entity; Attribute = attribute; Value = value } ), bindings))
+    | _ -> failwith ""
 
 and evalHostFunction bindings hostFunction arguments =
     let values = List.map (fun arg -> 

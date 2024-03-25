@@ -3,8 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Bend.Model
-open Identifier
 open Error
+open Ligature
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -12,7 +12,7 @@ type Expression =
     | Int of int64
     | String of string
     | Bool of bool
-    | Identifier of Identifier.Identifier
+    | Identifier of Identifier
     | Let of name: string * value: Expression
     | NamePath of string list
     | Grouping of Expression list
@@ -55,9 +55,18 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Lambda(_, _) -> "Lambda"
     | BendValue.HostFunction(_) -> "HostFunction"
     | BendValue.Array(values) -> $"[{printValues values}]"
-    | BendValue.Statement(_) -> failwith "Not Implemented"
+    | BendValue.Statement(statement) -> printStatement statement
     | BendValue.Record(values) -> 
         "{" + values.ToString () + "}"
+
+and printStatement statement =
+    $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+
+and printLigatureValue value =
+    match value with
+    | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
+    | Value.Integer(value) -> value.ToString()
+    | Value.String(value) -> $"\"{value}\"" //TODO escape properly
 
 and printValues values =
     List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values
