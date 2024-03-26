@@ -8,7 +8,7 @@ open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
-let writeIdentifier identifier = "<" + (readLabel identifier) + ">"
+let writeIdentifier identifier = "<" + (readIdentifier identifier) + ">"
 
 let writeString string =
     let chars = [| for c in string -> c |]
@@ -26,19 +26,19 @@ let writeBytes bytes = todo
 
 let writeValue (value: Value) =
     match value with
-    | Label(identifier) -> writeIdentifier identifier
-    | String(string) -> writeString string
-    | Integer(int64) -> int64.ToString()
+    | Value.Identifier(identifier) -> writeIdentifier identifier
+    | Value.String(string) -> writeString string
+    | Value.Integer(int64) -> int64.ToString()
 //| Bytes(bytes) -> writeBytes bytes
 
-let writeStatement (statement: Edge) =
-    writeIdentifier (statement.Source)
+let writeStatement (statement: Statement) =
+    writeIdentifier (statement.Entity)
     + " "
-    + writeIdentifier (statement.Label)
+    + writeIdentifier (statement.Attribute)
     + " "
-    + writeValue (statement.Target)
+    + writeValue (statement.Value)
 
-let writeLig (statements: List<Edge>) =
+let writeLig (statements: Statement list) =
     let sb = System.Text.StringBuilder()
 
     for statement in statements do

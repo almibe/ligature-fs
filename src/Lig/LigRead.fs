@@ -26,7 +26,7 @@ let stringContentNibbler =
 let stringNibbler =
     Gaze.map (Nibblers.between '"' stringContentNibbler '"') (fun c -> System.String(c |> List.toArray))
 
-let stringValueNibbler = Gaze.map stringNibbler (fun s -> String(s))
+let stringValueNibbler = Gaze.map stringNibbler (fun s -> Value.String(s))
 
 let charInRange char start stop = char >= start && char <= stop
 
@@ -43,7 +43,7 @@ let integerNibbler =
         (fun i -> charListToInt i)
 //Int64.fromNumber(unwrap(Number.parse(String.implode(Array.fromList(List.flatten(i)))))))
 
-let integerValueNibbler = Gaze.map integerNibbler (fun i -> Integer(i))
+let integerValueNibbler = Gaze.map integerNibbler (fun i -> Value.Integer(i))
 
 let bytesNibbler =
     Nibblers.takeAll
@@ -64,7 +64,7 @@ let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')
 let readIdentifier gaze =
     match Gaze.attempt identifierNibbler gaze with
     | Error(_) -> error "Could not read Identifier." None
-    | Ok(result) -> label (System.String(List.toArray result))
+    | Ok(result) -> identifier (System.String(List.toArray result))
 
 /// <summary>Reads a Value in lig format from a Gaze of chars.
 /// This could be an Identifier, String, Byte Array, or Integer.</summary>
@@ -74,7 +74,7 @@ let readValue gaze =
     let id = readIdentifier gaze
 
     match id with
-    | Ok(i) -> Ok(Label(i))
+    | Ok(i) -> Ok(Value.Identifier(i))
     | Error(_) ->
         match (Gaze.attempt valueNibbler gaze) with
         | Error _ -> error "Could not read Value." None
@@ -103,17 +103,17 @@ let readLig (lig: string) =
         Gaze.attempt whitespaceNibbler gaze |> ignore //TODO don't ignore
         let attribute = readIdentifier gaze
         Gaze.attempt whitespaceNibbler gaze |> ignore //TODO don't ignore
-        let value = readValue gaze
+        let value: Result<Value, _> = readValue gaze
 
         Gaze.attempt (Nibblers.repeat (Nibblers.takeWhile (fun c -> c = ' ' || c = '\t' || c = '\n' || c = '\r'))) gaze
         |> ignore
 
         match (entity, attribute, value) with
-        | ((Ok _), (Ok _), (Ok _)) ->
-            let statement: Edge =
-                { Source = unwrap (entity)
-                  Label = unwrap (attribute)
-                  Target = unwrap (value) }
+        | ((Ok entity), (Ok attribute), (Ok value)) ->
+            let statement: Statement =
+                { Entity = entity
+                  Attribute = attribute
+                  Value = value }
             statements <- List.append statements [ statement ]
         | _ -> ()
     
