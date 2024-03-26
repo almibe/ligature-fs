@@ -5,7 +5,6 @@
 module Ligature.Bend.LexerUtil
 
 open System.Text.RegularExpressions
-open Error
 open Ligature
 
 let identifierPattern =

@@ -5,7 +5,7 @@
 module Ligature.Bend.Lib.Bool
 open Ligature.Bend.Model
 open Ligature.Bend
-open Ligature.Bend.Error
+open Ligature
 
 let notFunction = Model.BendValue.HostFunction (
     new Model.HostFunction((fun args _ ->

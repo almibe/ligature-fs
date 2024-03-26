@@ -7,7 +7,6 @@ module Ligature.Bend.Interpreter
 open Ligature.Bend.Model
 open Ligature.Bend.Bindings
 open Ligature
-open Error
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>) =
     match read (List.head namePath) bindings with
@@ -29,9 +28,9 @@ let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>)
     | None -> None
 
 let rec evalExpression bindings expression =
-    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, BendError> =
+    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, LigatureError> =
         if List.length args <> List.length parameters then
-            todo
+            failwith "todo"
         else if List.isEmpty args && List.isEmpty parameters then
             Ok bindings
         else
@@ -211,7 +210,7 @@ and handleWhen bindings conditionals =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(BendValue * Bindings.Bindings<_, _>), BendError> =
+    : Result<(BendValue * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
     | 0 -> Ok(BendValue.Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)

@@ -3,7 +3,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Bend.Model
-open Error
 open Ligature
 
 [<RequireQualifiedAccess>]
@@ -37,7 +36,7 @@ type BendValue =
     | Record of Map<string, BendValue>
     //TODO add Bytes
 
-and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, BendError>) =
+and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, LigatureError>) =
     member _.Run args bindings = eval args bindings
 
 type Parameter =

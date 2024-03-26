@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Error.fs" />
     <Compile Include="Bindings.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="LexerUtil.fs" />

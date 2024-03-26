@@ -5,9 +5,9 @@
 module Ligature.Bend.Main
 
 open Ligature.Bend.Model
-open Error
 open Parser
 open Lexer
+open Ligature
 
 let run (input: string) (bindings: Bindings) =
     match tokenize input with
@@ -32,7 +32,7 @@ let introspect (input: string) =
         | Error err -> { tokens = Ok tokens; elements = Error (string err) }
     | Error err -> { tokens = Error (string err); elements = Error (string err) }
 
-let printResult (result: Result<BendValue, BendError>) =
+let printResult (result: Result<BendValue, LigatureError>) =
     match result with
     | Ok value -> prettyPrint value
     | Error err -> err.UserMessage
