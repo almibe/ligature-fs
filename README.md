@@ -29,7 +29,7 @@ test suite for the other project.
 | Lig               | Support for the Lig serialization language.                        |
 | Ligature          | Main code base including the main logic and types.                 |
 | LigatureFable     | A project for producing JavaScript code using Fable 4.             |
-| LigatureHttp      | A web backend for working with Ligature.                           |
+| LigatureZeroMQ    | A backend of Ligature using ZeroMQ.                                |
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
 | LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
 | LigaturePad       | A simple desktop appplication for testing Ligature.                |
@@ -60,22 +60,13 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Lig/LigRead.fs`
 
-## LigatureHttp
+## LigatureZeroMQ
 
-LigatureHttp is a project that allows running Bend code against an instance of Ligature via HTTP.
+LigatureZeroMQ is a project that allows running Bend code against an instance of Ligature via [ZeroMQ]().
 
-### Running LigatureHttp
+### Running LigatureZeroMQ
 
-`dotnet run --project src/LigatureHttp`
-
-### Building LigatureHttp
-
-To build for your current platform
-
-```
-cd src/LigatureHttp
-dotnet publish
-```
+`dotnet run --project src/LigatureZeroMQ`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
 

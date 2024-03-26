@@ -8,7 +8,6 @@ open Expecto
 open Ligature
 open Bend.Parser
 open Bend.Lexer
-open Bend.Identifier
 
 let unsafe result =
     match result with

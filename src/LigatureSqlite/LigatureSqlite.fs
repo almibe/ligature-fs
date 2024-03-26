@@ -147,6 +147,5 @@ let ligatureSqlite (config: LigatureSqliteConfig) : ILigature =
             let builder = new SQLiteConnectionStringBuilder()
             builder.DataSource <- path
             new LigatureSqlite(new SQLiteConnection(builder.ToString()))
-
     instance.initialize () |> ignore
     instance

@@ -13,11 +13,11 @@ let readValue (rd: IDataReader) : Result<Value, LigatureError> =
     let valueIdentifier =
         rd.ReadStringOption "value_identifier" |> Option.map identifier
 
-    let valueString = rd.ReadStringOption "value_string" |> Option.map String
-    let valueInteger = rd.ReadInt64Option "value_integer" |> Option.map Integer
+    let valueString = rd.ReadStringOption "value_string" |> Option.map Value.String
+    let valueInteger = rd.ReadInt64Option "value_integer" |> Option.map Value.Integer
 
     match (valueIdentifier, valueString, valueInteger) with
-    | (Some(i), _, _) -> Result.map Identifier i
+    | (Some(i), _, _) -> Result.map Value.Identifier i
     | (_, Some(s), _) -> Ok(s)
     | (_, _, Some(i)) -> Ok(i)
     | _ -> error "Could not read value." None
@@ -66,7 +66,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
         match value with
-        | Identifier(value) ->
+        | Value.Identifier(value) ->
             let id = lookupIdentifier value
 
             match id with
@@ -77,12 +77,12 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                       "value_integer", SqlType.Null ]
             | Ok(None) -> failwith "todo"
             | Error(err) -> Error(err)
-        | String(value) ->
+        | Value.String(value) ->
             Ok
                 [ "value_identifier", SqlType.Null
                   "value_string", SqlType.String value
                   "value_integer", SqlType.Null ]
-        | Integer(value) ->
+        | Value.Integer(value) ->
             Ok
                 [ "value_identifier", SqlType.Null
                   "value_string", SqlType.Null

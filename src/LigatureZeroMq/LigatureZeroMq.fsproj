@@ -6,20 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Backend.fs" />
     <Compile Include="Config.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Argu" Version="6.1.1" />
-    <PackageReference Include="Giraffe" Version="6.0.0" />
     <PackageReference Include="NetMQ" Version="4.0.1.13" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\Lig\Lig.fsproj" />
     <ProjectReference Include="..\LigatureSqlite\LigatureSqlite.fsproj" />
     <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
     <ProjectReference Include="..\Bend\Bend.fsproj" />

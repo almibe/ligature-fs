@@ -54,7 +54,7 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
         match value with
-        | Identifier(value) ->
+        | Value.Identifier(value) ->
             let id = checkIdentifier value
 
             match id with
@@ -64,12 +64,12 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
                       "value_string", SqlType.Null
                       "value_integer", SqlType.Null ]
             | Error(err) -> Error(err)
-        | String(value) ->
+        | Value.String(value) ->
             Ok
                 [ "value_identifier", SqlType.Null
                   "value_string", SqlType.String value
                   "value_integer", SqlType.Null ]
-        | Integer(value) ->
+        | Value.Integer(value) ->
             Ok
                 [ "value_identifier", SqlType.Null
                   "value_string", SqlType.Null

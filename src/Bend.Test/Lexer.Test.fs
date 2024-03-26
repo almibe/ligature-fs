@@ -2,11 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lexer.Test
+module Ligature.Bend.Lexer.Test
 
 open Expecto
 open Ligature.Bend.Lexer
-open Ligature.Bend.Identifier
+open Ligature
 
 let ident id =
     Token.Identifier(

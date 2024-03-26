@@ -7,8 +7,8 @@ module Ligature.Bend.Preludes.Test
 open Expecto
 open Ligature.Bend.Model
 open Ligature.Bend.Main
-open Ligature.Bend.Identifier
 open Ligature.Bend.Lib.Preludes
+open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
