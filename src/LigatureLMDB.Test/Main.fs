@@ -15,5 +15,13 @@ let tests =
         instance.initialize () |> ignore
         instance)
 
+[<Tests>]
+let bendTests = 
+    bendTestSuite (fun () ->
+        let instance = new LigatureLMDB()
+        instance.initialize () |> ignore
+        instance)
+
 [<EntryPoint>]
-let main argv = runTestsInAssembly defaultConfig argv
+let main argv =
+    runTestsInAssemblyWithCLIArgs [] argv
