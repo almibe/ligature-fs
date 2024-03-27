@@ -6,10 +6,12 @@ module Ligature.Bend.Lib.Preludes
 open Ligature.Bend
 open Bool
 open Ligature
+open Test
 
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Bool" boolLib
+    |> Bindings.bind "Test" testLib
 
 let standardPrelude () =
     bindStandardLibrary (Bindings.newBindings ())

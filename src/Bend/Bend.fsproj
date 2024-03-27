@@ -13,6 +13,7 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="lib/Bool.fs" />
+    <Compile Include="lib/Test.fs" />
     <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Preludes.fs" />
     <Compile Include="Bend.fs" />

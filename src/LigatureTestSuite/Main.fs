@@ -10,13 +10,11 @@ open FSharpPlus
 open Ligature.Bend.Main
 open Ligature.Bend.Lib.Preludes
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 /// Unsafe helper function for creating Identifiers.
 let id ident =
     match identifier ident with
     | Ok(i) -> i
-    | Error(_) -> todo
+    | Error(_) -> failwith "error making Identifier"
 
 /// Unsafe helper function for creating statements for testing.
 let statement (entity: string) (attribute: string) (value: Value) =
@@ -56,10 +54,10 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let hello2DS = Dataset "hello2"
     let hello3DS = Dataset "hello3"
 
-    let jvName = statement "character:1" "name" (String "Jean Valjean")
-    let jvNumber = statement "character:1" "prisonerNumber" (Integer 24601)
-    let javertName = statement "character:2" "name" (String "Inspector Javert")
-    let nemesis = statement "character:2" "hasNemesis" (id "character:1" |> Identifier)
+    let jvName = statement "character:1" "name" (Value.String "Jean Valjean")
+    let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601)
+    let javertName = statement "character:2" "name" (Value.String "Inspector Javert")
+    let nemesis = statement "character:2" "hasNemesis" (id "character:1" |> Value.Identifier)
     let statements = List.sort [ jvName; jvNumber; javertName; nemesis ]
 
     testList
@@ -104,7 +102,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-              let statement = statement "a" "b" (Identifier(id "a"))
+              let statement = statement "a" "b" (Value.Identifier(id "a"))
               let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
               Expect.isOk writeRes "Could not write statements."
               let result = instance.Query helloDS (fun tx -> tx.AllStatements())
@@ -113,7 +111,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-              let statement = statement "a" "b" (Integer 12345)
+              let statement = statement "a" "b" (Value.Integer 12345)
               let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
               Expect.isOk writeRes "Could not write statements."
               let result = instance.Query helloDS (fun tx -> tx.AllStatements())
@@ -122,7 +120,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-              let statement = statement "a" "b" (String "hello, world")
+              let statement = statement "a" "b" (Value.String "hello, world")
               let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
               Expect.isOk writeRes "Could not write statements."
               let result = instance.Query helloDS (fun tx -> tx.AllStatements())

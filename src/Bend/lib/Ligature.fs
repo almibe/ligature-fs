@@ -130,8 +130,8 @@ let matchCommand (instance: ILigature) = BendValue.HostFunction (
     )
 )
 
-/// A Native Function that write Statements to a Dataset.
-/// Example: addStatements("dataset" (<a> <b> <c>)(<a> <b> "Test") (<a> <b> 432))
+/// A Host Function that writes Statements to a Dataset.
+/// Example: Ligature.addStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
 let addStatementsFun (instance: ILigature) = BendValue.HostFunction (
     new HostFunction(fun args _ ->
         match args with
@@ -156,36 +156,27 @@ let addStatementsFun (instance: ILigature) = BendValue.HostFunction (
         | _ -> error "Improper call to addStatements." None
     ))
 
-/// A Native Function that write Statements to a Dataset.
-/// Example: addStatements("dataset" (<a> <b> <c>)(<a> <b> "Test") (<a> <b> 432))
+/// A Host Function that removes Statements from a Dataset.
+/// Example: Ligature.removeStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
 let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
     new HostFunction(fun args _ ->
-        let datasetName = args.Head
-        let statements = args.Tail.Head
-        match (datasetName, statements) with
-        | (BendValue.String(name)), BendValue.Array(statements) ->
+        match args with
+        | [BendValue.String(name); BendValue.Array(statements)] ->
+            printf "%A %A" name statements
             let dataset = Dataset(name)
             let writeRes = instance.Write dataset (fun tx ->
-                let rec addStatement statements =
+                let rec removeStatements statements =
                     if not (List.isEmpty statements) then
                         let statement = statements.Head
-                        // match statements.Head with
-                        // | Tuple(statement) ->
                         match statement with
-                        | BendValue.Array(statement) ->
-                            let entity = statement.Head
-                            let attribute = statement.Tail.Head
-                            let value = statement.Tail.Tail.Head
-                            match (entity, attribute, value) with
-                            | (BendValue.Identifier(entity), BendValue.Identifier(attribute), BendValue.Identifier(value)) ->
-                                match tx.AddStatement (Ligature.statement entity attribute (Value.Identifier(value))) with
-                                | Ok _ -> addStatement statements.Tail
-                                | Error err -> Error err
-                            | _ -> error "Invalid Statement contents." None
+                        | BendValue.Statement(statement) ->
+                            match tx.RemoveStatement statement with
+                            | Ok _ -> removeStatements statements.Tail
+                            | Error err -> failwith "TODO"
                         | _ -> error "Error Statements must be expressed as Tuples." None
                     else
                         Ok ()
-                addStatement statements)
+                removeStatements statements)
             match writeRes with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err

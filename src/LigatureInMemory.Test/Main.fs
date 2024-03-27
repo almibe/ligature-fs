@@ -10,5 +10,9 @@ open Ligature.TestSuite
 [<Tests>]
 let tests = ligatureTestSuite (fun () -> new LigatureInMemory())
 
+[<Tests>]
+let bendTests = bendTestSuite (fun () -> new LigatureInMemory())
+
 [<EntryPoint>]
-let main argv = runTestsInAssembly defaultConfig argv
+let main argv = 
+    runTestsInAssemblyWithCLIArgs [] argv
