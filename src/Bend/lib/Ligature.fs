@@ -144,23 +144,13 @@ let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
         | [BendValue.String(name); BendValue.Array(statements)] ->
             printf "%A %A" name statements
             let dataset = Dataset(name)
-            failwith "todo"
-            // let writeRes = instance.Write dataset (fun tx ->
-            //     let rec removeStatements statements =
-            //         if not (List.isEmpty statements) then
-            //             let statement = statements.Head
-            //             match statement with
-            //             | BendValue.Statement(statement) ->
-            //                 match tx.RemoveStatement statement with
-            //                 | Ok _ -> removeStatements statements.Tail
-            //                 | Error err -> failwith "TODO"
-            //             | _ -> error "Error Statements must be expressed as Tuples." None
-            //         else
-            //             Ok ()
-            //     removeStatements statements)
-            // match writeRes with
-            // | Ok _ -> Ok BendValue.Nothing
-            // | Error err -> Error err
+            let statements = List.map (fun value -> 
+                match value with
+                | BendValue.Statement(statement) -> statement
+                | _ -> failwith "todo") statements
+            match instance.RemoveStatements dataset statements with
+            | Ok _ -> Ok BendValue.Nothing
+            | Error err -> Error err
         | _ -> error "Improper call to removeStatements." None
     ))
 

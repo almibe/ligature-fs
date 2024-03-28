@@ -11,11 +11,116 @@ open System.Data.SQLite
 open System.Data
 open Donald
 open FsToolkit.ErrorHandling
+open Ligature.Sqlite.WriteTx
+open System
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
     let datasetDataReader (rd: IDataReader) : string = rd.ReadString "name"
+
+    let getLastRowId () : Result<int64, LigatureError> =
+        let sql = "select last_insert_rowid()"
+
+        let result =
+            conn |> Db.newCommand sql |> Db.scalar Convert.ToInt64
+
+        Result.mapError (fun err -> todo) result
+
+
+    let createIdentifier (identifier: Identifier) : Result<int64, LigatureError> =
+        let sql = "insert into identifier (identifier) values (@identifier)"
+        let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
+
+        let results =
+            conn
+            |> Db.newCommand sql
+            |> Db.setParams param
+            |> Db.exec
+
+        match results with
+        | Ok(_) -> getLastRowId ()
+        | Error(_) -> error $"Could not create Identifier {identifier}." None
+
+    let checkIdentifier (identifier: Identifier) : Result<int64, LigatureError> =
+        let sql = "select *, rowid from identifier where identifier = @identifier"
+        let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
+
+        let results =
+            conn
+            |> Db.newCommand sql
+            |> Db.setParams param
+            |> Db.query (fun x -> x.ReadInt64 "rowid")
+
+        match results with
+        | Ok([]) -> createIdentifier identifier
+        | Ok([ id ]) -> Ok(id)
+        | Ok(_) -> todo
+        | Error(err) -> error $"Error checking for identifier {(readIdentifier identifier)}." (Some $"DBError - {err}")
+
+    let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
+        match value with
+        | Value.Identifier(value) ->
+            let id = checkIdentifier value
+
+            match id with
+            | Ok(id) ->
+                Ok
+                    [ ("value_identifier", SqlType.Int64 id);
+                    ("value_string", SqlType.Null);
+                    ("value_integer", SqlType.Null) ]
+            | Error(err) -> Error(err)
+        | Value.String(value) ->
+            Ok
+                [ ("value_identifier", SqlType.Null);
+                ("value_string", SqlType.String value);
+                ("value_integer", SqlType.Null) ]
+        | Value.Integer(value) ->
+            Ok
+                [ ("value_identifier", SqlType.Null);
+                ("value_string", SqlType.Null);
+                ("value_integer", SqlType.Int64 value) ]
+
+    let deleteStatement
+        datasetId
+        entityId
+        attributeId
+        (valueParam: (string * SqlType) list)
+        : Result<unit, LigatureError> =
+        let sql =
+            "delete from statement where
+            dataset = @dataset and
+            entity = @entity and
+            attribute = @attribute and
+            "
+
+        let valueQuery =
+            valueParam
+            |> List.filter (fun (_, t) -> t = SqlType.Null |> not)
+            |> List.head
+            |> fst
+            |> fun v -> $"{v} = @{v}"
+
+        let sql = sql + valueQuery
+
+        let param =
+            List.append
+                [ "dataset", SqlType.Int64 datasetId
+                  "entity", SqlType.Int64 entityId
+                  "attribute", SqlType.Int64 attributeId ]
+                valueParam
+
+        let result =
+            conn
+            |> Db.newCommand sql
+            |> Db.setParams param
+            |> Db.exec
+
+        Result.mapError
+            (fun err ->
+                { UserMessage = $"Could not remove Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
+            result
 
     let lookupDataset (Dataset dataset) tx : Result<int64, LigatureError> =
         let sql = "select rowid, name from dataset where name = @name"
@@ -145,15 +250,23 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             // | _ -> todo
 
         member _.RemoveStatements (dataset: Dataset) (statements: Statement list) : Result<unit, LigatureError> =
-            failwith "todo"
-            // let entityId = checkIdentifier statement.Entity
-            // let attributeId = checkIdentifier statement.Attribute
-            // let valueParams = createValueParams statement.Value
+            let dbTx = conn.TryBeginTransaction()
+            let datasetId =  
+                match lookupDataset dataset dbTx with
+                | Ok id -> id
+                | Error err -> failwith ""
+            for statement in statements do
+                let entityId = checkIdentifier statement.Entity
+                let attributeId = checkIdentifier statement.Attribute
+                let valueParams = createValueParams statement.Value
 
-            // match (entityId, attributeId, valueParams) with
-            // | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
-            //     deleteStatement datasetId entityId attributeId valueParams
-            // | _ -> todo
+                match (entityId, attributeId, valueParams) with
+                | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
+                    match deleteStatement datasetId entityId attributeId valueParams with
+                    | Ok _ -> ()
+                    | Error _ -> failwith "todo"
+                | _ -> todo
+            Ok ()
 
         member _.Query dataset query =
             let dbTx = conn.TryBeginTransaction()

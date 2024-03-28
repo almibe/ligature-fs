@@ -32,8 +32,6 @@ let rec allFiles dirs =
 
 let bendTestSuite (createInstance: Unit -> ILigature) =
     let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
-    // printf "%A" ligatureTestSuite
-    // printf "%A" (allFiles [ligatureTestSuite] |> Seq.filter (fun file -> printf "%s" file; String.endsWith ".bend" file ))
     if ligatureTestSuite <> null then
         allFiles [ligatureTestSuite]
         |> Seq.filter (fun file -> String.endsWith ".bend" file)
