@@ -50,29 +50,18 @@ let valueToWanderValue (value: Value): BendValue =
     | Value.Integer i -> BendValue.Int i
     | Value.String s -> BendValue.String s
 
-let rec statementsToList (statements: Statement list) (results: BendValue list): BendValue list =
-    if List.isEmpty statements then
-        results
-    else
-        let statement = statements.Head
-        let entity = BendValue.Identifier(statement.Entity)
-        let attribute = BendValue.Identifier(statement.Attribute)
-        let value = valueToWanderValue statement.Value
-        statementsToList (statements.Tail) (List.append results [BendValue.Array[entity; attribute; value]])
-
 let allStatementsFun (instance: ILigature) = BendValue.HostFunction (
     new HostFunction(fun args _ ->
-        let datasetName = args.Head
-        match datasetName with
-        | BendValue.String(name) ->
+        match args with
+        | [BendValue.String(name)] ->
             let dataset = Dataset name
-            instance.Query dataset (fun tx ->
-                match tx.AllStatements () with
-                | Ok(statements) ->
-                    Ok(BendValue.Array(statementsToList statements []))
-                | Error(err) -> Error(err)
-            )
-        | _ -> error "Improper arguments could not run allStatements." None
+            match instance.AllStatements dataset with
+            | Ok(statements) ->
+                statements
+                |> List.map (fun statement -> BendValue.Statement(statement))
+                |> fun statements -> Ok(BendValue.Array(statements))
+            | Error(err) -> Error(err)
+        | _ -> failwith "todo"
     ))
 
 let matchStatements (query: IQueryTx) = BendValue.HostFunction (
@@ -137,20 +126,11 @@ let addStatementsFun (instance: ILigature) = BendValue.HostFunction (
         match args with
         | [(BendValue.String(name)); BendValue.Array(statements)] ->
             let dataset = Dataset(name)
-            let writeRes = instance.Write dataset (fun tx ->
-                let rec addStatements statements =
-                    if not (List.isEmpty statements) then
-                        let statement = statements.Head
-                        match statement with
-                        | BendValue.Statement(statement) -> 
-                            match tx.AddStatement statement with
-                            | Ok _ -> addStatements statements.Tail
-                            | Error err -> Error err
-                        | _ -> error "Add Statements only accepts Statements." None
-                    else
-                        Ok ()
-                addStatements statements)
-            match writeRes with
+            let statements = List.map (fun value -> 
+                match value with
+                | BendValue.Statement(statement) -> statement
+                | _ -> failwith "todo") statements
+            match instance.AddStatements dataset statements with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err
         | _ -> error "Improper call to addStatements." None
@@ -164,22 +144,23 @@ let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
         | [BendValue.String(name); BendValue.Array(statements)] ->
             printf "%A %A" name statements
             let dataset = Dataset(name)
-            let writeRes = instance.Write dataset (fun tx ->
-                let rec removeStatements statements =
-                    if not (List.isEmpty statements) then
-                        let statement = statements.Head
-                        match statement with
-                        | BendValue.Statement(statement) ->
-                            match tx.RemoveStatement statement with
-                            | Ok _ -> removeStatements statements.Tail
-                            | Error err -> failwith "TODO"
-                        | _ -> error "Error Statements must be expressed as Tuples." None
-                    else
-                        Ok ()
-                removeStatements statements)
-            match writeRes with
-            | Ok _ -> Ok BendValue.Nothing
-            | Error err -> Error err
+            failwith "todo"
+            // let writeRes = instance.Write dataset (fun tx ->
+            //     let rec removeStatements statements =
+            //         if not (List.isEmpty statements) then
+            //             let statement = statements.Head
+            //             match statement with
+            //             | BendValue.Statement(statement) ->
+            //                 match tx.RemoveStatement statement with
+            //                 | Ok _ -> removeStatements statements.Tail
+            //                 | Error err -> failwith "TODO"
+            //             | _ -> error "Error Statements must be expressed as Tuples." None
+            //         else
+            //             Ok ()
+            //     removeStatements statements)
+            // match writeRes with
+            // | Ok _ -> Ok BendValue.Nothing
+            // | Error err -> Error err
         | _ -> error "Improper call to removeStatements." None
     ))
 

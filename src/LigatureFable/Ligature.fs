@@ -2,29 +2,25 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature
+module Ligature.Fable
 
 type ScriptResult =
   | String of string
   | Integer of int64
   | Nothing
-//  | Identifier of Identifier
+  | Identifier of string
   | Boolean of bool
-  | List
-  | Tuple
-  | Graph
+  | Array of ScriptResult seq
+  | Graph 
 
-let readScriptResult (input: string) =
+let readScriptResult (input: string) = failwith ""
     //TODO read nothing
     //TODO read integer
     //TODO read string
     //TODO read identifier
     //TODO read boolean
     //TODO read list
-    //TODO read tuple
-    //TODO read lig
-    ScriptResult.List
-
+    //TODO read array
 
 // module Ligature.Bend.Fable
 

@@ -191,29 +191,3 @@ type LigatureSqliteWriteTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 { UserMessage = $"Could not remove Statement."
                   DebugMessage = (Some $"DB Error - {err}") })
             result
-
-    interface IWriteTx with
-        member _.NewIdentifier() : Result<Identifier, LigatureError> = Guid.NewGuid().ToString() |> identifier
-
-        member _.AddStatement(statement: Statement) : Result<unit, LigatureError> =
-            let entityId = checkIdentifier statement.Entity
-            let attributeId = checkIdentifier statement.Attribute
-            let valueParams = createValueParams statement.Value
-
-            match (entityId, attributeId, valueParams) with
-            | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
-                match statementExists datasetId entityId attributeId valueParams with
-                | Ok(true) -> Ok()
-                | Ok(false) -> insertStatement datasetId entityId attributeId valueParams
-                | Error(err) -> Error(err)
-            | _ -> todo
-
-        member _.RemoveStatement(statement: Statement) : Result<unit, LigatureError> =
-            let entityId = checkIdentifier statement.Entity
-            let attributeId = checkIdentifier statement.Attribute
-            let valueParams = createValueParams statement.Value
-
-            match (entityId, attributeId, valueParams) with
-            | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
-                deleteStatement datasetId entityId attributeId valueParams
-            | _ -> todo

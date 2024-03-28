@@ -106,6 +106,56 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Ok(false) -> Ok()
             | Error(error) -> Error(error)
 
+        member _.AllStatements dataset =
+            let sql =
+                "select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,
+                Statement.value_string as value_string, Statement.value_integer as value_integer from Dataset
+                inner join Statement on Dataset.rowid = Statement.dataset 
+                inner join Identifier as Entity on statement.entity = Entity.rowid 
+                inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
+                left join Identifier as Value on Statement.value_identifier = Value.rowid
+                where dataset.name = @name"
+
+            let param = [ "name", SqlType.String(datasetName) ]
+
+            let results =
+                conn
+                |> Db.newCommand sql
+                |> Db.setParams param
+                |> Db.setTransaction tx
+                |> Db.query statementDataReader //TODO use Db.read not Db.query
+
+            match results with
+            | Ok(r) -> List.traverseResultM (fun r -> r) r
+            | Error(dbError) -> error "Error reading Statements." (Some $"DB Error - {dbError}")
+
+        member _.NewIdentifier dataset : Result<Identifier, LigatureError> = failwith "todo"//Guid.NewGuid().ToString() |> identifier
+
+        member _.AddStatements (dataset: Dataset) (statements: Statement list) =
+            failwith "todo"
+            // let entityId = checkIdentifier statement.Entity
+            // let attributeId = checkIdentifier statement.Attribute
+            // let valueParams = createValueParams statement.Value
+
+            // match (entityId, attributeId, valueParams) with
+            // | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
+            //     match statementExists datasetId entityId attributeId valueParams with
+            //     | Ok(true) -> Ok()
+            //     | Ok(false) -> insertStatement datasetId entityId attributeId valueParams
+            //     | Error(err) -> Error(err)
+            // | _ -> todo
+
+        member _.RemoveStatements (dataset: Dataset) (statements: Statement list) : Result<unit, LigatureError> =
+            failwith "todo"
+            // let entityId = checkIdentifier statement.Entity
+            // let attributeId = checkIdentifier statement.Attribute
+            // let valueParams = createValueParams statement.Value
+
+            // match (entityId, attributeId, valueParams) with
+            // | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
+            //     deleteStatement datasetId entityId attributeId valueParams
+            // | _ -> todo
+
         member _.Query dataset query =
             let dbTx = conn.TryBeginTransaction()
             let datasetId = lookupDataset dataset dbTx
@@ -118,18 +168,18 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 res
             | Error(err) -> Error(err)
 
-        member _.Write dataset write =
-            let dbTx = conn.TryBeginTransaction()
-            let datasetId = lookupDataset dataset dbTx
-            match datasetId with
-            | Ok(id) ->
-                let tx = new LigatureSqliteWriteTx(dataset, id, conn, dbTx)
-                match write tx with
-                | Ok _ ->
-                    dbTx.Commit()
-                    Ok()
-                | Error(err) -> Error(err)
-            | Error(err) -> Error(err)
+        // member _.Write dataset write =
+        //     let dbTx = conn.TryBeginTransaction()
+        //     let datasetId = lookupDataset dataset dbTx
+        //     match datasetId with
+        //     | Ok(id) ->
+        //         let tx = new LigatureSqliteWriteTx(dataset, id, conn, dbTx)
+        //         match write tx with
+        //         | Ok _ ->
+        //             dbTx.Commit()
+        //             Ok()
+        //         | Error(err) -> Error(err)
+        //     | Error(err) -> Error(err)
 
         member _.Close() =
             conn.Close()

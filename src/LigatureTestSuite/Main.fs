@@ -41,7 +41,7 @@ let bendTestSuite (createInstance: Unit -> ILigature) =
             let script = System.IO.File.ReadLines file |> String.concat "\n"
             testCase $"Test for {file}"
             <| fun _ ->
-                match run script (standardPrelude ()) with
+                match run script (instancePrelude (createInstance ())) with
                 | Ok(_) -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
@@ -96,47 +96,42 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               instance.CreateDataset(helloDS) |> ignore
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               Expect.equal result (Ok []) "Newly created Dataset should be empty."
           testCase "add Statement with Identifier Value to instance"
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.Identifier(id "a"))
-              let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+              let writeRes = instance.AddStatements helloDS [statement]
               Expect.isOk writeRes "Could not write statements."
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
           testCase "add Statement with Integer Value to instance"
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.Integer 12345)
-              let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+              let writeRes = instance.AddStatements helloDS [statement]
               Expect.isOk writeRes "Could not write statements."
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
           testCase "add Statement with String Value to instance"
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.String "hello, world")
-              let writeRes = instance.Write helloDS (fun tx -> tx.AddStatement statement)
+              let writeRes = instance.AddStatements helloDS [statement]
               Expect.isOk writeRes "Could not write statements."
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
           testCase "add multiple Statements to Dataset"
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-
-              let writeRes =
-                  instance.Write helloDS (fun tx ->
-                      List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                      Ok())
-
+              let writeRes = instance.AddStatements helloDS statements
               Expect.isOk writeRes "Could not write statements."
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               let result = Result.map (fun statements -> List.sort statements) result
               Expect.equal result (Ok statements) "Dataset should contain new Statements."
           testCase "add new Statements to Dataset with dupes"
@@ -144,14 +139,11 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               instance.CreateDataset(helloDS) |> ignore
 
-              instance.Write helloDS (fun tx ->
-                  List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                  List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                  List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                  Ok())
-              |> ignore
+              ignore <| instance.AddStatements helloDS statements
+              ignore <| instance.AddStatements helloDS statements
+              ignore <| instance.AddStatements helloDS statements
 
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               let result = Result.map (fun statements -> List.sort statements) result
               Expect.equal result (Ok statements) "Dataset should contain new Statements."
           //TODO - add new Identifier test
@@ -160,13 +152,10 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               instance.CreateDataset(helloDS) |> ignore
 
-              instance.Write helloDS (fun tx ->
-                  List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                  tx.RemoveStatement nemesis |> ignore
-                  Ok())
-              |> ignore
+              ignore <| instance.AddStatements helloDS statements
+              ignore <| instance.RemoveStatements helloDS [nemesis]
 
-              let result = instance.Query helloDS (fun tx -> tx.AllStatements())
+              let result = instance.AllStatements helloDS
               let result = Result.map (fun statements -> List.sort statements) result
 
               Expect.equal
@@ -178,10 +167,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               instance.CreateDataset(helloDS) |> ignore
 
-              instance.Write helloDS (fun tx ->
-                  List.iter (fun statement -> tx.AddStatement statement |> ignore) statements
-                  Ok())
-              |> ignore
+              ignore <| instance.AddStatements helloDS statements
 
               let results = instance.Query helloDS (fun tx -> tx.MatchStatements None None None)
               let results = Result.map (fun statements -> List.sort statements) results

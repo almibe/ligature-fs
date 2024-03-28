@@ -6,12 +6,8 @@ module Ligature.InMemory
 
 open Ligature
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
 type LigatureInMemoryQueryTx(statements: Set<Statement>) =
     interface IQueryTx with
-        member _.AllStatements() = Ok(List.ofSeq statements)
-
         member _.MatchStatements entity attribute value =
             let results =
                 match entity with
@@ -29,22 +25,6 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 | None -> results
 
             List.ofSeq results |> Ok
-
-type LigatureInMemoryWriteTx(dataset: Dataset, datasets: Map<Dataset, Set<Statement>> ref) =
-    interface IWriteTx with
-        member _.NewIdentifier() = todo
-
-        member _.AddStatement statement =
-            let statements = Map.find dataset datasets.Value
-            let statements = Set.add statement statements
-            datasets.Value <- Map.add dataset statements datasets.Value
-            Ok()
-
-        member _.RemoveStatement statement =
-            let statements = Map.find dataset datasets.Value
-            let statements = Set.remove statement statements
-            datasets.Value <- Map.add dataset statements datasets.Value
-            Ok()
 
 type LigatureInMemory() =
     let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
@@ -72,10 +52,24 @@ type LigatureInMemory() =
             let tx = new LigatureInMemoryQueryTx(Map.find dataset datasets.Value)
             query tx
 
-        member this.Write dataset write =
-            lock this (fun () ->
-                let tx = new LigatureInMemoryWriteTx(dataset, datasets)
-                write tx)
+        member _.AllStatements dataset = 
+            match Map.tryFind dataset datasets.Value with
+            | Some(result) -> Ok(Set.toList result)
+            | None -> failwith ""
+
+        member _.NewIdentifier data = failwith "todo"
+
+        member _.AddStatements dataset statements =
+            let contents = Map.find dataset datasets.Value
+            let contents = Set.union contents (Set.ofSeq statements)
+            datasets.Value <- Map.add dataset contents datasets.Value
+            Ok()
+
+        member _.RemoveStatements dataset statements =
+            let contents = Map.find dataset datasets.Value
+            let contents = Set.difference contents (Set.ofSeq statements)
+            datasets.Value <- Map.add dataset contents datasets.Value
+            Ok()
 
         member this.Close() =
             lock this (fun () ->

@@ -96,29 +96,6 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         |> fun v -> $"{v} = @{v}"
 
     interface IQueryTx with
-        member _.AllStatements() =
-            let sql =
-                "select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,
-                Statement.value_string as value_string, Statement.value_integer as value_integer from Dataset
-                inner join Statement on Dataset.rowid = Statement.dataset 
-                inner join Identifier as Entity on statement.entity = Entity.rowid 
-                inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
-                left join Identifier as Value on Statement.value_identifier = Value.rowid
-                where dataset.name = @name"
-
-            let param = [ "name", SqlType.String(datasetName) ]
-
-            let results =
-                conn
-                |> Db.newCommand sql
-                |> Db.setParams param
-                |> Db.setTransaction tx
-                |> Db.query statementDataReader //TODO use Db.read not Db.query
-
-            match results with
-            | Ok(r) -> List.traverseResultM (fun r -> r) r
-            | Error(dbError) -> error "Error reading Statements." (Some $"DB Error - {dbError}")
-
         member _.MatchStatements entity attribute value =
             //TODO I'm not handling errors properly in this function
             let entity = Option.map (fun e -> lookupIdentifier e) entity

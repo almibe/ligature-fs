@@ -54,19 +54,11 @@ let statement entity attribute value =
     }
 
 type IQueryTx =
-    abstract member AllStatements: unit -> Result<Statement list, LigatureError>
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
 //TODO add MatchStatementsRange
 
-type IWriteTx =
-    abstract member NewIdentifier: unit -> Result<Identifier, LigatureError>
-    abstract member AddStatement: Statement -> Result<unit, LigatureError>
-    abstract member RemoveStatement: Statement -> Result<unit, LigatureError>
-
 type Query<'R> = IQueryTx -> Result<'R, LigatureError>
-
-type Write = IWriteTx -> Result<unit, LigatureError>
 
 type ILigature =
     abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
@@ -74,5 +66,8 @@ type ILigature =
     abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
     abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
     abstract member Query: Dataset -> Query<'r> -> Result<'r, LigatureError>
-    abstract member Write: Dataset -> Write -> Result<unit, LigatureError>
+    abstract member AllStatements: Dataset -> Result<Statement list, LigatureError>
+    abstract member NewIdentifier: Dataset -> Result<Identifier, LigatureError>
+    abstract member AddStatements: Dataset -> Statement list -> Result<unit, LigatureError>
+    abstract member RemoveStatements: Dataset -> Statement list -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
