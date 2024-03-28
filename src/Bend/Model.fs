@@ -55,8 +55,12 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.HostFunction(_) -> "HostFunction"
     | BendValue.Array(values) -> $"[{printValues values}]"
     | BendValue.Statement(statement) -> printStatement statement
-    | BendValue.Record(values) -> 
-        "{" + values.ToString () + "}"
+    | BendValue.Record(values) -> printRecord values
+
+and printRecord values =
+    "{ " + Map.fold 
+        (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
+         + "}"
 
 and printStatement statement =
     $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"

@@ -10,6 +10,7 @@ open Ligature.Sqlite.WriteTx
 open System.Data.SQLite
 open System.Data
 open Donald
+open FsToolkit.ErrorHandling
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -115,14 +116,12 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
                 left join Identifier as Value on Statement.value_identifier = Value.rowid
                 where dataset.name = @name"
-
+            let (Dataset datasetName) = dataset
             let param = [ "name", SqlType.String(datasetName) ]
-
             let results =
                 conn
                 |> Db.newCommand sql
                 |> Db.setParams param
-                |> Db.setTransaction tx
                 |> Db.query statementDataReader //TODO use Db.read not Db.query
 
             match results with
