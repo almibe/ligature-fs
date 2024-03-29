@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="LigatureSqliteQueryTx.fs" />
-    <Compile Include="LigatureSqliteWriteTx.fs" />
     <Compile Include="LigatureSqlite.fs" />
   </ItemGroup>
   <ItemGroup>

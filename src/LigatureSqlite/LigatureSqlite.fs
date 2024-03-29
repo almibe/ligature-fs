@@ -6,15 +6,11 @@ module Ligature.Sqlite.Main
 
 open Ligature
 open Ligature.Sqlite.QueryTx
-open Ligature.Sqlite.WriteTx
 open System.Data.SQLite
 open System.Data
 open Donald
 open FsToolkit.ErrorHandling
-open Ligature.Sqlite.WriteTx
 open System
-
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
     let datasetDataReader (rd: IDataReader) : string = rd.ReadString "name"
@@ -25,13 +21,12 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         let result =
             conn |> Db.newCommand sql |> Db.scalar Convert.ToInt64
 
-        Result.mapError (fun err -> todo) result
+        Result.mapError (fun err -> failwith "todo") result
 
 
     let createIdentifier (identifier: Identifier) : Result<int64, LigatureError> =
         let sql = "insert into identifier (identifier) values (@identifier)"
         let param = [ "identifier", SqlType.String(readIdentifier identifier) ]
-
         let results =
             conn
             |> Db.newCommand sql
@@ -55,7 +50,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         match results with
         | Ok([]) -> createIdentifier identifier
         | Ok([ id ]) -> Ok(id)
-        | Ok(_) -> todo
+        | Ok(_) -> failwith "todo"
         | Error(err) -> error $"Error checking for identifier {(readIdentifier identifier)}." (Some $"DBError - {err}")
 
     let createValueParams (value: Value) : Result<(string * SqlType) list, LigatureError> =
@@ -80,6 +75,78 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 [ ("value_identifier", SqlType.Null);
                 ("value_string", SqlType.Null);
                 ("value_integer", SqlType.Int64 value) ]
+
+    let statementExists
+        datasetId
+        entityId
+        attributeId
+        (valueParam: (string * SqlType) list)
+        : Result<bool, LigatureError> =
+        let sql =
+            "select count(*) from statement where
+            dataset = @dataset and
+            entity = @entity and
+            attribute = @attribute and
+            "
+
+        let valueQuery =
+            valueParam
+            |> List.filter (fun (_, t) -> t = SqlType.Null |> not)
+            |> List.head
+            |> fst
+            |> fun v -> $"{v} = @{v}"
+
+        let sql = sql + valueQuery
+        let param =
+            List.append
+                [ "dataset", SqlType.Int64 datasetId
+                  "entity", SqlType.Int64 entityId
+                  "attribute", SqlType.Int64 attributeId ]
+                valueParam
+
+        let result =
+            conn
+            |> Db.newCommand sql
+            |> Db.setParams param
+            |> Db.scalar Convert.ToInt64
+
+        let result = Result.map (fun res -> res > 0L) result
+
+        Result.mapError
+            (fun err ->
+                { UserMessage = "Could not insert Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
+            result
+
+    let insertStatement
+        datasetId
+        entityId
+        attributeId
+        (valueParam: (string * SqlType) list)
+        : Result<unit, LigatureError> =
+        let sql =
+            "insert into statement
+            (dataset, entity, attribute, value_identifier, value_string, value_integer)
+            values (@dataset, @entity, @attribute, @value_identifier, @value_string, @value_integer) on conflict do nothing"
+
+        let param =
+            List.append
+                [ "dataset", SqlType.Int64 datasetId
+                  "entity", SqlType.Int64 entityId
+                  "attribute", SqlType.Int64 attributeId ]
+                valueParam
+
+        let result =
+            conn
+            |> Db.newCommand sql
+            |> Db.setParams param
+            |> Db.exec
+
+        Result.mapError
+            (fun err ->
+                { UserMessage = "Could not insert Statement."
+                  DebugMessage = (Some $"DB Error - {err}") })
+            result
 
     let deleteStatement
         datasetId
@@ -154,7 +221,10 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         attribute int not null,
         value_identifier int,
         value_string String,
-        value_integer int
+        value_integer int,
+        unique(dataset, entity, attribute, value_identifier),
+        unique(dataset, entity, attribute, value_string),
+        unique(dataset, entity, attribute, value_integer)
         );"
 
         conn |> Db.newCommand sql |> Db.exec
@@ -236,18 +306,23 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
         member _.NewIdentifier dataset : Result<Identifier, LigatureError> = failwith "todo"//Guid.NewGuid().ToString() |> identifier
 
         member _.AddStatements (dataset: Dataset) (statements: Statement list) =
-            failwith "todo"
-            // let entityId = checkIdentifier statement.Entity
-            // let attributeId = checkIdentifier statement.Attribute
-            // let valueParams = createValueParams statement.Value
+            let dbTx = conn.TryBeginTransaction()
+            let datasetId =  
+                match lookupDataset dataset dbTx with
+                | Ok id -> id
+                | Error err -> failwith ""
+            for statement in statements do
+                let entityId = checkIdentifier statement.Entity
+                let attributeId = checkIdentifier statement.Attribute
+                let valueParams = createValueParams statement.Value
 
-            // match (entityId, attributeId, valueParams) with
-            // | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
-            //     match statementExists datasetId entityId attributeId valueParams with
-            //     | Ok(true) -> Ok()
-            //     | Ok(false) -> insertStatement datasetId entityId attributeId valueParams
-            //     | Error(err) -> Error(err)
-            // | _ -> todo
+                match (entityId, attributeId, valueParams) with
+                | (Ok(entityId), Ok(attributeId), Ok(valueParams)) ->
+                    match insertStatement datasetId entityId attributeId valueParams with
+                    | Ok _ -> ()
+                    | Error err -> failwith $"Error - {err}"
+                | _ -> failwith "todo"
+            Ok ()
 
         member _.RemoveStatements (dataset: Dataset) (statements: Statement list) : Result<unit, LigatureError> =
             let dbTx = conn.TryBeginTransaction()
@@ -265,7 +340,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                     match deleteStatement datasetId entityId attributeId valueParams with
                     | Ok _ -> ()
                     | Error _ -> failwith "todo"
-                | _ -> todo
+                | _ -> failwith "todo"
             Ok ()
 
         member _.Query dataset query =
