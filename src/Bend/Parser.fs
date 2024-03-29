@@ -8,6 +8,8 @@ open Lexer
 open FsToolkit.ErrorHandling
 open Model
 open Nibblers
+open Ligature
+open System.Collections
 
 [<RequireQualifiedAccess>]
 type Element =
@@ -24,6 +26,7 @@ type Element =
 | When of (Element * Element) list
 | Lambda of string list * Element
 | Record of (string * Element) list
+| Pipe
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -73,6 +76,9 @@ let readWhen gaze =
                 return Element.When(conditions)
             })
         gaze
+
+let readPipe =
+    Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
 
 let lambdaNib gaze =
     Gaze.attempt
@@ -174,8 +180,8 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let applicationInnerNib = takeFirst [
+    readPipe;
     readValue; 
-   // readAssignment; 
     namePathNib;
     arrayNib; 
     recordNib;
@@ -201,7 +207,7 @@ let scriptNib = repeatSep elementNib Token.Comma
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list): Result<Element list, Gaze.GazeError> =
+let parse (tokens: Token list): Result<Element list, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -215,40 +221,61 @@ let parse (tokens: Token list): Result<Element list, Gaze.GazeError> =
         Ok [Element.Nothing]
     else
         let gaze = Gaze.fromList tokens
-        Gaze.attempt scriptNib gaze
+        match Gaze.attempt scriptNib gaze with
+        | Ok res ->
+            if Gaze.isComplete gaze then
+                Ok res
+            else
+                error $"Failed to parse completely. {Gaze.isComplete gaze} {Gaze.remaining gaze}" None
+        | Error _ -> error "Failed to parse." None
 
 /// Helper function that handles tokienization for you.
 let parseString (input: string) =
     match tokenize input with
     | Ok tokens -> parse tokens
-    | Error err -> Error err //error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 //    printfn "%A" (sprintf "%A" (tokenize input))
 
 let expressArray values =
-    let res = List.map (fun value -> express value) values
+    let res = List.map (fun value -> expressElement value) values
     Expression.Array res
 
 let expressGrouping values =
-    let res = List.map (fun value -> express value) values
+    let res = List.map (fun value -> expressElement value) values
     Expression.Grouping res
 
 let handleRecord (declarations: list<string * Element>) =
-    let res = List.map (fun (name, value) -> (name, (express value))) declarations
+    let res = List.map (fun (name, value) -> (name, (expressElement value))) declarations
     Expression.Record res
 
 let handleLambda (parameters: string list) body =
-    Expression.Lambda (parameters, (express body))
+    Expression.Lambda (parameters, (expressElement body))
 
 let handleWhen (conditionals: list<Element * Element>) =
-    let conditionals = List.map (fun (condition, body) -> ((express condition), (express body))) conditionals
+    let conditionals = List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
     Expression.When conditionals
 
 let expressApplication elements =
-    let res = List.map (fun element -> express element) elements
+    let res = List.map (fun element -> expressElement element) elements
     Expression.Application res
 
+let express (elements: Element list): Expression list =
+    let gaze = Gaze.fromList elements
+    let results = new Generic.List<Expression>()
+    while not (Gaze.isComplete gaze) do
+        match Gaze.next gaze with
+        | Ok(Element.Pipe) -> failwith "Illegal element."
+        | Ok(element) ->
+            match Gaze.peek gaze with
+            | Ok(Element.Pipe) -> 
+                printf "Hello"
+                failwith "TODO"
+            | _ -> results.Add(expressElement element)
+        | Error _ -> failwith ""
+    Seq.toList results
+
 /// This will eventually handle processing pipe operators
-let express (element: Element) =
+let rec  expressElement (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
     | Element.Bool value -> Expression.Bool value
@@ -256,10 +283,11 @@ let express (element: Element) =
     | Element.Nothing -> Expression.Nothing
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Let(name,value) -> Expression.Let(name, (express value))
+    | Element.Let(name,value) -> Expression.Let(name, (expressElement value))
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.When(conditionals) -> handleWhen conditionals
+    | Element.Pipe -> failwith "Not Implemented"

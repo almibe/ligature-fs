@@ -117,7 +117,11 @@ let tests =
               let tokens = tokenize "when ( true => 5, false => 6 )"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.When([(Element.Bool(true), Element.Int(5)); (Element.Bool(false), Element.Int(6))])])) ""
-
+          testCase "Parse pipes"
+          <| fun _ ->
+              let tokens = tokenize "|||"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Application [Element.Pipe; Element.Pipe; Element.Pipe;]])) ""
         //   testCase "Parse Integers"
         //   <| fun _ ->
         //       Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""

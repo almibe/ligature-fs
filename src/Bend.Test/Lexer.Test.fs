@@ -105,5 +105,11 @@ let tests =
           testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")
-              Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5) ])) "" 
+              Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5) ])) ""
+          testCase "return error on invalid input"
+          <| fun _ ->
+              Expect.isError (tokenize "\"") ""
+          testCase "read pipe expression"
+          <| fun _ ->
+              Expect.equal (tokenize "|") (Ok([ Token.Pipe ])) ""
 ]

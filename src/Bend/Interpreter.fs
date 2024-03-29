@@ -129,8 +129,8 @@ let rec evalExpression bindings expression =
 and handleRecord bindings values =
     let res = List.map (fun (name, expr) -> 
         match evalExpression bindings expr with
-        | Error(err) -> failwith "TODO"
-        | Ok((res, _))    -> (name, res)) values
+        | Error(err)   -> failwith "TODO"
+        | Ok((res, _)) -> (name, res)) values
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
     Ok (BendValue.Record (v), bindings)
 

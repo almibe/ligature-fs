@@ -34,6 +34,7 @@ type Token =
     | Nothing
     | Lambda
     | Comma
+    | Pipe
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -110,6 +111,7 @@ let tokenNibbler =
                 takeAndMap "{" Token.OpenBrace
                 takeAndMap "}" Token.CloseBrace
                 takeAndMap ":" Token.Colon
+                takeAndMap "|" Token.Pipe
                 takeAndMap "?" Token.QuestionMark
                 takeAndMap "=" Token.EqualsSign
                 takeAndMap "\\" Token.Lambda
@@ -120,4 +122,10 @@ let tokenNibbler =
 
 let tokenize script =
     let gaze = Gaze.fromString (script)
-    Gaze.attempt tokenNibbler gaze
+    match Gaze.attempt tokenNibbler gaze with
+    | Ok res  ->
+        if Gaze.isComplete gaze then
+            Ok res
+        else
+            error "Error tokenizing." None
+    | Error _ -> error "Error tokenizing." None

@@ -14,7 +14,7 @@ let run (input: string) (bindings: Bindings) =
     | Ok tokens ->
         match parse tokens with
         | Ok ast ->
-            let expressions = List.map (fun element -> express element) ast
+            let expressions = express ast
             Result.map (fun (res, _) -> res) (Interpreter.evalExpressions bindings expressions)
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
