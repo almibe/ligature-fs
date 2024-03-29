@@ -256,23 +256,25 @@ let handleWhen (conditionals: list<Element * Element>) =
     Expression.When conditionals
 
 let expressApplication elements =
-    let res = List.map (fun element -> expressElement element) elements
-    Expression.Application res
+    let parts = new Generic.List<Expression list>()
+    let currentPart = new Generic.List<Expression>()
+    List.iter (fun element ->
+        match element with
+        | Element.Pipe ->
+            let part = List.ofSeq currentPart
+            parts.Add part
+            currentPart.Clear ()
+        | el -> currentPart.Add (expressElement el)) elements
+    parts.Add (List.ofSeq currentPart)
+    // match List.ofSeq parts with
+    // | [] -> Expression.Application (List.ofSeq currentPart)
+    // | parts ->
+    List.fold (fun expr application -> 
+        List.append application [expr]
+        |> Expression.Application) (Expression.Application(parts[0])) (List.ofSeq parts).Tail
 
 let express (elements: Element list): Expression list =
-    let gaze = Gaze.fromList elements
-    let results = new Generic.List<Expression>()
-    while not (Gaze.isComplete gaze) do
-        match Gaze.next gaze with
-        | Ok(Element.Pipe) -> failwith "Illegal element."
-        | Ok(element) ->
-            match Gaze.peek gaze with
-            | Ok(Element.Pipe) -> 
-                printf "Hello"
-                failwith "TODO"
-            | _ -> results.Add(expressElement element)
-        | Error _ -> failwith ""
-    Seq.toList results
+    List.map (fun element -> expressElement element) elements
 
 /// This will eventually handle processing pipe operators
 let rec  expressElement (element: Element) =

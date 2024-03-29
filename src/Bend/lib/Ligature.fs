@@ -142,7 +142,6 @@ let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.String(name); BendValue.Array(statements)] ->
-            printf "%A %A" name statements
             let dataset = Dataset(name)
             let statements = List.map (fun value -> 
                 match value with

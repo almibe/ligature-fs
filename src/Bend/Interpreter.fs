@@ -146,7 +146,7 @@ and handleApplication bindings values =
         | Some(_) -> failwith "Not Implemented"
         | None -> failwith $"Function {functionName} not found."
     | Some(Expression.Identifier(entity)) -> evalStatement bindings entity arguments
-    | Some(_) -> error "Invalid Application." None
+    | Some(head) -> evalExpression bindings head//error $"Invalid Application: {values}." None
     | None -> error "Should never reach, evaling empty Application." None
 
 and evalStatement bindings (entity: Identifier) arguments =

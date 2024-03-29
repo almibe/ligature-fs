@@ -22,15 +22,18 @@ let run (input: string) (bindings: Bindings) =
 type Introspect = {
     tokens: Result<Token list, string>
     elements: Result<Element list, string>
+    expressions: Result<Expression list, string>
 }
 
 let introspect (input: string) =
     match tokenize input with
     | Ok tokens -> 
         match parse tokens with
-        | Ok value -> { tokens = Ok tokens; elements = Ok value }
-        | Error err -> { tokens = Ok tokens; elements = Error (string err) }
-    | Error err -> { tokens = Error (string err); elements = Error (string err) }
+        | Ok elements -> 
+            let expressions = express elements
+            { tokens = Ok tokens; elements = Ok elements; expressions = Ok expressions }
+        | Error err -> { tokens = Ok tokens; elements = Error (string err); expressions = Error (string err) }
+    | Error err -> { tokens = Error (string err); elements = Error (string err); expressions = Error (string err) }
 
 let printResult (result: Result<BendValue, LigatureError>) =
     match result with
