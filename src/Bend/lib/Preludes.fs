@@ -6,13 +6,17 @@ module Ligature.Bend.Lib.Preludes
 
 open Ligature.Bend
 open Bool
+open Identifier
 open Ligature
+open Statement
 open Test
 
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Array" Array.arrayLib
     |> Bindings.bind "Bool" boolLib
+    |> Bindings.bind "Identifier" identifierLib
+    |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "Test" testLib
 
 let standardPrelude () =
