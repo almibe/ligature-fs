@@ -6,7 +6,7 @@ module Ligature.Bend.Lib.Ligature
 open Ligature
 open Ligature.Bend.Model
 
-let datasetsFun (ligature: ILigature) = BendValue.HostFunction (
+let datasetsFun (ligature: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction((fun _ _ ->
         match ligature.AllDatasets () with
         | Ok(datasets) ->
@@ -14,27 +14,27 @@ let datasetsFun (ligature: ILigature) = BendValue.HostFunction (
             |> List.map (fun (Dataset name) -> BendValue.String name)
             |> BendValue.Array
             |> Ok
-        | Error(err) -> failwith "todo")))
+        | Error(err) -> failwith "todo"))))
 
-let createDatasetFun (ligature: ILigature) = BendValue.HostFunction (
+let createDatasetFun (ligature: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.String(datasetName)] ->
             match ligature.CreateDataset (Dataset datasetName) with
             | Ok(_) -> Ok(BendValue.Nothing)
             | Error(errorValue) -> failwith "Not Implemented"
-        | _ -> failwith "TODO")))
+        | _ -> failwith "TODO"))))
 
-let removeDatasetFun (ligature: ILigature) = BendValue.HostFunction (
+let removeDatasetFun (ligature: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.String(datasetName)] ->
             match ligature.RemoveDataset (Dataset datasetName) with
             | Ok(_) -> Ok(BendValue.Nothing)
             | Error(err) -> failwith "todo"
-        | _ -> failwith "")))
+        | _ -> failwith ""))))
 
-let datasetExists (instance: ILigature) = BendValue.HostFunction (
+let datasetExists (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args.Head with
         | BendValue.String(name) -> 
@@ -42,7 +42,7 @@ let datasetExists (instance: ILigature) = BendValue.HostFunction (
             match instance.DatasetExists dataset with
             | Ok(result) -> Ok(BendValue.Bool(result))
             | Error(err) -> Error(err)
-        | _ -> error "Could not check for Dataset" None))
+        | _ -> error "Could not check for Dataset" None)))
 
 let valueToWanderValue (value: Value): BendValue =
     match value with
@@ -50,7 +50,7 @@ let valueToWanderValue (value: Value): BendValue =
     | Value.Integer i -> BendValue.Int i
     | Value.String s -> BendValue.String s
 
-let allStatementsFun (instance: ILigature) = BendValue.HostFunction (
+let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.String(name)] ->
@@ -61,30 +61,29 @@ let allStatementsFun (instance: ILigature) = BendValue.HostFunction (
                 |> List.map (fun statement -> BendValue.Statement(statement))
                 |> fun statements -> Ok(BendValue.Array(statements))
             | Error(err) -> Error(err)
-        | _ -> failwith "todo"
-    ))
+        | _ -> error "Illegal call to allStatements." None
+    )))
 
-let matchStatements (query: IQueryTx) = BendValue.HostFunction (
+let matchStatements (query: IQueryTx) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
-        error "todo - inside match" None
-    )
-)
+        error "todo - inside match" None)))
 
-let queryFun (instance: ILigature) = BendValue.HostFunction (
+let queryFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
         match args with
-        | [BendValue.String(datasetName); BendValue.Lambda(_parameters, body)] ->
+        | [BendValue.String(datasetName); BendValue.Function(Function.Lambda(_parameters, body))] ->
             let dataset = Dataset(datasetName)
             let res = instance.Query dataset (fun tx ->
-                let bindings' = Bend.Bindings.bind "match" (matchStatements tx) bindings
-                error "todo - inside query" None)
+                //let bindings' = Bend.Bindings.bind "match" (matchStatements tx) bindings
+                //error "todo - inside query" None
+                Ok(BendValue.Nothing))
             res
         | _ -> error "Improper arguments could not run query." None
-    ))
+    )))
 
 /// A NativeFunction that does a single match against a given Dataset.
 /// Internally it starts a query transaction and then runs a single function in the tx.
-let matchCommand (instance: ILigature) = BendValue.HostFunction (
+let matchFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
         match args with
         | [ BendValue.String(datasetName); 
@@ -106,22 +105,24 @@ let matchCommand (instance: ILigature) = BendValue.HostFunction (
                     match value with
                     | BendValue.Identifier(i) -> Ok (Some (Value.Identifier i))
                     | BendValue.Nothing -> Ok None
-                    | _ -> failwith "TODO"
+                    | BendValue.Int(value) -> Ok (Some (Value.Integer value))
+                    | BendValue.String(value) -> Ok (Some (Value.String value))
+                    | _ -> error "Invalid Value passed to match." None
                 match (entity, attribute, value) with
                 | (Ok(entity), Ok(attribute), Ok(value)) ->
                     instance.Query dataset (fun tx ->
                         match tx.MatchStatements entity attribute value with
-                        | Ok(results) -> failwith "TODO" //Ok(WanderValue.Tuple(statementsToTuple results []))
+                        | Ok(results) ->
+                            List.map BendValue.Statement results
+                            |> fun values -> Ok(BendValue.Array(values))
                         | Error(err) -> Error(err)
                     )
                 | _ -> error "Could not call match." None //TODO should return actual error
-        | _ -> error "Improper arguments passed to match." None
-    )
-)
+        | _ -> error "Improper arguments passed to match." None)))
 
 /// A Host Function that writes Statements to a Dataset.
 /// Example: Ligature.addStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
-let addStatementsFun (instance: ILigature) = BendValue.HostFunction (
+let addStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [(BendValue.String(name)); BendValue.Array(statements)] ->
@@ -133,12 +134,11 @@ let addStatementsFun (instance: ILigature) = BendValue.HostFunction (
             match instance.AddStatements dataset statements with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err
-        | _ -> error "Improper call to addStatements." None
-    ))
+        | _ -> error "Improper call to addStatements." None)))
 
 /// A Host Function that removes Statements from a Dataset.
 /// Example: Ligature.removeStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
-let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
+let removeStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.String(name); BendValue.Array(statements)] ->
@@ -150,8 +150,7 @@ let removeStatementsFun (instance: ILigature) = BendValue.HostFunction (
             match instance.RemoveStatements dataset statements with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err
-        | _ -> error "Improper call to removeStatements." None
-    ))
+        | _ -> error "Improper call to removeStatements." None)))
 
 let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("datasets", datasetsFun ligature)
@@ -159,6 +158,7 @@ let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("removeDataset", removeDatasetFun ligature)
     ("allStatements", allStatementsFun ligature)
     ("query", queryFun ligature)
+    ("match", matchFun ligature)
     ("addStatements", addStatementsFun ligature)
     ("removeStatements", removeStatementsFun ligature)
 ])

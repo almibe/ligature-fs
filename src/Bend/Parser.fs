@@ -27,6 +27,7 @@ type Element =
 | Lambda of string list * Element
 | Record of (string * Element) list
 | Pipe
+| QuestionMark
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -77,8 +78,9 @@ let readWhen gaze =
             })
         gaze
 
-let readPipe =
-    Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
+let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
+
+let readQuestionMark = Gaze.map (take Token.QuestionMark) (fun _ -> Element.QuestionMark)
 
 let lambdaNib gaze =
     Gaze.attempt
@@ -181,6 +183,7 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let applicationInnerNib = takeFirst [
     readPipe;
+    readQuestionMark;
     readValue; 
     namePathNib;
     arrayNib; 
@@ -293,3 +296,4 @@ let rec  expressElement (element: Element) =
     | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.When(conditionals) -> handleWhen conditionals
     | Element.Pipe -> failwith "Not Implemented"
+    | Element.QuestionMark -> Expression.QuestionMark

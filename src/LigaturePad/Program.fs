@@ -5,9 +5,7 @@
 namespace LigaturePad
 
 open Ligature.Bend.Main
-open Ligature.Bend.Bindings
 open Ligature.Bend.Lib.Preludes
-open Ligature.InMemory
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Themes.Fluent
@@ -18,13 +16,15 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
+    open Ligature.Sqlite.Main
     type EditorState = {
         EditorText: string;
         ResultText: string
     }
 
     let runScript script = 
-        run script (instancePrelude (new LigatureInMemory ()))
+        run script (instancePrelude (ligatureSqlite InMemory))
+//        run script (instancePrelude (new LigatureInMemory ()))
 
     let view () =
         Component(fun ctx ->

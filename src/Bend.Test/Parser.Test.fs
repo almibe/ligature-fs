@@ -122,6 +122,12 @@ let tests =
               let tokens = tokenize "|||"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([Element.Application [Element.Pipe; Element.Pipe; Element.Pipe;]])) ""
+          testCase "Parse question marks"
+          <| fun _ ->
+              let tokens = tokenize "? ?"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([Element.Application [Element.QuestionMark; Element.QuestionMark;]])) ""
+        
         //   testCase "Parse Integers"
         //   <| fun _ ->
         //       Expect.equal (parseString "123") (Ok([ Expression.Value(WanderValue.Integer(123)) ])) ""

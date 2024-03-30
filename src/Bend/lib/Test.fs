@@ -6,7 +6,7 @@ module Ligature.Bend.Lib.Test
 open Ligature.Bend.Model
 open Ligature
 
-let equalFun = BendValue.HostFunction (
+let equalFun = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.String(desc); left: BendValue; right: BendValue] ->
@@ -14,7 +14,7 @@ let equalFun = BendValue.HostFunction (
                 Ok(BendValue.Nothing)
             else
                 error $"{prettyPrint left} != {prettyPrint right}" None
-        | _ -> error "Invalid call to equal function." None)))
+        | _ -> error "Invalid call to equal function." None))))
 
 let testLib = BendValue.Record (Map [
     ("equal", equalFun)

@@ -351,7 +351,6 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
             | Ok(id) ->
                 let tx = new LigatureSqliteQueryTx(dataset, id, conn, dbTx)
                 let res = query tx
-                dbTx.Rollback()
                 res
             | Error(err) -> Error(err)
 

@@ -27,22 +27,11 @@ let statementDataReader (rd: IDataReader) : Result<Statement, LigatureError> =
         let! entity = rd.ReadString "entity" |> identifier
         let! attribute = rd.ReadString "attribute" |> identifier
         let! value = readValue rd
-
         return
             { Entity = entity
               Attribute = attribute
               Value = value }
     }
-
-// let makeStatement (input: string * string): Result<Statement, LigatureError> = todo
-
-// let rec makeStatements (input: (string * string) list) (statements: Statement array): Result<Statement array, LigatureError> =
-//     if List.isEmpty input then
-//         Ok (statements)
-//     else
-//         match makeStatement (List.head input) with
-//         | Ok(statement) -> makeStatements (List.tail input) (Array.append statements [|statement|])
-//         | Error(error) -> Error(error)
 
 type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
     let (Dataset datasetName) = dataset
@@ -95,26 +84,38 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
         |> fst
         |> fun v -> $"{v} = @{v}"
 
+    // let createValueParam (valueParams: (string * SqlType) list) : string =
+    //     valueParams
+    //     |> List.filter (fun (_, t) -> t = SqlType.Null |> not)
+    //     |> List.head
+    //     |> fst
+    //     |> fun v -> $"{v} = @{v}"
+
+
     interface IQueryTx with
         member _.MatchStatements entity attribute value =
             //TODO I'm not handling errors properly in this function
             let entity = Option.map (fun e -> lookupIdentifier e) entity
             let attribute = Option.map (fun a -> lookupIdentifier a) attribute
             let value = Option.map (fun v -> createValueParams v) value
-
+            let mutable param = [ "name", SqlType.String(datasetName) ]
             let entityQuery =
                 match entity with
-                | Some(entityId) -> "entity = @entity"
-                | None -> ""
-
+                | Some(Ok(Some(entityId))) ->
+                    param <- List.append param ["entity", SqlType.Int64(entityId)]
+                    "entity = @entity"
+                | _ -> ""
             let attributeQuery =
                 match attribute with
-                | Some(attributeId) -> "attribute = @attribute"
-                | None -> ""
-
+                | Some(Ok(Some(attributeId))) ->
+                    param <- List.append param ["attribute", SqlType.Int64(attributeId)]
+                    "attribute = @attribute"
+                | _ -> ""
             let valueQuery =
                 match value with
-                | Some(Ok(value)) -> createValueQuery value
+                | Some(Ok(value)) -> 
+                    param <- List.append param value
+                    createValueQuery value
                 | None -> ""
                 | _ -> failwith "todo" //should never reach?
 
@@ -128,7 +129,7 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                           else
                               " and " + nextElement)
                     ""
-
+            printf "*** %A" queryCondition
             let sql =
                 $"select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,
                 Statement.value_string as value_string, Statement.value_integer as value_integer from Dataset
@@ -136,18 +137,13 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                 inner join Identifier as Entity on statement.entity = Entity.rowid 
                 inner join Identifier as Attribute on Statement.attribute = Attribute.rowid 
                 left join Identifier as Value on Statement.value_identifier = Value.rowid
-                where dataset.name = @name"
-                //{queryCondition}"
-            //let param = [ "dataset", SqlType.Int64 datasetId ] //TODO rewrite query above to use Dataset id not name
-            let param = [ "name", SqlType.String(datasetName) ]
-
+                where dataset.name = @name {queryCondition}"
             let results =
                 conn
                 |> Db.newCommand sql
                 |> Db.setParams param
                 |> Db.setTransaction tx
                 |> Db.query statementDataReader //TODO use Db.read not Db.query
-
             match results with
             | Ok(r) -> List.traverseResultM (fun r -> r) r
-            | Error(dbError) -> error "Error reading Statements." (Some $"DB Error - {dbError}")
+            | Error(dbError) -> error "Error reading Statements." (Some $"DB Error - {dbError}\n{queryCondition}")

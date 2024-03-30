@@ -125,6 +125,7 @@ let rec evalExpression bindings expression =
     | Expression.Record(values) -> handleRecord bindings values
     | Expression.When(conditionals) -> handleWhen bindings conditionals
     | Expression.Application(values) -> handleApplication bindings values
+    | Expression.QuestionMark -> Ok (BendValue.Nothing, bindings)
 
 and handleRecord bindings values =
     let res = List.map (fun (name, expr) -> 
@@ -139,12 +140,12 @@ and handleApplication bindings values =
     match List.tryHead values with
     | Some(Expression.NamePath(functionName)) ->
         match readNamePath functionName bindings with
-        | Some(BendValue.Lambda(parameters, body)) -> evalLambda bindings parameters body arguments
-        | Some(BendValue.HostFunction(hostFunction)) -> evalHostFunction bindings hostFunction arguments
+        | Some(BendValue.Function(Function.Lambda(parameters, body))) -> evalLambda bindings parameters body arguments
+        | Some(BendValue.Function(Function.HostFunction(hostFunction))) -> evalHostFunction bindings hostFunction arguments
         | Some(BendValue.Array(values)) -> evalArray bindings values arguments
         | Some(BendValue.Identifier(entity)) -> evalStatement bindings entity arguments
-        | Some(_) -> failwith "Not Implemented"
-        | None -> failwith $"Function {functionName} not found."
+        | Some(_) -> error "Improper application." None
+        | None -> error $"Function {functionName} not found." None
     | Some(Expression.Identifier(entity)) -> evalStatement bindings entity arguments
     | Some(head) -> evalExpression bindings head//error $"Invalid Application: {values}." None
     | None -> error "Should never reach, evaling empty Application." None
@@ -165,7 +166,7 @@ and evalHostFunction bindings hostFunction arguments =
     let values = List.map (fun arg -> 
         match evalExpression bindings arg with
         | Ok((value, _)) -> value
-        | Error(err) -> failwith "TODO") arguments
+        | Error(err) -> failwith $"Error calling Host Function: {err}") arguments
     match hostFunction.Run values bindings with
     | Ok(res) -> Ok(res, bindings)
     | Error(err) -> Error(err)
@@ -196,7 +197,7 @@ and evalLambda bindings parameters body arguments =
         evalExpression scope body
 
 and handleLambda bindings parameters body =
-    Ok(BendValue.Lambda(parameters, body), bindings)
+    Ok(BendValue.Function(Function.Lambda(parameters, body)), bindings)
 
 and handleWhen bindings conditionals =
     match List.tryFind (fun (condition, body) -> 

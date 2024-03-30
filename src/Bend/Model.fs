@@ -8,6 +8,7 @@ open Ligature
 [<RequireQualifiedAccess>]
 type Expression =
     | Nothing
+    | QuestionMark
     | Int of int64
     | String of string
     | Bool of bool
@@ -24,17 +25,21 @@ type Expression =
 
 [<RequireQualifiedAccess>]
 type BendValue =
+    | QuestionMark
     | Int of int64
     | String of string
     | Bool of bool
     | Identifier of Identifier
     | Statement of Ligature.Statement
     | Nothing
-    | Lambda of paramters: string list * body: Expression
-    | HostFunction of HostFunction
+    | Function of Function
     | Array of BendValue list
     | Record of Map<string, BendValue>
     //TODO add Bytes
+
+and [<RequireQualifiedAccess>] Function =
+    | Lambda of paramters: string list * body: Expression
+    | HostFunction of HostFunction
 
 and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, LigatureError>) =
     member _.Run args bindings = eval args bindings
@@ -51,11 +56,11 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Bool b -> sprintf "%b" b
     | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
     | BendValue.Nothing -> "Nothing"
-    | BendValue.Lambda(_, _) -> "Lambda"
-    | BendValue.HostFunction(_) -> "HostFunction"
     | BendValue.Array(values) -> $"[{printValues values}]"
     | BendValue.Statement(statement) -> printStatement statement
     | BendValue.Record(values) -> printRecord values
+    | BendValue.QuestionMark -> "?"
+    | BendValue.Function(_) -> "Function"
 
 and printRecord values =
     "{ " + Map.fold 
