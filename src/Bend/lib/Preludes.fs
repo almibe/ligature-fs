@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Bend.Lib.Preludes
+
 open Ligature.Bend
 open Bool
 open Ligature
@@ -10,6 +11,7 @@ open Test
 
 let bindStandardLibrary bindings =
     bindings
+    |> Bindings.bind "Array" Array.arrayLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Test" testLib
 

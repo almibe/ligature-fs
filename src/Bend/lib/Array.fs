@@ -4,15 +4,21 @@
 
 module Ligature.Bend.Lib.Array
 open Ligature.Bend.Model
-open Ligature.Bend
 open Ligature
+open FsToolkit.ErrorHandling
 
-let mapFunction = Model.BendValue.HostFunction (
-    new Model.HostFunction((fun args _ ->
+let mapFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args bindings ->
         match args with
-        | [Model.BendValue.(value), Model.BendValue] -> 
-            Ok(Model.BendValue.Bool(not value))
-        | _ -> error "Invalid call to map function." None)))
+        | [BendValue.Function(fn); BendValue.Array(array)] ->
+            match fn with
+            | Function.Lambda(_, _) -> failwith "TODO"
+            | Function.HostFunction(fn) ->
+                List.map (fun value ->
+                    fn.Run [value] bindings) array
+                |> List.traverseResultM (fun x -> x)
+                |> Result.map (fun x -> BendValue.Array x)
+        | _ -> error "Invalid call to map function." None))))
 
 let arrayLib = BendValue.Record (Map [
     ("map", mapFunction)

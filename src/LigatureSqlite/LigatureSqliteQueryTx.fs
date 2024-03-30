@@ -129,7 +129,6 @@ type LigatureSqliteQueryTx(dataset: Dataset, datasetId: int64, conn, tx) =
                           else
                               " and " + nextElement)
                     ""
-            printf "*** %A" queryCondition
             let sql =
                 $"select Entity.identifier as entity, Attribute.identifier as attribute, Value.identifier as value_identifier,
                 Statement.value_string as value_string, Statement.value_integer as value_integer from Dataset
