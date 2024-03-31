@@ -13,11 +13,14 @@
     <Compile Include="Bend.Test.fs" />
     <Compile Include="Instance.Test.fs" />
     <Compile Include="Preludes.Test.fs" />
+    <Compile Include="Encoding.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Expecto" Version="10.*" />
+    <PackageReference Include="Expecto.FsCheck" Version="10.2.1" />
+    <PackageReference Include="FsCheck" Version="2.16.6" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Update="FSharp.Core" Version="8.*" />
