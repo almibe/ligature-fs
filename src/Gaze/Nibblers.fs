@@ -108,6 +108,21 @@ let takeWhileIndex predicate gaze =
 
     if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok(results)
 
+let takeWhileAccum predicate gaze =
+    let mutable cont = true
+    let mutable results = []
+
+    while cont do
+        let next = Gaze.peek (gaze)
+
+        match next with
+        | Ok(value) when predicate (value, results) ->
+            Gaze.next (gaze) |> ignore
+            results <- results @ [ value ]
+        | _ -> cont <- false
+
+    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok(results)
+
 /// <summary>Create a Nibbler that consumes input until the given Nibbler succeeds.</summary>
 /// <param name="nibbler">The Nibbler used to test.</param>
 /// <returns>The newly created Nibbler.</returns>

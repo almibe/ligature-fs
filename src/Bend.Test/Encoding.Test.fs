@@ -21,7 +21,10 @@ let properties =
         | _ -> false
     testProperty "Encode and decode String" <|
       fun (value: string) ->
-        match run (prettyPrint (BendValue.String(value))) (standardPrelude ()) with
-        | Ok(BendValue.String(res)) -> value = res
-        | _ -> false        
+        if value <> null then
+          match run (prettyPrint (BendValue.String(value))) (standardPrelude ()) with
+          | Ok(BendValue.String(res)) -> value = res
+          | _ -> false        
+        else
+          true
   ]

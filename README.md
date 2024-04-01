@@ -58,7 +58,7 @@ Examples running the formatter
 
 Examples running the linter
 
-`dotnet fsharplint lint ./src/Lig/LigRead.fs`
+`dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
 ## LigatureZeroMQ
 

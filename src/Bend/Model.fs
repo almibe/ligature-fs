@@ -4,6 +4,7 @@
 
 module Ligature.Bend.Model
 open Ligature
+open System.Web
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -52,7 +53,7 @@ type Bindings = Bindings.Bindings<string, BendValue>
 let rec prettyPrint (value: BendValue): string =
     match value with
     | BendValue.Int i -> sprintf "%i" i
-    | BendValue.String s -> s
+    | BendValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | BendValue.Bool b -> sprintf "%b" b
     | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
     | BendValue.Nothing -> "Nothing"
