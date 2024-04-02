@@ -19,6 +19,7 @@ type Element =
 | Application of Element list
 | String of string
 | Int of int64
+| Bytes of byte array
 | Bool of bool
 | Identifier of Ligature.Identifier
 | Array of Element list
@@ -175,6 +176,7 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
     match next with
     | Error(err) -> Error err
+    | Ok(Token.Bytes(value)) -> Ok(Element.Bytes(value))
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
@@ -297,3 +299,4 @@ let rec  expressElement (element: Element) =
     | Element.When(conditionals) -> handleWhen conditionals
     | Element.Pipe -> failwith "Not Implemented"
     | Element.QuestionMark -> Expression.QuestionMark
+    | Element.Bytes(bytes) -> Expression.Bytes(bytes)

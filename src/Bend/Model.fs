@@ -11,6 +11,7 @@ type Expression =
     | Nothing
     | QuestionMark
     | Int of int64
+    | Bytes of byte array
     | String of string
     | Bool of bool
     | Identifier of Identifier

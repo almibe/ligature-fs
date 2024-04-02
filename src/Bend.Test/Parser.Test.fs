@@ -28,6 +28,11 @@ let tests =
               let tokens = [ Token.Int(345) ]
               let elements = parse tokens
               Expect.equal elements (Ok([Element.Int(345)])) ""
+          testCase "Parse Bytes"
+          <| fun _ ->
+              let tokens = tokenize "0xFF"
+              let elements = parse (unsafe tokens)
+              Expect.equal elements (Ok([Element.Bytes([|0xFFuy|])])) ""
           testCase "Parse Bool"
           <| fun _ ->
               let tokens = tokenize "true"

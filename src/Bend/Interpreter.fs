@@ -126,6 +126,7 @@ let rec evalExpression bindings expression =
     | Expression.When(conditionals) -> handleWhen bindings conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.QuestionMark -> Ok (BendValue.Nothing, bindings)
+    | Expression.Bytes(value) -> Ok (BendValue.Bytes(value), bindings)
 
 and handleRecord bindings values =
     let res = List.map (fun (name, expr) -> 
