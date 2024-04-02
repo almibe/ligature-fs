@@ -14,5 +14,4 @@ let valueFunction = BendValue.Function(Function.HostFunction (
         | _ -> error "Invalid call to Statement.value function." None))))
 
 let identifierLib = BendValue.Record (Map [
-    ("value", valueFunction)
-])
+    ("value", valueFunction)])

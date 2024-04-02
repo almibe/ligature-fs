@@ -28,5 +28,4 @@ let lengthFunction = BendValue.Function(Function.HostFunction (
 
 let arrayLib = BendValue.Record (Map [
     ("map", mapFunction)
-    ("length", lengthFunction)
-])
+    ("length", lengthFunction)])

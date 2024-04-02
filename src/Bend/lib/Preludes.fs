@@ -11,6 +11,8 @@ open Identifier
 open Ligature
 open Statement
 open Test
+open Int
+open Record
 
 let bindStandardLibrary bindings =
     bindings
@@ -18,7 +20,10 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "Identifier" identifierLib
+    |> Bindings.bind "Int" intLib
+    |> Bindings.bind "Record" recordLib
     |> Bindings.bind "Statement" statementLib
+    |> Bindings.bind "String" String.stringLib
     |> Bindings.bind "Test" testLib
 
 let standardPrelude () =

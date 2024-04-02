@@ -20,5 +20,4 @@ let andFunction = BendValue.Function(Function.HostFunction (
 
 let boolLib = BendValue.Record (Map [
     ("not", notFunction)
-    ("and", andFunction)
-])
+    ("and", andFunction)])

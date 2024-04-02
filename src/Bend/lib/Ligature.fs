@@ -62,8 +62,7 @@ let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFun
                 |> List.map (fun statement -> BendValue.Statement(statement))
                 |> fun statements -> Ok(BendValue.Array(statements))
             | Error(err) -> Error(err)
-        | _ -> error "Illegal call to allStatements." None
-    )))
+        | _ -> error "Illegal call to allStatements." None)))
 
 let matchStatements (query: IQueryTx) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
@@ -79,8 +78,7 @@ let queryFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
                 //error "todo - inside query" None
                 Ok(BendValue.Nothing))
             res
-        | _ -> error "Improper arguments could not run query." None
-    )))
+        | _ -> error "Improper arguments could not run query." None)))
 
 /// A NativeFunction that does a single match against a given Dataset.
 /// Internally it starts a query transaction and then runs a single function in the tx.
@@ -161,5 +159,4 @@ let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("query", queryFun ligature)
     ("match", matchFun ligature)
     ("addStatements", addStatementsFun ligature)
-    ("removeStatements", removeStatementsFun ligature)
-])
+    ("removeStatements", removeStatementsFun ligature)])

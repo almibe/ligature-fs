@@ -17,5 +17,4 @@ let equalFun = BendValue.Function(Function.HostFunction (
         | _ -> error "Invalid call to equal function." None))))
 
 let testLib = BendValue.Record (Map [
-    ("equal", equalFun)
-])
+    ("equal", equalFun)])

@@ -34,5 +34,4 @@ let valueFunction = BendValue.Function(Function.HostFunction (
 let statementLib = BendValue.Record (Map [
     ("entity", entityFunction)
     ("attribute", attributeFunction)
-    ("value", valueFunction)
-])
+    ("value", valueFunction)])
