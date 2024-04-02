@@ -14,6 +14,7 @@
     <Compile Include="Interpreter.fs" />
     <Compile Include="lib/Array.fs" />
     <Compile Include="lib/Bool.fs" />
+    <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Statement.fs" />

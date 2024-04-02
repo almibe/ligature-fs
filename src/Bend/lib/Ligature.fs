@@ -49,6 +49,7 @@ let valueToWanderValue (value: Value): BendValue =
     | Value.Identifier i -> BendValue.Identifier i
     | Value.Integer i -> BendValue.Int i
     | Value.String s -> BendValue.String s
+    | Value.Bytes b -> BendValue.Bytes b
 
 let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->

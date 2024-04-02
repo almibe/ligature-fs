@@ -61,7 +61,6 @@ let bytesNibbler =
         [ Nibblers.takeString "0x"
           Nibblers.takeWhile (fun c -> charInRange c '0' '9' || charInRange c 'A' 'F') ]
 
-
 let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 
 let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')

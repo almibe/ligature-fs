@@ -39,7 +39,7 @@ type Value =
     | Identifier of Identifier
     | String of string
     | Integer of int64
-//TODO add Bytes
+    | Bytes of byte array
 
 type Statement =
     { Entity: Identifier

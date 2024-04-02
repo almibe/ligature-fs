@@ -36,7 +36,7 @@ type BendValue =
     | Function of Function
     | Array of BendValue list
     | Record of Map<string, BendValue>
-    //TODO add Bytes
+    | Bytes of byte array
 
 and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
@@ -62,6 +62,7 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Record(values) -> printRecord values
     | BendValue.QuestionMark -> "?"
     | BendValue.Function(_) -> "Function"
+    | BendValue.Bytes(_) -> failwith "Not Implemented"
 
 and printRecord values =
     "{ " + Map.fold 
@@ -76,6 +77,7 @@ and printLigatureValue value =
     | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
     | Value.Integer(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
+    | Value.Bytes(_) -> failwith "Not Implemented"
 
 and printValues values =
     List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values

@@ -4,7 +4,6 @@
 
 module Ligature.ZMQ.Main
 
-open System.IO
 open Ligature.Sqlite.Main
 open Ligature.ZMQ.Config
 open Ligature

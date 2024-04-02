@@ -20,6 +20,13 @@ let mapFunction = BendValue.Function(Function.HostFunction (
                 |> Result.map (fun x -> BendValue.Array x)
         | _ -> error "Invalid call to map function." None))))
 
+let lengthFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Array(array)] -> Ok(BendValue.Int(List.length array))
+        | _ -> error "Invalid call to map function." None))))
+
 let arrayLib = BendValue.Record (Map [
     ("map", mapFunction)
+    ("length", lengthFunction)
 ])

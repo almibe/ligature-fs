@@ -27,6 +27,11 @@ let tests =
               Expect.equal (tokenize "123") (Ok([ Token.Int(123) ])) ""
               Expect.equal (tokenize "0") (Ok([ Token.Int(0) ])) ""
               Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123) ])) ""
+          testCase "Read Bytes Token"
+          <| fun _ ->
+              Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([|0x00uy|]) ])) ""
+              Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([|0x01uy|]) ])) ""
+              Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([|0xffuy|]) ])) ""
           testCase "Read Names"
           <| fun _ ->
               Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""

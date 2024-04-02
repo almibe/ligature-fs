@@ -12,6 +12,7 @@ type Token =
     | WhiteSpace of string
     | Identifier of Identifier
     | Int of int64
+    | Bytes of byte array
     | Comment of string
     | NewLine of string
     | StringLiteral of string
@@ -48,6 +49,11 @@ let identifierTokenNibbler =
         | Ok identifier -> Token.Identifier(identifier)
         | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
+
+let bytesTokenNibbler =
+    Gaze.map bytesNibbler (fun value -> 
+        let bytes = System.String.Concat(Array.ofList (List.concat value))
+        Token.Bytes(System.Convert.FromHexString(bytes.[2..])))
 
 let integerTokenNibbler =
     Gaze.map integerNibbler (fun int64 -> Token.Int(int64))
@@ -93,6 +99,7 @@ let tokenNibbler =
                 [
                 whiteSpaceNibbler
                 nameOrKeywordTokenNibbler
+                bytesTokenNibbler
                 integerTokenNibbler
                 newLineTokenNibbler
                 identifierTokenNibbler

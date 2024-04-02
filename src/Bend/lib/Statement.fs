@@ -28,6 +28,7 @@ let valueFunction = BendValue.Function(Function.HostFunction (
             | Value.Identifier(value) -> Ok(BendValue.Identifier(value))
             | Value.String(value) -> Ok(BendValue.String(value))
             | Value.Integer(value) -> Ok(BendValue.Int(value))
+            | Value.Bytes(value) -> Ok(BendValue.Bytes(value))
         | _ -> error "Invalid call to Statement.value function." None))))
 
 let statementLib = BendValue.Record (Map [
