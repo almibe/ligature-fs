@@ -5,6 +5,7 @@
 module Ligature.Bend.Lib.Ligature
 open Ligature
 open Ligature.Bend.Model
+open System
 
 let datasetsFun (ligature: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction((fun _ _ ->
@@ -151,6 +152,16 @@ let removeStatementsFun (instance: ILigature) = BendValue.Function(Function.Host
             | Error err -> Error err
         | _ -> error "Improper call to removeStatements." None)))
 
+let newIdFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
+    new HostFunction(fun args _ ->
+        match args with
+        | [BendValue.String(prefix)] ->
+            let timeStamp = DateTime.Now.Ticks
+            match identifier (prefix + timeStamp.ToString()) with
+            | Ok(id) -> Ok(BendValue.Identifier(id))
+            | Error(err) -> Error(err)
+        | _ -> error "Improper call to removeStatements." None)))    
+
 let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("datasets", datasetsFun ligature)
     ("createDataset", createDatasetFun ligature)
@@ -159,4 +170,5 @@ let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("query", queryFun ligature)
     ("match", matchFun ligature)
     ("addStatements", addStatementsFun ligature)
-    ("removeStatements", removeStatementsFun ligature)])
+    ("removeStatements", removeStatementsFun ligature)
+    ("newId", newIdFun ligature)])
