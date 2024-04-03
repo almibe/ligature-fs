@@ -12,5 +12,19 @@ let lengthFunction = BendValue.Function(Function.HostFunction (
         | [BendValue.String(value)] -> Ok(BendValue.Int(String.length value))
         | _ -> error "Invalid call to map function." None))))
 
+let toBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.String(value)] -> Ok(BendValue.Bytes(System.Text.Encoding.UTF8.GetBytes value))
+        | _ -> error "Invalid call to map function." None))))
+
+let fromBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Bytes(bytes)] -> Ok(BendValue.String(System.Text.Encoding.UTF8.GetString bytes))
+        | _ -> error "Invalid call to map function." None))))
+
 let stringLib = BendValue.Record (Map [
-    ("length", lengthFunction)])
+    ("fromBytes", fromBytesFunction)
+    ("length", lengthFunction)
+    ("toBytes", toBytesFunction)])

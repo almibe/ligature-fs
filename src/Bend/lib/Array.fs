@@ -26,6 +26,23 @@ let lengthFunction = BendValue.Function(Function.HostFunction (
         | [BendValue.Array(array)] -> Ok(BendValue.Int(List.length array))
         | _ -> error "Invalid call to map function." None))))
 
+let toBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Array(values)] -> 
+            failwith "TODO"
+        | _ -> error "Invalid call to map function." None))))
+
+let fromBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Bytes(value)] -> 
+            failwith "TODO"
+            //Ok(BendValue.Int(BitConverter.ToInt64 value))
+        | _ -> error "Invalid call to map function." None))))
+
 let arrayLib = BendValue.Record (Map [
+    ("toBytes", toBytesFunction)
+    ("fromBytes", fromBytesFunction)
     ("map", mapFunction)
     ("length", lengthFunction)])

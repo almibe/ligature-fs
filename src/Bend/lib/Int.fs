@@ -5,18 +5,18 @@
 module Ligature.Bend.Lib.Int
 open Ligature.Bend.Model
 open Ligature
-open FsToolkit.ErrorHandling
+open System
 
 let toBytesFunction = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [BendValue.String(value)] -> Ok(BendValue.Int(String.length value))
+        | [BendValue.Int(value)] -> Ok(BendValue.Bytes(BitConverter.GetBytes value))
         | _ -> error "Invalid call to map function." None))))
 
 let fromBytesFunction = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [BendValue.String(value)] -> Ok(BendValue.Int(String.length value))
+        | [BendValue.Bytes(value)] -> Ok(BendValue.Int(BitConverter.ToInt64 value))
         | _ -> error "Invalid call to map function." None))))
 
 let intLib = BendValue.Record (Map [

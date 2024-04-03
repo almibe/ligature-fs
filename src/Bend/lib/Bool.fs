@@ -18,6 +18,22 @@ let andFunction = BendValue.Function(Function.HostFunction (
         | [BendValue.Bool(left); BendValue.Bool(right)] -> Ok(BendValue.Bool(left && right))
         | _ -> error "Invalid call to and function." None))))
 
+let toBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Bool(false)] -> Ok(BendValue.Bytes([|0uy|]))
+        | [BendValue.Bool(true)] -> Ok(BendValue.Bytes([|1uy|]))
+        | _ -> error "Invalid call to Bool.toBytes function." None))))
+
+let fromBytesFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args _ ->
+        match args with
+        | [BendValue.Bytes([|0uy|])] -> Ok(BendValue.Bool(false))
+        | [BendValue.Bytes([|1uy|])] -> Ok(BendValue.Bool(true))
+        | _ -> error "Invalid call to Bool.fromBytes function." None))))
+
 let boolLib = BendValue.Record (Map [
+    ("toBytes", toBytesFunction)
+    ("fromBytes", fromBytesFunction)
     ("not", notFunction)
     ("and", andFunction)])

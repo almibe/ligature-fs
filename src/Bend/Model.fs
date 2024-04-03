@@ -63,7 +63,13 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Record(values) -> printRecord values
     | BendValue.QuestionMark -> "?"
     | BendValue.Function(_) -> "Function"
-    | BendValue.Bytes(_) -> failwith "Not Implemented"
+    | BendValue.Bytes(bytes) -> printBytes bytes
+
+and printBytes bytes = 
+    bytes 
+    |> Array.map (fun value -> System.String.Format("{0:X2}", value))
+    |> Array.insertAt 0 "0x"
+    |> String.concat System.String.Empty
 
 and printRecord values =
     "{ " + Map.fold 
