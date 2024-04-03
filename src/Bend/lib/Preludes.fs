@@ -13,10 +13,12 @@ open Statement
 open Test
 open Int
 open Record
+open Bend
 
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Array" Array.arrayLib
+    |> Bindings.bind "Bend" bendLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "Identifier" identifierLib

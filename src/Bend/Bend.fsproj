@@ -12,7 +12,9 @@
     <Compile Include="Lexer.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
+    <Compile Include="Bend.fs" />
     <Compile Include="lib/Array.fs" />
+    <Compile Include="lib/Bend.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/Identifier.fs" />
@@ -23,7 +25,6 @@
     <Compile Include="lib/String.fs" />
     <Compile Include="lib/Test.fs" />
     <Compile Include="lib/Preludes.fs" />
-    <Compile Include="Bend.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
