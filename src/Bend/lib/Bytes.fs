@@ -13,19 +13,5 @@ let lengthFunction = BendValue.Function(Function.HostFunction (
         | [BendValue.Bytes(bytes)] -> Ok(BendValue.Int(Array.length bytes))
         | _ -> error "Invalid call to map function." None)))
 
-let encodeFunction = BendValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [value] -> failwith ""
-        | _ -> failwith "TODO")))
-
-let decodeFunction = BendValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [value] -> failwith ""
-        | _ -> failwith "TODO")))
-
 let bytesLib = BendValue.Record (Map [
-    ("length", lengthFunction)
-    ("encode", encodeFunction)
-    ("decode", decodeFunction)])
+    ("length", lengthFunction)])
