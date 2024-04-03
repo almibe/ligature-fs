@@ -84,7 +84,7 @@ and printLigatureValue value =
     | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
     | Value.Integer(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-    | Value.Bytes(_) -> failwith "Not Implemented"
+    | Value.Bytes(bytes) -> printBytes bytes
 
 and printValues values =
     List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values

@@ -159,7 +159,14 @@ and evalStatement bindings (entity: Identifier) arguments =
             | Expression.Identifier(value) -> Value.Identifier(value)
             | Expression.Int(value) -> Value.Integer(value)
             | Expression.String(value) -> Value.String(value)
-            | _ -> failwith ""
+            | Expression.Bytes(value) -> Value.Bytes(value)
+            | value ->
+                match evalExpression bindings value with
+                | Ok((BendValue.Identifier(value), _)) -> Value.Identifier(value)
+                | Ok((BendValue.Int(value), _)) -> Value.Integer(value)
+                | Ok((BendValue.String(value), _)) -> Value.String(value)
+                | Ok((BendValue.Bytes(value), _)) -> Value.Bytes(value)
+                | _ -> failwith ""
         Ok((BendValue.Statement({ Entity = entity; Attribute = attribute; Value = value } ), bindings))
     | _ -> failwith ""
 
