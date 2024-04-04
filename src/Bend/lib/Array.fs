@@ -6,18 +6,26 @@ module Ligature.Bend.Lib.Array
 open Ligature.Bend.Model
 open Ligature
 open FsToolkit.ErrorHandling
+open Ligature.Bend.Interpreter
 
 let mapFunction = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Function(fn); BendValue.Array(array)] ->
-            match fn with
-            | Function.Lambda(_, _) -> failwith "TODO"
-            | Function.HostFunction(fn) ->
-                List.map (fun value ->
-                    fn.Run [value] bindings) array
-                |> List.traverseResultM (fun x -> x)
-                |> Result.map (fun x -> BendValue.Array x)
+            List.map (fun value ->
+                callFunction fn [value] bindings) array
+            |> List.traverseResultM (fun x -> x)
+            |> Result.map (fun x -> BendValue.Array x)
+        | _ -> error "Invalid call to map function." None))))
+
+let reduceFunction = BendValue.Function(Function.HostFunction (
+    new HostFunction((fun args bindings ->
+        match args with
+        | [BendValue.Function(fn); BendValue.Array(array)] ->
+            Ok(List.reduce (fun lValue rValue ->
+                match callFunction fn [lValue; rValue] bindings with
+                | Ok(res) -> res
+                | Error(err) -> failwith (err.ToString())) array)
         | _ -> error "Invalid call to map function." None))))
 
 let lengthFunction = BendValue.Function(Function.HostFunction (
@@ -26,23 +34,7 @@ let lengthFunction = BendValue.Function(Function.HostFunction (
         | [BendValue.Array(array)] -> Ok(BendValue.Int(List.length array))
         | _ -> error "Invalid call to map function." None))))
 
-let toBytesFunction = BendValue.Function(Function.HostFunction (
-    new HostFunction((fun args _ ->
-        match args with
-        | [BendValue.Array(values)] -> 
-            failwith "TODO"
-        | _ -> error "Invalid call to map function." None))))
-
-let fromBytesFunction = BendValue.Function(Function.HostFunction (
-    new HostFunction((fun args _ ->
-        match args with
-        | [BendValue.Bytes(value)] -> 
-            failwith "TODO"
-            //Ok(BendValue.Int(BitConverter.ToInt64 value))
-        | _ -> error "Invalid call to map function." None))))
-
 let arrayLib = BendValue.Record (Map [
-    ("toBytes", toBytesFunction)
-    ("fromBytes", fromBytesFunction)
     ("map", mapFunction)
+    ("reduce", reduceFunction)
     ("length", lengthFunction)])

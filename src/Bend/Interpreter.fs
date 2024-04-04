@@ -128,6 +128,18 @@ let rec evalExpression bindings expression =
     | Expression.QuestionMark -> Ok (BendValue.Nothing, bindings)
     | Expression.Bytes(value) -> Ok (BendValue.Bytes(value), bindings)
 
+and callFunction (fn: Function) (args: BendValue list) (bindings: Bindings) =
+    match fn with
+    | Function.Lambda(parameters, body) ->
+        if (List.length parameters) = (List.length args) then
+            let binding = (List.zip parameters args) |> List.fold (fun bindings (name, value) -> bind name value bindings) bindings
+            evalExpression binding body
+            |> Result.map (fun (value, _) -> value)
+        else
+            error $"Improper parameters passed to lambda - {parameters}" None
+    | Function.HostFunction(hf) ->
+        hf.Run args bindings
+
 and handleRecord bindings values =
     let res = List.map (fun (name, expr) -> 
         match evalExpression bindings expr with
