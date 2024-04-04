@@ -17,6 +17,7 @@
     <Compile Include="lib/Bend.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
+    <Compile Include="lib/DateTime.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />
     <Compile Include="lib/Ligature.fs" />

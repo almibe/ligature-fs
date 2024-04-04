@@ -14,6 +14,7 @@ open Test
 open Int
 open Record
 open Bend
+open DateTime
 
 let bindStandardLibrary bindings =
     bindings
@@ -21,6 +22,7 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Bend" bendLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
+    |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Record" recordLib
