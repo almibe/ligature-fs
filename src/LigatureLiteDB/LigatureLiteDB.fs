@@ -2,17 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Sqlite.Main
+module Ligature.LiteDB.Main
 
 open Ligature
-open Ligature.Sqlite.QueryTx
-open System.Data.SQLite
+open Ligature.LiteDB.QueryTx
 open System.Data
-open Donald
 open FsToolkit.ErrorHandling
-open System
 
-type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
+type LigatureLiteDB(conn: SQLiteConnection) = //(datasource: string) =
     let datasetDataReader (rd: IDataReader) : string = rd.ReadString "name"
 
     let getLastRowId () : Result<int64, LigatureError> =
@@ -76,6 +73,7 @@ type LigatureSqlite(conn: SQLiteConnection) = //(datasource: string) =
                 [ ("value_identifier", SqlType.Null);
                 ("value_string", SqlType.Null);
                 ("value_integer", SqlType.Int64 value) ]
+        | Value.Bytes(_) -> failwith "Not Implemented"
 
     let statementExists
         datasetId
