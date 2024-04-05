@@ -9,10 +9,10 @@ open Expecto
 open Ligature.TestSuite
 
 [<Tests>]
-let tests = ligatureTestSuite (fun () -> ligatureLiteDB InMemory)
+let tests = ligatureTestSuite (fun () -> ligatureLiteDB ":memory:")
 
 [<Tests>]
-let bendTests = bendTestSuite (fun () -> ligatureLiteDB InMemory)
+let bendTests = bendTestSuite (fun () -> ligatureLiteDB ":memory:")
 
 [<EntryPoint>]
 let main argv =
