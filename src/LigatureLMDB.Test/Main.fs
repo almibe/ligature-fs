@@ -9,18 +9,10 @@ open Expecto
 open Ligature.TestSuite
 
 [<Tests>]
-let tests =
-    ligatureTestSuite (fun () ->
-        let instance = new LigatureLMDB()
-        instance.initialize () |> ignore
-        instance)
+let tests = ligatureTestSuite (fun () -> new LigatureLMDB())
 
 [<Tests>]
-let bendTests = 
-    bendTestSuite (fun () ->
-        let instance = new LigatureLMDB()
-        instance.initialize () |> ignore
-        instance)
+let bendTests = bendTestSuite (fun () -> new LigatureLMDB())
 
 [<EntryPoint>]
 let main argv =

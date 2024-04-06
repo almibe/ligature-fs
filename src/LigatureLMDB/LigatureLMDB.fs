@@ -6,16 +6,24 @@ module Ligature.LMDB.Main
 
 open Ligature
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-type LigatureLMDB() =
-    member this.initialize() = ()
+type LigatureLMDB() = //(datasource: string) =
 
     interface ILigature with
-        member this.AllDatasets() = Ok []
-        member this.DatasetExists dataset = todo
-        member this.CreateDataset dataset = todo
-        member this.RemoveDataset dataset = todo
-        member this.Query dataset query = todo
-        member this.Write dataset write = todo
-        member this.Close() = todo
+        member _.AllDatasets() = failwith ""
+        member _.DatasetExists (Dataset dataset) = failwith ""
+
+        member _.CreateDataset (Dataset dataset) = failwith ""
+
+        member this.RemoveDataset (Dataset dataset) = failwith ""
+
+        member _.AllStatements (Dataset dataset) = failwith ""
+
+        member _.NewIdentifier dataset : Result<Identifier, LigatureError> = failwith "todo"//Guid.NewGuid().ToString() |> identifier
+
+        member _.AddStatements (dataset: Dataset) (statements: Statement list) = failwith ""
+
+        member _.RemoveStatements (dataset: Dataset) (statements: Statement list) : Result<unit, LigatureError> = failwith ""
+
+        member _.Query dataset query = failwith "TODO"
+
+        member _.Close() = failwith ""

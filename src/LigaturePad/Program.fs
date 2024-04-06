@@ -16,14 +16,14 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
-    open Ligature.Sqlite.Main
+    open Ligature.LMDB.Main
     type EditorState = {
         EditorText: string;
         ResultText: string
     }
 
     let runScript script = 
-        run script (instancePrelude (ligatureSqlite InMemory))
+        run script (instancePrelude (ligatureLMDB ":memory:"))
 //        run script (instancePrelude (new LigatureInMemory ()))
 
     let view () =

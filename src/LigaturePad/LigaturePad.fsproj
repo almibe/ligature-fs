@@ -17,6 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="../Bend/Bend.fsproj" />
     <ProjectReference Include="../LigatureInMemory/LigatureInMemory.fsproj" />
-    <ProjectReference Include="../LigatureSqlite/LigatureSqlite.fsproj" />
+    <ProjectReference Include="../LigatureLMDB/LigatureLMDB.fsproj" />
   </ItemGroup>
 </Project>
