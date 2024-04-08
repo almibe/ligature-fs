@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureLMDBQueryTx.fs" />
     <Compile Include="LigatureLMDB.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -14,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+    <PackageReference Include="LightningDB" Version="0.16.0" />
   </ItemGroup>
 
 </Project>
