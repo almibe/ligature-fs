@@ -27,7 +27,7 @@ let databases = [
 let nextId db name = System.Guid.NewGuid().ToByteArray()
 
 type LigatureLMDB(path: string) = //(datasource: string) =
-    let env = new LightningDB.LightningEnvironment(path, new LightningDB.EnvironmentConfiguration(MaxDatabases = 16))
+    let env = new LightningDB.LightningEnvironment(path, new LightningDB.EnvironmentConfiguration(MaxDatabases = 15))
 
     member _.openDb() = 
         env.Open()
@@ -47,10 +47,20 @@ type LigatureLMDB(path: string) = //(datasource: string) =
             match cursor.First() with
             | LightningDB.MDBResultCode.NotFound -> Ok([])
             | _ ->
-                let res = cursor.GetCurrent()
-                match res with
-                | (resultCode, key, value) ->
-                    let datasetName = 
+                let rec readDatasets (datasets: Dataset list) =
+                    let res = cursor.GetCurrent()
+                    match res with
+                    | (resultCode, key, value) ->
+                        if resultCode = LightningDB.MDBResultCode.Success then
+                            let name = System.Text.Encoding.UTF8.GetString(key.CopyToNewArray())
+                            let ds = Dataset name
+                            match cursor.Next() with
+                            | LightningDB.MDBResultCode.Success ->
+                                readDatasets (List.append datasets [ds])
+                            | _ -> datasets
+                        else
+                            datasets
+                Ok (readDatasets [])
 
         member _.DatasetExists (Dataset dataset) =
             use tx = env.BeginTransaction()
@@ -71,7 +81,7 @@ type LigatureLMDB(path: string) = //(datasource: string) =
             use datasetToIdDb = tx.OpenDatabase("DatasetToId")
             use idToDatasetDb = tx.OpenDatabase("IdToDataset")
             use countersDb = tx.OpenDatabase("Counters")
-            let dataset = System.Text.Encoding.UTF32.GetBytes(dataset)
+            let dataset = System.Text.Encoding.UTF8.GetBytes(dataset)
             match tx.Get(datasetToIdDb, dataset) with
             | (code, key, value) ->
                 if code = LightningDB.MDBResultCode.Success then
@@ -83,13 +93,49 @@ type LigatureLMDB(path: string) = //(datasource: string) =
                     tx.Commit () |> ignore
                     Ok(())
 
-        member _.RemoveDataset (Dataset dataset) = failwith ""
+        member _.RemoveDataset (Dataset dataset) =
+            use tx = env.BeginTransaction()
+            use datasetToIdDb = tx.OpenDatabase("DatasetToId")
+            use idToDatasetDb = tx.OpenDatabase("IdToDataset")
+            let dataset = System.Text.Encoding.UTF32.GetBytes(dataset)
+            match tx.Get(datasetToIdDb, dataset) with
+            | (code, _, value) ->
+                if code = LightningDB.MDBResultCode.Success then
+                    tx.Delete(datasetToIdDb, dataset) |> ignore
+                    tx.Delete(idToDatasetDb, value.CopyToNewArray()) |> ignore
+                    Ok(())
+                else
+                    Ok(())
 
-        member _.AllStatements (Dataset dataset) = failwith ""
+        member _.AllStatements (Dataset dataset) =
+            use tx = env.BeginTransaction()
+            use db = tx.OpenDatabase("statements", 
+                new LightningDB.DatabaseConfiguration(Flags = LightningDB.DatabaseOpenFlags.Create))
+            use cursor = tx.CreateCursor(db)
+            match cursor.First() with
+            | LightningDB.MDBResultCode.NotFound -> Ok(false)
+            | _ ->
+                let res = cursor.GetCurrent()
+                match res with
+                | (resultCode, key, value) ->
+                    printf "RCSuccess - %A" resultCode
+                    failwith ""
+            failwith ""
 
         member _.NewIdentifier dataset : Result<Identifier, LigatureError> = failwith "todo"//Guid.NewGuid().ToString() |> identifier
 
-        member _.AddStatements (dataset: Dataset) (statements: Statement list) = failwith ""
+        member _.AddStatements (dataset: Dataset) (statements: Statement list) =
+            use tx = env.BeginTransaction()
+            use db = tx.OpenDatabase("StatementDEAV")
+            use cursor = tx.CreateCursor(db)
+            match cursor.First() with
+            | LightningDB.MDBResultCode.NotFound -> failwith "TODO"//Ok(false)
+            | _ ->
+                let res = cursor.GetCurrent()
+                match res with
+                | (resultCode, key, value) ->
+                    printf "RCSuccess - %A" resultCode
+                    failwith ""
 
         member _.RemoveStatements (dataset: Dataset) (statements: Statement list) : Result<unit, LigatureError> = failwith ""
 
@@ -99,7 +145,7 @@ type LigatureLMDB(path: string) = //(datasource: string) =
 
 let openLigatureLMDB location =
     let instance = new LigatureLMDB(location)
-    instance.openDb ()
+    instance.openDb () |> ignore
     instance
 
 type LigatureSqliteQueryTx() =
