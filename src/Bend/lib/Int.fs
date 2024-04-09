@@ -7,25 +7,25 @@ open Ligature.Bend.Model
 open Ligature
 open System
 
-let ltFunction = BendValue.Function(Function.HostFunction (
+let ltFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Int(left); BendValue.Int(right)] -> Ok(BendValue.Bool(left < right))
         | _ -> error "Invalid call to map function." None))))
 
-let toBytesFunction = BendValue.Function(Function.HostFunction (
+let toBytesFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Int(value)] -> Ok(BendValue.Bytes(BitConverter.GetBytes value))
         | _ -> error "Invalid call to map function." None))))
 
-let fromBytesFunction = BendValue.Function(Function.HostFunction (
+let fromBytesFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Bytes(value)] -> Ok(BendValue.Int(BitConverter.ToInt64 value))
         | _ -> error "Invalid call to map function." None))))
 
-let intLib = BendValue.Record (Map [
+let intLib<'t> = BendValue.Record (Map [
     ("lt", ltFunction)
     ("toBytes", toBytesFunction)
     ("fromBytes", fromBytesFunction)])

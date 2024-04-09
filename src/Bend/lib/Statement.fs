@@ -8,19 +8,19 @@ open Ligature.Bend.Model
 open Ligature
 open FsToolkit.ErrorHandling
 
-let entityFunction = BendValue.Function(Function.HostFunction (
+let entityFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Statement(statement)] -> Ok(BendValue.Identifier(statement.Entity))
         | _ -> error "Invalid call to Statement.entity function." None))))
 
-let attributeFunction = BendValue.Function(Function.HostFunction (
+let attributeFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Statement(statement)] -> Ok(BendValue.Identifier(statement.Attribute))
         | _ -> error "Invalid call to Statement.attribute function." None))))
 
-let valueFunction = BendValue.Function(Function.HostFunction (
+let valueFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Statement(statement)] ->
@@ -31,7 +31,7 @@ let valueFunction = BendValue.Function(Function.HostFunction (
             | Value.Bytes(value) -> Ok(BendValue.Bytes(value))
         | _ -> error "Invalid call to Statement.value function." None))))
 
-let statementLib = BendValue.Record (Map [
+let statementLib<'t> = BendValue.Record (Map [
     ("entity", entityFunction)
     ("attribute", attributeFunction)
     ("value", valueFunction)])

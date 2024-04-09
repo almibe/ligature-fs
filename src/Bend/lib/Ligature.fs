@@ -45,7 +45,7 @@ let datasetExists (instance: ILigature) = BendValue.Function(Function.HostFuncti
             | Error(err) -> Error(err)
         | _ -> error "Could not check for Dataset" None)))
 
-let valueToWanderValue (value: Value): BendValue =
+let valueToWanderValue (value: Value): BendValue<'t> =
     match value with
     | Value.Identifier i -> BendValue.Identifier i
     | Value.Integer i -> BendValue.Int i

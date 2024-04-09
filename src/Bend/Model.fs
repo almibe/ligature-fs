@@ -5,6 +5,7 @@
 module Ligature.Bend.Model
 open Ligature
 open System.Web
+open System
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -26,7 +27,7 @@ type Expression =
     | Lambda of list<string> * Expression
 
 [<RequireQualifiedAccess>]
-type BendValue =
+type BendValue<'t> =
     | QuestionMark
     | Int of int64
     | String of string
@@ -35,23 +36,24 @@ type BendValue =
     | Statement of Ligature.Statement
     | Nothing
     | Function of Function
-    | Array of BendValue list
-    | Record of Map<string, BendValue>
+    | Array of BendValue<'t> list
+    | Record of Map<string, BendValue<'t>>
     | Bytes of byte array
+    | HostValue of 't
 
 and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
     | HostFunction of HostFunction
 
-and HostFunction(eval: BendValue list -> Bindings.Bindings<string, BendValue> -> Result<BendValue, LigatureError>) =
+and HostFunction(eval: BendValue<'t> list -> Bindings.Bindings<string, BendValue<'t>> -> Result<BendValue<'t>, LigatureError>) =
     member _.Run args bindings = eval args bindings
 
 type Parameter =
     { name: string; tag: string }
 
-type Bindings = Bindings.Bindings<string, BendValue>
+type Bindings<'t> = Bindings.Bindings<string, BendValue<'t>>
 
-let rec prettyPrint (value: BendValue): string =
+let rec prettyPrint (value: BendValue<'t>): string =
     match value with
     | BendValue.Int i -> sprintf "%i" i
     | BendValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
@@ -59,6 +61,7 @@ let rec prettyPrint (value: BendValue): string =
     | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
     | BendValue.Nothing -> "Nothing"
     | BendValue.Array(values) -> $"[{printValues values}]"
+    | BendValue.HostValue(_) -> "HostValue"
     | BendValue.Statement(statement) -> printStatement statement
     | BendValue.Record(values) -> printRecord values
     | BendValue.QuestionMark -> "?"
@@ -69,7 +72,7 @@ and printBytes bytes =
     bytes 
     |> Array.map (fun value -> System.String.Format("{0:X2}", value))
     |> Array.insertAt 0 "0x"
-    |> String.concat System.String.Empty
+    |> String.concat String.Empty
 
 and printRecord values =
     "{ " + Map.fold 

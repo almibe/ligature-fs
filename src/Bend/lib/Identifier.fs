@@ -7,20 +7,20 @@ module Ligature.Bend.Lib.Identifier
 open Ligature.Bend.Model
 open Ligature
 
-let valueFunction = BendValue.Function(Function.HostFunction (
+let valueFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Identifier(identifier)] -> Ok(BendValue.String(readIdentifier identifier))
         | _ -> error "Invalid call to Statement.value function." None))))
 
-let toBytesFunction = BendValue.Function(Function.HostFunction (
+let toBytesFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Identifier(value)] -> 
             Ok(BendValue.Bytes(System.Text.Encoding.UTF8.GetBytes (readIdentifier value)))
         | _ -> error "Invalid call to map function." None))))
 
-let fromBytesFunction = BendValue.Function(Function.HostFunction (
+let fromBytesFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Bytes(bytes)] -> 
@@ -29,7 +29,7 @@ let fromBytesFunction = BendValue.Function(Function.HostFunction (
             | Error(err) -> Error(err)
         | _ -> error "Invalid call to map function." None))))
 
-let identifierLib = BendValue.Record (Map [
+let identifierLib<'t> = BendValue.Record (Map [
     ("toBytes", toBytesFunction)
     ("fromBytes", fromBytesFunction)
     ("value", valueFunction)])

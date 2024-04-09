@@ -7,11 +7,11 @@ module Ligature.Bend.Lib.Bytes
 open Ligature.Bend.Model
 open Ligature
 
-let lengthFunction = BendValue.Function(Function.HostFunction (
+let lengthFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.Bytes(bytes)] -> Ok(BendValue.Int(Array.length bytes))
         | _ -> error "Invalid call to map function." None)))
 
-let bytesLib = BendValue.Record (Map [
+let bytesLib<'t> = BendValue.Record (Map [
     ("length", lengthFunction)])

@@ -8,13 +8,13 @@ open Ligature
 open FsToolkit.ErrorHandling
 open Ligature.Bend.Interpreter
 
-let distinctFunction = BendValue.Function(Function.HostFunction (
+let distinctFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Array(array)] -> Ok(BendValue.Array(List.distinct array))
         | _ -> error "Improper call to map function." None))))
 
-let catFunction = BendValue.Function(Function.HostFunction (
+let catFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Array(array)] -> 
@@ -25,19 +25,19 @@ let catFunction = BendValue.Function(Function.HostFunction (
             Ok(BendValue.String(res))
         | _ -> error "Improper call to map function." None))))
 
-let insertFirstFunction = BendValue.Function(Function.HostFunction (
+let insertFirstFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [value; BendValue.Array(array)] -> Ok(BendValue.Array(List.insertAt 0 value array))
         | _ -> error "Improper call to Array.insertFirst function." None))))
 
-let insertLastFunction = BendValue.Function(Function.HostFunction (
+let insertLastFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [value; BendValue.Array(array)] -> Ok(BendValue.Array(List.append [value] array))
         | _ -> error "Improper call to Array.insertLast function." None))))
 
-let mapFunction = BendValue.Function(Function.HostFunction (
+let mapFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Function(fn); BendValue.Array(array)] ->
@@ -47,7 +47,7 @@ let mapFunction = BendValue.Function(Function.HostFunction (
             |> Result.map (fun x -> BendValue.Array x)
         | _ -> error "Improper call to map function." None))))
 
-let reduceFunction = BendValue.Function(Function.HostFunction (
+let reduceFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Function(fn); BendValue.Array(array)] ->
@@ -57,7 +57,7 @@ let reduceFunction = BendValue.Function(Function.HostFunction (
                 | Error(err) -> failwith (err.ToString())) array)
         | _ -> error "Improper call to Array.map function." None))))
 
-let foldFunction = BendValue.Function(Function.HostFunction (
+let foldFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args bindings ->
         match args with
         | [BendValue.Function(fn); initial; BendValue.Array(array)] ->
@@ -67,13 +67,13 @@ let foldFunction = BendValue.Function(Function.HostFunction (
                 | Error(err) -> failwith (err.ToString())) initial array)
         | _ -> error "Improper call to Array.fold function." None))))
 
-let lengthFunction = BendValue.Function(Function.HostFunction (
+let lengthFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.Array(array)] -> Ok(BendValue.Int(List.length array))
         | _ -> error "Improper call to map function." None))))
 
-let arrayLib = BendValue.Record (Map [
+let arrayLib<'t> = BendValue.Record (Map [
     ("cat", catFunction)
     ("map", mapFunction)
     ("reduce", reduceFunction)

@@ -9,18 +9,18 @@ open Ligature
 open Ligature.Bend.Main
 open Ligature.Bend.Bindings
 
-let writeValueFunction = BendValue.Function(Function.HostFunction (
+let writeValueFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [value] -> Ok(BendValue.String(prettyPrint value))
         | value   -> error $"Unexpected value - {value}." None)))
 
-let readValueFunction = BendValue.Function(Function.HostFunction (
+let readValueFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.String(input)] -> run input (newBindings ())
         | value -> error $"Unexpected value - {value}." None)))
 
-let bendLib = BendValue.Record (Map [
+let bendLib<'t> = BendValue.Record (Map [
     ("writeValue", writeValueFunction)
     ("readValue", readValueFunction)])

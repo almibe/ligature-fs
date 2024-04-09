@@ -8,11 +8,11 @@ open Ligature.Bend.Model
 open Ligature
 open System
 
-let ticksFunction = BendValue.Function(Function.HostFunction (
+let ticksFunction<'t> = BendValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
         | [_] -> Ok(BendValue.Int(DateTime.Now.Ticks))
         | _ -> error "Invalid call to map function." None))))
 
-let dateTimeLib = BendValue.Record (Map [
+let dateTimeLib<'t> = BendValue.Record (Map [
     ("ticks", ticksFunction)])

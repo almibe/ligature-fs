@@ -8,7 +8,7 @@ open Ligature.Bend.Model
 open Ligature.Bend.Bindings
 open Ligature
 
-let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>) =
+let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue<'t>>) =
     match read (List.head namePath) bindings with
     | Some(value) -> 
         match value with
@@ -28,7 +28,7 @@ let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue>)
     | None -> None
 
 let rec evalExpression bindings expression =
-    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings): Result<Bindings, LigatureError> =
+    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings<_,_>): Result<Bindings<_,_>, LigatureError> =
         if List.length args <> List.length parameters then
             failwith "todo"
         else if List.isEmpty args && List.isEmpty parameters then
@@ -109,7 +109,7 @@ let rec evalExpression bindings expression =
     | Expression.Identifier id -> Ok (BendValue.Identifier id, bindings)
     | Expression.Array(expressions) ->
         let mutable error = None
-        let res: BendValue list = 
+        let res: BendValue<'t> list = 
             //TODO this doesn't short circuit on first error
             List.map (fun e ->
                 match evalExpression bindings e with
@@ -128,7 +128,7 @@ let rec evalExpression bindings expression =
     | Expression.QuestionMark -> Ok (BendValue.Nothing, bindings)
     | Expression.Bytes(value) -> Ok (BendValue.Bytes(value), bindings)
 
-and callFunction (fn: Function) (args: BendValue list) (bindings: Bindings) =
+and callFunction (fn: Function) (args: BendValue<'t> list) (bindings: Bindings<_,_>) =
     match fn with
     | Function.Lambda(parameters, body) ->
         if (List.length parameters) = (List.length args) then
@@ -231,7 +231,7 @@ and handleWhen bindings conditionals =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(BendValue * Bindings.Bindings<_, _>), LigatureError> =
+    : Result<(BendValue<'t> * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
     | 0 -> Ok(BendValue.Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)

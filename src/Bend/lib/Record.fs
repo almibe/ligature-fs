@@ -7,4 +7,4 @@ open Ligature.Bend.Model
 open Ligature
 open FsToolkit.ErrorHandling
 
-let recordLib = BendValue.Record (Map [])
+let recordLib<'t> = BendValue.Record (Map [])
