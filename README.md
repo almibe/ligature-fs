@@ -26,14 +26,11 @@ test suite for the other project.
 | Bend              | The Bend scripting language.                                       |
 | build             | Fake build script.                                                 |
 | Gaze              | A parsing library.                                                 |
-| Lig               | Support for the Lig serialization language.                        |
 | Ligature          | Main code base including the main logic and types.                 |
 | LigatureFable     | A project for producing JavaScript code using Fable 4.             |
 | LigatureZeroMQ    | A backend of Ligature using ZeroMQ.                                |
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
-| LigatureLMDB      | An implementation of Ligature that uses LMDB for storage.          |
 | LigaturePad       | A simple desktop appplication for testing Ligature.                |
-| LigatureSqlite    | An implementation of Ligature that uses SQLite3 for storage.       |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
