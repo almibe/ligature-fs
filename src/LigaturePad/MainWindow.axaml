@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="LigaturePad.MainWindow"
+        Title="LigaturePad">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <Menu>
+                <MenuItem Header="_File">
+                    <MenuItem Click="NewAction" Header="_New"/>
+                    <MenuItem Click="OpenAction" Header="_Open"/>
+                    <Separator/>
+                    <MenuItem Click="SaveAction" Header="_Save"/>
+                    <MenuItem Click="SaveAsAction" Header="_Save As"/>
+                    <Separator/>
+                    <MenuItem Click="ExitAction" Header="_Exit"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel Orientation="Horizontal">
+                <Button Click="RunAction">Run</Button>
+                <Button Click="IntrospectAction">Introspect</Button>
+                <TextBlock x:Name="source">Source: None</TextBlock>
+            </StackPanel>
+        </StackPanel>
+        <Grid ColumnDefinitions="1*" RowDefinitions="1*,1,1*">
+            <TextBox Grid.Row="0" FontFamily="Cascadia Mono, Courier New"></TextBox>
+            <GridSplitter Grid.Row="1"></GridSplitter>
+            <TextBox Grid.Row="2" FontFamily="Cascadia Mono, Courier New" IsReadOnly="true"></TextBox>
+        </Grid>
+    </DockPanel>
+</Window>
