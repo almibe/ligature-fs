@@ -12,7 +12,8 @@ let datasetsFun (ligature: ILigature) = BendValue.Function(Function.HostFunction
         match ligature.AllDatasets () with
         | Ok(datasets) ->
             datasets
-            |> List.map (fun (Dataset name) -> BendValue.String name)
+            |> Seq.map (fun (Dataset name) -> BendValue.String name)
+            |> Array.ofSeq
             |> BendValue.Array
             |> Ok
         | Error(err) -> failwith "todo"))))
@@ -60,8 +61,8 @@ let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFun
             match instance.AllStatements dataset with
             | Ok(statements) ->
                 statements
-                |> List.map (fun statement -> BendValue.Statement(statement))
-                |> fun statements -> Ok(BendValue.Array(statements))
+                |> Seq.map (fun statement -> BendValue.Statement(statement))
+                |> fun statements -> Ok(BendValue.Array((Array.ofSeq statements)))
             | Error(err) -> Error(err)
         | _ -> error "Illegal call to allStatements." None)))
 
@@ -113,8 +114,8 @@ let matchFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
                     instance.Query dataset (fun tx ->
                         match tx.MatchStatements entity attribute value with
                         | Ok(results) ->
-                            List.map BendValue.Statement results
-                            |> fun values -> Ok(BendValue.Array(values))
+                            Seq.map BendValue.Statement results
+                            |> fun values -> Ok(BendValue.Array(Array.ofSeq values))
                         | Error(err) -> Error(err)
                     )
                 | _ -> error "Could not call match." None //TODO should return actual error
@@ -127,7 +128,7 @@ let addStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFun
         match args with
         | [(BendValue.String(name)); BendValue.Array(statements)] ->
             let dataset = Dataset(name)
-            let statements = List.map (fun value -> 
+            let statements = Seq.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
                 | _ -> failwith "todo") statements
@@ -143,7 +144,7 @@ let removeStatementsFun (instance: ILigature) = BendValue.Function(Function.Host
         match args with
         | [BendValue.String(name); BendValue.Array(statements)] ->
             let dataset = Dataset(name)
-            let statements = List.map (fun value -> 
+            let statements = Seq.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
                 | _ -> failwith "todo") statements

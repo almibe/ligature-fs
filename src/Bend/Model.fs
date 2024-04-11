@@ -36,7 +36,7 @@ type BendValue<'t> =
     | Statement of Ligature.Statement
     | Nothing
     | Function of Function
-    | Array of BendValue<'t> list
+    | Array of BendValue<'t> array
     | Record of Map<string, BendValue<'t>>
     | Bytes of byte array
     | HostValue of 't
@@ -90,4 +90,4 @@ and printLigatureValue value =
     | Value.Bytes(bytes) -> printBytes bytes
 
 and printValues values =
-    List.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values
+    Seq.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values

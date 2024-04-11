@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bend/Bend.fsproj" Aliases="Bend" />
-    <ProjectReference Include="../LigatureInMemory/LigatureInMemory.fsproj" />
+    <ProjectReference Include="../LigatureInMemory/LigatureInMemory.fsproj" Aliases="LigatureInMemory" />
   </ItemGroup>
 
 </Project>

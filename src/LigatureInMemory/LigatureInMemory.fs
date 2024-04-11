@@ -23,8 +23,7 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
-
-            List.ofSeq results |> Ok
+            Ok results
 
 type LigatureInMemory() =
     let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
@@ -32,7 +31,7 @@ type LigatureInMemory() =
 
     interface ILigature with
         member _.AllDatasets() =
-            Ok(Map.keys datasets.Value |> Seq.cast |> List.ofSeq) //Ok datasets.Value
+            Ok(Map.keys datasets.Value |> Seq.cast) //Ok datasets.Value
 
         member _.DatasetExists dataset =
             Map.containsKey dataset datasets.Value |> Ok

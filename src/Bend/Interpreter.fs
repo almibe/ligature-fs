@@ -109,15 +109,15 @@ let rec evalExpression bindings expression =
     | Expression.Identifier id -> Ok (BendValue.Identifier id, bindings)
     | Expression.Array(expressions) ->
         let mutable error = None
-        let res: BendValue<'t> list = 
+        let res: BendValue<'t> array = 
             //TODO this doesn't short circuit on first error
-            List.map (fun e ->
+            Array.map (fun e ->
                 match evalExpression bindings e with
                 | Ok(value, _) -> value
                 | Error(err) -> 
                     if Option.isNone error then error <- Some(err)
                     BendValue.Nothing
-                        ) expressions
+                        ) (Array.ofList expressions)
         match error with
         | None -> Ok((BendValue.Array(res), bindings))
         | Some(err) -> Error(err)
@@ -193,7 +193,7 @@ and evalHostFunction bindings hostFunction arguments =
 
 and evalArray bindings array arguments =
     match arguments with
-    | [Expression.Int(index)] -> Ok(array.Item(int32(index)), bindings)
+    | [Expression.Int(index)] -> Ok(Array.get array (int32(index)), bindings)
     | _ -> failwith ""
 
 and evalLambda bindings parameters body arguments =

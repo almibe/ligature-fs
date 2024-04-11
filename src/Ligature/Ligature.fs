@@ -55,19 +55,19 @@ let statement entity attribute value =
 
 type IQueryTx =
     abstract member MatchStatements:
-        Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
+        Identifier option -> Identifier option -> Value option -> Result<Statement seq, LigatureError>
 //TODO add MatchStatementsRange
 
 type Query<'R> = IQueryTx -> Result<'R, LigatureError>
 
 type ILigature =
-    abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
+    abstract member AllDatasets: unit -> Result<Dataset seq, LigatureError>
     abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
     abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
     abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
     abstract member Query: Dataset -> Query<'r> -> Result<'r, LigatureError>
-    abstract member AllStatements: Dataset -> Result<Statement list, LigatureError>
+    abstract member AllStatements: Dataset -> Result<Statement seq, LigatureError>
     abstract member NewIdentifier: Dataset -> Result<Identifier, LigatureError>
-    abstract member AddStatements: Dataset -> Statement list -> Result<unit, LigatureError>
-    abstract member RemoveStatements: Dataset -> Statement list -> Result<unit, LigatureError>
+    abstract member AddStatements: Dataset -> Statement seq -> Result<unit, LigatureError>
+    abstract member RemoveStatements: Dataset -> Statement seq -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
