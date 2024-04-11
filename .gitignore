@@ -6,3 +6,4 @@ obj/
 *.sqlite3
 ./paket/
 paket-files/
+*.sln

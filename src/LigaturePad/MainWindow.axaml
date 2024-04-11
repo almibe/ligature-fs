@@ -13,9 +13,9 @@
                     <MenuItem Click="OpenAction" Header="_Open"/>
                     <Separator/>
                     <MenuItem Click="SaveAction" Header="_Save"/>
-                    <MenuItem Click="SaveAsAction" Header="_Save As"/>
+                    <MenuItem Click="SaveAsAction" Header="Save _As"/>
                     <Separator/>
-                    <MenuItem Click="ExitAction" Header="_Exit"/>
+                    <MenuItem Click="ExitAction" Header="E_xit"/>
                 </MenuItem>
             </Menu>
             <StackPanel Orientation="Horizontal">
@@ -25,9 +25,9 @@
             </StackPanel>
         </StackPanel>
         <Grid ColumnDefinitions="1*" RowDefinitions="1*,1,1*">
-            <TextBox Grid.Row="0" FontFamily="Cascadia Mono, Courier New"></TextBox>
-            <GridSplitter Grid.Row="1"></GridSplitter>
-            <TextBox Grid.Row="2" FontFamily="Cascadia Mono, Courier New" IsReadOnly="true"></TextBox>
+            <TextBox Grid.Row="0" FontFamily="Cascadia Mono, Courier New" AcceptsReturn="true" x:Name="ScriptText" />
+            <GridSplitter Grid.Row="1" />
+            <TextBox Grid.Row="2" FontFamily="Cascadia Mono, Courier New" IsReadOnly="true" x:Name="ResultText" />
         </Grid>
     </DockPanel>
 </Window>
