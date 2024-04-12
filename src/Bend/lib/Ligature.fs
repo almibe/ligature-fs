@@ -128,10 +128,10 @@ let addStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFun
         match args with
         | [(BendValue.String(name)); BendValue.Array(statements)] ->
             let dataset = Dataset(name)
-            let statements = Seq.map (fun value -> 
+            let statements = List.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
-                | _ -> failwith "todo") statements
+                | _ -> failwith "todo") (List.ofArray statements)
             match instance.AddStatements dataset statements with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err
@@ -144,10 +144,10 @@ let removeStatementsFun (instance: ILigature) = BendValue.Function(Function.Host
         match args with
         | [BendValue.String(name); BendValue.Array(statements)] ->
             let dataset = Dataset(name)
-            let statements = Seq.map (fun value -> 
+            let statements = List.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
-                | _ -> failwith "todo") statements
+                | _ -> failwith "todo") (List.ofArray statements)
             match instance.RemoveStatements dataset statements with
             | Ok _ -> Ok BendValue.Nothing
             | Error err -> Error err

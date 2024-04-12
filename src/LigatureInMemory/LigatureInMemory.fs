@@ -27,7 +27,7 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
-            Ok results
+            Ok (List.ofSeq results)
 
 type LigatureInMemory() =
     let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
@@ -43,18 +43,23 @@ type LigatureInMemory() =
                     writer.WriteLine ()) 
                 statements) datasets.Value
 
-    member _.LoadFromString(content: string seq) =
-        let mut dataset = (Dataset (Seq.head content))
+    member this.LoadFromString(content: string seq) =
+        let mutable dataset = (Dataset (Seq.head content))
         Seq.tail content
         |> Seq.iter (fun row -> 
             match run row (newBindings ()) with
-            | Ok(BendValue.String(dataset)) -> failwith "TODO"
-            | Ok(BendValue.Statement(statement)) -> failwith "TODO"
-            | _ -> failwith "TODO")
+            | Ok(BendValue.String(datasetName)) ->
+                let instance: ILigature = this
+                instance.CreateDataset (Dataset datasetName) |> ignore
+                dataset <- Dataset datasetName
+            | Ok(BendValue.Statement(statement)) ->
+                let instance: ILigature = this
+                instance.AddStatements dataset [statement] |> ignore
+            | _ -> ())
 
     interface ILigature with
         member _.AllDatasets() =
-            Ok(Map.keys datasets.Value |> Seq.cast) //Ok datasets.Value
+            Ok(Map.keys datasets.Value |> List.ofSeq) //Ok datasets.Value
 
         member _.DatasetExists dataset =
             Map.containsKey dataset datasets.Value |> Ok
