@@ -6,9 +6,12 @@ module Ligature.Wander.Bindings
 
 type Scope<'K, 'V when 'K: comparison> = Map<'K, 'V>
 
-type Bindings<'K, 'V when 'K: comparison> = { current: Scope<'K, 'V>; stack: Scope<'K, 'V> list }
+type Bindings<'K, 'V when 'K: comparison> =
+    { current: Scope<'K, 'V>
+      stack: Scope<'K, 'V> list }
 
-let newBindings () = { current = Map<'K, 'V> []; stack = [] }
+let newBindings () =
+    { current = Map<'K, 'V> []; stack = [] }
 
 let bind name value bindings =
     let current' = Map.add name value bindings.current

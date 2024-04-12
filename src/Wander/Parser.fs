@@ -13,22 +13,22 @@ open System.Collections
 
 [<RequireQualifiedAccess>]
 type Element =
-| NamePath of string list
-| Nothing
-| Grouping of Element list
-| Application of Element list
-| String of string
-| Int of int64
-| Bytes of byte array
-| Bool of bool
-| Identifier of Ligature.Identifier
-| Array of Element list
-| Let of string * Element
-| When of (Element * Element) list
-| Lambda of string list * Element
-| Record of (string * Element) list
-| Pipe
-| QuestionMark
+    | NamePath of string list
+    | Nothing
+    | Grouping of Element list
+    | Application of Element list
+    | String of string
+    | Int of int64
+    | Bytes of byte array
+    | Bool of bool
+    | Identifier of Ligature.Identifier
+    | Array of Element list
+    | Let of string * Element
+    | When of (Element * Element) list
+    | Lambda of string list * Element
+    | Record of (string * Element) list
+    | Pipe
+    | QuestionMark
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -38,15 +38,16 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
-let nameNib (gaze: Gaze.Gaze<Token>) = 
+let nameNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(Element.NamePath([name]))
+            | Ok(Token.Name(name)) -> Ok(Element.NamePath([ name ]))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let namePathNib = Gaze.map (repeatSep nameStrNibbler Token.Dot) (fun namePath -> Element.NamePath namePath)
+let namePathNib =
+    Gaze.map (repeatSep nameStrNibbler Token.Dot) (fun namePath -> Element.NamePath namePath)
 
 let readAssignment gaze =
     Gaze.attempt
@@ -81,7 +82,8 @@ let readWhen gaze =
 
 let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
 
-let readQuestionMark = Gaze.map (take Token.QuestionMark) (fun _ -> Element.QuestionMark)
+let readQuestionMark =
+    Gaze.map (take Token.QuestionMark) (fun _ -> Element.QuestionMark)
 
 let lambdaNib gaze =
     Gaze.attempt
@@ -92,8 +94,7 @@ let lambdaNib gaze =
                 let! _ = Gaze.attempt (take Token.Arrow) gaze
                 let! body = Gaze.attempt elementNib gaze
                 return Element.Lambda(parameters, body)
-            }
-        )
+            })
         gaze
 
 // let readNameOrFunctionCall (gaze: Gaze.Gaze<Token>) =
@@ -119,7 +120,7 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let applicationNib (gaze: Gaze.Gaze<Token>) = 
+let applicationNib (gaze: Gaze.Gaze<Token>) =
     Gaze.map (repeatMulti applicationInnerNib) (fun elements -> Element.Application(elements)) gaze
 
 let equalSignNib (gaze: Gaze.Gaze<Token>) =
@@ -183,36 +184,36 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let applicationInnerNib = takeFirst [
-    readPipe;
-    readQuestionMark;
-    readValue; 
-    namePathNib;
-    arrayNib; 
-    recordNib;
-    lambdaNib;
-    groupingNib;
-    readWhen;
-    ]
+let applicationInnerNib =
+    takeFirst
+        [ readPipe
+          readQuestionMark
+          readValue
+          namePathNib
+          arrayNib
+          recordNib
+          lambdaNib
+          groupingNib
+          readWhen ]
 
-let elementNib = takeFirst [
-    readAssignment; 
-    applicationNib;
-    namePathNib;
-    readValue; 
-    arrayNib; 
-    recordNib;
-    lambdaNib;
-    groupingNib;
-    readWhen;
-    ]
+let elementNib =
+    takeFirst
+        [ readAssignment
+          applicationNib
+          namePathNib
+          readValue
+          arrayNib
+          recordNib
+          lambdaNib
+          groupingNib
+          readWhen ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list): Result<Element list, LigatureError> =
+let parse (tokens: Token list) : Result<Element list, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -222,10 +223,12 @@ let parse (tokens: Token list): Result<Element list, LigatureError> =
                 | Token.NewLine(_) -> false
                 | _ -> true)
             tokens
+
     if tokens.IsEmpty then
-        Ok [Element.Nothing]
+        Ok [ Element.Nothing ]
     else
         let gaze = Gaze.fromList tokens
+
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
@@ -250,39 +253,48 @@ let expressGrouping values =
     Expression.Grouping res
 
 let handleRecord (declarations: list<string * Element>) =
-    let res = List.map (fun (name, value) -> (name, (expressElement value))) declarations
+    let res =
+        List.map (fun (name, value) -> (name, (expressElement value))) declarations
+
     Expression.Record res
 
 let handleLambda (parameters: string list) body =
-    Expression.Lambda (parameters, (expressElement body))
+    Expression.Lambda(parameters, (expressElement body))
 
 let handleWhen (conditionals: list<Element * Element>) =
-    let conditionals = List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
+    let conditionals =
+        List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
+
     Expression.When conditionals
 
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
     let currentPart = new Generic.List<Expression>()
-    List.iter (fun element ->
-        match element with
-        | Element.Pipe ->
-            let part = List.ofSeq currentPart
-            parts.Add part
-            currentPart.Clear ()
-        | el -> currentPart.Add (expressElement el)) elements
-    parts.Add (List.ofSeq currentPart)
+
+    List.iter
+        (fun element ->
+            match element with
+            | Element.Pipe ->
+                let part = List.ofSeq currentPart
+                parts.Add part
+                currentPart.Clear()
+            | el -> currentPart.Add(expressElement el))
+        elements
+
+    parts.Add(List.ofSeq currentPart)
     // match List.ofSeq parts with
     // | [] -> Expression.Application (List.ofSeq currentPart)
     // | parts ->
-    List.fold (fun expr application -> 
-        List.append application [expr]
-        |> Expression.Application) (Expression.Application(parts[0])) (List.ofSeq parts).Tail
+    List.fold
+        (fun expr application -> List.append application [ expr ] |> Expression.Application)
+        (Expression.Application(parts[0]))
+        (List.ofSeq parts).Tail
 
-let express (elements: Element list): Expression list =
+let express (elements: Element list) : Expression list =
     List.map (fun element -> expressElement element) elements
 
 /// This will eventually handle processing pipe operators
-let rec  expressElement (element: Element) =
+let rec expressElement (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
     | Element.Bool value -> Expression.Bool value
@@ -290,7 +302,7 @@ let rec  expressElement (element: Element) =
     | Element.Nothing -> Expression.Nothing
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Let(name,value) -> Expression.Let(name, (expressElement value))
+    | Element.Let(name, value) -> Expression.Let(name, (expressElement value))
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements

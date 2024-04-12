@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Wander.Model
+
 open Ligature
 open System.Web
 open System
@@ -23,7 +24,7 @@ type Expression =
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
-    | DatasetSet 
+    | DatasetSet
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 
@@ -46,15 +47,16 @@ and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
     | HostFunction of HostFunction
 
-and HostFunction(eval: WanderValue<'t> list -> Bindings.Bindings<string, WanderValue<'t>> -> Result<WanderValue<'t>, LigatureError>) =
+and HostFunction
+    (eval: WanderValue<'t> list -> Bindings.Bindings<string, WanderValue<'t>> -> Result<WanderValue<'t>, LigatureError>)
+    =
     member _.Run args bindings = eval args bindings
 
-type Parameter =
-    { name: string; tag: string }
+type Parameter = { name: string; tag: string }
 
 type Bindings<'t> = Bindings.Bindings<string, WanderValue<'t>>
 
-let rec prettyPrint (value: WanderValue<'t>): string =
+let rec prettyPrint (value: WanderValue<'t>) : string =
     match value with
     | WanderValue.Int i -> sprintf "%i" i
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
@@ -69,16 +71,16 @@ let rec prettyPrint (value: WanderValue<'t>): string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
 
-and printBytes bytes = 
-    bytes 
+and printBytes bytes =
+    bytes
     |> Array.map (fun value -> System.String.Format("{0:X2}", value))
     |> Array.insertAt 0 "0x"
     |> String.concat String.Empty
 
 and printRecord values =
-    "{ " + Map.fold 
-        (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
-         + "}"
+    "{ "
+    + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
+    + "}"
 
 and printStatement statement =
     $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
@@ -91,4 +93,4 @@ and printLigatureValue value =
     | Value.Bytes(bytes) -> printBytes bytes
 
 and printValues values =
-    Seq.fold (fun x y -> x + (prettyPrint y) + ", " ) "" values
+    Seq.fold (fun x y -> x + (prettyPrint y) + ", ") "" values

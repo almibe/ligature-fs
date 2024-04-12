@@ -17,5 +17,4 @@ let wanderTests = wanderTestSuite (fun () -> new LigatureInMemory())
 let ligTests = ligTestSuite (fun () -> new LigatureInMemory())
 
 [<EntryPoint>]
-let main argv = 
-    runTestsInAssemblyWithCLIArgs [] argv
+let main argv = runTestsInAssemblyWithCLIArgs [] argv

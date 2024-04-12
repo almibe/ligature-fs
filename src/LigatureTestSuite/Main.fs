@@ -26,17 +26,24 @@ let statement (entity: string) (attribute: string) (value: Value) =
       Value = value }
 
 let rec allFiles dirs =
-    if Seq.isEmpty dirs then Seq.empty else
-        seq { yield! dirs |> Seq.collect System.IO.Directory.EnumerateFiles
-              yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles }
+    if Seq.isEmpty dirs then
+        Seq.empty
+    else
+        seq {
+            yield! dirs |> Seq.collect System.IO.Directory.EnumerateFiles
+            yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
+        }
 
 let wanderTestSuite (createInstance: Unit -> ILigature) =
-    let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+    let ligatureTestSuite =
+        System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+
     if ligatureTestSuite <> null then
-        allFiles [ligatureTestSuite]
+        allFiles [ ligatureTestSuite ]
         |> Seq.filter (fun file -> String.endsWith ".wander" file)
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadLines file |> String.concat "\n"
+
             testCase $"Test for {file}"
             <| fun _ ->
                 match run script (instancePrelude (createInstance ())) with
@@ -48,18 +55,21 @@ let wanderTestSuite (createInstance: Unit -> ILigature) =
         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
 let ligTestSuite (createInstance: Unit -> ILigature) =
-    let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+    let ligatureTestSuite =
+        System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+
     if ligatureTestSuite <> null then
-        allFiles [ligatureTestSuite]
+        allFiles [ ligatureTestSuite ]
         |> Seq.filter (fun file -> String.endsWith ".lig" file)
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadAllLines file
+
             testCase $"Test for {file}"
             <| fun _ ->
                 let instance = new Ligature.InMemory.LigatureInMemory()
                 instance.LoadFromString(script)
-                let datasets = (instance :> ILigature).AllDatasets ()
-                Expect.equal (Ok [DatasetName "hello"]) datasets "")
+                let datasets = (instance :> ILigature).AllDatasets()
+                Expect.equal (Ok [ DatasetName "hello" ]) datasets "")
         |> Seq.toList
         |> testList "Lig tests"
     else
@@ -73,7 +83,10 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let jvName = statement "character:1" "name" (Value.String "Jean Valjean")
     let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601)
     let javertName = statement "character:2" "name" (Value.String "Inspector Javert")
-    let nemesis = statement "character:2" "hasNemesis" (id "character:1" |> Value.Identifier)
+
+    let nemesis =
+        statement "character:2" "hasNemesis" (id "character:1" |> Value.Identifier)
+
     let statements = List.sort [ jvName; jvNumber; javertName; nemesis ]
 
     testList
@@ -119,7 +132,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.Identifier(id "a"))
-              let writeRes = instance.AddStatements helloDS [statement]
+              let writeRes = instance.AddStatements helloDS [ statement ]
               Expect.isOk writeRes "Could not write statements."
               let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
@@ -128,7 +141,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.Integer 12345)
-              let writeRes = instance.AddStatements helloDS [statement]
+              let writeRes = instance.AddStatements helloDS [ statement ]
               Expect.isOk writeRes "Could not write statements."
               let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
@@ -137,7 +150,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
               let statement = statement "a" "b" (Value.String "hello, world")
-              let writeRes = instance.AddStatements helloDS [statement]
+              let writeRes = instance.AddStatements helloDS [ statement ]
               Expect.isOk writeRes "Could not write statements."
               let result = instance.AllStatements helloDS
               Expect.equal result (Ok [ statement ]) "Dataset should contain new Statements."
@@ -169,7 +182,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               instance.CreateDataset(helloDS) |> ignore
 
               ignore <| instance.AddStatements helloDS statements
-              ignore <| instance.RemoveStatements helloDS [nemesis]
+              ignore <| instance.RemoveStatements helloDS [ nemesis ]
 
               let result = instance.AllStatements helloDS
               let result = Result.map (fun statements -> List.sort statements) result

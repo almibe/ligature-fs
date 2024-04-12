@@ -31,13 +31,13 @@ let fromList list =
 let isComplete (gaze: Gaze<_>) =
     gaze.offset >= Array.length (gaze.content)
 
-let peek (gaze: Gaze<_>): Result<_, GazeError> =
+let peek (gaze: Gaze<_>) : Result<_, GazeError> =
     if isComplete gaze then
         Error(NoMatch)
     else
         Ok(gaze.content[gaze.offset])
 
-let next (gaze: Gaze<_>): Result<_, GazeError> =
+let next (gaze: Gaze<_>) : Result<_, GazeError> =
     if isComplete (gaze) then
         Error(NoMatch)
     else

@@ -9,22 +9,24 @@ open Ligature.Wander.Main
 open Ligature.Wander.Lib.Preludes
 open Ligature.Wander.Model
 
-let config = { FsCheckConfig.defaultConfig with maxTest = 10000 }
+let config =
+    { FsCheckConfig.defaultConfig with
+        maxTest = 10000 }
 
 [<Tests>]
 let properties =
-  testList "Encoding and Decoding Tests" [
-    testProperty "Encode and decode Int" <|
-      fun (value: int64) ->
-        match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
-        | Ok(WanderValue.Int(res)) -> value = res
-        | _ -> false
-    testProperty "Encode and decode String" <|
-      fun (value: string) ->
-        if value <> null then
-          match run (prettyPrint (WanderValue.String(value))) (standardPrelude ()) with
-          | Ok(WanderValue.String(res)) -> value = res
-          | _ -> false        
-        else
-          true
-  ]
+    testList
+        "Encoding and Decoding Tests"
+        [ testProperty "Encode and decode Int"
+          <| fun (value: int64) ->
+              match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
+              | Ok(WanderValue.Int(res)) -> value = res
+              | _ -> false
+          testProperty "Encode and decode String"
+          <| fun (value: string) ->
+              if value <> null then
+                  match run (prettyPrint (WanderValue.String(value))) (standardPrelude ()) with
+                  | Ok(WanderValue.String(res)) -> value = res
+                  | _ -> false
+              else
+                  true ]

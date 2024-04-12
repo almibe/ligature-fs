@@ -17,7 +17,10 @@ module Nibblers
 /// <param name="t">The literal to take.</param>
 /// <returns>A Nibbler that takes a single literal.</returns>
 let take t gaze =
-    if Gaze.next gaze = Ok(t) then Ok(t) else Error(Gaze.GazeError.NoMatch)
+    if Gaze.next gaze = Ok(t) then
+        Ok(t)
+    else
+        Error(Gaze.GazeError.NoMatch)
 
 /// <summary>Create a Nibbler that takes a list of tokens.</summary>
 /// <param name="list">The list of tokens to take.</param>
@@ -38,7 +41,10 @@ let takeList list gaze =
                 cont <- false
         | Error(_) -> cont <- false
 
-    if cont && index = length then Ok list else Error Gaze.GazeError.NoMatch
+    if cont && index = length then
+        Ok list
+    else
+        Error Gaze.GazeError.NoMatch
 
 /// <summary>Create a Nibbler that takes a String when working with a Gaze of Chars.
 /// This is just a helper function that relies on takeList.</summary>
@@ -85,7 +91,10 @@ let takeWhile predicate gaze =
             results <- results @ [ value ]
         | _ -> cont <- false
 
-    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok results
+    if List.length (results) = 0 then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok results
 
 /// <summary>Create a Nibbler that accepts input based on a function that recieves the current token
 /// with index starting at 0 and returns a bool.</summary>
@@ -106,7 +115,10 @@ let takeWhileIndex predicate gaze =
             index <- index + 1
         | _ -> cont <- false
 
-    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if List.length (results) = 0 then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 let takeWhileAccum predicate gaze =
     let mutable cont = true
@@ -121,7 +133,10 @@ let takeWhileAccum predicate gaze =
             results <- results @ [ value ]
         | _ -> cont <- false
 
-    if List.length (results) = 0 then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if List.length (results) = 0 then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 /// <summary>Create a Nibbler that consumes input until the given Nibbler succeeds.</summary>
 /// <param name="nibbler">The Nibbler used to test.</param>
@@ -150,7 +165,11 @@ let takeUntil nibbler gaze =
 let between start content last gaze =
     if Gaze.next gaze = Ok(start) then
         match Gaze.attempt content gaze with
-        | Ok(result) -> if Gaze.next (gaze) = Ok(last) then Ok(result) else Error(Gaze.NoMatch)
+        | Ok(result) ->
+            if Gaze.next (gaze) = Ok(last) then
+                Ok(result)
+            else
+                Error(Gaze.NoMatch)
         | Error(err) -> Error(err)
     else
         Error(Gaze.NoMatch)
@@ -172,7 +191,10 @@ let repeatMulti nibbler gaze =
         | Ok(result) -> results <- results @ [ result ]
         | Error(_) -> cont <- false
 
-    if results.Length < 2 then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if results.Length < 2 then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 let repeatSep nibbler (separator: 'a) gaze =
     let mutable cont = true
@@ -182,6 +204,7 @@ let repeatSep nibbler (separator: 'a) gaze =
         match Gaze.attempt nibbler gaze with
         | Ok(result) ->
             results <- results @ [ result ]
+
             if Gaze.isComplete gaze then
                 cont <- false
             else if Gaze.peek gaze = Ok(separator) then
@@ -190,7 +213,10 @@ let repeatSep nibbler (separator: 'a) gaze =
                 cont <- false
         | Error(_) -> cont <- false
 
-    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if results = [] then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 let repeat nibbler gaze =
     let mutable cont = true
@@ -201,15 +227,20 @@ let repeat nibbler gaze =
         | Ok(result) -> results <- results @ [ result ]
         | Error(_) -> cont <- false
 
-    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if results = [] then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 let repeatOptional nibbler gaze =
     let mutable cont = true
     let mutable results = []
+
     while cont do
         match Gaze.attempt nibbler gaze with
         | Ok(result) -> results <- results @ [ result ]
         | Error(_) -> cont <- false
+
     Ok(results)
 
 let repeatN nibbler n gaze =
@@ -225,7 +256,10 @@ let repeatN nibbler n gaze =
                 cont <- false
         | Error(_) -> cont <- false
 
-    if results = [] then Error(Gaze.GazeError.NoMatch) else Ok(results)
+    if results = [] then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
 
 /// <summary>Create a Nibbler that accepts a List of Nibblers and only succeeds if all of the
 /// passed in Nibblers succeed in order.</summary>

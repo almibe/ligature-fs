@@ -14,5 +14,4 @@ let tests =
               | Error(_) -> failtest "Error parsing Identifier." ]
 
 [<EntryPoint>]
-let main argv =
-    runTestsInAssemblyWithCLIArgs [] argv
+let main argv = runTestsInAssemblyWithCLIArgs [] argv

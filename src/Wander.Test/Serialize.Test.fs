@@ -15,11 +15,11 @@ let tests =
         "Serialization Test"
         [ testCase "Simple write"
           <| fun _ ->
-              
+
               let input =
-                "\"hello\"\n\
+                  "\"hello\"\n\
                 `a` `b` 123"
+
               let instance = new LigatureInMemory()
-              let result = read 
-              Expect.equal result (Ok(WanderValue.Int(1235))) ""
-        ]
+              let result = read
+              Expect.equal result (Ok(WanderValue.Int(1235))) "" ]

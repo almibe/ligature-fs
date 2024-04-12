@@ -33,6 +33,5 @@ let bindStandardLibrary bindings =
 let standardPrelude () =
     bindStandardLibrary (Bindings.newBindings ())
 
-let instancePrelude instance = 
-    standardPrelude ()
-    |> Bindings.bind "Ligature" (ligatureLib instance)
+let instancePrelude instance =
+    standardPrelude () |> Bindings.bind "Ligature" (ligatureLib instance)

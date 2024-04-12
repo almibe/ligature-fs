@@ -9,18 +9,25 @@ open Ligature
 open Ligature.Wander.Main
 open Ligature.Wander.Bindings
 
-let writeValueFunction<'t> = WanderValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [value] -> Ok(WanderValue.String(prettyPrint value))
-        | value   -> error $"Unexpected value - {value}." None)))
+let writeValueFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ value ] -> Ok(WanderValue.String(prettyPrint value))
+                | value -> error $"Unexpected value - {value}." None)
+        )
+    )
 
-let readValueFunction<'t> = WanderValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [WanderValue.String(input)] -> run input (newBindings ())
-        | value -> error $"Unexpected value - {value}." None)))
+let readValueFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.String(input) ] -> run input (newBindings ())
+                | value -> error $"Unexpected value - {value}." None)
+        )
+    )
 
-let wanderLib<'t> = WanderValue.Record (Map [
-    ("writeValue", writeValueFunction)
-    ("readValue", readValueFunction)])
+let wanderLib<'t> =
+    WanderValue.Record(Map [ ("writeValue", writeValueFunction); ("readValue", readValueFunction) ])

@@ -23,9 +23,11 @@ let rec serve (server: ResponseSocket) (instance: ILigature) =
 let main _ =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
+
     let instance =
         match config.persistance with
         | Sqlite config -> ligatureSqlite config
+
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")
     Console.WriteLine("Started on port 4200.")

@@ -5,22 +5,22 @@
 module Ligature.Fable
 
 type ScriptResult =
-  | String of string
-  | Integer of int64
-  | Nothing
-  | Identifier of string
-  | Boolean of bool
-  | Array of ScriptResult seq
-  | Graph 
+    | String of string
+    | Integer of int64
+    | Nothing
+    | Identifier of string
+    | Boolean of bool
+    | Array of ScriptResult seq
+    | Graph
 
 let readScriptResult (input: string) = failwith ""
-    //TODO read nothing
-    //TODO read integer
-    //TODO read string
-    //TODO read identifier
-    //TODO read boolean
-    //TODO read list
-    //TODO read array
+//TODO read nothing
+//TODO read integer
+//TODO read string
+//TODO read identifier
+//TODO read boolean
+//TODO read list
+//TODO read array
 
 // module Ligature.Wander.Fable
 
@@ -36,7 +36,7 @@ let readScriptResult (input: string) = failwith ""
 // let highlight script =
 //     match (introspect script).tokens with
 //     | Ok(tokens) ->
-//         List.map (fun token -> 
+//         List.map (fun token ->
 //             match token with
 //             | Token.Nothing -> ["nothing"; "nothing"]
 //             | Token.Bool(bool) -> ["bool"; string bool]

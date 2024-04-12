@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module Ligature.Wander.Lexer
+
 open Ligature
 open LexerUtil
 
@@ -51,12 +52,11 @@ let identifierTokenNibbler =
     )
 
 let bytesTokenNibbler =
-    Gaze.map bytesNibbler (fun value -> 
+    Gaze.map bytesNibbler (fun value ->
         let bytes = System.String.Concat(Array.ofList (List.concat value))
         Token.Bytes(System.Convert.FromHexString(bytes.[2..])))
 
-let integerTokenNibbler =
-    Gaze.map integerNibbler (fun int64 -> Token.Int(int64))
+let integerTokenNibbler = Gaze.map integerNibbler (fun int64 -> Token.Int(int64))
 
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
@@ -96,41 +96,41 @@ let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
             Nibblers.takeFirst (
-                [
-                whiteSpaceNibbler
-                nameOrKeywordTokenNibbler
-                bytesTokenNibbler
-                integerTokenNibbler
-                newLineTokenNibbler
-                identifierTokenNibbler
-                stringLiteralTokenNibbler
-                takeAndMap "," Token.Comma
-                takeAndMap "=>" Token.WideArrow
-                takeAndMap "->" Token.Arrow
-                takeAndMap "#" Token.Hash
-                takeAndMap "(" Token.OpenParen
-                takeAndMap ")" Token.CloseParen
-                takeAndMap "{" Token.OpenBrace
-                takeAndMap "}" Token.CloseBrace
-                takeAndMap "." Token.Dot
-                takeAndMap "[" Token.OpenSquare
-                takeAndMap "]" Token.CloseSquare
-                takeAndMap "{" Token.OpenBrace
-                takeAndMap "}" Token.CloseBrace
-                takeAndMap ":" Token.Colon
-                takeAndMap "|" Token.Pipe
-                takeAndMap "?" Token.QuestionMark
-                takeAndMap "=" Token.EqualsSign
-                takeAndMap "\\" Token.Lambda
-                commentTokenNibbler ]
+                [ whiteSpaceNibbler
+                  nameOrKeywordTokenNibbler
+                  bytesTokenNibbler
+                  integerTokenNibbler
+                  newLineTokenNibbler
+                  identifierTokenNibbler
+                  stringLiteralTokenNibbler
+                  takeAndMap "," Token.Comma
+                  takeAndMap "=>" Token.WideArrow
+                  takeAndMap "->" Token.Arrow
+                  takeAndMap "#" Token.Hash
+                  takeAndMap "(" Token.OpenParen
+                  takeAndMap ")" Token.CloseParen
+                  takeAndMap "{" Token.OpenBrace
+                  takeAndMap "}" Token.CloseBrace
+                  takeAndMap "." Token.Dot
+                  takeAndMap "[" Token.OpenSquare
+                  takeAndMap "]" Token.CloseSquare
+                  takeAndMap "{" Token.OpenBrace
+                  takeAndMap "}" Token.CloseBrace
+                  takeAndMap ":" Token.Colon
+                  takeAndMap "|" Token.Pipe
+                  takeAndMap "?" Token.QuestionMark
+                  takeAndMap "=" Token.EqualsSign
+                  takeAndMap "\\" Token.Lambda
+                  commentTokenNibbler ]
             )
         )
     )
 
 let tokenize script =
     let gaze = Gaze.fromString (script)
+
     match Gaze.attempt tokenNibbler gaze with
-    | Ok res  ->
+    | Ok res ->
         if Gaze.isComplete gaze then
             Ok res
         else

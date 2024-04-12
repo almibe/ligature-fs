@@ -29,5 +29,4 @@ let tests =
           <| fun _ ->
               let script = "Bool.not true"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Bool(false))) ""
-        ]
+              Expect.equal result (Ok(WanderValue.Bool(false))) "" ]

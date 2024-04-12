@@ -36,10 +36,7 @@ let tests =
               Expect.equal (read "hello" bindings) (Some(5)) "Read bindings after adding known value."
               let bindings = bind "hello" (6) bindings
 
-              Expect.equal
-                  (read "hello" bindings)
-                  (Some(6))
-                  "Read bindings after adding known value in new scope."
+              Expect.equal (read "hello" bindings) (Some(6)) "Read bindings after adding known value in new scope."
 
               let bindings = removeScope bindings
               Expect.equal (read "hello" bindings) (Some(5)) "Read bindings after adding known value." ]

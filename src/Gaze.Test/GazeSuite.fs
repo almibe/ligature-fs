@@ -42,9 +42,9 @@ let tests =
           <| fun _ ->
               let gaze = Gaze.fromString ("a")
               Expect.isFalse (Gaze.isComplete gaze) ""
-              Expect.equal (Gaze.peek gaze) (Ok 'a' ) ""
-              Expect.equal (Gaze.peek gaze) (Ok 'a' ) ""
-              Expect.equal (Gaze.next gaze) (Ok 'a' ) ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a') ""
+              Expect.equal (Gaze.peek gaze) (Ok 'a') ""
+              Expect.equal (Gaze.next gaze) (Ok 'a') ""
               Expect.equal (Gaze.next gaze) (Error(Gaze.GazeError.NoMatch)) ""
               Expect.isTrue (Gaze.isComplete gaze) ""
 

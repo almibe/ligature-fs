@@ -27,37 +27,42 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
+
             failwith "TODO"
-        member this.AllStatements(): Result<Statement list,LigatureError> = 
-            failwith "Not Implemented"
-            //Ok (List.ofSeq results)
+
+        member this.AllStatements() : Result<Statement list, LigatureError> = failwith "Not Implemented"
+//Ok (List.ofSeq results)
 
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
     member _.Write(writer: TextWriter) =
-        Map.iter (fun (DatasetName dataset) statements -> 
-            writer.Write (prettyPrint (WanderValue.String dataset))
-            writer.WriteLine ()
-            Set.iter 
-                (fun statement -> 
-                    writer.Write (printStatement statement)
-                    writer.WriteLine ()) 
-                statements) datasets.Value
+        Map.iter
+            (fun (DatasetName dataset) statements ->
+                writer.Write(prettyPrint (WanderValue.String dataset))
+                writer.WriteLine()
+
+                Set.iter
+                    (fun statement ->
+                        writer.Write(printStatement statement)
+                        writer.WriteLine())
+                    statements)
+            datasets.Value
 
     member this.LoadFromString(content: string seq) =
         let mutable dataset = None
         let instance: ILigature = this
+
         content
-        |> Seq.iter (fun row -> 
+        |> Seq.iter (fun row ->
             match run row (newBindings ()) with
             | Ok(WanderValue.String(datasetName)) ->
-                instance.CreateDataset (DatasetName datasetName) |> ignore
-                dataset <- Some (DatasetName datasetName)
+                instance.CreateDataset(DatasetName datasetName) |> ignore
+                dataset <- Some(DatasetName datasetName)
             | Ok(WanderValue.Statement(statement)) ->
                 match dataset with
-                | Some dataset -> instance.AddStatements dataset [statement] |> ignore
+                | Some dataset -> instance.AddStatements dataset [ statement ] |> ignore
                 | _ -> failwith "Expected Dataset to be set"
             | _ -> ())
 
@@ -72,6 +77,7 @@ type LigatureInMemory() =
             lock this (fun () ->
                 if not (datasets.Value.ContainsKey dataset) then
                     datasets.Value <- Map.add dataset Set.empty datasets.Value //Set.add dataset datasets.Value
+
                 Ok())
 
         member this.RemoveDataset dataset =
@@ -82,9 +88,9 @@ type LigatureInMemory() =
         member _.Query dataset query =
             let tx = new LigatureInMemoryQueryTx(Map.find dataset datasets.Value)
             failwith "TODO"
-//            query tx
+        //            query tx
 
-        // member _.AllStatements dataset = 
+        // member _.AllStatements dataset =
         //     match Map.tryFind dataset datasets.Value with
         //     | Some(result) -> Ok(Set.toList result)
         //     | None -> failwith ""

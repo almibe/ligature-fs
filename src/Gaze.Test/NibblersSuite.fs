@@ -33,10 +33,7 @@ let tests =
                 <| fun _ ->
                     let gaze = Gaze.fromString ("hello, world")
 
-                    Expect.equal
-                        (Gaze.attempt (Nibblers.takeString "hello") gaze)
-                        (Ok([ 'h'; 'e'; 'l'; 'l'; 'o' ]))
-                        ""
+                    Expect.equal (Gaze.attempt (Nibblers.takeString "hello") gaze) (Ok([ 'h'; 'e'; 'l'; 'l'; 'o' ])) ""
 
                     Expect.equal (Gaze.peek gaze) (Ok(',')) "" ]
 
@@ -84,9 +81,19 @@ let tests =
                 <| fun _ ->
                     let gaze = Gaze.fromArray [| 1; 2; 3 |]
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(1)) ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10) ]) gaze) (Error Gaze.GazeError.NoMatch) ""
+
+                    Expect.equal
+                        (Gaze.attempt (Nibblers.takeInRange [ (5, 10) ]) gaze)
+                        (Error Gaze.GazeError.NoMatch)
+                        ""
+
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (1, 10) ]) gaze) (Ok(2)) ""
-                    Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (0, 1) ]) gaze) (Error Gaze.GazeError.NoMatch) ""
+
+                    Expect.equal
+                        (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (0, 1) ]) gaze)
+                        (Error Gaze.GazeError.NoMatch)
+                        ""
+
                     Expect.equal (Gaze.attempt (Nibblers.takeInRange [ (5, 10); (-1, 1); (2, 3) ]) gaze) (Ok(3)) "" ]
 
           testList
@@ -216,14 +223,14 @@ let tests =
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.repeatSep (Nibblers.takeCond (fun c -> c = 'a')) ',') gaze)
-                        (Ok([ 'a'; 'a'; ]))
+                        (Ok([ 'a'; 'a' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""
 
                     Expect.equal
                         (Gaze.attempt (Nibblers.repeatSep (Nibblers.takeCond (fun c -> c = 'b')) ',') gaze)
-                        (Ok([ 'b'; 'b'; ]))
+                        (Ok([ 'b'; 'b' ]))
                         ""
 
                     Expect.isFalse (Gaze.isComplete gaze) ""

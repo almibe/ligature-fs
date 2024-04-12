@@ -8,11 +8,16 @@ open Ligature.Wander.Model
 open Ligature
 open System
 
-let ticksFunction<'t> = WanderValue.Function(Function.HostFunction (
-    new HostFunction((fun args _ ->
-        match args with
-        | [_] -> Ok(WanderValue.Int(DateTime.Now.Ticks))
-        | _ -> error "Invalid call to map function." None))))
+let ticksFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(
+                (fun args _ ->
+                    match args with
+                    | [ _ ] -> Ok(WanderValue.Int(DateTime.Now.Ticks))
+                    | _ -> error "Invalid call to map function." None)
+            )
+        )
+    )
 
-let dateTimeLib<'t> = WanderValue.Record (Map [
-    ("ticks", ticksFunction)])
+let dateTimeLib<'t> = WanderValue.Record(Map [ ("ticks", ticksFunction) ])

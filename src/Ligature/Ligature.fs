@@ -56,15 +56,14 @@ type Statement =
       Value: Value }
 
 let statement entity attribute value =
-    {
-        Entity = entity
-        Attribute = attribute
-        Value = value
-    }
+    { Entity = entity
+      Attribute = attribute
+      Value = value }
 
 type IDataset =
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<IDataset, LigatureError>
+
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
 type Query = IDataset -> Result<IDataset, LigatureError>

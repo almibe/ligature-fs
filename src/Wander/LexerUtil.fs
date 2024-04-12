@@ -17,25 +17,29 @@ let identifierNibbler = Nibblers.between '`' identifierCharacterNibbler '`'
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-    Gaze.map (Nibblers.takeWhileAccum
-        (fun (input, result) ->
+    Gaze.map
+        (Nibblers.takeWhileAccum (fun (input, result) ->
             if input <> '"' then
                 true
             else
-                (try (
-                    let s = "\"" + System.String.Concat((List.append result [input]))
-                    ignore <| System.Text.Json.Nodes.JsonNode.Parse(s)
-                    false) with
-                    _ -> true))) (fun chars -> 
-                    System.Text.Json.Nodes.JsonValue.Parse("\"" + System.String.Concat(chars) + "\"").ToString()
-                    )
+                (try
+                    (let s = "\"" + System.String.Concat((List.append result [ input ]))
+                     ignore <| System.Text.Json.Nodes.JsonNode.Parse(s)
+                     false)
+                 with _ ->
+                     true)))
+        (fun chars ->
+            System.Text.Json.Nodes.JsonValue
+                .Parse("\"" + System.String.Concat(chars) + "\"")
+                .ToString())
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.
-let stringNibbler = Nibblers.takeFirst([
-    Nibblers.between '"' stringContentNibbler '"';
-    Gaze.map (Nibblers.takeList ['"'; '"']) (fun _ -> "")
-    ])
+let stringNibbler =
+    Nibblers.takeFirst (
+        [ Nibblers.between '"' stringContentNibbler '"'
+          Gaze.map (Nibblers.takeList [ '"'; '"' ]) (fun _ -> "") ]
+    )
 
 //let stringTokenNibbler = Gaze.map stringNibbler (fun s -> Token.StringLiteral(s))
 

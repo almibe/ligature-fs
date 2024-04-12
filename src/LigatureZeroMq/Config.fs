@@ -9,8 +9,8 @@ open Argu
 open System
 
 type CliArguments =
-    | Port of port:string
-    | Sqlite of file:string
+    | Port of port: string
+    | Sqlite of file: string
     | In_Memory
 
     interface IArgParserTemplate with
@@ -20,7 +20,7 @@ type CliArguments =
             | Sqlite _ -> "use Sqlite3 for storage using the passed file."
             | In_Memory -> "use a temporary in-memeory only store."
 
-type Persistance = | Sqlite of connectionString: LigatureSqliteConfig
+type Persistance = Sqlite of connectionString: LigatureSqliteConfig
 
 type Config =
     { url: string
@@ -33,4 +33,4 @@ let defaultDBFile () =
 
 let readConfig () =
     { url = "http://localhost:4200"
-      persistance = Sqlite (File (defaultDBFile ())) }
+      persistance = Sqlite(File(defaultDBFile ())) }

@@ -19,21 +19,29 @@ let run (input: string) (bindings: Bindings<_>) =
         | Error _ -> error "Error parsing." None
     | Error _ -> error "Error tokenizing." None
 
-type Introspect = {
-    tokens: Result<Token list, string>
-    elements: Result<Element list, string>
-    expressions: Result<Expression list, string>
-}
+type Introspect =
+    { tokens: Result<Token list, string>
+      elements: Result<Element list, string>
+      expressions: Result<Expression list, string> }
 
 let introspect (input: string) =
     match tokenize input with
-    | Ok tokens -> 
+    | Ok tokens ->
         match parse tokens with
-        | Ok elements -> 
+        | Ok elements ->
             let expressions = express elements
-            { tokens = Ok tokens; elements = Ok elements; expressions = Ok expressions }
-        | Error err -> { tokens = Ok tokens; elements = Error (string err); expressions = Error (string err) }
-    | Error err -> { tokens = Error (string err); elements = Error (string err); expressions = Error (string err) }
+
+            { tokens = Ok tokens
+              elements = Ok elements
+              expressions = Ok expressions }
+        | Error err ->
+            { tokens = Ok tokens
+              elements = Error(string err)
+              expressions = Error(string err) }
+    | Error err ->
+        { tokens = Error(string err)
+          elements = Error(string err)
+          expressions = Error(string err) }
 
 let printResult (result: Result<WanderValue<'t>, LigatureError>) =
     match result with
