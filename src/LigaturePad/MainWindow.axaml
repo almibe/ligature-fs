@@ -17,10 +17,12 @@
                     <Separator/>
                     <MenuItem Click="ExitAction" Header="E_xit"/>
                 </MenuItem>
+                <MenuItem Header="_Action">
+                    <MenuItem Click="RunAction" Header="_Run (ctrl+R)" HotKey="Ctrl+R" />
+                    <MenuItem Click="IntrospectAction" Header="_Introspect"/>
+                </MenuItem>
             </Menu>
             <StackPanel Orientation="Horizontal">
-                <Button Click="RunAction">Run</Button>
-                <Button Click="IntrospectAction">Introspect</Button>
                 <TextBlock x:Name="source">Source: None</TextBlock>
             </StackPanel>
         </StackPanel>
