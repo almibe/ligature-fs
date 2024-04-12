@@ -23,7 +23,7 @@ test suite for the other project.
 
 | Project           | Description                                                        |
 | ----------------- | ------------------------------------------------------------------ |
-| Bend              | The Bend scripting language.                                       |
+| Wander              | The Wander scripting language.                                       |
 | build             | Fake build script.                                                 |
 | Gaze              | A parsing library.                                                 |
 | Ligature          | Main code base including the main logic and types.                 |
@@ -59,7 +59,7 @@ Examples running the linter
 
 ## LigatureZeroMQ
 
-LigatureZeroMQ is a project that allows running Bend code against an instance of Ligature via [ZeroMQ]().
+LigatureZeroMQ is a project that allows running Wander code against an instance of Ligature via [ZeroMQ]().
 
 ### Running LigatureZeroMQ
 

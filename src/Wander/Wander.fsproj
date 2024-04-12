@@ -12,9 +12,9 @@
     <Compile Include="Lexer.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
-    <Compile Include="Bend.fs" />
+    <Compile Include="Wander.fs" />
     <Compile Include="lib/Array.fs" />
-    <Compile Include="lib/Bend.fs" />
+    <Compile Include="lib/Wander.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/DateTime.fs" />

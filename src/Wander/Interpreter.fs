@@ -2,33 +2,33 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Interpreter
+module Ligature.Wander.Interpreter
 
-open Ligature.Bend.Model
-open Ligature.Bend.Bindings
+open Ligature.Wander.Model
+open Ligature.Wander.Bindings
 open Ligature
 
-let readNamePath (namePath: string list) (bindings: Bindings<string, BendValue<'t>>) =
+let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue<'t>>) =
     match read (List.head namePath) bindings with
     | Some(value) -> 
         match value with
-        | BendValue.Record(values) -> 
+        | WanderValue.Record(values) -> 
             match namePath.Tail with
-            | [] -> Some (BendValue.Record values)
+            | [] -> Some (WanderValue.Record values)
             | namePath -> 
                 List.fold (fun values name -> 
                     match values with
-                    | Some(BendValue.Record(values)) -> 
+                    | Some(WanderValue.Record(values)) -> 
                         match Map.tryFind name values with
                         | Some(res) -> Some(res)
                         | None -> None
                     | None -> failwith "Not Implemented"
-                    | Some(value) -> Some value) (Some(BendValue.Record(values))) namePath
+                    | Some(value) -> Some value) (Some(WanderValue.Record(values))) namePath
         | value -> Some value
     | None -> None
 
 let rec evalExpression bindings expression =
-    let rec bindArguments (args: Ligature.Bend.Model.Expression list) (parameters: string list) (bindings: Bindings<_,_>): Result<Bindings<_,_>, LigatureError> =
+    let rec bindArguments (args: Ligature.Wander.Model.Expression list) (parameters: string list) (bindings: Bindings<_,_>): Result<Bindings<_,_>, LigatureError> =
         if List.length args <> List.length parameters then
             failwith "todo"
         else if List.isEmpty args && List.isEmpty parameters then
@@ -67,11 +67,11 @@ let rec evalExpression bindings expression =
         //     | Error(err) -> todo)
         //             args
     //     match Bindings.read name bindings with
-    //     | Some(BendValue.HostFunction(funct)) -> 
+    //     | Some(WanderValue.HostFunction(funct)) -> 
     //         match funct.Run args bindings with
     //         | Ok res -> Ok (res, bindings)
     //         | Error(err) -> Error(err)
-    //     // | Some(BendValue.Lambda(parameters, body)) ->
+    //     // | Some(WanderValue.Lambda(parameters, body)) ->
     //     //     match bindArguments args parameters bindings with
     //     //     | Ok(bindings) -> evalExpression bindings body
     //     //     | Error(err) -> Error(err)
@@ -83,8 +83,8 @@ let rec evalExpression bindings expression =
 
     //     result <-
     //         match ifCondition with
-    //         | Ok(BendValue.Bool(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
-    //         | Ok(BendValue.Bool(false), _) -> None
+    //         | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
+    //         | Ok(WanderValue.Bool(false), _) -> None
     //         | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
     //         | Error x -> Some(Error x)
 
@@ -93,8 +93,8 @@ let rec evalExpression bindings expression =
         //     let case = elsifCases.Head
         //     result <- 
         //         match evalExpression bindings case.condition with
-        //         | Ok(BendValue.Bool(true), bindings) -> Some (evalExpression bindings case.body)
-        //         | Ok(BendValue.Bool(false), _) -> None
+        //         | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings case.body)
+        //         | Ok(WanderValue.Bool(false), _) -> None
         //         | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
         //         | Error x -> Some(Error x)
         //     elsifCases <- elsifCases.Tail
@@ -102,33 +102,33 @@ let rec evalExpression bindings expression =
         // match result with
         // | None -> evalExpression bindings conditional.elseBody
         // | Some(result) -> result
-    | Expression.Nothing -> Ok (BendValue.Nothing, bindings)
-    | Expression.Int value -> Ok (BendValue.Int value, bindings)
-    | Expression.String value -> Ok (BendValue.String value, bindings)
-    | Expression.Bool value -> Ok (BendValue.Bool value, bindings)
-    | Expression.Identifier id -> Ok (BendValue.Identifier id, bindings)
+    | Expression.Nothing -> Ok (WanderValue.Nothing, bindings)
+    | Expression.Int value -> Ok (WanderValue.Int value, bindings)
+    | Expression.String value -> Ok (WanderValue.String value, bindings)
+    | Expression.Bool value -> Ok (WanderValue.Bool value, bindings)
+    | Expression.Identifier id -> Ok (WanderValue.Identifier id, bindings)
     | Expression.Array(expressions) ->
         let mutable error = None
-        let res: BendValue<'t> array = 
+        let res: WanderValue<'t> array = 
             //TODO this doesn't short circuit on first error
             Array.map (fun e ->
                 match evalExpression bindings e with
                 | Ok(value, _) -> value
                 | Error(err) -> 
                     if Option.isNone error then error <- Some(err)
-                    BendValue.Nothing
+                    WanderValue.Nothing
                         ) (Array.ofList expressions)
         match error with
-        | None -> Ok((BendValue.Array(res), bindings))
+        | None -> Ok((WanderValue.Array(res), bindings))
         | Some(err) -> Error(err)
     | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(values) -> handleRecord bindings values
     | Expression.When(conditionals) -> handleWhen bindings conditionals
     | Expression.Application(values) -> handleApplication bindings values
-    | Expression.QuestionMark -> Ok (BendValue.Nothing, bindings)
-    | Expression.Bytes(value) -> Ok (BendValue.Bytes(value), bindings)
+    | Expression.QuestionMark -> Ok (WanderValue.Nothing, bindings)
+    | Expression.Bytes(value) -> Ok (WanderValue.Bytes(value), bindings)
 
-and callFunction (fn: Function) (args: BendValue<'t> list) (bindings: Bindings<_,_>) =
+and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_,_>) =
     match fn with
     | Function.Lambda(parameters, body) ->
         if (List.length parameters) = (List.length args) then
@@ -146,17 +146,17 @@ and handleRecord bindings values =
         | Error(err)   -> failwith "TODO"
         | Ok((res, _)) -> (name, res)) values
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
-    Ok (BendValue.Record (v), bindings)
+    Ok (WanderValue.Record (v), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
     match List.tryHead values with
     | Some(Expression.NamePath(functionName)) ->
         match readNamePath functionName bindings with
-        | Some(BendValue.Function(Function.Lambda(parameters, body))) -> evalLambda bindings parameters body arguments
-        | Some(BendValue.Function(Function.HostFunction(hostFunction))) -> evalHostFunction bindings hostFunction arguments
-        | Some(BendValue.Array(values)) -> evalArray bindings values arguments
-        | Some(BendValue.Identifier(entity)) -> evalStatement bindings entity arguments
+        | Some(WanderValue.Function(Function.Lambda(parameters, body))) -> evalLambda bindings parameters body arguments
+        | Some(WanderValue.Function(Function.HostFunction(hostFunction))) -> evalHostFunction bindings hostFunction arguments
+        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
+        | Some(WanderValue.Identifier(entity)) -> evalStatement bindings entity arguments
         | Some(_) -> error "Improper application." None
         | None -> error $"Function {functionName} not found." None
     | Some(Expression.Identifier(entity)) -> evalStatement bindings entity arguments
@@ -174,12 +174,12 @@ and evalStatement bindings (entity: Identifier) arguments =
             | Expression.Bytes(value) -> Value.Bytes(value)
             | value ->
                 match evalExpression bindings value with
-                | Ok((BendValue.Identifier(value), _)) -> Value.Identifier(value)
-                | Ok((BendValue.Int(value), _)) -> Value.Integer(value)
-                | Ok((BendValue.String(value), _)) -> Value.String(value)
-                | Ok((BendValue.Bytes(value), _)) -> Value.Bytes(value)
+                | Ok((WanderValue.Identifier(value), _)) -> Value.Identifier(value)
+                | Ok((WanderValue.Int(value), _)) -> Value.Integer(value)
+                | Ok((WanderValue.String(value), _)) -> Value.String(value)
+                | Ok((WanderValue.Bytes(value), _)) -> Value.Bytes(value)
                 | _ -> failwith ""
-        Ok((BendValue.Statement({ Entity = entity; Attribute = attribute; Value = value } ), bindings))
+        Ok((WanderValue.Statement({ Entity = entity; Attribute = attribute; Value = value } ), bindings))
     | _ -> failwith ""
 
 and evalHostFunction bindings hostFunction arguments =
@@ -199,7 +199,7 @@ and evalArray bindings array arguments =
 and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
-    let args = Array.init (List.length parameters) (fun i -> BendValue.Nothing)
+    let args = Array.init (List.length parameters) (fun i -> WanderValue.Nothing)
     List.tryFind (fun arg -> 
         match evalExpression bindings arg with
         | Ok((res, _)) ->
@@ -217,12 +217,12 @@ and evalLambda bindings parameters body arguments =
         evalExpression scope body
 
 and handleLambda bindings parameters body =
-    Ok(BendValue.Function(Function.Lambda(parameters, body)), bindings)
+    Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
 and handleWhen bindings conditionals =
     match List.tryFind (fun (condition, body) -> 
         match evalExpression bindings condition with
-        | Ok((BendValue.Bool(value), _)) -> value
+        | Ok((WanderValue.Bool(value), _)) -> value
         | _ -> false
         ) conditionals with
     | Some((_, body)) -> evalExpression bindings body
@@ -231,12 +231,12 @@ and handleWhen bindings conditionals =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(BendValue<'t> * Bindings.Bindings<_, _>), LigatureError> =
+    : Result<(WanderValue<'t> * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok(BendValue.Nothing, bindings)
+    | 0 -> Ok(WanderValue.Nothing, bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok(BendValue.Nothing, bindings)
+        let mutable result = Ok(WanderValue.Nothing, bindings)
         let mutable cont = true
         let mutable bindings = bindings
         let mutable expressions = expressions

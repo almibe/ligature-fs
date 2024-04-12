@@ -2,37 +2,37 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Lib.Bool
-open Ligature.Bend.Model
+module Ligature.Wander.Lib.Bool
+open Ligature.Wander.Model
 open Ligature
 
-let notFunction<'t> = BendValue.Function(Function.HostFunction (
+let notFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args.Head with
-        | BendValue.Bool(value) -> Ok(BendValue.Bool(not value))
+        | WanderValue.Bool(value) -> Ok(WanderValue.Bool(not value))
         | _ -> error "Invalid call to not function." None))))
 
-let andFunction<'t> = BendValue.Function(Function.HostFunction (
+let andFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [BendValue.Bool(left); BendValue.Bool(right)] -> Ok(BendValue.Bool(left && right))
+        | [WanderValue.Bool(left); WanderValue.Bool(right)] -> Ok(WanderValue.Bool(left && right))
         | _ -> error "Invalid call to and function." None))))
 
-let toBytesFunction<'t> = BendValue.Function(Function.HostFunction (
+let toBytesFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [BendValue.Bool(false)] -> Ok(BendValue.Bytes([|0uy|]))
-        | [BendValue.Bool(true)] -> Ok(BendValue.Bytes([|1uy|]))
+        | [WanderValue.Bool(false)] -> Ok(WanderValue.Bytes([|0uy|]))
+        | [WanderValue.Bool(true)] -> Ok(WanderValue.Bytes([|1uy|]))
         | _ -> error "Invalid call to Bool.toBytes function." None))))
 
-let fromBytesFunction<'t> = BendValue.Function(Function.HostFunction (
+let fromBytesFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [BendValue.Bytes([|0uy|])] -> Ok(BendValue.Bool(false))
-        | [BendValue.Bytes([|1uy|])] -> Ok(BendValue.Bool(true))
+        | [WanderValue.Bytes([|0uy|])] -> Ok(WanderValue.Bool(false))
+        | [WanderValue.Bytes([|1uy|])] -> Ok(WanderValue.Bool(true))
         | _ -> error "Invalid call to Bool.fromBytes function." None))))
 
-let boolLib<'t> = BendValue.Record (Map [
+let boolLib<'t> = WanderValue.Record (Map [
     ("toBytes", toBytesFunction)
     ("fromBytes", fromBytesFunction)
     ("not", notFunction)

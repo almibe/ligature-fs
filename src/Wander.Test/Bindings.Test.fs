@@ -2,10 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Bindings.Test
+module Ligature.Wander.Bindings.Test
 
 open Expecto
-open Ligature.Bend.Bindings
+open Ligature.Wander.Bindings
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 

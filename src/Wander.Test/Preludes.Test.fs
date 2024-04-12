@@ -2,18 +2,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Preludes.Test
+module Ligature.Wander.Preludes.Test
 
 open Expecto
-open Ligature.Bend.Model
-open Ligature.Bend.Main
-open Ligature.Bend.Lib.Preludes
+open Ligature.Wander.Model
+open Ligature.Wander.Main
+open Ligature.Wander.Lib.Preludes
 open Ligature
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let ident id =
-    BendValue.Identifier(
+    WanderValue.Identifier(
         match identifier id with
         | Ok v -> v
         | Error _ -> todo
@@ -29,5 +29,5 @@ let tests =
           <| fun _ ->
               let script = "Bool.not true"
               let result = run script bindings
-              Expect.equal result (Ok(BendValue.Bool(false))) ""
+              Expect.equal result (Ok(WanderValue.Bool(false))) ""
         ]

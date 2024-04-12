@@ -11,7 +11,7 @@ open Ligature.TestSuite
 let tests = ligatureTestSuite (fun () -> new LigatureInMemory())
 
 [<Tests>]
-let bendTests = bendTestSuite (fun () -> new LigatureInMemory())
+let wanderTests = wanderTestSuite (fun () -> new LigatureInMemory())
 
 [<Tests>]
 let ligTests = ligTestSuite (fun () -> new LigatureInMemory())

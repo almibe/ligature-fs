@@ -22,10 +22,10 @@ let readScriptResult (input: string) = failwith ""
     //TODO read list
     //TODO read array
 
-// module Ligature.Bend.Fable
+// module Ligature.Wander.Fable
 
-// open Ligature.Bend.Main
-// open Ligature.Bend.Bindings
+// open Ligature.Wander.Main
+// open Ligature.Wander.Bindings
 // open Lexer
 
 // let execute script = run script (newBindings())

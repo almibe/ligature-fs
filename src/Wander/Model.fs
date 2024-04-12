@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Model
+module Ligature.Wander.Model
 open Ligature
 open System.Web
 open System
@@ -28,7 +28,7 @@ type Expression =
     | Lambda of list<string> * Expression
 
 [<RequireQualifiedAccess>]
-type BendValue<'t> =
+type WanderValue<'t> =
     | QuestionMark
     | Int of int64
     | String of string
@@ -37,8 +37,8 @@ type BendValue<'t> =
     | Statement of Ligature.Statement
     | Nothing
     | Function of Function
-    | Array of BendValue<'t> array
-    | Record of Map<string, BendValue<'t>>
+    | Array of WanderValue<'t> array
+    | Record of Map<string, WanderValue<'t>>
     | Bytes of byte array
     | HostValue of 't
 
@@ -46,28 +46,28 @@ and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
     | HostFunction of HostFunction
 
-and HostFunction(eval: BendValue<'t> list -> Bindings.Bindings<string, BendValue<'t>> -> Result<BendValue<'t>, LigatureError>) =
+and HostFunction(eval: WanderValue<'t> list -> Bindings.Bindings<string, WanderValue<'t>> -> Result<WanderValue<'t>, LigatureError>) =
     member _.Run args bindings = eval args bindings
 
 type Parameter =
     { name: string; tag: string }
 
-type Bindings<'t> = Bindings.Bindings<string, BendValue<'t>>
+type Bindings<'t> = Bindings.Bindings<string, WanderValue<'t>>
 
-let rec prettyPrint (value: BendValue<'t>): string =
+let rec prettyPrint (value: WanderValue<'t>): string =
     match value with
-    | BendValue.Int i -> sprintf "%i" i
-    | BendValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
-    | BendValue.Bool b -> sprintf "%b" b
-    | BendValue.Identifier i -> $"`{(readIdentifier i)}`"
-    | BendValue.Nothing -> "Nothing"
-    | BendValue.Array(values) -> $"[{printValues values}]"
-    | BendValue.HostValue(_) -> "HostValue"
-    | BendValue.Statement(statement) -> printStatement statement
-    | BendValue.Record(values) -> printRecord values
-    | BendValue.QuestionMark -> "?"
-    | BendValue.Function(_) -> "Function"
-    | BendValue.Bytes(bytes) -> printBytes bytes
+    | WanderValue.Int i -> sprintf "%i" i
+    | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
+    | WanderValue.Bool b -> sprintf "%b" b
+    | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
+    | WanderValue.Nothing -> "Nothing"
+    | WanderValue.Array(values) -> $"[{printValues values}]"
+    | WanderValue.HostValue(_) -> "HostValue"
+    | WanderValue.Statement(statement) -> printStatement statement
+    | WanderValue.Record(values) -> printRecord values
+    | WanderValue.QuestionMark -> "?"
+    | WanderValue.Function(_) -> "Function"
+    | WanderValue.Bytes(bytes) -> printBytes bytes
 
 and printBytes bytes = 
     bytes 

@@ -2,9 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Main
+module Ligature.Wander.Main
 
-open Ligature.Bend.Model
+open Ligature.Wander.Model
 open Parser
 open Lexer
 open Ligature
@@ -35,7 +35,7 @@ let introspect (input: string) =
         | Error err -> { tokens = Ok tokens; elements = Error (string err); expressions = Error (string err) }
     | Error err -> { tokens = Error (string err); elements = Error (string err); expressions = Error (string err) }
 
-let printResult (result: Result<BendValue<'t>, LigatureError>) =
+let printResult (result: Result<WanderValue<'t>, LigatureError>) =
     match result with
     | Ok value -> prettyPrint value
     | Error err -> err.UserMessage

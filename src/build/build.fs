@@ -20,7 +20,7 @@ Target.create "RunAllTests" (fun tp ->
           "./src/LigatureLab.Test/LigatureLab.Test.fsproj"
           "./src/LigatureLMDB.Test/LigatureLMDB.Test.fsproj"
           "./src/LigatureSqlite.Test/LigatureSqlite.Test.fsproj"
-          "./src/Bend.Test/Bend.Test.fsproj" ]
+          "./src/Wander.Test/Wander.Test.fsproj" ]
 
     let failed =
         testProjects

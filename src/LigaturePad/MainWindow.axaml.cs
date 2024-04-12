@@ -6,8 +6,8 @@ namespace LigaturePad;
 
 
 extern alias LigatureInMemory;
-extern alias Bend;
-using _ = Bend::Ligature.Bend.Main;
+extern alias Wander;
+using _ = Wander::Ligature.Wander.Main;
 
 using Avalonia.Interactivity;
 using Avalonia.Controls;
@@ -37,7 +37,7 @@ public partial class MainWindow : Window
         }
 
         //TODO use instance prelude
-        var res = _.printResult(_.run(ScriptText.Text, Bend.Ligature.Bend.Lib.Preludes.instancePrelude(this.instance)));
+        var res = _.printResult(_.run(ScriptText.Text, Wander.Ligature.Wander.Lib.Preludes.instancePrelude(this.instance)));
         ResultText.Text = res;
     }
 

@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bend\Bend.fsproj" />
+    <ProjectReference Include="..\Wander\Wander.fsproj" />
   </ItemGroup>
 
 </Project>

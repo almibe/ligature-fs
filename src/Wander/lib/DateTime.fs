@@ -2,17 +2,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Lib.DateTime
+module Ligature.Wander.Lib.DateTime
 
-open Ligature.Bend.Model
+open Ligature.Wander.Model
 open Ligature
 open System
 
-let ticksFunction<'t> = BendValue.Function(Function.HostFunction (
+let ticksFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction((fun args _ ->
         match args with
-        | [_] -> Ok(BendValue.Int(DateTime.Now.Ticks))
+        | [_] -> Ok(WanderValue.Int(DateTime.Now.Ticks))
         | _ -> error "Invalid call to map function." None))))
 
-let dateTimeLib<'t> = BendValue.Record (Map [
+let dateTimeLib<'t> = WanderValue.Record (Map [
     ("ticks", ticksFunction)])

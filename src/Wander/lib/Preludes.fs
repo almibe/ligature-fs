@@ -2,9 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Lib.Preludes
+module Ligature.Wander.Lib.Preludes
 
-open Ligature.Bend
+open Ligature.Wander
 open Bool
 open Bytes
 open Identifier
@@ -13,13 +13,13 @@ open Statement
 open Test
 open Int
 open Record
-open Bend
+open Wander
 open DateTime
 
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Array" Array.arrayLib
-    |> Bindings.bind "Bend" bendLib
+    |> Bindings.bind "Wander" wanderLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib

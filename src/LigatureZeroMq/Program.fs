@@ -7,11 +7,11 @@ module Ligature.ZMQ.Main
 open Ligature.Sqlite.Main
 open Ligature.ZMQ.Config
 open Ligature
-open Ligature.Bend.Main
+open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Ligature.Bend.Lib.Preludes
+open Ligature.Wander.Lib.Preludes
 
 let rec serve (server: ResponseSocket) (instance: ILigature) =
     let script = server.ReceiveFrameString()

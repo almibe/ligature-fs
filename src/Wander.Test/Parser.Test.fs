@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Parser.Test
+module Ligature.Wander.Parser.Test
 
 open Expecto
 open Ligature
-open Bend.Parser
-open Bend.Lexer
+open Wander.Parser
+open Wander.Lexer
 
 let unsafe result =
     match result with

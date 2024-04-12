@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\Bend\Bend.fsproj" />
+    <ProjectReference Include="..\Wander\Wander.fsproj" />
     <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
   </ItemGroup>
 

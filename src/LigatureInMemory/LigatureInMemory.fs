@@ -6,9 +6,9 @@ module Ligature.InMemory
 
 open Ligature
 open System.IO
-open Ligature.Bend.Model
-open Ligature.Bend.Main
-open Ligature.Bend.Bindings
+open Ligature.Wander.Model
+open Ligature.Wander.Main
+open Ligature.Wander.Bindings
 
 type LigatureInMemoryQueryTx(statements: Set<Statement>) =
     interface IDataset with
@@ -38,7 +38,7 @@ type LigatureInMemory() =
 
     member _.Write(writer: TextWriter) =
         Map.iter (fun (DatasetName dataset) statements -> 
-            writer.Write (prettyPrint (BendValue.String dataset))
+            writer.Write (prettyPrint (WanderValue.String dataset))
             writer.WriteLine ()
             Set.iter 
                 (fun statement -> 
@@ -52,10 +52,10 @@ type LigatureInMemory() =
         content
         |> Seq.iter (fun row -> 
             match run row (newBindings ()) with
-            | Ok(BendValue.String(datasetName)) ->
+            | Ok(WanderValue.String(datasetName)) ->
                 instance.CreateDataset (DatasetName datasetName) |> ignore
                 dataset <- Some (DatasetName datasetName)
-            | Ok(BendValue.Statement(statement)) ->
+            | Ok(WanderValue.Statement(statement)) ->
                 match dataset with
                 | Some dataset -> instance.AddStatements dataset [statement] |> ignore
                 | _ -> failwith "Expected Dataset to be set"

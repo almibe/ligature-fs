@@ -2,16 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Bend.Lib.Bytes
+module Ligature.Wander.Lib.Bytes
 
-open Ligature.Bend.Model
+open Ligature.Wander.Model
 open Ligature
 
-let lengthFunction<'t> = BendValue.Function(Function.HostFunction (
+let lengthFunction<'t> = WanderValue.Function(Function.HostFunction (
     new HostFunction(fun args _ ->
         match args with
-        | [BendValue.Bytes(bytes)] -> Ok(BendValue.Int(Array.length bytes))
+        | [WanderValue.Bytes(bytes)] -> Ok(WanderValue.Int(Array.length bytes))
         | _ -> error "Invalid call to map function." None)))
 
-let bytesLib<'t> = BendValue.Record (Map [
+let bytesLib<'t> = WanderValue.Record (Map [
     ("length", lengthFunction)])

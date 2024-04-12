@@ -10,7 +10,7 @@
     <Compile Include="Bindings.Test.fs" />
     <Compile Include="Lexer.Test.fs" />
     <Compile Include="Parser.Test.fs" />
-    <Compile Include="Bend.Test.fs" />
+    <Compile Include="Wander.Test.fs" />
     <Compile Include="Instance.Test.fs" />
     <Compile Include="Preludes.Test.fs" />
     <Compile Include="Encoding.Test.fs" />
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bend\Bend.fsproj" />
+    <ProjectReference Include="..\Wander\Wander.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -7,8 +7,8 @@ module Ligature.TestSuite
 open Expecto
 open Ligature
 open FSharpPlus
-open Ligature.Bend.Main
-open Ligature.Bend.Lib.Preludes
+open Ligature.Wander.Main
+open Ligature.Wander.Lib.Preludes
 
 /// Unsafe helper function for creating Identifiers.
 let id ident =
@@ -30,11 +30,11 @@ let rec allFiles dirs =
         seq { yield! dirs |> Seq.collect System.IO.Directory.EnumerateFiles
               yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles }
 
-let bendTestSuite (createInstance: Unit -> ILigature) =
+let wanderTestSuite (createInstance: Unit -> ILigature) =
     let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
     if ligatureTestSuite <> null then
         allFiles [ligatureTestSuite]
-        |> Seq.filter (fun file -> String.endsWith ".bend" file)
+        |> Seq.filter (fun file -> String.endsWith ".wander" file)
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadLines file |> String.concat "\n"
             testCase $"Test for {file}"
@@ -43,7 +43,7 @@ let bendTestSuite (createInstance: Unit -> ILigature) =
                 | Ok(_) -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
-        |> testList "Bend tests"
+        |> testList "Wander tests"
     else
         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
