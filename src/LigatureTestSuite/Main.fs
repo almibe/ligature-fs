@@ -47,6 +47,24 @@ let bendTestSuite (createInstance: Unit -> ILigature) =
     else
         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
+let ligTestSuite (createInstance: Unit -> ILigature) =
+    let ligatureTestSuite = System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+    if ligatureTestSuite <> null then
+        allFiles [ligatureTestSuite]
+        |> Seq.filter (fun file -> String.endsWith ".lig" file)
+        |> Seq.map (fun file ->
+            let script = System.IO.File.ReadAllLines file
+            testCase $"Test for {file}"
+            <| fun _ ->
+                let instance = new Ligature.InMemory.LigatureInMemory()
+                instance.LoadFromString(script)
+                let datasets = (instance :> ILigature).AllDatasets ()
+                Expect.equal (Ok [Dataset "hello"]) datasets "")
+        |> Seq.toList
+        |> testList "Lig tests"
+    else
+        failwith "Please set LIGATURE_TEST_SUITE environment variable."
+
 let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let helloDS = Dataset "hello"
     let hello2DS = Dataset "hello2"
@@ -64,7 +82,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               let datasets = instance.AllDatasets()
-              Expect.equal (datasets) (Ok List.empty) "Datasets should be empty."
+              Expect.equal datasets (Ok []) "Datasets should be empty."
           testCase "add a Dataset"
           <| fun _ ->
               let instance = createInstance ()

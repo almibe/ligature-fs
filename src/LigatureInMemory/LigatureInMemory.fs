@@ -44,17 +44,18 @@ type LigatureInMemory() =
                 statements) datasets.Value
 
     member this.LoadFromString(content: string seq) =
-        let mutable dataset = (Dataset (Seq.head content))
-        Seq.tail content
+        let mutable dataset = None
+        let instance: ILigature = this
+        content
         |> Seq.iter (fun row -> 
             match run row (newBindings ()) with
             | Ok(BendValue.String(datasetName)) ->
-                let instance: ILigature = this
                 instance.CreateDataset (Dataset datasetName) |> ignore
-                dataset <- Dataset datasetName
+                dataset <- Some (Dataset datasetName)
             | Ok(BendValue.Statement(statement)) ->
-                let instance: ILigature = this
-                instance.AddStatements dataset [statement] |> ignore
+                match dataset with
+                | Some dataset -> instance.AddStatements dataset [statement] |> ignore
+                | _ -> failwith "Expected Dataset to be set"
             | _ -> ())
 
     interface ILigature with

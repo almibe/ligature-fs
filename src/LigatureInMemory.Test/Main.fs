@@ -13,6 +13,9 @@ let tests = ligatureTestSuite (fun () -> new LigatureInMemory())
 [<Tests>]
 let bendTests = bendTestSuite (fun () -> new LigatureInMemory())
 
+[<Tests>]
+let ligTests = ligTestSuite (fun () -> new LigatureInMemory())
+
 [<EntryPoint>]
 let main argv = 
     runTestsInAssemblyWithCLIArgs [] argv
