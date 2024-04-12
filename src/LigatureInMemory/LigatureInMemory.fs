@@ -5,6 +5,10 @@
 module Ligature.InMemory
 
 open Ligature
+open System.IO
+open Ligature.Bend.Model
+open Ligature.Bend.Main
+open Ligature.Bend.Bindings
 
 type LigatureInMemoryQueryTx(statements: Set<Statement>) =
     interface IQueryTx with
@@ -28,6 +32,25 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
 type LigatureInMemory() =
     let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
+
+    member _.Write(writer: TextWriter) =
+        Map.iter (fun (Dataset dataset) statements -> 
+            writer.Write (prettyPrint (BendValue.String dataset))
+            writer.WriteLine ()
+            Set.iter 
+                (fun statement -> 
+                    writer.Write (printStatement statement)
+                    writer.WriteLine ()) 
+                statements) datasets.Value
+
+    member _.LoadFromString(content: string seq) =
+        let mut dataset = (Dataset (Seq.head content))
+        Seq.tail content
+        |> Seq.iter (fun row -> 
+            match run row (newBindings ()) with
+            | Ok(BendValue.String(dataset)) -> failwith "TODO"
+            | Ok(BendValue.Statement(statement)) -> failwith "TODO"
+            | _ -> failwith "TODO")
 
     interface ILigature with
         member _.AllDatasets() =

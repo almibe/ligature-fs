@@ -17,11 +17,12 @@ using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using System.ComponentModel;
 using System.IO;
+using System;
 
 public partial class MainWindow : Window
 {
     private LigatureInMemory.Ligature.InMemory.LigatureInMemory instance = new();
-    private string sourcePath = "";
+    private string? sourcePath = null;
 
     public MainWindow()
     {
@@ -42,10 +43,7 @@ public partial class MainWindow : Window
 
     public void IntrospectAction(object sender, RoutedEventArgs args)
     {
-        // let editorText = state.Current.EditorText
-        // let res = string (introspect editorText)
-        // state.Set({ ResultText = res; EditorText = editorText})) //state.Current.EditorText }))
-        source.Text = "Source: None";
+        throw new NotSupportedException();
     }
 
     public void NewAction(object sender, RoutedEventArgs args)
@@ -62,21 +60,41 @@ public partial class MainWindow : Window
             AllowMultiple = false
         });
 
-        if (files.Count >= 1)
+        if (files.Count == 1)
         {
             var file = files[0];
             source.Text = $"Source: {file.Path.AbsolutePath.ToString()}";
+            sourcePath = file.Path.AbsolutePath.ToString();
+            instance.LoadFromString(File.ReadAllLines(sourcePath));
         }
     }
 
-    public void SaveAction(object sender, RoutedEventArgs args)
+    public async void SaveAction(object sender, RoutedEventArgs args)
     {
-        var writer = new StreamWriter(this.sourcePath);
-        // let editorText = state.Current.EditorText
-        // let res = string (introspect editorText)
-        // state.Set({ ResultText = res; EditorText = editorText})) //state.Current.EditorText }))
-        source.Text = "Source: None";
+        if (this.sourcePath != null)
+        {
+            var writer = new StreamWriter(this.sourcePath);
+            instance.Write(writer);
+            writer.Close();
+        }
+        else
+        {
+            var file = await this.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Save Ligature File",
+            });
+
+            if (file != null)
+            {
+                var writer = new StreamWriter(file.Path.AbsolutePath.ToString());
+                instance.Write(writer);
+                writer.Close();
+                this.sourcePath = file.Path.AbsolutePath.ToString();
+                source.Text = $"Source: {file.Path.AbsolutePath.ToString()}";
+            }
+        }
     }
+
     public void SaveAsAction(object sender, RoutedEventArgs args)
     {
         // let editorText = state.Current.EditorText
