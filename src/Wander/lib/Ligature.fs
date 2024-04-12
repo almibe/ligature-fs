@@ -12,7 +12,7 @@ let datasetsFun (ligature: ILigature) = BendValue.Function(Function.HostFunction
         match ligature.AllDatasets () with
         | Ok(datasets) ->
             datasets
-            |> Seq.map (fun (Dataset name) -> BendValue.String name)
+            |> Seq.map (fun (DatasetName name) -> BendValue.String name)
             |> Array.ofSeq
             |> BendValue.Array
             |> Ok
@@ -22,7 +22,7 @@ let createDatasetFun (ligature: ILigature) = BendValue.Function(Function.HostFun
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.String(datasetName)] ->
-            match ligature.CreateDataset (Dataset datasetName) with
+            match ligature.CreateDataset (DatasetName datasetName) with
             | Ok(_) -> Ok(BendValue.Nothing)
             | Error(errorValue) -> failwith "Not Implemented"
         | _ -> failwith "TODO"))))
@@ -31,7 +31,7 @@ let removeDatasetFun (ligature: ILigature) = BendValue.Function(Function.HostFun
     new HostFunction((fun args _ ->
         match args with
         | [BendValue.String(datasetName)] ->
-            match ligature.RemoveDataset (Dataset datasetName) with
+            match ligature.RemoveDataset (DatasetName datasetName) with
             | Ok(_) -> Ok(BendValue.Nothing)
             | Error(err) -> failwith "todo"
         | _ -> failwith ""))))
@@ -40,7 +40,7 @@ let datasetExists (instance: ILigature) = BendValue.Function(Function.HostFuncti
     new HostFunction(fun args _ ->
         match args.Head with
         | BendValue.String(name) -> 
-            let dataset = Dataset(name)
+            let dataset = DatasetName(name)
             match instance.DatasetExists dataset with
             | Ok(result) -> Ok(BendValue.Bool(result))
             | Error(err) -> Error(err)
@@ -53,20 +53,20 @@ let valueToWanderValue (value: Value): BendValue<'t> =
     | Value.String s -> BendValue.String s
     | Value.Bytes b -> BendValue.Bytes b
 
-let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [BendValue.String(name)] ->
-            let dataset = Dataset name
-            match instance.AllStatements dataset with
-            | Ok(statements) ->
-                statements
-                |> Seq.map (fun statement -> BendValue.Statement(statement))
-                |> fun statements -> Ok(BendValue.Array((Array.ofSeq statements)))
-            | Error(err) -> Error(err)
-        | _ -> error "Illegal call to allStatements." None)))
+// let allStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
+//     new HostFunction(fun args _ ->
+//         match args with
+//         | [BendValue.String(name)] ->
+//             let dataset = DatasetName name
+//             match instance.AllStatements dataset with
+//             | Ok(statements) ->
+//                 statements
+//                 |> Seq.map (fun statement -> BendValue.Statement(statement))
+//                 |> fun statements -> Ok(BendValue.Array((Array.ofSeq statements)))
+//             | Error(err) -> Error(err)
+//         | _ -> error "Illegal call to allStatements." None)))
 
-let matchStatements (query: IQueryTx) = BendValue.Function(Function.HostFunction (
+let matchStatements (query: IDataset) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
         error "todo - inside match" None)))
 
@@ -74,11 +74,12 @@ let queryFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
     new HostFunction(fun args bindings ->
         match args with
         | [BendValue.String(datasetName); BendValue.Function(Function.Lambda(_parameters, body))] ->
-            let dataset = Dataset(datasetName)
+            let dataset = DatasetName(datasetName)
             let res = instance.Query dataset (fun tx ->
                 //let bindings' = Bend.Bindings.bind "match" (matchStatements tx) bindings
                 //error "todo - inside query" None
-                Ok(BendValue.Nothing))
+                //Ok(BendValue.Nothing))
+                failwith "TODO")
             res
         | _ -> error "Improper arguments could not run query." None)))
 
@@ -91,7 +92,7 @@ let matchFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
             entity;
             attribute;
             value] ->
-                let dataset = Dataset(datasetName)
+                let dataset = DatasetName datasetName
                 let entity =
                     match entity with
                     | BendValue.Identifier(i) -> Ok (Some i)
@@ -114,8 +115,9 @@ let matchFun (instance: ILigature) = BendValue.Function(Function.HostFunction (
                     instance.Query dataset (fun tx ->
                         match tx.MatchStatements entity attribute value with
                         | Ok(results) ->
-                            Seq.map BendValue.Statement results
-                            |> fun values -> Ok(BendValue.Array(Array.ofSeq values))
+                            // Seq.map BendValue.Statement results
+                            // |> fun values -> Ok(BendValue.Array(Array.ofSeq values))
+                            failwith "TODO"
                         | Error(err) -> Error(err)
                     )
                 | _ -> error "Could not call match." None //TODO should return actual error
@@ -127,7 +129,7 @@ let addStatementsFun (instance: ILigature) = BendValue.Function(Function.HostFun
     new HostFunction(fun args _ ->
         match args with
         | [(BendValue.String(name)); BendValue.Array(statements)] ->
-            let dataset = Dataset(name)
+            let dataset = DatasetName name
             let statements = List.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
@@ -143,7 +145,7 @@ let removeStatementsFun (instance: ILigature) = BendValue.Function(Function.Host
     new HostFunction(fun args _ ->
         match args with
         | [BendValue.String(name); BendValue.Array(statements)] ->
-            let dataset = Dataset(name)
+            let dataset = DatasetName name
             let statements = List.map (fun value -> 
                 match value with
                 | BendValue.Statement(statement) -> statement
@@ -167,7 +169,7 @@ let ligatureLib (ligature: ILigature) = BendValue.Record (Map [
     ("datasets", datasetsFun ligature)
     ("createDataset", createDatasetFun ligature)
     ("removeDataset", removeDatasetFun ligature)
-    ("allStatements", allStatementsFun ligature)
+//    ("allStatements", allStatementsFun ligature)
     ("query", queryFun ligature)
     ("match", matchFun ligature)
     ("addStatements", addStatementsFun ligature)

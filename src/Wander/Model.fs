@@ -23,6 +23,7 @@ type Expression =
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
+    | DatasetSet 
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 
