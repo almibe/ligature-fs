@@ -59,16 +59,16 @@ let ligTestSuite (createInstance: Unit -> ILigature) =
                 let instance = new Ligature.InMemory.LigatureInMemory()
                 instance.LoadFromString(script)
                 let datasets = (instance :> ILigature).AllDatasets ()
-                Expect.equal (Ok [Dataset "hello"]) datasets "")
+                Expect.equal (Ok [DatasetName "hello"]) datasets "")
         |> Seq.toList
         |> testList "Lig tests"
     else
         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
 let ligatureTestSuite (createInstance: Unit -> ILigature) =
-    let helloDS = Dataset "hello"
-    let hello2DS = Dataset "hello2"
-    let hello3DS = Dataset "hello3"
+    let helloDS = DatasetName "hello"
+    let hello2DS = DatasetName "hello2"
+    let hello3DS = DatasetName "hello3"
 
     let jvName = statement "character:1" "name" (Value.String "Jean Valjean")
     let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601)

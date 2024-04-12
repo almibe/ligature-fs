@@ -16,7 +16,7 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Dataset = Dataset of string
+type DatasetName = DatasetName of string
 
 type Identifier = private Identifier of string
 
@@ -41,6 +41,15 @@ type Value =
     | Integer of int64
     | Bytes of byte array
 
+type Range =
+    | String of string * string
+    | Integer of int64 * int64
+    | Bytes of byte array * byte array
+
+type ValueQuery =
+    | Value of Value
+    | Range of Range
+
 type Statement =
     { Entity: Identifier
       Attribute: Identifier
@@ -53,21 +62,19 @@ let statement entity attribute value =
         Value = value
     }
 
-type IQueryTx =
+type IDataset =
     abstract member MatchStatements:
-        Identifier option -> Identifier option -> Value option -> Result<Statement list, LigatureError>
-//TODO add MatchStatementsRange
+        Identifier option -> Identifier option -> Value option -> Result<IDataset, LigatureError>
+    abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
-type Query<'R> = IQueryTx -> Result<'R, LigatureError>
+type Query = IDataset -> Result<IDataset, LigatureError>
 
 type ILigature =
-    abstract member AllDatasets: unit -> Result<Dataset list, LigatureError>
-    abstract member DatasetExists: Dataset -> Result<bool, LigatureError>
-    abstract member CreateDataset: Dataset -> Result<Unit, LigatureError>
-    abstract member RemoveDataset: Dataset -> Result<Unit, LigatureError>
-    abstract member Query: Dataset -> Query<'r> -> Result<'r, LigatureError>
-    abstract member AllStatements: Dataset -> Result<Statement list, LigatureError>
-    abstract member NewIdentifier: Dataset -> Result<Identifier, LigatureError>
-    abstract member AddStatements: Dataset -> Statement list -> Result<unit, LigatureError>
-    abstract member RemoveStatements: Dataset -> Statement list -> Result<unit, LigatureError>
+    abstract member AllDatasets: unit -> Result<DatasetName list, LigatureError>
+    abstract member DatasetExists: DatasetName -> Result<bool, LigatureError>
+    abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
+    abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
+    abstract member Query: DatasetName -> Query -> Result<'r, LigatureError>
+    abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
+    abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>

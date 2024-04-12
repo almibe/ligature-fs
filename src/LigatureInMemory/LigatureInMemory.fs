@@ -11,7 +11,7 @@ open Ligature.Bend.Main
 open Ligature.Bend.Bindings
 
 type LigatureInMemoryQueryTx(statements: Set<Statement>) =
-    interface IQueryTx with
+    interface IDataset with
         member _.MatchStatements entity attribute value =
             let results =
                 match entity with
@@ -27,14 +27,17 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
-            Ok (List.ofSeq results)
+            failwith "TODO"
+        member this.AllStatements(): Result<Statement list,LigatureError> = 
+            failwith "Not Implemented"
+            //Ok (List.ofSeq results)
 
 type LigatureInMemory() =
-    let datasets: Map<Dataset, Set<Statement>> ref = ref Map.empty
+    let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
     member _.Write(writer: TextWriter) =
-        Map.iter (fun (Dataset dataset) statements -> 
+        Map.iter (fun (DatasetName dataset) statements -> 
             writer.Write (prettyPrint (BendValue.String dataset))
             writer.WriteLine ()
             Set.iter 
@@ -50,8 +53,8 @@ type LigatureInMemory() =
         |> Seq.iter (fun row -> 
             match run row (newBindings ()) with
             | Ok(BendValue.String(datasetName)) ->
-                instance.CreateDataset (Dataset datasetName) |> ignore
-                dataset <- Some (Dataset datasetName)
+                instance.CreateDataset (DatasetName datasetName) |> ignore
+                dataset <- Some (DatasetName datasetName)
             | Ok(BendValue.Statement(statement)) ->
                 match dataset with
                 | Some dataset -> instance.AddStatements dataset [statement] |> ignore
@@ -78,14 +81,13 @@ type LigatureInMemory() =
 
         member _.Query dataset query =
             let tx = new LigatureInMemoryQueryTx(Map.find dataset datasets.Value)
-            query tx
+            failwith "TODO"
+//            query tx
 
-        member _.AllStatements dataset = 
-            match Map.tryFind dataset datasets.Value with
-            | Some(result) -> Ok(Set.toList result)
-            | None -> failwith ""
-
-        member _.NewIdentifier data = failwith "todo"
+        // member _.AllStatements dataset = 
+        //     match Map.tryFind dataset datasets.Value with
+        //     | Some(result) -> Ok(Set.toList result)
+        //     | None -> failwith ""
 
         member _.AddStatements dataset statements =
             let contents = Map.find dataset datasets.Value
