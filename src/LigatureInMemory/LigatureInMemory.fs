@@ -10,7 +10,7 @@ open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature.Wander.Bindings
 
-type LigatureInMemoryQueryTx(statements: Set<Statement>) =
+type InMemoryDataset(statements: Set<Statement>) =
     interface IDataset with
         member _.MatchStatements entity attribute value =
             let results =
@@ -27,11 +27,10 @@ type LigatureInMemoryQueryTx(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
+            Ok (new InMemoryDataset(results))
 
-            failwith "TODO"
-
-        member this.AllStatements() : Result<Statement list, LigatureError> = failwith "Not Implemented"
-//Ok (List.ofSeq results)
+        member _.AllStatements() : Result<Statement list, LigatureError> =
+            Ok (List.ofSeq statements)
 
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
@@ -86,14 +85,13 @@ type LigatureInMemory() =
                 Ok())
 
         member _.Query dataset query =
-            let tx = new LigatureInMemoryQueryTx(Map.find dataset datasets.Value)
-            failwith "TODO"
-        //            query tx
+            let dataset: IDataset = new InMemoryDataset(Map.find dataset datasets.Value)
+            query dataset
 
-        // member _.AllStatements dataset =
-        //     match Map.tryFind dataset datasets.Value with
-        //     | Some(result) -> Ok(Set.toList result)
-        //     | None -> failwith ""
+        member _.AllStatements dataset =
+            match Map.tryFind dataset datasets.Value with
+            | Some(result) -> Ok(Set.toList result)
+            | None -> failwith ""
 
         member _.AddStatements dataset statements =
             let contents = Map.find dataset datasets.Value

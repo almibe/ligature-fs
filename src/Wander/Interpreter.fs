@@ -140,7 +140,7 @@ let rec evalExpression bindings expression =
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.QuestionMark -> Ok(WanderValue.Nothing, bindings)
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
-    | Expression.DatasetSet -> failwith "Not Implemented"
+    | Expression.Dataset(_) -> failwith "Not Implemented"
 
 and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_, _>) =
     match fn with

@@ -108,7 +108,8 @@ let queryFun (instance: ILigature) =
                             //Ok(WanderValue.Nothing))
                             failwith "TODO")
 
-                    res
+                    //res
+                    failwith "TODO"
                 | _ -> error "Improper arguments could not run query." None)
         )
     )
@@ -145,13 +146,14 @@ let matchFun (instance: ILigature) =
 
                     match (entity, attribute, value) with
                     | (Ok(entity), Ok(attribute), Ok(value)) ->
-                        instance.Query dataset (fun tx ->
-                            match tx.MatchStatements entity attribute value with
-                            | Ok(results) ->
-                                // Seq.map WanderValue.Statement results
-                                // |> fun values -> Ok(WanderValue.Array(Array.ofSeq values))
-                                failwith "TODO"
-                            | Error(err) -> Error(err))
+                        failwith "TODO"
+                        // instance.Query dataset (fun tx ->
+                        //     match tx.MatchStatements entity attribute value with
+                        //     | Ok(results) ->
+                        //         // Seq.map WanderValue.Statement results
+                        //         // |> fun values -> Ok(WanderValue.Array(Array.ofSeq values))
+                        //         failwith "TODO"
+                        //     | Error(err) -> Error(err))
                     | _ -> error "Could not call match." None //TODO should return actual error
                 | _ -> error "Improper arguments passed to match." None)
         )

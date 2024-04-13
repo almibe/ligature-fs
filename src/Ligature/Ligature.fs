@@ -73,7 +73,8 @@ type ILigature =
     abstract member DatasetExists: DatasetName -> Result<bool, LigatureError>
     abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
-    abstract member Query: DatasetName -> Query -> Result<'r, LigatureError>
+    abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
+    abstract member Query: DatasetName -> Query -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
