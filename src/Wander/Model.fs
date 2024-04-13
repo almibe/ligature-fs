@@ -71,6 +71,7 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.QuestionMark -> "?"
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
+    | WanderValue.Dataset(_) -> "Dataset"
 
 and printBytes bytes =
     bytes

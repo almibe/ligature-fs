@@ -13,11 +13,13 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="Wander.fs" />
+    <Compile Include="Serialize.fs" />
     <Compile Include="lib/Array.fs" />
     <Compile Include="lib/Wander.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/DateTime.fs" />
+    <Compile Include="lib/Dataset.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />
     <Compile Include="lib/Ligature.fs" />
@@ -29,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
   </ItemGroup>
   <ItemGroup>

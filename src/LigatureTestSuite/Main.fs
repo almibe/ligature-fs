@@ -9,6 +9,7 @@ open Ligature
 open FSharpPlus
 open Ligature.Wander.Main
 open Ligature.Wander.Lib.Preludes
+open Ligature.Wander.Serialize
 
 /// Unsafe helper function for creating Identifiers.
 let id ident =
@@ -67,7 +68,7 @@ let ligTestSuite (createInstance: Unit -> ILigature) =
             testCase $"Test for {file}"
             <| fun _ ->
                 let instance = new Ligature.InMemory.LigatureInMemory()
-                instance.LoadFromString(script)
+                loadFromString script instance 
                 let datasets = (instance :> ILigature).AllDatasets()
                 Expect.equal (Ok [ DatasetName "hello" ]) datasets "")
         |> Seq.toList

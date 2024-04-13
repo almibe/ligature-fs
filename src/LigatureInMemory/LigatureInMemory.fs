@@ -5,10 +5,6 @@
 module Ligature.InMemory
 
 open Ligature
-open System.IO
-open Ligature.Wander.Model
-open Ligature.Wander.Main
-open Ligature.Wander.Bindings
 
 type InMemoryDataset(statements: Set<Statement>) =
     interface IDataset with
@@ -35,35 +31,6 @@ type InMemoryDataset(statements: Set<Statement>) =
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
-
-    member _.Write(writer: TextWriter) =
-        Map.iter
-            (fun (DatasetName dataset) statements ->
-                writer.Write(prettyPrint (WanderValue.String dataset))
-                writer.WriteLine()
-
-                Set.iter
-                    (fun statement ->
-                        writer.Write(printStatement statement)
-                        writer.WriteLine())
-                    statements)
-            datasets.Value
-
-    member this.LoadFromString(content: string seq) =
-        let mutable dataset = None
-        let instance: ILigature = this
-
-        content
-        |> Seq.iter (fun row ->
-            match run row (newBindings ()) with
-            | Ok(WanderValue.String(datasetName)) ->
-                instance.CreateDataset(DatasetName datasetName) |> ignore
-                dataset <- Some(DatasetName datasetName)
-            | Ok(WanderValue.Statement(statement)) ->
-                match dataset with
-                | Some dataset -> instance.AddStatements dataset [ statement ] |> ignore
-                | _ -> failwith "Expected Dataset to be set"
-            | _ -> ())
 
     interface ILigature with
         member _.AllDatasets() =

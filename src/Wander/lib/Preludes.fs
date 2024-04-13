@@ -19,16 +19,17 @@ open DateTime
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Array" Array.arrayLib
-    |> Bindings.bind "Wander" wanderLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
+    |> Bindings.bind "Dataset" Dataset.datasetLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Record" recordLib
     |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "String" String.stringLib
     |> Bindings.bind "Test" testLib
+    |> Bindings.bind "Wander" wanderLib
 
 let standardPrelude () =
     bindStandardLibrary (Bindings.newBindings ())

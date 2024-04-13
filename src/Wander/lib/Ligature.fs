@@ -77,18 +77,18 @@ let valueToWanderValue (value: Value) : WanderValue<'t> =
     | Value.String s -> WanderValue.String s
     | Value.Bytes b -> WanderValue.Bytes b
 
-// let allStatementsFun (instance: ILigature) = WanderValue.Function(Function.HostFunction (
-//     new HostFunction(fun args _ ->
-//         match args with
-//         | [WanderValue.String(name)] ->
-//             let dataset = DatasetName name
-//             match instance.AllStatements dataset with
-//             | Ok(statements) ->
-//                 statements
-//                 |> Seq.map (fun statement -> WanderValue.Statement(statement))
-//                 |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
-//             | Error(err) -> Error(err)
-//         | _ -> error "Illegal call to allStatements." None)))
+let allStatementsFun (instance: ILigature) = WanderValue.Function(Function.HostFunction (
+    new HostFunction(fun args _ ->
+        match args with
+        | [WanderValue.String(name)] ->
+            let dataset = DatasetName name
+            match instance.AllStatements dataset with
+            | Ok(statements) ->
+                statements
+                |> Seq.map (fun statement -> WanderValue.Statement(statement))
+                |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
+            | Error(err) -> Error(err)
+        | _ -> error "Illegal call to allStatements." None)))
 
 let matchStatements (query: IDataset) =
     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
@@ -146,14 +146,10 @@ let matchFun (instance: ILigature) =
 
                     match (entity, attribute, value) with
                     | (Ok(entity), Ok(attribute), Ok(value)) ->
-                        failwith "TODO"
-                        // instance.Query dataset (fun tx ->
-                        //     match tx.MatchStatements entity attribute value with
-                        //     | Ok(results) ->
-                        //         // Seq.map WanderValue.Statement results
-                        //         // |> fun values -> Ok(WanderValue.Array(Array.ofSeq values))
-                        //         failwith "TODO"
-                        //     | Error(err) -> Error(err))
+                        let res = instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+                        match res with
+                        | Ok res -> Ok(WanderValue.Dataset res)
+                        | Error err -> Error err
                     | _ -> error "Could not call match." None //TODO should return actual error
                 | _ -> error "Improper arguments passed to match." None)
         )
@@ -230,7 +226,7 @@ let ligatureLib (ligature: ILigature) =
             [ ("datasets", datasetsFun ligature)
               ("createDataset", createDatasetFun ligature)
               ("removeDataset", removeDatasetFun ligature)
-              //    ("allStatements", allStatementsFun ligature)
+              ("allStatements", allStatementsFun ligature)
               ("query", queryFun ligature)
               ("match", matchFun ligature)
               ("addStatements", addStatementsFun ligature)
