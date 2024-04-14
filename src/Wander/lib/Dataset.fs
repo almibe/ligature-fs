@@ -12,12 +12,16 @@ let ofArrayFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Array(statements) ] -> 
-                    let statementSet = new System.Collections.Generic.HashSet<Statement>();
-                    Array.iter (fun statement ->
-                        match statement with
-                        | WanderValue.Statement(statement) -> statementSet.Add(statement) |> ignore
-                        | _ -> failwith "Unexpected value") statements
+                | [ WanderValue.Array(statements) ] ->
+                    let statementSet = new System.Collections.Generic.HashSet<Statement>()
+
+                    Array.iter
+                        (fun statement ->
+                            match statement with
+                            | WanderValue.Statement(statement) -> statementSet.Add(statement) |> ignore
+                            | _ -> failwith "Unexpected value")
+                        statements
+
                     Ok(WanderValue.Dataset(new Ligature.InMemory.InMemoryDataset(Set.ofSeq statementSet)))
                 | value -> error $"Unexpected value - {value}." None)
         )

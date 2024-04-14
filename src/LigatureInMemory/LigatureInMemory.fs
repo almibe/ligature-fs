@@ -23,10 +23,10 @@ type InMemoryDataset(statements: Set<Statement>) =
                 match value with
                 | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
                 | None -> results
-            Ok (new InMemoryDataset(results))
 
-        member _.AllStatements() : Result<Statement list, LigatureError> =
-            Ok (List.ofSeq statements)
+            Ok(new InMemoryDataset(results))
+
+        member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)
 
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty

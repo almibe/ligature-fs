@@ -4,8 +4,6 @@
 
 module Gaze
 
-open System.Collections.Generic
-
 type Gaze<'input> =
     { content: 'input array
       mutable offset: int }
@@ -13,7 +11,6 @@ type Gaze<'input> =
 type GazeError = | NoMatch
 
 type Nibbler<'input, 'output> = Gaze<'input> -> Result<'output, GazeError>
-//type Nibbler<'input, 'output, 'failure> = 'input list -> Result<'output * 'input list, 'failure>
 
 let explode (s: string) = [| for c in s -> c |]
 

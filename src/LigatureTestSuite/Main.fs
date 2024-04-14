@@ -68,7 +68,7 @@ let ligTestSuite (createInstance: Unit -> ILigature) =
             testCase $"Test for {file}"
             <| fun _ ->
                 let instance = new Ligature.InMemory.LigatureInMemory()
-                loadFromString script instance 
+                loadFromString script instance
                 let datasets = (instance :> ILigature).AllDatasets()
                 Expect.equal (Ok [ DatasetName "hello" ]) datasets "")
         |> Seq.toList
@@ -200,7 +200,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
               ignore <| instance.AddStatements helloDS statements
 
               match instance.Query helloDS (fun tx -> tx.MatchStatements None None None) with
-              | Ok res -> Expect.equal (res.AllStatements ()) (Ok statements) ""
+              | Ok res -> Expect.equal (res.AllStatements()) (Ok statements) ""
               | Error _ -> failwith "Error"
           //TODO add more query cases
           ]

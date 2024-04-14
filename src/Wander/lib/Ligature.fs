@@ -77,18 +77,23 @@ let valueToWanderValue (value: Value) : WanderValue<'t> =
     | Value.String s -> WanderValue.String s
     | Value.Bytes b -> WanderValue.Bytes b
 
-let allStatementsFun (instance: ILigature) = WanderValue.Function(Function.HostFunction (
-    new HostFunction(fun args _ ->
-        match args with
-        | [WanderValue.String(name)] ->
-            let dataset = DatasetName name
-            match instance.AllStatements dataset with
-            | Ok(statements) ->
-                statements
-                |> Seq.map (fun statement -> WanderValue.Statement(statement))
-                |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
-            | Error(err) -> Error(err)
-        | _ -> error "Illegal call to allStatements." None)))
+let allStatementsFun (instance: ILigature) =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.String(name) ] ->
+                    let dataset = DatasetName name
+
+                    match instance.AllStatements dataset with
+                    | Ok(statements) ->
+                        statements
+                        |> Seq.map (fun statement -> WanderValue.Statement(statement))
+                        |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
+                    | Error(err) -> Error(err)
+                | _ -> error "Illegal call to allStatements." None)
+        )
+    )
 
 let matchStatements (query: IDataset) =
     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
@@ -146,7 +151,9 @@ let matchFun (instance: ILigature) =
 
                     match (entity, attribute, value) with
                     | (Ok(entity), Ok(attribute), Ok(value)) ->
-                        let res = instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+                        let res =
+                            instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+
                         match res with
                         | Ok res -> Ok(WanderValue.Dataset res)
                         | Error err -> Error err

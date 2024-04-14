@@ -14,22 +14,22 @@ open System.IO
 open Main
 open Bindings
 
-let write (writer: TextWriter) (instance: ILigature) =
-    failwith ""
-    // Map.iter
-    //     (fun (DatasetName dataset) statements ->
-    //         writer.Write(prettyPrint (WanderValue.String dataset))
-    //         writer.WriteLine()
+let write (writer: TextWriter) (instance: ILigature) = failwith ""
+// Map.iter
+//     (fun (DatasetName dataset) statements ->
+//         writer.Write(prettyPrint (WanderValue.String dataset))
+//         writer.WriteLine()
 
-    //         Set.iter
-    //             (fun statement ->
-    //                 writer.Write(printStatement statement)
-    //                 writer.WriteLine())
-    //             statements)
-    //     datasets.Value
+//         Set.iter
+//             (fun statement ->
+//                 writer.Write(printStatement statement)
+//                 writer.WriteLine())
+//             statements)
+//     datasets.Value
 
-let loadFromString(content: string seq) (instance: ILigature) =
+let loadFromString (content: string seq) (instance: ILigature) =
     let mutable dataset = None
+
     content
     |> Seq.iter (fun row ->
         match run row (newBindings ()) with
