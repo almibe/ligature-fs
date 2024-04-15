@@ -38,12 +38,12 @@ let readIdentifier (Identifier identifier) = identifier
 type Value =
     | Identifier of Identifier
     | String of string
-    | Integer of int64
+    | Integer of bigint
     | Bytes of byte array
 
 type Range =
     | String of string * string
-    | Integer of int64 * int64
+    | Integer of bigint * bigint
     | Bytes of byte array * byte array
 
 type ValueQuery =

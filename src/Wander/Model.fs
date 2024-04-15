@@ -12,7 +12,7 @@ open System
 type Expression =
     | Nothing
     | QuestionMark
-    | Int of int64
+    | Int of bigint
     | Bytes of byte array
     | String of string
     | Bool of bool
@@ -32,7 +32,7 @@ type Expression =
 [<RequireQualifiedAccess>]
 type WanderValue<'t> =
     | QuestionMark
-    | Int of int64
+    | Int of bigint
     | String of string
     | Bool of bool
     | Identifier of Identifier
@@ -60,7 +60,7 @@ type Bindings<'t> = Bindings.Bindings<string, WanderValue<'t>>
 
 let rec prettyPrint (value: WanderValue<'t>) : string =
     match value with
-    | WanderValue.Int i -> sprintf "%i" i
+    | WanderValue.Int i -> sprintf "%A" i
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
