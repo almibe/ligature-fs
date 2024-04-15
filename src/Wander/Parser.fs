@@ -18,7 +18,7 @@ type Element =
     | Grouping of Element list
     | Application of Element list
     | String of string
-    | Int of int64
+    | Int of bigint
     | Bytes of byte array
     | Bool of bool
     | Identifier of Ligature.Identifier

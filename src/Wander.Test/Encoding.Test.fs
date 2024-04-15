@@ -19,7 +19,7 @@ let properties =
         "Encoding and Decoding Tests"
         [ 
         //   testProperty "Encode and decode Int"
-        //   <| fun (value: int64) ->
+        //   <| fun (value: bigint) ->
         //       match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
         //       | Ok(WanderValue.Int(res)) -> value = res
         //       | _ -> false

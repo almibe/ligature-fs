@@ -6,7 +6,7 @@ module Ligature.Fable
 
 type ScriptResult =
     | String of string
-    | Integer of int64
+    | Integer of bigint
     | Nothing
     | Identifier of string
     | Boolean of bool

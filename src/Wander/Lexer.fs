@@ -12,7 +12,7 @@ type Token =
     | Bool of bool
     | WhiteSpace of string
     | Identifier of Identifier
-    | Int of int64
+    | Int of bigint
     | Bytes of byte array
     | Comment of string
     | NewLine of string
@@ -56,7 +56,7 @@ let bytesTokenNibbler =
         let bytes = System.String.Concat(Array.ofList (List.concat value))
         Token.Bytes(System.Convert.FromHexString(bytes.[2..])))
 
-let integerTokenNibbler = Gaze.map integerNibbler (fun int64 -> Token.Int(int64))
+let integerTokenNibbler = Gaze.map integerNibbler (fun int -> Token.Int(int))
 
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
