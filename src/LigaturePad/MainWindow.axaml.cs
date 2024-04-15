@@ -13,9 +13,7 @@ using Avalonia.Interactivity;
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
-using System.ComponentModel;
 using System.IO;
 using System;
 
@@ -31,10 +29,7 @@ public partial class MainWindow : Window
 
     public void RunAction(object sender, RoutedEventArgs args)
     {
-        if (ScriptText.Text == null)
-        {
-            ScriptText.Text = "";
-        }
+        ScriptText.Text ??= "";
 
         //TODO use instance prelude
         var res = _.printResult(_.run(ScriptText.Text, Wander.Ligature.Wander.Lib.Preludes.instancePrelude(this.instance)));
@@ -65,7 +60,7 @@ public partial class MainWindow : Window
             var file = files[0];
             source.Text = $"Source: {file.Path.AbsolutePath.ToString()}";
             sourcePath = file.Path.AbsolutePath.ToString();
-            instance.LoadFromString(File.ReadAllLines(sourcePath));
+            Wander.Ligature.Wander.Serialize.loadFromString(File.ReadAllLines(sourcePath), instance);
         }
     }
 
@@ -74,7 +69,7 @@ public partial class MainWindow : Window
         if (this.sourcePath != null)
         {
             var writer = new StreamWriter(this.sourcePath);
-            instance.Write(writer);
+            Wander.Ligature.Wander.Serialize.write<object>(writer, instance);
             writer.Close();
         }
         else
@@ -87,7 +82,7 @@ public partial class MainWindow : Window
             if (file != null)
             {
                 var writer = new StreamWriter(file.Path.AbsolutePath.ToString());
-                instance.Write(writer);
+                Wander.Ligature.Wander.Serialize.write<object>(writer, instance);
                 writer.Close();
                 this.sourcePath = file.Path.AbsolutePath.ToString();
                 source.Text = $"Source: {file.Path.AbsolutePath.ToString()}";

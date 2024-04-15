@@ -17,6 +17,7 @@ type Expression =
     | String of string
     | Bool of bool
     | Identifier of Identifier
+    | Statement of Ligature.Statement
     | Let of name: string * value: Expression
     | NamePath of string list
     | Grouping of Expression list
@@ -24,7 +25,7 @@ type Expression =
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
-    | Dataset of IDataset
+    | Dataset of Expression list
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
 

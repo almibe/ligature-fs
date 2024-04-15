@@ -8,15 +8,29 @@ open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature
+open Ligature.InMemory
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
 let ident id =
+    match identifier id with
+    | Ok v -> v
+    | Error _ -> todo
+
+let wident id =
     WanderValue.Identifier(
         match identifier id with
         | Ok v -> v
         | Error _ -> todo
     )
+
+let vident id =
+    Value.Identifier(
+        match identifier id with
+        | Ok v -> v
+        | Error _ -> todo
+    )
+
 
 let bindings = Ligature.Wander.Lib.Preludes.standardPrelude ()
 
@@ -46,7 +60,14 @@ let tests =
           <| fun _ ->
               let script = "`hello`"
               let result = run script bindings
-              Expect.equal result (Ok(ident "hello")) ""
+              Expect.equal result (Ok(wident "hello")) ""
+
+          testCase "Run Dataset literal"
+          <| fun _ ->
+              let script = "{`a` `b` `c`}"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Dataset(new InMemoryDataset(Set.ofSeq [ { Entity = ident "a"; Attribute = ident "b"; Value = vident "c" } ])))) ""
+
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n  5   "

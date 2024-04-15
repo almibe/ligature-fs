@@ -27,6 +27,7 @@ type Element =
     | When of (Element * Element) list
     | Lambda of string list * Element
     | Record of (string * Element) list
+    | Dataset of Element list
     | Pipe
     | QuestionMark
 
@@ -155,6 +156,25 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Grouping(values)
     }
 
+let datasetInternalNib =
+    takeFirst
+        [
+          readValue
+          namePathNib
+          arrayNib
+          recordNib
+          datasetNib
+          groupingNib
+          readWhen ]
+
+let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! datasetInternals = (optional (repeat datasetInternalNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Element.Dataset(datasetInternals)
+    }
+
 let declarationsNib (gaze: Gaze.Gaze<Token>) =
     result {
         let! name = Gaze.attempt nameStrNibbler gaze
@@ -192,6 +212,7 @@ let applicationInnerNib =
           namePathNib
           arrayNib
           recordNib
+          datasetNib
           lambdaNib
           groupingNib
           readWhen ]
@@ -204,6 +225,7 @@ let elementNib =
           readValue
           arrayNib
           recordNib
+          datasetNib
           lambdaNib
           groupingNib
           readWhen ]
@@ -312,3 +334,4 @@ let rec expressElement (element: Element) =
     | Element.Pipe -> failwith "Not Implemented"
     | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)
+    | Element.Dataset(value) -> Expression.Dataset(express value)

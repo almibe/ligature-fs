@@ -78,11 +78,25 @@ let tests =
               let tokens = tokenize "[1, 2]"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Array([ Element.Int(1); Element.Int(2) ]) ])) ""
+
+          testCase "Parse Dataset"
+          <| fun _ ->
+              let tokens = tokenize "{ `a` `b` `c` }"
+              let ast = parse (unsafe tokens)
+              Expect.equal
+                  ast
+                  (Ok([Element.Dataset([ 
+                    Element.Identifier (ident "a"); 
+                    Element.Identifier (ident "b"); 
+                    Element.Identifier (ident "c") ])]))
+                  ""
+
           testCase "Parse Empty Record"
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Record([]) ])) ""
+
           testCase "Parse Record with 1 value"
           <| fun _ ->
               let tokens = tokenize "{ x = 5 }"
