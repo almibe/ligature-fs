@@ -72,7 +72,10 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.QuestionMark -> "?"
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Dataset(_) -> "Dataset"
+    | WanderValue.Dataset(values) ->
+        match values.AllStatements () with
+        | Ok statements -> $"Dataset - {statements}"
+        | Error err -> failwith ""
 
 and printBytes bytes =
     bytes

@@ -6,6 +6,7 @@ module Ligature.Wander.Lexer.Test
 
 open Expecto
 open Ligature.Wander.Lexer
+open Ligature.Wander.Model
 open Ligature
 
 let ident id =
@@ -57,6 +58,16 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize "`a`") (Ok([ (ident "a") ])) ""
               Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
+          testCase "Read Statement"
+          <| fun _ ->
+              Expect.equal (tokenize "(`a` `b` `c`)") (Ok([
+                Token.OpenParen
+                ident "a"
+                Token.WhiteSpace " "
+                ident "b"
+                Token.WhiteSpace " "
+                ident "c"
+                Token.CloseParen])) ""
           testCase "Read comments"
           <| fun _ ->
               Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""

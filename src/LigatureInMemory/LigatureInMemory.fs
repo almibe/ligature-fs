@@ -6,13 +6,21 @@ module Ligature.InMemory
 
 open Ligature
 
-type InMemoryDataset(statements: Set<Statement>) =
+type InMemoryDataset =
+    val statements : Set<Statement>
+    new(statementsArg) = { statements = statementsArg }
+
+    override this.Equals(other) =
+        match other with
+        | :? InMemoryDataset as ds -> (this.statements) = (ds.statements)
+        | _ -> failwith "TODO"
+
     interface IDataset with
-        member _.MatchStatements entity attribute value =
+        member this.MatchStatements entity attribute value =
             let results =
                 match entity with
-                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) statements
-                | None -> statements
+                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
+                | None -> this.statements
 
             let results =
                 match attribute with
@@ -26,7 +34,7 @@ type InMemoryDataset(statements: Set<Statement>) =
 
             Ok(new InMemoryDataset(results))
 
-        member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)
+        member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
 
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty

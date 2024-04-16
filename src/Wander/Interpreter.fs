@@ -7,6 +7,7 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature
+open Ligature.InMemory
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue<'t>>) =
     match read (List.head namePath) bindings with
@@ -32,7 +33,7 @@ let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue
 
 let rec evalExpression bindings expression =
     let rec bindArguments
-        (args: Ligature.Wander.Model.Expression list)
+        (args: Model.Expression list)
         (parameters: string list)
         (bindings: Bindings<_, _>)
         : Result<Bindings<_, _>, LigatureError> =
@@ -140,7 +141,8 @@ let rec evalExpression bindings expression =
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.QuestionMark -> Ok(WanderValue.Nothing, bindings)
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
-    | Expression.Dataset(_) -> failwith "Not Implemented"
+    | Expression.Dataset(values) -> handleDataset bindings values
+    | Expression.Statement(_) -> failwith "Not Implemented"
 
 and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_, _>) =
     match fn with
@@ -166,6 +168,18 @@ and handleRecord bindings values =
 
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
     Ok(WanderValue.Record(v), bindings)
+
+and handleDataset bindings values =
+    let vals = List.map (fun expression -> 
+        match evalExpression bindings expression with
+        | Ok(res, _) -> res
+        | _ -> failwith "TODO") values
+    match vals with
+    | [] -> Ok (WanderValue.Dataset(new InMemoryDataset(Set.empty)), bindings)
+    | [WanderValue.Identifier e; WanderValue.Identifier a; WanderValue.Identifier v] -> 
+        let res = new InMemoryDataset(Set.ofSeq [ { Entity = e; Attribute = a; Value = (Value.Identifier v)} ])
+        Ok((WanderValue.Dataset(res), bindings))
+    | _ -> failwith "TODO"
 
 and handleApplication bindings values =
     let arguments = List.tail values
