@@ -14,7 +14,7 @@ let ticksFunction<'t> =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ _ ] -> Ok(WanderValue.Int(DateTime.Now.Ticks))
+                    | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
                     | _ -> error "Invalid call to map function." None)
             )
         )

@@ -12,7 +12,7 @@ let lengthFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes))
+                | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes |> bigint))
                 | _ -> error "Invalid call to map function." None)
         )
     )

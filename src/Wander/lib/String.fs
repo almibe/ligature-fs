@@ -13,7 +13,7 @@ let lengthFunction<'t> =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.String(value) ] -> Ok(WanderValue.Int(String.length value))
+                    | [ WanderValue.String(value) ] -> Ok(WanderValue.Int(String.length value |> bigint))
                     | _ -> error "Invalid call to map function." None)
             )
         )
