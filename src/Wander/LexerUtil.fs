@@ -46,7 +46,7 @@ let stringNibbler =
 let charInRange char start stop = char >= start && char <= stop
 
 let charListToInt i =
-    System.Numerics.BigInteger.Parse (System.String(List.concat i |> List.toArray))
+    System.Numerics.BigInteger.Parse(System.String(List.concat i |> List.toArray))
 
 /// A Nibbler that consumes an integer as defined by lig.
 /// TODO: this doesn't handle all cases well like too small or large of a number

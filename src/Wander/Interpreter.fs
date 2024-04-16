@@ -169,17 +169,41 @@ and handleRecord bindings values =
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
     Ok(WanderValue.Record(v), bindings)
 
-and handleDataset bindings values =
-    let vals = List.map (fun expression -> 
-        match evalExpression bindings expression with
-        | Ok(res, _) -> res
-        | _ -> failwith "TODO") values
+and handleDatasetRoot bindings datasetRoot =
+    let vals =
+        List.map
+            (fun expression ->
+                match evalExpression bindings expression with
+                | Ok(res, _) -> res
+                | _ -> failwith "TODO")
+            datasetRoot
+
     match vals with
-    | [] -> Ok (WanderValue.Dataset(new InMemoryDataset(Set.empty)), bindings)
-    | [WanderValue.Identifier e; WanderValue.Identifier a; WanderValue.Identifier v] -> 
-        let res = new InMemoryDataset(Set.ofSeq [ { Entity = e; Attribute = a; Value = (Value.Identifier v)} ])
-        Ok((WanderValue.Dataset(res), bindings))
+    | [] -> Ok(new InMemoryDataset(Set.empty))
+    | [ WanderValue.Identifier e; WanderValue.Identifier a; WanderValue.Identifier v ] ->
+        let res =
+            new InMemoryDataset(
+                Set.ofSeq
+                    [ { Entity = e
+                        Attribute = a
+                        Value = (Value.Identifier v) } ]
+            )
+
+        Ok(res)
     | _ -> failwith "TODO"
+
+and handleDataset bindings values =
+    let res = List.map (fun value -> handleDatasetRoot bindings value) values
+    let mutable final = Set.empty
+
+    List.iter
+        (fun ds ->
+            match ds with
+            | Ok(res: InMemoryDataset) -> final <- final + res.statements
+            | _ -> failwith "TODO")
+        res
+
+    Ok(WanderValue.Dataset(new InMemoryDataset(final)), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values

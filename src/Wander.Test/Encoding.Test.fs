@@ -17,12 +17,12 @@ let config =
 let properties =
     testList
         "Encoding and Decoding Tests"
-        [ 
-        //   testProperty "Encode and decode Int"
-        //   <| fun (value: bigint) ->
-        //       match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
-        //       | Ok(WanderValue.Int(res)) -> value = res
-        //       | _ -> false
+        [
+          //   testProperty "Encode and decode Int"
+          //   <| fun (value: bigint) ->
+          //       match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
+          //       | Ok(WanderValue.Int(res)) -> value = res
+          //       | _ -> false
           testProperty "Encode and decode String"
           <| fun (value: string) ->
               if value <> null then

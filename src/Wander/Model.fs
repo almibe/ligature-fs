@@ -25,9 +25,11 @@ type Expression =
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
-    | Dataset of Expression list
+    | Dataset of DatasetRoot list
     | When of list<Expression * Expression>
     | Lambda of list<string> * Expression
+
+and DatasetRoot = Expression list
 
 [<RequireQualifiedAccess>]
 type WanderValue<'t> =
@@ -73,7 +75,7 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Dataset(values) ->
-        match values.AllStatements () with
+        match values.AllStatements() with
         | Ok statements -> $"Dataset - {statements}"
         | Error err -> failwith ""
 

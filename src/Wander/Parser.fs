@@ -27,9 +27,11 @@ type Element =
     | When of (Element * Element) list
     | Lambda of string list * Element
     | Record of (string * Element) list
-    | Dataset of Element list
+    | Dataset of DatasetRoot list
     | Pipe
     | QuestionMark
+
+and DatasetRoot = Element list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -156,21 +158,12 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Grouping(values)
     }
 
-let datasetInternalNib =
-    takeFirst
-        [
-          readValue
-          namePathNib
-          arrayNib
-          recordNib
-          datasetNib
-          groupingNib
-          readWhen ]
+let datasetRootNib = repeat (takeFirst [ readValue ])
 
 let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! datasetInternals = (optional (repeat datasetInternalNib)) gaze
+        let! datasetInternals = (optional (repeatSep datasetRootNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Element.Dataset(datasetInternals)
     }
@@ -270,6 +263,13 @@ let expressArray values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Array res
 
+let expressDatasetRoot (root: DatasetRoot) =
+    List.map (fun value -> expressElement value) root
+
+let expressDataset (values: DatasetRoot list) =
+    let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values
+    Expression.Dataset res
+
 let expressGrouping values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Grouping res
@@ -334,4 +334,4 @@ let rec expressElement (element: Element) =
     | Element.Pipe -> failwith "Not Implemented"
     | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)
-    | Element.Dataset(value) -> Expression.Dataset(express value)
+    | Element.Dataset(value) -> expressDataset value

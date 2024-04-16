@@ -7,7 +7,7 @@ module Ligature.InMemory
 open Ligature
 
 type InMemoryDataset =
-    val statements : Set<Statement>
+    val statements: Set<Statement>
     new(statementsArg) = { statements = statementsArg }
 
     override this.Equals(other) =

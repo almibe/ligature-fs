@@ -66,7 +66,20 @@ let tests =
           <| fun _ ->
               let script = "{`a` `b` `c`}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(new InMemoryDataset(Set.ofSeq [ { Entity = ident "a"; Attribute = ident "b"; Value = vident "c" } ])))) ""
+
+              Expect.equal
+                  result
+                  (Ok(
+                      WanderValue.Dataset(
+                          new InMemoryDataset(
+                              Set.ofSeq
+                                  [ { Entity = ident "a"
+                                      Attribute = ident "b"
+                                      Value = vident "c" } ]
+                          )
+                      )
+                  ))
+                  ""
 
           testCase "Handle WhiteSpace"
           <| fun _ ->
