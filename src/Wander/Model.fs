@@ -76,7 +76,8 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Dataset(values) ->
         match values.AllStatements() with
-        | Ok statements -> $"Dataset - {statements}"
+        | Ok statements -> 
+            (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements) + "}"
         | Error err -> failwith ""
 
 and printBytes bytes =
