@@ -15,6 +15,8 @@ type InMemoryDataset =
         | :? InMemoryDataset as ds -> (this.statements) = (ds.statements)
         | _ -> failwith "TODO"
 
+    override this.GetHashCode() = this.statements.GetHashCode()
+
     interface IDataset with
         member this.MatchStatements entity attribute value =
             let results =
