@@ -18,7 +18,10 @@ let equalFunction<'t> =
                             Ok(WanderValue.Nothing)
                         else
                             error $"{prettyPrint left} != {prettyPrint right}" None
-                    | _ -> error "Invalid call to Assert.equal function." None))))
+                    | _ -> error "Invalid call to Assert.equal function." None)
+            )
+        )
+    )
 
 let failFunction<'t> =
     WanderValue.Function(
@@ -26,10 +29,11 @@ let failFunction<'t> =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.String(message) ] ->
-                        error message None
-                    | _ -> error "Invalid call to Assert.fail function." None))))
+                    | [ WanderValue.String(message) ] -> error message None
+                    | _ -> error "Invalid call to Assert.fail function." None)
+            )
+        )
+    )
 
-let assertLib<'t> = WanderValue.Record(Map [ 
-    ("equal", equalFunction) 
-    ("fail", failFunction)])
+let assertLib<'t> =
+    WanderValue.Record(Map [ ("equal", equalFunction); ("fail", failFunction) ])
