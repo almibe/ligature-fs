@@ -10,7 +10,6 @@ open Bytes
 open Identifier
 open Ligature
 open Statement
-open Test
 open Int
 open Record
 open Wander
@@ -19,6 +18,7 @@ open DateTime
 let bindStandardLibrary bindings =
     bindings
     |> Bindings.bind "Array" Array.arrayLib
+    |> Bindings.bind "Assert" Assert.assertLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
@@ -28,7 +28,6 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Record" recordLib
     |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "String" String.stringLib
-    |> Bindings.bind "Test" testLib
     |> Bindings.bind "Wander" wanderLib
 
 let standardPrelude () =

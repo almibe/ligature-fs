@@ -15,7 +15,7 @@
     <Compile Include="Wander.fs" />
     <Compile Include="Serialize.fs" />
     <Compile Include="lib/Array.fs" />
-    <Compile Include="lib/Wander.fs" />
+    <Compile Include="lib/Assert.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/DateTime.fs" />
@@ -26,7 +26,7 @@
     <Compile Include="lib/Record.fs" />
     <Compile Include="lib/Statement.fs" />
     <Compile Include="lib/String.fs" />
-    <Compile Include="lib/Test.fs" />
+    <Compile Include="lib/Wander.fs" />
     <Compile Include="lib/Preludes.fs" />
   </ItemGroup>
   <ItemGroup>
