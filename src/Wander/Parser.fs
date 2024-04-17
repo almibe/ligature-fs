@@ -24,7 +24,7 @@ type Element =
     | Identifier of Ligature.Identifier
     | Array of Element list
     | Let of string * Element
-    | When of (Element * Element) list
+    | Match of Element * (Element * Element) list
     | Lambda of string list * Element
     | Record of (string * Element) list
     | Dataset of DatasetRoot list
@@ -65,21 +65,21 @@ let readAssignment gaze =
 
 let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
+        let! _ = Gaze.attempt (take Token.Asterisk) gaze
         let! condition = Gaze.attempt elementNib gaze
         let! _ = Gaze.attempt wideArrowNib gaze
         let! body = Gaze.attempt elementNib gaze
         return (condition, body)
     }
 
-let readWhen gaze =
+let readMatch gaze =
     Gaze.attempt
         (fun gaze ->
             result {
-                let! _ = Gaze.attempt (take Token.WhenKeyword) gaze
-                let! _ = Gaze.attempt (take Token.OpenParen) gaze
-                let! conditions = Gaze.attempt (repeatSep conditionsNibbler Token.Comma) gaze
-                let! _ = Gaze.attempt (take Token.CloseParen) gaze
-                return Element.When(conditions)
+                let! expression = Gaze.attempt elementNib gaze
+                let! _ = Gaze.attempt (take Token.WideArrow) gaze
+                let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
+                return Element.Match(expression, conditions)
             })
         gaze
 
@@ -208,7 +208,7 @@ let applicationInnerNib =
           datasetNib
           lambdaNib
           groupingNib
-          readWhen ]
+          readMatch ]
 
 let elementNib =
     takeFirst
@@ -221,7 +221,7 @@ let elementNib =
           datasetNib
           lambdaNib
           groupingNib
-          readWhen ]
+          readMatch ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
@@ -283,11 +283,12 @@ let handleRecord (declarations: list<string * Element>) =
 let handleLambda (parameters: string list) body =
     Expression.Lambda(parameters, (expressElement body))
 
-let handleWhen (conditionals: list<Element * Element>) =
+let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
+    let expression = failwith "TODO"
     let conditionals =
         List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
 
-    Expression.When conditionals
+    Expression.Match (expression, conditionals)
 
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
@@ -330,7 +331,7 @@ let rec expressElement (element: Element) =
     | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
-    | Element.When(conditionals) -> handleWhen conditionals
+    | Element.Match(expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
     | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)

@@ -137,7 +137,7 @@ let rec evalExpression bindings expression =
         | Some(err) -> Error(err)
     | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(values) -> handleRecord bindings values
-    | Expression.When(conditionals) -> handleWhen bindings conditionals
+    | Expression.Match(expression, conditionals) -> handleMatch bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.QuestionMark -> Ok(WanderValue.Nothing, bindings)
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
@@ -295,7 +295,7 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and handleWhen bindings conditionals =
+and handleMatch bindings expression conditionals =
     match
         List.tryFind
             (fun (condition, body) ->

@@ -26,7 +26,7 @@ type Expression =
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
     | Dataset of DatasetRoot list
-    | When of list<Expression * Expression>
+    | Match of Expression * list<Expression * Expression>
     | Lambda of list<string> * Expression
 
 and DatasetRoot = Expression list

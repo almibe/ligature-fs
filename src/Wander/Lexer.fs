@@ -30,8 +30,8 @@ type Token =
     | WideArrow
     | EqualsSign
     | Dot
+    | Asterisk
     | QuestionMark
-    | WhenKeyword
     | Hash
     | Nothing
     | Lambda
@@ -83,7 +83,6 @@ let whiteSpaceNibbler =
 
 let createNameOrKeyword (name: string) =
     match name with
-    | "when" -> Token.WhenKeyword
     | "true" -> Token.Bool(true)
     | "false" -> Token.Bool(false)
     | "nothing" -> Token.Nothing
@@ -121,10 +120,7 @@ let tokenNibbler =
                   takeAndMap "?" Token.QuestionMark
                   takeAndMap "=" Token.EqualsSign
                   takeAndMap "\\" Token.Lambda
-                  commentTokenNibbler ]
-            )
-        )
-    )
+                  commentTokenNibbler ])))
 
 let tokenize script =
     let gaze = Gaze.fromString (script)
