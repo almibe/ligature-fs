@@ -7,6 +7,9 @@ module Ligature.Wander.Lib.Ligature
 open Ligature
 open Ligature.Wander.Model
 open System
+open Ligature.InMemory
+
+let emptySet = WanderValue.Dataset(new InMemoryDataset(Set.empty))
 
 let datasetsFun (ligature: ILigature) =
     WanderValue.Function(
@@ -33,7 +36,7 @@ let createDatasetFun (ligature: ILigature) =
                     match args with
                     | [ WanderValue.String(datasetName) ] ->
                         match ligature.CreateDataset(DatasetName datasetName) with
-                        | Ok(_) -> Ok(WanderValue.Nothing)
+                        | Ok(_) -> Ok(emptySet)
                         | Error(errorValue) -> failwith "Not Implemented"
                     | _ -> failwith "TODO")
             )
@@ -48,7 +51,7 @@ let removeDatasetFun (ligature: ILigature) =
                     match args with
                     | [ WanderValue.String(datasetName) ] ->
                         match ligature.RemoveDataset(DatasetName datasetName) with
-                        | Ok(_) -> Ok(WanderValue.Nothing)
+                        | Ok(_) -> Ok(emptySet)
                         | Error(err) -> failwith "todo"
                     | _ -> failwith "")
             )
@@ -132,19 +135,19 @@ let matchFun (instance: ILigature) =
                     let entity =
                         match entity with
                         | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Nothing -> Ok None
+                        | WanderValue.Dataset(_) -> Ok None
                         | _ -> error "Invalid Entity passed to match." None
 
                     let attribute =
                         match attribute with
                         | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Nothing -> Ok None
+                        | WanderValue.Dataset(_) -> Ok None
                         | _ -> error "Invalid Attribute passed to match." None
 
                     let value =
                         match value with
                         | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
-                        | WanderValue.Nothing -> Ok None
+                        | WanderValue.Dataset(_) -> Ok None
                         | WanderValue.Int(value) -> Ok(Some(Value.Integer value))
                         | WanderValue.String(value) -> Ok(Some(Value.String value))
                         | _ -> error "Invalid Value passed to match." None
@@ -181,7 +184,7 @@ let addStatementsFun (instance: ILigature) =
                             (List.ofArray statements)
 
                     match instance.AddStatements dataset statements with
-                    | Ok _ -> Ok WanderValue.Nothing
+                    | Ok _ -> Ok(emptySet)
                     | Error err -> Error err
                 | _ -> error "Improper call to addStatements." None)
         )
@@ -206,7 +209,7 @@ let removeStatementsFun (instance: ILigature) =
                             (List.ofArray statements)
 
                     match instance.RemoveStatements dataset statements with
-                    | Ok _ -> Ok WanderValue.Nothing
+                    | Ok _ -> Ok(emptySet)
                     | Error err -> Error err
                 | _ -> error "Improper call to removeStatements." None)
         )

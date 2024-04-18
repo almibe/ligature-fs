@@ -87,3 +87,5 @@ type LigatureInMemory() =
                 isOpen <- false
                 datasets.Value <- Map.empty
                 Ok())
+
+let emptyInMemoryDataset = new InMemoryDataset(Set.empty)
