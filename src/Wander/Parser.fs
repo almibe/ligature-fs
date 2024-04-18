@@ -66,9 +66,9 @@ let readAssignment gaze =
 let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
-        let! condition = Gaze.attempt applicationInnerNib gaze
+        let! condition = Gaze.attempt matchNib gaze
         let! _ = Gaze.attempt wideArrowNib gaze
-        let! body = Gaze.attempt applicationInnerNib gaze
+        let! body = Gaze.attempt matchNib gaze
         return (condition, body)
     }
 
@@ -77,8 +77,8 @@ let readMatch gaze =
         (fun gaze ->
             result {
                 let! _ = Gaze.attempt (take Token.MatchKeyword) gaze
-                let! expression = Gaze.attempt applicationInnerNib gaze
-                let! conditions = Gaze.attempt (optional (repeat conditionsNibbler)) gaze
+                let! expression = Gaze.attempt matchNib gaze
+                let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
                 return Element.Match(expression, conditions)
             })
         gaze
@@ -138,7 +138,7 @@ let wideArrowNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.WideArrow) -> Ok(())
+            | Ok(Token.Arrow) -> Ok(())
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -197,6 +197,10 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let matchNib =
+    takeFirst
+        [ namePathNib ]
+
 let applicationInnerNib =
     takeFirst
         [ readPipe
@@ -251,8 +255,8 @@ let parse (tokens: Token list) : Result<Element list, LigatureError> =
             if Gaze.isComplete gaze then
                 Ok res
             else
-                error $"Failed to parse completely. {Gaze.isComplete gaze} {Gaze.remaining gaze}" None
-        | Error _ -> error "Failed to parse." None
+                error $"Failed to parse completely. {Gaze.remaining gaze}" None
+        | Error err -> error $"Failed to parse.\n{err.ToString()}" None
 
 /// Helper function that handles tokienization for you.
 let parseString (input: string) =

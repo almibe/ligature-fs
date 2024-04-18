@@ -162,14 +162,15 @@ let tests =
                   ast
                   (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5)); Element.NamePath([ "x" ]) ]) ]))
                   ""
-          testCase "Parse When Expression"
+          testCase "Parse Match Expression"
           <| fun _ ->
-              let tokens = tokenize "when ( true => 5, false => 6 )"
+              let tokens = tokenize "match x * x -> x * y -> y"// * true -> 5 * false -> 6"
               let ast = parse (unsafe tokens)
 
               Expect.equal
                   ast
-                  (Ok([ Element.When([ (Element.Bool(true), Element.Int(5)); (Element.Bool(false), Element.Int(6)) ]) ]))
+                  (Ok([ Element.Match(Element.NamePath(["x"]), [(Element.NamePath(["x"]), Element.NamePath(["x"])); (Element.NamePath(["y"]), Element.NamePath(["y"]))])]))
+                //  (Ok([ Element.Match(Element.NamePath(["x"]), [ (Element.Bool(true), Element.Int(5)); (Element.Bool(false), Element.Int(6)) ]) ]))
                   ""
           testCase "Parse pipes"
           <| fun _ ->
