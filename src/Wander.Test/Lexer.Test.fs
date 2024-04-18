@@ -23,9 +23,9 @@ let tests =
         [ testCase "Allow empty input" <| fun _ -> Expect.equal (tokenize "") (Ok []) ""
           testCase "Read Integer Token"
           <| fun _ ->
-              Expect.equal (tokenize "123") (Ok([ Token.Int(123) ])) ""
-              Expect.equal (tokenize "0") (Ok([ Token.Int(0) ])) ""
-              Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123) ])) ""
+              Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
+              Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
+              Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) ""
           testCase "Read Bytes Token"
           <| fun _ ->
               Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
@@ -161,7 +161,7 @@ let tests =
           testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")
-              Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5) ])) ""
+              Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") ""
           testCase "read pipe expression"

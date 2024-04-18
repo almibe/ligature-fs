@@ -25,9 +25,9 @@ let tests =
         "Parser Suite"
         [ testCase "Parse Integer"
           <| fun _ ->
-              let tokens = [ Token.Int(345) ]
+              let tokens = [ Token.Int(345I) ]
               let elements = parse tokens
-              Expect.equal elements (Ok([ Element.Int(345) ])) ""
+              Expect.equal elements (Ok([ Element.Int(345I) ])) ""
           testCase "Parse Bytes"
           <| fun _ ->
               let tokens = tokenize "0xFF"
@@ -52,7 +52,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "x = 5"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5)) ])) ""
+              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5I)) ])) ""
           testCase "Parse Name"
           <| fun _ ->
               let tokens = tokenize "hello"
@@ -72,12 +72,12 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "[1]"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Array([ Element.Int(1) ]) ])) ""
+              Expect.equal ast (Ok([ Element.Array([ Element.Int(1I) ]) ])) ""
           testCase "Parse Array with 2 elements"
           <| fun _ ->
               let tokens = tokenize "[1, 2]"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Array([ Element.Int(1); Element.Int(2) ]) ])) ""
+              Expect.equal ast (Ok([ Element.Array([ Element.Int(1I); Element.Int(2I) ]) ])) ""
 
           testCase "Parse Dataset Literal"
           <| fun _ ->
@@ -124,12 +124,12 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "{ x = 5 }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5)) ]) ])) ""
+              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5I)) ]) ])) ""
           testCase "Parse Record with 2 values"
           <| fun _ ->
               let tokens = tokenize "{ x = 5, y = false }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5)); ("y", Element.Bool(false)) ]) ])) ""
+              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5I)); ("y", Element.Bool(false)) ]) ])) ""
           testCase "Parse Lambda"
           <| fun _ ->
               let tokens = tokenize "\\x -> x"
@@ -152,7 +152,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "x = 5, x"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5)); Element.NamePath([ "x" ]) ])) ""
+              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5I)); Element.NamePath([ "x" ]) ])) ""
           testCase "Parse Grouping"
           <| fun _ ->
               let tokens = tokenize "(x = 5, x)"
@@ -160,7 +160,7 @@ let tests =
 
               Expect.equal
                   ast
-                  (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5)); Element.NamePath([ "x" ]) ]) ]))
+                  (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.NamePath([ "x" ]) ]) ]))
                   ""
           testCase "Parse Match Expression"
           <| fun _ ->

@@ -42,7 +42,7 @@ let tests =
           <| fun _ ->
               let script = "1235"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(1235))) ""
+              Expect.equal result (Ok(WanderValue.Int(1235I))) ""
           testCase "Run String"
           <| fun _ ->
               let script = "\"Hello\""
@@ -85,27 +85,27 @@ let tests =
           <| fun _ ->
               let script = "  \n  5   "
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(WanderValue.Int(5I))) ""
           testCase "Handle Multiple Values and White Space"
           <| fun _ ->
               let script = " 1,  true,  \n  \"hello\", \r\n 5,  321 \n"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(321))) ""
+              Expect.equal result (Ok(WanderValue.Int(321I))) ""
           testCase "Let Statement"
           <| fun _ ->
               let script = "x = 5"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(WanderValue.Int(5I))) ""
           testCase "Let Statement with Value Reference"
           <| fun _ ->
               let script = "x = 5,\nx"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5))) ""
+              Expect.equal result (Ok(WanderValue.Int(5I))) ""
           testCase "Define and call Lambda"
           <| fun _ ->
               let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(45))) ""
+              Expect.equal result (Ok(WanderValue.Int(45I))) ""
           //   testCase "Let Statement with Value Reference In Scope"
           //   <| fun _ ->
           //       let script = "(let x 5, x)"
