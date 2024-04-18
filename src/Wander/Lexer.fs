@@ -33,6 +33,7 @@ type Token =
     | Asterisk
     | QuestionMark
     | Hash
+    | MatchKeyword
     | Nothing
     | Lambda
     | Comma
@@ -85,6 +86,7 @@ let createNameOrKeyword (name: string) =
     match name with
     | "true" -> Token.Bool(true)
     | "false" -> Token.Bool(false)
+    | "match" -> Token.MatchKeyword
     | "nothing" -> Token.Nothing
     | _ -> Token.Name(name)
 
@@ -105,6 +107,7 @@ let tokenNibbler =
                   takeAndMap "," Token.Comma
                   takeAndMap "=>" Token.WideArrow
                   takeAndMap "->" Token.Arrow
+                  takeAndMap "*" Token.Asterisk
                   takeAndMap "#" Token.Hash
                   takeAndMap "(" Token.OpenParen
                   takeAndMap ")" Token.CloseParen

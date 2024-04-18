@@ -66,9 +66,9 @@ let readAssignment gaze =
 let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
-        let! condition = Gaze.attempt elementNib gaze
+        let! condition = Gaze.attempt applicationInnerNib gaze
         let! _ = Gaze.attempt wideArrowNib gaze
-        let! body = Gaze.attempt elementNib gaze
+        let! body = Gaze.attempt applicationInnerNib gaze
         return (condition, body)
     }
 
@@ -76,9 +76,9 @@ let readMatch gaze =
     Gaze.attempt
         (fun gaze ->
             result {
-                let! expression = Gaze.attempt elementNib gaze
-                let! _ = Gaze.attempt (take Token.WideArrow) gaze
-                let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
+                let! _ = Gaze.attempt (take Token.MatchKeyword) gaze
+                let! expression = Gaze.attempt applicationInnerNib gaze
+                let! conditions = Gaze.attempt (optional (repeat conditionsNibbler)) gaze
                 return Element.Match(expression, conditions)
             })
         gaze
@@ -208,7 +208,8 @@ let applicationInnerNib =
           datasetNib
           lambdaNib
           groupingNib
-          readMatch ]
+          readMatch
+          ]
 
 let elementNib =
     takeFirst
@@ -221,7 +222,8 @@ let elementNib =
           datasetNib
           lambdaNib
           groupingNib
-          readMatch ]
+          readMatch 
+          ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
