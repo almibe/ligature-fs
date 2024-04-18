@@ -10,7 +10,6 @@ open System
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | Nothing
     | QuestionMark
     | Int of bigint
     | Bytes of byte array
@@ -39,7 +38,6 @@ type WanderValue<'t> =
     | Bool of bool
     | Identifier of Identifier
     | Statement of Ligature.Statement
-    | Nothing
     | Function of Function
     | Array of WanderValue<'t> array
     | Dataset of IDataset
@@ -66,7 +64,6 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
-    | WanderValue.Nothing -> "Nothing"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.HostValue(_) -> "HostValue"
     | WanderValue.Statement(statement) -> printStatement statement

@@ -289,7 +289,7 @@ let handleLambda (parameters: string list) body =
     Expression.Lambda(parameters, (expressElement body))
 
 let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
-    let expression = failwith "TODO"
+    let expression = expressElement expression 
 
     let conditionals =
         List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
@@ -328,7 +328,6 @@ let rec expressElement (element: Element) =
     | Element.Int value -> Expression.Int value
     | Element.Bool value -> Expression.Bool value
     | Element.NamePath namePath -> Expression.NamePath namePath
-    | Element.Nothing -> Expression.Nothing
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
     | Element.Let(name, value) -> Expression.Let(name, (expressElement value))

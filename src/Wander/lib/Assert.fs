@@ -5,6 +5,7 @@
 module Ligature.Wander.Lib.Assert
 
 open Ligature.Wander.Model
+open Ligature.InMemory
 open Ligature
 
 let equalFunction<'t> =
@@ -15,7 +16,7 @@ let equalFunction<'t> =
                     match args with
                     | [ WanderValue.String(desc); left; right ] ->
                         if left = right then
-                            Ok(WanderValue.Nothing)
+                            Ok(WanderValue.Dataset(emptyInMemoryDataset))
                         else
                             error $"{prettyPrint left} != {prettyPrint right}" None
                     | _ -> error "Invalid call to Assert.equal function." None)
