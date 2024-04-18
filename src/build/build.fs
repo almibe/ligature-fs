@@ -14,12 +14,9 @@ open Fake.DotNet
 Target.create "RunAllTests" (fun tp ->
     let testProjects =
         [ "./src/Gaze.Test/Gaze.Test.fsproj"
-          "./src/Lig.Test/Lig.Test.fsproj"
           "./src/Ligature.Test/Ligature.Test.fsproj"
           "./src/LigatureInMemory.Test/LigatureInMemory.Test.fsproj"
-          "./src/LigatureLab.Test/LigatureLab.Test.fsproj"
-          "./src/LigatureLMDB.Test/LigatureLMDB.Test.fsproj"
-          "./src/LigatureSqlite.Test/LigatureSqlite.Test.fsproj"
+          "./src/LigatureZeroMQ.Test/LigatureZeroMQ.Test.fsproj"
           "./src/Wander.Test/Wander.Test.fsproj" ]
 
     let failed =

@@ -4,9 +4,9 @@
 
 module Ligature.ZMQ.Main
 
-open Ligature.Sqlite.Main
 open Ligature.ZMQ.Config
 open Ligature
+open Ligature.InMemory
 open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
@@ -24,9 +24,7 @@ let main _ =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
 
-    let instance =
-        match config.persistance with
-        | Sqlite config -> ligatureSqlite config
+    let instance = new LigatureInMemory ()
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")
