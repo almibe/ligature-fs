@@ -123,7 +123,10 @@ let tokenNibbler =
                   takeAndMap "?" Token.QuestionMark
                   takeAndMap "=" Token.EqualsSign
                   takeAndMap "\\" Token.Lambda
-                  commentTokenNibbler ])))
+                  commentTokenNibbler ]
+            )
+        )
+    )
 
 let tokenize script =
     let gaze = Gaze.fromString (script)

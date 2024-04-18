@@ -164,14 +164,47 @@ let tests =
                   ""
           testCase "Parse Match Expression"
           <| fun _ ->
-              let tokens = tokenize "match x * x -> x * y -> y"// * true -> 5 * false -> 6"
+              let tokens = tokenize "match x * x -> x * y -> y"
               let ast = parse (unsafe tokens)
 
               Expect.equal
                   ast
-                  (Ok([ Element.Match(Element.NamePath(["x"]), [(Element.NamePath(["x"]), Element.NamePath(["x"])); (Element.NamePath(["y"]), Element.NamePath(["y"]))])]))
-                //  (Ok([ Element.Match(Element.NamePath(["x"]), [ (Element.Bool(true), Element.Int(5)); (Element.Bool(false), Element.Int(6)) ]) ]))
+                  (Ok(
+                      [ Element.Match(
+                            Element.NamePath([ "x" ]),
+                            [ (Element.NamePath([ "x" ]), Element.NamePath([ "x" ]))
+                              (Element.NamePath([ "y" ]), Element.NamePath([ "y" ])) ]
+                        ) ]
+                  ))
                   ""
+
+          testCase "Parse Match Expression With Additional Types"
+          <| fun _ ->
+              let tokens = tokenize "match x * true -> 5 * false -> 6"
+              let ast = parse (unsafe tokens)
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Match(
+                            Element.NamePath([ "x" ]),
+                            [ (Element.Bool(true), Element.Int(5I))
+                              (Element.Bool(false), Element.Int(6I)) ]
+                        ) ]
+                  ))
+                  ""
+
+          //   testCase "Parse Match Expression 3"
+          //   <| fun _ ->
+          //       let tokens = tokenize "match {`a` `b` `c`} * false -> 6"
+          //       let ast = parse (unsafe tokens)
+
+          //       Expect.equal
+          //           ast
+          //           (Ok([ Element.Match(Element.NamePath(["x"]), [ (Element.Bool(true), Element.Int(5)); (Element.Bool(false), Element.Int(6)) ]) ]))
+          //           ""
+
+
           testCase "Parse pipes"
           <| fun _ ->
               let tokens = tokenize "|||"

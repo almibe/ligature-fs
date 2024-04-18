@@ -10,5 +10,4 @@ open System
 
 type Config = { url: string }
 
-let readConfig () =
-    { url = "http://localhost:4200" }
+let readConfig () = { url = "http://localhost:4200" }

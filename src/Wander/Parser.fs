@@ -66,10 +66,10 @@ let readAssignment gaze =
 let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
-        let! condition = Gaze.attempt matchNib gaze
+        let! pattern = Gaze.attempt patternNib gaze
         let! _ = Gaze.attempt wideArrowNib gaze
-        let! body = Gaze.attempt matchNib gaze
-        return (condition, body)
+        let! body = Gaze.attempt patternMatchBodyNib gaze
+        return (pattern, body)
     }
 
 let readMatch gaze =
@@ -77,7 +77,7 @@ let readMatch gaze =
         (fun gaze ->
             result {
                 let! _ = Gaze.attempt (take Token.MatchKeyword) gaze
-                let! expression = Gaze.attempt matchNib gaze
+                let! expression = Gaze.attempt patternMatchBodyNib gaze
                 let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
                 return Element.Match(expression, conditions)
             })
@@ -197,9 +197,10 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let matchNib =
-    takeFirst
-        [ namePathNib ]
+let patternMatchBodyNib =
+    takeFirst [ namePathNib; readValue; groupingNib; applicationNib ]
+
+let patternNib = takeFirst [ namePathNib; readValue ]
 
 let applicationInnerNib =
     takeFirst
@@ -212,8 +213,7 @@ let applicationInnerNib =
           datasetNib
           lambdaNib
           groupingNib
-          readMatch
-          ]
+          readMatch ]
 
 let elementNib =
     takeFirst
@@ -226,8 +226,7 @@ let elementNib =
           datasetNib
           lambdaNib
           groupingNib
-          readMatch 
-          ]
+          readMatch ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
@@ -291,10 +290,11 @@ let handleLambda (parameters: string list) body =
 
 let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
     let expression = failwith "TODO"
+
     let conditionals =
         List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
 
-    Expression.Match (expression, conditionals)
+    Expression.Match(expression, conditionals)
 
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
