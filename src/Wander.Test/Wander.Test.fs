@@ -106,6 +106,11 @@ let tests =
               let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(45I))) ""
+          testCase "Call basic match"
+          <| fun _ ->
+              let script = "match false * true -> 5 * false -> 6"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Int(6I))) ""
           //   testCase "Let Statement with Value Reference In Scope"
           //   <| fun _ ->
           //       let script = "(let x 5, x)"
