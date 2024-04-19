@@ -38,7 +38,7 @@ type InMemoryDataset =
 
         member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
 
-type LigatureInMemory() =
+type LigatureInMemory(callImpl) =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
@@ -87,5 +87,7 @@ type LigatureInMemory() =
                 isOpen <- false
                 datasets.Value <- Map.empty
                 Ok())
+        member this.Call(dataset: DatasetName) (name: Identifier) (argument: IDataset): Result<IDataset,LigatureError> = 
+            callImpl this dataset name argument
 
 let emptyInMemoryDataset = new InMemoryDataset(Set.empty)

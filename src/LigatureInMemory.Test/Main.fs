@@ -7,14 +7,16 @@ module Ligature.InMemory.Test
 open Expecto
 open Ligature.TestSuite
 
-[<Tests>]
-let tests = ligatureTestSuite (fun () -> new LigatureInMemory())
+let callImpl _ _ _ _ = failwith "Not implemented"
 
 [<Tests>]
-let wanderTests = wanderTestSuite (fun () -> new LigatureInMemory())
+let tests = ligatureTestSuite (fun () -> new LigatureInMemory(callImpl))
 
 [<Tests>]
-let ligTests = ligTestSuite (fun () -> new LigatureInMemory())
+let wanderTests = wanderTestSuite (fun () -> new LigatureInMemory(callImpl))
+
+[<Tests>]
+let ligTests = ligTestSuite (fun () -> new LigatureInMemory(callImpl))
 
 [<EntryPoint>]
 let main argv = runTestsInAssemblyWithCLIArgs [] argv

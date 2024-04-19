@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="LigatureInMemory.fs" />
   </ItemGroup>
-  <ItemGroup>  
+  <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
   </ItemGroup>
 

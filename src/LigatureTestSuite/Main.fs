@@ -58,6 +58,7 @@ let wanderTestSuite (createInstance: Unit -> ILigature) =
 let ligTestSuite (createInstance: Unit -> ILigature) =
     let ligatureTestSuite =
         System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+    let callImpl _ _ _ _ = failwith "Not implemented."
 
     if ligatureTestSuite <> null then
         allFiles [ ligatureTestSuite ]
@@ -67,7 +68,7 @@ let ligTestSuite (createInstance: Unit -> ILigature) =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                let instance = new Ligature.InMemory.LigatureInMemory()
+                let instance = new Ligature.InMemory.LigatureInMemory(callImpl)
                 loadFromString script instance
                 let datasets = (instance :> ILigature).AllDatasets()
                 Expect.equal (Ok [ DatasetName "hello" ]) datasets "")
