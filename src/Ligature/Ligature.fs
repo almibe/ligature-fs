@@ -34,33 +34,30 @@ let identifier =
 
 let readIdentifier (Identifier identifier) = identifier
 
-[<RequireQualifiedAccess>]
-type Value =
-    | Identifier of Identifier
-    | String of string
-    | Integer of bigint
-    | Bytes of byte array
-
 type Range =
     | String of string * string
     | Integer of bigint * bigint
     | Bytes of byte array * byte array
 
-type ValueQuery =
+type Function = IDataset -> IDataset
+
+and [<RequireQualifiedAccess>] Value =
+    | Identifier of Identifier
+    | String of string
+    | Integer of bigint
+    | Bytes of byte array
+    | Function of Function
+
+and ValueQuery =
     | Value of Value
     | Range of Range
 
-type Statement =
+and Statement =
     { Entity: Identifier
       Attribute: Identifier
       Value: Value }
 
-let statement entity attribute value =
-    { Entity = entity
-      Attribute = attribute
-      Value = value }
-
-type IDataset =
+and IDataset =
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<IDataset, LigatureError>
 
@@ -78,3 +75,8 @@ type ILigature =
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
+
+let statement entity attribute value =
+    { Entity = entity
+      Attribute = attribute
+      Value = value }
