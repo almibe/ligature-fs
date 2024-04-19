@@ -39,25 +39,22 @@ type Range =
     | Integer of bigint * bigint
     | Bytes of byte array * byte array
 
-type Function = IDataset -> IDataset
-
-and [<RequireQualifiedAccess>] Value =
+type [<RequireQualifiedAccess>] Value =
     | Identifier of Identifier
     | String of string
     | Integer of bigint
     | Bytes of byte array
-    | Function of Function
 
-and ValueQuery =
+type ValueQuery =
     | Value of Value
     | Range of Range
 
-and Statement =
+type Statement =
     { Entity: Identifier
       Attribute: Identifier
       Value: Value }
 
-and IDataset =
+type IDataset =
     abstract member MatchStatements:
         Identifier option -> Identifier option -> Value option -> Result<IDataset, LigatureError>
 
@@ -72,6 +69,7 @@ type ILigature =
     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
     abstract member Query: DatasetName -> Query -> Result<IDataset, LigatureError>
+    abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member Close: unit -> Result<Unit, LigatureError>
