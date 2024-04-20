@@ -30,7 +30,7 @@ type Element =
     | Pipe
     | QuestionMark
 
-and DatasetRoot = Element list
+and DatasetRoot = Element * Element * Element
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -157,7 +157,13 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Grouping(values)
     }
 
-let datasetRootNib = repeat (takeFirst [ readValue ])
+let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> = 
+    result {
+        let! entity = Gaze.attempt readValue gaze
+        let! attribute = Gaze.attempt readValue gaze
+        let! value = Gaze.attempt readValue gaze
+        return DatasetRoot(entity, attribute, value)
+    }
 
 let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -267,8 +273,8 @@ let expressArray values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Array res
 
-let expressDatasetRoot (root: DatasetRoot) =
-    List.map (fun value -> expressElement value) root
+let expressDatasetRoot (entity, attribute, value) =
+    (expressElement entity), (expressElement attribute), (expressElement value)
 
 let expressDataset (values: DatasetRoot list) =
     let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values

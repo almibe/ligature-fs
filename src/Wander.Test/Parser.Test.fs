@@ -88,9 +88,9 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ [ Element.Identifier(ident "a")
-                                Element.Identifier(ident "b")
-                                Element.Identifier(ident "c") ] ]
+                            [ ( Element.Identifier(ident "a"),
+                                Element.Identifier(ident "b"),
+                                Element.Identifier(ident "c") ) ]
                         ) ]
                   ))
                   ""
@@ -104,15 +104,35 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ [ Element.Identifier(ident "a")
-                                Element.Identifier(ident "b")
-                                Element.Identifier(ident "c") ]
-                              [ Element.Identifier(ident "d")
-                                Element.Identifier(ident "e")
-                                Element.Identifier(ident "f") ] ]
+                            [ ( Element.Identifier(ident "a"),
+                                Element.Identifier(ident "b"),
+                                Element.Identifier(ident "c") )
+                              ( Element.Identifier(ident "d"),
+                                Element.Identifier(ident "e"),
+                                Element.Identifier(ident "f") ) ]
                         ) ]
                   ))
                   ""
+
+          testCase "Parse Dataset Literal with Value list"
+          <| fun _ ->
+              let tokens = tokenize "{ `a` `b` [`c`, `d`] }"
+              let ast = parse (unsafe tokens)
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Dataset(
+                            [ ( Element.Identifier(ident "a"),
+                                Element.Identifier(ident "b"),
+                                Element.Identifier(ident "c") )
+                              ( Element.Identifier(ident "a"),
+                                Element.Identifier(ident "b"),
+                                Element.Identifier(ident "d") ) ]
+                        ) ]
+                  ))
+                  ""
+
 
           testCase "Parse Empty Record"
           <| fun _ ->

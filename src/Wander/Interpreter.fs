@@ -168,18 +168,24 @@ and handleRecord bindings values =
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
     Ok(WanderValue.Record(v), bindings)
 
-and handleDatasetRoot bindings datasetRoot =
-    let vals =
-        List.map
-            (fun expression ->
-                match evalExpression bindings expression with
-                | Ok(res, _) -> res
-                | _ -> failwith "TODO")
-            datasetRoot
+and handleDatasetRoot bindings (entity, attribute, value) =
+    let entity =
+        match evalExpression bindings entity with
+        | Ok(res, _) -> res
+        | _ -> failwith "TODO"
 
-    match vals with
-    | [] -> Ok(new InMemoryDataset(Set.empty))
-    | [ WanderValue.Identifier e; WanderValue.Identifier a; v ] ->
+    let attribute =
+        match evalExpression bindings attribute with
+        | Ok(res, _) -> res
+        | _ -> failwith "TODO"
+
+    let value =
+        match evalExpression bindings value with
+        | Ok(res, _) -> res
+        | _ -> failwith "TODO"
+
+    match (entity, attribute, value) with
+    | ( WanderValue.Identifier e, WanderValue.Identifier a, v ) ->
         let value = 
             match v with
             | WanderValue.Int value        -> Value.Int value
