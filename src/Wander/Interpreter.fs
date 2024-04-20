@@ -179,13 +179,20 @@ and handleDatasetRoot bindings datasetRoot =
 
     match vals with
     | [] -> Ok(new InMemoryDataset(Set.empty))
-    | [ WanderValue.Identifier e; WanderValue.Identifier a; WanderValue.Identifier v ] ->
+    | [ WanderValue.Identifier e; WanderValue.Identifier a; v ] ->
+        let value = 
+            match v with
+            | WanderValue.Int value        -> Value.Int value
+            | WanderValue.Bytes value      -> Value.Bytes value
+            | WanderValue.Identifier value -> Value.Identifier value
+            | WanderValue.String value     -> Value.String value
+            | _                            -> failwith "TODO"
         let res =
             new InMemoryDataset(
                 Set.ofSeq
                     [ { Entity = e
                         Attribute = a
-                        Value = (Value.Identifier v) } ]
+                        Value = value } ]
             )
 
         Ok(res)

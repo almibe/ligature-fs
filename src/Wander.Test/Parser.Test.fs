@@ -118,7 +118,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Record([]) ])) ""
+              Expect.equal ast (Ok([ Element.Dataset([]) ])) ""
 
           testCase "Parse Record with 1 value"
           <| fun _ ->

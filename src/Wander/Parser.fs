@@ -208,8 +208,8 @@ let applicationInnerNib =
           readValue
           namePathNib
           arrayNib
-          recordNib
           datasetNib
+          recordNib
           lambdaNib
           groupingNib
           readMatch ]
@@ -221,8 +221,8 @@ let elementNib =
           namePathNib
           readValue
           arrayNib
-          recordNib
           datasetNib
+          recordNib
           lambdaNib
           groupingNib
           readMatch ]
