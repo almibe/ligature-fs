@@ -8,7 +8,7 @@ open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature
-open Ligature.InMemory
+open Ligature.Wander.InMemoryDataset
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -38,7 +38,12 @@ let bindings = Ligature.Wander.Lib.Preludes.standardPrelude ()
 let tests =
     testList
         "Main Test"
-        [ testCase "Run Integer"
+        [ testCase "Empty script"
+          <| fun _ ->
+              let script = ""
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""
+          testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
               let result = run script bindings

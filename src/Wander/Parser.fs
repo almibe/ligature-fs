@@ -14,7 +14,6 @@ open System.Collections
 [<RequireQualifiedAccess>]
 type Element =
     | NamePath of string list
-    | Nothing
     | Grouping of Element list
     | Application of Element list
     | String of string
@@ -245,7 +244,7 @@ let parse (tokens: Token list) : Result<Element list, LigatureError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok [ Element.Nothing ]
+        Ok []
     else
         let gaze = Gaze.fromList tokens
 
@@ -289,7 +288,7 @@ let handleLambda (parameters: string list) body =
     Expression.Lambda(parameters, (expressElement body))
 
 let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
-    let expression = expressElement expression 
+    let expression = expressElement expression
 
     let conditionals =
         List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
@@ -341,3 +340,4 @@ let rec expressElement (element: Element) =
     | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)
     | Element.Dataset(value) -> expressDataset value
+    | x -> failwith $"Unexpected value - {x}"

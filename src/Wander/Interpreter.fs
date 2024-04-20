@@ -7,7 +7,7 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature
-open Ligature.InMemory
+open InMemoryDataset
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue<'t>>) =
     match read (List.head namePath) bindings with
@@ -111,7 +111,6 @@ let rec evalExpression bindings expression =
     // match result with
     // | None -> evalExpression bindings conditional.elseBody
     // | Some(result) -> result
-    | Expression.Nothing -> Ok(WanderValue.Nothing, bindings)
     | Expression.Int value -> Ok(WanderValue.Int value, bindings)
     | Expression.String value -> Ok(WanderValue.String value, bindings)
     | Expression.Bool value -> Ok(WanderValue.Bool value, bindings)
@@ -129,7 +128,7 @@ let rec evalExpression bindings expression =
                         if Option.isNone error then
                             error <- Some(err)
 
-                        WanderValue.Nothing)
+                        WanderValue.Dataset(new InMemoryDataset(Set.empty)))
                 (Array.ofList expressions)
 
         match error with
@@ -139,7 +138,7 @@ let rec evalExpression bindings expression =
     | Expression.Record(values) -> handleRecord bindings values
     | Expression.Match(expression, conditionals) -> handleMatch bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
-    | Expression.QuestionMark -> Ok(WanderValue.Nothing, bindings)
+    | Expression.QuestionMark -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
     | Expression.Statement(_) -> failwith "Not Implemented"
@@ -270,7 +269,9 @@ and evalArray bindings array arguments =
 and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
-    let args = Array.init (List.length parameters) (fun i -> WanderValue.Nothing)
+
+    let args =
+        Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(new InMemoryDataset(Set.empty)))
 
     List.tryFind
         (fun arg ->
@@ -296,26 +297,29 @@ and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
 and handleMatch bindings expression conditionals =
-    match
-        List.tryFind
-            (fun (condition, body) ->
-                match evalExpression bindings condition with
-                | Ok((WanderValue.Bool(value), _)) -> value
-                | _ -> false)
-            conditionals
-    with
-    | Some((_, body)) -> evalExpression bindings body
-    | None -> error "No branches matched in when expression." None
+    match evalExpression bindings expression with
+    | Ok(valueToMatch, _) ->
+        match
+            List.tryFind
+                (fun (condition, body) ->
+                    match evalExpression bindings condition with
+                    | Ok((WanderValue.Bool(value), _)) -> value
+                    | _ -> false)
+                conditionals
+        with
+        | Some((_, body)) -> evalExpression bindings body
+        | None -> error "No branches matched in when expression." None
+    | Error(errorValue) -> failwith "Not Implemented"
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
     : Result<(WanderValue<'t> * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok(WanderValue.Nothing, bindings)
+    | 0 -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok(WanderValue.Nothing, bindings)
+        let mutable result = Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
         let mutable cont = true
         let mutable bindings = bindings
         let mutable expressions = expressions

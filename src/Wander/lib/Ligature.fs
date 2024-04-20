@@ -7,7 +7,7 @@ module Ligature.Wander.Lib.Ligature
 open Ligature
 open Ligature.Wander.Model
 open System
-open Ligature.InMemory
+open Ligature.Wander.InMemoryDataset
 
 let emptySet = WanderValue.Dataset(new InMemoryDataset(Set.empty))
 

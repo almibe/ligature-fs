@@ -34,7 +34,6 @@ type Token =
     | QuestionMark
     | Hash
     | MatchKeyword
-    | Nothing
     | Lambda
     | Comma
     | Pipe
@@ -87,7 +86,6 @@ let createNameOrKeyword (name: string) =
     | "true" -> Token.Bool(true)
     | "false" -> Token.Bool(false)
     | "match" -> Token.MatchKeyword
-    | "nothing" -> Token.Nothing
     | _ -> Token.Name(name)
 
 let nameOrKeywordTokenNibbler =

@@ -6,6 +6,7 @@ module Ligature.Wander.Lib.Dataset
 
 open Ligature.Wander.Model
 open Ligature
+open Ligature.Wander.InMemoryDataset
 
 let ofArrayFunction<'t> =
     WanderValue.Function(
@@ -22,7 +23,7 @@ let ofArrayFunction<'t> =
                             | _ -> failwith "Unexpected value")
                         statements
 
-                    Ok(WanderValue.Dataset(new Ligature.InMemory.InMemoryDataset(Set.ofSeq statementSet)))
+                    Ok(WanderValue.Dataset(new InMemoryDataset(Set.ofSeq statementSet)))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )

@@ -58,6 +58,7 @@ let wanderTestSuite (createInstance: Unit -> ILigature) =
 let ligTestSuite (createInstance: Unit -> ILigature) =
     let ligatureTestSuite =
         System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+
     let callImpl _ _ _ _ = failwith "Not implemented."
 
     if ligatureTestSuite <> null then
@@ -68,7 +69,7 @@ let ligTestSuite (createInstance: Unit -> ILigature) =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                let instance = new Ligature.InMemory.LigatureInMemory(callImpl)
+                let instance = new Ligature.InMemory.LigatureInMemory()
                 loadFromString script instance
                 let datasets = (instance :> ILigature).AllDatasets()
                 Expect.equal (Ok [ DatasetName "hello" ]) datasets "")
@@ -83,7 +84,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let hello3DS = DatasetName "hello3"
 
     let jvName = statement "character:1" "name" (Value.String "Jean Valjean")
-    let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601)
+    let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601I)
     let javertName = statement "character:2" "name" (Value.String "Inspector Javert")
 
     let nemesis =
@@ -142,7 +143,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-              let statement = statement "a" "b" (Value.Integer 12345)
+              let statement = statement "a" "b" (Value.Integer 12345I)
               let writeRes = instance.AddStatements helloDS [ statement ]
               Expect.isOk writeRes "Could not write statements."
               let result = instance.AllStatements helloDS

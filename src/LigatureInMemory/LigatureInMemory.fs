@@ -5,40 +5,9 @@
 module Ligature.InMemory
 
 open Ligature
+open Ligature.Wander.InMemoryDataset
 
-type InMemoryDataset =
-    val statements: Set<Statement>
-    new(statementsArg) = { statements = statementsArg }
-
-    override this.Equals(other) =
-        match other with
-        | :? InMemoryDataset as ds -> (this.statements) = (ds.statements)
-        | _ -> failwith "TODO"
-
-    override this.GetHashCode() = this.statements.GetHashCode()
-
-    interface IDataset with
-        member this.MatchStatements entity attribute value =
-            let results =
-                match entity with
-                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
-                | None -> this.statements
-
-            let results =
-                match attribute with
-                | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
-                | None -> results
-
-            let results =
-                match value with
-                | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
-                | None -> results
-
-            Ok(new InMemoryDataset(results))
-
-        member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
-
-type LigatureInMemory(callImpl) =
+type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
@@ -87,7 +56,12 @@ type LigatureInMemory(callImpl) =
                 isOpen <- false
                 datasets.Value <- Map.empty
                 Ok())
-        member this.Call(dataset: DatasetName) (name: Identifier) (argument: IDataset): Result<IDataset,LigatureError> = 
-            callImpl this dataset name argument
 
-let emptyInMemoryDataset = new InMemoryDataset(Set.empty)
+        member this.Call
+            (dataset: DatasetName)
+            (name: Identifier)
+            (argument: IDataset)
+            : Result<IDataset, LigatureError> =
+            failwith "TODO"
+
+        member this.RunScript(script: string) : Result<IDataset, LigatureError> = failwith "TODO"

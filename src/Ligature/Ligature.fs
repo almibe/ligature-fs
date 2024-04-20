@@ -39,7 +39,8 @@ type Range =
     | Integer of bigint * bigint
     | Bytes of byte array * byte array
 
-type [<RequireQualifiedAccess>] Value =
+[<RequireQualifiedAccess>]
+type Value =
     | Identifier of Identifier
     | String of string
     | Integer of bigint
@@ -68,6 +69,7 @@ type ILigature =
     abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
+    abstract member RunScript: string -> Result<IDataset, LigatureError>
     abstract member Query: DatasetName -> Query -> Result<IDataset, LigatureError>
     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
