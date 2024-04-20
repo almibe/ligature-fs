@@ -36,14 +36,14 @@ let readIdentifier (Identifier identifier) = identifier
 
 type Range =
     | String of string * string
-    | Integer of bigint * bigint
+    | Int of bigint * bigint
     | Bytes of byte array * byte array
 
 [<RequireQualifiedAccess>]
 type Value =
     | Identifier of Identifier
     | String of string
-    | Integer of bigint
+    | Int of bigint
     | Bytes of byte array
 
 type ValueQuery =

@@ -42,7 +42,7 @@ let valueFunction<'t> =
                         match statement.Value with
                         | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
                         | Value.String(value) -> Ok(WanderValue.String(value))
-                        | Value.Integer(value) -> Ok(WanderValue.Int(value))
+                        | Value.Int(value) -> Ok(WanderValue.Int(value))
                         | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
                     | _ -> error "Invalid call to Statement.value function." None)
             )

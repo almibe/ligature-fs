@@ -66,7 +66,11 @@ let tests =
               let script = "`hello`"
               let result = run script bindings
               Expect.equal result (Ok(wident "hello")) ""
-
+          testCase "Run Empty Dataset literal"
+          <| fun _ ->
+              let script = "{}"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""          
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -81,6 +85,60 @@ let tests =
                                   [ { Entity = ident "a"
                                       Attribute = ident "b"
                                       Value = vident "c" } ]
+                          )
+                      )
+                  ))
+                  ""
+          testCase "Run Dataset literal with Int"
+          <| fun _ ->
+              let script = "{`a` `b` 5}"
+              let result = run script bindings
+
+              Expect.equal
+                  result
+                  (Ok(
+                      WanderValue.Dataset(
+                          new InMemoryDataset(
+                              Set.ofSeq
+                                  [ { Entity = ident "a"
+                                      Attribute = ident "b"
+                                      Value = Value.Int(5I) } ]
+                          )
+                      )
+                  ))
+                  ""
+          testCase "Run Dataset literal with String"
+          <| fun _ ->
+              let script = "{`a` `b` \"Hi\"}"
+              let result = run script bindings
+
+              Expect.equal
+                  result
+                  (Ok(
+                      WanderValue.Dataset(
+                          new InMemoryDataset(
+                              Set.ofSeq
+                                  [ { Entity = ident "a"
+                                      Attribute = ident "b"
+                                      Value = Value.String("Hi") } ]
+                          )
+                      )
+                  ))
+                  ""
+          testCase "Run Dataset literal with Bytes"
+          <| fun _ ->
+              let script = "{`a` `b` 0x00}"
+              let result = run script bindings
+
+              Expect.equal
+                  result
+                  (Ok(
+                      WanderValue.Dataset(
+                          new InMemoryDataset(
+                              Set.ofSeq
+                                  [ { Entity = ident "a"
+                                      Attribute = ident "b"
+                                      Value = Value.Bytes([| 0uy |]) } ]
                           )
                       )
                   ))

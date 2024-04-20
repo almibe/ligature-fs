@@ -227,13 +227,13 @@ and evalStatement bindings (entity: Identifier) arguments =
         let value =
             match value with
             | Expression.Identifier(value) -> Value.Identifier(value)
-            | Expression.Int(value) -> Value.Integer(value)
+            | Expression.Int(value) -> Value.Int(value)
             | Expression.String(value) -> Value.String(value)
             | Expression.Bytes(value) -> Value.Bytes(value)
             | value ->
                 match evalExpression bindings value with
                 | Ok((WanderValue.Identifier(value), _)) -> Value.Identifier(value)
-                | Ok((WanderValue.Int(value), _)) -> Value.Integer(value)
+                | Ok((WanderValue.Int(value), _)) -> Value.Int(value)
                 | Ok((WanderValue.String(value), _)) -> Value.String(value)
                 | Ok((WanderValue.Bytes(value), _)) -> Value.Bytes(value)
                 | _ -> failwith ""

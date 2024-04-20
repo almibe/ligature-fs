@@ -95,7 +95,7 @@ and printStatement statement =
 and printLigatureValue value =
     match value with
     | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
-    | Value.Integer(value) -> value.ToString()
+    | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
     | Value.Bytes(bytes) -> printBytes bytes
 

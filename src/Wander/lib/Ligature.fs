@@ -76,7 +76,7 @@ let datasetExists (instance: ILigature) =
 let valueToWanderValue (value: Value) : WanderValue<'t> =
     match value with
     | Value.Identifier i -> WanderValue.Identifier i
-    | Value.Integer i -> WanderValue.Int i
+    | Value.Int i -> WanderValue.Int i
     | Value.String s -> WanderValue.String s
     | Value.Bytes b -> WanderValue.Bytes b
 
@@ -148,7 +148,7 @@ let matchFun (instance: ILigature) =
                         match value with
                         | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
                         | WanderValue.Dataset(_) -> Ok None
-                        | WanderValue.Int(value) -> Ok(Some(Value.Integer value))
+                        | WanderValue.Int(value) -> Ok(Some(Value.Int value))
                         | WanderValue.String(value) -> Ok(Some(Value.String value))
                         | _ -> error "Invalid Value passed to match." None
 

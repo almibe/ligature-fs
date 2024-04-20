@@ -11,7 +11,6 @@ open Identifier
 open Ligature
 open Statement
 open Int
-open Record
 open Wander
 open DateTime
 
@@ -25,7 +24,6 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Dataset" Dataset.datasetLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
-    |> Bindings.bind "Record" recordLib
     |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "String" String.stringLib
     |> Bindings.bind "Wander" wanderLib
