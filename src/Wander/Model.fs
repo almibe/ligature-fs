@@ -90,7 +90,7 @@ and printRecord values =
     + "}"
 
 and printStatement statement =
-    $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+    $"(`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
 
 and printLigatureValue value =
     match value with
