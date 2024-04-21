@@ -230,39 +230,10 @@ and handleApplication bindings values =
         | Some(WanderValue.Function(Function.HostFunction(hostFunction))) ->
             evalHostFunction bindings hostFunction arguments
         | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
-        | Some(WanderValue.Identifier(entity)) -> evalStatement bindings entity arguments
-        | Some(_) -> error "Improper application." None
+        | Some _ -> error "Improper application." None
         | None -> error $"Function {functionName} not found." None
-    | Some(Expression.Identifier(entity)) -> evalStatement bindings entity arguments
-    | Some(head) -> evalExpression bindings head //error $"Invalid Application: {values}." None
+    | Some _ -> error $"Invalid Application: {values}." None
     | None -> error "Should never reach, evaling empty Application." None
-
-and evalStatement bindings (entity: Identifier) arguments =
-    match arguments with
-    | [ Expression.Identifier(attribute); value: Expression ] ->
-        let value =
-            match value with
-            | Expression.Identifier(value) -> Value.Identifier(value)
-            | Expression.Int(value) -> Value.Int(value)
-            | Expression.String(value) -> Value.String(value)
-            | Expression.Bytes(value) -> Value.Bytes(value)
-            | value ->
-                match evalExpression bindings value with
-                | Ok((WanderValue.Identifier(value), _)) -> Value.Identifier(value)
-                | Ok((WanderValue.Int(value), _)) -> Value.Int(value)
-                | Ok((WanderValue.String(value), _)) -> Value.String(value)
-                | Ok((WanderValue.Bytes(value), _)) -> Value.Bytes(value)
-                | _ -> failwith ""
-
-        Ok(
-            (WanderValue.Statement(
-                { Entity = entity
-                  Attribute = attribute
-                  Value = value }
-             ),
-             bindings)
-        )
-    | _ -> failwith ""
 
 and evalHostFunction bindings hostFunction arguments =
     let values =
