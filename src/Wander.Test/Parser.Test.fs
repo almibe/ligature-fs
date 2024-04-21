@@ -125,10 +125,8 @@ let tests =
                       [ Element.Dataset(
                             [ (Element.Identifier(ident "a"),
                                Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "c") ])
-                              (Element.Identifier(ident "a"),
-                               Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "d") ]) ]
+                               [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ])
+                              ]
                         ) ]
                   ))
                   ""
@@ -152,7 +150,7 @@ let tests =
                   ))
                   ""
 
-          testCase "Parse Empty Record"
+          testCase "Parse Empty Dataset"
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)

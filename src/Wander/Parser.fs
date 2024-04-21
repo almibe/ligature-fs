@@ -98,21 +98,6 @@ let lambdaNib gaze =
             })
         gaze
 
-// let readNameOrFunctionCall (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.Name(name)) ->
-//                 match Gaze.peek gaze with
-//                 | Ok(Token.OpenParen) ->
-//                     let arguments = readArguments gaze
-//                     match arguments with
-//                     | Ok(arguments) -> Ok(Expression.FunctionCall(name, arguments))
-//                     | _ -> Error(Gaze.GazeError.NoMatch)
-//                 | _ -> Ok(Expression.Name(name))
-//             | _ -> Error(Gaze.GazeError.NoMatch))
-//         gaze
-
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
@@ -201,6 +186,24 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    printfn "In readValueList next = %A\n" next
+
+    match next with
+    | Ok(Token.CloseSquare) -> Ok elements
+    | Ok(Token.Identifier i) ->
+        match Gaze.peek gaze with
+        | Ok Token.CloseSquare -> 
+            (Gaze.next gaze |> ignore)
+            Ok (List.append elements [(Element.Identifier i)])
+        | Ok Token.Comma -> 
+            (Gaze.next gaze |> ignore)
+            readValueList (List.append elements [(Element.Identifier i)]) gaze
+        | _ -> failwith "TODO"
+    | _ -> failwith "TODO"
+
 /// Read the Value position of the
 let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -212,6 +215,7 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Ok(Token.Bool(value)) -> Ok([ Element.Bool value ])
     | Ok(Token.Identifier(value)) -> Ok([ Element.Identifier value ])
     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
+    | Ok(Token.OpenSquare) -> readValueList [] gaze
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -287,7 +291,6 @@ let parseString (input: string) =
     match tokenize input with
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
-//    printfn "%A" (sprintf "%A" (tokenize input))
 
 let expressArray values =
     let res = List.map (fun value -> expressElement value) values
@@ -336,9 +339,6 @@ let expressApplication elements =
         elements
 
     parts.Add(List.ofSeq currentPart)
-    // match List.ofSeq parts with
-    // | [] -> Expression.Application (List.ofSeq currentPart)
-    // | parts ->
     List.fold
         (fun expr application -> List.append application [ expr ] |> Expression.Application)
         (Expression.Application(parts[0]))
@@ -347,7 +347,6 @@ let expressApplication elements =
 let express (elements: Element list) : Expression list =
     List.map (fun element -> expressElement element) elements
 
-/// This will eventually handle processing pipe operators
 let rec expressElement (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value

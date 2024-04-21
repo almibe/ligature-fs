@@ -169,6 +169,7 @@ and handleRecord bindings values =
     Ok(WanderValue.Record(v), bindings)
 
 and handleDatasetRoot bindings (entity, attribute, values) =
+    let mutable statements = Set.empty
     let entity =
         match evalExpression bindings entity with
         | Ok(res, _) -> res
@@ -188,22 +189,21 @@ and handleDatasetRoot bindings (entity, attribute, values) =
             values
 
     match (entity, attribute, value) with
-    | (WanderValue.Identifier e, WanderValue.Identifier a, v) ->
-        let value =
-            match v with
-            | [ WanderValue.Int value ] -> Value.Int value
-            | [ WanderValue.Bytes value ] -> Value.Bytes value
-            | [ WanderValue.Identifier value ] -> Value.Identifier value
-            | [ WanderValue.String value ] -> Value.String value
-            | _ -> failwith "TODO"
+    | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
 
-        let res =
-            new InMemoryDataset(
-                Set.ofSeq
-                    [ { Entity = e
-                        Attribute = a
-                        Value = value } ]
-            )
+        List.iter (fun value -> 
+            let value =
+                match value with
+                | WanderValue.Int value -> Value.Int value
+                | WanderValue.Bytes value -> Value.Bytes value
+                | WanderValue.Identifier value -> Value.Identifier value
+                | WanderValue.String value -> Value.String value
+                | _ -> failwith "TODO"
+
+            statements <- Set.add { Entity = e; Attribute = a; Value = value } statements
+            ) values
+
+        let res = new InMemoryDataset(statements)
 
         Ok(res)
     | _ -> failwith "TODO"
