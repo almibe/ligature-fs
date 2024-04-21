@@ -87,10 +87,10 @@ and printRecord values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "}"
 
-and printStatementLiteral statement = ""
+and printStatementLiteral statement =
     $"(`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
 
-and printStatement statement = ""
+and printStatement statement =
     $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printLigatureValue value =
