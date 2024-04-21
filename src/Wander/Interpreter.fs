@@ -142,6 +142,7 @@ let rec evalExpression bindings expression =
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
     | Expression.Statement(_) -> failwith "Not Implemented"
+    | Expression.Colon -> failwith "Should never reach"
 
 and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_, _>) =
     match fn with
@@ -230,10 +231,31 @@ and handleApplication bindings values =
         | Some(WanderValue.Function(Function.HostFunction(hostFunction))) ->
             evalHostFunction bindings hostFunction arguments
         | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
+        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
         | Some _ -> error "Improper application." None
         | None -> error $"Function {functionName} not found." None
+    | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
     | Some _ -> error $"Invalid Application: {values}." None
     | None -> error "Should never reach, evaling empty Application." None
+
+and handleIdentifierConcat bindings identifier values =
+    List.mapi (fun i value ->
+        if i % 2 = 1 then
+            match evalExpression bindings value with
+            | Ok(WanderValue.Identifier identifier, _) -> Some(readIdentifier identifier)
+            | value -> failwith $"Unexpected value: {value}"
+        else if value = Expression.Colon then
+            None
+        else
+            failwith "error") values
+    |> List.fold (fun state current ->
+        match current with
+        | Some value -> state + value
+        | None -> state) (readIdentifier identifier)
+    |> (fun res -> 
+        match Ligature.identifier res with
+        | Ok identifier -> Ok(WanderValue.Identifier(identifier), bindings)
+        | Error err -> failwith "todo")
 
 and evalHostFunction bindings hostFunction arguments =
     let values =

@@ -11,6 +11,7 @@ open System
 [<RequireQualifiedAccess>]
 type Expression =
     | QuestionMark
+    | Colon
     | Int of bigint
     | Bytes of byte array
     | String of string

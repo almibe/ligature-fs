@@ -174,6 +174,12 @@ let tests =
               let script = "match false * true -> 5 * false -> 6"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(6I))) ""
+          testCase "Identifier concat"
+          <| fun _ ->
+              let script = "`a`:`b`"
+              let result = run script bindings
+              Expect.equal result (Ok(wident "ab")) ""
+
           //   testCase "Let Statement with Value Reference In Scope"
           //   <| fun _ ->
           //       let script = "(let x 5, x)"

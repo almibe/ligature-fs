@@ -253,6 +253,11 @@ let tests =
               let tokens = tokenize "? ?"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Application [ Element.QuestionMark; Element.QuestionMark ] ])) ""
+          testCase "Parse identifier concat"
+          <| fun _ ->
+              let tokens = tokenize "`a`:`b`"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([ Element.Application [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ])) ""
 
           //   testCase "Parse Integers"
           //   <| fun _ ->
