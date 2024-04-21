@@ -243,6 +243,8 @@ and handleIdentifierConcat bindings identifier values =
         if i % 2 = 1 then
             match evalExpression bindings value with
             | Ok(WanderValue.Identifier identifier, _) -> Some(readIdentifier identifier)
+            | Ok(WanderValue.String string, _) -> Some(string)
+            | Ok(WanderValue.Int int, _) -> Some(int.ToString())
             | value -> failwith $"Unexpected value: {value}"
         else if value = Expression.Colon then
             None
