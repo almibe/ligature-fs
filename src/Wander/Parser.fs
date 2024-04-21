@@ -189,20 +189,25 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     let next = Gaze.next gaze
 
-    printfn "In readValueList next = %A\n" next
+    if next = Ok Token.CloseSquare then
+        Ok elements
+    else
+        let elements = 
+            match next with
+            | Ok(Token.Identifier i) -> List.append elements [(Element.Identifier i)]
+            | Ok(Token.StringLiteral s) -> List.append elements [(Element.String s)]
+            | Ok(Token.Bytes b) -> List.append elements [(Element.Bytes b)]
+            | Ok(Token.Int i) -> List.append elements [(Element.Int i)]
+            | _ -> failwith "TODO"
 
-    match next with
-    | Ok(Token.CloseSquare) -> Ok elements
-    | Ok(Token.Identifier i) ->
         match Gaze.peek gaze with
         | Ok Token.CloseSquare -> 
             (Gaze.next gaze |> ignore)
-            Ok (List.append elements [(Element.Identifier i)])
+            Ok elements
         | Ok Token.Comma -> 
             (Gaze.next gaze |> ignore)
-            readValueList (List.append elements [(Element.Identifier i)]) gaze
+            readValueList elements gaze
         | _ -> failwith "TODO"
-    | _ -> failwith "TODO"
 
 /// Read the Value position of the
 let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
