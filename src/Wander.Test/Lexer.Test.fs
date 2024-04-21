@@ -156,7 +156,7 @@ let tests =
               Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
               Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
           testCase "read question mark"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.QuestionMark ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Name "?" ])) ""
           testCase "read simple let expression"
           <| fun _ ->
               let ws = Token.WhiteSpace(" ")

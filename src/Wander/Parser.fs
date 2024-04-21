@@ -29,7 +29,6 @@ type Element =
     | Dataset of DatasetRoot list
     | Pipe
     | Colon
-    | QuestionMark
 
 and DatasetRoot = Element * Element * Element list
 
@@ -86,9 +85,6 @@ let readMatch gaze =
 let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
 
 let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
-
-let readQuestionMark =
-    Gaze.map (take Token.QuestionMark) (fun _ -> Element.QuestionMark)
 
 let lambdaNib gaze =
     Gaze.attempt
@@ -234,7 +230,6 @@ let patternNib = takeFirst [ namePathNib; readValue ]
 let applicationInnerNib =
     takeFirst
         [ readPipe
-          readQuestionMark
           colonNib
           readValue
           namePathNib
@@ -368,7 +363,6 @@ let rec expressElement (element: Element) =
     | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.Match(expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
-    | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)
     | Element.Dataset(value) -> expressDataset value
     | Element.Colon -> Expression.Colon

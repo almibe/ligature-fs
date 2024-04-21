@@ -138,7 +138,6 @@ let rec evalExpression bindings expression =
     | Expression.Record(values) -> handleRecord bindings values
     | Expression.Match(expression, conditionals) -> handleMatch bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
-    | Expression.QuestionMark -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
     | Expression.Statement(_) -> failwith "Not Implemented"

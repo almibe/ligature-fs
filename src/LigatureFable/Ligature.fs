@@ -58,7 +58,6 @@ let readScriptResult (input: string) = failwith ""
 //             | Token.WideArrow -> ["wideArrow"; "=>"]
 //             | Token.EqualsSign -> ["equalsSign"; "="]
 //             | Token.Dot -> ["dot"; "."]
-//             | Token.QuestionMark -> ["questionMark"; "?"]
 //             | Token.WhenKeyword -> ["whenKeyword"; "when"]
 //             | Token.Hash -> ["hash"; "#"]
 //             | Token.Lambda -> ["lambda"; "\\"]

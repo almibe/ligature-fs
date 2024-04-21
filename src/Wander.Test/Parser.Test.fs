@@ -252,7 +252,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "? ?"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.QuestionMark; Element.QuestionMark ] ])) ""
+              Expect.equal ast (Ok([ Element.Application [ Element.NamePath ["?"]; Element.NamePath ["?"] ] ])) ""
           testCase "Parse identifier concat"
           <| fun _ ->
               let tokens = tokenize "`a`:`b`"

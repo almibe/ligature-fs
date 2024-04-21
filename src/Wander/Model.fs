@@ -10,7 +10,6 @@ open System
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | QuestionMark
     | Colon
     | Int of bigint
     | Bytes of byte array
@@ -33,7 +32,6 @@ and DatasetRoot = Expression * Expression * Expression list
 
 [<RequireQualifiedAccess>]
 type WanderValue<'t> =
-    | QuestionMark
     | Int of bigint
     | String of string
     | Bool of bool
@@ -69,7 +67,6 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.HostValue(_) -> "HostValue"
     | WanderValue.Statement(statement) -> printStatement statement
     | WanderValue.Record(values) -> printRecord values
-    | WanderValue.QuestionMark -> "?"
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Dataset(values) ->

@@ -31,7 +31,6 @@ type Token =
     | EqualsSign
     | Dot
     | Asterisk
-    | QuestionMark
     | Hash
     | MatchKeyword
     | Lambda
@@ -63,8 +62,8 @@ let stringLiteralTokenNibbler =
 
 let nameNibbler =
     Nibblers.takeAll
-        [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('_', '_') ]) 1)
-          Nibblers.optional (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('_', '_') ])) ]
+        [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_') ]) 1)
+          Nibblers.optional (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('-', '-'); ('?', '?'); ('_', '_') ])) ]
 
 let newLineNibbler =
     Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]
@@ -118,7 +117,6 @@ let tokenNibbler =
                   takeAndMap "}" Token.CloseBrace
                   takeAndMap ":" Token.Colon
                   takeAndMap "|" Token.Pipe
-                  takeAndMap "?" Token.QuestionMark
                   takeAndMap "=" Token.EqualsSign
                   takeAndMap "\\" Token.Lambda
                   commentTokenNibbler ]
