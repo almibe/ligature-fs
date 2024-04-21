@@ -68,7 +68,7 @@ public partial class MainWindow : Window
         if (sourcePath != null)
         {
             var writer = new StreamWriter(sourcePath);
-            Wander.Ligature.Wander.Serialize.write<object>(writer, instance);
+            Wander.Ligature.Wander.Serialize.write(writer, instance);
             writer.Close();
         }
         else
@@ -81,7 +81,7 @@ public partial class MainWindow : Window
             if (file != null)
             {
                 var writer = new StreamWriter(file.Path.AbsolutePath.ToString());
-                Wander.Ligature.Wander.Serialize.write<object>(writer, instance);
+                Wander.Ligature.Wander.Serialize.write(writer, instance);
                 writer.Close();
                 sourcePath = file.Path.AbsolutePath.ToString();
                 source.Text = $"Source: {file.Path.AbsolutePath}";
@@ -99,7 +99,7 @@ public partial class MainWindow : Window
             if (file != null)
             {
                 var writer = new StreamWriter(file.Path.AbsolutePath.ToString());
-                Wander.Ligature.Wander.Serialize.write<object>(writer, instance);
+                Wander.Ligature.Wander.Serialize.write(writer, instance);
                 writer.Close();
                 sourcePath = file.Path.AbsolutePath.ToString();
                 source.Text = $"Source: {file.Path.AbsolutePath}";
