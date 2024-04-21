@@ -84,7 +84,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
     let hello3DS = DatasetName "hello3"
 
     let jvName = statement "character:1" "name" (Value.String "Jean Valjean")
-    let jvNumber = statement "character:1" "prisonerNumber" (Value.Integer 24601I)
+    let jvNumber = statement "character:1" "prisonerNumber" (Value.Int 24601I)
     let javertName = statement "character:2" "name" (Value.String "Inspector Javert")
 
     let nemesis =
@@ -143,7 +143,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
           <| fun _ ->
               let instance = createInstance ()
               Expect.isOk (instance.CreateDataset(helloDS)) ""
-              let statement = statement "a" "b" (Value.Integer 12345I)
+              let statement = statement "a" "b" (Value.Int 12345I)
               let writeRes = instance.AddStatements helloDS [ statement ]
               Expect.isOk writeRes "Could not write statements."
               let result = instance.AllStatements helloDS
