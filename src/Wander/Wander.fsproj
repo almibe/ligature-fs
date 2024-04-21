@@ -26,6 +26,7 @@
     <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Statement.fs" />
     <Compile Include="lib/String.fs" />
+    <Compile Include="lib/Ulid.fs" />
     <Compile Include="lib/Wander.fs" />
     <Compile Include="lib/Preludes.fs" />
   </ItemGroup>
@@ -35,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+    <PackageReference Include="Ulid" Version="1.3.3" />
   </ItemGroup>
 
 </Project>

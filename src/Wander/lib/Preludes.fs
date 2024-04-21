@@ -26,6 +26,7 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "String" String.stringLib
+    |> Bindings.bind "Ulid" Ulid.ulidLib
     |> Bindings.bind "Wander" wanderLib
 
 let standardPrelude () =
