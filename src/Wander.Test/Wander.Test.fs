@@ -70,7 +70,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""          
+              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"

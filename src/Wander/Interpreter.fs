@@ -180,22 +180,23 @@ and handleDatasetRoot bindings (entity, attribute, values) =
         | _ -> failwith "TODO"
 
     let value =
-        List.map (
-            fun value ->
+        List.map
+            (fun value ->
                 match evalExpression bindings value with
                 | Ok(res, _) -> res
-                | _ -> failwith "TODO"
-        ) values
+                | _ -> failwith "TODO")
+            values
 
     match (entity, attribute, value) with
-    | ( WanderValue.Identifier e, WanderValue.Identifier a, v ) ->
-        let value = 
+    | (WanderValue.Identifier e, WanderValue.Identifier a, v) ->
+        let value =
             match v with
-            | [WanderValue.Int value]        -> Value.Int value
-            | [WanderValue.Bytes value]      -> Value.Bytes value
-            | [WanderValue.Identifier value] -> Value.Identifier value
-            | [WanderValue.String value]     -> Value.String value
-            | _                              -> failwith "TODO"
+            | [ WanderValue.Int value ] -> Value.Int value
+            | [ WanderValue.Bytes value ] -> Value.Bytes value
+            | [ WanderValue.Identifier value ] -> Value.Identifier value
+            | [ WanderValue.String value ] -> Value.String value
+            | _ -> failwith "TODO"
+
         let res =
             new InMemoryDataset(
                 Set.ofSeq
@@ -238,22 +239,26 @@ and handleApplication bindings values =
     | None -> error "Should never reach, evaling empty Application." None
 
 and handleIdentifierConcat bindings identifier values =
-    List.mapi (fun i value ->
-        if i % 2 = 1 then
-            match evalExpression bindings value with
-            | Ok(WanderValue.Identifier identifier, _) -> Some(readIdentifier identifier)
-            | Ok(WanderValue.String string, _) -> Some(string)
-            | Ok(WanderValue.Int int, _) -> Some(int.ToString())
-            | value -> failwith $"Unexpected value: {value}"
-        else if value = Expression.Colon then
-            None
-        else
-            failwith "error") values
-    |> List.fold (fun state current ->
-        match current with
-        | Some value -> state + value
-        | None -> state) (readIdentifier identifier)
-    |> (fun res -> 
+    List.mapi
+        (fun i value ->
+            if i % 2 = 1 then
+                match evalExpression bindings value with
+                | Ok(WanderValue.Identifier identifier, _) -> Some(readIdentifier identifier)
+                | Ok(WanderValue.String string, _) -> Some(string)
+                | Ok(WanderValue.Int int, _) -> Some(int.ToString())
+                | value -> failwith $"Unexpected value: {value}"
+            else if value = Expression.Colon then
+                None
+            else
+                failwith "error")
+        values
+    |> List.fold
+        (fun state current ->
+            match current with
+            | Some value -> state + value
+            | None -> state)
+        (readIdentifier identifier)
+    |> (fun res ->
         match Ligature.identifier res with
         | Ok identifier -> Ok(WanderValue.Identifier(identifier), bindings)
         | Error err -> failwith "todo")

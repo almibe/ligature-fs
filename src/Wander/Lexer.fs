@@ -63,7 +63,9 @@ let stringLiteralTokenNibbler =
 let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_') ]) 1)
-          Nibblers.optional (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('-', '-'); ('?', '?'); ('_', '_') ])) ]
+          Nibblers.optional (
+              Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_') ])
+          ) ]
 
 let newLineNibbler =
     Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]

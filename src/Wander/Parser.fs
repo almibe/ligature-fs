@@ -156,7 +156,7 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Grouping(values)
     }
 
-let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> = 
+let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
     result {
         let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
         let! attribute = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
@@ -201,17 +201,17 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-/// Read the Value position of the 
+/// Read the Value position of the
 let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Bytes(value)) -> Ok([Element.Bytes(value)])
-    | Ok(Token.Int(value)) -> Ok([Element.Int value])
-    | Ok(Token.Bool(value)) -> Ok([Element.Bool value])
-    | Ok(Token.Identifier(value)) -> Ok([Element.Identifier value])
-    | Ok(Token.StringLiteral(value)) -> Ok([Element.String value])
+    | Ok(Token.Bytes(value)) -> Ok([ Element.Bytes(value) ])
+    | Ok(Token.Int(value)) -> Ok([ Element.Int value ])
+    | Ok(Token.Bool(value)) -> Ok([ Element.Bool value ])
+    | Ok(Token.Identifier(value)) -> Ok([ Element.Identifier value ])
+    | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =

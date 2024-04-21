@@ -14,7 +14,7 @@ let nextFunction<'t> =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.String(prefix) ] -> 
+                    | [ WanderValue.String(prefix) ] ->
                         match identifier (prefix + Ulid.NewUlid().ToString()) with
                         | Ok identifier -> Ok(WanderValue.Identifier(identifier))
                         | _ -> error $"Invalid prefix for Identifier {prefix}." None
@@ -23,7 +23,4 @@ let nextFunction<'t> =
         )
     )
 
-let ulidLib<'t> =
-    WanderValue.Record(
-        Map [ ("next", nextFunction) ]
-    )
+let ulidLib<'t> = WanderValue.Record(Map [ ("next", nextFunction) ])

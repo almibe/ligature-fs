@@ -88,9 +88,9 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ ( Element.Identifier(ident "a"),
-                                Element.Identifier(ident "b"),
-                                [Element.Identifier(ident "c")] ) ]
+                            [ (Element.Identifier(ident "a"),
+                               Element.Identifier(ident "b"),
+                               [ Element.Identifier(ident "c") ]) ]
                         ) ]
                   ))
                   ""
@@ -104,12 +104,12 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ ( Element.Identifier(ident "a"),
-                                Element.Identifier(ident "b"),
-                                [Element.Identifier(ident "c")] )
-                              ( Element.Identifier(ident "d"),
-                                Element.Identifier(ident "e"),
-                                [Element.Identifier(ident "f")] ) ]
+                            [ (Element.Identifier(ident "a"),
+                               Element.Identifier(ident "b"),
+                               [ Element.Identifier(ident "c") ])
+                              (Element.Identifier(ident "d"),
+                               Element.Identifier(ident "e"),
+                               [ Element.Identifier(ident "f") ]) ]
                         ) ]
                   ))
                   ""
@@ -123,12 +123,12 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ ( Element.Identifier(ident "a"),
-                                Element.Identifier(ident "b"),
-                                [Element.Identifier(ident "c")] )
-                              ( Element.Identifier(ident "a"),
-                                Element.Identifier(ident "b"),
-                                [Element.Identifier(ident "d")] )]
+                            [ (Element.Identifier(ident "a"),
+                               Element.Identifier(ident "b"),
+                               [ Element.Identifier(ident "c") ])
+                              (Element.Identifier(ident "a"),
+                               Element.Identifier(ident "b"),
+                               [ Element.Identifier(ident "d") ]) ]
                         ) ]
                   ))
                   ""
@@ -142,12 +142,12 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Dataset(
-                            [ ( Element.Identifier(ident "a"),
-                                Element.Identifier(ident "b"),
-                                [Element.Identifier(ident "c")] )
-                              ( Element.Identifier(ident "c"),
-                                Element.Identifier(ident "d"),
-                                [Element.Identifier(ident "e")] ) ]
+                            [ (Element.Identifier(ident "a"),
+                               Element.Identifier(ident "b"),
+                               [ Element.Identifier(ident "c") ])
+                              (Element.Identifier(ident "c"),
+                               Element.Identifier(ident "d"),
+                               [ Element.Identifier(ident "e") ]) ]
                         ) ]
                   ))
                   ""
@@ -252,12 +252,19 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "? ?"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.NamePath ["?"]; Element.NamePath ["?"] ] ])) ""
+              Expect.equal ast (Ok([ Element.Application [ Element.NamePath [ "?" ]; Element.NamePath [ "?" ] ] ])) ""
           testCase "Parse identifier concat"
           <| fun _ ->
               let tokens = tokenize "`a`:`b`"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ])) ""
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Application
+                            [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ]
+                  ))
+                  ""
 
           //   testCase "Parse Integers"
           //   <| fun _ ->

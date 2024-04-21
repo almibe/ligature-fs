@@ -15,16 +15,15 @@ open Main
 open Bindings
 
 let write (writer: TextWriter) (instance: ILigature) =
-    Map.iter
-        (fun (DatasetName dataset) statements ->
-            writer.Write(prettyPrint (WanderValue.String dataset))
-            writer.WriteLine()
+    Map.iter (fun (DatasetName dataset) statements ->
+        writer.Write(prettyPrint (WanderValue.String dataset))
+        writer.WriteLine()
 
-            Set.iter
-                (fun statement ->
-                    writer.Write(printStatement statement)
-                    writer.WriteLine())
-                statements)
+        Set.iter
+            (fun statement ->
+                writer.Write(printStatement statement)
+                writer.WriteLine())
+            statements)
 
 let loadFromString (content: string seq) (instance: ILigature) =
     let mutable dataset = None
