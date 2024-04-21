@@ -98,6 +98,24 @@ let allStatementsFun (instance: ILigature) =
         )
     )
 
+let readFun (instance: ILigature) =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.String(name) ] ->
+                    let dataset = DatasetName name
+
+                    match instance.AllStatements dataset with
+                    | Ok(statements) ->
+                        statements
+                        |> Seq.map (fun statement -> WanderValue.Statement(statement))
+                        |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
+                    | Error(err) -> Error(err)
+                | _ -> error "Illegal call to allStatements." None)
+        )
+    )
+
 let matchStatements (query: IDataset) =
     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
 
@@ -186,6 +204,14 @@ let addStatementsFun (instance: ILigature) =
                     match instance.AddStatements dataset statements with
                     | Ok _ -> Ok(emptySet)
                     | Error err -> Error err
+                | [ (WanderValue.String(name)); WanderValue.Dataset(statements) ] ->
+                    let dataset = DatasetName name
+                    match statements.AllStatements () with
+                    | Ok statements -> 
+                        match instance.AddStatements dataset statements with
+                        | Ok _ -> Ok(emptySet)
+                        | Error err -> Error err
+                    | Error err -> Error err
                 | _ -> error "Improper call to addStatements." None)
         )
     )
@@ -210,6 +236,15 @@ let removeStatementsFun (instance: ILigature) =
 
                     match instance.RemoveStatements dataset statements with
                     | Ok _ -> Ok(emptySet)
+                    | Error err -> Error err
+                | [ WanderValue.String(name); WanderValue.Dataset(statements) ] ->
+                    let dataset = DatasetName name
+
+                    match statements.AllStatements () with
+                    | Ok statements ->
+                        match instance.RemoveStatements dataset statements with
+                        | Ok _ -> Ok(emptySet)
+                        | Error err -> Error err
                     | Error err -> Error err
                 | _ -> error "Improper call to removeStatements." None)
         )

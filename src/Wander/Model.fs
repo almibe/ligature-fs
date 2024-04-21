@@ -65,7 +65,7 @@ let rec prettyPrint (value: WanderValue<'t>) : string =
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.HostValue(_) -> "HostValue"
-    | WanderValue.Statement(statement) -> printStatement statement
+    | WanderValue.Statement(statement) -> printStatementLiteral statement
     | WanderValue.Record(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
@@ -87,8 +87,11 @@ and printRecord values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "}"
 
-and printStatement statement =
+and printStatementLiteral statement = ""
     $"(`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
+
+and printStatement statement = ""
+    $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printLigatureValue value =
     match value with
