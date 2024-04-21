@@ -90,7 +90,7 @@ let tests =
                       [ Element.Dataset(
                             [ ( Element.Identifier(ident "a"),
                                 Element.Identifier(ident "b"),
-                                Element.Identifier(ident "c") ) ]
+                                [Element.Identifier(ident "c")] ) ]
                         ) ]
                   ))
                   ""
@@ -106,10 +106,10 @@ let tests =
                       [ Element.Dataset(
                             [ ( Element.Identifier(ident "a"),
                                 Element.Identifier(ident "b"),
-                                Element.Identifier(ident "c") )
+                                [Element.Identifier(ident "c")] )
                               ( Element.Identifier(ident "d"),
                                 Element.Identifier(ident "e"),
-                                Element.Identifier(ident "f") ) ]
+                                [Element.Identifier(ident "f")] ) ]
                         ) ]
                   ))
                   ""
@@ -125,14 +125,32 @@ let tests =
                       [ Element.Dataset(
                             [ ( Element.Identifier(ident "a"),
                                 Element.Identifier(ident "b"),
-                                Element.Identifier(ident "c") )
+                                [Element.Identifier(ident "c")] )
                               ( Element.Identifier(ident "a"),
                                 Element.Identifier(ident "b"),
-                                Element.Identifier(ident "d") ) ]
+                                [Element.Identifier(ident "d")] )]
                         ) ]
                   ))
                   ""
 
+          testCase "Parse Dataset Literal with Entity expansion"
+          <| fun _ ->
+              let tokens = tokenize "{ `a` `b` `c` { `d` `e` } }"
+              let ast = parse (unsafe tokens)
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Dataset(
+                            [ ( Element.Identifier(ident "a"),
+                                Element.Identifier(ident "b"),
+                                [Element.Identifier(ident "c")] )
+                              ( Element.Identifier(ident "c"),
+                                Element.Identifier(ident "d"),
+                                [Element.Identifier(ident "e")] ) ]
+                        ) ]
+                  ))
+                  ""
 
           testCase "Parse Empty Record"
           <| fun _ ->

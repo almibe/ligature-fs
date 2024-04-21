@@ -30,7 +30,7 @@ type Element =
     | Pipe
     | QuestionMark
 
-and DatasetRoot = Element * Element * Element
+and DatasetRoot = Element * Element * Element list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -159,9 +159,9 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> = 
     result {
-        let! entity = Gaze.attempt readValue gaze
-        let! attribute = Gaze.attempt readValue gaze
-        let! value = Gaze.attempt readValue gaze
+        let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+        let! attribute = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+        let! value = Gaze.attempt readValues gaze //TODO match single Value or List of Values
         return DatasetRoot(entity, attribute, value)
     }
 
@@ -200,6 +200,27 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+/// Read the Value position of the 
+let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Bytes(value)) -> Ok([Element.Bytes(value)])
+    | Ok(Token.Int(value)) -> Ok([Element.Int value])
+    | Ok(Token.Bool(value)) -> Ok([Element.Bool value])
+    | Ok(Token.Identifier(value)) -> Ok([Element.Identifier value])
+    | Ok(Token.StringLiteral(value)) -> Ok([Element.String value])
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let patternMatchBodyNib =
@@ -273,8 +294,8 @@ let expressArray values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Array res
 
-let expressDatasetRoot (entity, attribute, value) =
-    (expressElement entity), (expressElement attribute), (expressElement value)
+let expressDatasetRoot (entity, attribute, values) =
+    (expressElement entity), (expressElement attribute), (List.map (fun value -> expressElement value) values)
 
 let expressDataset (values: DatasetRoot list) =
     let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values
@@ -346,4 +367,3 @@ let rec expressElement (element: Element) =
     | Element.QuestionMark -> Expression.QuestionMark
     | Element.Bytes(bytes) -> Expression.Bytes(bytes)
     | Element.Dataset(value) -> expressDataset value
-    | x -> failwith $"Unexpected value - {x}"

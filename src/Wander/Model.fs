@@ -28,7 +28,7 @@ type Expression =
     | Match of Expression * list<Expression * Expression>
     | Lambda of list<string> * Expression
 
-and DatasetRoot = Expression * Expression * Expression
+and DatasetRoot = Expression * Expression * Expression list
 
 [<RequireQualifiedAccess>]
 type WanderValue<'t> =
