@@ -1,10 +1,12 @@
 # ligature-fs
+
 An F# based implementation of Ligature.
 This is still very early in development and not ready for any sort of use yet.
 Keep in mind that the docs below might not be up to date.
 See https://ligature.dev for more information on Ligature.
 
 ## Use
+
 This project assumes you have .NET Core setup.
 
 See https://dotnet.microsoft.com/en-us/download to download the SDK for .NET Core.
@@ -23,7 +25,6 @@ test suite for the other project.
 
 | Project           | Description                                                        |
 | ----------------- | ------------------------------------------------------------------ |
-| Wander              | The Wander scripting language.                                       |
 | build             | Fake build script.                                                 |
 | Gaze              | A parsing library.                                                 |
 | Ligature          | Main code base including the main logic and types.                 |
@@ -32,6 +33,8 @@ test suite for the other project.
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
 | LigaturePad       | A simple desktop appplication for testing Ligature.                |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
+| Wander            | The Wander scripting language.                                     |
+| Wander.Repl       | A REPL for experimenting with Wander and Ligature.                 |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 
