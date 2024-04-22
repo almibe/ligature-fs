@@ -30,7 +30,9 @@ type Element =
     | Pipe
     | Colon
 
-and DatasetRoot = Element * Element * Element list
+and EntityDescription = Element * Element list
+
+and DatasetRoot = Element * EntityDescription list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -141,12 +143,18 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Grouping(values)
     }
 
+let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
+    result {
+        let! attribute = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+        let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
+        return (attribute, values)
+    }
+
 let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
     result {
         let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
-        let! attribute = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
-        let! value = Gaze.attempt readValues gaze //TODO match single Value or List of Values
-        return DatasetRoot(entity, attribute, value)
+        let! entityDescriptions = Gaze.attempt (repeat readEntityDescription) gaze
+        return DatasetRoot(entity, entityDescriptions)
     }
 
 let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -301,8 +309,15 @@ let expressArray values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Array res
 
-let expressDatasetRoot (entity, attribute, values) =
-    (expressElement entity), (expressElement attribute), (List.map (fun value -> expressElement value) values)
+let expressEntityDescription entityDescription =
+    let (attribute, values) = entityDescription
+    ((expressElement attribute), (List.map (fun value -> expressElement value) values))
+
+let expressDatasetRoot (datasetRoot: DatasetRoot) =
+    let (entity, entityDescriptions) = datasetRoot
+    let entity = expressElement entity
+    let entityDescriptions = List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
+    (entity, entityDescriptions)
 
 let expressDataset (values: DatasetRoot list) =
     let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values
