@@ -140,7 +140,6 @@ let rec evalExpression bindings expression =
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
-    | Expression.Statement(_) -> failwith "Not Implemented"
     | Expression.Colon -> failwith "Should never reach"
 
 and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_, _>) =
@@ -240,7 +239,7 @@ and handleApplication bindings values =
         | Some _ -> error "Improper application." None
         | None -> error $"Function {functionName} not found." None
     | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
-    | Some _ -> error $"Invalid Application: {values}." None
+    | Some(head) -> evalExpression bindings head
     | None -> error "Should never reach, evaling empty Application." None
 
 and handleIdentifierConcat bindings identifier values =

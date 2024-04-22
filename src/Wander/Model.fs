@@ -16,7 +16,6 @@ type Expression =
     | String of string
     | Bool of bool
     | Identifier of Identifier
-    | Statement of Ligature.Statement
     | Let of name: string * value: Expression
     | NamePath of string list
     | Grouping of Expression list
