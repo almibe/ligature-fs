@@ -150,12 +150,25 @@ let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
         return (attribute, values)
     }
 
-let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
+let singleEntityDescriptNib gaze =
     result {
         let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
-        let! entityDescriptions = Gaze.attempt (repeat readEntityDescription) gaze
-        return DatasetRoot(entity, entityDescriptions)
+        let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
+        return DatasetRoot(entity, [entityDescriptions])
     }
+
+let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
+    let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
+    match singleEntityDescription with
+    | Ok _ -> singleEntityDescription
+    | _ ->
+        result {
+            let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+            let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
+            let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+            return DatasetRoot(entity, entityDescriptions)
+        }
 
 let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
