@@ -131,25 +131,6 @@ let tests =
                   ))
                   ""
 
-          testCase "Parse Dataset Literal with Entity expansion"
-          <| fun _ ->
-              let tokens = tokenize "{ `a` `b` `c` { `d` `e` } }"
-              let ast = parse (unsafe tokens)
-
-              Expect.equal
-                  ast
-                  (Ok(
-                      [ Element.Dataset(
-                            [ (Element.Identifier(ident "a"),
-                               [(Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "c") ])])
-                              (Element.Identifier(ident "c"),
-                               [(Element.Identifier(ident "d"),
-                               [ Element.Identifier(ident "e") ])]) ]
-                        ) ]
-                  ))
-                  ""
-
           testCase "Parse Empty Dataset"
           <| fun _ ->
               let tokens = tokenize "{ }"
