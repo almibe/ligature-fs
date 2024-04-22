@@ -9,12 +9,12 @@ open Ligature.Wander.Model
 open System
 open Ligature.Wander.InMemoryDataset
 
-let emptySet = WanderValue.Dataset(new InMemoryDataset(Set.empty))
+let emptySet = WanderValue.Dataset(InMemoryDataset(Set.empty))
 
 let datasetsFun (ligature: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun _ _ ->
                     match ligature.AllDatasets() with
                     | Ok(datasets) ->
@@ -31,7 +31,7 @@ let datasetsFun (ligature: ILigature) =
 let createDatasetFun (ligature: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(datasetName) ] ->
@@ -46,7 +46,7 @@ let createDatasetFun (ligature: ILigature) =
 let removeDatasetFun (ligature: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(datasetName) ] ->
@@ -61,7 +61,7 @@ let removeDatasetFun (ligature: ILigature) =
 let datasetExists (instance: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(fun args _ ->
+            HostFunction(fun args _ ->
                 match args.Head with
                 | WanderValue.String(name) ->
                     let dataset = DatasetName(name)
@@ -83,7 +83,7 @@ let valueToWanderValue (value: Value) : WanderValue<'t> =
 let allStatementsFun (instance: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(fun args _ ->
+            HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.String(name) ] ->
                     let dataset = DatasetName name
@@ -101,7 +101,7 @@ let allStatementsFun (instance: ILigature) =
 let readFun (instance: ILigature) =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(fun args _ ->
+            HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.String(name) ] ->
                     let dataset = DatasetName name
@@ -206,8 +206,9 @@ let addStatementsFun (instance: ILigature) =
                     | Error err -> Error err
                 | [ (WanderValue.String(name)); WanderValue.Dataset(statements) ] ->
                     let dataset = DatasetName name
-                    match statements.AllStatements () with
-                    | Ok statements -> 
+
+                    match statements.AllStatements() with
+                    | Ok statements ->
                         match instance.AddStatements dataset statements with
                         | Ok _ -> Ok(emptySet)
                         | Error err -> Error err
@@ -240,7 +241,7 @@ let removeStatementsFun (instance: ILigature) =
                 | [ WanderValue.String(name); WanderValue.Dataset(statements) ] ->
                     let dataset = DatasetName name
 
-                    match statements.AllStatements () with
+                    match statements.AllStatements() with
                     | Ok statements ->
                         match instance.RemoveStatements dataset statements with
                         | Ok _ -> Ok(emptySet)

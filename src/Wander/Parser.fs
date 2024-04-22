@@ -154,11 +154,12 @@ let singleEntityDescriptNib gaze =
     result {
         let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
-        return DatasetRoot(entity, [entityDescriptions])
+        return DatasetRoot(entity, [ entityDescriptions ])
     }
 
 let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
     let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
+
     match singleEntityDescription with
     | Ok _ -> singleEntityDescription
     | _ ->
@@ -213,19 +214,19 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
     if next = Ok Token.CloseSquare then
         Ok elements
     else
-        let elements = 
+        let elements =
             match next with
-            | Ok(Token.Identifier i) -> List.append elements [(Element.Identifier i)]
-            | Ok(Token.StringLiteral s) -> List.append elements [(Element.String s)]
-            | Ok(Token.Bytes b) -> List.append elements [(Element.Bytes b)]
-            | Ok(Token.Int i) -> List.append elements [(Element.Int i)]
+            | Ok(Token.Identifier i) -> List.append elements [ (Element.Identifier i) ]
+            | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
+            | Ok(Token.Bytes b) -> List.append elements [ (Element.Bytes b) ]
+            | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
             | _ -> failwith "TODO"
 
         match Gaze.peek gaze with
-        | Ok Token.CloseSquare -> 
+        | Ok Token.CloseSquare ->
             (Gaze.next gaze |> ignore)
             Ok elements
-        | Ok Token.Comma -> 
+        | Ok Token.Comma ->
             (Gaze.next gaze |> ignore)
             readValueList elements gaze
         | _ -> failwith "TODO"
@@ -329,7 +330,10 @@ let expressEntityDescription entityDescription =
 let expressDatasetRoot (datasetRoot: DatasetRoot) =
     let (entity, entityDescriptions) = datasetRoot
     let entity = expressElement entity
-    let entityDescriptions = List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
+
+    let entityDescriptions =
+        List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
+
     (entity, entityDescriptions)
 
 let expressDataset (values: DatasetRoot list) =
@@ -372,6 +376,7 @@ let expressApplication elements =
         elements
 
     parts.Add(List.ofSeq currentPart)
+
     List.fold
         (fun expr application -> List.append application [ expr ] |> Expression.Application)
         (Expression.Application(parts[0]))

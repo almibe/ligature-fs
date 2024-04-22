@@ -89,8 +89,7 @@ let tests =
                   (Ok(
                       [ Element.Dataset(
                             [ (Element.Identifier(ident "a"),
-                               [(Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "c") ])]) ]
+                               [ (Element.Identifier(ident "b"), [ Element.Identifier(ident "c") ]) ]) ]
                         ) ]
                   ))
                   ""
@@ -105,11 +104,9 @@ let tests =
                   (Ok(
                       [ Element.Dataset(
                             [ (Element.Identifier(ident "a"),
-                               [(Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "c") ])])
+                               [ (Element.Identifier(ident "b"), [ Element.Identifier(ident "c") ]) ])
                               (Element.Identifier(ident "d"),
-                               [(Element.Identifier(ident "e"),
-                               [ Element.Identifier(ident "f") ])]) ]
+                               [ (Element.Identifier(ident "e"), [ Element.Identifier(ident "f") ]) ]) ]
                         ) ]
                   ))
                   ""
@@ -124,9 +121,8 @@ let tests =
                   (Ok(
                       [ Element.Dataset(
                             [ (Element.Identifier(ident "a"),
-                               [(Element.Identifier(ident "b"),
-                               [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ])])
-                              ]
+                               [ (Element.Identifier(ident "b"),
+                                  [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ]) ]) ]
                         ) ]
                   ))
                   ""

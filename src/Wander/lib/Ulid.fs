@@ -11,7 +11,7 @@ open System
 let nextFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(prefix) ] ->

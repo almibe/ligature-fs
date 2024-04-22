@@ -10,7 +10,7 @@ open Ligature
 let lengthFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(value) ] -> Ok(WanderValue.Int(String.length value |> bigint))
@@ -22,7 +22,7 @@ let lengthFunction<'t> =
 let toBytesFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(value) ] -> Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes value))
@@ -34,7 +34,7 @@ let toBytesFunction<'t> =
 let fromBytesFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.String(System.Text.Encoding.UTF8.GetString bytes))

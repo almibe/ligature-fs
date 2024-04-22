@@ -12,7 +12,7 @@ open Ligature.Wander.Bindings
 let writeValueFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(fun args _ ->
+            HostFunction(fun args _ ->
                 match args with
                 | [ value ] -> Ok(WanderValue.String(prettyPrint value))
                 | value -> error $"Unexpected value - {value}." None)
@@ -22,7 +22,7 @@ let writeValueFunction<'t> =
 let readValueFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(fun args _ ->
+            HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.String(input) ] -> run input (newBindings ())
                 | value -> error $"Unexpected value - {value}." None)

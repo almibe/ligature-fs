@@ -180,35 +180,46 @@ and handleEntityDescription bindings (attribute, values) =
                 | Ok(res, _) -> res
                 | _ -> failwith "TODO")
             values
+
     (attribute, values)
 
 and handleDatasetRoot bindings (entity, entityDescriptions) =
     let mutable statements = Set.empty
+
     let entity =
         match evalExpression bindings entity with
         | Ok(res, _) -> res
         | _ -> failwith "TODO"
 
-    let entityDescriptions = 
-        List.map 
-            (fun entityDescription -> handleEntityDescription bindings entityDescription) 
-            entityDescriptions
+    let entityDescriptions =
+        List.map (fun entityDescription -> handleEntityDescription bindings entityDescription) entityDescriptions
 
-    List.iter (fun entityDescription -> 
-        let (attribute, values) = entityDescription
-        match (entity, attribute, values) with
-        | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
-            List.iter (fun value -> 
-                let value =
-                    match value with
-                    | WanderValue.Int value -> Value.Int value
-                    | WanderValue.Bytes value -> Value.Bytes value
-                    | WanderValue.Identifier value -> Value.Identifier value
-                    | WanderValue.String value -> Value.String value
-                    | _ -> failwith "TODO"
-                statements <- Set.add { Entity = e; Attribute = a; Value = value } statements
-                ) values
-        | _ -> failwith "TODO") entityDescriptions
+    List.iter
+        (fun entityDescription ->
+            let (attribute, values) = entityDescription
+
+            match (entity, attribute, values) with
+            | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
+                List.iter
+                    (fun value ->
+                        let value =
+                            match value with
+                            | WanderValue.Int value -> Value.Int value
+                            | WanderValue.Bytes value -> Value.Bytes value
+                            | WanderValue.Identifier value -> Value.Identifier value
+                            | WanderValue.String value -> Value.String value
+                            | _ -> failwith "TODO"
+
+                        statements <-
+                            Set.add
+                                { Entity = e
+                                  Attribute = a
+                                  Value = value }
+                                statements)
+                    values
+            | _ -> failwith "TODO")
+        entityDescriptions
+
     let res = new InMemoryDataset(statements)
     Ok(res)
 

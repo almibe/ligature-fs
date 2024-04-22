@@ -6,12 +6,11 @@ module Ligature.Wander.Lib.Statement
 
 open Ligature.Wander.Model
 open Ligature
-open FsToolkit.ErrorHandling
 
 let entityFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Statement(statement) ] -> Ok(WanderValue.Identifier(statement.Entity))
@@ -23,7 +22,7 @@ let entityFunction<'t> =
 let attributeFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Statement(statement) ] -> Ok(WanderValue.Identifier(statement.Attribute))
@@ -35,7 +34,7 @@ let attributeFunction<'t> =
 let valueFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
-            new HostFunction(
+            HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Statement(statement) ] ->
