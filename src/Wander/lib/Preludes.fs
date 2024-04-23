@@ -9,7 +9,6 @@ open Bool
 open Bytes
 open Identifier
 open Ligature
-open Statement
 open Int
 open Wander
 open DateTime
@@ -24,7 +23,6 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Dataset" Dataset.datasetLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
-    |> Bindings.bind "Statement" statementLib
     |> Bindings.bind "String" String.stringLib
     |> Bindings.bind "Ulid" Ulid.ulidLib
     |> Bindings.bind "Wander" wanderLib

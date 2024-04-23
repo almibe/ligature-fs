@@ -24,7 +24,6 @@
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />
     <Compile Include="lib/Ligature.fs" />
-    <Compile Include="lib/Statement.fs" />
     <Compile Include="lib/String.fs" />
     <Compile Include="lib/Ulid.fs" />
     <Compile Include="lib/Wander.fs" />
