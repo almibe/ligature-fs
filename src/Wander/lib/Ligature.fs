@@ -73,7 +73,7 @@ let datasetExists (instance: ILigature) =
         )
     )
 
-let valueToWanderValue (value: Value) : WanderValue<'t> =
+let valueToWanderValue (value: Value) : WanderValue =
     match value with
     | Value.Identifier i -> WanderValue.Identifier i
     | Value.Int i -> WanderValue.Int i

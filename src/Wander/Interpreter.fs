@@ -9,7 +9,7 @@ open Ligature.Wander.Bindings
 open Ligature
 open InMemoryDataset
 
-let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue<'t>>) =
+let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue>) =
     match read (List.head namePath) bindings with
     | Some(value) ->
         match value with
@@ -118,7 +118,7 @@ let rec evalExpression bindings expression =
     | Expression.Array(expressions) ->
         let mutable error = None
 
-        let res: WanderValue<'t> array =
+        let res: WanderValue array =
             //TODO this doesn't short circuit on first error
             Array.map
                 (fun e ->
@@ -142,7 +142,7 @@ let rec evalExpression bindings expression =
     | Expression.Dataset(values) -> handleDataset bindings values
     | Expression.Colon -> failwith "Should never reach"
 
-and callFunction (fn: Function) (args: WanderValue<'t> list) (bindings: Bindings<_, _>) =
+and callFunction (fn: Function) (args: WanderValue list) (bindings: Bindings<_, _>) =
     match fn with
     | Function.Lambda(parameters, body) ->
         if (List.length parameters) = (List.length args) then
@@ -344,7 +344,7 @@ and handleMatch bindings expression conditionals =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(WanderValue<'t> * Bindings.Bindings<_, _>), LigatureError> =
+    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
     | 0 -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
     | 1 -> evalExpression bindings (List.head expressions)

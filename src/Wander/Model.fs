@@ -32,40 +32,38 @@ and EntityDescription = Expression * Expression list
 and DatasetRoot = Expression * EntityDescription list
 
 [<RequireQualifiedAccess>]
-type WanderValue<'t> =
+type WanderValue =
     | Int of bigint
     | String of string
     | Bool of bool
     | Identifier of Identifier
     | Statement of Ligature.Statement
     | Function of Function
-    | Array of WanderValue<'t> array
+    | Array of WanderValue array
     | Dataset of IDataset
-    | Record of Map<string, WanderValue<'t>>
+    | Record of Map<string, WanderValue>
     | Bytes of byte array
-    | HostValue of 't
 
 and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
     | HostFunction of HostFunction
 
 and HostFunction
-    (eval: WanderValue<'t> list -> Bindings.Bindings<string, WanderValue<'t>> -> Result<WanderValue<'t>, LigatureError>)
+    (eval: WanderValue list -> Bindings.Bindings<string, WanderValue> -> Result<WanderValue, LigatureError>)
     =
     member _.Run args bindings = eval args bindings
 
 type Parameter = { name: string; tag: string }
 
-type Bindings<'t> = Bindings.Bindings<string, WanderValue<'t>>
+type Bindings = Bindings.Bindings<string, WanderValue>
 
-let rec prettyPrint (value: WanderValue<'t>) : string =
+let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Int i -> sprintf "%A" i
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Array(values) -> $"[{printValues values}]"
-    | WanderValue.HostValue(_) -> "HostValue"
     | WanderValue.Statement(statement) -> printStatementLiteral statement
     | WanderValue.Record(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"

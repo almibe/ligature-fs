@@ -9,7 +9,7 @@ open Parser
 open Lexer
 open Ligature
 
-let run (input: string) (bindings: Bindings<_>) =
+let run (input: string) (bindings: Bindings) =
     match tokenize input with
     | Ok tokens ->
         match parse tokens with
@@ -43,7 +43,7 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-let printResult (result: Result<WanderValue<'t>, LigatureError>) =
+let printResult (result: Result<WanderValue, LigatureError>) =
     match result with
     | Ok value -> prettyPrint value
     | Error err -> err.UserMessage

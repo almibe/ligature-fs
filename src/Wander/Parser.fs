@@ -73,11 +73,11 @@ let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
         return (pattern, body)
     }
 
-let readMatch gaze =
+let readQuery gaze =
     Gaze.attempt
         (fun gaze ->
             result {
-                let! _ = Gaze.attempt (take Token.MatchKeyword) gaze
+                let! _ = Gaze.attempt (take Token.QueryKeyword) gaze
                 let! expression = Gaze.attempt patternMatchBodyNib gaze
                 let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
                 return Element.Match(expression, conditions)
@@ -254,9 +254,9 @@ let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let patternMatchBodyNib =
-    takeFirst [ namePathNib; readValue; groupingNib; applicationNib ]
+    takeFirst [ datasetNib; namePathNib; readValue; groupingNib; applicationNib ]
 
-let patternNib = takeFirst [ namePathNib; readValue ]
+let patternNib = takeFirst [ datasetNib; namePathNib; readValue ]
 
 let applicationInnerNib =
     takeFirst
@@ -269,7 +269,7 @@ let applicationInnerNib =
           recordNib
           lambdaNib
           groupingNib
-          readMatch ]
+          readQuery ]
 
 let elementNib =
     takeFirst
@@ -282,7 +282,7 @@ let elementNib =
           recordNib
           lambdaNib
           groupingNib
-          readMatch ]
+          readQuery ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
