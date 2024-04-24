@@ -64,7 +64,7 @@ let readAssignment gaze =
             })
         gaze
 
-let conditionsNibbler (gaze: Gaze.Gaze<Token>) =
+let patternsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
         let! pattern = Gaze.attempt patternNib gaze
@@ -78,9 +78,9 @@ let readQuery gaze =
         (fun gaze ->
             result {
                 let! _ = Gaze.attempt (take Token.QueryKeyword) gaze
-                let! expression = Gaze.attempt patternMatchBodyNib gaze
-                let! conditions = Gaze.attempt (repeat conditionsNibbler) gaze
-                return Element.Match(expression, conditions)
+                let! inputExpression = Gaze.attempt patternMatchBodyNib gaze
+                let! patterns = Gaze.attempt (repeat patternsNibbler) gaze
+                return Element.Match(inputExpression, patterns)
             })
         gaze
 
@@ -254,9 +254,9 @@ let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let patternMatchBodyNib =
-    takeFirst [ datasetNib; namePathNib; readValue; groupingNib; applicationNib ]
+    takeFirst [ datasetNib; namePathNib; groupingNib; applicationNib ]
 
-let patternNib = takeFirst [ datasetNib; namePathNib; readValue ]
+let patternNib = takeFirst [ datasetNib; ]
 
 let applicationInnerNib =
     takeFirst
@@ -359,7 +359,7 @@ let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
     let conditionals =
         List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
 
-    Expression.Match(expression, conditionals)
+    Expression.Query(expression, conditionals)
 
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()

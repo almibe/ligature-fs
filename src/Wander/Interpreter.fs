@@ -136,7 +136,7 @@ let rec evalExpression bindings expression =
         | Some(err) -> Error(err)
     | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(values) -> handleRecord bindings values
-    | Expression.Match(expression, conditionals) -> handleMatch bindings expression conditionals
+    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
@@ -326,20 +326,30 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and handleMatch bindings expression conditionals =
-    match evalExpression bindings expression with
-    | Ok(valueToMatch, _) ->
-        match
-            List.tryFind
-                (fun (condition, body) ->
-                    match evalExpression bindings condition with
-                    | Ok((WanderValue.Bool(value), _)) -> value
-                    | _ -> false)
-                conditionals
-        with
-        | Some((_, body)) -> evalExpression bindings body
-        | None -> error "No branches matched in when expression." None
-    | Error(errorValue) -> failwith "Not Implemented"
+and checkPattern (input: IDataset) (pattern: DatasetRoot list): bool =
+    true
+
+and handleQuery bindings inputExpression patterns =
+    let mutable results = emptyInMemoryDataset
+    match evalExpression bindings inputExpression with
+    | Ok(input, _) ->
+        match input with
+        | WanderValue.Dataset(input) ->
+            List.iter (fun (pattern, body) -> 
+                match pattern with
+                | Expression.Dataset(pattern) -> 
+                    if checkPattern input pattern then
+                        match evalExpression bindings body with
+                        | Ok(WanderValue.Dataset(dataset), _) ->
+                            match dataset.AllStatements () with
+                            | Ok(statements) -> results <- InMemoryDataset (results.statements + (Set.ofList statements))
+                            | _ -> failwith "Error reading Statements"
+                        | _ -> failwith "Invalid body."
+                | _ -> failwith "Invalid pattern."
+            ) patterns
+            Ok(WanderValue.Dataset(results), bindings)
+        | _ -> error "Can only query Datasets." None
+    | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
