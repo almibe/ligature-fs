@@ -46,9 +46,27 @@ type Value =
     | Int of bigint
     | Bytes of byte array
 
-type ValueQuery =
-    | Value of Value
-    | Range of Range
+type IdentifierPattern =
+| Wildcard
+| Identifier of Identifier
+| Name of string
+
+type ValuePattern =
+| Wildcard
+| Identifier of Identifier
+| Int of bigint
+| String of string
+| Bytes of byte array
+| NameWildcard of string
+| NameIdentifier of string
+| NameInt of string
+| NameString of string
+| NameBytes of string
+
+type Pattern =
+    { Entity: IdentifierPattern
+      Attribute: IdentifierPattern
+      Value: ValuePattern }
 
 type Statement =
     { Entity: Identifier
@@ -56,9 +74,9 @@ type Statement =
       Value: Value }
 
 type IDataset =
-    abstract member MatchStatements:
-        Identifier option -> Identifier option -> Value option -> Result<IDataset, LigatureError>
-
+    abstract member Match:
+        Set<Pattern> -> Result<IDataset, LigatureError>
+    
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
 type Query = IDataset -> Result<IDataset, LigatureError>

@@ -326,8 +326,15 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and checkPattern (input: IDataset) (pattern: DatasetRoot list): bool =
-    true
+and checkPattern bindings (input: IDataset) (pattern: DatasetRoot list): bool =
+    //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
+    //this only works for matching with literals and no destructuring
+    match evalExpression bindings (Expression.Dataset(pattern)) with
+    | Ok(WanderValue.Dataset(pattern), _) ->
+        match (pattern.AllStatements (), input.AllStatements ()) with
+        | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
+        | _ -> failwith "Error"
+    | _ -> failwith "Error"
 
 and handleQuery bindings inputExpression patterns =
     let mutable results = emptyInMemoryDataset
@@ -338,7 +345,7 @@ and handleQuery bindings inputExpression patterns =
             List.iter (fun (pattern, body) -> 
                 match pattern with
                 | Expression.Dataset(pattern) -> 
-                    if checkPattern input pattern then
+                    if checkPattern bindings input pattern then
                         match evalExpression bindings body with
                         | Ok(WanderValue.Dataset(dataset), _) ->
                             match dataset.AllStatements () with

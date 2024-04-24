@@ -18,23 +18,24 @@ type InMemoryDataset =
     override this.GetHashCode() = this.statements.GetHashCode()
 
     interface IDataset with
-        member this.MatchStatements entity attribute value =
-            let results =
-                match entity with
-                | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
-                | None -> this.statements
+        member this.Match pattern =
+            failwith "TODO"
+            // let results =
+            //     match entity with
+            //     | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
+            //     | None -> this.statements
 
-            let results =
-                match attribute with
-                | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
-                | None -> results
+            // let results =
+            //     match attribute with
+            //     | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
+            //     | None -> results
 
-            let results =
-                match value with
-                | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
-                | None -> results
+            // let results =
+            //     match value with
+            //     | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
+            //     | None -> results
 
-            Ok(new InMemoryDataset(results))
+            // Ok(new InMemoryDataset(results))
 
         member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
 

@@ -173,7 +173,8 @@ let matchFun (instance: ILigature) =
                     match (entity, attribute, value) with
                     | (Ok(entity), Ok(attribute), Ok(value)) ->
                         let res =
-                            instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+                            failwith "TODO"
+                            // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
 
                         match res with
                         | Ok res -> Ok(WanderValue.Dataset res)

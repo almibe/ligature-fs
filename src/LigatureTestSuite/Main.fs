@@ -201,7 +201,7 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
 
               ignore <| instance.AddStatements helloDS statements
 
-              match instance.Query helloDS (fun tx -> tx.MatchStatements None None None) with
+              match instance.Query helloDS (fun tx -> tx.MatchStatements Set.empty) with
               | Ok res -> Expect.equal (res.AllStatements()) (Ok statements) ""
               | Error _ -> failwith "Error"
           //TODO add more query cases
