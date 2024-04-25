@@ -21,6 +21,7 @@ type Element =
     | Bytes of byte array
     | Bool of bool
     | Identifier of Ligature.Identifier
+    | Slot of Slot
     | Array of Element list
     | Let of string * Element
     | Match of Element * (Element * Element) list
@@ -205,6 +206,7 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -392,14 +394,15 @@ let rec expressElement (element: Element) =
     | Element.NamePath namePath -> Expression.NamePath namePath
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Let(name, value) -> Expression.Let(name, (expressElement value))
+    | Element.Let (name, value) -> Expression.Let (name, (expressElement value))
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
-    | Element.Lambda(parameters, body) -> handleLambda parameters body
-    | Element.Match(expression, conditionals) -> handleMatch expression conditionals
+    | Element.Lambda (parameters, body) -> handleLambda parameters body
+    | Element.Match (expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
-    | Element.Bytes(bytes) -> Expression.Bytes(bytes)
-    | Element.Dataset(value) -> expressDataset value
+    | Element.Bytes bytes -> Expression.Bytes bytes
+    | Element.Dataset value -> expressDataset value
     | Element.Colon -> Expression.Colon
+    | Element.Slot slot -> Expression.Slot slot

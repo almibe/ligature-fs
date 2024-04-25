@@ -16,6 +16,7 @@ type Expression =
     | String of string
     | Bool of bool
     | Identifier of Identifier
+    | Slot of Slot
     | Let of name: string * value: Expression
     | NamePath of string list
     | Grouping of Expression list
@@ -65,6 +66,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
+    | WanderValue.Slot s -> $"${(readSlot s)}"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Statement(statement) -> printStatementLiteral statement
     | WanderValue.Record(values) -> printRecord values

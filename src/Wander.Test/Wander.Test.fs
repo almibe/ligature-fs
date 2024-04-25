@@ -31,6 +31,13 @@ let vident id =
         | Error _ -> todo
     )
 
+let slot id =
+    WanderValue.Slot(
+        match Ligature.slot id with
+        | Ok v -> v
+        | Error _ -> todo
+    )
+
 
 let bindings = Ligature.Wander.Lib.Preludes.standardPrelude ()
 
@@ -66,6 +73,11 @@ let tests =
               let script = "`hello`"
               let result = run script bindings
               Expect.equal result (Ok(wident "hello")) ""
+          testCase "Run Slot"
+          <| fun _ ->
+              let script = "$hello"
+              let result = run script bindings
+              Expect.equal result (Ok(slot "hello")) ""
           testCase "Run Empty Dataset literal"
           <| fun _ ->
               let script = "{}"

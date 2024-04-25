@@ -141,6 +141,7 @@ let rec evalExpression bindings expression =
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Dataset(values) -> handleDataset bindings values
     | Expression.Colon -> failwith "Should never reach"
+    | Expression.Slot slot -> Ok(WanderValue.Slot(slot), bindings)
 
 and callFunction (fn: Function) (args: WanderValue list) (bindings: Bindings<_, _>) =
     match fn with

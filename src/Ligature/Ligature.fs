@@ -40,16 +40,18 @@ let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
 
 let slot =
     let slotPattern =
-        Regex(@"^[a-zA-Z0-9_]$", RegexOptions.Compiled)
+        Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
 
     fun (id: string) ->
-        printfn "!!!%A" id
         if slotPattern.IsMatch(id) then
             Ok(Slot (Some id))
         else
             invalidSlot id
 
-let readSlot (Slot slot) = slot
+let readSlot (Slot slot) = 
+    match slot with
+    | Some value -> value
+    | _ -> ""
 
 let emptySlot = Slot None
 
