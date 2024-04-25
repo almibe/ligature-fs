@@ -113,28 +113,3 @@ let statement entity attribute value =
     { Entity = entity
       Attribute = attribute
       Value = value }
-
-let tryPatternToStatement (pattern: Pattern) : Statement list option =
-    Set.map
-        (fun (statementPattern: PatternStatement) ->
-            let entity =
-                match statementPattern.Entity with
-                | PatternIdentifier.Identifier identifier -> identifier
-                | _ -> failwith ""
-
-            let attribute =
-                match statementPattern.Attribute with
-                | PatternIdentifier.Identifier identifier -> identifier
-                | _ -> failwith ""
-
-            let value =
-                match statementPattern.Value with
-                | PatternValue.Identifier identifier -> Value.Identifier identifier
-                | _ -> failwith ""
-
-            { Entity = entity
-              Attribute = attribute
-              Value = value })
-        pattern
-    |> List.ofSeq
-    |> Some
