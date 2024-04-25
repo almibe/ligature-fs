@@ -12,6 +12,7 @@ type Token =
     | Bool of bool
     | WhiteSpace of string
     | Identifier of Identifier
+    | Slot of Slot
     | Int of bigint
     | Bytes of byte array
     | Comment of string
@@ -47,6 +48,13 @@ let identifierTokenNibbler =
     Gaze.map identifierNibbler (fun chars ->
         match chars |> implode |> identifier with
         | Ok identifier -> Token.Identifier(identifier)
+        | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
+    )
+
+let slotTokenNibbler =
+    Gaze.map slotNibbler (fun chars ->
+        match chars.[1..] |> implode |> slot with
+        | Ok slot -> Token.Slot(slot)
         | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
@@ -102,6 +110,7 @@ let tokenNibbler =
                   integerTokenNibbler
                   newLineTokenNibbler
                   identifierTokenNibbler
+                  slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
                   takeAndMap "=>" Token.WideArrow

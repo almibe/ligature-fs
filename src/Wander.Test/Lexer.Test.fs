@@ -16,6 +16,13 @@ let ident id =
         | Error(_) -> failwith "todo"
     )
 
+let slot (id: string) =
+    Token.Slot(
+        match slot (id) with
+        | Ok(v) -> v
+        | Error(_) -> failwith "todo"
+    )
+
 [<Tests>]
 let tests =
     testList
@@ -36,7 +43,7 @@ let tests =
               Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
               Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
           testCase "tokenize match keyword"
-          <| fun _ -> Expect.equal (tokenize "match") (Ok([ Token.MatchKeyword ])) ""
+          <| fun _ -> Expect.equal (tokenize "query") (Ok([ Token.QueryKeyword ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -56,6 +63,10 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize "`a`") (Ok([ (ident "a") ])) ""
               Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
+          testCase "Read Slots"
+          <| fun _ ->
+              Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
+              Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
           testCase "Read Statement"
           <| fun _ ->
               Expect.equal

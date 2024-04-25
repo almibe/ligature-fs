@@ -127,12 +127,12 @@ let queryFun (instance: ILigature) =
                 | [ WanderValue.String(datasetName); WanderValue.Function(Function.Lambda(_parameters, body)) ] ->
                     let dataset = DatasetName(datasetName)
 
-                    let res =
-                        instance.Query dataset (fun tx ->
-                            //let bindings' = Wander.Bindings.bind "match" (matchStatements tx) bindings
-                            //error "todo - inside query" None
-                            //Ok(WanderValue.Nothing))
-                            failwith "TODO")
+                    // let res =
+                    //     instance.RunQuery dataset (fun tx ->
+                    //         //let bindings' = Wander.Bindings.bind "match" (matchStatements tx) bindings
+                    //         //error "todo - inside query" None
+                    //         //Ok(WanderValue.Nothing))
+                    //         failwith "TODO")
 
                     //res
                     failwith "TODO"

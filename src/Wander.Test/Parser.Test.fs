@@ -177,7 +177,7 @@ let tests =
                   ""
           testCase "Parse Match Expression"
           <| fun _ ->
-              let tokens = tokenize "match x * x -> x * y -> y"
+              let tokens = tokenize "query x * x -> x * y -> y"
               let ast = parse (unsafe tokens)
 
               Expect.equal
@@ -193,7 +193,7 @@ let tests =
 
           testCase "Parse Match Expression With Additional Types"
           <| fun _ ->
-              let tokens = tokenize "match x * true -> 5 * false -> 6"
+              let tokens = tokenize "query x * true -> 5 * false -> 6"
               let ast = parse (unsafe tokens)
 
               Expect.equal

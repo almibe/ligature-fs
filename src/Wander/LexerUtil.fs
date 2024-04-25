@@ -15,6 +15,14 @@ let identifierCharacterNibbler =
 
 let identifierNibbler = Nibblers.between '`' identifierCharacterNibbler '`'
 
+let slotPattern =
+    Regex("^[a-zA-Z0-9_]$", RegexOptions.Compiled)
+
+let slotCharacterNibbler =
+    Nibblers.takeWhile (fun c -> slotPattern.IsMatch(c.ToString()))
+
+let slotNibbler = Nibblers.takeAllFlatten [ Nibblers.takeAll [Nibblers.take '$']; slotCharacterNibbler]
+
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
     Gaze.map

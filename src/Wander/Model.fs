@@ -37,10 +37,12 @@ type WanderValue =
     | String of string
     | Bool of bool
     | Identifier of Identifier
+    | Slot of Slot
     | Statement of Ligature.Statement
     | Function of Function
     | Array of WanderValue array
-    | Dataset of IDataset
+    | Dataset of IDataset //TODO maybe remove this?
+    | Pattern of Pattern
     | Record of Map<string, WanderValue>
     | Bytes of byte array
 

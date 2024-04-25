@@ -30,9 +30,10 @@ type LigatureInMemory() =
                 datasets.Value <- Map.remove dataset datasets.Value
                 Ok())
 
-        member _.Query dataset query =
+        member _.RunQuery dataset query =
             let dataset: IDataset = new InMemoryDataset(Map.find dataset datasets.Value)
-            query dataset
+            failwith "TODO"
+            //query dataset
 
         member _.AllStatements dataset =
             match Map.tryFind dataset datasets.Value with
@@ -64,4 +65,6 @@ type LigatureInMemory() =
             : Result<IDataset, LigatureError> =
             failwith "TODO"
 
-        member this.RunScript(script: string) : Result<IDataset, LigatureError> = failwith "TODO"
+        member this.Count (datasetName: DatasetName) (pattern: Pattern) : Result<int64, LigatureError> = failwith "TODO"
+        member this.Contains(arg1: DatasetName) (arg2: Pattern): Result<bool,LigatureError> = 
+            failwith "Not Implemented"

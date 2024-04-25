@@ -20,7 +20,7 @@ type DatasetName = DatasetName of string
 
 type Identifier = private Identifier of string
 
-let invalidIdentifier (id: string) = error $"Invalid Label, {id}" None
+let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
 
 let identifier =
     let identifierPattern =
@@ -34,10 +34,24 @@ let identifier =
 
 let readIdentifier (Identifier identifier) = identifier
 
-type Range =
-    | String of string * string
-    | Int of bigint * bigint
-    | Bytes of byte array * byte array
+type Slot = private Slot of string option
+
+let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
+
+let slot =
+    let slotPattern =
+        Regex(@"^[a-zA-Z0-9_]$", RegexOptions.Compiled)
+
+    fun (id: string) ->
+        printfn "!!!%A" id
+        if slotPattern.IsMatch(id) then
+            Ok(Slot (Some id))
+        else
+            invalidSlot id
+
+let readSlot (Slot slot) = slot
+
+let emptySlot = Slot None
 
 [<RequireQualifiedAccess>]
 type Value =
@@ -46,27 +60,27 @@ type Value =
     | Int of bigint
     | Bytes of byte array
 
-type IdentifierPattern =
-| Wildcard
+[<RequireQualifiedAccess>]
+type PatternIdentifier =
+| Slot of Slot
 | Identifier of Identifier
-| Name of string
 
-type ValuePattern =
-| Wildcard
+[<RequireQualifiedAccess>]
+type PatternValue =
+| Slot of Slot
 | Identifier of Identifier
 | Int of bigint
 | String of string
 | Bytes of byte array
-| NameWildcard of string
-| NameIdentifier of string
-| NameInt of string
-| NameString of string
-| NameBytes of string
 
-type Pattern =
-    { Entity: IdentifierPattern
-      Attribute: IdentifierPattern
-      Value: ValuePattern }
+type PatternStatement =
+    { Entity: PatternIdentifier
+      Attribute: PatternIdentifier
+      Value: PatternValue }
+
+type Pattern = Set<PatternStatement>
+
+type Query = Map<Pattern, Pattern>
 
 type Statement =
     { Entity: Identifier
@@ -74,12 +88,12 @@ type Statement =
       Value: Value }
 
 type IDataset =
-    abstract member Match:
-        Set<Pattern> -> Result<IDataset, LigatureError>
+    abstract member RunQuery:
+        Query -> Result<IDataset, LigatureError>
+    abstract member Contains: Pattern -> Result<bool, LigatureError>
+    abstract member Count: Pattern -> Result<int64, LigatureError>
     
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
-
-type Query = IDataset -> Result<IDataset, LigatureError>
 
 type ILigature =
     abstract member AllDatasets: unit -> Result<DatasetName list, LigatureError>
@@ -87,8 +101,9 @@ type ILigature =
     abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
-    abstract member RunScript: string -> Result<IDataset, LigatureError>
-    abstract member Query: DatasetName -> Query -> Result<IDataset, LigatureError>
+    abstract member Contains: DatasetName -> Pattern -> Result<bool, LigatureError>
+    abstract member Count: DatasetName -> Pattern -> Result<int64, LigatureError>
+    abstract member RunQuery: DatasetName -> Query -> Result<IDataset, LigatureError>
     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
