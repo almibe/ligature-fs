@@ -16,7 +16,7 @@ let equalFunction<'t> =
                     match args with
                     | [ WanderValue.String(desc); left; right ] ->
                         if left = right then
-                            Ok(WanderValue.Dataset(emptyInMemoryDataset))
+                            Ok(WanderValue.Dataset(Set.empty))
                         else
                             error $"{prettyPrint left} != {prettyPrint right}" None
                     | _ -> error "Invalid call to Assert.equal function." None)

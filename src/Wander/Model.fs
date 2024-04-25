@@ -42,8 +42,7 @@ type WanderValue =
     | Statement of Ligature.Statement
     | Function of Function
     | Array of WanderValue array
-    | Dataset of IDataset //TODO maybe remove this?
-    | Pattern of Pattern
+    | Dataset of Pattern
     | Record of Map<string, WanderValue>
     | Bytes of byte array
 
@@ -73,11 +72,12 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Dataset(values) ->
-        match values.AllStatements() with
-        | Ok statements ->
-            (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements)
-            + "}"
-        | Error err -> failwith ""
+        failwith "TODO"
+        // match values.AllStatements() with
+        // | Ok statements ->
+        //     (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements)
+        //     + "}"
+        // | Error err -> failwith ""
 
 and printBytes bytes =
     bytes

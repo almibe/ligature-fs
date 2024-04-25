@@ -9,7 +9,7 @@ open Ligature.Wander.Model
 open System
 open Ligature.Wander.InMemoryDataset
 
-let emptySet = WanderValue.Dataset(InMemoryDataset(Set.empty))
+let emptySet = WanderValue.Dataset(Set.empty)
 
 let datasetsFun (ligature: ILigature) =
     WanderValue.Function(
@@ -207,13 +207,13 @@ let addStatementsFun (instance: ILigature) =
                     | Error err -> Error err
                 | [ (WanderValue.String(name)); WanderValue.Dataset(statements) ] ->
                     let dataset = DatasetName name
-
-                    match statements.AllStatements() with
-                    | Ok statements ->
-                        match instance.AddStatements dataset statements with
-                        | Ok _ -> Ok(emptySet)
-                        | Error err -> Error err
-                    | Error err -> Error err
+                    failwith "TODO"
+                    // match statements.AllStatements() with
+                    // | Ok statements ->
+                    //     match instance.AddStatements dataset statements with
+                    //     | Ok _ -> Ok(emptySet)
+                    //     | Error err -> Error err
+                    // | Error err -> Error err
                 | _ -> error "Improper call to addStatements." None)
         )
     )
@@ -242,12 +242,13 @@ let removeStatementsFun (instance: ILigature) =
                 | [ WanderValue.String(name); WanderValue.Dataset(statements) ] ->
                     let dataset = DatasetName name
 
-                    match statements.AllStatements() with
-                    | Ok statements ->
-                        match instance.RemoveStatements dataset statements with
-                        | Ok _ -> Ok(emptySet)
-                        | Error err -> Error err
-                    | Error err -> Error err
+                    // match statements.AllStatements() with
+                    // | Ok statements ->
+                    //     match instance.RemoveStatements dataset statements with
+                    //     | Ok _ -> Ok(emptySet)
+                    //     | Error err -> Error err
+                    // | Error err -> Error err
+                    failwith "TODO"
                 | _ -> error "Improper call to removeStatements." None)
         )
     )
