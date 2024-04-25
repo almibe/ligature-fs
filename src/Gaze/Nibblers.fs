@@ -283,6 +283,29 @@ let takeAll nibblers gaze =
     else
         Ok(results)
 
+/// <summary>Create a Nibbler that accepts a List of Nibblers and only succeeds if all of the
+/// passed in Nibblers succeed in order.</summary>
+/// <param name="nibblers">A List of nibblers.</param>
+/// <returns>A List of all of the results from each Nibbler internally grouped in Lists.</returns>
+let takeAllFlatten (nibblers: List<Gaze.Nibbler<'a, List<'b>>>) gaze =
+    let mutable results: List<'b> = []
+    let mutable nibblerIndex = 0
+
+    while nibblerIndex >= 0 && nibblerIndex < List.length (nibblers) do
+        let nibbler = nibblers.Item(nibblerIndex)
+
+        match Gaze.attempt nibbler gaze with
+        | Ok(result) ->
+            results <- List.append results result
+            nibblerIndex <- nibblerIndex + 1
+        | Error(_) -> nibblerIndex <- -1
+
+    if results = [] || nibblerIndex = -1 then
+        Error(Gaze.GazeError.NoMatch)
+    else
+        Ok(results)
+
+
 /// <summary>Create a Nibbler that accepts a List of Nibblers and matches on the first that succeeds.
 /// If all fail the created Nibbler will fail as well.</summary>
 /// <param name="nibblers">A list of Nibblers to check.</param>
