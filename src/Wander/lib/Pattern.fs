@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.Dataset
+module Ligature.Wander.Lib.Pattern
 
 open Ligature.Wander.Model
 open Ligature
@@ -29,4 +29,4 @@ let countFunction<'t> =
         )
     )
 
-let datasetLib<'t> = WanderValue.Record(Map [ ("count", countFunction) ])
+let patternLib<'t> = WanderValue.Record(Map [ ("count", countFunction) ])

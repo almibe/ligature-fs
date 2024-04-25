@@ -20,7 +20,7 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
-    |> Bindings.bind "Dataset" Dataset.datasetLib
+    |> Bindings.bind "Pattern" Pattern.patternLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "String" String.stringLib

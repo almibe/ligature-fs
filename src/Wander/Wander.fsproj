@@ -20,10 +20,10 @@
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
     <Compile Include="lib/DateTime.fs" />
-    <Compile Include="lib/Dataset.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />
     <Compile Include="lib/Ligature.fs" />
+    <Compile Include="lib/Pattern.fs" />
     <Compile Include="lib/String.fs" />
     <Compile Include="lib/Ulid.fs" />
     <Compile Include="lib/Wander.fs" />
