@@ -258,7 +258,7 @@ let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 let patternMatchBodyNib =
     takeFirst [ datasetNib; namePathNib; groupingNib; applicationNib ]
 
-let patternNib = takeFirst [ datasetNib; ]
+let patternNib = takeFirst [ datasetNib ]
 
 let applicationInnerNib =
     takeFirst
@@ -394,13 +394,13 @@ let rec expressElement (element: Element) =
     | Element.NamePath namePath -> Expression.NamePath namePath
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Let (name, value) -> Expression.Let (name, (expressElement value))
+    | Element.Let(name, value) -> Expression.Let(name, (expressElement value))
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
-    | Element.Lambda (parameters, body) -> handleLambda parameters body
-    | Element.Match (expression, conditionals) -> handleMatch expression conditionals
+    | Element.Lambda(parameters, body) -> handleLambda parameters body
+    | Element.Match(expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
     | Element.Dataset value -> expressDataset value

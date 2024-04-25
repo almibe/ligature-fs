@@ -194,16 +194,16 @@ let ligatureTestSuite (createInstance: Unit -> ILigature) =
                   result
                   (Ok(List.filter (fun statement -> statement = nemesis |> not) statements))
                   "Dataset should contain all but removed Statements."
-        //   testCase "matching Statements in Dataset"
-        //   <| fun _ ->
-        //       let instance = createInstance ()
-        //       instance.CreateDataset(helloDS) |> ignore
+          //   testCase "matching Statements in Dataset"
+          //   <| fun _ ->
+          //       let instance = createInstance ()
+          //       instance.CreateDataset(helloDS) |> ignore
 
-        //       ignore <| instance.AddStatements helloDS statements
+          //       ignore <| instance.AddStatements helloDS statements
 
-        //       failwith "TODO"
-        //     //   match instance.RunQuery helloDS (fun tx -> tx.Match Set.empty) with
-        //     //   | Ok res -> Expect.equal (res.AllStatements()) (Ok statements) ""
-        //     //   | Error _ -> failwith "Error"
-        //   //TODO add more query cases
+          //       failwith "TODO"
+          //     //   match instance.RunQuery helloDS (fun tx -> tx.Match Set.empty) with
+          //     //   | Ok res -> Expect.equal (res.AllStatements()) (Ok statements) ""
+          //     //   | Error _ -> failwith "Error"
+          //   //TODO add more query cases
           ]

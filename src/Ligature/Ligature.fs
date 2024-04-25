@@ -39,16 +39,15 @@ type Slot = private Slot of string option
 let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
 
 let slot =
-    let slotPattern =
-        Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+    let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
 
     fun (id: string) ->
         if slotPattern.IsMatch(id) then
-            Ok(Slot (Some id))
+            Ok(Slot(Some id))
         else
             invalidSlot id
 
-let readSlot (Slot slot) = 
+let readSlot (Slot slot) =
     match slot with
     | Some value -> value
     | _ -> ""
@@ -64,16 +63,16 @@ type Value =
 
 [<RequireQualifiedAccess>]
 type PatternIdentifier =
-| Slot of Slot
-| Identifier of Identifier
+    | Slot of Slot
+    | Identifier of Identifier
 
 [<RequireQualifiedAccess>]
 type PatternValue =
-| Slot of Slot
-| Identifier of Identifier
-| Int of bigint
-| String of string
-| Bytes of byte array
+    | Slot of Slot
+    | Identifier of Identifier
+    | Int of bigint
+    | String of string
+    | Bytes of byte array
 
 type PatternStatement =
     { Entity: PatternIdentifier
@@ -90,11 +89,10 @@ type Statement =
       Value: Value }
 
 type IDataset =
-    abstract member RunQuery:
-        Query -> Result<IDataset, LigatureError>
+    abstract member RunQuery: Query -> Result<IDataset, LigatureError>
     abstract member Contains: Pattern -> Result<bool, LigatureError>
     abstract member Count: Pattern -> Result<int64, LigatureError>
-    
+
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
 type ILigature =
@@ -116,21 +114,27 @@ let statement entity attribute value =
       Attribute = attribute
       Value = value }
 
-let tryPatternToStatement (pattern: Pattern): Statement list option =
-    Set.map (fun (statementPattern: PatternStatement) ->
-        let entity = 
-            match statementPattern.Entity with
-            | PatternIdentifier.Identifier identifier -> identifier
-            | _ -> failwith ""
-        let attribute = 
-            match statementPattern.Attribute with
-            | PatternIdentifier.Identifier identifier -> identifier
-            | _ -> failwith ""
-        let value = 
-            match statementPattern.Value with
-            | PatternValue.Identifier identifier -> Value.Identifier identifier
-            | _ -> failwith ""
-        { Entity = entity; Attribute = attribute; Value = value}
-        ) pattern
+let tryPatternToStatement (pattern: Pattern) : Statement list option =
+    Set.map
+        (fun (statementPattern: PatternStatement) ->
+            let entity =
+                match statementPattern.Entity with
+                | PatternIdentifier.Identifier identifier -> identifier
+                | _ -> failwith ""
+
+            let attribute =
+                match statementPattern.Attribute with
+                | PatternIdentifier.Identifier identifier -> identifier
+                | _ -> failwith ""
+
+            let value =
+                match statementPattern.Value with
+                | PatternValue.Identifier identifier -> Value.Identifier identifier
+                | _ -> failwith ""
+
+            { Entity = entity
+              Attribute = attribute
+              Value = value })
+        pattern
     |> List.ofSeq
     |> Some

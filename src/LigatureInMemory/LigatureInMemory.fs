@@ -33,7 +33,7 @@ type LigatureInMemory() =
         member _.RunQuery dataset query =
             let dataset: IDataset = new InMemoryDataset(Map.find dataset datasets.Value)
             failwith "TODO"
-            //query dataset
+        //query dataset
 
         member _.AllStatements dataset =
             match Map.tryFind dataset datasets.Value with
@@ -66,5 +66,6 @@ type LigatureInMemory() =
             failwith "TODO"
 
         member this.Count (datasetName: DatasetName) (pattern: Pattern) : Result<int64, LigatureError> = failwith "TODO"
-        member this.Contains(arg1: DatasetName) (arg2: Pattern): Result<bool,LigatureError> = 
+
+        member this.Contains (arg1: DatasetName) (arg2: Pattern) : Result<bool, LigatureError> =
             failwith "Not Implemented"

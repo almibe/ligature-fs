@@ -8,23 +8,28 @@ open Ligature.Wander.Model
 open Ligature
 open Ligature.Wander.InMemoryDataset
 
+// apply
+// matches
+// count
+
+
 let countFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ -> failwith ""
-                // match args with
-                // | [ WanderValue.Array(statements) ] ->
-                //     let statementSet = new System.Collections.Generic.HashSet<Statement>()
+            // match args with
+            // | [ WanderValue.Array(statements) ] ->
+            //     let statementSet = new System.Collections.Generic.HashSet<Statement>()
 
-                //     Array.iter
-                //         (fun statement ->
-                //             match statement with
-                //             | WanderValue.Statement(statement) -> statementSet.Add(statement) |> ignore
-                //             | _ -> failwith "Unexpected value")
-                //         statements
+            //     Array.iter
+            //         (fun statement ->
+            //             match statement with
+            //             | WanderValue.Statement(statement) -> statementSet.Add(statement) |> ignore
+            //             | _ -> failwith "Unexpected value")
+            //         statements
 
-                //     Ok(WanderValue.Dataset(new InMemoryDataset(Set.ofSeq statementSet)))
-                // | value -> error $"Unexpected value - {value}." None)
+            //     Ok(WanderValue.Dataset(new InMemoryDataset(Set.ofSeq statementSet)))
+            // | value -> error $"Unexpected value - {value}." None)
             )
         )
     )

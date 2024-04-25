@@ -6,18 +6,20 @@ module Ligature.Wander.InMemoryDataset
 
 open Ligature
 
-let isLiteralPattern (pattern: PatternStatement) = 
+let isLiteralPattern (pattern: PatternStatement) =
     match pattern with
     | { Entity = PatternIdentifier.Slot(_) } -> false
     | { Attribute = PatternIdentifier.Slot(_) } -> false
     | { Value = PatternValue.Slot(_) } -> false
     | _ -> true
 
-let literalPatternToStatement (pattern: PatternStatement): Statement =
+let literalPatternToStatement (pattern: PatternStatement) : Statement =
     let (entity, attribute) =
         match pattern with
-        | { Entity = PatternIdentifier.Identifier(entity); Attribute = PatternIdentifier.Identifier(attribute) } -> (entity, attribute)
+        | { Entity = PatternIdentifier.Identifier(entity)
+            Attribute = PatternIdentifier.Identifier(attribute) } -> (entity, attribute)
         | _ -> failwith "Error"
+
     let value =
         match pattern.Value with
         | PatternValue.Bytes bytes -> Value.Bytes bytes
@@ -25,7 +27,10 @@ let literalPatternToStatement (pattern: PatternStatement): Statement =
         | PatternValue.String string -> Value.String string
         | PatternValue.Int int -> Value.Int int
         | _ -> failwith "Error"
-    { Entity = entity; Attribute = attribute; Value = value }
+
+    { Entity = entity
+      Attribute = attribute
+      Value = value }
 
 type InMemoryDataset =
     val statements: Set<Statement>
@@ -41,7 +46,7 @@ type InMemoryDataset =
     interface IDataset with
         member this.RunQuery query =
             // let mutable result = Set.empty
-            // Set.iter (fun pattern -> 
+            // Set.iter (fun pattern ->
             //     if isLiteralPattern pattern then
             //         let statement = literalPatternToStatement pattern
             //         result <- Set.add statement result
@@ -49,27 +54,25 @@ type InMemoryDataset =
             //         failwith "TODO"
             //     ) query
             failwith "TODO"
-            // let results =
-            //     match entity with
-            //     | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
-            //     | None -> this.statements
+        // let results =
+        //     match entity with
+        //     | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
+        //     | None -> this.statements
 
-            // let results =
-            //     match attribute with
-            //     | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
-            //     | None -> results
+        // let results =
+        //     match attribute with
+        //     | Some(attribute) -> Set.filter (fun statement -> statement.Attribute = attribute) results
+        //     | None -> results
 
-            // let results =
-            //     match value with
-            //     | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
-            //     | None -> results
+        // let results =
+        //     match value with
+        //     | Some(value) -> Set.filter (fun statement -> statement.Value = value) results
+        //     | None -> results
 
-            // Ok(new InMemoryDataset(results))
+        // Ok(new InMemoryDataset(results))
 
         member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
-        member this.Contains(arg1: Pattern): Result<bool,LigatureError> = 
-            failwith "Not Implemented"
-        member this.Count(arg1: Pattern): Result<int64,LigatureError> = 
-            failwith "Not Implemented"
+        member this.Contains(arg1: Pattern) : Result<bool, LigatureError> = failwith "Not Implemented"
+        member this.Count(arg1: Pattern) : Result<int64, LigatureError> = failwith "Not Implemented"
 
 let emptyInMemoryDataset = new InMemoryDataset(Set.empty)

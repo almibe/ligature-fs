@@ -50,8 +50,7 @@ and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
     | HostFunction of HostFunction
 
-and HostFunction
-    (eval: WanderValue list -> Bindings.Bindings<string, WanderValue> -> Result<WanderValue, LigatureError>)
+and HostFunction(eval: WanderValue list -> Bindings.Bindings<string, WanderValue> -> Result<WanderValue, LigatureError>)
     =
     member _.Run args bindings = eval args bindings
 
@@ -72,12 +71,8 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Dataset(values) ->
-        failwith "TODO"
-        // match values.AllStatements() with
-        // | Ok statements ->
-        //     (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements)
-        //     + "}"
-        // | Error err -> failwith ""
+        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values)
+        + "}"
 
 and printBytes bytes =
     bytes
@@ -95,6 +90,22 @@ and printStatementLiteral statement =
 
 and printStatement statement =
     $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+
+and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
+    match patternIdentifier with
+    | PatternIdentifier.Identifier(identifier) -> readIdentifier identifier
+    | PatternIdentifier.Slot(slot) -> readSlot slot
+
+and printPatternValue (value: PatternValue) =
+    match value with
+    | PatternValue.Identifier(value) -> $"`{(readIdentifier value)}`"
+    | PatternValue.Int(value) -> value.ToString()
+    | PatternValue.String(value) -> $"\"{value}\"" //TODO escape properly
+    | PatternValue.Bytes(bytes) -> printBytes bytes
+    | PatternValue.Slot(slot) -> readSlot slot
+
+and printPattern (pattern: PatternStatement) =
+    $"`{(printPatternIdentifier pattern.Entity)}` `{(printPatternIdentifier pattern.Attribute)}` {(printPatternValue pattern.Value)}"
 
 and printLigatureValue value =
     match value with

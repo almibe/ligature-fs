@@ -172,9 +172,8 @@ let matchFun (instance: ILigature) =
 
                     match (entity, attribute, value) with
                     | (Ok(entity), Ok(attribute), Ok(value)) ->
-                        let res =
-                            failwith "TODO"
-                            // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+                        let res = failwith "TODO"
+                        // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
 
                         match res with
                         | Ok res -> Ok(WanderValue.Dataset res)
@@ -208,12 +207,12 @@ let addStatementsFun (instance: ILigature) =
                 | [ (WanderValue.String(name)); WanderValue.Dataset(statements) ] ->
                     let dataset = DatasetName name
                     failwith "TODO"
-                    // match statements.AllStatements() with
-                    // | Ok statements ->
-                    //     match instance.AddStatements dataset statements with
-                    //     | Ok _ -> Ok(emptySet)
-                    //     | Error err -> Error err
-                    // | Error err -> Error err
+                // match statements.AllStatements() with
+                // | Ok statements ->
+                //     match instance.AddStatements dataset statements with
+                //     | Ok _ -> Ok(emptySet)
+                //     | Error err -> Error err
+                // | Error err -> Error err
                 | _ -> error "Improper call to addStatements." None)
         )
     )
