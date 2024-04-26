@@ -69,10 +69,7 @@ type PatternIdentifier =
 [<RequireQualifiedAccess>]
 type PatternValue =
     | Slot of Slot
-    | Identifier of Identifier
-    | Int of bigint
-    | String of string
-    | Bytes of byte array
+    | Value of Value
 
 type PatternStatement =
     { Entity: PatternIdentifier

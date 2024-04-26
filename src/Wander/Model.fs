@@ -93,19 +93,21 @@ and printStatement statement =
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
-    | PatternIdentifier.Identifier(identifier) -> readIdentifier identifier
+    | PatternIdentifier.Identifier(identifier) -> $"`{readIdentifier identifier}`"
     | PatternIdentifier.Slot(slot) -> $"${(readSlot slot)}"
 
 and printPatternValue (value: PatternValue) =
     match value with
-    | PatternValue.Identifier(value) -> $"`{(readIdentifier value)}`"
-    | PatternValue.Int(value) -> value.ToString()
-    | PatternValue.String(value) -> $"\"{value}\"" //TODO escape properly
-    | PatternValue.Bytes(bytes) -> printBytes bytes
+    | PatternValue.Value value ->
+        match value with
+        | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
+        | Value.Int(value) -> value.ToString()
+        | Value.String(value) -> $"\"{value}\"" //TODO escape properly
+        | Value.Bytes(bytes) -> printBytes bytes
     | PatternValue.Slot(slot) -> $"${(readSlot slot)}"
 
 and printPattern (pattern: PatternStatement) =
-    $"{(printPatternIdentifier pattern.Entity)} `{(printPatternIdentifier pattern.Attribute)}` {(printPatternValue pattern.Value)}"
+    $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printPatternValue pattern.Value)}"
 
 and printLigatureValue value =
     match value with

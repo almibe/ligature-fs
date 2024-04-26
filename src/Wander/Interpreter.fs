@@ -206,17 +206,17 @@ and handleDatasetRoot bindings (entity, entityDescriptions) =
                     (fun value ->
                         let value =
                             match value with
-                            | WanderValue.Int value -> PatternValue.Int value
-                            | WanderValue.Bytes value -> PatternValue.Bytes value
-                            | WanderValue.Identifier value -> PatternValue.Identifier value
-                            | WanderValue.String value -> PatternValue.String value
+                            | WanderValue.Int value -> Value.Int value
+                            | WanderValue.Bytes value -> Value.Bytes value
+                            | WanderValue.Identifier value -> Value.Identifier value
+                            | WanderValue.String value -> Value.String value
                             | _ -> failwith "TODO"
 
                         statements <-
                             Set.add
                                 { Entity = PatternIdentifier.Slot e
                                   Attribute = PatternIdentifier.Identifier a
-                                  Value = value }
+                                  Value = PatternValue.Value value }
                                 statements)
                     values
             | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
@@ -224,17 +224,17 @@ and handleDatasetRoot bindings (entity, entityDescriptions) =
                     (fun value ->
                         let value =
                             match value with
-                            | WanderValue.Int value -> PatternValue.Int value
-                            | WanderValue.Bytes value -> PatternValue.Bytes value
-                            | WanderValue.Identifier value -> PatternValue.Identifier value
-                            | WanderValue.String value -> PatternValue.String value
+                            | WanderValue.Int value -> Value.Int value
+                            | WanderValue.Bytes value -> Value.Bytes value
+                            | WanderValue.Identifier value -> Value.Identifier value
+                            | WanderValue.String value -> Value.String value
                             | _ -> failwith "TODO"
 
                         statements <-
                             Set.add
                                 { Entity = PatternIdentifier.Identifier e
                                   Attribute = PatternIdentifier.Identifier a
-                                  Value = value }
+                                  Value = PatternValue.Value value }
                                 statements)
                     values
             | _ -> failwith "TODO")

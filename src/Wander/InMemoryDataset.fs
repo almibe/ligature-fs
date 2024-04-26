@@ -22,10 +22,7 @@ let literalPatternToStatement (pattern: PatternStatement) : Statement =
 
     let value =
         match pattern.Value with
-        | PatternValue.Bytes bytes -> Value.Bytes bytes
-        | PatternValue.Identifier identifier -> Value.Identifier identifier
-        | PatternValue.String string -> Value.String string
-        | PatternValue.Int int -> Value.Int int
+        | PatternValue.Value value -> value
         | _ -> failwith "Error"
 
     { Entity = entity
