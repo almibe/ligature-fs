@@ -53,9 +53,12 @@ let identifierTokenNibbler =
 
 let slotTokenNibbler =
     Gaze.map slotNibbler (fun chars ->
-        match chars.[1..] |> implode |> slot with
-        | Ok slot -> Token.Slot(slot)
-        | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
+        if chars = [ '$' ] then
+            Token.Slot(emptySlot)
+        else
+            match chars.[1..] |> implode |> slot with
+            | Ok slot -> Token.Slot(slot)
+            | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
 let bytesTokenNibbler =

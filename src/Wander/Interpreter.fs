@@ -201,6 +201,24 @@ and handleDatasetRoot bindings (entity, entityDescriptions) =
             let (attribute, values) = entityDescription
 
             match (entity, attribute, values) with
+            | (WanderValue.Slot e, WanderValue.Identifier a, values) ->
+                List.iter
+                    (fun value ->
+                        let value =
+                            match value with
+                            | WanderValue.Int value -> PatternValue.Int value
+                            | WanderValue.Bytes value -> PatternValue.Bytes value
+                            | WanderValue.Identifier value -> PatternValue.Identifier value
+                            | WanderValue.String value -> PatternValue.String value
+                            | _ -> failwith "TODO"
+
+                        statements <-
+                            Set.add
+                                { Entity = PatternIdentifier.Slot e
+                                  Attribute = PatternIdentifier.Identifier a
+                                  Value = value }
+                                statements)
+                    values
             | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
                 List.iter
                     (fun value ->
@@ -301,8 +319,8 @@ and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
 
-    let args = failwith ""
-    //        Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(new InMemoryDataset(Set.empty)))
+    let args =
+        Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(Set.empty))
 
     List.tryFind
         (fun arg ->

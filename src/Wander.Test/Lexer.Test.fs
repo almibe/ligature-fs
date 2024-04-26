@@ -65,6 +65,7 @@ let tests =
               Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
           testCase "Read Slots"
           <| fun _ ->
+              Expect.equal (tokenize "$") (Ok([ Token.Slot(emptySlot) ])) ""
               Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
           testCase "Read Statement"

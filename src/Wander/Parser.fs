@@ -153,7 +153,7 @@ let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
 
 let singleEntityDescriptNib gaze =
     result {
-        let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
         return DatasetRoot(entity, [ entityDescriptions ])
     }
@@ -165,7 +165,7 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError
     | Ok _ -> singleEntityDescription
     | _ ->
         result {
-            let! entity = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
@@ -253,6 +253,14 @@ let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     match next with
     | Error(err) -> Error err
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let patternMatchBodyNib =

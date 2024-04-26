@@ -16,7 +16,7 @@ let run (input: string) (bindings: Bindings) =
         | Ok ast ->
             let expressions = express ast
             Result.map (fun (res, _) -> res) (Interpreter.evalExpressions bindings expressions)
-        | Error _ -> error "Error parsing." None
+        | Error(err) -> error $"Error parsing.\n{err}" None
     | Error _ -> error "Error tokenizing." None
 
 type Introspect =

@@ -21,7 +21,9 @@ let slotCharacterNibbler =
     Nibblers.takeWhile (fun c -> slotPattern.IsMatch(c.ToString()))
 
 let slotNibbler =
-    Nibblers.takeAllFlatten [ Nibblers.takeAll [ Nibblers.take '$' ]; slotCharacterNibbler ]
+    Nibblers.takeAllFlatten
+        [ Nibblers.takeAll [ Nibblers.take '$' ]
+          Nibblers.optional slotCharacterNibbler ]
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"

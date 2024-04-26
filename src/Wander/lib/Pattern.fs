@@ -11,7 +11,8 @@ open Ligature.Wander.InMemoryDataset
 // apply
 // matches
 // count
-
+// captures
+// isDataset
 
 let countFunction<'t> =
     WanderValue.Function(

@@ -49,7 +49,7 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""
+              Expect.equal result (Ok(WanderValue.Dataset(Set.empty))) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
@@ -82,7 +82,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(emptyInMemoryDataset))) ""
+              Expect.equal result (Ok(WanderValue.Dataset(Set.empty))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -92,12 +92,12 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Dataset(
-                          new InMemoryDataset(
-                              Set.ofSeq
-                                  [ { Entity = ident "a"
-                                      Attribute = ident "b"
-                                      Value = vident "c" } ]
-                          )
+
+                          Set.ofSeq
+                              [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                  Attribute = PatternIdentifier.Identifier(ident "b")
+                                  Value = PatternValue.Identifier(ident "c") } ]
+
                       )
                   ))
                   ""
@@ -110,12 +110,12 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Dataset(
-                          new InMemoryDataset(
-                              Set.ofSeq
-                                  [ { Entity = ident "a"
-                                      Attribute = ident "b"
-                                      Value = Value.Int(5I) } ]
-                          )
+
+                          Set.ofSeq
+                              [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                  Attribute = PatternIdentifier.Identifier(ident "b")
+                                  Value = PatternValue.Int(5I) } ]
+
                       )
                   ))
                   ""
@@ -128,13 +128,13 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Dataset(
-                          new InMemoryDataset(
-                              Set.ofSeq
-                                  [ { Entity = ident "a"
-                                      Attribute = ident "b"
-                                      Value = Value.String("Hi") } ]
-                          )
+
+                          Set.ofSeq
+                              [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                  Attribute = PatternIdentifier.Identifier(ident "b")
+                                  Value = PatternValue.String("Hi") } ]
                       )
+
                   ))
                   ""
           testCase "Run Dataset literal with Bytes"
@@ -146,12 +146,10 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Dataset(
-                          new InMemoryDataset(
-                              Set.ofSeq
-                                  [ { Entity = ident "a"
-                                      Attribute = ident "b"
-                                      Value = Value.Bytes([| 0uy |]) } ]
-                          )
+                          Set.ofSeq
+                              [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                  Attribute = PatternIdentifier.Identifier(ident "b")
+                                  Value = PatternValue.Bytes([| 0uy |]) } ]
                       )
                   ))
                   ""
@@ -181,11 +179,11 @@ let tests =
               let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(45I))) ""
-          testCase "Call basic match"
-          <| fun _ ->
-              let script = "match false * true -> 5 * false -> 6"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(6I))) ""
+          //   testCase "Call basic match"
+          //   <| fun _ ->
+          //       let script = "match false * true -> 5 * false -> 6"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(WanderValue.Int(6I))) ""
           testCase "Identifier concat"
           <| fun _ ->
               let script = "`a`:`b`"

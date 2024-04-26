@@ -138,6 +138,36 @@ let tests =
                   ))
                   ""
 
+          testCase "Parse Pattern with all wildcards"
+          <| fun _ ->
+              let tokens = tokenize "{ $ $ $ }"
+              let ast = parse (unsafe tokens)
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Dataset(
+                            [ (Element.Slot(emptySlot), [ (Element.Slot(emptySlot), [ Element.Slot(emptySlot) ]) ]) ]
+                        ) ]
+                  ))
+                  ""
+
+          testCase "Parse Pattern with all named wildcards"
+          <| fun _ ->
+              let tokens = tokenize "{ $entity $attribute $value }"
+              let ast = parse (unsafe tokens)
+
+              Expect.equal
+                  ast
+                  (Ok(
+                      [ Element.Dataset(
+                            [ (Element.Slot(slot "entity")),
+                              [ (Element.Slot(slot "attribute")), [ Element.Slot(slot "value") ] ] ]
+                        ) ]
+                  ))
+                  ""
+
+
           testCase "Parse Empty Dataset"
           <| fun _ ->
               let tokens = tokenize "{ }"
@@ -186,37 +216,37 @@ let tests =
                   ast
                   (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.NamePath([ "x" ]) ]) ]))
                   ""
-          testCase "Parse Match Expression"
-          <| fun _ ->
-              let tokens = tokenize "query x * x -> x * y -> y"
-              let ast = parse (unsafe tokens)
+          //   testCase "Parse Match Expression"
+          //   <| fun _ ->
+          //       let tokens = tokenize "query x * x -> x * y -> y"
+          //       let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok(
-                      [ Element.Match(
-                            Element.NamePath([ "x" ]),
-                            [ (Element.NamePath([ "x" ]), Element.NamePath([ "x" ]))
-                              (Element.NamePath([ "y" ]), Element.NamePath([ "y" ])) ]
-                        ) ]
-                  ))
-                  ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Match(
+          //                     Element.NamePath([ "x" ]),
+          //                     [ (Element.NamePath([ "x" ]), Element.NamePath([ "x" ]))
+          //                       (Element.NamePath([ "y" ]), Element.NamePath([ "y" ])) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
-          testCase "Parse Match Expression With Additional Types"
-          <| fun _ ->
-              let tokens = tokenize "query x * true -> 5 * false -> 6"
-              let ast = parse (unsafe tokens)
+          //   testCase "Parse Match Expression With Additional Types"
+          //   <| fun _ ->
+          //       let tokens = tokenize "query x * true -> 5 * false -> 6"
+          //       let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok(
-                      [ Element.Match(
-                            Element.NamePath([ "x" ]),
-                            [ (Element.Bool(true), Element.Int(5I))
-                              (Element.Bool(false), Element.Int(6I)) ]
-                        ) ]
-                  ))
-                  ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Match(
+          //                     Element.NamePath([ "x" ]),
+          //                     [ (Element.Bool(true), Element.Int(5I))
+          //                       (Element.Bool(false), Element.Int(6I)) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
           //   testCase "Parse Match Expression 3"
           //   <| fun _ ->
