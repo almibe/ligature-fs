@@ -9,7 +9,7 @@ open Ligature.Wander.Model
 open System
 open Ligature.Wander.InMemoryDataset
 
-let emptySet = WanderValue.Dataset(Set.empty)
+let emptySet = failwith "TODO" //WanderValue.Dataset(Set.empty)
 
 let datasetsFun (ligature: ILigature) =
     WanderValue.Function(

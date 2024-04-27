@@ -34,25 +34,33 @@ let identifier =
 
 let readIdentifier (Identifier identifier) = identifier
 
-type Slot = private Slot of string option
+type Slot private (name: string option) = 
+    member _.Named = name.IsSome
 
-let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
+    member _.Name = 
+        match name with
+        | Some name -> name
+        | None -> ""
 
-let slot =
-    let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+    static member New (name: string option) =
+        let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+        let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
 
-    fun (id: string) ->
-        if slotPattern.IsMatch(id) then
-            Ok(Slot(Some id))
-        else
-            invalidSlot id
+        match name with
+        | Some name ->
+            if slotPattern.IsMatch(name) then
+                Ok(Slot(Some name))
+            else
+                invalidSlot name
+        | None -> Ok(Slot(None))
 
-let readSlot (Slot slot) =
-    match slot with
-    | Some value -> value
-    | _ -> ""
+    static member Empty = Slot(None)
 
-let emptySlot = Slot None
+    interface System.IComparable with
+        member this.CompareTo(other) = 
+            failwith ""
+
+let slot name = Slot.New name
 
 [<RequireQualifiedAccess>]
 type Value =
@@ -76,9 +84,11 @@ type PatternStatement =
       Attribute: PatternIdentifier
       Value: PatternValue }
 
-type Pattern = Set<PatternStatement>
+type IPattern =
+    inherit System.IComparable
+    abstract member Statements: Set<PatternStatement>
 
-type Query = Map<Pattern, Pattern>
+type Query = Map<IPattern, IPattern>
 
 type Statement =
     { Entity: Identifier
@@ -87,9 +97,8 @@ type Statement =
 
 type IDataset =
     abstract member RunQuery: Query -> Result<IDataset, LigatureError>
-    abstract member Contains: Pattern -> Result<bool, LigatureError>
-    abstract member Count: Pattern -> Result<int64, LigatureError>
-
+    abstract member Contains: IPattern -> Result<bool, LigatureError>
+    abstract member Count: IPattern -> Result<int64, LigatureError>
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
 type ILigature =
@@ -98,8 +107,8 @@ type ILigature =
     abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
-    abstract member Contains: DatasetName -> Pattern -> Result<bool, LigatureError>
-    abstract member Count: DatasetName -> Pattern -> Result<int64, LigatureError>
+    abstract member Contains: DatasetName -> IPattern -> Result<bool, LigatureError>
+    abstract member Count: DatasetName -> IPattern -> Result<int64, LigatureError>
     abstract member RunQuery: DatasetName -> Query -> Result<IDataset, LigatureError>
     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>

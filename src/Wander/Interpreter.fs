@@ -8,6 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature
 open InMemoryDataset
+open Pattern
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue>) =
     match read (List.head namePath) bindings with
@@ -140,7 +141,7 @@ let rec evalExpression bindings expression =
     | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
-    | Expression.Dataset(values) -> handleDataset bindings values
+    | Expression.Dataset(values) -> handlePattern bindings values
     | Expression.Colon -> failwith "Should never reach"
     | Expression.Slot slot -> Ok(WanderValue.Slot(slot), bindings)
 
@@ -242,18 +243,19 @@ and handleDatasetRoot bindings (entity, entityDescriptions) =
 
     Ok statements
 
-and handleDataset bindings values =
+and handlePattern bindings values =
     let res = List.map (fun value -> handleDatasetRoot bindings value) values
     let mutable final: Set<PatternStatement> = Set.empty
 
-    List.iter
-        (fun ds ->
-            match ds with
-            | Ok(res: Pattern) -> final <- final + res
-            | _ -> failwith "TODO")
-        res
+    // List.iter
+    //     (fun ds ->
+    //         match ds with
+    //         | Ok(res: IPattern) -> final <- final + res.Statements
+    //         | _ -> failwith "TODO")
+    //     res
+    failwith "TODO"
 
-    Ok(WanderValue.Dataset(final), bindings)
+    Ok(WanderValue.Pattern(PatternSet(final)), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
@@ -319,8 +321,8 @@ and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
 
-    let args =
-        Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(Set.empty))
+    let args = failwith "TODO"
+        //Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(Set.empty))
 
     List.tryFind
         (fun arg ->
@@ -385,26 +387,26 @@ and handleQuery bindings inputExpression patterns =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
-    match List.length expressions with
-    | 0 -> Ok(WanderValue.Dataset(Set.empty), bindings)
-    | 1 -> evalExpression bindings (List.head expressions)
-    | _ ->
-        let mutable result = Ok(WanderValue.Dataset(Set.empty), bindings)
-        let mutable cont = true
-        let mutable bindings = bindings
-        let mutable expressions = expressions
+    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> = failwith "TODO"
+    // match List.length expressions with
+    // | 0 -> Ok(WanderValue.Dataset(Set.empty), bindings)
+    // | 1 -> evalExpression bindings (List.head expressions)
+    // | _ ->
+    //     let mutable result = Ok(WanderValue.Dataset(Set.empty), bindings)
+    //     let mutable cont = true
+    //     let mutable bindings = bindings
+    //     let mutable expressions = expressions
 
-        while cont && not (List.isEmpty expressions) do
-            result <- evalExpression bindings (List.head expressions)
-            expressions <- List.tail expressions
+    //     while cont && not (List.isEmpty expressions) do
+    //         result <- evalExpression bindings (List.head expressions)
+    //         expressions <- List.tail expressions
 
-            match result with
-            | Ok((res, b)) ->
-                bindings <- b
-                result <- Ok((res, b))
-            | Error(err) ->
-                result <- Error(err)
-                cont <- false
+    //         match result with
+    //         | Ok((res, b)) ->
+    //             bindings <- b
+    //             result <- Ok((res, b))
+    //         | Error(err) ->
+    //             result <- Error(err)
+    //             cont <- false
 
-        result
+    //     result

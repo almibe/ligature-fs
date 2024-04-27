@@ -42,7 +42,8 @@ type WanderValue =
     | Statement of Ligature.Statement
     | Function of Function
     | Array of WanderValue array
-    | Dataset of Pattern
+    | Dataset of IDataset
+    | Pattern of IPattern
     | Record of Map<string, WanderValue>
     | Bytes of byte array
 
@@ -64,14 +65,14 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
-    | WanderValue.Slot s -> $"${(readSlot s)}"
+    | WanderValue.Slot s -> $"${(s.Name)}"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Statement(statement) -> printStatementLiteral statement
     | WanderValue.Record(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Dataset(values) ->
-        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values)
+    | WanderValue.Pattern(values) ->
+        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.Statements)
         + "}"
 
 and printBytes bytes =
@@ -94,7 +95,7 @@ and printStatement statement =
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
     | PatternIdentifier.Identifier(identifier) -> $"`{readIdentifier identifier}`"
-    | PatternIdentifier.Slot(slot) -> $"${(readSlot slot)}"
+    | PatternIdentifier.Slot(slot) -> $"${(slot.Name)}"
 
 and printPatternValue (value: PatternValue) =
     match value with
@@ -104,7 +105,7 @@ and printPatternValue (value: PatternValue) =
         | Value.Int(value) -> value.ToString()
         | Value.String(value) -> $"\"{value}\"" //TODO escape properly
         | Value.Bytes(bytes) -> printBytes bytes
-    | PatternValue.Slot(slot) -> $"${(readSlot slot)}"
+    | PatternValue.Slot(slot) -> $"${(slot.Name)}"
 
 and printPattern (pattern: PatternStatement) =
     $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printPatternValue pattern.Value)}"

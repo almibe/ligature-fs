@@ -59,10 +59,13 @@ namespace RadLine.Examples
             }
         }
 
+        private static LigatureInMemory.Ligature.InMemory.LigatureInMemory instance =
+            new LigatureInMemory.Ligature.InMemory.LigatureInMemory();
+
         private static void Evaluate(string script)
         {
-            var instance = new LigatureInMemory.Ligature.InMemory.LigatureInMemory();
-            var res = _.printResult(_.run(script, Wander.Ligature.Wander.Lib.Preludes.instancePrelude(instance)));
+            var res = _.printResult(_.run(script, 
+                Wander.Ligature.Wander.Lib.Preludes.instancePrelude(instance)));
             AnsiConsole.WriteLine(res);
         }
 
