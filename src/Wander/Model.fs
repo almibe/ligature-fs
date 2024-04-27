@@ -24,13 +24,14 @@ type Expression =
     | Application of Expression list
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
-    | Dataset of DatasetRoot list
+    | Dataset of DatasetPatternRoot list
+    | Pattern of DatasetPatternRoot list
     | Query of Expression * list<Expression * Expression>
     | Lambda of list<string> * Expression
 
 and EntityDescription = Expression * Expression list
 
-and DatasetRoot = Expression * EntityDescription list
+and DatasetPatternRoot = Expression * EntityDescription list
 
 [<RequireQualifiedAccess>]
 type WanderValue =
@@ -74,6 +75,9 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Pattern(values) ->
         (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.Statements)
         + "}"
+    | WanderValue.Dataset(dataset) -> failwith "TODO"
+        // (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" dataset.AllStatements ())
+        // + "}"
 
 and printBytes bytes =
     bytes

@@ -141,7 +141,7 @@ let rec evalExpression bindings expression =
     | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
-    | Expression.Dataset(values) -> handlePattern bindings values
+    | Expression.Pattern(values) -> handlePattern bindings values
     | Expression.Colon -> failwith "Should never reach"
     | Expression.Slot slot -> Ok(WanderValue.Slot(slot), bindings)
 
@@ -186,7 +186,7 @@ and handleEntityDescription bindings (attribute, values) =
 
     (attribute, values)
 
-and handleDatasetRoot bindings (entity, entityDescriptions) =
+and handleDatasetRootPattern bindings (entity, entityDescriptions) =
     let mutable statements: Set<PatternStatement> = Set.empty
 
     let entity =
@@ -244,16 +244,15 @@ and handleDatasetRoot bindings (entity, entityDescriptions) =
     Ok statements
 
 and handlePattern bindings values =
-    let res = List.map (fun value -> handleDatasetRoot bindings value) values
+    let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
     let mutable final: Set<PatternStatement> = Set.empty
 
-    // List.iter
-    //     (fun ds ->
-    //         match ds with
-    //         | Ok(res: IPattern) -> final <- final + res.Statements
-    //         | _ -> failwith "TODO")
-    //     res
-    failwith "TODO"
+    List.iter
+        (fun ds ->
+            match ds with
+            | Ok(res: Set<PatternStatement>) -> final <- final + res
+            | _ -> failwith "TODO")
+        res
 
     Ok(WanderValue.Pattern(PatternSet(final)), bindings)
 
@@ -347,10 +346,10 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and checkPattern bindings (input: IDataset) (pattern: DatasetRoot list) : bool =
+and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) : bool =
     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
     //this only works for matching with literals and no destructuring
-    match evalExpression bindings (Expression.Dataset(pattern)) with
+    match evalExpression bindings (Expression.Pattern(pattern)) with
     | Ok(WanderValue.Dataset(pattern), _) -> failwith "TODO"
     // match (pattern.AllStatements (), input.AllStatements ()) with
     // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
@@ -367,7 +366,7 @@ and handleQuery bindings inputExpression patterns =
             List.iter
                 (fun (pattern, body) ->
                     match pattern with
-                    | Expression.Dataset(pattern) -> failwith "TODO"
+                    | Expression.Pattern(pattern) -> failwith "TODO"
                     // if checkPattern bindings input pattern then
                     //     match evalExpression bindings body with
                     //     | Ok(WanderValue.Dataset(dataset), _) ->
@@ -387,26 +386,26 @@ and handleQuery bindings inputExpression patterns =
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)
     (expressions: Expression list)
-    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> = failwith "TODO"
-    // match List.length expressions with
-    // | 0 -> Ok(WanderValue.Dataset(Set.empty), bindings)
-    // | 1 -> evalExpression bindings (List.head expressions)
-    // | _ ->
-    //     let mutable result = Ok(WanderValue.Dataset(Set.empty), bindings)
-    //     let mutable cont = true
-    //     let mutable bindings = bindings
-    //     let mutable expressions = expressions
+    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
+    match List.length expressions with
+    | 0 -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
+    | 1 -> evalExpression bindings (List.head expressions)
+    | _ ->
+        let mutable result = Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
+        let mutable cont = true
+        let mutable bindings = bindings
+        let mutable expressions = expressions
 
-    //     while cont && not (List.isEmpty expressions) do
-    //         result <- evalExpression bindings (List.head expressions)
-    //         expressions <- List.tail expressions
+        while cont && not (List.isEmpty expressions) do
+            result <- evalExpression bindings (List.head expressions)
+            expressions <- List.tail expressions
 
-    //         match result with
-    //         | Ok((res, b)) ->
-    //             bindings <- b
-    //             result <- Ok((res, b))
-    //         | Error(err) ->
-    //             result <- Error(err)
-    //             cont <- false
+            match result with
+            | Ok((res, b)) ->
+                bindings <- b
+                result <- Ok((res, b))
+            | Error(err) ->
+                result <- Error(err)
+                cont <- false
 
-    //     result
+        result

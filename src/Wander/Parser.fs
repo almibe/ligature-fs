@@ -27,13 +27,14 @@ type Element =
     | Match of Element * (Element * Element) list
     | Lambda of string list * Element
     | Record of (string * Element) list
-    | Dataset of DatasetRoot list
+    | Pattern of DatasetPatternRoot list
+    | Dataset of DatasetPatternRoot list
     | Pipe
     | Colon
 
 and EntityDescription = Element * Element list
 
-and DatasetRoot = Element * EntityDescription list
+and DatasetPatternRoot = Element * EntityDescription list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -155,10 +156,10 @@ let singleEntityDescriptNib gaze =
     result {
         let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
-        return DatasetRoot(entity, [ entityDescriptions ])
+        return DatasetPatternRoot(entity, [ entityDescriptions ])
     }
 
-let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError> =
+let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetPatternRoot, Gaze.GazeError> =
     let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
 
     match singleEntityDescription with
@@ -169,7 +170,7 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetRoot, Gaze.GazeError
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-            return DatasetRoot(entity, entityDescriptions)
+            return DatasetPatternRoot(entity, entityDescriptions)
         }
 
 let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -177,7 +178,7 @@ let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! datasetInternals = (optional (repeatSep datasetRootNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Dataset(datasetInternals)
+        return Element.Pattern(datasetInternals)
     }
 
 let declarationsNib (gaze: Gaze.Gaze<Token>) =
@@ -337,7 +338,7 @@ let expressEntityDescription entityDescription =
     let (attribute, values) = entityDescription
     ((expressElement attribute), (List.map (fun value -> expressElement value) values))
 
-let expressDatasetRoot (datasetRoot: DatasetRoot) =
+let expressDatasetRoot (datasetRoot: DatasetPatternRoot) =
     let (entity, entityDescriptions) = datasetRoot
     let entity = expressElement entity
 
@@ -346,9 +347,9 @@ let expressDatasetRoot (datasetRoot: DatasetRoot) =
 
     (entity, entityDescriptions)
 
-let expressDataset (values: DatasetRoot list) =
+let expressDataset (values: DatasetPatternRoot list) =
     let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values
-    Expression.Dataset res
+    Expression.Pattern res
 
 let expressGrouping values =
     let res = List.map (fun value -> expressElement value) values
@@ -411,6 +412,6 @@ let rec expressElement (element: Element) =
     | Element.Match(expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
-    | Element.Dataset value -> expressDataset value
+    | Element.Pattern value -> expressDataset value
     | Element.Colon -> Expression.Colon
     | Element.Slot slot -> Expression.Slot slot
