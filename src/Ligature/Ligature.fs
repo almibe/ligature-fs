@@ -34,15 +34,15 @@ let identifier =
 
 let readIdentifier (Identifier identifier) = identifier
 
-type Slot private (name: string option) = 
+type Slot private (name: string option) =
     member _.Named = name.IsSome
 
-    member _.Name = 
+    member _.Name =
         match name with
         | Some name -> name
         | None -> ""
 
-    static member New (name: string option) =
+    static member New(name: string option) =
         let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
         let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
 
@@ -57,8 +57,7 @@ type Slot private (name: string option) =
     static member Empty = Slot(None)
 
     interface System.IComparable with
-        member this.CompareTo(other) = 
-            failwith ""
+        member this.CompareTo(other) = failwith ""
 
 let slot name = Slot.New name
 
@@ -98,7 +97,7 @@ type Statement =
       Value: Value }
 
 type IDataset =
-//    abstract member RunQuery: Query -> Result<IDataset, LigatureError>
+    //    abstract member RunQuery: Query -> Result<IDataset, LigatureError>
     abstract member Contains: IPattern -> Result<bool, LigatureError>
     abstract member Count: IPattern -> Result<int64, LigatureError>
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
@@ -111,7 +110,7 @@ type ILigature =
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
     abstract member Contains: DatasetName -> IPattern -> Result<bool, LigatureError>
     abstract member Count: DatasetName -> IPattern -> Result<int64, LigatureError>
-//    abstract member RunQuery: DatasetName -> Query -> Result<IDataset, LigatureError>
+    //    abstract member RunQuery: DatasetName -> Query -> Result<IDataset, LigatureError>
     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>

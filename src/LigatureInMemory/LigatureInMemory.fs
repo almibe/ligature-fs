@@ -60,7 +60,8 @@ type LigatureInMemory() =
             : Result<IDataset, LigatureError> =
             failwith "TODO"
 
-        member this.Count (datasetName: DatasetName) (pattern: IPattern) : Result<int64, LigatureError> = failwith "TODO"
+        member this.Count (datasetName: DatasetName) (pattern: IPattern) : Result<int64, LigatureError> =
+            failwith "TODO"
 
         member this.Contains (arg1: DatasetName) (arg2: IPattern) : Result<bool, LigatureError> =
             failwith "Not Implemented"

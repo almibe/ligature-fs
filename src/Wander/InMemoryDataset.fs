@@ -42,15 +42,15 @@ type InMemoryDataset =
 
     interface IDataset with
         // member this.RunQuery query =
-            // let mutable result = Set.empty
-            // Set.iter (fun pattern ->
-            //     if isLiteralPattern pattern then
-            //         let statement = literalPatternToStatement pattern
-            //         result <- Set.add statement result
-            //     else
-            //         failwith "TODO"
-            //     ) query
-            // failwith "TODO"
+        // let mutable result = Set.empty
+        // Set.iter (fun pattern ->
+        //     if isLiteralPattern pattern then
+        //         let statement = literalPatternToStatement pattern
+        //         result <- Set.add statement result
+        //     else
+        //         failwith "TODO"
+        //     ) query
+        // failwith "TODO"
         // let results =
         //     match entity with
         //     | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements
