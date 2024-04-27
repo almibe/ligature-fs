@@ -7,6 +7,7 @@ module Ligature.Wander.Lib.Pattern
 open Ligature.Wander.Model
 open Ligature
 open Ligature.Wander.InMemoryDataset
+open Ligature.Wander.Pattern
 
 let patternStatementToStatement (pattern: PatternStatement) : Statement option =
     match pattern with
@@ -19,47 +20,48 @@ let applyFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern); WanderValue.Record(data) ] -> failwith "TODO"
-                    // Ok(
-                    //     WanderValue.Dataset(
-                    //         Set.map
-                    //             (fun (statement: PatternStatement) ->
-                    //                 match statement with
-                    //                 | { Entity = PatternIdentifier.Identifier(_)
-                    //                     Attribute = PatternIdentifier.Identifier(_)
-                    //                     Value = PatternValue.Value(_) } -> 
-                    //                         statement
-                    //                 | _ -> 
-                    //                     let entity =
-                    //                         match statement.Entity with
-                    //                         | PatternIdentifier.Identifier(identifier) -> PatternIdentifier.Identifier(identifier)
-                    //                         | PatternIdentifier.Slot(slot) ->
-                    //                             let name = readSlot slot
-                    //                             if name <> "" then
-                    //                                 match data.TryFind name with
-                    //                                 | Some value -> 
-                    //                                     match value with
-                    //                                     | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
-                    //                                     | _ -> failwith "Error"
-                    //                                 | None -> failwith "Error"
-                    //                             else
-                    //                                 failwith "Error"
+                | [ WanderValue.Pattern(pattern); WanderValue.Record(data) ] ->
+                    Ok(
+                        WanderValue.Pattern(
+                            PatternSet(
+                            Set.map
+                                (fun (statement: PatternStatement) ->
+                                    match statement with
+                                    | { Entity = PatternIdentifier.Identifier(_)
+                                        Attribute = PatternIdentifier.Identifier(_)
+                                        Value = PatternValue.Value(_) } -> 
+                                            statement
+                                    | _ -> 
+                                        let entity =
+                                            match statement.Entity with
+                                            | PatternIdentifier.Identifier(identifier) -> PatternIdentifier.Identifier(identifier)
+                                            | PatternIdentifier.Slot(slot) ->
+                                                let name = slot.Name
+                                                if name <> "" then
+                                                    match data.TryFind name with
+                                                    | Some value -> 
+                                                        match value with
+                                                        | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
+                                                        | _ -> failwith "Error"
+                                                    | None -> failwith "Error"
+                                                else
+                                                    failwith "Error"
 
-                    //                     let attribute =
-                    //                         match statement.Attribute with
-                    //                         | PatternIdentifier.Identifier(identifier) -> PatternIdentifier.Identifier(identifier)
-                    //                         | PatternIdentifier.Slot(slot) ->
-                    //                             failwith "TODO"
+                                        let attribute =
+                                            match statement.Attribute with
+                                            | PatternIdentifier.Identifier(identifier) -> PatternIdentifier.Identifier(identifier)
+                                            | PatternIdentifier.Slot(slot) ->
+                                                failwith "TODO"
 
-                    //                     let value =
-                    //                         match statement.Value with
-                    //                         | PatternValue.Value(v) -> PatternValue.Value(v)
-                    //                         | PatternValue.Slot(slot) ->
-                    //                             failwith "TODO"
-                    //                     { Entity = entity; Attribute = attribute; Value = value })
-                    //             pattern.AllStatements
-                    //     )
-                    // )
+                                        let value =
+                                            match statement.Value with
+                                            | PatternValue.Value(v) -> PatternValue.Value(v)
+                                            | PatternValue.Slot(slot) ->
+                                                failwith "TODO"
+                                        { Entity = entity; Attribute = attribute; Value = value })
+                                pattern.Statements)
+                        )
+                    )
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
         )
     )
@@ -74,26 +76,26 @@ let countFunction<'t> =
         )
     )
 
-// let isDatasetFunction<'t> =
-//     WanderValue.Function(
-//         Function.HostFunction(
-//             new HostFunction(fun args _ ->
-//                 match args with
-//                 | [ WanderValue.Pattern(statements) ] ->
-//                     let result =
-//                         Set.forall
-//                             (fun (statement: PatternStatement) ->
-//                                 match (statement.Entity, statement.Attribute, statement.Value) with
-//                                 | (PatternIdentifier.Slot(_), _, _) -> false
-//                                 | (_, PatternIdentifier.Slot(_), _) -> false
-//                                 | (_, _, PatternValue.Slot(_)) -> false
-//                                 | _ -> true)
-//                             statements.AllStatements
+let isDatasetFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.Pattern(statements) ] ->
+                    let result =
+                        Set.forall
+                            (fun (statement: PatternStatement) ->
+                                match (statement.Entity, statement.Attribute, statement.Value) with
+                                | (PatternIdentifier.Slot(_), _, _) -> false
+                                | (_, PatternIdentifier.Slot(_), _) -> false
+                                | (_, _, PatternValue.Slot(_)) -> false
+                                | _ -> true)
+                            statements.Statements
 
-//                     Ok(WanderValue.Bool(result))
-//                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
-//         )
-//     )
+                    Ok(WanderValue.Bool(result))
+                | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
+        )
+    )
 
 let extractsFunction<'t> =
     WanderValue.Function(
@@ -115,5 +117,4 @@ let patternLib<'t> =
             [ ("apply", applyFunction)
               ("count", countFunction)
               ("extracts", extractsFunction)
-//              ("isDataset", isDatasetFunction) ]
-    ])
+              ("isDataset", isDatasetFunction) ])

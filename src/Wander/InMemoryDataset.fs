@@ -41,7 +41,7 @@ type InMemoryDataset =
     override this.GetHashCode() = this.statements.GetHashCode()
 
     interface IDataset with
-        member this.RunQuery query =
+        // member this.RunQuery query =
             // let mutable result = Set.empty
             // Set.iter (fun pattern ->
             //     if isLiteralPattern pattern then
@@ -50,7 +50,7 @@ type InMemoryDataset =
             //     else
             //         failwith "TODO"
             //     ) query
-            failwith "TODO"
+            // failwith "TODO"
         // let results =
         //     match entity with
         //     | Some(entity) -> Set.filter (fun statement -> statement.Entity = entity) this.statements

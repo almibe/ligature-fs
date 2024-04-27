@@ -30,11 +30,6 @@ type LigatureInMemory() =
                 datasets.Value <- Map.remove dataset datasets.Value
                 Ok())
 
-        member _.RunQuery dataset query =
-            let dataset: IDataset = new InMemoryDataset(Map.find dataset datasets.Value)
-            failwith "TODO"
-        //query dataset
-
         member _.AllStatements dataset =
             match Map.tryFind dataset datasets.Value with
             | Some(result) -> Ok(Set.toList result)

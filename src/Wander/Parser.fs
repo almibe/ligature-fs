@@ -28,7 +28,6 @@ type Element =
     | Lambda of string list * Element
     | Record of (string * Element) list
     | Pattern of DatasetPatternRoot list
-    | Dataset of DatasetPatternRoot list
     | Pipe
     | Colon
 

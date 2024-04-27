@@ -350,7 +350,7 @@ and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) :
     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
     //this only works for matching with literals and no destructuring
     match evalExpression bindings (Expression.Pattern(pattern)) with
-    | Ok(WanderValue.Dataset(pattern), _) -> failwith "TODO"
+    | Ok(WanderValue.Pattern(pattern), _) -> failwith "TODO"
     // match (pattern.AllStatements (), input.AllStatements ()) with
     // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
     // | _ -> failwith "Error"
@@ -362,7 +362,7 @@ and handleQuery bindings inputExpression patterns =
     match evalExpression bindings inputExpression with
     | Ok(input, _) ->
         match input with
-        | WanderValue.Dataset(input) ->
+        | WanderValue.Pattern(input) ->
             List.iter
                 (fun (pattern, body) ->
                     match pattern with
@@ -388,10 +388,10 @@ and evalExpressions
     (expressions: Expression list)
     : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
+    | 0 -> Ok(WanderValue.Pattern(emptyPattern), bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok(WanderValue.Dataset(emptyInMemoryDataset), bindings)
+        let mutable result = Ok(WanderValue.Pattern(emptyPattern), bindings)
         let mutable cont = true
         let mutable bindings = bindings
         let mutable expressions = expressions

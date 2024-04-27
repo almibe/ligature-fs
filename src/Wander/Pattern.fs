@@ -10,3 +10,9 @@ type PatternSet(statements: Set<PatternStatement>) =
     interface IPattern with
         member _.Statements = statements
         member _.CompareTo(other) = failwith "TODO"
+        member this.Apply: Map<Identifier,PatternValue> = 
+            failwith "Not Implemented"
+        member this.Extract(arg1: IPattern): Map<Identifier,PatternValue> = 
+            failwith "Not Implemented"
+
+let emptyPattern = PatternSet(Set.empty)

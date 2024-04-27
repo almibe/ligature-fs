@@ -153,19 +153,19 @@ let matchFun (instance: ILigature) =
                     let entity =
                         match entity with
                         | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Dataset(_) -> Ok None
+                        | WanderValue.Pattern(_) -> Ok None
                         | _ -> error "Invalid Entity passed to match." None
 
                     let attribute =
                         match attribute with
                         | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Dataset(_) -> Ok None
+                        | WanderValue.Pattern(_) -> Ok None
                         | _ -> error "Invalid Attribute passed to match." None
 
                     let value =
                         match value with
                         | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
-                        | WanderValue.Dataset(_) -> Ok None
+                        | WanderValue.Pattern(_) -> Ok None
                         | WanderValue.Int(value) -> Ok(Some(Value.Int value))
                         | WanderValue.String(value) -> Ok(Some(Value.String value))
                         | _ -> error "Invalid Value passed to match." None
@@ -176,7 +176,7 @@ let matchFun (instance: ILigature) =
                         // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
 
                         match res with
-                        | Ok res -> Ok(WanderValue.Dataset res)
+                        | Ok res -> Ok(WanderValue.Pattern res)
                         | Error err -> Error err
                     | _ -> error "Could not call match." None //TODO should return actual error
                 | _ -> error "Improper arguments passed to match." None)
@@ -204,7 +204,7 @@ let addStatementsFun (instance: ILigature) =
                     match instance.AddStatements dataset statements with
                     | Ok _ -> Ok(emptySet)
                     | Error err -> Error err
-                | [ (WanderValue.String(name)); WanderValue.Dataset(statements) ] ->
+                | [ (WanderValue.String(name)); WanderValue.Pattern(statements) ] ->
                     let dataset = DatasetName name
                     failwith "TODO"
                 // match statements.AllStatements() with
@@ -238,7 +238,7 @@ let removeStatementsFun (instance: ILigature) =
                     match instance.RemoveStatements dataset statements with
                     | Ok _ -> Ok(emptySet)
                     | Error err -> Error err
-                | [ WanderValue.String(name); WanderValue.Dataset(statements) ] ->
+                | [ WanderValue.String(name); WanderValue.Pattern(statements) ] ->
                     let dataset = DatasetName name
 
                     // match statements.AllStatements() with
