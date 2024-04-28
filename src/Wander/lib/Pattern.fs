@@ -23,48 +23,22 @@ let applyFunction<'t> =
                 | [ WanderValue.Pattern(pattern); WanderValue.Record(data) ] ->
                     Ok(
                         WanderValue.Pattern(
-                            PatternSet(
-                                Set.map
-                                    (fun (statement: PatternStatement) ->
-                                        match statement with
-                                        | { Entity = PatternIdentifier.Identifier(_)
-                                            Attribute = PatternIdentifier.Identifier(_)
-                                            Value = PatternValue.Value(_) } -> statement
-                                        | _ ->
-                                            let entity =
-                                                match statement.Entity with
-                                                | PatternIdentifier.Identifier(identifier) ->
-                                                    PatternIdentifier.Identifier(identifier)
-                                                | PatternIdentifier.Slot(slot) ->
-                                                    let name = slot.Name
-
-                                                    if name <> "" then
-                                                        match data.TryFind name with
-                                                        | Some value ->
-                                                            match value with
-                                                            | WanderValue.Identifier identifier ->
-                                                                PatternIdentifier.Identifier identifier
-                                                            | _ -> failwith "Error"
-                                                        | None -> failwith "Error"
-                                                    else
-                                                        failwith "Error"
-
-                                            let attribute =
-                                                match statement.Attribute with
-                                                | PatternIdentifier.Identifier(identifier) ->
-                                                    PatternIdentifier.Identifier(identifier)
-                                                | PatternIdentifier.Slot(slot) -> failwith "TODO"
-
-                                            let value =
-                                                match statement.Value with
-                                                | PatternValue.Value(v) -> PatternValue.Value(v)
-                                                | PatternValue.Slot(slot) -> failwith "TODO"
-
-                                            { Entity = entity
-                                              Attribute = attribute
-                                              Value = value })
-                                    pattern.Statements
-                            )
+                            data
+                            |> Map.toSeq
+                            |> Seq.map (fun (k,v) ->
+                                match slot (Some k) with
+                                | Ok slot -> 
+                                    let v =
+                                        match v with
+                                        | WanderValue.Identifier i -> Value.Identifier i
+                                        | WanderValue.Int i -> Value.Int i
+                                        | WanderValue.String s -> Value.String s
+                                        | WanderValue.Bytes b -> Value.Bytes b
+                                        | _ -> failwith "Error"
+                                    (slot, PatternValue.Value v)
+                                | _ -> failwith "Error")
+                            |> Map.ofSeq
+                            |> pattern.Apply
                         )
                     )
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
