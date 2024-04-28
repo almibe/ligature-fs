@@ -222,7 +222,7 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
             | Ok(Token.Bytes b) -> List.append elements [ (Element.Bytes b) ]
             | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
-            | Ok(Token.Slot s) -> List.append elements [ ( Element.Slot s )]
+            | Ok(Token.Slot s) -> List.append elements [ (Element.Slot s) ]
             | _ -> failwith "TODO"
 
         match Gaze.peek gaze with

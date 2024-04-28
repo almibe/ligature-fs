@@ -138,7 +138,7 @@ let rec evalExpression bindings expression =
         | Some(err) -> Error(err)
     | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(values) -> handleRecord bindings values
-    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
+    //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
     | Expression.Pattern(values) -> handlePattern bindings values
@@ -228,7 +228,7 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                         Set.add
                             { Entity = entity
                               Attribute = attribute
-                              Value =  value }
+                              Value = value }
                             statements)
                 values)
         entityDescriptions
@@ -312,8 +312,8 @@ and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
 
-    let args = failwith "TODO"
-    //Array.init (List.length parameters) (fun _ -> WanderValue.Dataset(Set.empty))
+    let args =
+        Array.init (List.length parameters) (fun _ -> WanderValue.Pattern(PatternSet(Set.empty)))
 
     List.tryFind
         (fun arg ->
@@ -348,32 +348,32 @@ and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) :
     // | _ -> failwith "Error"
     | _ -> failwith "Error"
 
-and handleQuery bindings inputExpression patterns =
-    let mutable results = emptyInMemoryDataset
+// and handleQuery bindings inputExpression patterns =
+//     let mutable results = emptyInMemoryDataset
 
-    match evalExpression bindings inputExpression with
-    | Ok(input, _) ->
-        match input with
-        | WanderValue.Pattern(input) ->
-            List.iter
-                (fun (pattern, body) ->
-                    match pattern with
-                    | Expression.Pattern(pattern) -> failwith "TODO"
-                    // if checkPattern bindings input pattern then
-                    //     match evalExpression bindings body with
-                    //     | Ok(WanderValue.Dataset(dataset), _) ->
-                    //         failwith "TODO"
-                    //         // match dataset.AllStatements () with
-                    //         // | Ok(statements) -> results <- InMemoryDataset (results.statements + (Set.ofList statements))
-                    //         // | _ -> failwith "Error reading Statements"
-                    //     | _ -> failwith "Invalid body."
-                    | _ -> failwith "Invalid pattern.")
-                patterns
+//     match evalExpression bindings inputExpression with
+//     | Ok(input, _) ->
+//         match input with
+//         | WanderValue.Pattern(input) ->
+//             List.iter
+//                 (fun (pattern, body) ->
+//                     match pattern with
+//                     | Expression.Pattern(pattern) ->
+//                         if checkPattern bindings input pattern then
+//                             match evalExpression bindings body with
+//                             | Ok(WanderValue.Dataset(dataset), _) ->
+//                                 failwith "TODO"
+//                                 // match dataset.AllStatements () with
+//                                 // | Ok(statements) -> results <- InMemoryDataset (results.statements + (Set.ofList statements))
+//                                 // | _ -> failwith "Error reading Statements"
+//                             | _ -> failwith "Invalid body."
+//                     | _ -> failwith "Invalid pattern.")
+//                 patterns
 
-            failwith "TODO"
-        //Ok(WanderValue.Dataset(results), bindings)
-        | _ -> error "Can only query Datasets." None
-    | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
+//             failwith "TODO"
+//         //Ok(WanderValue.Dataset(results), bindings)
+//         | _ -> error "Can only query Datasets." None
+//     | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
 and evalExpressions
     (bindings: Bindings.Bindings<_, _>)

@@ -7,6 +7,11 @@ module Ligature.Wander.Pattern
 open Ligature
 
 type PatternSet(statements: Set<PatternStatement>) =
+    override _.Equals(other) =
+        match other with
+        | :? IPattern as other -> statements.Equals(other.Statements)
+        | _ -> failwith "TODO"
+
     interface IPattern with
         member _.Statements = statements
         member _.CompareTo(other) = failwith "Not Implemented"
