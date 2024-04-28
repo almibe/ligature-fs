@@ -57,7 +57,7 @@ type Slot private (name: string option) =
     static member Empty = Slot(None)
 
     interface System.IComparable with
-        member this.CompareTo(other) = 
+        member this.CompareTo(other) =
             let other = other :?> Slot
             this.Name.CompareTo(other.Name)
 
@@ -89,7 +89,7 @@ type IPattern =
     inherit System.IComparable
     abstract member Statements: Set<PatternStatement>
     abstract member Apply: Map<Slot, PatternValue> -> IPattern
-    abstract member Extract: IPattern -> Map<Slot, PatternValue>
+    abstract member Extract: IPattern -> Map<Slot, PatternValue> array
 
 //type Query = Map<IPattern, IPattern>
 

@@ -20,7 +20,7 @@ let ident id =
     | Error(_) -> failwith "todo"
 
 let slot id =
-    match slot id with
+    match slot (Some id) with
     | Ok(v) -> v
     | Error(_) -> failwith "todo"
 
@@ -98,7 +98,7 @@ let tests =
               Expect.equal
                   ast
                   (Ok(
-                      [ Element.Dataset(
+                      [ Element.Pattern(
                             [ (Element.Identifier(ident "a"),
                                [ (Element.Identifier(ident "b"), [ Element.Identifier(ident "c") ]) ]) ]
                         ) ]
@@ -113,7 +113,7 @@ let tests =
               Expect.equal
                   ast
                   (Ok(
-                      [ Element.Dataset(
+                      [ Element.Pattern(
                             [ (Element.Identifier(ident "a"),
                                [ (Element.Identifier(ident "b"), [ Element.Identifier(ident "c") ]) ])
                               (Element.Identifier(ident "d"),
@@ -130,7 +130,7 @@ let tests =
               Expect.equal
                   ast
                   (Ok(
-                      [ Element.Dataset(
+                      [ Element.Pattern(
                             [ (Element.Identifier(ident "a"),
                                [ (Element.Identifier(ident "b"),
                                   [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ]) ]) ]
@@ -146,8 +146,8 @@ let tests =
               Expect.equal
                   ast
                   (Ok(
-                      [ Element.Dataset(
-                            [ (Element.Slot(emptySlot), [ (Element.Slot(emptySlot), [ Element.Slot(emptySlot) ]) ]) ]
+                      [ Element.Pattern(
+                            [ (Element.Slot(Slot.Empty), [ (Element.Slot(Slot.Empty), [ Element.Slot(Slot.Empty) ]) ]) ]
                         ) ]
                   ))
                   ""
@@ -160,7 +160,7 @@ let tests =
               Expect.equal
                   ast
                   (Ok(
-                      [ Element.Dataset(
+                      [ Element.Pattern(
                             [ (Element.Slot(slot "entity")),
                               [ (Element.Slot(slot "attribute")), [ Element.Slot(slot "value") ] ] ]
                         ) ]
@@ -172,7 +172,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Dataset([]) ])) ""
+              Expect.equal ast (Ok([ Element.Pattern([]) ])) ""
 
           testCase "Parse Record with 1 value"
           <| fun _ ->

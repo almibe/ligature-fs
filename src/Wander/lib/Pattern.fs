@@ -25,9 +25,9 @@ let applyFunction<'t> =
                         WanderValue.Pattern(
                             data
                             |> Map.toSeq
-                            |> Seq.map (fun (k,v) ->
+                            |> Seq.map (fun (k, v) ->
                                 match slot (Some k) with
-                                | Ok slot -> 
+                                | Ok slot ->
                                     let v =
                                         match v with
                                         | WanderValue.Identifier i -> Value.Identifier i
@@ -35,12 +35,39 @@ let applyFunction<'t> =
                                         | WanderValue.String s -> Value.String s
                                         | WanderValue.Bytes b -> Value.Bytes b
                                         | _ -> failwith "Error"
+
                                     (slot, PatternValue.Value v)
                                 | _ -> failwith "Error")
                             |> Map.ofSeq
                             |> pattern.Apply
                         )
                     )
+                | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
+        )
+    )
+
+let extractFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.Pattern(pattern); WanderValue.Pattern(data) ] ->
+                    pattern.Extract data
+                    |> Array.map (fun res ->
+                        res
+                        |> Map.toSeq
+                        |> Seq.map (fun (k, v) ->
+                            (k.Name,
+                             match v with
+                             | PatternValue.Slot s -> failwith "TODO"
+                             | PatternValue.Value(Value.Int value) -> WanderValue.Int value
+                             | PatternValue.Value(Value.Bytes value) -> WanderValue.Bytes value
+                             | PatternValue.Value(Value.Identifier value) -> WanderValue.Identifier value
+                             | PatternValue.Value(Value.String value) -> WanderValue.String value))
+                        |> Map.ofSeq
+                        |> WanderValue.Record)
+                    |> WanderValue.Array
+                    |> Ok
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
         )
     )
@@ -95,6 +122,7 @@ let patternLib<'t> =
         Map
             [ ("apply", applyFunction)
               ("count", countFunction)
+              ("extract", extractFunction)
               ("extracts", extractsFunction)
               ("isDataset", isDatasetFunction) ]
     )

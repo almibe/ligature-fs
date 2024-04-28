@@ -7,6 +7,7 @@ module Ligature.Wander.Main.Test
 open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
+open Ligature.Wander.Pattern
 open Ligature
 open Ligature.Wander.InMemoryDataset
 
@@ -33,7 +34,7 @@ let vident id =
 
 let slot id =
     WanderValue.Slot(
-        match Ligature.slot id with
+        match Ligature.slot (Some id) with
         | Ok v -> v
         | Error _ -> todo
     )
@@ -49,7 +50,7 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(Set.empty))) ""
+              Expect.equal result (Ok(WanderValue.Pattern(PatternSet(Set.empty)))) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
@@ -82,7 +83,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Dataset(Set.empty))) ""
+              Expect.equal result (Ok(WanderValue.Pattern(PatternSet(Set.empty)))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -91,13 +92,15 @@ let tests =
               Expect.equal
                   result
                   (Ok(
-                      WanderValue.Dataset(
+                      WanderValue.Pattern(
+                          PatternSet(
 
-                          Set.ofSeq
-                              [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                  Attribute = PatternIdentifier.Identifier(ident "b")
-                                  Value = PatternValue.Identifier(ident "c") } ]
+                              Set.ofSeq
+                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                      Attribute = PatternIdentifier.Identifier(ident "b")
+                                      Value = PatternValue.Value(Value.Identifier(ident "c")) } ]
 
+                          )
                       )
                   ))
                   ""
@@ -109,13 +112,15 @@ let tests =
               Expect.equal
                   result
                   (Ok(
-                      WanderValue.Dataset(
+                      WanderValue.Pattern(
+                          PatternSet(
 
-                          Set.ofSeq
-                              [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                  Attribute = PatternIdentifier.Identifier(ident "b")
-                                  Value = PatternValue.Int(5I) } ]
+                              Set.ofSeq
+                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                      Attribute = PatternIdentifier.Identifier(ident "b")
+                                      Value = PatternValue.Value(Value.Int(5I)) } ]
 
+                          )
                       )
                   ))
                   ""
@@ -127,12 +132,13 @@ let tests =
               Expect.equal
                   result
                   (Ok(
-                      WanderValue.Dataset(
-
-                          Set.ofSeq
-                              [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                  Attribute = PatternIdentifier.Identifier(ident "b")
-                                  Value = PatternValue.String("Hi") } ]
+                      WanderValue.Pattern(
+                          PatternSet(
+                              Set.ofSeq
+                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                      Attribute = PatternIdentifier.Identifier(ident "b")
+                                      Value = PatternValue.Value(Value.String("Hi")) } ]
+                          )
                       )
 
                   ))
@@ -145,11 +151,13 @@ let tests =
               Expect.equal
                   result
                   (Ok(
-                      WanderValue.Dataset(
-                          Set.ofSeq
-                              [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                  Attribute = PatternIdentifier.Identifier(ident "b")
-                                  Value = PatternValue.Bytes([| 0uy |]) } ]
+                      WanderValue.Pattern(
+                          PatternSet(
+                              Set.ofSeq
+                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
+                                      Attribute = PatternIdentifier.Identifier(ident "b")
+                                      Value = PatternValue.Value(Value.Bytes([| 0uy |])) } ]
+                          )
                       )
                   ))
                   ""
