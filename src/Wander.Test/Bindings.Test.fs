@@ -7,15 +7,6 @@ module Ligature.Wander.Bindings.Test
 open Expecto
 open Ligature.Wander.Bindings
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-// let ident id =
-//     Identifier(
-//         match identifier id with
-//         | Ok(v) -> v
-//         | Error(_) -> todo
-//     )
-
 [<Tests>]
 let tests =
     testList

@@ -48,12 +48,12 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
               Expect.equal (tokenize "   ") (Ok([ Token.WhiteSpace("   ") ])) ""
+              //Expect.equal (tokenize "\t") (Ok([Token.WhiteSpace("\t")])) ""
+              //Expect.equal (tokenize "\t  ") (Ok([Token.WhiteSpace("\t  ")])) ""
           testCase "tokenize strings"
           <| fun _ ->
               Expect.equal (tokenize "\"hello\"") (Ok([ Token.StringLiteral("hello") ])) ""
               Expect.equal (tokenize "\"\"") (Ok([ Token.StringLiteral("") ])) ""
-          //Expect.equal (tokenize "\t") (Ok([WhiteSpace("\t")])) ""
-          //Expect.equal (tokenize "\t  ") (Ok([WhiteSpace("\t  ")])) ""
           testCase "tokenize new lines"
           <| fun _ ->
               Expect.equal (tokenize "\n") (Ok([ Token.NewLine("\n") ])) ""
