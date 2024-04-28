@@ -201,44 +201,35 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
         (fun entityDescription ->
             let (attribute, values) = entityDescription
 
-            match (entity, attribute, values) with
-            | (WanderValue.Slot e, WanderValue.Identifier a, values) ->
-                List.iter
-                    (fun value ->
-                        let value =
-                            match value with
-                            | WanderValue.Int value -> Value.Int value
-                            | WanderValue.Bytes value -> Value.Bytes value
-                            | WanderValue.Identifier value -> Value.Identifier value
-                            | WanderValue.String value -> Value.String value
-                            | _ -> failwith "TODO"
+            let entity =
+                match entity with
+                | WanderValue.Slot slot -> PatternIdentifier.Slot slot
+                | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
+                | _ -> failwith "TODO"
 
-                        statements <-
-                            Set.add
-                                { Entity = PatternIdentifier.Slot e
-                                  Attribute = PatternIdentifier.Identifier a
-                                  Value = PatternValue.Value value }
-                                statements)
-                    values
-            | (WanderValue.Identifier e, WanderValue.Identifier a, values) ->
-                List.iter
-                    (fun value ->
-                        let value =
-                            match value with
-                            | WanderValue.Int value -> Value.Int value
-                            | WanderValue.Bytes value -> Value.Bytes value
-                            | WanderValue.Identifier value -> Value.Identifier value
-                            | WanderValue.String value -> Value.String value
-                            | _ -> failwith "TODO"
+            let attribute =
+                match attribute with
+                | WanderValue.Slot slot -> PatternIdentifier.Slot slot
+                | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
+                | _ -> failwith "TODO"
 
-                        statements <-
-                            Set.add
-                                { Entity = PatternIdentifier.Identifier e
-                                  Attribute = PatternIdentifier.Identifier a
-                                  Value = PatternValue.Value value }
-                                statements)
-                    values
-            | _ -> failwith "TODO")
+            List.iter
+                (fun value ->
+                    let value =
+                        match value with
+                        | WanderValue.Int value -> Value.Int value
+                        | WanderValue.Bytes value -> Value.Bytes value
+                        | WanderValue.Identifier value -> Value.Identifier value
+                        | WanderValue.String value -> Value.String value
+                        | _ -> failwith "TODO"
+
+                    statements <-
+                        Set.add
+                            { Entity = entity
+                              Attribute = attribute
+                              Value = PatternValue.Value value }
+                            statements)
+                values)
         entityDescriptions
 
     Ok statements

@@ -146,7 +146,7 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
     result {
-        let! attribute = Gaze.attempt readIdentifier gaze //TODO only match Identifier or Name
+        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
         return (attribute, values)
     }
