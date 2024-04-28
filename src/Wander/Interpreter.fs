@@ -217,17 +217,18 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                 (fun value ->
                     let value =
                         match value with
-                        | WanderValue.Int value -> Value.Int value
-                        | WanderValue.Bytes value -> Value.Bytes value
-                        | WanderValue.Identifier value -> Value.Identifier value
-                        | WanderValue.String value -> Value.String value
+                        | WanderValue.Int value -> PatternValue.Value(Value.Int value)
+                        | WanderValue.Bytes value -> PatternValue.Value(Value.Bytes value)
+                        | WanderValue.Identifier value -> PatternValue.Value(Value.Identifier value)
+                        | WanderValue.String value -> PatternValue.Value(Value.String value)
+                        | WanderValue.Slot slot -> PatternValue.Slot(slot)
                         | _ -> failwith "TODO"
 
                     statements <-
                         Set.add
                             { Entity = entity
                               Attribute = attribute
-                              Value = PatternValue.Value value }
+                              Value =  value }
                             statements)
                 values)
         entityDescriptions

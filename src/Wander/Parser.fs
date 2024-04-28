@@ -222,6 +222,7 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
             | Ok(Token.Bytes b) -> List.append elements [ (Element.Bytes b) ]
             | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
+            | Ok(Token.Slot s) -> List.append elements [ ( Element.Slot s )]
             | _ -> failwith "TODO"
 
         match Gaze.peek gaze with
@@ -244,6 +245,7 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Ok(Token.Bool(value)) -> Ok([ Element.Bool value ])
     | Ok(Token.Identifier(value)) -> Ok([ Element.Identifier value ])
     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
+    | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
     | Ok(Token.OpenSquare) -> readValueList [] gaze
     | _ -> Error(Gaze.GazeError.NoMatch)
 
