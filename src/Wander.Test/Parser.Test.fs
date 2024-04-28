@@ -238,5 +238,4 @@ let tests =
                       [ Element.Application
                             [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ]
                   ))
-                  ""
-        ]
+                  "" ]
