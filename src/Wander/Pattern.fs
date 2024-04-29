@@ -45,12 +45,28 @@ type PatternSet(statements: Set<PatternStatement>) =
                             let attribute =
                                 match statement.Attribute with
                                 | PatternIdentifier.Identifier(identifier) -> PatternIdentifier.Identifier(identifier)
-                                | PatternIdentifier.Slot(slot) -> failwith "TODO"
+                                | PatternIdentifier.Slot(slot) ->
+                                    if slot.Named then
+                                        match data.TryFind slot with
+                                        | Some value ->
+                                            match value with
+                                            | PatternValue.Value(Value.Identifier identifier) ->
+                                                PatternIdentifier.Identifier identifier
+                                            | _ -> failwith "Error"
+                                        | None -> failwith "Error"
+                                    else
+                                        failwith "Error"
 
                             let value =
                                 match statement.Value with
                                 | PatternValue.Value(v) -> PatternValue.Value(v)
-                                | PatternValue.Slot(slot) -> failwith "TODO"
+                                | PatternValue.Slot(slot) ->
+                                    if slot.Named then
+                                        match data.TryFind slot with
+                                        | Some value -> value
+                                        | None -> failwith "Error"
+                                    else
+                                        failwith "Error"
 
                             { Entity = entity
                               Attribute = attribute
