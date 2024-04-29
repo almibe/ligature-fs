@@ -25,7 +25,6 @@ type Expression =
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
     | Pattern of DatasetPatternRoot list
-    | Query of Expression * list<Expression * Expression>
     | Lambda of list<string> * Expression
 
 and EntityDescription = Expression * Expression list

@@ -33,7 +33,6 @@ type Token =
     | Dot
     | Asterisk
     | Hash
-    | QueryKeyword
     | Lambda
     | Comma
     | Pipe
@@ -97,7 +96,6 @@ let createNameOrKeyword (name: string) =
     match name with
     | "true" -> Token.Bool(true)
     | "false" -> Token.Bool(false)
-    | "query" -> Token.QueryKeyword
     | _ -> Token.Name(name)
 
 let nameOrKeywordTokenNibbler =

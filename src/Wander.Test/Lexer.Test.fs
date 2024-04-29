@@ -42,8 +42,6 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
               Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
-          testCase "tokenize match keyword"
-          <| fun _ -> Expect.equal (tokenize "query") (Ok([ Token.QueryKeyword ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""

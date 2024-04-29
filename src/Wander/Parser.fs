@@ -24,7 +24,6 @@ type Element =
     | Slot of Slot
     | Array of Element list
     | Let of string * Element
-    | Match of Element * (Element * Element) list
     | Lambda of string list * Element
     | Record of (string * Element) list
     | Pattern of DatasetPatternRoot list
@@ -73,17 +72,6 @@ let patternsNibbler (gaze: Gaze.Gaze<Token>) =
         let! body = Gaze.attempt patternMatchBodyNib gaze
         return (pattern, body)
     }
-
-let readQuery gaze =
-    Gaze.attempt
-        (fun gaze ->
-            result {
-                let! _ = Gaze.attempt (take Token.QueryKeyword) gaze
-                let! inputExpression = Gaze.attempt patternMatchBodyNib gaze
-                let! patterns = Gaze.attempt (repeat patternsNibbler) gaze
-                return Element.Match(inputExpression, patterns)
-            })
-        gaze
 
 let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
 
@@ -280,8 +268,7 @@ let applicationInnerNib =
           datasetNib
           recordNib
           lambdaNib
-          groupingNib
-          readQuery ]
+          groupingNib ]
 
 let elementNib =
     takeFirst
@@ -293,8 +280,7 @@ let elementNib =
           datasetNib
           recordNib
           lambdaNib
-          groupingNib
-          readQuery ]
+          groupingNib ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
@@ -365,14 +351,6 @@ let handleRecord (declarations: list<string * Element>) =
 let handleLambda (parameters: string list) body =
     Expression.Lambda(parameters, (expressElement body))
 
-let handleMatch (expression: Element) (conditionals: list<Element * Element>) =
-    let expression = expressElement expression
-
-    let conditionals =
-        List.map (fun (condition, body) -> ((expressElement condition), (expressElement body))) conditionals
-
-    Expression.Query(expression, conditionals)
-
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
     let currentPart = new Generic.List<Expression>()
@@ -410,7 +388,6 @@ let rec expressElement (element: Element) =
     | Element.Application elements -> expressApplication elements
     | Element.Record declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
-    | Element.Match(expression, conditionals) -> handleMatch expression conditionals
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
     | Element.Pattern value -> expressDataset value
