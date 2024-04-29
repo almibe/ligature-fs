@@ -81,9 +81,27 @@ type PatternSet(statements: Set<PatternStatement>) =
             else
                 let mutable res = [||]
 
-                if Set.isSubset statements data.Statements then
+                if Set.isSubset statements data.Statements then //TODO make sure this pattern is a dataset
                     res <- [| Map.empty |]
-
+                else
+                    let found = Set.forall (fun (pattern: PatternStatement) ->
+                        let entity =
+                            match pattern.Entity with
+                            | PatternIdentifier.Identifier identifier -> failwith ""
+                            | PatternIdentifier.Slot slot -> failwith ""
+                        let attribute =
+                            match pattern.Attribute with
+                            | PatternIdentifier.Identifier identifier -> failwith ""
+                            | PatternIdentifier.Slot slot -> failwith ""
+                        let value =
+                            match pattern.Value with
+                            | PatternValue.Value value -> failwith ""
+                            | PatternValue.Slot slot -> failwith ""
+                        failwith "") statements
+                    if found then
+                        res <- [||]
+                    else
+                        res <- [||]
                 res
 
 let emptyPattern = PatternSet(Set.empty)

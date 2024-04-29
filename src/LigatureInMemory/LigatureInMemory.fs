@@ -5,7 +5,6 @@
 module Ligature.InMemory
 
 open Ligature
-open Ligature.Wander.InMemoryDataset
 
 type LigatureInMemory() =
     let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
