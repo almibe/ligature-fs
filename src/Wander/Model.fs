@@ -7,6 +7,7 @@ module Ligature.Wander.Model
 open Ligature
 open System.Web
 open System
+open Pattern
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -56,6 +57,22 @@ and HostFunction(eval: WanderValue list -> Bindings.Bindings<string, WanderValue
 type Parameter = { name: string; tag: string }
 
 type Bindings = Bindings.Bindings<string, WanderValue>
+
+let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
+    if
+        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
+        && (right = WanderValue.Pattern(emptyPattern)
+            || right = WanderValue.Record(Map.empty))
+    then
+        true
+    else
+        match left, right with
+        | WanderValue.Array(left), WanderValue.Array(right) ->
+            if left.Length = right.Length then
+                Array.forall2 (fun left right -> wanderEquals left right) left right
+            else
+                false
+        | _ -> left = right
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with

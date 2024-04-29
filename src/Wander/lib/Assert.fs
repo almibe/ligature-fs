@@ -16,7 +16,7 @@ let equalFunction<'t> =
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(desc); left; right ] ->
-                        if left = right then
+                        if wanderEquals left right then
                             Ok(WanderValue.Pattern(PatternSet(Set.empty)))
                         else
                             error $"{prettyPrint left} != {prettyPrint right}" None

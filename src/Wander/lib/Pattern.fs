@@ -110,20 +110,26 @@ let extractsFunction<'t> =
                 match args with
                 | [ WanderValue.Pattern(statements) ] ->
                     let result =
-                        Set.exists (fun (statement: PatternStatement) -> 
-                            let entity = 
-                                match statement.Entity with
-                                | PatternIdentifier.Slot(slot) -> slot.Named
-                                | _ -> false
-                            let attribute = 
-                                match statement.Attribute with
-                                | PatternIdentifier.Slot(slot) -> slot.Named
-                                | _ -> false
-                            let value = 
-                                match statement.Value with
-                                | PatternValue.Slot(slot) -> slot.Named
-                                | _ -> false
-                            entity || attribute || value) statements.Statements
+                        Set.exists
+                            (fun (statement: PatternStatement) ->
+                                let entity =
+                                    match statement.Entity with
+                                    | PatternIdentifier.Slot(slot) -> slot.Named
+                                    | _ -> false
+
+                                let attribute =
+                                    match statement.Attribute with
+                                    | PatternIdentifier.Slot(slot) -> slot.Named
+                                    | _ -> false
+
+                                let value =
+                                    match statement.Value with
+                                    | PatternValue.Slot(slot) -> slot.Named
+                                    | _ -> false
+
+                                entity || attribute || value)
+                            statements.Statements
+
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.extracts - {value}." None)
         )

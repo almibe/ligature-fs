@@ -66,6 +66,7 @@ type PatternSet(statements: Set<PatternStatement>) =
                                         | Some value -> value
                                         | None -> failwith "Error"
                                     else
+
                                         failwith "Error"
 
                             { Entity = entity
@@ -73,12 +74,16 @@ type PatternSet(statements: Set<PatternStatement>) =
                               Value = value })
                     statements
             )
-        //   failwith "Not Implemented"
+
         member _.Extract(data: IPattern) : Map<Slot, PatternValue> array =
-            // if this pattern is empty return []
-            if statements.IsEmpty then
+            if statements.IsEmpty || data.Statements.IsEmpty then
                 [||]
             else
-                failwith "Not Implemented"
+                let mutable res = [||]
+
+                if Set.isSubset statements data.Statements then
+                    res <- [| Map.empty |]
+
+                res
 
 let emptyPattern = PatternSet(Set.empty)
