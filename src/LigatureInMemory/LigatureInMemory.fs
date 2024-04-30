@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.InMemory
+module Ligature.InMemory.Main
 
 open Ligature
 
@@ -63,4 +63,7 @@ type LigatureInMemory() =
             failwith "TODO"
 
         member this.Contains (arg1: DatasetName) (arg2: IPattern) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.Extract (arg1: DatasetName) (arg2: IPattern) : Result<Map<Slot, Value> array, LigatureError> =
             failwith "Not Implemented"

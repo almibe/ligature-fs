@@ -6,6 +6,7 @@ module Ligature.InMemory.Test
 
 open Expecto
 open Ligature.TestSuite
+open Ligature.InMemory.Main
 
 [<Tests>]
 let tests = ligatureTestSuite (fun () -> new LigatureInMemory())

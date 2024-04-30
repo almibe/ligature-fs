@@ -6,8 +6,6 @@ module Ligature.Wander.Lib.Pattern
 
 open Ligature.Wander.Model
 open Ligature
-open Ligature.Wander.InMemoryDataset
-open Ligature.Wander.Pattern
 
 let patternStatementToStatement (pattern: PatternStatement) : Statement option =
     match pattern with
@@ -39,7 +37,10 @@ let applyFunction<'t> =
                                     (slot, PatternValue.Value v)
                                 | _ -> failwith "Error")
                             |> Map.ofSeq
-                            |> pattern.Apply
+                            |> ignore
+
+                            failwith "TODO"
+                        //|> pattern.Apply
                         )
                     )
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
@@ -51,19 +52,18 @@ let extractFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern); WanderValue.Pattern(data) ] ->
-                    pattern.Extract data
+                | [ WanderValue.Dataset(dataset); WanderValue.Pattern(data) ] ->
+                    dataset.Extract data
                     |> Array.map (fun res ->
                         res
                         |> Map.toSeq
                         |> Seq.map (fun (k, v) ->
                             (k.Name,
                              match v with
-                             | PatternValue.Slot s -> failwith "TODO"
-                             | PatternValue.Value(Value.Int value) -> WanderValue.Int value
-                             | PatternValue.Value(Value.Bytes value) -> WanderValue.Bytes value
-                             | PatternValue.Value(Value.Identifier value) -> WanderValue.Identifier value
-                             | PatternValue.Value(Value.String value) -> WanderValue.String value))
+                             | Value.Int value -> WanderValue.Int value
+                             | Value.Bytes value -> WanderValue.Bytes value
+                             | Value.Identifier value -> WanderValue.Identifier value
+                             | Value.String value -> WanderValue.String value))
                         |> Map.ofSeq
                         |> WanderValue.Record)
                     |> WanderValue.Array
@@ -77,7 +77,7 @@ let countFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Int(Set.count pattern.Statements))
+                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Int(Set.count pattern.PatternStatements))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )
@@ -96,7 +96,7 @@ let isDatasetFunction<'t> =
                                 | (_, PatternIdentifier.Slot(_), _) -> false
                                 | (_, _, PatternValue.Slot(_)) -> false
                                 | _ -> true)
-                            statements.Statements
+                            statements.PatternStatements
 
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
@@ -128,7 +128,7 @@ let extractsFunction<'t> =
                                     | _ -> false
 
                                 entity || attribute || value)
-                            statements.Statements
+                            statements.PatternStatements
 
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.extracts - {value}." None)

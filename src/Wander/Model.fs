@@ -7,7 +7,6 @@ module Ligature.Wander.Model
 open Ligature
 open System.Web
 open System
-open Pattern
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -43,6 +42,7 @@ type WanderValue =
     | Function of Function
     | Array of WanderValue array
     | Pattern of IPattern
+    | Dataset of IDataset
     | Record of Map<string, WanderValue>
     | Bytes of byte array
 
@@ -58,21 +58,21 @@ type Parameter = { name: string; tag: string }
 
 type Bindings = Bindings.Bindings<string, WanderValue>
 
-let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
-    if
-        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
-        && (right = WanderValue.Pattern(emptyPattern)
-            || right = WanderValue.Record(Map.empty))
-    then
-        true
-    else
-        match left, right with
-        | WanderValue.Array(left), WanderValue.Array(right) ->
-            if left.Length = right.Length then
-                Array.forall2 (fun left right -> wanderEquals left right) left right
-            else
-                false
-        | _ -> left = right
+let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool = failwith "TODO"
+// if
+//     (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
+//     && (right = WanderValue.Pattern(emptyPattern)
+//         || right = WanderValue.Record(Map.empty))
+// then
+//     true
+// else
+//     match left, right with
+//     | WanderValue.Array(left), WanderValue.Array(right) ->
+//         if left.Length = right.Length then
+//             Array.forall2 (fun left right -> wanderEquals left right) left right
+//         else
+//             false
+//     | _ -> left = right
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
@@ -87,7 +87,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Pattern(values) ->
-        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.Statements)
+        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "${" values.PatternStatements)
         + "}"
 
 and printBytes bytes =

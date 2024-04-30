@@ -7,7 +7,7 @@ module Ligature.Wander.Main.Test
 open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
-open Ligature.Wander.Pattern
+open Ligature.InMemory.Pattern
 open Ligature
 open Ligature.Wander.InMemoryDataset
 
@@ -50,7 +50,7 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Pattern(PatternSet(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Pattern(InMemoryPattern(Set.empty)))) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
@@ -83,7 +83,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Pattern(PatternSet(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Pattern(InMemoryPattern(Set.empty)))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -93,7 +93,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Pattern(
-                          PatternSet(
+                          InMemoryPattern(
 
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Identifier(ident "a")
@@ -113,7 +113,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Pattern(
-                          PatternSet(
+                          InMemoryPattern(
 
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Identifier(ident "a")
@@ -133,7 +133,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Pattern(
-                          PatternSet(
+                          InMemoryPattern(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Identifier(ident "a")
                                       Attribute = PatternIdentifier.Identifier(ident "b")
@@ -152,7 +152,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Pattern(
-                          PatternSet(
+                          InMemoryPattern(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Identifier(ident "a")
                                       Attribute = PatternIdentifier.Identifier(ident "b")

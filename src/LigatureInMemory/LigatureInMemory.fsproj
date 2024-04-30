@@ -6,11 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="InMemoryDataset.fs" />
+    <Compile Include="InMemoryPattern.fs" />
     <Compile Include="LigatureInMemory.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\Wander\Wander.fsproj" />
   </ItemGroup>
 
 </Project>

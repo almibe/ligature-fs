@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="PatternSet.fs" />
     <Compile Include="InMemoryDataset.fs" />
     <Compile Include="Bindings.fs" />
     <Compile Include="Model.fs" />
@@ -32,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureInMemory\LigatureInMemory.fsproj" />
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
   </ItemGroup>
   <ItemGroup>

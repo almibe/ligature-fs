@@ -7,9 +7,9 @@ module Ligature.Wander.Lib.Ligature
 open Ligature
 open Ligature.Wander.Model
 open System
-open Ligature.Wander.Pattern
+open Ligature.InMemory.Pattern
 
-let emptySet = WanderValue.Pattern(PatternSet(Set.empty))
+let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 
 let datasetsFun (ligature: ILigature) =
     WanderValue.Function(

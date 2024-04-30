@@ -7,8 +7,7 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature
-open InMemoryDataset
-open Pattern
+open Ligature.InMemory.Pattern
 
 let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue>) =
     match read (List.head namePath) bindings with
@@ -246,7 +245,7 @@ and handlePattern bindings values =
             | _ -> failwith "TODO")
         res
 
-    Ok(WanderValue.Pattern(PatternSet(final)), bindings)
+    Ok(WanderValue.Pattern(InMemoryPattern(final)), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
@@ -313,7 +312,7 @@ and evalLambda bindings parameters body arguments =
     let mutable error = None
 
     let args =
-        Array.init (List.length parameters) (fun _ -> WanderValue.Pattern(PatternSet(Set.empty)))
+        Array.init (List.length parameters) (fun _ -> WanderValue.Pattern(InMemoryPattern(Set.empty)))
 
     List.tryFind
         (fun arg ->

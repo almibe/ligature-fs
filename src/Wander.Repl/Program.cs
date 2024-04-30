@@ -59,8 +59,8 @@ namespace RadLine.Examples
             }
         }
 
-        private static LigatureInMemory.Ligature.InMemory.LigatureInMemory instance =
-            new LigatureInMemory.Ligature.InMemory.LigatureInMemory();
+        private static LigatureInMemory.Ligature.InMemory.Main.LigatureInMemory instance =
+            new LigatureInMemory.Ligature.InMemory.Main.LigatureInMemory();
 
         private static void Evaluate(string script)
         {
@@ -71,7 +71,7 @@ namespace RadLine.Examples
 
         private static void Introspect(string script)
         {
-            var instance = new LigatureInMemory.Ligature.InMemory.LigatureInMemory();
+            var instance = new LigatureInMemory.Ligature.InMemory.Main.LigatureInMemory();
             var res = _.introspect(script.Trim());
             AnsiConsole.WriteLine(res.ToString());
         }

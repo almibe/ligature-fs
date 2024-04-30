@@ -87,19 +87,17 @@ type PatternStatement =
 
 type IPattern =
     inherit System.IComparable
-    abstract member Statements: Set<PatternStatement>
-    abstract member Apply: Map<Slot, PatternValue> -> IPattern
-    abstract member Extract: IPattern -> Map<Slot, PatternValue> array
+    abstract member PatternStatements: Set<PatternStatement>
+    abstract member Apply: Map<Slot, Value> -> IDataset option
+    abstract member Dataset: IDataset option
 
-//type Query = Map<IPattern, IPattern>
-
-type Statement =
+and Statement =
     { Entity: Identifier
       Attribute: Identifier
       Value: Value }
 
-type IDataset =
-    //    abstract member RunQuery: Query -> Result<IDataset, LigatureError>
+and IDataset =
+    abstract member Extract: IPattern -> Map<Slot, Value> array
     abstract member Contains: IPattern -> Result<bool, LigatureError>
     abstract member Count: IPattern -> Result<int64, LigatureError>
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
@@ -112,7 +110,7 @@ type ILigature =
     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
     abstract member Contains: DatasetName -> IPattern -> Result<bool, LigatureError>
     abstract member Count: DatasetName -> IPattern -> Result<int64, LigatureError>
-    //    abstract member RunQuery: DatasetName -> Query -> Result<IDataset, LigatureError>
+    abstract member Extract: DatasetName -> IPattern -> Result<Map<Slot, Value> array, LigatureError>
     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
