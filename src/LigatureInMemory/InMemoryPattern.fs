@@ -10,8 +10,9 @@ open Dataset
 type InMemoryPattern(patternStatements: Set<PatternStatement>) =
     override _.Equals(other) =
         match other with
-        | :? IPattern as other -> patternStatements.Equals(other.PatternStatements)
-        | _ -> false
+        | :? IPattern as other -> patternStatements = other.PatternStatements
+        | _ ->
+            false
 
     override _.GetHashCode() = patternStatements.GetHashCode()
 
@@ -78,9 +79,10 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                 Set.map
                     (fun (statement: PatternStatement) ->
                         match statement with
-                        | { Entity = PatternIdentifier.Identifier(_)
-                            Attribute = PatternIdentifier.Identifier(_)
-                            Value = PatternValue.Value(_) } -> failwith "TODO" // statement
+                        | { Entity = PatternIdentifier.Identifier(e)
+                            Attribute = PatternIdentifier.Identifier(a)
+                            Value = PatternValue.Value(v) } ->
+                            { Entity = e; Attribute = a; Value = v }
                         | _ ->
                             let entity =
                                 match statement.Entity with
@@ -96,9 +98,7 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                                 match statement.Value with
                                 | PatternValue.Value v -> v
                                 | PatternValue.Slot _ -> failwith "Error"
-
-                            failwith "TODO"
-                    //{ Entity = entity; Attribute = attribute; Value = value }
+                            { Entity = entity; Attribute = attribute; Value = value }
                     )
                     patternStatements
 

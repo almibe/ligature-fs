@@ -27,17 +27,19 @@ type InMemoryDataset(statements: Set<Statement>) =
     //         statements
 
     interface IDataset with
-        member _.Extract(data: IPattern) : Map<Slot, Value> list =
-            if statements.IsEmpty || data.PatternStatements.IsEmpty then
+        member _.Extract(pattern: IPattern) : Map<Slot, Value> list =
+            if statements.IsEmpty || pattern.PatternStatements.IsEmpty then
                 List.Empty
             else
                 let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
+                let mutable canidate = pattern.PatternStatements
+                let mutable currentNames: Map<Slot, Value> = Map.empty
 
-                let mutable canidate = data.PatternStatements
-
-                Set.iter
-                    (fun (pattern: PatternStatement) ->
-                        let entity =
+                statements
+                |> Set.iter (fun statement ->
+                    pattern.PatternStatements
+                    |> Set.iter
+                        (fun (pattern: PatternStatement) ->
                             match pattern.Entity with
                             | PatternIdentifier.Identifier identifier ->
                                 canidate <-
@@ -49,11 +51,13 @@ type InMemoryDataset(statements: Set<Statement>) =
                                         canidate
                             | PatternIdentifier.Slot slot ->
                                 if slot.Named then
-                                    failwith "TODO" //do nothing for now
+                                    if currentNames.ContainsKey slot then
+                                        failwith "TODO" //do nothing for now
+                                    else
+                                        currentNames <- currentNames.Add (slot, Value.Identifier statement.Entity)
                                 else
-                                    () //do nothing for now
+                                    ()
 
-                        let attribute =
                             match pattern.Attribute with
                             | PatternIdentifier.Identifier identifier ->
                                 canidate <-
@@ -63,9 +67,12 @@ type InMemoryDataset(statements: Set<Statement>) =
                                             | PatternIdentifier.Identifier id2 -> identifier = id2
                                             | PatternIdentifier.Slot slot -> false)
                                         canidate
-                            | PatternIdentifier.Slot slot -> () //do nothing for now
+                            | PatternIdentifier.Slot slot ->
+                                if slot.Named then
+                                    failwith "TODO"
+                                else
+                                    ()
 
-                        let value =
                             match pattern.Value with
                             | PatternValue.Value value ->
                                 canidate <-
@@ -75,12 +82,14 @@ type InMemoryDataset(statements: Set<Statement>) =
                                             | PatternValue.Value v2 -> value = v2
                                             | PatternValue.Slot slot -> false)
                                         canidate
-                            | PatternValue.Slot slot -> () //do nothing for now
+                            | PatternValue.Slot slot ->
+                                if slot.Named then
+                                    failwith "TODO"
+                                else
+                                    ()
 
-                        if not canidate.IsEmpty then
-                            res <- List.append res [ Map.empty ])
-                    data.PatternStatements
-
+                            if not canidate.IsEmpty then
+                                res <- List.append res [ currentNames ]))
                 List.ofSeq res
 
         member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)

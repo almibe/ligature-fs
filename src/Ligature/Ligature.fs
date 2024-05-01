@@ -5,6 +5,7 @@
 module Ligature
 
 open System.Text.RegularExpressions
+open System
 
 type LigatureError =
     { UserMessage: string
@@ -95,13 +96,25 @@ and [<CustomEquality; CustomComparison>] Statement =
       Attribute: Identifier
       Value: Value }
 
-    override _.Equals(other) = failwith ""
-    override _.GetHashCode() = failwith ""
+    override this.Equals(other) =
+        match other with
+        | :? Statement as other -> this.Entity = other.Entity && this.Attribute = other.Attribute && this.Value = other.Value
+        | _ -> false
+        
+    override this.GetHashCode() =
+        HashCode.Combine(this.Entity, this.Attribute, this.Value)
 
-    interface System.IComparable with
-        member _.CompareTo(other) =
+    interface IComparable with
+        member this.CompareTo(other) =
             match other with
-            | :? Statement as other -> failwith "" //this.Name.CompareTo(other.Name)
+            | :? Statement as other ->
+                let e = other.Entity.ToString().CompareTo(this.Entity.ToString())
+                let a = other.Attribute.ToString().CompareTo(this.Attribute.ToString())
+                let v = other.Value.ToString().CompareTo(this.Value.ToString())
+
+                if e <> 0 then e
+                else if a <> 0 then a
+                else v
             | _ -> failwith "Error"
 
 and IDataset =

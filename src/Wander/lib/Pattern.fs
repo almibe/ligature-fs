@@ -41,7 +41,7 @@ let applyFunction<'t> =
                     match pattern.Apply res with
                     | Some res -> Ok(WanderValue.Dataset(res))
                     | None -> failwith ""
-                | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
+                | value -> error $"Unexpected value passed to Pattern.apply - {value}." None)
         )
     )
 
@@ -67,7 +67,7 @@ let extractFunction<'t> =
                     |> Array.ofList
                     |> WanderValue.Array
                     |> Ok
-                | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
+                | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
         )
     )
 

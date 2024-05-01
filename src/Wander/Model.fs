@@ -7,6 +7,7 @@ module Ligature.Wander.Model
 open Ligature
 open System.Web
 open System
+open Ligature.InMemory.Pattern
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -58,21 +59,29 @@ type Parameter = { name: string; tag: string }
 
 type Bindings = Bindings.Bindings<string, WanderValue>
 
-let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool = failwith "TODO"
-// if
-//     (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
-//     && (right = WanderValue.Pattern(emptyPattern)
-//         || right = WanderValue.Record(Map.empty))
-// then
-//     true
-// else
-//     match left, right with
-//     | WanderValue.Array(left), WanderValue.Array(right) ->
-//         if left.Length = right.Length then
-//             Array.forall2 (fun left right -> wanderEquals left right) left right
-//         else
-//             false
-//     | _ -> left = right
+let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
+    let left' =
+        match left with
+        | WanderValue.Pattern pattern -> 
+            match pattern.Dataset with
+            | Some value -> WanderValue.Dataset value
+            | _ -> failwith "Error"
+        | other -> other
+    let right' =
+        match right with
+        | WanderValue.Pattern pattern -> 
+            match pattern.Dataset with
+            | Some value -> WanderValue.Dataset value
+            | _ -> failwith "Error"
+        | other -> other
+
+    match left', right' with
+    | WanderValue.Array(left), WanderValue.Array(right) ->
+        if left.Length = right.Length then
+            Array.forall2 (fun left right -> wanderEquals left right) left right
+        else
+            false
+    | _ -> left = right
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
