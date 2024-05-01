@@ -105,3 +105,11 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
             Some(InMemoryDataset(res))
 
 let emptyPattern = InMemoryPattern(Set.empty)
+
+let unsafeDatasetToPattern (dataset: IDataset): IPattern =
+    match dataset.AllStatements () with
+    | Ok res -> 
+        let (l: PatternStatement list) = List.map (fun item -> 
+            { Entity = PatternIdentifier.Identifier item.Entity; Attribute = PatternIdentifier.Identifier item.Attribute; Value = PatternValue.Value item.Value }) res
+        InMemoryPattern(Set.ofList l)
+    | _ -> failwith "Error"

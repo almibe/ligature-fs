@@ -19,7 +19,6 @@
     <Compile Include="lib/Assert.fs" />
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Bytes.fs" />
-    <Compile Include="lib/Dataset.fs" />
     <Compile Include="lib/DateTime.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />

@@ -19,7 +19,6 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Assert" Assert.assertLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
-    |> Bindings.bind "Dataset" Dataset.datasetLib
     |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Pattern" Pattern.patternLib
     |> Bindings.bind "Identifier" identifierLib

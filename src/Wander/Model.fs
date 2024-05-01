@@ -43,7 +43,6 @@ type WanderValue =
     | Function of Function
     | Array of WanderValue array
     | Pattern of IPattern
-    | Dataset of IDataset
     | Record of Map<string, WanderValue>
     | Bytes of byte array
 
@@ -59,29 +58,22 @@ type Parameter = { name: string; tag: string }
 
 type Bindings = Bindings.Bindings<string, WanderValue>
 
+//TODO try to remove this
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
-    let left' =
-        match left with
-        | WanderValue.Pattern pattern -> 
-            match pattern.Dataset with
-            | Some value -> WanderValue.Dataset value
-            | _ -> failwith "Error"
-        | other -> other
-    let right' =
-        match right with
-        | WanderValue.Pattern pattern -> 
-            match pattern.Dataset with
-            | Some value -> WanderValue.Dataset value
-            | _ -> failwith "Error"
-        | other -> other
-
-    match left', right' with
-    | WanderValue.Array(left), WanderValue.Array(right) ->
-        if left.Length = right.Length then
-            Array.forall2 (fun left right -> wanderEquals left right) left right
-        else
-            false
-    | _ -> left = right
+    if
+        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
+        && (right = WanderValue.Pattern(emptyPattern)
+            || right = WanderValue.Record(Map.empty))
+    then
+        true
+    else
+        match left, right with
+        | WanderValue.Array(left), WanderValue.Array(right) ->
+            if left.Length = right.Length then
+                Array.forall2 (fun left right -> wanderEquals left right) left right
+            else
+                false
+        | _ -> left = right
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
@@ -98,12 +90,6 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Pattern(values) ->
         (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.PatternStatements)
         + "}"
-    | WanderValue.Dataset(dataset) ->
-        match dataset.AllStatements() with
-        | Ok statements ->
-            (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements)
-            + "}"
-        | Error err -> failwith "Error"
 
 and printBytes bytes =
     bytes
