@@ -11,8 +11,7 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
     override _.Equals(other) =
         match other with
         | :? IPattern as other -> patternStatements = other.PatternStatements
-        | _ ->
-            false
+        | _ -> false
 
     override _.GetHashCode() = patternStatements.GetHashCode()
 
@@ -81,8 +80,7 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                         match statement with
                         | { Entity = PatternIdentifier.Identifier(e)
                             Attribute = PatternIdentifier.Identifier(a)
-                            Value = PatternValue.Value(v) } ->
-                            { Entity = e; Attribute = a; Value = v }
+                            Value = PatternValue.Value(v) } -> { Entity = e; Attribute = a; Value = v }
                         | _ ->
                             let entity =
                                 match statement.Entity with
@@ -98,18 +96,26 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                                 match statement.Value with
                                 | PatternValue.Value v -> v
                                 | PatternValue.Slot _ -> failwith "Error"
-                            { Entity = entity; Attribute = attribute; Value = value }
-                    )
+
+                            { Entity = entity
+                              Attribute = attribute
+                              Value = value })
                     patternStatements
 
             Some(InMemoryDataset(res))
 
 let emptyPattern = InMemoryPattern(Set.empty)
 
-let unsafeDatasetToPattern (dataset: IDataset): IPattern =
-    match dataset.AllStatements () with
-    | Ok res -> 
-        let (l: PatternStatement list) = List.map (fun item -> 
-            { Entity = PatternIdentifier.Identifier item.Entity; Attribute = PatternIdentifier.Identifier item.Attribute; Value = PatternValue.Value item.Value }) res
+let unsafeDatasetToPattern (dataset: IDataset) : IPattern =
+    match dataset.AllStatements() with
+    | Ok res ->
+        let (l: PatternStatement list) =
+            List.map
+                (fun item ->
+                    { Entity = PatternIdentifier.Identifier item.Entity
+                      Attribute = PatternIdentifier.Identifier item.Attribute
+                      Value = PatternValue.Value item.Value })
+                res
+
         InMemoryPattern(Set.ofList l)
     | _ -> failwith "Error"

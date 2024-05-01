@@ -98,9 +98,12 @@ and [<CustomEquality; CustomComparison>] Statement =
 
     override this.Equals(other) =
         match other with
-        | :? Statement as other -> this.Entity = other.Entity && this.Attribute = other.Attribute && this.Value = other.Value
+        | :? Statement as other ->
+            this.Entity = other.Entity
+            && this.Attribute = other.Attribute
+            && this.Value = other.Value
         | _ -> false
-        
+
     override this.GetHashCode() =
         HashCode.Combine(this.Entity, this.Attribute, this.Value)
 

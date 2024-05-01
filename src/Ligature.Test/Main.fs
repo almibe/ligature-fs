@@ -23,9 +23,10 @@ let tests =
               | Error(_) -> failtest "Error parsing Identifier."
           testCase "Check Statement Equality"
           <| fun _ ->
-            Expect.equal 
-                (statement (ident "a") (ident "b") (Value.Identifier (ident "c")))
-                (statement (ident "a") (ident "b") (Value.Identifier (ident "c"))) ""]
+              Expect.equal
+                  (statement (ident "a") (ident "b") (Value.Identifier(ident "c")))
+                  (statement (ident "a") (ident "b") (Value.Identifier(ident "c")))
+                  "" ]
 
 [<EntryPoint>]
 let main argv = runTestsInAssemblyWithCLIArgs [] argv

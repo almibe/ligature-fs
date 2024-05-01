@@ -76,30 +76,6 @@ let isDatasetFunction<'t> =
         )
     )
 
-// let toDatasetFunction<'t> =
-//     WanderValue.Function(
-//         Function.HostFunction(
-//             new HostFunction(fun args _ ->
-//                 match args with
-//                 | [ WanderValue.Pattern(statements) ] ->
-//                     let result =
-//                         Set.map
-//                             (fun (statement: PatternStatement) ->
-//                                 match (statement.Entity, statement.Attribute, statement.Value) with
-//                                 | (PatternIdentifier.Identifier(entity),
-//                                    PatternIdentifier.Identifier(attribute),
-//                                    PatternValue.Value(value)) ->
-//                                     { Entity = entity
-//                                       Attribute = attribute
-//                                       Value = value }
-//                                 | _ -> failwith "Error")
-//                             statements.PatternStatements
-
-//                     Ok(WanderValue.Pattern(InMemoryPattern(result)))
-//                 | value -> error $"Unexpected value passed to Pattern.toDataset - {value}." None)
-//         )
-//     )
-
 let extractsFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
@@ -132,49 +108,18 @@ let extractsFunction<'t> =
         )
     )
 
-let extract (dataset: IDataset) (data: IPattern) =
-    dataset.Extract data
-    |> List.map (fun res ->
-        res
-        |> Map.toSeq
-        |> Seq.map (fun (k, v) ->
-            (k.Name,
-                match v with
-                | Value.Int value -> WanderValue.Int value
-                | Value.Bytes value -> WanderValue.Bytes value
-                | Value.Identifier value -> WanderValue.Identifier value
-                | Value.String value -> WanderValue.String value))
-        |> Map.ofSeq
-        |> WanderValue.Record)
-    |> Array.ofList
-    |> WanderValue.Array
-    |> Ok
-
-let patternToDataset (pattern: IPattern): IDataset =
+let patternToDataset (pattern: IPattern) : IDataset =
     match pattern.Dataset with
     | Some dataset -> dataset
     | _ -> failwith "TODO"
-
-// let extractFunction<'t> =
-//     WanderValue.Function(
-//         Function.HostFunction(
-//             new HostFunction(fun args _ ->
-//                 match args with
-//                 | [ WanderValue.Dataset(dataset); WanderValue.Pattern(data) ] -> extract dataset data
-//                 | [ WanderValue.Dataset(dataset); WanderValue.Dataset(data) ] -> failwith "TODO"
-//                 | [ WanderValue.Pattern(dataset); WanderValue.Pattern(data) ] -> extract (patternToDataset dataset) data
-//                 | [ WanderValue.Pattern(dataset); WanderValue.Dataset(data) ] -> failwith "TODO"
-//                 | value -> error $"Unexpected value passed to Dataset.extract - {value}." None)
-//         )
-//     )
 
 let extractFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(dataset); WanderValue.Pattern(data) ] ->
-                    (patternToDataset dataset).Extract data
+                | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
+                    (patternToDataset dataset).Extract pattern
                     |> List.map (fun res ->
                         res
                         |> Map.toSeq
@@ -199,7 +144,6 @@ let patternLib<'t> =
         Map
             [ ("apply", applyFunction)
               ("count", countFunction)
-//              ("toDataset", toDatasetFunction)
               ("extract", extractFunction)
               ("extracts", extractsFunction)
               ("isDataset", isDatasetFunction) ]

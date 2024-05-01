@@ -38,58 +38,50 @@ type InMemoryDataset(statements: Set<Statement>) =
                 statements
                 |> Set.iter (fun statement ->
                     pattern.PatternStatements
-                    |> Set.iter
-                        (fun (pattern: PatternStatement) ->
-                            match pattern.Entity with
-                            | PatternIdentifier.Identifier identifier ->
-                                canidate <-
-                                    Set.filter
-                                        (fun statement ->
-                                            match statement.Entity with
-                                            | PatternIdentifier.Identifier id2 -> identifier = id2
-                                            | PatternIdentifier.Slot slot -> false)
-                                        canidate
-                            | PatternIdentifier.Slot slot ->
-                                if slot.Named then
-                                    if currentNames.ContainsKey slot then
-                                        failwith "TODO" //do nothing for now
-                                    else
-                                        currentNames <- currentNames.Add (slot, Value.Identifier statement.Entity)
+                    |> Set.iter (fun (pattern: PatternStatement) ->
+                        match pattern.Entity with
+                        | PatternIdentifier.Identifier identifier ->
+                            canidate <-
+                                Set.filter
+                                    (fun statement ->
+                                        match statement.Entity with
+                                        | PatternIdentifier.Identifier id2 -> identifier = id2
+                                        | PatternIdentifier.Slot slot -> false)
+                                    canidate
+                        | PatternIdentifier.Slot slot ->
+                            if slot.Named then
+                                if currentNames.ContainsKey slot then
+                                    failwith "TODO" //do nothing for now
                                 else
-                                    ()
+                                    currentNames <- currentNames.Add(slot, Value.Identifier statement.Entity)
+                            else
+                                ()
 
-                            match pattern.Attribute with
-                            | PatternIdentifier.Identifier identifier ->
-                                canidate <-
-                                    Set.filter
-                                        (fun statement ->
-                                            match statement.Attribute with
-                                            | PatternIdentifier.Identifier id2 -> identifier = id2
-                                            | PatternIdentifier.Slot slot -> false)
-                                        canidate
-                            | PatternIdentifier.Slot slot ->
-                                if slot.Named then
-                                    failwith "TODO"
-                                else
-                                    ()
+                        match pattern.Attribute with
+                        | PatternIdentifier.Identifier identifier ->
+                            canidate <-
+                                Set.filter
+                                    (fun statement ->
+                                        match statement.Attribute with
+                                        | PatternIdentifier.Identifier id2 -> identifier = id2
+                                        | PatternIdentifier.Slot slot -> false)
+                                    canidate
+                        | PatternIdentifier.Slot slot -> if slot.Named then failwith "TODO" else ()
 
-                            match pattern.Value with
-                            | PatternValue.Value value ->
-                                canidate <-
-                                    Set.filter
-                                        (fun statement ->
-                                            match statement.Value with
-                                            | PatternValue.Value v2 -> value = v2
-                                            | PatternValue.Slot slot -> false)
-                                        canidate
-                            | PatternValue.Slot slot ->
-                                if slot.Named then
-                                    failwith "TODO"
-                                else
-                                    ()
+                        match pattern.Value with
+                        | PatternValue.Value value ->
+                            canidate <-
+                                Set.filter
+                                    (fun statement ->
+                                        match statement.Value with
+                                        | PatternValue.Value v2 -> value = v2
+                                        | PatternValue.Slot slot -> false)
+                                    canidate
+                        | PatternValue.Slot slot -> if slot.Named then failwith "TODO" else ()
 
-                            if not canidate.IsEmpty then
-                                res <- List.append res [ currentNames ]))
+                        if not canidate.IsEmpty then
+                            res <- List.append res [ currentNames ]))
+
                 List.ofSeq res
 
         member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)
