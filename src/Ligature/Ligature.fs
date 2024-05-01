@@ -86,18 +86,26 @@ type PatternStatement =
       Value: PatternValue }
 
 type IPattern =
-    inherit System.IComparable
     abstract member PatternStatements: Set<PatternStatement>
     abstract member Apply: Map<Slot, Value> -> IDataset option
     abstract member Dataset: IDataset option
 
-and Statement =
+and [<CustomEquality; CustomComparison>] Statement =
     { Entity: Identifier
       Attribute: Identifier
       Value: Value }
 
+    override _.Equals(other) = failwith ""
+    override _.GetHashCode() = failwith ""
+
+    interface System.IComparable with
+        member _.CompareTo(other) =
+            match other with
+            | :? Statement as other -> failwith "" //this.Name.CompareTo(other.Name)
+            | _ -> failwith "Error"
+
 and IDataset =
-    abstract member Extract: IPattern -> Map<Slot, Value> array
+    abstract member Extract: IPattern -> Map<Slot, Value> list
     abstract member Contains: IPattern -> Result<bool, LigatureError>
     abstract member Count: IPattern -> Result<int64, LigatureError>
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>

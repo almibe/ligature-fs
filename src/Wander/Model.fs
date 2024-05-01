@@ -87,8 +87,14 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Pattern(values) ->
-        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "${" values.PatternStatements)
+        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.PatternStatements)
         + "}"
+    | WanderValue.Dataset(dataset) ->
+        match dataset.AllStatements() with
+        | Ok statements ->
+            (List.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" statements)
+            + "}"
+        | Error err -> failwith "Error"
 
 and printBytes bytes =
     bytes

@@ -31,7 +31,7 @@ let literalPatternToStatement (pattern: PatternStatement) : Statement =
 
 type InMemoryDataset =
     val statements: Set<Statement>
-    new(statementsArg) = { statements = statementsArg }
+    new(statementsArg: Set<Statement>) = { statements = statementsArg }
 
     override this.Equals(other) =
         match other with
@@ -71,6 +71,6 @@ type InMemoryDataset =
         member this.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq this.statements)
         member this.Contains(arg1: IPattern) : Result<bool, LigatureError> = failwith "Not Implemented"
         member this.Count(arg1: IPattern) : Result<int64, LigatureError> = failwith "Not Implemented"
-        member this.Extract(arg1: IPattern) : Map<Slot, Value> array = failwith "Not Implemented"
+        member this.Extract(arg1: IPattern) : Map<Slot, Value> list = failwith "Not Implemented"
 
 let emptyInMemoryDataset = new InMemoryDataset(Set.empty)

@@ -6,7 +6,7 @@ module Ligature.ZMQ.Main
 
 open Ligature.ZMQ.Config
 open Ligature
-open Ligature.InMemory
+open Ligature.InMemory.Main
 open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ

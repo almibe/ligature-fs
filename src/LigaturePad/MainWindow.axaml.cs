@@ -18,7 +18,7 @@ using System.IO;
 
 public partial class MainWindow : Window
 {
-    private LigatureInMemory.Ligature.InMemory.LigatureInMemory instance = new();
+    private LigatureInMemory.Ligature.InMemory.Main.LigatureInMemory instance = new();
     private string? sourcePath = null;
 
     public MainWindow()

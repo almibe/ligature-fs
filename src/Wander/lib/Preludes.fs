@@ -19,10 +19,12 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Assert" Assert.assertLib
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
+    |> Bindings.bind "Dataset" Dataset.datasetLib
     |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Pattern" Pattern.patternLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
+    |> Bindings.bind "Statement" Statement.statementLib
     |> Bindings.bind "String" String.stringLib
     |> Bindings.bind "Ulid" Ulid.ulidLib
     |> Bindings.bind "Wander" wanderLib
