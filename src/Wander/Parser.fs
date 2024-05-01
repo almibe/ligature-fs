@@ -134,14 +134,14 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
     result {
-        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
+        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
         return (attribute, values)
     }
 
 let singleEntityDescriptNib gaze =
     result {
-        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
+        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
         return DatasetPatternRoot(entity, [ entityDescriptions ])
     }
@@ -153,7 +153,7 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetPatternRoot, Gaze.Ga
     | Ok _ -> singleEntityDescription
     | _ ->
         result {
-            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot ]) gaze //TODO only match Identifier or Name
+            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
@@ -235,7 +235,10 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
     | Ok(Token.OpenSquare) -> readValueList [] gaze
-    | _ -> Error(Gaze.GazeError.NoMatch)
+    | _ ->
+        match Gaze.attempt namePathNib gaze with
+        | Ok res -> Ok([ res ])
+        | Error err -> Error(Gaze.GazeError.NoMatch)
 
 let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze

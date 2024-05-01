@@ -27,65 +27,62 @@ type InMemoryDataset(statements: Set<Statement>) =
     //         statements
 
     interface IDataset with
-        member _.Extract(pattern: IPattern) : Map<Slot, Value> list =
+        member this.Extract(pattern: IPattern) : Map<Slot, Value> list =
             if statements.IsEmpty || pattern.PatternStatements.IsEmpty then
                 List.Empty
             else
                 let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
-                let mutable canidate = pattern.PatternStatements
                 let mutable currentNames: Map<Slot, Value> = Map.empty
 
                 statements
-                |> Set.iter (fun statement ->
+                |> Set.iter (fun statement ->                    
+                    currentNames <- Map.empty //reset state
                     pattern.PatternStatements
                     |> Set.iter (fun (pattern: PatternStatement) ->
+                        let mutable matched = true
+
                         match pattern.Entity with
-                        | PatternIdentifier.Identifier identifier ->
-                            canidate <-
-                                Set.filter
-                                    (fun statement ->
-                                        match statement.Entity with
-                                        | PatternIdentifier.Identifier id2 -> identifier = id2
-                                        | PatternIdentifier.Slot slot -> false)
-                                    canidate
+                        | PatternIdentifier.Identifier identifier -> matched <- statement.Entity = identifier
                         | PatternIdentifier.Slot slot ->
                             if slot.Named then
                                 if currentNames.ContainsKey slot then
-                                    failwith "TODO" //do nothing for now
+                                    failwith "TODO"
                                 else
                                     currentNames <- currentNames.Add(slot, Value.Identifier statement.Entity)
                             else
                                 ()
 
                         match pattern.Attribute with
-                        | PatternIdentifier.Identifier identifier ->
-                            canidate <-
-                                Set.filter
-                                    (fun statement ->
-                                        match statement.Attribute with
-                                        | PatternIdentifier.Identifier id2 -> identifier = id2
-                                        | PatternIdentifier.Slot slot -> false)
-                                    canidate
-                        | PatternIdentifier.Slot slot -> if slot.Named then failwith "TODO" else ()
+                        | PatternIdentifier.Identifier identifier -> matched <- statement.Attribute = identifier
+                        | PatternIdentifier.Slot slot ->
+                            if slot.Named then
+                                if currentNames.ContainsKey slot then
+                                    failwith "TODO"
+                                else
+                                    currentNames <- currentNames.Add(slot, Value.Identifier statement.Attribute)
+                            else
+                                ()
 
                         match pattern.Value with
-                        | PatternValue.Value value ->
-                            canidate <-
-                                Set.filter
-                                    (fun statement ->
-                                        match statement.Value with
-                                        | PatternValue.Value v2 -> value = v2
-                                        | PatternValue.Slot slot -> false)
-                                    canidate
-                        | PatternValue.Slot slot -> if slot.Named then failwith "TODO" else ()
+                        | PatternValue.Value value -> matched <- statement.Value = value
+                        | PatternValue.Slot slot ->
+                            if slot.Named then
+                                if currentNames.ContainsKey slot then
+                                    failwith "TODO"
+                                else
+                                    currentNames <- currentNames.Add(slot, statement.Value)
+                            else
+                                ()
 
-                        if not canidate.IsEmpty then
-                            res <- List.append res [ currentNames ]))
-
+                        if matched then res <- List.append res [ currentNames ]))
                 List.ofSeq res
 
         member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)
-        member _.Contains(pattern: IPattern) : Result<bool, LigatureError> = failwith "Not Implemented"
-        member _.Count(pattern: IPattern) : Result<int64, LigatureError> = failwith "Not Implemented"
+        member this.Contains(pattern: IPattern) : Result<bool, LigatureError> = 
+            let this = this :> IDataset
+            Ok(this.Extract(pattern).IsEmpty)
+        member this.Count(pattern: IPattern) : Result<int64, LigatureError> = 
+            let this = this :> IDataset
+            Ok(this.Extract(pattern).Length)
 
 let emptyDataset = InMemoryDataset(Set.empty)

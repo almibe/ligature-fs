@@ -161,6 +161,24 @@ let tests =
                       )
                   ))
                   ""
+          testCase "Run Dataset literal with Names"
+          <| fun _ ->
+              let script = "x = `e`, y = `a`, z= `v`, {x y `v`}"
+              let result = run script bindings
+
+              Expect.equal
+                  result
+                  (Ok(
+                      WanderValue.Pattern(
+                          InMemoryPattern(
+                              Set.ofSeq
+                                  [ { Entity = PatternIdentifier.Identifier(ident "e")
+                                      Attribute = PatternIdentifier.Identifier(ident "a")
+                                      Value = PatternValue.Value(Value.Identifier(ident "v")) } ]
+                          )
+                      )
+                  ))
+                  ""
 
           testCase "Handle WhiteSpace"
           <| fun _ ->

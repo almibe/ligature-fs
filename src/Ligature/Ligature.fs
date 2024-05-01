@@ -57,7 +57,11 @@ type Slot private (name: string option) =
 
     static member Empty = Slot(None)
 
-    interface System.IComparable with
+    override this.Equals(other) =
+        let other = other :?> Slot
+        this.Name = other.Name
+
+    interface IComparable with
         member this.CompareTo(other) =
             let other = other :?> Slot
             this.Name.CompareTo(other.Name)
