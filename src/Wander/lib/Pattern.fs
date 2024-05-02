@@ -45,12 +45,22 @@ let applyFunction<'t> =
         )
     )
 
+let singleRootFunction<'t> =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Bool(pattern.SingleRoot))
+                | value -> error $"Unexpected value - {value}." None)
+        )
+    )
+
 let countFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Int(Set.count pattern.PatternStatements))
+                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern.PatternStatements)))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )
@@ -146,5 +156,6 @@ let patternLib<'t> =
               ("count", countFunction)
               ("extract", extractFunction)
               ("extracts", extractsFunction)
-              ("isDataset", isDatasetFunction) ]
+              ("isDataset", isDatasetFunction)
+              ("singleRoot", singleRootFunction) ]
     )

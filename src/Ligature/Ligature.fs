@@ -94,6 +94,7 @@ type IPattern =
     abstract member PatternStatements: Set<PatternStatement>
     abstract member Apply: Map<Slot, Value> -> IDataset option
     abstract member Dataset: IDataset option
+    abstract member SingleRoot: bool
 
 and [<CustomEquality; CustomComparison>] Statement =
     { Entity: Identifier

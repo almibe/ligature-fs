@@ -7,6 +7,21 @@ module Ligature.InMemory.Pattern
 open Ligature
 open Dataset
 
+let getRoots (patternSet: Set<PatternStatement>): Set<PatternIdentifier> = 
+    Set.map (fun (statement: PatternStatement) -> statement.Entity) patternSet
+
+let getLeaves (patternSet: Set<PatternStatement>): Set<PatternIdentifier> = 
+    patternSet
+    |> Set.map (fun (statement: PatternStatement) ->
+        match statement.Value with
+        | PatternValue.Value value ->
+            match value with
+            | Value.Identifier identifier -> Some (PatternIdentifier.Identifier identifier)
+            | _ -> None
+        | PatternValue.Slot slot -> Some(PatternIdentifier.Slot slot))
+    |> Set.filter (fun x -> x.IsSome)
+    |> Set.map (fun x -> x.Value)
+
 type InMemoryPattern(patternStatements: Set<PatternStatement>) =
     override _.Equals(other) =
         match other with
@@ -103,6 +118,11 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                     patternStatements
 
             Some(InMemoryDataset(res))
+        member _.SingleRoot: bool = 
+            let roots = getRoots patternStatements
+            let leaves = getLeaves patternStatements
+            let root = Set.difference roots leaves
+            Set.count root = 1
 
 let emptyPattern = InMemoryPattern(Set.empty)
 
