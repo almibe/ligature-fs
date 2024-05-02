@@ -42,6 +42,8 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
               Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
+              Expect.equal (tokenize "x.y") (Ok([ Token.Name("x.y") ])) ""
+              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Name("hello.t.x.a") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -123,10 +125,10 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize ":") (Ok([ Token.Colon ])) ""
               Expect.equal (tokenize "::::") (Ok([ Token.Colon; Token.Colon; Token.Colon; Token.Colon ])) ""
-          testCase "read dot"
-          <| fun _ ->
-              Expect.equal (tokenize ".") (Ok([ Token.Dot ])) ""
-              Expect.equal (tokenize "....") (Ok([ Token.Dot; Token.Dot; Token.Dot; Token.Dot ])) ""
+        //   testCase "read dot"
+        //   <| fun _ ->
+        //       Expect.equal (tokenize ".") (Ok([ Token.Dot ])) ""
+        //       Expect.equal (tokenize "....") (Ok([ Token.Dot; Token.Dot; Token.Dot; Token.Dot ])) ""
           testCase "read parens"
           <| fun _ ->
               Expect.equal (tokenize "(") (Ok([ Token.OpenParen ])) ""

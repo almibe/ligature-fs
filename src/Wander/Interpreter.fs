@@ -9,7 +9,8 @@ open Ligature.Wander.Bindings
 open Ligature
 open Ligature.InMemory.Pattern
 
-let readNamePath (namePath: string list) (bindings: Bindings<string, WanderValue>) =
+let readName (name: string) (bindings: Bindings<string, WanderValue>) =
+    let namePath = List.ofArray (name.Split("."))
     match read (List.head namePath) bindings with
     | Some(value) ->
         match value with
@@ -51,8 +52,8 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
 
     match expression with
-    | Expression.NamePath(name) ->
-        match readNamePath name bindings with
+    | Expression.Name(name) ->
+        match readName name bindings with
         | Some(value) -> Ok((value, bindings))
         | None -> error $"Could not read {name}" None
     | Expression.Grouping(expressions) ->
@@ -251,8 +252,8 @@ and handleApplication bindings values =
     let arguments = List.tail values
 
     match List.tryHead values with
-    | Some(Expression.NamePath(functionName)) ->
-        match readNamePath functionName bindings with
+    | Some(Expression.Name(functionName)) ->
+        match readName functionName bindings with
         | Some(WanderValue.Function(Function.Lambda(parameters, body))) -> evalLambda bindings parameters body arguments
         | Some(WanderValue.Function(Function.HostFunction(hostFunction))) ->
             evalHostFunction bindings hostFunction arguments

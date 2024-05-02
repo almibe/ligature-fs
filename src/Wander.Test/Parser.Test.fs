@@ -68,12 +68,12 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "hello"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.NamePath([ "hello" ]) ])) ""
+              Expect.equal ast (Ok([ Element.Name("hello") ])) ""
           testCase "Parse NamePath"
           <| fun _ ->
               let tokens = tokenize "hello.world"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.NamePath([ "hello"; "world" ]) ])) ""
+              Expect.equal ast (Ok([ Element.Name("hello.world") ])) ""
           testCase "Parse Empty Array"
           <| fun _ ->
               let tokens = tokenize "[]"
@@ -188,7 +188,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "\\x -> x"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Lambda([ "x" ], Element.NamePath([ "x" ])) ])) ""
+              Expect.equal ast (Ok([ Element.Lambda([ "x" ], Element.Name("x")) ])) ""
           testCase "Parse Application"
           <| fun _ ->
               let tokens = tokenize "Bool.and false true"
@@ -198,7 +198,7 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Application(
-                            [ Element.NamePath([ "Bool"; "and" ]); Element.Bool(false); Element.Bool(true) ]
+                            [ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]
                         ) ]
                   ))
                   ""
@@ -206,7 +206,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "x = 5, x"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5I)); Element.NamePath([ "x" ]) ])) ""
+              Expect.equal ast (Ok([ Element.Let("x", Element.Int(5I)); Element.Name("x") ])) ""
           testCase "Parse Grouping"
           <| fun _ ->
               let tokens = tokenize "(x = 5, x)"
@@ -214,7 +214,7 @@ let tests =
 
               Expect.equal
                   ast
-                  (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.NamePath([ "x" ]) ]) ]))
+                  (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.Name("x") ]) ]))
                   ""
 
           testCase "Parse pipes"
@@ -226,7 +226,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "? ?"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.NamePath [ "?" ]; Element.NamePath [ "?" ] ] ])) ""
+              Expect.equal ast (Ok([ Element.Application [ Element.Name("?"); Element.Name ("?") ] ])) ""
           testCase "Parse identifier concat"
           <| fun _ ->
               let tokens = tokenize "`a`:`b`"

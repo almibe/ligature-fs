@@ -13,7 +13,7 @@ open System.Collections
 
 [<RequireQualifiedAccess>]
 type Element =
-    | NamePath of string list
+    | Name of string
     | Grouping of Element list
     | Application of Element list
     | String of string
@@ -46,12 +46,9 @@ let nameNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(Element.NamePath([ name ]))
+            | Ok(Token.Name(name)) -> Ok(Element.Name(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
-
-let namePathNib =
-    Gaze.map (repeatSep nameStrNibbler Token.Dot) (fun namePath -> Element.NamePath namePath)
 
 let readAssignment gaze =
     Gaze.attempt
@@ -134,14 +131,14 @@ let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
     result {
-        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
+        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
         return (attribute, values)
     }
 
 let singleEntityDescriptNib gaze =
     result {
-        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
+        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
         return DatasetPatternRoot(entity, [ entityDescriptions ])
     }
@@ -153,7 +150,7 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetPatternRoot, Gaze.Ga
     | Ok _ -> singleEntityDescription
     | _ ->
         result {
-            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; namePathNib ]) gaze //TODO only match Identifier or Name
+            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
@@ -236,7 +233,7 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
     | Ok(Token.OpenSquare) -> readValueList [] gaze
     | _ ->
-        match Gaze.attempt namePathNib gaze with
+        match Gaze.attempt nameNib gaze with
         | Ok res -> Ok([ res ])
         | Error err -> Error(Gaze.GazeError.NoMatch)
 
@@ -257,7 +254,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let patternMatchBodyNib =
-    takeFirst [ datasetNib; namePathNib; groupingNib; applicationNib ]
+    takeFirst [ datasetNib; nameNib; groupingNib; applicationNib ]
 
 let patternNib = takeFirst [ datasetNib ]
 
@@ -266,7 +263,7 @@ let applicationInnerNib =
         [ readPipe
           colonNib
           readValue
-          namePathNib
+          nameNib
           arrayNib
           datasetNib
           recordNib
@@ -277,7 +274,7 @@ let elementNib =
     takeFirst
         [ readAssignment
           applicationNib
-          namePathNib
+          nameNib
           readValue
           arrayNib
           datasetNib
@@ -382,7 +379,7 @@ let rec expressElement (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
     | Element.Bool value -> Expression.Bool value
-    | Element.NamePath namePath -> Expression.NamePath namePath
+    | Element.Name namePath -> Expression.Name namePath
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
     | Element.Let(name, value) -> Expression.Let(name, (expressElement value))

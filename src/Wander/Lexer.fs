@@ -30,7 +30,6 @@ type Token =
     | Arrow
     | WideArrow
     | EqualsSign
-    | Dot
     | Asterisk
     | Hash
     | Lambda
@@ -74,7 +73,7 @@ let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_') ]) 1)
           Nibblers.optional (
-              Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_') ])
+              Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('.', '.') ])
           ) ]
 
 let newLineNibbler =
@@ -122,7 +121,6 @@ let tokenNibbler =
                   takeAndMap ")" Token.CloseParen
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
-                  takeAndMap "." Token.Dot
                   takeAndMap "[" Token.OpenSquare
                   takeAndMap "]" Token.CloseSquare
                   takeAndMap "{" Token.OpenBrace

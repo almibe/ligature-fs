@@ -19,7 +19,7 @@ type Expression =
     | Identifier of Identifier
     | Slot of Slot
     | Let of name: string * value: Expression
-    | NamePath of string list
+    | Name of string
     | Grouping of Expression list
     | Array of Expression list
     | Application of Expression list
