@@ -137,7 +137,7 @@ let lengthFunction<'t> =
     )
 
 let arrayLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("cat", catFunction)
               ("map", mapFunction)

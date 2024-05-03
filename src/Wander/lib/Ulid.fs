@@ -23,4 +23,4 @@ let nextFunction<'t> =
         )
     )
 
-let ulidLib<'t> = WanderValue.Record(Map [ ("next", nextFunction) ])
+let ulidLib<'t> = WanderValue.Namespace(Map [ ("next", nextFunction) ])

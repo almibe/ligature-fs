@@ -45,7 +45,7 @@ let ltFunction<'t> =
 //     )
 
 let intLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map [ ("lt", ltFunction) ]
     //              ("toBytes", toBytesFunction)
     //              ("fromBytes", fromBytesFunction) ]

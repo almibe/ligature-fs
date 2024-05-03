@@ -268,7 +268,7 @@ let newIdFun (instance: ILigature) =
     )
 
 let ligatureLib (ligature: ILigature) =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("datasets", datasetsFun ligature)
               ("createDataset", createDatasetFun ligature)

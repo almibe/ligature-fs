@@ -37,4 +37,4 @@ let failFunction<'t> =
     )
 
 let assertLib<'t> =
-    WanderValue.Record(Map [ ("equal", equalFunction); ("fail", failFunction) ])
+    WanderValue.Namespace(Map [ ("equal", equalFunction); ("fail", failFunction) ])

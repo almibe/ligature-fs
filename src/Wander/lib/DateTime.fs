@@ -20,4 +20,4 @@ let ticksFunction<'t> =
         )
     )
 
-let dateTimeLib<'t> = WanderValue.Record(Map [ ("ticks", ticksFunction) ])
+let dateTimeLib<'t> = WanderValue.Namespace(Map [ ("ticks", ticksFunction) ])

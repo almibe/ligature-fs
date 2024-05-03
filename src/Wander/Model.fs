@@ -43,7 +43,7 @@ type WanderValue =
     | Function of Function
     | Array of WanderValue array
     | Pattern of IPattern
-    | Record of Map<string, WanderValue>
+    | Namespace of Map<string, WanderValue>
     | Bytes of byte array
 
 and [<RequireQualifiedAccess>] Function =
@@ -61,9 +61,9 @@ type Bindings = Bindings.Bindings<string, WanderValue>
 //TODO try to remove this
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
     if
-        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Record(Map.empty))
+        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Namespace(Map.empty))
         && (right = WanderValue.Pattern(emptyPattern)
-            || right = WanderValue.Record(Map.empty))
+            || right = WanderValue.Namespace(Map.empty))
     then
         true
     else
@@ -84,7 +84,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Slot s -> $"${(s.Name)}"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Statement(statement) -> printStatementLiteral statement
-    | WanderValue.Record(values) -> printRecord values
+    | WanderValue.Namespace(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Pattern(values) ->

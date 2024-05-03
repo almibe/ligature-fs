@@ -17,4 +17,4 @@ let lengthFunction<'t> =
         )
     )
 
-let bytesLib<'t> = WanderValue.Record(Map [ ("length", lengthFunction) ])
+let bytesLib<'t> = WanderValue.Namespace(Map [ ("length", lengthFunction) ])

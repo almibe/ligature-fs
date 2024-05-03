@@ -30,4 +30,4 @@ let readValueFunction<'t> =
     )
 
 let wanderLib<'t> =
-    WanderValue.Record(Map [ ("writeValue", writeValueFunction); ("readValue", readValueFunction) ])
+    WanderValue.Namespace(Map [ ("writeValue", writeValueFunction); ("readValue", readValueFunction) ])

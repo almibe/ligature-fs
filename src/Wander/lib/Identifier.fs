@@ -48,7 +48,7 @@ let fromBytesFunction<'t> =
     )
 
 let identifierLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("toBytes", toBytesFunction)
               ("fromBytes", fromBytesFunction)

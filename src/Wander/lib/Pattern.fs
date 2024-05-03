@@ -19,7 +19,7 @@ let applyFunction<'t> =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern); WanderValue.Record(data) ] ->
+                | [ WanderValue.Pattern(pattern); WanderValue.Namespace(data) ] ->
                     let res =
                         data
                         |> Map.toSeq
@@ -141,7 +141,7 @@ let extractFunction<'t> =
                              | Value.Identifier value -> WanderValue.Identifier value
                              | Value.String value -> WanderValue.String value))
                         |> Map.ofSeq
-                        |> WanderValue.Record)
+                        |> WanderValue.Namespace)
                     |> Array.ofList
                     |> WanderValue.Array
                     |> Ok
@@ -150,7 +150,7 @@ let extractFunction<'t> =
     )
 
 let patternLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("apply", applyFunction)
               ("count", countFunction)

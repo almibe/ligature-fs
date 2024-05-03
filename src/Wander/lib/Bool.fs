@@ -58,7 +58,7 @@ let fromBytesFunction<'t> =
     )
 
 let boolLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("toBytes", toBytesFunction)
               ("fromBytes", fromBytesFunction)

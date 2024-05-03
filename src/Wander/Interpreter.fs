@@ -14,20 +14,20 @@ let readName (name: string) (bindings: Bindings<string, WanderValue>) =
     match read (List.head namePath) bindings with
     | Some(value) ->
         match value with
-        | WanderValue.Record(values) ->
+        | WanderValue.Namespace(values) ->
             match namePath.Tail with
-            | [] -> Some(WanderValue.Record values)
+            | [] -> Some(WanderValue.Namespace values)
             | namePath ->
                 List.fold
                     (fun values name ->
                         match values with
-                        | Some(WanderValue.Record(values)) ->
+                        | Some(WanderValue.Namespace(values)) ->
                             match Map.tryFind name values with
                             | Some(res) -> Some(res)
                             | None -> None
                         | None -> failwith "Not Implemented"
                         | Some(value) -> Some value)
-                    (Some(WanderValue.Record(values)))
+                    (Some(WanderValue.Namespace(values)))
                     namePath
         | value -> Some value
     | None -> None
@@ -168,7 +168,7 @@ and handleRecord bindings values =
             values
 
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
-    Ok(WanderValue.Record(v), bindings)
+    Ok(WanderValue.Namespace(v), bindings)
 
 and handleEntityDescription bindings (attribute, values) =
     let attribute =

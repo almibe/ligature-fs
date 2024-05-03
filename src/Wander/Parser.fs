@@ -25,7 +25,7 @@ type Element =
     | Array of Element list
     | Let of string * Element
     | Lambda of string list * Element
-    | Record of (string * Element) list
+    | Namespace of (string * Element) list
     | Pattern of DatasetPatternRoot list
     | Pipe
     | Colon
@@ -178,7 +178,7 @@ let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Record(declarations)
+        return Element.Namespace(declarations)
     }
 
 /// Read the next Element from the given instance of Gaze<Token>
@@ -386,7 +386,7 @@ let rec expressElement (element: Element) =
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
-    | Element.Record declarations -> handleRecord declarations
+    | Element.Namespace declarations -> handleRecord declarations
     | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes

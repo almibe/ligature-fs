@@ -50,7 +50,7 @@ let valueFunction<'t> =
     )
 
 let statementLib<'t> =
-    WanderValue.Record(
+    WanderValue.Namespace(
         Map
             [ ("entity", entityFunction)
               ("attribute", attributeFunction)
