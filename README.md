@@ -34,7 +34,6 @@ test suite for the other project.
 | LigaturePad       | A simple desktop appplication for testing Ligature.                |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 | Wander            | The Wander scripting language.                                     |
-| Wander.Repl       | A REPL for experimenting with Wander and Ligature.                 |
 
 *Note: LigatureTestSuite is intended to be used by implementations in their own test suite. It can't be ran by itself.*
 
