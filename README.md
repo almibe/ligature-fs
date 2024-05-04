@@ -31,7 +31,6 @@ test suite for the other project.
 | LigatureFable     | A project for producing JavaScript code using Fable 4.             |
 | LigatureZeroMQ    | A backend of Ligature using ZeroMQ.                                |
 | LigatureInMemory  | An implementation of Ligature that uses in-memory data structures. |
-| LigaturePad       | A simple desktop appplication for testing Ligature.                |
 | LigatureTestSuite | A common test suite for Ligature implementations*.                 |
 | Wander            | The Wander scripting language.                                     |
 
