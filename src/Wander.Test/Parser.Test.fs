@@ -174,16 +174,16 @@ let tests =
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Pattern([]) ])) ""
 
-          testCase "Parse Record with 1 value"
+          testCase "Parse Namespace with 1 value"
           <| fun _ ->
               let tokens = tokenize "{ x = 5 }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5I)) ]) ])) ""
-          testCase "Parse Record with 2 values"
+              Expect.equal ast (Ok([ Element.Namespace([ ("x", Element.Int(5I)) ]) ])) ""
+          testCase "Parse Namespace with 2 values"
           <| fun _ ->
               let tokens = tokenize "{ x = 5, y = false }"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Record([ ("x", Element.Int(5I)); ("y", Element.Bool(false)) ]) ])) ""
+              Expect.equal ast (Ok([ Element.Namespace([ ("x", Element.Int(5I)); ("y", Element.Bool(false)) ]) ])) ""
           testCase "Parse Lambda"
           <| fun _ ->
               let tokens = tokenize "\\x -> x"
