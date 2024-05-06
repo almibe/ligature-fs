@@ -7,7 +7,25 @@ module Ligature.Wander.Lib.String
 open Ligature.Wander.Model
 open Ligature
 
-let lengthFunction<'t> =
+let catFunction =
+    WanderValue.Function(
+        Function.HostFunction(
+            HostFunction(
+                (fun args _ ->
+                    match args with
+                    | [ WanderValue.Array(values) ] -> 
+                        Array.fold (fun state value -> 
+                            match value with
+                            | WanderValue.String(value) -> state + value
+                            | _ -> failwith "Error") "" values
+                        |> WanderValue.String
+                        |> Ok
+                    | _ -> error "Invalid call to map function." None)
+            )
+        )
+    )
+
+let lengthFunction =
     WanderValue.Function(
         Function.HostFunction(
             HostFunction(
@@ -19,7 +37,7 @@ let lengthFunction<'t> =
         )
     )
 
-let toBytesFunction<'t> =
+let toBytesFunction =
     WanderValue.Function(
         Function.HostFunction(
             HostFunction(
@@ -31,7 +49,7 @@ let toBytesFunction<'t> =
         )
     )
 
-let fromBytesFunction<'t> =
+let fromBytesFunction =
     WanderValue.Function(
         Function.HostFunction(
             HostFunction(
@@ -43,10 +61,11 @@ let fromBytesFunction<'t> =
         )
     )
 
-let stringLib<'t> =
+let stringLib =
     WanderValue.Namespace(
         Map
-            [ ("fromBytes", fromBytesFunction)
+            [ ("cat", catFunction)
+              ("fromBytes", fromBytesFunction)
               ("length", lengthFunction)
               ("toBytes", toBytesFunction) ]
     )

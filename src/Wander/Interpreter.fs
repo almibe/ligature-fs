@@ -332,7 +332,7 @@ and evalLambda bindings parameters body arguments =
     | Some(err) -> Error(err)
     | None ->
         let mutable scope = Bindings.addScope bindings
-        List.iteri (fun i arg -> scope <- Bindings.bind (List.item i parameters) arg bindings) (Array.toList args)
+        List.iteri (fun i arg -> scope <- Bindings.bind (List.item i parameters) arg scope) (Array.toList args)
         evalExpression scope body
 
 and handleLambda bindings parameters body =

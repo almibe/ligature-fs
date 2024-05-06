@@ -205,6 +205,11 @@ let tests =
               let script = "id = \\x -> x,\nid 45"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(45I))) ""
+          testCase "Define and call Lambda with multiple params"
+          <| fun _ ->
+              let script = "first = \\x y -> x,\nfirst 45 27"
+              let result = run script bindings
+              Expect.equal result (Ok(WanderValue.Int(45I))) ""
           testCase "Identifier concat"
           <| fun _ ->
               let script = "`a`:`b`"

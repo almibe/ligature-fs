@@ -189,6 +189,17 @@ let tests =
               let tokens = tokenize "\\x -> x"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Lambda([ "x" ], Element.Name("x")) ])) ""
+          testCase "Parse Function Defintion"
+          <| fun _ ->
+              let tokens = tokenize "id i = i"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([ Element.Let("id", Element.Lambda([ "i" ], Element.Name("i"))) ])) ""
+          testCase "Parse Function Defintion with two Params"
+          <| fun _ ->
+              let tokens = tokenize "first x y = x"
+              let ast = parse (unsafe tokens)
+              Expect.equal ast (Ok([ Element.Let("first", Element.Lambda([ "x"; "y" ], Element.Name("x"))) ])) ""
+          
           testCase "Parse Application"
           <| fun _ ->
               let tokens = tokenize "Bool.and false true"

@@ -61,6 +61,18 @@ let readAssignment gaze =
             })
         gaze
 
+let lambdaAssignmentNib gaze =
+    Gaze.attempt
+        (fun gaze ->
+            result {
+                let! name = Gaze.attempt nameStrNibbler gaze
+                let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
+                let! _ = Gaze.attempt (take Token.EqualsSign) gaze
+                let! body = Gaze.attempt elementNib gaze
+                return Element.Let(name, Element.Lambda(parameters, body))
+            })
+        gaze
+
 let patternsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
@@ -173,12 +185,24 @@ let declarationsNib (gaze: Gaze.Gaze<Token>) =
         return (name, expression)
     }
 
+let lambdaDeclarationsNib (gaze: Gaze.Gaze<Token>) =
+    result {
+        let! name = Gaze.attempt nameStrNibbler gaze
+        let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
+        let! _ = Gaze.attempt equalSignNib gaze
+        let! body = Gaze.attempt elementNib gaze
+        return (name, Element.Lambda(parameters, body))
+    }
+
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
+        let! declarations = (optional (repeatSep (takeFirst [lambdaDeclarationsNib; declarationsNib]) Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Namespace(declarations)
+        if List.isEmpty declarations then
+            return Element.Pattern(List.empty)
+        else
+            return Element.Namespace(declarations)
     }
 
 /// Read the next Element from the given instance of Gaze<Token>
@@ -265,20 +289,21 @@ let applicationInnerNib =
           readValue
           nameNib
           arrayNib
-          datasetNib
           recordNib
+          datasetNib
           lambdaNib
           groupingNib ]
 
 let elementNib =
     takeFirst
-        [ readAssignment
+        [ lambdaAssignmentNib
+          readAssignment
           applicationNib
           nameNib
           readValue
           arrayNib
-          datasetNib
           recordNib
+          datasetNib
           lambdaNib
           groupingNib ]
 
