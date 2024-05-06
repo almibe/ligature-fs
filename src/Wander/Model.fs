@@ -5,7 +5,6 @@
 module Ligature.Wander.Model
 
 open Ligature
-open System.Web
 open System
 open Ligature.InMemory.Pattern
 
@@ -75,10 +74,17 @@ let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
                 false
         | _ -> left = right
 
+let encodeString string =
+    #if !FABLE_COMPILER
+        System.Web.HttpUtility.JavaScriptStringEncode(string, true)
+    #else
+        failwith "TODO"
+    #endif
+
 let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Int i -> sprintf "%A" i
-    | WanderValue.String s -> HttpUtility.JavaScriptStringEncode(s, true)
+    | WanderValue.String s -> encodeString s
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Slot s -> $"${(s.Name)}"

@@ -110,7 +110,15 @@ and [<CustomEquality; CustomComparison>] Statement =
         | _ -> false
 
     override this.GetHashCode() =
-        HashCode.Combine(this.Entity, this.Attribute, this.Value)
+        #if !FABLE_COMPILER
+            HashCode.Combine(this.Entity, this.Attribute, this.Value)
+        #else
+            let mutable hash = 17
+            hash <- hash * 31 + this.Entity.GetHashCode()
+            hash <- hash * 31 + this.Attribute.GetHashCode()
+            hash <- hash * 31 + this.Value.GetHashCode()
+            hash
+        #endif
 
     interface IComparable with
         member this.CompareTo(other) =

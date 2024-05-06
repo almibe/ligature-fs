@@ -9,18 +9,19 @@ open Ligature
 open System
 
 let nextFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(prefix) ] ->
-                        match identifier (prefix + Ulid.NewUlid().ToString()) with
-                        | Ok identifier -> Ok(WanderValue.Identifier(identifier))
-                        | _ -> error $"Invalid prefix for Identifier {prefix}." None
-                    | _ -> error "Invalid call to Ulid.next function." None)
-            )
-        )
-    )
+    #if !FABLE_COMPILER
+        WanderValue.Function(
+            Function.HostFunction(
+                HostFunction(
+                    (fun args _ ->
+                        match args with
+                        | [ WanderValue.String(prefix) ] ->
+                            match identifier (prefix + Ulid.NewUlid().ToString()) with
+                            | Ok identifier -> Ok(WanderValue.Identifier(identifier))
+                            | _ -> error $"Invalid prefix for Identifier {prefix}." None
+                        | _ -> error "Invalid call to Ulid.next function." None))))
+    #else
+        failwith "TODO"
+    #endif
 
 let ulidLib<'t> = WanderValue.Namespace(Map [ ("next", nextFunction) ])

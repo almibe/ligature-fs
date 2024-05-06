@@ -25,6 +25,13 @@ let slotNibbler =
         [ Nibblers.takeAll [ Nibblers.take '$' ]
           Nibblers.optional slotCharacterNibbler ]
 
+let parseString (s: string) =
+    #if FABLE_COMPILER
+        failwith "TODO"
+    #else
+        System.Text.Json.Nodes.JsonNode.Parse(s)
+    #endif
+
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
     Gaze.map
@@ -34,14 +41,12 @@ let stringContentNibbler: Gaze.Nibbler<char, string> =
             else
                 (try
                     (let s = "\"" + System.String.Concat((List.append result [ input ]))
-                     ignore <| System.Text.Json.Nodes.JsonNode.Parse(s)
+                     ignore <| parseString s
                      false)
                  with _ ->
                      true)))
         (fun chars ->
-            System.Text.Json.Nodes.JsonValue
-                .Parse("\"" + System.String.Concat(chars) + "\"")
-                .ToString())
+            parseString("\"" + System.String.Concat(chars) + "\"").ToString())
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.
