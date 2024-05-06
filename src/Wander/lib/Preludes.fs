@@ -9,6 +9,7 @@ open Bool
 open Bytes
 open Identifier
 open Ligature
+open Keylime
 open Int
 open Wander
 open DateTime
@@ -21,6 +22,7 @@ let bindStandardLibrary bindings =
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Pattern" Pattern.patternLib
+    |> Bindings.bind "Keylime" keylimeLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Statement" Statement.statementLib

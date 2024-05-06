@@ -22,6 +22,7 @@
     <Compile Include="lib/DateTime.fs" />
     <Compile Include="lib/Identifier.fs" />
     <Compile Include="lib/Int.fs" />
+    <Compile Include="lib/Keylime.fs" />
     <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Pattern.fs" />
     <Compile Include="lib/Statement.fs" />
