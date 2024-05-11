@@ -29,7 +29,7 @@
     <Compile Include="lib/String.fs" />
     <Compile Include="lib/Ulid.fs" />
     <Compile Include="lib/Wander.fs" />
-    <Compile Include="lib/Preludes.fs" />
+    <Compile Include="Environments.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />

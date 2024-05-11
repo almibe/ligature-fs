@@ -11,272 +11,272 @@ open Ligature.InMemory.Pattern
 
 let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 
-let datasetsFun (ligature: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(
-                (fun _ _ ->
-                    match ligature.AllDatasets() with
-                    | Ok(datasets) ->
-                        datasets
-                        |> Seq.map (fun (DatasetName name) -> WanderValue.String name)
-                        |> Array.ofSeq
-                        |> WanderValue.Array
-                        |> Ok
-                    | Error(err) -> failwith "todo")
-            )
-        )
-    )
+// let datasetsFun (ligature: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(
+//                 (fun _ _ ->
+//                     match ligature.AllDatasets() with
+//                     | Ok(datasets) ->
+//                         datasets
+//                         |> Seq.map (fun (DatasetName name) -> WanderValue.String name)
+//                         |> Array.ofSeq
+//                         |> WanderValue.Array
+//                         |> Ok
+//                     | Error(err) -> failwith "todo")
+//             )
+//         )
+//     )
 
-let createDatasetFun (ligature: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(datasetName) ] ->
-                        match ligature.CreateDataset(DatasetName datasetName) with
-                        | Ok(_) -> Ok(emptySet)
-                        | Error(errorValue) -> failwith "Not Implemented"
-                    | _ -> failwith "TODO")
-            )
-        )
-    )
+// let createDatasetFun (ligature: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(datasetName) ] ->
+//                         match ligature.CreateDataset(DatasetName datasetName) with
+//                         | Ok(_) -> Ok(emptySet)
+//                         | Error(errorValue) -> failwith "Not Implemented"
+//                     | _ -> failwith "TODO")
+//             )
+//         )
+//     )
 
-let removeDatasetFun (ligature: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(datasetName) ] ->
-                        match ligature.RemoveDataset(DatasetName datasetName) with
-                        | Ok(_) -> Ok(emptySet)
-                        | Error(err) -> failwith "todo"
-                    | _ -> failwith "")
-            )
-        )
-    )
+// let removeDatasetFun (ligature: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(datasetName) ] ->
+//                         match ligature.RemoveDataset(DatasetName datasetName) with
+//                         | Ok(_) -> Ok(emptySet)
+//                         | Error(err) -> failwith "todo"
+//                     | _ -> failwith "")
+//             )
+//         )
+//     )
 
-let datasetExists (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(fun args _ ->
-                match args.Head with
-                | WanderValue.String(name) ->
-                    let dataset = DatasetName(name)
+// let datasetExists (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(fun args _ ->
+//                 match args.Head with
+//                 | WanderValue.String(name) ->
+//                     let dataset = DatasetName(name)
 
-                    match instance.DatasetExists dataset with
-                    | Ok(result) -> Ok(WanderValue.Bool(result))
-                    | Error(err) -> Error(err)
-                | _ -> error "Could not check for Dataset" None)
-        )
-    )
+//                     match instance.DatasetExists dataset with
+//                     | Ok(result) -> Ok(WanderValue.Bool(result))
+//                     | Error(err) -> Error(err)
+//                 | _ -> error "Could not check for Dataset" None)
+//         )
+//     )
 
-let valueToWanderValue (value: Value) : WanderValue =
-    match value with
-    | Value.Identifier i -> WanderValue.Identifier i
-    | Value.Int i -> WanderValue.Int i
-    | Value.String s -> WanderValue.String s
-    | Value.Bytes b -> WanderValue.Bytes b
+// let valueToWanderValue (value: Value) : WanderValue =
+//     match value with
+//     | Value.Identifier i -> WanderValue.Identifier i
+//     | Value.Int i -> WanderValue.Int i
+//     | Value.String s -> WanderValue.String s
+//     | Value.Bytes b -> WanderValue.Bytes b
 
-let allStatementsFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.String(name) ] ->
-                    let dataset = DatasetName name
+// let allStatementsFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(fun args _ ->
+//                 match args with
+//                 | [ WanderValue.String(name) ] ->
+//                     let dataset = DatasetName name
 
-                    match instance.AllStatements dataset with
-                    | Ok(statements) ->
-                        statements
-                        |> Seq.map (fun statement -> WanderValue.Statement(statement))
-                        |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
-                    | Error(err) -> Error(err)
-                | _ -> error "Illegal call to allStatements." None)
-        )
-    )
+//                     match instance.AllStatements dataset with
+//                     | Ok(statements) ->
+//                         statements
+//                         |> Seq.map (fun statement -> WanderValue.Statement(statement))
+//                         |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
+//                     | Error(err) -> Error(err)
+//                 | _ -> error "Illegal call to allStatements." None)
+//         )
+//     )
 
-let readFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.String(name) ] ->
-                    let dataset = DatasetName name
+// let readFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             HostFunction(fun args _ ->
+//                 match args with
+//                 | [ WanderValue.String(name) ] ->
+//                     let dataset = DatasetName name
 
-                    match instance.AllStatements dataset with
-                    | Ok(statements) ->
-                        statements
-                        |> Seq.map (fun statement -> WanderValue.Statement(statement))
-                        |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
-                    | Error(err) -> Error(err)
-                | _ -> error "Illegal call to allStatements." None)
-        )
-    )
+//                     match instance.AllStatements dataset with
+//                     | Ok(statements) ->
+//                         statements
+//                         |> Seq.map (fun statement -> WanderValue.Statement(statement))
+//                         |> fun statements -> Ok(WanderValue.Array((Array.ofSeq statements)))
+//                     | Error(err) -> Error(err)
+//                 | _ -> error "Illegal call to allStatements." None)
+//         )
+//     )
 
-let matchStatements (query: IDataset) =
-    WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
+// let matchStatements (query: IDataset) =
+//     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
 
-let queryFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args bindings ->
-                match args with
-                | [ WanderValue.String(datasetName); WanderValue.Function(Function.Lambda(_parameters, body)) ] ->
-                    let dataset = DatasetName(datasetName)
+// let queryFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args bindings ->
+//                 match args with
+//                 | [ WanderValue.String(datasetName); WanderValue.Function(Function.Lambda(_parameters, body)) ] ->
+//                     let dataset = DatasetName(datasetName)
 
-                    // let res =
-                    //     instance.RunQuery dataset (fun tx ->
-                    //         //let bindings' = Wander.Bindings.bind "match" (matchStatements tx) bindings
-                    //         //error "todo - inside query" None
-                    //         //Ok(WanderValue.Nothing))
-                    //         failwith "TODO")
+//                     // let res =
+//                     //     instance.RunQuery dataset (fun tx ->
+//                     //         //let bindings' = Wander.Bindings.bind "match" (matchStatements tx) bindings
+//                     //         //error "todo - inside query" None
+//                     //         //Ok(WanderValue.Nothing))
+//                     //         failwith "TODO")
 
-                    //res
-                    failwith "TODO"
-                | _ -> error "Improper arguments could not run query." None)
-        )
-    )
+//                     //res
+//                     failwith "TODO"
+//                 | _ -> error "Improper arguments could not run query." None)
+//         )
+//     )
 
-/// A NativeFunction that does a single match against a given Dataset.
-/// Internally it starts a query transaction and then runs a single function in the tx.
-let matchFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args bindings ->
-                match args with
-                | [ WanderValue.String(datasetName); entity; attribute; value ] ->
-                    let dataset = DatasetName datasetName
+// /// A NativeFunction that does a single match against a given Dataset.
+// /// Internally it starts a query transaction and then runs a single function in the tx.
+// let matchFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args bindings ->
+//                 match args with
+//                 | [ WanderValue.String(datasetName); entity; attribute; value ] ->
+//                     let dataset = DatasetName datasetName
 
-                    let entity =
-                        match entity with
-                        | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Pattern(_) -> Ok None
-                        | _ -> error "Invalid Entity passed to match." None
+//                     let entity =
+//                         match entity with
+//                         | WanderValue.Identifier(i) -> Ok(Some i)
+//                         | WanderValue.Pattern(_) -> Ok None
+//                         | _ -> error "Invalid Entity passed to match." None
 
-                    let attribute =
-                        match attribute with
-                        | WanderValue.Identifier(i) -> Ok(Some i)
-                        | WanderValue.Pattern(_) -> Ok None
-                        | _ -> error "Invalid Attribute passed to match." None
+//                     let attribute =
+//                         match attribute with
+//                         | WanderValue.Identifier(i) -> Ok(Some i)
+//                         | WanderValue.Pattern(_) -> Ok None
+//                         | _ -> error "Invalid Attribute passed to match." None
 
-                    let value =
-                        match value with
-                        | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
-                        | WanderValue.Pattern(_) -> Ok None
-                        | WanderValue.Int(value) -> Ok(Some(Value.Int value))
-                        | WanderValue.String(value) -> Ok(Some(Value.String value))
-                        | _ -> error "Invalid Value passed to match." None
+//                     let value =
+//                         match value with
+//                         | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
+//                         | WanderValue.Pattern(_) -> Ok None
+//                         | WanderValue.Int(value) -> Ok(Some(Value.Int value))
+//                         | WanderValue.String(value) -> Ok(Some(Value.String value))
+//                         | _ -> error "Invalid Value passed to match." None
 
-                    match (entity, attribute, value) with
-                    | (Ok(entity), Ok(attribute), Ok(value)) ->
-                        let res = failwith "TODO"
-                        // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
+//                     match (entity, attribute, value) with
+//                     | (Ok(entity), Ok(attribute), Ok(value)) ->
+//                         let res = failwith "TODO"
+//                         // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
 
-                        match res with
-                        | Ok res -> Ok(WanderValue.Pattern res)
-                        | Error err -> Error err
-                    | _ -> error "Could not call match." None //TODO should return actual error
-                | _ -> error "Improper arguments passed to match." None)
-        )
-    )
+//                         match res with
+//                         | Ok res -> Ok(WanderValue.Pattern res)
+//                         | Error err -> Error err
+//                     | _ -> error "Could not call match." None //TODO should return actual error
+//                 | _ -> error "Improper arguments passed to match." None)
+//         )
+//     )
 
-/// A Host Function that writes Statements to a Dataset.
-/// Example: Ligature.addStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
-let addStatementsFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args _ ->
-                match args with
-                | [ (WanderValue.String(name)); WanderValue.Array(statements) ] ->
-                    let dataset = DatasetName name
+// /// A Host Function that writes Statements to a Dataset.
+// /// Example: Ligature.addStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
+// let addStatementsFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args _ ->
+//                 match args with
+//                 | [ (WanderValue.String(name)); WanderValue.Array(statements) ] ->
+//                     let dataset = DatasetName name
 
-                    let statements =
-                        List.map
-                            (fun value ->
-                                match value with
-                                | WanderValue.Statement(statement) -> statement
-                                | _ -> failwith "todo")
-                            (List.ofArray statements)
+//                     let statements =
+//                         List.map
+//                             (fun value ->
+//                                 match value with
+//                                 | WanderValue.Statement(statement) -> statement
+//                                 | _ -> failwith "todo")
+//                             (List.ofArray statements)
 
-                    match instance.AddStatements dataset statements with
-                    | Ok _ -> Ok(emptySet)
-                    | Error err -> Error err
-                | [ (WanderValue.String(name)); WanderValue.Pattern(statements) ] ->
-                    let dataset = DatasetName name
-                    failwith "TODO"
-                // match statements.AllStatements() with
-                // | Ok statements ->
-                //     match instance.AddStatements dataset statements with
-                //     | Ok _ -> Ok(emptySet)
-                //     | Error err -> Error err
-                // | Error err -> Error err
-                | _ -> error "Improper call to addStatements." None)
-        )
-    )
+//                     match instance.AddStatements dataset statements with
+//                     | Ok _ -> Ok(emptySet)
+//                     | Error err -> Error err
+//                 | [ (WanderValue.String(name)); WanderValue.Pattern(statements) ] ->
+//                     let dataset = DatasetName name
+//                     failwith "TODO"
+//                 // match statements.AllStatements() with
+//                 // | Ok statements ->
+//                 //     match instance.AddStatements dataset statements with
+//                 //     | Ok _ -> Ok(emptySet)
+//                 //     | Error err -> Error err
+//                 // | Error err -> Error err
+//                 | _ -> error "Improper call to addStatements." None)
+//         )
+//     )
 
-/// A Host Function that removes Statements from a Dataset.
-/// Example: Ligature.removeStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
-let removeStatementsFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.String(name); WanderValue.Array(statements) ] ->
-                    let dataset = DatasetName name
+// /// A Host Function that removes Statements from a Dataset.
+// /// Example: Ligature.removeStatements "dataset" [<a> <b> <c>, <a> <b> "Test", <a> <b> 432]
+// let removeStatementsFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args _ ->
+//                 match args with
+//                 | [ WanderValue.String(name); WanderValue.Array(statements) ] ->
+//                     let dataset = DatasetName name
 
-                    let statements =
-                        List.map
-                            (fun value ->
-                                match value with
-                                | WanderValue.Statement(statement) -> statement
-                                | _ -> failwith "todo")
-                            (List.ofArray statements)
+//                     let statements =
+//                         List.map
+//                             (fun value ->
+//                                 match value with
+//                                 | WanderValue.Statement(statement) -> statement
+//                                 | _ -> failwith "todo")
+//                             (List.ofArray statements)
 
-                    match instance.RemoveStatements dataset statements with
-                    | Ok _ -> Ok(emptySet)
-                    | Error err -> Error err
-                | [ WanderValue.String(name); WanderValue.Pattern(statements) ] ->
-                    let dataset = DatasetName name
+//                     match instance.RemoveStatements dataset statements with
+//                     | Ok _ -> Ok(emptySet)
+//                     | Error err -> Error err
+//                 | [ WanderValue.String(name); WanderValue.Pattern(statements) ] ->
+//                     let dataset = DatasetName name
 
-                    // match statements.AllStatements() with
-                    // | Ok statements ->
-                    //     match instance.RemoveStatements dataset statements with
-                    //     | Ok _ -> Ok(emptySet)
-                    //     | Error err -> Error err
-                    // | Error err -> Error err
-                    failwith "TODO"
-                | _ -> error "Improper call to removeStatements." None)
-        )
-    )
+//                     // match statements.AllStatements() with
+//                     // | Ok statements ->
+//                     //     match instance.RemoveStatements dataset statements with
+//                     //     | Ok _ -> Ok(emptySet)
+//                     //     | Error err -> Error err
+//                     // | Error err -> Error err
+//                     failwith "TODO"
+//                 | _ -> error "Improper call to removeStatements." None)
+//         )
+//     )
 
-let newIdFun (instance: ILigature) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.String(prefix) ] ->
-                    let timeStamp = DateTime.Now.Ticks
+// let newIdFun (instance: ILigature) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args _ ->
+//                 match args with
+//                 | [ WanderValue.String(prefix) ] ->
+//                     let timeStamp = DateTime.Now.Ticks
 
-                    match identifier (prefix + timeStamp.ToString()) with
-                    | Ok(id) -> Ok(WanderValue.Identifier(id))
-                    | Error(err) -> Error(err)
-                | _ -> error "Improper call to removeStatements." None)
-        )
-    )
+//                     match identifier (prefix + timeStamp.ToString()) with
+//                     | Ok(id) -> Ok(WanderValue.Identifier(id))
+//                     | Error(err) -> Error(err)
+//                 | _ -> error "Improper call to removeStatements." None)
+//         )
+//     )
 
-let ligatureLib (ligature: ILigature) =
-    WanderValue.Namespace(
-        Map
-            [ ("datasets", datasetsFun ligature)
-              ("createDataset", createDatasetFun ligature)
-              ("removeDataset", removeDatasetFun ligature)
-              ("allStatements", allStatementsFun ligature)
-              ("query", queryFun ligature)
-              ("match", matchFun ligature)
-              ("addStatements", addStatementsFun ligature)
-              ("removeStatements", removeStatementsFun ligature)
-              ("newId", newIdFun ligature) ]
-    )
+// let ligatureLib (ligature: ILigature) =
+//     WanderValue.Namespace(
+//         Map
+//             [ ("datasets", datasetsFun ligature)
+//               ("createDataset", createDatasetFun ligature)
+//               ("removeDataset", removeDatasetFun ligature)
+//               ("allStatements", allStatementsFun ligature)
+//               ("query", queryFun ligature)
+//               ("match", matchFun ligature)
+//               ("addStatements", addStatementsFun ligature)
+//               ("removeStatements", removeStatementsFun ligature)
+//               ("newId", newIdFun ligature) ]
+//     )

@@ -8,13 +8,16 @@ open Ligature.Wander.Model
 open Ligature
 open System
 
-let rec createKeylimeNamespace (store: Map<byte array, byte array>) =
+let createKeylimeNamespace (store: Map<byte array, byte array>) =
+    let mutable store = store
     WanderValue.Namespace(Map.ofList [
         ("add", WanderValue.Function(Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.Bytes(key); WanderValue.Bytes(value) ] -> Ok (createKeylimeNamespace (Map.add key value store))
+                    | [ WanderValue.Bytes(key); WanderValue.Bytes(value) ] -> 
+                        store <- Map.add key value store
+                        Ok(WanderValue.Namespace(Map.empty))
                     | _ -> error "Unexpected values" None
                 )
             )
@@ -23,7 +26,9 @@ let rec createKeylimeNamespace (store: Map<byte array, byte array>) =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.Bytes(key) ] -> Ok (createKeylimeNamespace (Map.remove key store))
+                    | [ WanderValue.Bytes(key) ] -> 
+                        store <- Map.remove key store
+                        Ok(WanderValue.Namespace(Map.empty))
                     | _ -> error "Unexpected values" None
                 )
             )
@@ -92,5 +97,5 @@ let newFunction =
 let keylimeLib =
     WanderValue.Namespace(
         Map [ 
-            ("new", newFunction) ])
-
+            ("new", newFunction)
+            ("instance", createKeylimeNamespace Map.empty) ])

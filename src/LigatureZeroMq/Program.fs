@@ -11,13 +11,13 @@ open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Ligature.Wander.Lib.Preludes
+open Ligature.Wander.Environments
 
-let rec serve (server: ResponseSocket) (instance: ILigature) =
+let rec serve (server: ResponseSocket) =
     let script = server.ReceiveFrameString()
-    let res = run script (instancePrelude instance)
+    let res = run script (standardEnvironment ())
     server.SendFrame(printResult res)
-    serve server instance
+    serve server
 
 [<EntryPoint>]
 let main _ =

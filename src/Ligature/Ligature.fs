@@ -139,19 +139,19 @@ and IDataset =
     abstract member Count: IPattern -> Result<int64, LigatureError>
     abstract member AllStatements: unit -> Result<Statement list, LigatureError>
 
-type ILigature =
-    abstract member AllDatasets: unit -> Result<DatasetName list, LigatureError>
-    abstract member DatasetExists: DatasetName -> Result<bool, LigatureError>
-    abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
-    abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
-    abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
-    abstract member Contains: DatasetName -> IPattern -> Result<bool, LigatureError>
-    abstract member Count: DatasetName -> IPattern -> Result<int64, LigatureError>
-    abstract member Extract: DatasetName -> IPattern -> Result<Map<Slot, Value> array, LigatureError>
-    abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
-    abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
-    abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
-    abstract member Close: unit -> Result<Unit, LigatureError>
+// type ILigature =
+//     abstract member AllDatasets: unit -> Result<DatasetName list, LigatureError>
+//     abstract member DatasetExists: DatasetName -> Result<bool, LigatureError>
+//     abstract member CreateDataset: DatasetName -> Result<Unit, LigatureError>
+//     abstract member RemoveDataset: DatasetName -> Result<Unit, LigatureError>
+//     abstract member AllStatements: DatasetName -> Result<Statement list, LigatureError>
+//     abstract member Contains: DatasetName -> IPattern -> Result<bool, LigatureError>
+//     abstract member Count: DatasetName -> IPattern -> Result<int64, LigatureError>
+//     abstract member Extract: DatasetName -> IPattern -> Result<Map<Slot, Value> array, LigatureError>
+//     abstract member Call: DatasetName -> Identifier -> IDataset -> Result<IDataset, LigatureError>
+//     abstract member AddStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
+//     abstract member RemoveStatements: DatasetName -> Statement list -> Result<unit, LigatureError>
+//     abstract member Close: unit -> Result<Unit, LigatureError>
 
 let statement entity attribute value =
     { Entity = entity
