@@ -14,13 +14,6 @@ open Lib.Int
 open Lib.Wander
 open Lib.DateTime
 
-let loadWanderLibs bindings =
-    match System.Environment.GetEnvironmentVariable "WANDER_LIBS" with
-    | null -> failwith "WANDER_LIBS not set"
-    | value ->
-        
-        failwith "TODO"
-
 let bindCoreHostFunctions bindings =
     bindings
     |> Bindings.bind "Array" Lib.Array.arrayLib
@@ -37,8 +30,31 @@ let bindCoreHostFunctions bindings =
     |> Bindings.bind "Ulid" Lib.Ulid.ulidLib
     |> Bindings.bind "Wander" wanderLib
 
-let standardEnvironment () =
+/// Provides an Environment that provides only the core Host Functions.
+let coreEnvironment () =
     bindCoreHostFunctions (Bindings.newBindings ())
 
-// let instancePrelude instance =
-//     standardPrelude () |> Bindings.bind "Ligature" (ligatureLib instance)
+let bindWanderLibs bindings =
+    match System.Environment.GetEnvironmentVariable "WANDER_LIBS" with
+    | null -> failwith "WANDER_LIBS not set"
+    | value ->
+        let mutable bindings = bindings
+        System.IO.Directory.GetFiles(value, "*.wander", new System.IO.EnumerationOptions(RecurseSubdirectories = true)) 
+        |> Array.filter (fun file -> not <| file.Contains(".test."))
+        |> Array.iter (fun file ->
+            let scriptName = 
+                (System.IO.Path.GetFileName file).Split(".")
+                |> Array.head
+            let script = System.IO.File.ReadAllText file
+            match Ligature.Wander.Main.run script (coreEnvironment ()) with
+            | Ok res ->
+                match Bindings.read scriptName bindings with
+                | None -> bindings <- Bindings.bind scriptName res bindings
+                | _ -> failwith $"Error {scriptName} is already bound."
+            | _ -> failwith "Error")
+        bindings
+
+/// Provices an Environment that provides the core Host Functions and loads namespaces from WANDER_LIBS.
+let standardEnvironment () =
+    bindCoreHostFunctions (Bindings.newBindings ())
+    |> bindWanderLibs

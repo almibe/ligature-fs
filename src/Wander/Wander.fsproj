@@ -6,6 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="memory/InMemoryDataset.fs" />
+    <Compile Include="memory/InMemoryPattern.fs" />
+    <Compile Include="memory/LigatureInMemory.fs" />
     <Compile Include="InMemoryDataset.fs" />
     <Compile Include="Bindings.fs" />
     <Compile Include="Model.fs" />
