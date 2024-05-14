@@ -5,7 +5,7 @@
 module Ligature.Test
 
 open Expecto
-open Ligature
+open Ligature.Main
 
 let ident id =
     match identifier id with

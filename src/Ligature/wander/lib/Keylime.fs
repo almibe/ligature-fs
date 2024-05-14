@@ -7,16 +7,18 @@ module Ligature.Wander.Lib.Keylime
 open Ligature.Wander.Model
 open Ligature
 open System
+open System.Collections.Generic
 
-let createKeylimeNamespace (store: Map<byte array, byte array>) =
-    let mutable store = store
+let createKeylimeNamespace (name: string) (store: Dictionary<string, Map<byte array, byte array>>) =
     WanderValue.Namespace(Map.ofList [
         ("add", WanderValue.Function(Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(key); WanderValue.Bytes(value) ] -> 
-                        store <- Map.add key value store
+                        let s = store.Item(name)
+                        store.Remove(name)
+                        store.Add(name, Map.add key value s)
                         Ok(WanderValue.Namespace(Map.empty))
                     | _ -> error "Unexpected values" None
                 )
@@ -27,7 +29,8 @@ let createKeylimeNamespace (store: Map<byte array, byte array>) =
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(key) ] -> 
-                        store <- Map.remove key store
+                        store.Remove(name)
+                        store.Add(name, Map.remove key (store.Item(name)))
                         Ok(WanderValue.Namespace(Map.empty))
                     | _ -> error "Unexpected values" None
                 )
@@ -38,23 +41,23 @@ let createKeylimeNamespace (store: Map<byte array, byte array>) =
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(key) ] ->
-                        match Map.tryFind key store with
+                        // printfn "Key = %A" key
+                        // printfn "Contains key = %A " (store.ContainsKey(key))
+                        // printfn "Contains key = %A " (store.Keys.Contains(key))
+                        // printfn "Keys = %A " (store.Keys)
+                        
+                        match Map.tryFind key (store.Item(name)) with
                         | Some value -> Ok(WanderValue.Bytes(value))
-                        | None -> Ok(WanderValue.Namespace(Map.empty))
+                        | _ -> Ok(WanderValue.Namespace(Map.empty))
                     | _ -> error "Unexpected values" None
                 )
             )
         )))
-        ("all", WanderValue.Function(Function.HostFunction(
+        ("count", WanderValue.Function(Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ _ ] ->
-                        store
-                        |> Map.toArray
-                        |> Array.map (fun (k, v) -> WanderValue.Array([| WanderValue.Bytes(k); WanderValue.Bytes(v) |]))
-                        |> WanderValue.Array
-                        |> Ok
+                    | [ _ ] -> Ok(WanderValue.Int(store.Count))
                     | _ -> error "Unexpected values" None
                 )
             )
@@ -64,7 +67,7 @@ let createKeylimeNamespace (store: Map<byte array, byte array>) =
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(prefix) ] ->
-                        store
+                        store.Item(name)
                         |> Map.toArray
                         |> Array.filter (fun (key, _) -> (Array.truncate (Array.length prefix) key) = prefix )
                         |> Array.map (fun (k, v) -> WanderValue.Array [|WanderValue.Bytes(k); WanderValue.Bytes(v)|])
@@ -76,26 +79,26 @@ let createKeylimeNamespace (store: Map<byte array, byte array>) =
         )))
     ])
 
-let newFunction =
+let openFunction (store: Dictionary<string, Map<byte array, byte array>>) =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.Array(values) ] -> 
-                        Array.fold (fun state value -> 
-                            match value with
-                            | WanderValue.Array([|WanderValue.Bytes(k); WanderValue.Bytes(v)|]) -> Map.add k v state
-                            | _ -> failwith "Error") Map.empty values
-                        |> createKeylimeNamespace
-                        |> Ok
+                    | [ WanderValue.String(databaseName) ] ->
+                        if store.ContainsKey databaseName then
+                            Ok(createKeylimeNamespace databaseName store)
+                        else
+                            let newDb = Map.empty
+                            store.Add(databaseName, newDb)
+                            Ok(createKeylimeNamespace databaseName store)
                     | _ -> error "Invalid call to map function." None)
             )
         )
     )
 
 let keylimeLib =
+    let store = new Dictionary<string, Map<byte array, byte array>>()
     WanderValue.Namespace(
         Map [ 
-            ("new", newFunction)
-            ("instance", createKeylimeNamespace Map.empty) ])
+            ("open", openFunction store) ])

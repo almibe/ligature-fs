@@ -27,6 +27,9 @@ let slotNibbler =
 
 let parseString (s: string) =
     #if FABLE_COMPILER
+        // [<Emit("JSON.parse($0)")>]
+        // let parse (input: string): string = jsNative        
+        // parse s
         failwith "TODO"
     #else
         System.Text.Json.Nodes.JsonNode.Parse(s)

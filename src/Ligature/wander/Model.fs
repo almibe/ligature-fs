@@ -8,6 +8,62 @@ open Ligature
 open System
 open Ligature.InMemory.Pattern
 
+type Slot private (name: string option) =
+    member _.Named = name.IsSome
+
+    member _.Name =
+        match name with
+        | Some name -> name
+        | None -> ""
+
+    static member New(name: string option) =
+        let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+        let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
+
+        match name with
+        | Some name ->
+            if slotPattern.IsMatch(name) then
+                Ok(Slot(Some name))
+            else
+                invalidSlot name
+        | None -> Ok(Slot(None))
+
+    static member Empty = Slot(None)
+
+    override this.Equals(other) =
+        let other = other :?> Slot
+        this.Name = other.Name
+
+    interface IComparable with
+        member this.CompareTo(other) =
+            let other = other :?> Slot
+            this.Name.CompareTo(other.Name)
+
+let slot name = Slot.New name
+
+
+[<RequireQualifiedAccess>]
+type PatternIdentifier =
+    | Slot of Slot
+    | Identifier of Identifier
+
+[<RequireQualifiedAccess>]
+type PatternValue =
+    | Slot of Slot
+    | Value of Value
+
+type PatternStatement =
+    { Entity: PatternIdentifier
+      Attribute: PatternIdentifier
+      Value: PatternValue }
+
+type IPattern =
+    abstract member PatternStatements: Set<PatternStatement>
+    abstract member Apply: Map<Slot, Value> -> IDataset option
+    abstract member Dataset: IDataset option
+    abstract member SingleRoot: bool
+
+
 [<RequireQualifiedAccess>]
 type Expression =
     | Colon
@@ -74,11 +130,15 @@ let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
                 false
         | _ -> left = right
 
+// [<Emit("JSON.stringify($0)")>]
+// let encode (input: string): string = jsNative        
+
 let encodeString string =
     #if !FABLE_COMPILER
         System.Web.HttpUtility.JavaScriptStringEncode(string, true)
     #else
         failwith "TODO"
+        //encode s
     #endif
 
 let rec prettyPrint (value: WanderValue) : string =

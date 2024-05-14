@@ -8,6 +8,14 @@
 
   <ItemGroup>
     <Compile Include="Main.fs" />
+<!--
+    <Compile Include="wander/Bindings.Test.fs" />
+    <Compile Include="wander/Lexer.Test.fs" />
+    <Compile Include="wander/Parser.Test.fs" />
+    <Compile Include="wander/Wander.Test.fs" />
+    <Compile Include="wander/Encoding.Test.fs" />
+    <Compile Include="wander/Main.fs" />
+-->
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +23,8 @@
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Update="FSharp.Core" Version="8.*" />
+    <PackageReference Include="Expecto.FsCheck" Version="10.2.1" />
+    <PackageReference Include="FsCheck" Version="2.16.6" />
   </ItemGroup>
 
   <ItemGroup>

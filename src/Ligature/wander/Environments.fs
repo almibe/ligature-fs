@@ -51,7 +51,7 @@ let bindWanderLibs bindings =
                 match Bindings.read scriptName bindings with
                 | None -> bindings <- Bindings.bind scriptName res bindings
                 | _ -> failwith $"Error {scriptName} is already bound."
-            | _ -> failwith "Error")
+            | Error err -> failwith $"Error evaluating script {scriptName} -- {err.UserMessage}")
         bindings
 
 /// Provices an Environment that provides the core Host Functions and loads namespaces from WANDER_LIBS.

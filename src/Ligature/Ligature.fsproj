@@ -7,5 +7,42 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
+<!--
+    <Compile Include="wander/memory/InMemoryDataset.fs" />
+    <Compile Include="wander/memory/InMemoryPattern.fs" />
+    <Compile Include="wander/memory/LigatureInMemory.fs" />
+    <Compile Include="wander/InMemoryDataset.fs" />
+    <Compile Include="wander/Bindings.fs" />
+    <Compile Include="wander/Model.fs" />
+    <Compile Include="wander/LexerUtil.fs" />
+    <Compile Include="wander/Lexer.fs" />
+    <Compile Include="wander/Parser.fs" />
+    <Compile Include="wander/Interpreter.fs" />
+    <Compile Include="wander/Wander.fs" />
+    <Compile Include="wander/Serialize.fs" />
+    <Compile Include="wander/lib/Array.fs" />
+    <Compile Include="wander/lib/Assert.fs" />
+    <Compile Include="wander/lib/Bool.fs" />
+    <Compile Include="wander/lib/Bytes.fs" />
+    <Compile Include="wander/lib/DateTime.fs" />
+    <Compile Include="wander/lib/Identifier.fs" />
+    <Compile Include="wander/lib/Int.fs" />
+    <Compile Include="wander/lib/Keylime.fs" />
+    <Compile Include="wander/lib/Ligature.fs" />
+    <Compile Include="wander/lib/Pattern.fs" />
+    <Compile Include="wander/lib/Statement.fs" />
+    <Compile Include="wander/lib/String.fs" />
+    <Compile Include="wander/lib/Ulid.fs" />
+    <Compile Include="wander/lib/Wander.fs" />
+    <Compile Include="wander/Environments.fs" />
+-->
+    <Compile Include="Serialization.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="3.2.3" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+    <PackageReference Include="LightningDB" Version="0.16.0" />
+    <PackageReference Include="Ulid" Version="1.3.3" />
   </ItemGroup>
 </Project>
