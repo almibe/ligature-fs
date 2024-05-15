@@ -9,7 +9,7 @@ open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature.InMemory.Pattern
 open Ligature
-open Ligature.Wander.InMemoryDataset
+open Ligature.Wander.InMemoryNetwork
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 

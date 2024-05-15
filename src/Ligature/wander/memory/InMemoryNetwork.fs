@@ -4,7 +4,7 @@
 
 module Ligature.InMemory.Dataset
 
-open Ligature
+open Ligature.Main
 
 type Store =
     { Store: Set<byte array>
@@ -20,13 +20,13 @@ let emptyStore =
       Ints = Map.empty
       Bytes = Map.empty }
 
-//type InMemoryDataset(statements: Set<Statement>) =
+//type InMemoryNetwork(statements: Set<Statement>) =
     // let store =
     //     do Set.fold (fun store patternStatement -> store)
     //         emptyStore
     //         statements
 
-    // interface IDataset with
+    // interface INetwork with
     //     member this.Extract(pattern: IPattern) : Map<Slot, Value> list =
     //         if statements.IsEmpty || pattern.PatternStatements.IsEmpty then
     //             List.Empty
@@ -79,10 +79,10 @@ let emptyStore =
 
     //     member _.AllStatements() : Result<Statement list, LigatureError> = Ok(List.ofSeq statements)
     //     member this.Contains(pattern: IPattern) : Result<bool, LigatureError> = 
-    //         let this = this :> IDataset
+    //         let this = this :> INetwork
     //         Ok(this.Extract(pattern).IsEmpty)
     //     member this.Count(pattern: IPattern) : Result<int64, LigatureError> = 
-    //         let this = this :> IDataset
+    //         let this = this :> INetwork
     //         Ok(this.Extract(pattern).Length)
 
-//let emptyDataset = InMemoryDataset(Set.empty)
+//let emptyDataset = InMemoryNetwork(Set.empty)

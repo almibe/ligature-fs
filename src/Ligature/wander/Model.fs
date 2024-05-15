@@ -4,65 +4,10 @@
 
 module Ligature.Wander.Model
 
-open Ligature
+open Ligature.Main
 open System
 open Ligature.InMemory.Pattern
-
-type Slot private (name: string option) =
-    member _.Named = name.IsSome
-
-    member _.Name =
-        match name with
-        | Some name -> name
-        | None -> ""
-
-    static member New(name: string option) =
-        let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
-        let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
-
-        match name with
-        | Some name ->
-            if slotPattern.IsMatch(name) then
-                Ok(Slot(Some name))
-            else
-                invalidSlot name
-        | None -> Ok(Slot(None))
-
-    static member Empty = Slot(None)
-
-    override this.Equals(other) =
-        let other = other :?> Slot
-        this.Name = other.Name
-
-    interface IComparable with
-        member this.CompareTo(other) =
-            let other = other :?> Slot
-            this.Name.CompareTo(other.Name)
-
-let slot name = Slot.New name
-
-
-[<RequireQualifiedAccess>]
-type PatternIdentifier =
-    | Slot of Slot
-    | Identifier of Identifier
-
-[<RequireQualifiedAccess>]
-type PatternValue =
-    | Slot of Slot
-    | Value of Value
-
-type PatternStatement =
-    { Entity: PatternIdentifier
-      Attribute: PatternIdentifier
-      Value: PatternValue }
-
-type IPattern =
-    abstract member PatternStatements: Set<PatternStatement>
-    abstract member Apply: Map<Slot, Value> -> IDataset option
-    abstract member Dataset: IDataset option
-    abstract member SingleRoot: bool
-
+open System.Text.RegularExpressions
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -94,7 +39,7 @@ type WanderValue =
     | Bool of bool
     | Identifier of Identifier
     | Slot of Slot
-    | Statement of Ligature.Statement
+    | Statement of Ligature.Main.Statement
     | Function of Function
     | Array of WanderValue array
     | Pattern of IPattern
@@ -172,7 +117,8 @@ and printStatementLiteral statement =
     $"(`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
 
 and printStatement statement =
-    $"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+    failwith "TODO"
+    //$"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with

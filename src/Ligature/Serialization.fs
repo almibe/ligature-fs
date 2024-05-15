@@ -14,7 +14,8 @@ open Main
 // open Wander.Main
 // open Wander.Bindings
 
-let readLigature (input: string): Result<LigatureError, INetwork> =
+let readLigature (input: string): Result<INetwork, LigatureError> =
+    
     failwith "TODO"
 
 let writeLigature (input: INetwork): string =

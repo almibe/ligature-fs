@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Main.fs" />
+    <Compile Include="Serialization.Test.fs" />
 <!--
     <Compile Include="wander/Bindings.Test.fs" />
     <Compile Include="wander/Lexer.Test.fs" />
@@ -16,6 +16,7 @@
     <Compile Include="wander/Encoding.Test.fs" />
     <Compile Include="wander/Main.fs" />
 -->
+    <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>

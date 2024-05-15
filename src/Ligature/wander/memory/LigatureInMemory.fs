@@ -4,10 +4,10 @@
 
 module Ligature.InMemory.Main
 
-open Ligature
+open Ligature.Main
 
 type LigatureInMemory() =
-    let datasets: Map<DatasetName, Set<Statement>> ref = ref Map.empty
+    let datasets: Map<string, Set<Statement>> ref = ref Map.empty
     let mutable isOpen = true
 
     // interface ILigature with
@@ -55,8 +55,8 @@ type LigatureInMemory() =
     //     member this.Call
     //         (dataset: DatasetName)
     //         (name: Identifier)
-    //         (argument: IDataset)
-    //         : Result<IDataset, LigatureError> =
+    //         (argument: INetwork)
+    //         : Result<INetwork, LigatureError> =
     //         failwith "TODO"
 
     //     member this.Count (datasetName: DatasetName) (pattern: IPattern) : Result<int64, LigatureError> =

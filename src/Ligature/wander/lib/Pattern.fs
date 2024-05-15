@@ -118,7 +118,7 @@ let extractsFunction<'t> =
         )
     )
 
-let patternToDataset (pattern: IPattern) : IDataset =
+let patternToDataset (pattern: IPattern) : INetwork =
     match pattern.Dataset with
     | Some dataset -> dataset
     | _ -> failwith "TODO"

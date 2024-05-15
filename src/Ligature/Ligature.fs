@@ -79,8 +79,15 @@ type Statement =
             | _ -> failwith "Error"
 
 type INetwork =
-    abstract member all: Statement seq
+    abstract member all: unit -> Statement seq
     abstract member find: Identifier option -> Identifier option -> Value option -> Statement seq
+
+type InMemoryNetwork(statements: Set<Statement>) =
+    interface INetwork with
+        member _.all() =
+            failwith "TODO"
+        member _.find entity attribute value =
+            failwith "TDOO"
 
 // and INetwork =
 //     abstract member Extract: IPattern -> Map<Slot, Value> list

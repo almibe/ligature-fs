@@ -4,8 +4,63 @@
 
 module Ligature.InMemory.Pattern
 
-open Ligature
+open Ligature.Main
 open Dataset
+open System.Text.RegularExpressions
+
+type Slot private (name: string option) =
+    member _.Named = name.IsSome
+
+    member _.Name =
+        match name with
+        | Some name -> name
+        | None -> ""
+
+    static member New(name: string option) =
+        let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+        let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
+
+        match name with
+        | Some name ->
+            if slotPattern.IsMatch(name) then
+                Ok(Slot(Some name))
+            else
+                invalidSlot name
+        | None -> Ok(Slot(None))
+
+    static member Empty = Slot(None)
+
+    override this.Equals(other) =
+        let other = other :?> Slot
+        this.Name = other.Name
+
+    interface System.IComparable with
+        member this.CompareTo(other) =
+            let other = other :?> Slot
+            this.Name.CompareTo(other.Name)
+
+let slot name = Slot.New name
+
+[<RequireQualifiedAccess>]
+type PatternIdentifier =
+    | Slot of Slot
+    | Identifier of Identifier
+
+[<RequireQualifiedAccess>]
+type PatternValue =
+    | Slot of Slot
+    | Value of Value
+
+type PatternStatement =
+    { Entity: PatternIdentifier
+      Attribute: PatternIdentifier
+      Value: PatternValue }
+
+type IPattern =
+    abstract member PatternStatements: Set<PatternStatement>
+    abstract member Apply: Map<Slot, Value> -> INetwork option
+    abstract member Dataset: INetwork option
+    abstract member SingleRoot: bool
 
 let getRoots (patternSet: Set<PatternStatement>): Set<PatternIdentifier> = 
     Set.map (fun (statement: PatternStatement) -> statement.Entity) patternSet
@@ -86,9 +141,9 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                               Value = value })
                     patternStatements
 
-            Some(InMemoryDataset(res))
+            Some(InMemoryNetwork(res))
 
-        member _.Dataset: IDataset option =
+        member _.Dataset: INetwork option =
             let res: Set<Statement> =
                 Set.map
                     (fun (statement: PatternStatement) ->
@@ -117,25 +172,25 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
                               Value = value })
                     patternStatements
 
-            Some(InMemoryDataset(res))
+            Some(InMemoryNetwork(res))
         member _.SingleRoot: bool = 
             let roots = getRoots patternStatements
             let leaves = getLeaves patternStatements
             let root = Set.difference roots leaves
             Set.count root = 1
 
-let emptyPattern = InMemoryPattern(Set.empty)
+let emptyPattern: IPattern = InMemoryPattern(Set.empty)
 
-let unsafeDatasetToPattern (dataset: IDataset) : IPattern =
-    match dataset.AllStatements() with
-    | Ok res ->
-        let (l: PatternStatement list) =
-            List.map
-                (fun item ->
-                    { Entity = PatternIdentifier.Identifier item.Entity
-                      Attribute = PatternIdentifier.Identifier item.Attribute
-                      Value = PatternValue.Value item.Value })
-                res
+// let unsafeDatasetToPattern (dataset: INetwork) : IPattern =
+//     match dataset.AllStatements() with
+//     | Ok res ->
+//         let (l: PatternStatement list) =
+//             List.map
+//                 (fun item ->
+//                     { Entity = PatternIdentifier.Identifier item.Entity
+//                       Attribute = PatternIdentifier.Identifier item.Attribute
+//                       Value = PatternValue.Value item.Value })
+//                 res
 
-        InMemoryPattern(Set.ofList l)
-    | _ -> failwith "Error"
+//         InMemoryPattern(Set.ofList l)
+//     | _ -> failwith "Error"

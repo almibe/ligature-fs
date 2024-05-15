@@ -116,7 +116,7 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //         )
 //     )
 
-// let matchStatements (query: IDataset) =
+// let matchStatements (query: INetwork) =
 //     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
 
 // let queryFun (instance: ILigature) =

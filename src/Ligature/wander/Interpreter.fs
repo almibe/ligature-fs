@@ -129,7 +129,7 @@ let rec evalExpression bindings expression =
                         if Option.isNone error then
                             error <- Some(err)
 
-                        //WanderValue.Dataset(new InMemoryDataset(Set.empty)))
+                        //WanderValue.Dataset(new InMemoryNetwork(Set.empty)))
                         failwith "TODO")
                 (Array.ofList expressions)
 
@@ -338,7 +338,7 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) : bool =
+and checkPattern bindings (input: INetwork) (pattern: DatasetPatternRoot list) : bool =
     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
     //this only works for matching with literals and no destructuring
     match evalExpression bindings (Expression.Pattern(pattern)) with
@@ -349,7 +349,7 @@ and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) :
     | _ -> failwith "Error"
 
 // and handleQuery bindings inputExpression patterns =
-//     let mutable results = emptyInMemoryDataset
+//     let mutable results = emptyInMemoryNetwork
 
 //     match evalExpression bindings inputExpression with
 //     | Ok(input, _) ->
@@ -364,7 +364,7 @@ and checkPattern bindings (input: IDataset) (pattern: DatasetPatternRoot list) :
 //                             | Ok(WanderValue.Dataset(dataset), _) ->
 //                                 failwith "TODO"
 //                                 // match dataset.AllStatements () with
-//                                 // | Ok(statements) -> results <- InMemoryDataset (results.statements + (Set.ofList statements))
+//                                 // | Ok(statements) -> results <- InMemoryNetwork (results.statements + (Set.ofList statements))
 //                                 // | _ -> failwith "Error reading Statements"
 //                             | _ -> failwith "Invalid body."
 //                     | _ -> failwith "Invalid pattern.")

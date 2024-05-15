@@ -7,13 +7,14 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
-<!--
-    <Compile Include="wander/memory/InMemoryDataset.fs" />
-    <Compile Include="wander/memory/InMemoryPattern.fs" />
+    <Compile Include="wander/memory/InMemoryNetwork.fs" />
     <Compile Include="wander/memory/LigatureInMemory.fs" />
-    <Compile Include="wander/InMemoryDataset.fs" />
+    <Compile Include="wander/memory/InMemoryPattern.fs" />
+    <Compile Include="wander/InMemoryNetwork.fs" />
     <Compile Include="wander/Bindings.fs" />
     <Compile Include="wander/Model.fs" />
+
+<!--
     <Compile Include="wander/LexerUtil.fs" />
     <Compile Include="wander/Lexer.fs" />
     <Compile Include="wander/Parser.fs" />
