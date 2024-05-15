@@ -5,6 +5,7 @@
 module Ligature.InMemory.Pattern
 
 open Ligature.Main
+open Ligature.InMemoryNetwork
 open Dataset
 open System.Text.RegularExpressions
 

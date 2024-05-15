@@ -7,10 +7,11 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
+    <Compile Include="InMemoryNetwork.fs" />
     <Compile Include="wander/memory/InMemoryNetwork.fs" />
     <Compile Include="wander/memory/LigatureInMemory.fs" />
     <Compile Include="wander/memory/InMemoryPattern.fs" />
-    <Compile Include="wander/InMemoryNetwork.fs" />
+    <Compile Include="Serialization.fs" />
     <Compile Include="wander/Bindings.fs" />
     <Compile Include="wander/Model.fs" />
     <Compile Include="wander/LexerUtil.fs" />
@@ -33,7 +34,6 @@
     <Compile Include="wander/lib/Ulid.fs" />
     <Compile Include="wander/lib/Wander.fs" />
     <Compile Include="wander/Environments.fs" />
-    <Compile Include="Serialization.fs" />
   </ItemGroup>
 
   <ItemGroup>

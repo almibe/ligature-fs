@@ -5,6 +5,7 @@
 module Ligature.Serialization
 
 open Main
+open InMemoryNetwork
 // open Wander.Lexer
 // open FsToolkit.ErrorHandling
 // open Wander.Model
@@ -15,8 +16,7 @@ open Main
 // open Wander.Bindings
 
 let readLigature (input: string): Result<INetwork, LigatureError> =
-    
-    failwith "TODO"
+    Ok(emptyNetwork)
 
 let writeLigature (input: INetwork): string =
     failwith "TODO"
