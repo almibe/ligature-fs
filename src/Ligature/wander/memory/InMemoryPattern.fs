@@ -60,7 +60,7 @@ type PatternStatement =
 type IPattern =
     abstract member PatternStatements: Set<PatternStatement>
     abstract member Apply: Map<Slot, Value> -> INetwork option
-    abstract member Dataset: INetwork option
+    abstract member ToNetwork: INetwork option
     abstract member SingleRoot: bool
 
 let getRoots (patternSet: Set<PatternStatement>): Set<PatternIdentifier> = 
@@ -144,7 +144,7 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
 
             Some(InMemoryNetwork(res))
 
-        member _.Dataset: INetwork option =
+        member _.ToNetwork: INetwork option =
             let res: Set<Statement> =
                 Set.map
                     (fun (statement: PatternStatement) ->

@@ -119,7 +119,7 @@ let extractsFunction =
     )
 
 let patternToDataset (pattern: IPattern) : INetwork =
-    match pattern.Dataset with
+    match pattern.ToNetwork with
     | Some dataset -> dataset
     | _ -> failwith "TODO"
 

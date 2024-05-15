@@ -41,10 +41,10 @@ type InMemoryNetwork =
     override this.GetHashCode() = this.statements.GetHashCode()
 
     interface INetwork with
-        member _.all() =
-            failwith "TODO"
+        member this.all() =
+            this.statements
         member _.find entity attribute value =
-            failwith "TDOO"
+            failwith "TODO"
 
         // member this.RunQuery query =
         // let mutable result = Set.empty

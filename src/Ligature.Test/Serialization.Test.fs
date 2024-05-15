@@ -33,4 +33,10 @@ let tests =
               let expect: Result<INetwork, LigatureError> = Ok(InMemoryNetwork(Set.ofList [
                     statement (ident "a") (ident "b") (vident "c")
               ]))
-              Expect.equal result expect "" ]
+              Expect.equal result expect "" 
+          testCase "Write Empty Network"
+          <| fun _ ->
+              let result = Ligature.Serialization.writeLigature (InMemoryNetwork(Set.empty))
+              let expect = "{}"
+              Expect.equal result expect "" 
+        ]
