@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Array
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open FsToolkit.ErrorHandling
 open Ligature.Wander.Interpreter
 

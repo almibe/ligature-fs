@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Assert
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open Ligature.InMemory.Pattern
 
 let equalFunction<'t> =

@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Bool
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 
 let notFunction<'t> =
     WanderValue.Function(

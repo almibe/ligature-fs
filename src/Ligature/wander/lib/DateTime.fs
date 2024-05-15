@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.DateTime
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open System
 
 let ticksFunction<'t> =

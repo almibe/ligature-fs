@@ -7,7 +7,7 @@ module Ligature.Wander.Main
 open Ligature.Wander.Model
 open Parser
 open Lexer
-open Ligature
+open Ligature.Main
 
 let run (input: string) (bindings: Bindings) =
     match tokenize input with

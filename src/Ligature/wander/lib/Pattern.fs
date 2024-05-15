@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Pattern
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open Ligature.InMemory.Pattern
 
 let patternStatementToStatement (pattern: PatternStatement) : Statement option =
@@ -14,7 +14,7 @@ let patternStatementToStatement (pattern: PatternStatement) : Statement option =
         Attribute = PatternIdentifier.Identifier(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
-let applyFunction<'t> =
+let applyFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
@@ -45,7 +45,7 @@ let applyFunction<'t> =
         )
     )
 
-let singleRootFunction<'t> =
+let singleRootFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
@@ -55,7 +55,7 @@ let singleRootFunction<'t> =
         )
     )
 
-let countFunction<'t> =
+let countFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
@@ -65,7 +65,7 @@ let countFunction<'t> =
         )
     )
 
-let isDatasetFunction<'t> =
+let isDatasetFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
@@ -86,7 +86,7 @@ let isDatasetFunction<'t> =
         )
     )
 
-let extractsFunction<'t> =
+let extractsFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
@@ -123,33 +123,34 @@ let patternToDataset (pattern: IPattern) : INetwork =
     | Some dataset -> dataset
     | _ -> failwith "TODO"
 
-let extractFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
-                    (patternToDataset dataset).Extract pattern
-                    |> List.map (fun res ->
-                        res
-                        |> Map.toSeq
-                        |> Seq.map (fun (k, v) ->
-                            (k.Name,
-                             match v with
-                             | Value.Int value -> WanderValue.Int value
-                             | Value.Bytes value -> WanderValue.Bytes value
-                             | Value.Identifier value -> WanderValue.Identifier value
-                             | Value.String value -> WanderValue.String value))
-                        |> Map.ofSeq
-                        |> WanderValue.Namespace)
-                    |> Array.ofList
-                    |> WanderValue.Array
-                    |> Ok
-                | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
-        )
-    )
+let extractFunction =
+    failwith "TODO"
+    // WanderValue.Function(
+    //     Function.HostFunction(
+    //         new HostFunction(fun args _ ->
+    //             match args with
+    //             | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
+    //                 (patternToDataset dataset).Extract pattern
+    //                 |> List.map (fun res ->
+    //                     res
+    //                     |> Map.toSeq
+    //                     |> Seq.map (fun (k, v) ->
+    //                         (k.Name,
+    //                          match v with
+    //                          | Value.Int value -> WanderValue.Int value
+    //                          | Value.Bytes value -> WanderValue.Bytes value
+    //                          | Value.Identifier value -> WanderValue.Identifier value
+    //                          | Value.String value -> WanderValue.String value))
+    //                     |> Map.ofSeq
+    //                     |> WanderValue.Namespace)
+    //                 |> Array.ofList
+    //                 |> WanderValue.Array
+    //                 |> Ok
+    //             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
+    //     )
+    // )
 
-let patternLib<'t> =
+let patternLib =
     WanderValue.Namespace(
         Map
             [ ("apply", applyFunction)

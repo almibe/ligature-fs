@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Wander
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open Ligature.Wander.Main
 open Ligature.Wander.Bindings
 

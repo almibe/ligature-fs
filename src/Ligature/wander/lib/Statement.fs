@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Statement
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open FsToolkit.ErrorHandling
 
 let entityFunction<'t> =

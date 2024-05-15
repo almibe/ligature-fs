@@ -8,7 +8,7 @@ open Lexer
 open FsToolkit.ErrorHandling
 open Model
 open Nibblers
-open Ligature
+open Ligature.Main
 open System.Collections
 
 [<RequireQualifiedAccess>]
@@ -20,8 +20,8 @@ type Element =
     | Int of bigint
     | Bytes of byte array
     | Bool of bool
-    | Identifier of Ligature.Identifier
-    | Slot of Slot
+    | Identifier of Ligature.Main.Identifier
+    | Slot of Ligature.InMemory.Pattern.Slot
     | Array of Element list
     | Let of string * Element
     | Lambda of string list * Element

@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Keylime
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 open System
 open System.Collections.Generic
 

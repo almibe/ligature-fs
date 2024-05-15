@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Identifier
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 
 let valueFunction<'t> =
     WanderValue.Function(

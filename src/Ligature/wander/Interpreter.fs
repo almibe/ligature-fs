@@ -6,7 +6,7 @@ module Ligature.Wander.Interpreter
 
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
-open Ligature
+open Ligature.Main
 open Ligature.InMemory.Pattern
 
 let readName (name: string) (bindings: Bindings<string, WanderValue>) =
@@ -286,7 +286,7 @@ and handleIdentifierConcat bindings identifier values =
             | None -> state)
         (readIdentifier identifier)
     |> (fun res ->
-        match Ligature.identifier res with
+        match Ligature.Main.identifier res with
         | Ok identifier -> Ok(WanderValue.Identifier(identifier), bindings)
         | Error err -> failwith "todo")
 

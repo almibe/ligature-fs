@@ -4,8 +4,9 @@
 
 module Ligature.Wander.Lexer
 
-open Ligature
+open Ligature.Main
 open LexerUtil
+open Ligature.InMemory.Pattern
 
 [<RequireQualifiedAccess>]
 type Token =

@@ -4,7 +4,7 @@
 
 module Ligature.Wander.Lib.Ligature
 
-open Ligature
+open Ligature.Main
 open Ligature.Wander.Model
 open System
 open Ligature.InMemory.Pattern

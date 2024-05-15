@@ -5,7 +5,8 @@
 module Ligature.Wander.LexerUtil
 
 open System.Text.RegularExpressions
-open Ligature
+open Ligature.Main
+open Nibblers
 
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)

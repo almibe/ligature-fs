@@ -5,7 +5,7 @@
 module Ligature.Wander.Lib.Bytes
 
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 
 let lengthFunction<'t> =
     WanderValue.Function(

@@ -13,14 +13,11 @@
     <Compile Include="wander/InMemoryNetwork.fs" />
     <Compile Include="wander/Bindings.fs" />
     <Compile Include="wander/Model.fs" />
-
-<!--
     <Compile Include="wander/LexerUtil.fs" />
     <Compile Include="wander/Lexer.fs" />
     <Compile Include="wander/Parser.fs" />
     <Compile Include="wander/Interpreter.fs" />
     <Compile Include="wander/Wander.fs" />
-    <Compile Include="wander/Serialize.fs" />
     <Compile Include="wander/lib/Array.fs" />
     <Compile Include="wander/lib/Assert.fs" />
     <Compile Include="wander/lib/Bool.fs" />
@@ -36,8 +33,11 @@
     <Compile Include="wander/lib/Ulid.fs" />
     <Compile Include="wander/lib/Wander.fs" />
     <Compile Include="wander/Environments.fs" />
--->
     <Compile Include="Serialization.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gaze\Gaze.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
