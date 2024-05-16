@@ -28,7 +28,6 @@ test suite for the other project.
 | build             | Fake build script.                                                 |
 | Gaze              | A parsing library.                                                 |
 | Ligature          | Main code base including the main logic and types.                 |
-| LigatureFable     | A project for producing JavaScript code using Fable 4.             |
 | LigatureZeroMQ    | A backend of Ligature using ZeroMQ.                                |
 
 ## Setup
@@ -62,20 +61,3 @@ LigatureZeroMQ is a project that allows running Wander code against an instance 
 `dotnet run --project src/LigatureZeroMQ`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
-
-## LigatureFable
-
-LigatureFable is a project that uses [Fable](https://fable.io) to generate an NPM package for Ligature projects that are compatiable with the browser and node.
-
-### Building LigatureFable
-
-Run the following commands from the root of this project (and yes there are two src dirs that's not a typo).
-
-```
-cd src/LigatureFable/src
-dotnet fable -o npmProject
-```
-
-This is generate all of the JavaScript files and place them in the npmProject subdirectory.
-If you then go into that directory you'll notice that there is a package.json file there already.
-All .js files are in the .gitignore file for this subproject since they are generated.

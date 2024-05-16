@@ -55,15 +55,7 @@ type Statement =
         | _ -> false
 
     override this.GetHashCode() =
-        #if !FABLE_COMPILER
-            HashCode.Combine(this.Entity, this.Attribute, this.Value)
-        #else
-            let mutable hash = 17
-            hash <- hash * 31 + this.Entity.GetHashCode()
-            hash <- hash * 31 + this.Attribute.GetHashCode()
-            hash <- hash * 31 + this.Value.GetHashCode()
-            hash
-        #endif
+        HashCode.Combine(this.Entity, this.Attribute, this.Value)
 
     interface IComparable with
         member this.CompareTo(other) =

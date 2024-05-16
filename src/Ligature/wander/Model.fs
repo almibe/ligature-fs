@@ -75,16 +75,8 @@ let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
                 false
         | _ -> left = right
 
-// [<Emit("JSON.stringify($0)")>]
-// let encode (input: string): string = jsNative        
-
 let encodeString string =
-    #if !FABLE_COMPILER
-        System.Web.HttpUtility.JavaScriptStringEncode(string, true)
-    #else
-        failwith "TODO"
-        //encode s
-    #endif
+    System.Web.HttpUtility.JavaScriptStringEncode(string, true)
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with

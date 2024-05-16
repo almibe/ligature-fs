@@ -61,11 +61,7 @@ let slotTokenNibbler =
     )
 
 let bytesFromString (s: string) =
-    #if !FABLE_COMPILER
-        System.Convert.FromHexString(s)
-    #else
-        Array.fold (fun state value -> state) [||] s.ToCharArray()
-    #endif
+    System.Convert.FromHexString(s)
 
 let bytesTokenNibbler =
     Gaze.map bytesNibbler (fun value ->
