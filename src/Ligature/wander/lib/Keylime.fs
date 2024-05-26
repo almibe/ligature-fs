@@ -97,8 +97,26 @@ let openFunction (store: Dictionary<string, Map<byte array, byte array>>) =
         )
     )
 
+let storesFunction (store: Dictionary<string, Map<byte array, byte array>>) =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(
+                (fun args _ ->
+                    match args with
+                    | [ _ ] ->
+                        store.Keys
+                        |> Seq.map (fun storeName -> WanderValue.String storeName)
+                        |> Seq.toArray
+                        |> WanderValue.Array
+                        |> Ok
+                    | _ -> error "Invalid call to map function." None)
+            )
+        )
+    )
+
 let keylimeLib =
     let store = new Dictionary<string, Map<byte array, byte array>>()
     WanderValue.Namespace(
         Map [ 
-            ("open", openFunction store) ])
+            ("open", openFunction store) 
+            ("stores", storesFunction store)])
