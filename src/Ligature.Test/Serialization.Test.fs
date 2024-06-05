@@ -25,18 +25,18 @@ let tests =
         [ testCase "Parse empty Network"
           <| fun _ ->
               let result = Ligature.Serialization.readLigature "{}"
-              let expect: Result<INetwork, LigatureError> = Ok(InMemoryNetwork(Set.empty))
-              Expect.equal result expect "" 
+              let expect: Result<Network, LigatureError> = Ok(InMemoryNetwork(Set.empty))
+              Expect.equal result expect ""
           testCase "Parse simple Network"
           <| fun _ ->
               let result = Ligature.Serialization.readLigature "{`a` `b` `c`}"
-              let expect: Result<INetwork, LigatureError> = Ok(InMemoryNetwork(Set.ofList [
-                    statement (ident "a") (ident "b") (vident "c")
-              ]))
-              Expect.equal result expect "" 
+
+              let expect: Result<Network, LigatureError> =
+                  Ok(InMemoryNetwork(Set.ofList [ statement (ident "a") (ident "b") (vident "c") ]))
+
+              Expect.equal result expect ""
           testCase "Write Empty Network"
           <| fun _ ->
               let result = Ligature.Serialization.writeLigature (InMemoryNetwork(Set.empty))
               let expect = "{}"
-              Expect.equal result expect "" 
-        ]
+              Expect.equal result expect "" ]

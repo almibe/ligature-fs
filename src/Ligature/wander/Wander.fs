@@ -11,16 +11,16 @@ open Ligature.Main
 
 let run (input: string) (bindings: Bindings) =
     //try
-        match tokenize input with
-        | Ok tokens ->
-            match parse tokens with
-            | Ok ast ->
-                let expressions = express ast
-                Result.map (fun (res, _) -> res) (Interpreter.evalExpressions bindings expressions)
-            | Error(err) -> error $"Error parsing.\n{err}" None
-        | Error _ -> error "Error tokenizing." None
-    //with
-    //| x -> error $"Error running script. {x}" None
+    match tokenize input with
+    | Ok tokens ->
+        match parse tokens with
+        | Ok ast ->
+            let expressions = express ast
+            Result.map (fun (res, _) -> res) (Interpreter.evalExpressions bindings expressions)
+        | Error(err) -> error $"Error parsing.\n{err}" None
+    | Error _ -> error "Error tokenizing." None
+//with
+//| x -> error $"Error running script. {x}" None
 
 type Introspect =
     { tokens: Result<Token list, string>

@@ -14,23 +14,23 @@ let patternStatementToStatement (pattern: PatternStatement) : Statement option =
         Attribute = PatternIdentifier.Identifier(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
-// let networkToPattern (network: INetwork) : IPattern =
+// let networkToPattern (network: Network) : IPattern =
 //     failwith "TODO"
-    // let res = network.all()
-    // let l: PatternStatement list =
-    //     List.map
-    //         (fun item ->
-    //             { Entity = (PatternIdentifier.Identifier item.Entity);
-    //                 Attribute = (PatternIdentifier.Identifier item.Attribute);
-    //                 Value = PatternValue.Value item.Value }) res
-    // InMemoryPattern(Set.ofList l)
+// let res = network.all()
+// let l: PatternStatement list =
+//     List.map
+//         (fun item ->
+//             { Entity = (PatternIdentifier.Identifier item.Entity);
+//                 Attribute = (PatternIdentifier.Identifier item.Attribute);
+//                 Value = PatternValue.Value item.Value }) res
+// InMemoryPattern(Set.ofList l)
 
 // let applyFunction =
 //     WanderValue.Function(
 //         Function.HostFunction(
 //             new HostFunction(fun args _ ->
 //                 match args with
-//                 | [ WanderValue.Pattern(pattern); WanderValue.Namespace(data) ] ->
+//                 | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
 //                     let res =
 //                         data
 //                         |> Map.toSeq
@@ -50,7 +50,7 @@ let patternStatementToStatement (pattern: PatternStatement) : Statement option =
 //                         |> Map.ofSeq
 
 //                     match pattern.Apply res with
-//                     | Some res -> Ok(WanderValue.Pattern(networkToPattern res))
+//                     | Some res -> Ok(WanderValue.Network(networkToPattern res))
 //                     | None -> failwith ""
 //                 | value -> error $"Unexpected value passed to Pattern.apply - {value}." None)
 //         )
@@ -61,7 +61,7 @@ let singleRootFunction =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Bool(pattern.SingleRoot))
+                | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Bool(pattern.SingleRoot))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )
@@ -71,7 +71,7 @@ let countFunction =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern.PatternStatements)))
+                | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern.Statements)))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )
@@ -81,16 +81,16 @@ let isDatasetFunction =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(statements) ] ->
+                | [ WanderValue.Network(statements) ] ->
                     let result =
                         Set.forall
-                            (fun (statement: PatternStatement) ->
+                            (fun (statement: Statement) ->
                                 match (statement.Entity, statement.Attribute, statement.Value) with
                                 | (PatternIdentifier.Slot(_), _, _) -> false
                                 | (_, PatternIdentifier.Slot(_), _) -> false
                                 | (_, _, PatternValue.Slot(_)) -> false
                                 | _ -> true)
-                            statements.PatternStatements
+                            statements.Statements
 
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
@@ -102,7 +102,7 @@ let extractsFunction =
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Pattern(statements) ] ->
+                | [ WanderValue.Network(statements) ] ->
                     let result =
                         Set.exists
                             (fun (statement: PatternStatement) ->
@@ -129,20 +129,19 @@ let extractsFunction =
         )
     )
 
-// let patternToNetwork (pattern: IPattern) : INetwork =
+// let patternToNetwork (pattern: IPattern) : Network =
 //     match pattern.ToNetwork with
 //     | Some dataset -> dataset
 //     | _ -> failwith "TODO"
 
-let extract network pattern: Map<Slot, Value> list =
-    failwith "TODO"
+let extract network pattern : Map<Slot, Value> list = failwith "TODO"
 
 // let extractFunction =
 //     WanderValue.Function(
 //         Function.HostFunction(
 //             new HostFunction(fun args _ ->
 //                 match args with
-//                 | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
+//                 | [ WanderValue.Network(pattern); WanderValue.Network(dataset) ] ->
 //                     //(patternToDataset dataset).Extract pattern
 //                     extract (patternToNetwork dataset) pattern
 //                     |> List.map (fun res ->
@@ -169,7 +168,7 @@ let patternLib =
         Map
             [ //("apply", applyFunction)
               ("count", countFunction)
-            //  ("extract", extractFunction)
+              //  ("extract", extractFunction)
               ("extracts", extractsFunction)
               ("isDataset", isDatasetFunction)
               ("singleRoot", singleRootFunction) ]

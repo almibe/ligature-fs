@@ -8,13 +8,18 @@ open Ligature.Wander.Model
 open Ligature.Main
 open FsToolkit.ErrorHandling
 
+let slotIdentiferToWanderValue si =
+    match si with
+    | Slot name -> WanderValue.Slot(Ligature.Main.slotUnsafe (Some(name)))
+    | Id identifier -> WanderValue.Identifier identifier
+
 let entityFunction<'t> =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(
                 (fun args bindings ->
                     match args with
-                    | [ WanderValue.Statement(statement) ] -> Ok(WanderValue.Identifier(statement.Entity))
+                    | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
                     | _ -> error "Invalid call to Statement.entity function." None)
             )
         )
@@ -26,7 +31,7 @@ let attributeFunction<'t> =
             new HostFunction(
                 (fun args bindings ->
                     match args with
-                    | [ WanderValue.Statement(statement) ] -> Ok(WanderValue.Identifier(statement.Attribute))
+                    | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
                     | _ -> error "Invalid call to Statement.attribute function." None)
             )
         )
@@ -44,6 +49,7 @@ let valueFunction<'t> =
                         | Value.String(value) -> Ok(WanderValue.String(value))
                         | Value.Int(value) -> Ok(WanderValue.Int(value))
                         | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
+                        | Value.Slot(value) -> failwith "TODO"
                     | _ -> error "Invalid call to Statement.value function." None)
             )
         )

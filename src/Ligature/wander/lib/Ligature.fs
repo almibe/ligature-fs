@@ -9,7 +9,7 @@ open Ligature.Wander.Model
 open System
 open Ligature.InMemory.Pattern
 
-let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
+let emptySet = WanderValue.Network(InMemoryPattern(Set.empty))
 
 // let datasetsFun (ligature: ILigature) =
 //     WanderValue.Function(
@@ -116,7 +116,7 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //         )
 //     )
 
-// let matchStatements (query: INetwork) =
+// let matchStatements (query: Network) =
 //     WanderValue.Function(Function.HostFunction(new HostFunction(fun args bindings -> error "todo - inside match" None)))
 
 // let queryFun (instance: ILigature) =
@@ -153,19 +153,19 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //                     let entity =
 //                         match entity with
 //                         | WanderValue.Identifier(i) -> Ok(Some i)
-//                         | WanderValue.Pattern(_) -> Ok None
+//                         | WanderValue.Network(_) -> Ok None
 //                         | _ -> error "Invalid Entity passed to match." None
 
 //                     let attribute =
 //                         match attribute with
 //                         | WanderValue.Identifier(i) -> Ok(Some i)
-//                         | WanderValue.Pattern(_) -> Ok None
+//                         | WanderValue.Network(_) -> Ok None
 //                         | _ -> error "Invalid Attribute passed to match." None
 
 //                     let value =
 //                         match value with
 //                         | WanderValue.Identifier(i) -> Ok(Some(Value.Identifier i))
-//                         | WanderValue.Pattern(_) -> Ok None
+//                         | WanderValue.Network(_) -> Ok None
 //                         | WanderValue.Int(value) -> Ok(Some(Value.Int value))
 //                         | WanderValue.String(value) -> Ok(Some(Value.String value))
 //                         | _ -> error "Invalid Value passed to match." None
@@ -176,7 +176,7 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //                         // instance.Query dataset (fun tx -> tx.MatchStatements entity attribute value)
 
 //                         match res with
-//                         | Ok res -> Ok(WanderValue.Pattern res)
+//                         | Ok res -> Ok(WanderValue.Network res)
 //                         | Error err -> Error err
 //                     | _ -> error "Could not call match." None //TODO should return actual error
 //                 | _ -> error "Improper arguments passed to match." None)
@@ -204,7 +204,7 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //                     match instance.AddStatements dataset statements with
 //                     | Ok _ -> Ok(emptySet)
 //                     | Error err -> Error err
-//                 | [ (WanderValue.String(name)); WanderValue.Pattern(statements) ] ->
+//                 | [ (WanderValue.String(name)); WanderValue.Network(statements) ] ->
 //                     let dataset = DatasetName name
 //                     failwith "TODO"
 //                 // match statements.AllStatements() with
@@ -238,7 +238,7 @@ let emptySet = WanderValue.Pattern(InMemoryPattern(Set.empty))
 //                     match instance.RemoveStatements dataset statements with
 //                     | Ok _ -> Ok(emptySet)
 //                     | Error err -> Error err
-//                 | [ WanderValue.String(name); WanderValue.Pattern(statements) ] ->
+//                 | [ WanderValue.String(name); WanderValue.Network(statements) ] ->
 //                     let dataset = DatasetName name
 
 //                     // match statements.AllStatements() with

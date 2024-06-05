@@ -199,7 +199,7 @@ let tests =
               let tokens = tokenize "first x y = x"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Let("first", Element.Lambda([ "x"; "y" ], Element.Name("x"))) ])) ""
-          
+
           testCase "Parse Application"
           <| fun _ ->
               let tokens = tokenize "Bool.and false true"
@@ -207,11 +207,7 @@ let tests =
 
               Expect.equal
                   ast
-                  (Ok(
-                      [ Element.Application(
-                            [ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]
-                        ) ]
-                  ))
+                  (Ok([ Element.Application([ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]) ]))
                   ""
           testCase "Parse Let Statement with Name"
           <| fun _ ->
@@ -223,10 +219,7 @@ let tests =
               let tokens = tokenize "(x = 5, x)"
               let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.Name("x") ]) ]))
-                  ""
+              Expect.equal ast (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.Name("x") ]) ])) ""
 
           testCase "Parse pipes"
           <| fun _ ->
@@ -237,7 +230,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "? ?"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.Name("?"); Element.Name ("?") ] ])) ""
+              Expect.equal ast (Ok([ Element.Application [ Element.Name("?"); Element.Name("?") ] ])) ""
           testCase "Parse identifier concat"
           <| fun _ ->
               let tokens = tokenize "`a`:`b`"

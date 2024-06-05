@@ -6,7 +6,6 @@ module Ligature.Wander.Lexer
 
 open Ligature.Main
 open LexerUtil
-open Ligature.InMemory.Pattern
 
 [<RequireQualifiedAccess>]
 type Token =
@@ -60,13 +59,12 @@ let slotTokenNibbler =
             | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
-let bytesFromString (s: string) =
-    System.Convert.FromHexString(s)
+let bytesFromString (s: string) = System.Convert.FromHexString(s)
 
 let bytesTokenNibbler =
     Gaze.map bytesNibbler (fun value ->
         let bytes = System.String.Concat(Array.ofList (List.concat value))
-        Token.Bytes(bytesFromString(bytes.[2..])))
+        Token.Bytes(bytesFromString (bytes.[2..])))
 
 let integerTokenNibbler = Gaze.map integerNibbler (fun int -> Token.Int(int))
 
@@ -77,7 +75,9 @@ let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_') ]) 1)
           Nibblers.optional (
-              Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('.', '.') ])
+              Nibblers.repeat (
+                  Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('.', '.') ]
+              )
           ) ]
 
 let newLineNibbler =

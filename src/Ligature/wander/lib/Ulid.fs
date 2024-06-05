@@ -18,6 +18,9 @@ let nextFunction<'t> =
                         match identifier (prefix + Ulid.NewUlid().ToString()) with
                         | Ok identifier -> Ok(WanderValue.Identifier(identifier))
                         | _ -> error $"Invalid prefix for Identifier {prefix}." None
-                    | _ -> error "Invalid call to Ulid.next function." None))))
+                    | _ -> error "Invalid call to Ulid.next function." None)
+            )
+        )
+    )
 
 let ulidLib<'t> = WanderValue.Namespace(Map [ ("next", nextFunction) ])

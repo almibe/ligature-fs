@@ -13,11 +13,14 @@ let catFunction =
             HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.Array(values) ] -> 
-                        Array.fold (fun state value -> 
-                            match value with
-                            | WanderValue.String(value) -> state + value
-                            | _ -> failwith "Error") "" values
+                    | [ WanderValue.Array(values) ] ->
+                        Array.fold
+                            (fun state value ->
+                                match value with
+                                | WanderValue.String(value) -> state + value
+                                | _ -> failwith "Error")
+                            ""
+                            values
                         |> WanderValue.String
                         |> Ok
                     | _ -> error "Invalid call to map function." None)

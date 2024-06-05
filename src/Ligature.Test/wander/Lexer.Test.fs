@@ -125,10 +125,10 @@ let tests =
           <| fun _ ->
               Expect.equal (tokenize ":") (Ok([ Token.Colon ])) ""
               Expect.equal (tokenize "::::") (Ok([ Token.Colon; Token.Colon; Token.Colon; Token.Colon ])) ""
-        //   testCase "read dot"
-        //   <| fun _ ->
-        //       Expect.equal (tokenize ".") (Ok([ Token.Dot ])) ""
-        //       Expect.equal (tokenize "....") (Ok([ Token.Dot; Token.Dot; Token.Dot; Token.Dot ])) ""
+          //   testCase "read dot"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize ".") (Ok([ Token.Dot ])) ""
+          //       Expect.equal (tokenize "....") (Ok([ Token.Dot; Token.Dot; Token.Dot; Token.Dot ])) ""
           testCase "read parens"
           <| fun _ ->
               Expect.equal (tokenize "(") (Ok([ Token.OpenParen ])) ""

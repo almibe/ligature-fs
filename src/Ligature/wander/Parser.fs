@@ -21,7 +21,7 @@ type Element =
     | Bytes of byte array
     | Bool of bool
     | Identifier of Ligature.Main.Identifier
-    | Slot of Ligature.InMemory.Pattern.Slot
+    | Slot of Ligature.Main.Slot
     | Array of Element list
     | Let of string * Element
     | Lambda of string list * Element
@@ -197,8 +197,12 @@ let lambdaDeclarationsNib (gaze: Gaze.Gaze<Token>) =
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! declarations = (optional (repeatSep (takeFirst [lambdaDeclarationsNib; declarationsNib]) Token.Comma)) gaze
+
+        let! declarations =
+            (optional (repeatSep (takeFirst [ lambdaDeclarationsNib; declarationsNib ]) Token.Comma)) gaze
+
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+
         if List.isEmpty declarations then
             return Element.Pattern(List.empty)
         else

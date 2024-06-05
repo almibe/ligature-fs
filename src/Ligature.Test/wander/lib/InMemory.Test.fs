@@ -8,7 +8,7 @@ open Expecto
 open Ligature.Wander.Lib.Keylime
 
 let createInstance () =
-//    new KeylimeLMDB(new LightningEnvironment("C:\\Users\\berry3\\.ligature\\test"))
+    //    new KeylimeLMDB(new LightningEnvironment("C:\\Users\\berry3\\.ligature\\test"))
     KeylimeInMemory.empty ()
 
 [<Tests>]
@@ -17,11 +17,11 @@ let tests =
         "Keylime Test"
         [ testCase ""
           <| fun _ ->
-            let keylime = createInstance()
-            Expect.equal (keylime.stores ()) (Seq.empty) ""
-        //   testCase "Read Integer Token"
-        //   <| fun _ ->
-        //       Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
-        //       Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
-        //       Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) "" 
-        ]
+              let keylime = createInstance ()
+              Expect.equal (keylime.stores ()) (Seq.empty) ""
+          //   testCase "Read Integer Token"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
+          //       Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
+          //       Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) ""
+          ]

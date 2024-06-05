@@ -7,10 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
-    <Compile Include="InMemoryNetwork.fs" />
     <Compile Include="LigatureStore.fs" />
-    <Compile Include="memory/InMemoryNetwork.fs" />
-    <Compile Include="memory/InMemoryPattern.fs" />
     <Compile Include="wander/Bindings.fs" />
     <Compile Include="wander/Model.fs" />
     <Compile Include="wander/LexerUtil.fs" />

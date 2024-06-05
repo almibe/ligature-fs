@@ -40,22 +40,22 @@ let bindWanderLibs bindings =
     | null -> failwith "WANDER_LIBS not set"
     | value ->
         let mutable bindings = bindings
-        System.IO.Directory.GetFiles(value, "*.wander", new System.IO.EnumerationOptions(RecurseSubdirectories = true)) 
+
+        System.IO.Directory.GetFiles(value, "*.wander", new System.IO.EnumerationOptions(RecurseSubdirectories = true))
         |> Array.filter (fun file -> not <| file.Contains(".test."))
         |> Array.iter (fun file ->
-            let scriptName = 
-                (System.IO.Path.GetFileName file).Split(".")
-                |> Array.head
+            let scriptName = (System.IO.Path.GetFileName file).Split(".") |> Array.head
             let script = System.IO.File.ReadAllText file
+
             match Ligature.Wander.Main.run script (coreEnvironment ()) with
             | Ok res ->
                 match Bindings.read scriptName bindings with
                 | None -> bindings <- Bindings.bind scriptName res bindings
                 | _ -> failwith $"Error {scriptName} is already bound."
             | Error err -> failwith $"Error evaluating script {scriptName} -- {err.UserMessage}")
+
         bindings
 
 /// Provices an Environment that provides the core Host Functions and loads namespaces from WANDER_LIBS.
 let standardEnvironment () =
-    bindCoreHostFunctions (Bindings.newBindings ())
-    |> bindWanderLibs
+    bindCoreHostFunctions (Bindings.newBindings ()) |> bindWanderLibs

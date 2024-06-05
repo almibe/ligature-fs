@@ -6,8 +6,8 @@ module Ligature.Wander.Model
 
 open Ligature.Main
 open System
-open Ligature.InMemory.Pattern
 open System.Text.RegularExpressions
+open Ligature.LigatureStore.InMemoryStore
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -42,7 +42,7 @@ type WanderValue =
     | Statement of Ligature.Main.Statement
     | Function of Function
     | Array of WanderValue array
-    | Pattern of IPattern
+    | Network of Network
     | Namespace of Map<string, WanderValue>
     | Bytes of byte array
     | Nothing
@@ -62,8 +62,9 @@ type Bindings = Bindings.Bindings<string, WanderValue>
 //TODO try to remove this
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
     if
-        (left = WanderValue.Pattern(emptyPattern) || left = WanderValue.Namespace(Map.empty))
-        && (right = WanderValue.Pattern(emptyPattern)
+        (left = WanderValue.Network(emptyNetwork)
+         || left = WanderValue.Namespace(Map.empty))
+        && (right = WanderValue.Network(emptyNetwork)
             || right = WanderValue.Namespace(Map.empty))
     then
         true
@@ -91,7 +92,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Namespace(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Pattern(values) ->
+    | WanderValue.Network(values) ->
         (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.PatternStatements)
         + "}"
     | WanderValue.Nothing -> "Nothing"
@@ -108,11 +109,10 @@ and printRecord values =
     + "}"
 
 and printStatementLiteral statement =
-    $"(`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
+    $"(`{(readSlotIdentifier statement.Entity)}` `{(readSlotIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
 
-and printStatement statement =
-    failwith "TODO"
-    //$"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+and printStatement statement = failwith "TODO"
+//$"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
@@ -138,6 +138,7 @@ and printLigatureValue value =
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
     | Value.Bytes(bytes) -> printBytes bytes
+    | Value.Slot(_) -> failwith "TODO"
 
 and printValues values =
     Seq.fold (fun x y -> x + (prettyPrint y) + ", ") "" values

@@ -42,8 +42,7 @@ let stringContentNibbler: Gaze.Nibbler<char, string> =
                      false)
                  with _ ->
                      true)))
-        (fun chars ->
-            parseString("\"" + System.String.Concat(chars) + "\"").ToString())
+        (fun chars -> parseString("\"" + System.String.Concat(chars) + "\"").ToString())
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.

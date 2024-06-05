@@ -16,7 +16,7 @@ let equalFunction<'t> =
                     match args with
                     | [ WanderValue.String(desc); left; right ] ->
                         if (left = right) || (wanderEquals left right) then
-                            Ok(WanderValue.Pattern(InMemoryPattern(Set.empty)))
+                            Ok(WanderValue.Network(InMemoryPattern(Set.empty)))
                         else
                             error $"{prettyPrint left} != {prettyPrint right}" None
                     | _ -> error "Invalid call to Assert.equal function." None)

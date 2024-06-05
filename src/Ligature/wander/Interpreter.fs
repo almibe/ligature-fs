@@ -7,10 +7,10 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature.Main
-open Ligature.InMemory.Pattern
 
 let readName (name: string) (bindings: Bindings<string, WanderValue>) =
     let namePath = List.ofArray (name.Split("."))
+
     match read (List.head namePath) bindings with
     | Some(value) ->
         match value with
@@ -246,7 +246,7 @@ and handlePattern bindings values =
             | _ -> failwith "TODO")
         res
 
-    Ok(WanderValue.Pattern(InMemoryPattern(final)), bindings)
+    Ok(WanderValue.Network(InMemoryPattern(final)), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
@@ -313,7 +313,7 @@ and evalLambda bindings parameters body arguments =
     let mutable error = None
 
     let args =
-        Array.init (List.length parameters) (fun _ -> WanderValue.Pattern(InMemoryPattern(Set.empty)))
+        Array.init (List.length parameters) (fun _ -> WanderValue.Network(InMemoryPattern(Set.empty)))
 
     List.tryFind
         (fun arg ->
@@ -338,11 +338,11 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-// and checkPattern bindings (input: INetwork) (pattern: DatasetPatternRoot list) : bool =
+// and checkPattern bindings (input: Network) (pattern: DatasetPatternRoot list) : bool =
 //     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
 //     //this only works for matching with literals and no destructuring
 //     match evalExpression bindings (Expression.Pattern(pattern)) with
-//     | Ok(WanderValue.Pattern(pattern), _) -> failwith "TODO"
+//     | Ok(WanderValue.Network(pattern), _) -> failwith "TODO"
 //     // match (pattern.AllStatements (), input.AllStatements ()) with
 //     // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
 //     // | _ -> failwith "Error"
@@ -354,7 +354,7 @@ and handleLambda bindings parameters body =
 //     match evalExpression bindings inputExpression with
 //     | Ok(input, _) ->
 //         match input with
-//         | WanderValue.Pattern(input) ->
+//         | WanderValue.Network(input) ->
 //             List.iter
 //                 (fun (pattern, body) ->
 //                     match pattern with
@@ -380,10 +380,10 @@ and evalExpressions
     (expressions: Expression list)
     : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok(WanderValue.Pattern(emptyPattern), bindings)
+    | 0 -> Ok(WanderValue.Network(emptyNetwork), bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok(WanderValue.Pattern(emptyPattern), bindings)
+        let mutable result = Ok(WanderValue.Network(emptyNetwork), bindings)
         let mutable cont = true
         let mutable bindings = bindings
         let mutable expressions = expressions
