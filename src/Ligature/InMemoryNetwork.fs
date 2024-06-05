@@ -29,22 +29,22 @@ open Main
 //       Attribute = attribute
 //       Value = value }
 
-type InMemoryNetwork =
-    val statements: Set<Statement>
-    new(statementsArg: Set<Statement>) = { statements = statementsArg }
+// type InMemoryNetwork =
+//     val statements: Set<Statement>
+//     new(statementsArg: Set<Statement>) = { statements = statementsArg }
 
-    override this.Equals(other) =
-        match other with
-        | :? InMemoryNetwork as ds -> (this.statements) = (ds.statements)
-        | _ -> failwith "TODO"
+//     override this.Equals(other) =
+//         match other with
+//         | :? InMemoryNetwork as ds -> (this.statements) = (ds.statements)
+//         | _ -> failwith "TODO"
 
-    override this.GetHashCode() = this.statements.GetHashCode()
+//     override this.GetHashCode() = this.statements.GetHashCode()
 
-    interface INetwork with
-        member this.all() =
-            this.statements
-        member _.find entity attribute value =
-            failwith "TODO"
+//     interface INetwork with
+//         member this.all() =
+//             this.statements
+//         member _.find entity attribute value =
+//             failwith "TODO"
 
         // member this.RunQuery query =
         // let mutable result = Set.empty
@@ -83,4 +83,4 @@ type InMemoryNetwork =
 // type InMemoryNetwork(statements: Set<Statement>) =
 //     interface INetwork with
 
-let emptyNetwork = InMemoryNetwork(Set.empty)
+// let emptyNetwork = InMemoryNetwork(Set.empty)

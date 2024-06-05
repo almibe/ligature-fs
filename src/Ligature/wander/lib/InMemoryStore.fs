@@ -6,38 +6,10 @@ module Ligature.Wander.Lib.LigatureStore
 
 open Ligature.Wander.Model
 open Ligature.Main
+open Ligature.LigatureStore
 open System
 open System.Collections.Generic
 open Pattern
-
-type LigatureStore =
-    abstract member networks : unit -> string seq
-    abstract member addNetwork : string -> unit
-    abstract member removeNetwork : string -> unit
-    abstract member add : string -> Statement seq -> Result<unit, LigatureError>
-    abstract member remove : string -> Statement seq -> Result<unit, LigatureError>
-    abstract member read : string -> Statement seq
-
-module InMemoryStore =
-    type InMemoryStore(store: Dictionary<string, HashSet<Statement>>) =
-        interface LigatureStore with
-            member this.addNetwork networkName = 
-                store.Add(networkName, new HashSet<Statement>())
-            member this.removeNetwork networkName = 
-                store.Remove(networkName) |> ignore
-            member this.networks () = store.Keys
-            member this.add name network =
-                let store = store.Item(name)
-                store.UnionWith(network)
-                Ok(())
-            member this.remove name network =
-                let store = store.Item(name)
-                store.ExceptWith(network)
-                Ok(())
-            member this.read name =
-                let store = store.Item(name)
-                store
-    let empty (): LigatureStore = InMemoryStore(new Dictionary<string, HashSet<Statement>>())
 
 let networksFunction (store: LigatureStore) =
     WanderValue.Function(
@@ -84,33 +56,33 @@ let removeNetworkFunction (store: LigatureStore) =
         )
     )
 
-let addFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(name); WanderValue.Pattern(pattern) ] ->
-                        store.add name ((patternToNetwork pattern).all())
-                        Ok(WanderValue.Nothing)
-                    | _ -> error "Invalid call to map function." None)
-            )
-        )
-    )
+// let addFunction (store: LigatureStore) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(name); WanderValue.Pattern(pattern) ] ->
+//                         store.add name ((patternToNetwork pattern).all())
+//                         Ok(WanderValue.Nothing)
+//                     | _ -> error "Invalid call to map function." None)
+//             )
+//         )
+//     )
 
-let removeFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(name); WanderValue.Pattern(pattern) ] ->
-                        store.remove name ((patternToNetwork pattern).all())
-                        Ok(WanderValue.Nothing)
-                    | _ -> error "Invalid call to map function." None)
-            )
-        )
-    )
+// let removeFunction (store: LigatureStore) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(name); WanderValue.Pattern(pattern) ] ->
+//                         store.remove name ((patternToNetwork pattern).all())
+//                         Ok(WanderValue.Nothing)
+//                     | _ -> error "Invalid call to map function." None)
+//             )
+//         )
+//     )
 
 let readFunction (store: LigatureStore) =
     WanderValue.Function(
@@ -132,7 +104,7 @@ let inMemoryLib =
         ("networks", networksFunction store)
         ("addNetwork", addNetworkFunction store)
         ("removeNetwork", removeNetworkFunction store)
-        ("add", addFunction store)
-        ("remove", removeFunction store)
+      //  ("add", addFunction store)
+      //  ("remove", removeFunction store)
         ("read", readFunction store)
     ])

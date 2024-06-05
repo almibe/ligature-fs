@@ -6,7 +6,6 @@ module Ligature.ZMQ.Main
 
 open Ligature.ZMQ.Config
 open Ligature
-open Ligature.InMemory.Main
 open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
@@ -24,10 +23,10 @@ let main _ =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
 
-    let instance = new LigatureInMemory()
+//    let instance = new LigatureInMemory()
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")
     Console.WriteLine("Started on port 4200.")
-    serve server instance
+    serve server //instance
     0

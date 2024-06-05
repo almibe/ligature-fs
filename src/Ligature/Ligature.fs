@@ -70,9 +70,9 @@ type Statement =
                 else v
             | _ -> failwith "Error"
 
-type INetwork =
-    abstract member all: unit -> Statement seq
-    abstract member find: Identifier option -> Identifier option -> Value option -> Statement seq
+// type INetwork =
+//     abstract member all: unit -> Statement seq
+//     abstract member find: Identifier option -> Identifier option -> Value option -> Statement seq
 
 // and INetwork =
 //     abstract member Extract: IPattern -> Map<Slot, Value> list

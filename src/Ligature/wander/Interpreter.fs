@@ -338,15 +338,15 @@ and evalLambda bindings parameters body arguments =
 and handleLambda bindings parameters body =
     Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
-and checkPattern bindings (input: INetwork) (pattern: DatasetPatternRoot list) : bool =
-    //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
-    //this only works for matching with literals and no destructuring
-    match evalExpression bindings (Expression.Pattern(pattern)) with
-    | Ok(WanderValue.Pattern(pattern), _) -> failwith "TODO"
-    // match (pattern.AllStatements (), input.AllStatements ()) with
-    // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
-    // | _ -> failwith "Error"
-    | _ -> failwith "Error"
+// and checkPattern bindings (input: INetwork) (pattern: DatasetPatternRoot list) : bool =
+//     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
+//     //this only works for matching with literals and no destructuring
+//     match evalExpression bindings (Expression.Pattern(pattern)) with
+//     | Ok(WanderValue.Pattern(pattern), _) -> failwith "TODO"
+//     // match (pattern.AllStatements (), input.AllStatements ()) with
+//     // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
+//     // | _ -> failwith "Error"
+//     | _ -> failwith "Error"
 
 // and handleQuery bindings inputExpression patterns =
 //     let mutable results = emptyInMemoryNetwork
