@@ -181,18 +181,3 @@ type InMemoryPattern(patternStatements: Set<PatternStatement>) =
             Set.count root = 1
 
 let emptyPattern: IPattern = InMemoryPattern(Set.empty)
-
-let unsafeDatasetToPattern (dataset: INetwork) : IPattern =
-    failwith "TODO"
-    // match dataset.AllStatements() with
-    // | Ok res ->
-    //     let (l: PatternStatement list) =
-    //         List.map
-    //             (fun item ->
-    //                 { Entity = PatternIdentifier.Identifier item.Entity
-    //                   Attribute = PatternIdentifier.Identifier item.Attribute
-    //                   Value = PatternValue.Value item.Value })
-    //             res
-
-    //     InMemoryPattern(Set.ofList l)
-    // | _ -> failwith "Error"

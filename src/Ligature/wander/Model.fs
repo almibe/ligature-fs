@@ -45,6 +45,7 @@ type WanderValue =
     | Pattern of IPattern
     | Namespace of Map<string, WanderValue>
     | Bytes of byte array
+    | Nothing
 
 and [<RequireQualifiedAccess>] Function =
     | Lambda of paramters: string list * body: Expression
@@ -93,6 +94,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Pattern(values) ->
         (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.PatternStatements)
         + "}"
+    | WanderValue.Nothing -> "Nothing"
 
 and printBytes bytes =
     bytes

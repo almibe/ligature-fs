@@ -9,10 +9,11 @@ open Lib.Bool
 open Lib.Bytes
 open Lib.Identifier
 open Lib.Ligature
-open Lib.Keylime
 open Lib.Int
 open Lib.Wander
 open Lib.DateTime
+open Lib.LigatureStore
+open LightningDB
 
 let bindCoreHostFunctions bindings =
     bindings
@@ -22,8 +23,8 @@ let bindCoreHostFunctions bindings =
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Pattern" Lib.Pattern.patternLib
-    |> Bindings.bind "Keylime" keylimeLib
     |> Bindings.bind "Identifier" identifierLib
+    |> Bindings.bind "InMemory" inMemoryLib
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Statement" Lib.Statement.statementLib
     |> Bindings.bind "String" Lib.String.stringLib

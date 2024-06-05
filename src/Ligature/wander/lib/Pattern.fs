@@ -14,6 +14,17 @@ let patternStatementToStatement (pattern: PatternStatement) : Statement option =
         Attribute = PatternIdentifier.Identifier(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
+let networkToPattern (network: INetwork) : IPattern =
+    failwith "TODO"
+    // let res = network.all()
+    // let l: PatternStatement list =
+    //     List.map
+    //         (fun item ->
+    //             { Entity = (PatternIdentifier.Identifier item.Entity);
+    //                 Attribute = (PatternIdentifier.Identifier item.Attribute);
+    //                 Value = PatternValue.Value item.Value }) res
+    // InMemoryPattern(Set.ofList l)
+
 let applyFunction =
     WanderValue.Function(
         Function.HostFunction(
@@ -39,7 +50,7 @@ let applyFunction =
                         |> Map.ofSeq
 
                     match pattern.Apply res with
-                    | Some res -> Ok(WanderValue.Pattern(unsafeDatasetToPattern res))
+                    | Some res -> Ok(WanderValue.Pattern(networkToPattern res))
                     | None -> failwith ""
                 | value -> error $"Unexpected value passed to Pattern.apply - {value}." None)
         )
@@ -118,37 +129,40 @@ let extractsFunction =
         )
     )
 
-let patternToDataset (pattern: IPattern) : INetwork =
+let patternToNetwork (pattern: IPattern) : INetwork =
     match pattern.ToNetwork with
     | Some dataset -> dataset
     | _ -> failwith "TODO"
 
-let extractFunction =
+let extract network pattern: Map<Slot, Value> list =
     failwith "TODO"
-    // WanderValue.Function(
-    //     Function.HostFunction(
-    //         new HostFunction(fun args _ ->
-    //             match args with
-    //             | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
-    //                 (patternToDataset dataset).Extract pattern
-    //                 |> List.map (fun res ->
-    //                     res
-    //                     |> Map.toSeq
-    //                     |> Seq.map (fun (k, v) ->
-    //                         (k.Name,
-    //                          match v with
-    //                          | Value.Int value -> WanderValue.Int value
-    //                          | Value.Bytes value -> WanderValue.Bytes value
-    //                          | Value.Identifier value -> WanderValue.Identifier value
-    //                          | Value.String value -> WanderValue.String value))
-    //                     |> Map.ofSeq
-    //                     |> WanderValue.Namespace)
-    //                 |> Array.ofList
-    //                 |> WanderValue.Array
-    //                 |> Ok
-    //             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
-    //     )
-    // )
+
+let extractFunction =
+    WanderValue.Function(
+        Function.HostFunction(
+            new HostFunction(fun args _ ->
+                match args with
+                | [ WanderValue.Pattern(pattern); WanderValue.Pattern(dataset) ] ->
+                    //(patternToDataset dataset).Extract pattern
+                    extract (patternToNetwork dataset) pattern
+                    |> List.map (fun res ->
+                        res
+                        |> Map.toSeq
+                        |> Seq.map (fun (k, v) ->
+                            (k.Name,
+                             match v with
+                             | Value.Int value -> WanderValue.Int value
+                             | Value.Bytes value -> WanderValue.Bytes value
+                             | Value.Identifier value -> WanderValue.Identifier value
+                             | Value.String value -> WanderValue.String value))
+                        |> Map.ofSeq
+                        |> WanderValue.Namespace)
+                    |> Array.ofList
+                    |> WanderValue.Array
+                    |> Ok
+                | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
+        )
+    )
 
 let patternLib =
     WanderValue.Namespace(
