@@ -6,24 +6,23 @@ module Ligature.Wander.Lib.Pattern
 
 open Ligature.Wander.Model
 open Ligature.Main
-open Ligature.InMemory.Pattern
 
-let patternStatementToStatement (pattern: PatternStatement) : Statement option =
+let patternStatementToStatement (pattern: Statement) : Statement option =
     match pattern with
-    | { Entity = PatternIdentifier.Identifier(entity)
-        Attribute = PatternIdentifier.Identifier(attribute) } -> failwith "TODO"
+    | { Entity = PatternIdentifier.Id(entity)
+        Attribute = PatternIdentifier.Id(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
 // let networkToPattern (network: Network) : IPattern =
 //     failwith "TODO"
 // let res = network.all()
-// let l: PatternStatement list =
+// let l: Statement list =
 //     List.map
 //         (fun item ->
-//             { Entity = (PatternIdentifier.Identifier item.Entity);
-//                 Attribute = (PatternIdentifier.Identifier item.Attribute);
-//                 Value = PatternValue.Value item.Value }) res
-// InMemoryPattern(Set.ofList l)
+//             { Entity = (PatternIdentifier.Id item.Entity);
+//                 Attribute = (PatternIdentifier.Id item.Attribute);
+//                 Value = Value.Value item.Value }) res
+// Network(Set.ofList l)
 
 // let applyFunction =
 //     WanderValue.Function(
@@ -56,22 +55,22 @@ let patternStatementToStatement (pattern: PatternStatement) : Statement option =
 //         )
 //     )
 
-let singleRootFunction =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Bool(pattern.SingleRoot))
-                | value -> error $"Unexpected value - {value}." None)
-        )
-    )
+// let singleRootFunction =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(fun args _ ->
+//                 match args with
+//                 | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Bool(pattern.SingleRoot))
+//                 | value -> error $"Unexpected value - {value}." None)
+//         )
+//     )
 
 let countFunction =
     WanderValue.Function(
         Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
-                | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern.Statements)))
+                | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (pattern.Count())))
                 | value -> error $"Unexpected value - {value}." None)
         )
     )
@@ -83,14 +82,14 @@ let isDatasetFunction =
                 match args with
                 | [ WanderValue.Network(statements) ] ->
                     let result =
-                        Set.forall
+                        Seq.forall
                             (fun (statement: Statement) ->
                                 match (statement.Entity, statement.Attribute, statement.Value) with
-                                | (PatternIdentifier.Slot(_), _, _) -> false
-                                | (_, PatternIdentifier.Slot(_), _) -> false
-                                | (_, _, PatternValue.Slot(_)) -> false
+                                | (PatternIdentifier.Sl(_), _, _) -> false
+                                | (_, PatternIdentifier.Sl(_), _) -> false
+                                | (_, _, Value.Slot(_)) -> false
                                 | _ -> true)
-                            statements.Statements
+                            (statements.AllStatements())
 
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.isDataset - {value}." None)
@@ -104,25 +103,25 @@ let extractsFunction =
                 match args with
                 | [ WanderValue.Network(statements) ] ->
                     let result =
-                        Set.exists
-                            (fun (statement: PatternStatement) ->
+                        Seq.exists
+                            (fun (statement: Statement) ->
                                 let entity =
                                     match statement.Entity with
-                                    | PatternIdentifier.Slot(slot) -> slot.Named
+                                    | PatternIdentifier.Sl(slot) -> slot.Named
                                     | _ -> false
 
                                 let attribute =
                                     match statement.Attribute with
-                                    | PatternIdentifier.Slot(slot) -> slot.Named
+                                    | PatternIdentifier.Sl(slot) -> slot.Named
                                     | _ -> false
 
                                 let value =
                                     match statement.Value with
-                                    | PatternValue.Slot(slot) -> slot.Named
+                                    | Value.Slot(slot) -> slot.Named
                                     | _ -> false
 
                                 entity || attribute || value)
-                            statements.PatternStatements
+                            (statements.AllStatements())
 
                     Ok(WanderValue.Bool(result))
                 | value -> error $"Unexpected value passed to Pattern.extracts - {value}." None)
@@ -171,5 +170,6 @@ let patternLib =
               //  ("extract", extractFunction)
               ("extracts", extractsFunction)
               ("isDataset", isDatasetFunction)
-              ("singleRoot", singleRootFunction) ]
+              //("singleRoot", singleRootFunction)
+              ]
     )

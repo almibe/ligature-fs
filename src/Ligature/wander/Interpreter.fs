@@ -7,6 +7,7 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Wander.Bindings
 open Ligature.Main
+open Ligature.LigatureStore.InMemoryStore
 
 let readName (name: string) (bindings: Bindings<string, WanderValue>) =
     let namePath = List.ofArray (name.Split("."))
@@ -187,7 +188,7 @@ and handleEntityDescription bindings (attribute, values) =
     (attribute, values)
 
 and handleDatasetRootPattern bindings (entity, entityDescriptions) =
-    let mutable statements: Set<PatternStatement> = Set.empty
+    let mutable statements: Set<Statement> = Set.empty
 
     let entity =
         match evalExpression bindings entity with
@@ -203,25 +204,25 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
 
             let entity =
                 match entity with
-                | WanderValue.Slot slot -> PatternIdentifier.Slot slot
-                | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
+                | WanderValue.Slot slot -> PatternIdentifier.Sl slot
+                | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
                 | _ -> failwith "TODO"
 
             let attribute =
                 match attribute with
-                | WanderValue.Slot slot -> PatternIdentifier.Slot slot
-                | WanderValue.Identifier identifier -> PatternIdentifier.Identifier identifier
+                | WanderValue.Slot slot -> PatternIdentifier.Sl slot
+                | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
                 | _ -> failwith "TODO"
 
             List.iter
                 (fun value ->
                     let value =
                         match value with
-                        | WanderValue.Int value -> PatternValue.Value(Value.Int value)
-                        | WanderValue.Bytes value -> PatternValue.Value(Value.Bytes value)
-                        | WanderValue.Identifier value -> PatternValue.Value(Value.Identifier value)
-                        | WanderValue.String value -> PatternValue.Value(Value.String value)
-                        | WanderValue.Slot slot -> PatternValue.Slot(slot)
+                        | WanderValue.Int value -> Value.Int value
+                        | WanderValue.Bytes value -> Value.Bytes value
+                        | WanderValue.Identifier value -> Value.Identifier value
+                        | WanderValue.String value -> Value.String value
+                        | WanderValue.Slot slot -> Value.Slot(slot)
                         | _ -> failwith "TODO"
 
                     statements <-
@@ -237,16 +238,16 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
 
 and handlePattern bindings values =
     let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
-    let mutable final: Set<PatternStatement> = Set.empty
+    let mutable final: Set<Statement> = Set.empty
 
     List.iter
         (fun ds ->
             match ds with
-            | Ok(res: Set<PatternStatement>) -> final <- final + res
+            | Ok(res: Set<Statement>) -> final <- final + res
             | _ -> failwith "TODO")
         res
 
-    Ok(WanderValue.Network(InMemoryPattern(final)), bindings)
+    Ok(WanderValue.Network(Network(final)), bindings)
 
 and handleApplication bindings values =
     let arguments = List.tail values
@@ -313,7 +314,7 @@ and evalLambda bindings parameters body arguments =
     let mutable error = None
 
     let args =
-        Array.init (List.length parameters) (fun _ -> WanderValue.Network(InMemoryPattern(Set.empty)))
+        Array.init (List.length parameters) (fun _ -> WanderValue.Network(Network(Set.empty)))
 
     List.tryFind
         (fun arg ->

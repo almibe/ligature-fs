@@ -92,9 +92,9 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Namespace(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Network(values) ->
-        (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.PatternStatements)
-        + "}"
+    | WanderValue.Network(values) -> failwith "TODO"
+    // (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.AllStatements ())
+    // + "}"
     | WanderValue.Nothing -> "Nothing"
 
 and printBytes bytes =
@@ -109,28 +109,26 @@ and printRecord values =
     + "}"
 
 and printStatementLiteral statement =
-    $"(`{(readSlotIdentifier statement.Entity)}` `{(readSlotIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
+    $"(`{(readPatternIdentifier statement.Entity)}` `{(readPatternIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
 
 and printStatement statement = failwith "TODO"
 //$"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
-    | PatternIdentifier.Identifier(identifier) -> $"`{readIdentifier identifier}`"
-    | PatternIdentifier.Slot(slot) -> $"${(slot.Name)}"
+    | PatternIdentifier.Id(identifier) -> $"`{readIdentifier identifier}`"
+    | PatternIdentifier.Sl(slot) -> $"${(slot.Name)}"
 
-and printPatternValue (value: PatternValue) =
+and printValue (value: Value) =
     match value with
-    | PatternValue.Value value ->
-        match value with
-        | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
-        | Value.Int(value) -> value.ToString()
-        | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-        | Value.Bytes(bytes) -> printBytes bytes
-    | PatternValue.Slot(slot) -> $"${(slot.Name)}"
+    | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
+    | Value.Int(value) -> value.ToString()
+    | Value.String(value) -> $"\"{value}\"" //TODO escape properly
+    | Value.Bytes(bytes) -> printBytes bytes
+    | Value.Slot(slot) -> $"${(slot.Name)}"
 
-and printPattern (pattern: PatternStatement) =
-    $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printPatternValue pattern.Value)}"
+and printPattern (pattern: Statement) =
+    $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printValue pattern.Value)}"
 
 and printLigatureValue value =
     match value with

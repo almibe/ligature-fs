@@ -50,7 +50,7 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(InMemoryPattern(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Network(Network(Set.empty)))) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
@@ -83,7 +83,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(InMemoryPattern(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Network(Network(Set.empty)))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -93,12 +93,12 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          InMemoryPattern(
+                          Network(
 
                               Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                      Attribute = PatternIdentifier.Identifier(ident "b")
-                                      Value = PatternValue.Value(Value.Identifier(ident "c")) } ]
+                                  [ { Entity = PatternIdentifier.Id(ident "a")
+                                      Attribute = PatternIdentifier.Id(ident "b")
+                                      Value = Value.Value(Value.Identifier(ident "c")) } ]
 
                           )
                       )
@@ -113,12 +113,12 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          InMemoryPattern(
+                          Network(
 
                               Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                      Attribute = PatternIdentifier.Identifier(ident "b")
-                                      Value = PatternValue.Value(Value.Int(5I)) } ]
+                                  [ { Entity = PatternIdentifier.Id(ident "a")
+                                      Attribute = PatternIdentifier.Id(ident "b")
+                                      Value = Value.Value(Value.Int(5I)) } ]
 
                           )
                       )
@@ -133,11 +133,11 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          InMemoryPattern(
+                          Network(
                               Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                      Attribute = PatternIdentifier.Identifier(ident "b")
-                                      Value = PatternValue.Value(Value.String("Hi")) } ]
+                                  [ { Entity = PatternIdentifier.Id(ident "a")
+                                      Attribute = PatternIdentifier.Id(ident "b")
+                                      Value = Value.Value(Value.String("Hi")) } ]
                           )
                       )
 
@@ -152,11 +152,11 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          InMemoryPattern(
+                          Network(
                               Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Identifier(ident "a")
-                                      Attribute = PatternIdentifier.Identifier(ident "b")
-                                      Value = PatternValue.Value(Value.Bytes([| 0uy |])) } ]
+                                  [ { Entity = PatternIdentifier.Id(ident "a")
+                                      Attribute = PatternIdentifier.Id(ident "b")
+                                      Value = Value.Value(Value.Bytes([| 0uy |])) } ]
                           )
                       )
                   ))
@@ -170,11 +170,11 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          InMemoryPattern(
+                          Network(
                               Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Identifier(ident "e")
-                                      Attribute = PatternIdentifier.Identifier(ident "a")
-                                      Value = PatternValue.Value(Value.Identifier(ident "v")) } ]
+                                  [ { Entity = PatternIdentifier.Id(ident "e")
+                                      Attribute = PatternIdentifier.Id(ident "a")
+                                      Value = Value.Value(Value.Identifier(ident "v")) } ]
                           )
                       )
                   ))

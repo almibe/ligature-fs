@@ -4,7 +4,6 @@
 
 module Ligature.ZMQ.Config
 
-open Ligature.InMemory
 open Argu
 open System
 

@@ -56,19 +56,19 @@ let removeNetworkFunction (store: LigatureStore) =
         )
     )
 
-let addFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(name); WanderValue.Network(pattern) ] ->
-                        store.add name ((pattern).AllStatements()) |> ignore
-                        Ok(WanderValue.Nothing)
-                    | _ -> error "Invalid call to map function." None)
-            )
-        )
-    )
+// let addFunction (store: LigatureStore) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(name); WanderValue.Network(pattern) ] ->
+//                         store.add name ((pattern).AllStatements()) |> ignore
+//                         Ok(WanderValue.Nothing)
+//                     | _ -> error "Invalid call to map function." None)
+//             )
+//         )
+//     )
 
 // let removeFunction (store: LigatureStore) =
 //     WanderValue.Function(
@@ -84,28 +84,30 @@ let addFunction (store: LigatureStore) =
 //         )
 //     )
 
-let readFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(name) ] ->
-                        store.read name |> ignore
-                        failwith "TODO"
-                    | _ -> error "Invalid call to map function." None)
-            )
-        )
-    )
+// let readFunction (store: LigatureStore) =
+//     WanderValue.Function(
+//         Function.HostFunction(
+//             new HostFunction(
+//                 (fun args _ ->
+//                     match args with
+//                     | [ WanderValue.String(name) ] ->
+//                         store.read name |> ignore
+//                         failwith "TODO"
+//                     | _ -> error "Invalid call to map function." None)
+//             )
+//         )
+//     )
 
 let inMemoryLib =
     let store = InMemoryStore.empty ()
+
     WanderValue.Namespace(
         Map.ofList
             [ ("networks", networksFunction store)
               ("addNetwork", addNetworkFunction store)
               ("removeNetwork", removeNetworkFunction store)
-              ("add", addFunction store)
+              //              ("add", addFunction store)
               //  ("remove", removeFunction store)
-              ("read", readFunction store) ]
+              //              ("read", readFunction store)
+              ]
     )

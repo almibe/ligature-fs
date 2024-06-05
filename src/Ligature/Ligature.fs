@@ -71,8 +71,8 @@ let slotUnsafe name =
 
 [<RequireQualifiedAccess>]
 type PatternIdentifier =
-    | Slot of Slot
-    | Identifier of Identifier
+    | Sl of Slot
+    | Id of Identifier
 
 [<RequireQualifiedAccess>]
 type Value =
@@ -82,39 +82,10 @@ type Value =
     | Int of bigint
     | Bytes of byte array
 
-type PatternStatement =
-    { Entity: PatternIdentifier
-      Attribute: PatternIdentifier
-      Value: Value }
-
-let getRoots (patternSet: Set<PatternStatement>) : Set<PatternIdentifier> =
-    Set.map (fun (statement: PatternStatement) -> statement.Entity) patternSet
-
-let getLeaves (patternSet: Set<PatternStatement>) : Set<PatternIdentifier> =
-    patternSet
-    |> Set.map (fun (statement: PatternStatement) ->
-        match statement.Value with
-        | Value.Identifier identifier -> Some(PatternIdentifier.Identifier identifier)
-        | Value.Slot slot -> Some(PatternIdentifier.Slot slot)
-        | _ -> None)
-    |> Set.filter (fun x -> x.IsSome)
-    |> Set.map (fun x -> x.Value)
-
-type SlotIdentifier =
-    | Id of Identifier
-    | Slot of string
-
-let readIdentifier (Identifier identifier) = identifier
-
-let readSlotIdentifier (identifier: SlotIdentifier) : string =
-    match identifier with
-    | Id(Identifier identifier) -> identifier
-    | Slot(name) -> name
-
 [<CustomEquality; CustomComparison>]
 type Statement =
-    { Entity: SlotIdentifier
-      Attribute: SlotIdentifier
+    { Entity: PatternIdentifier
+      Attribute: PatternIdentifier
       Value: Value }
 
     override this.Equals(other) =
@@ -141,11 +112,33 @@ type Statement =
                 else v
             | _ -> failwith "Error"
 
+let getRoots (patternSet: Set<Statement>) : Set<PatternIdentifier> =
+    Set.map (fun (statement: Statement) -> statement.Entity) patternSet
+
+let getLeaves (patternSet: Set<Statement>) : Set<PatternIdentifier> =
+    patternSet
+    |> Set.map (fun (statement: Statement) ->
+        match statement.Value with
+        | Value.Identifier identifier -> Some(PatternIdentifier.Id identifier)
+        | Value.Slot slot -> Some(PatternIdentifier.Sl slot)
+        | _ -> None)
+    |> Set.filter (fun x -> x.IsSome)
+    |> Set.map (fun x -> x.Value)
+
+
+let readIdentifier (Identifier identifier) = identifier
+
+let readPatternIdentifier (identifier: PatternIdentifier) : string =
+    match identifier with
+    | PatternIdentifier.Id(Identifier identifier) -> identifier
+    | _ -> failwith "TODO"
+//| PatternIdentifier.Sl(Slot(name)) -> name
+
 type Network(statements: Set<Statement>) =
     //abstract member Extract: Network -> Map<Slot, Value> list
-    member _.Matches (other: Network): bool = failwith "TODO"
-    member _.Count (): int64 = failwith "TODO"
-    member _.AllStatements (): Statement seq = failwith "TODO"
+    member _.Matches(other: Network) : bool = failwith "TODO"
+    member _.Count() : int64 = failwith "TODO"
+    member _.AllStatements() : Statement seq = failwith "TODO"
 
 let statement entity attribute value =
     { Entity = entity
