@@ -131,15 +131,68 @@ let readIdentifier (Identifier identifier) = identifier
 let readPatternIdentifier (identifier: PatternIdentifier) : string =
     match identifier with
     | PatternIdentifier.Id(Identifier identifier) -> identifier
-//  | PatternIdentifier.Sl(Slot(name)) -> name
+    //  | PatternIdentifier.Sl(Slot(name)) -> name
     | _ -> failwith "TODO"
 
 type Network(statements: Set<Statement>) =
-    member _.Count() : int64 = 
-        Set.count statements
-    member _.AllStatements() : Set<Statement> = 
-        statements
-    member this.Extract(pattern: Network): Map<Slot, Value> list =
+    member _.Count() : int64 = Set.count statements
+    member _.AllStatements() : Set<Statement> = statements
+
+    member this.Apply(data: Map<Slot, Value>) : Network =
+        let res: Set<Statement> =
+            Set.map
+                (fun (statement: Statement) ->
+                    match statement with
+                    // | { Entity = PatternIdentifier.Id(_)
+                    //     Attribute = PatternIdentifier.Id(_)
+                    //     Value = Value(_) } -> failwith "TODO"
+                    | _ ->
+                        let entity =
+                            match statement.Entity with
+                            | PatternIdentifier.Id(identifier) -> identifier
+                            | PatternIdentifier.Sl(slot) ->
+                                if slot.Named then
+                                    match data.TryFind slot with
+                                    | Some value ->
+                                        match value with
+                                        | Value.Identifier identifier -> identifier
+                                        | _ -> failwith "Error"
+                                    | None -> failwith "Error"
+                                else
+                                    failwith "Error"
+
+                        let attribute =
+                            match statement.Attribute with
+                            | PatternIdentifier.Id(identifier) -> identifier
+                            | PatternIdentifier.Sl(slot) ->
+                                if slot.Named then
+                                    match data.TryFind slot with
+                                    | Some value ->
+                                        match value with
+                                        | Value.Identifier identifier -> identifier
+                                        | _ -> failwith "Error"
+                                    | None -> failwith "Error"
+                                else
+                                    failwith "Error"
+
+                        let value =
+                            match statement.Value with
+                            | Value.Slot(slot) ->
+                                if slot.Named then
+                                    match data.TryFind slot with
+                                    | Some value -> value
+                                    | None -> failwith "Error"
+                                else
+                                    failwith "Error"
+                            | v -> v
+
+                        { Entity = (PatternIdentifier.Id entity)
+                          Attribute = (PatternIdentifier.Id attribute)
+                          Value = value })
+                statements
+        Network(res)
+
+    member this.Extract(pattern: Network) : Map<Slot, Value> list =
         if statements.IsEmpty || pattern.AllStatements().IsEmpty then
             List.Empty
         else
@@ -147,9 +200,10 @@ type Network(statements: Set<Statement>) =
             let mutable currentNames: Map<Slot, Value> = Map.empty
 
             statements
-            |> Set.iter (fun statement ->                    
+            |> Set.iter (fun statement ->
                 currentNames <- Map.empty //reset state
-                pattern.AllStatements ()
+
+                pattern.AllStatements()
                 |> Set.iter (fun (pattern: Statement) ->
                     let mutable matched = true
 
@@ -168,14 +222,16 @@ type Network(statements: Set<Statement>) =
                             ()
 
                     match pattern.Attribute with
-                    | PatternIdentifier.Id identifier -> matched <- statement.Attribute = PatternIdentifier.Id identifier
+                    | PatternIdentifier.Id identifier ->
+                        matched <- statement.Attribute = PatternIdentifier.Id identifier
                     | PatternIdentifier.Sl slot ->
                         if slot.Named then
                             if currentNames.ContainsKey slot then
                                 failwith "TODO"
                             else
                                 match statement.Attribute with
-                                | PatternIdentifier.Id identifier -> currentNames <- currentNames.Add(slot, Value.Identifier identifier)
+                                | PatternIdentifier.Id identifier ->
+                                    currentNames <- currentNames.Add(slot, Value.Identifier identifier)
                                 | _ -> failwith "Error"
                         else
                             ()
@@ -191,7 +247,9 @@ type Network(statements: Set<Statement>) =
                             ()
                     | value -> matched <- statement.Value = value
 
-                    if matched then res <- List.append res [ currentNames ]))
+                    if matched then
+                        res <- List.append res [ currentNames ]))
+
             List.ofSeq res
 
 let statement entity attribute value =

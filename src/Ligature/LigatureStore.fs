@@ -27,13 +27,13 @@ module InMemoryStore =
             member this.add name network =
                 let oldNetwork = store.Item(name)
                 store.Remove(name)
-                store.Add(name, (Set.union oldNetwork (network.AllStatements ())))
+                store.Add(name, (Set.union oldNetwork (network.AllStatements())))
                 Ok(())
 
             member this.remove name network =
                 let oldNetwork = store.Item(name)
                 store.Remove(name)
-                store.Add(name, (Set.difference oldNetwork (network.AllStatements ())))
+                store.Add(name, (Set.difference oldNetwork (network.AllStatements())))
                 Ok(())
 
             member this.read name =

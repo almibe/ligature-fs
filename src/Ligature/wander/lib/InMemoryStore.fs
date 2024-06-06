@@ -89,9 +89,11 @@ let readFunction (store: LigatureStore) =
             new HostFunction(
                 (fun args _ ->
                     match args with
-                    | [ WanderValue.String(name) ] ->
-                        Ok(WanderValue.Network(store.read name))
-                    | _ -> error "Invalid call to map function." None))))
+                    | [ WanderValue.String(name) ] -> Ok(WanderValue.Network(store.read name))
+                    | _ -> error "Invalid call to map function." None)
+            )
+        )
+    )
 
 let inMemoryLib =
     let store = InMemoryStore.empty ()
@@ -103,4 +105,5 @@ let inMemoryLib =
               ("removeNetwork", removeNetworkFunction store)
               ("add", addFunction store)
               ("remove", removeFunction store)
-              ("read", readFunction store)])
+              ("read", readFunction store) ]
+    )
