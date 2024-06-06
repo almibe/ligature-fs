@@ -139,10 +139,60 @@ type Network(statements: Set<Statement>) =
         Set.count statements
     member _.AllStatements() : Set<Statement> = 
         statements
-    member _.Matches(other: Network) : bool =
-        failwith "TODO"
-    member _.Extract(other: Network): Map<Slot, Value> list = 
-        failwith "TODO"
+    member this.Extract(pattern: Network): Map<Slot, Value> list =
+        if statements.IsEmpty || pattern.AllStatements().IsEmpty then
+            List.Empty
+        else
+            let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
+            let mutable currentNames: Map<Slot, Value> = Map.empty
+
+            statements
+            |> Set.iter (fun statement ->                    
+                currentNames <- Map.empty //reset state
+                pattern.AllStatements ()
+                |> Set.iter (fun (pattern: Statement) ->
+                    let mutable matched = true
+
+                    match pattern.Entity with
+                    | PatternIdentifier.Id identifier -> matched <- statement.Entity = PatternIdentifier.Id identifier
+                    | PatternIdentifier.Sl slot ->
+                        if slot.Named then
+                            if currentNames.ContainsKey slot then
+                                failwith "TODO"
+                            else
+                                match statement.Entity with
+                                | PatternIdentifier.Id identifier ->
+                                    currentNames <- currentNames.Add(slot, Value.Identifier identifier)
+                                | PatternIdentifier.Sl slot -> failwith "Error"
+                        else
+                            ()
+
+                    match pattern.Attribute with
+                    | PatternIdentifier.Id identifier -> matched <- statement.Attribute = PatternIdentifier.Id identifier
+                    | PatternIdentifier.Sl slot ->
+                        if slot.Named then
+                            if currentNames.ContainsKey slot then
+                                failwith "TODO"
+                            else
+                                match statement.Attribute with
+                                | PatternIdentifier.Id identifier -> currentNames <- currentNames.Add(slot, Value.Identifier identifier)
+                                | _ -> failwith "Error"
+                        else
+                            ()
+
+                    match pattern.Value with
+                    | Value.Slot slot ->
+                        if slot.Named then
+                            if currentNames.ContainsKey slot then
+                                failwith "TODO"
+                            else
+                                currentNames <- currentNames.Add(slot, statement.Value)
+                        else
+                            ()
+                    | value -> matched <- statement.Value = value
+
+                    if matched then res <- List.append res [ currentNames ]))
+            List.ofSeq res
 
 let statement entity attribute value =
     { Entity = entity
