@@ -88,14 +88,18 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Slot s -> $"${(s.Name)}"
     | WanderValue.Array(values) -> $"[{printValues values}]"
-    | WanderValue.Statement(statement) -> printStatementLiteral statement
+    | WanderValue.Statement(statement) -> printStatement statement
     | WanderValue.Namespace(values) -> printRecord values
     | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Network(values) -> failwith "TODO"
-    // (Set.fold (fun state statement -> state + " " + (printPattern statement) + ", ") "{" values.AllStatements ())
-    // + "}"
+    | WanderValue.Network(values) -> printNetwork values
     | WanderValue.Nothing -> "Nothing"
+
+and printNetwork (network: Network): string =
+    (Seq.fold 
+        (fun state statement -> 
+            state + " " + (printStatement statement) + ", "
+            ) "{" (network.AllStatements ())) + "}"
 
 and printBytes bytes =
     bytes
@@ -108,11 +112,8 @@ and printRecord values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "}"
 
-and printStatementLiteral statement =
-    $"(`{(readPatternIdentifier statement.Entity)}` `{(readPatternIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)})"
-
-and printStatement statement = failwith "TODO"
-//$"`{(readIdentifier statement.Entity)}` `{(readIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+and printStatement statement =
+    $"`{(readPatternIdentifier statement.Entity)}` `{(readPatternIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with

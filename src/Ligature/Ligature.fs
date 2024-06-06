@@ -131,14 +131,18 @@ let readIdentifier (Identifier identifier) = identifier
 let readPatternIdentifier (identifier: PatternIdentifier) : string =
     match identifier with
     | PatternIdentifier.Id(Identifier identifier) -> identifier
+//  | PatternIdentifier.Sl(Slot(name)) -> name
     | _ -> failwith "TODO"
-//| PatternIdentifier.Sl(Slot(name)) -> name
 
 type Network(statements: Set<Statement>) =
-    //abstract member Extract: Network -> Map<Slot, Value> list
-    member _.Matches(other: Network) : bool = failwith "TODO"
-    member _.Count() : int64 = failwith "TODO"
-    member _.AllStatements() : Statement seq = failwith "TODO"
+    member _.Count() : int64 = 
+        Set.count statements
+    member _.AllStatements() : Set<Statement> = 
+        statements
+    member _.Matches(other: Network) : bool =
+        failwith "TODO"
+    member _.Extract(other: Network): Map<Slot, Value> list = 
+        failwith "TODO"
 
 let statement entity attribute value =
     { Entity = entity

@@ -12,10 +12,9 @@ type LigatureStore =
     abstract member networks: unit -> string seq
     abstract member addNetwork: string -> unit
     abstract member removeNetwork: string -> unit
-// abstract member merge: string -> Network -> Result<unit, LigatureError>
-// abstract member minus: string -> Network -> Result<unit, LigatureError>
-// abstract member query: string -> Network -> Network
-// abstract member trans: string -> Network -> Network -> Network
+    abstract member add: string -> Network -> Result<unit, LigatureError>
+    abstract member remove: string -> Network -> Result<unit, LigatureError>
+    abstract member read: string -> Network
 
 module InMemoryStore =
     type InMemoryStore(store: Dictionary<string, Set<Statement>>) =
@@ -25,19 +24,21 @@ module InMemoryStore =
             member this.removeNetwork networkName = store.Remove(networkName) |> ignore
             member this.networks() = store.Keys
 
-    // member this.add name network =
-    //     let store = store.Item(name)
-    //     store.UnionWith(network.AllStatements ())
-    //     Ok(())
+            member this.add name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name)
+                store.Add(name, (Set.union oldNetwork (network.AllStatements ())))
+                Ok(())
 
-    // member this.remove name network =
-    //     let store = store.Item(name)
-    //     store.ExceptWith(network)
-    //     Ok(())
+            member this.remove name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name)
+                store.Add(name, (Set.difference oldNetwork (network.AllStatements ())))
+                Ok(())
 
-    // member this.read name =
-    //     let store = store.Item(name)
-    //     store
+            member this.read name =
+                let store = store.Item(name)
+                Network(store)
 
     let empty () : LigatureStore =
         InMemoryStore(new Dictionary<string, Set<Statement>>())

@@ -22,7 +22,7 @@ let bindCoreHostFunctions bindings =
     |> Bindings.bind "Bool" boolLib
     |> Bindings.bind "Bytes" bytesLib
     |> Bindings.bind "DateTime" dateTimeLib
-    |> Bindings.bind "Pattern" Lib.Pattern.patternLib
+    |> Bindings.bind "Ligature" Lib.Ligature.ligatureLib
     |> Bindings.bind "Identifier" identifierLib
     |> Bindings.bind "InMemory" inMemoryLib
     |> Bindings.bind "Int" intLib

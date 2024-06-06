@@ -23,7 +23,6 @@
     <Compile Include="wander/lib/Identifier.fs" />
     <Compile Include="wander/lib/Int.fs" />
     <Compile Include="wander/lib/Ligature.fs" />
-    <Compile Include="wander/lib/Pattern.fs" />
     <Compile Include="wander/lib/InMemoryStore.fs" />
     <Compile Include="wander/lib/Statement.fs" />
     <Compile Include="wander/lib/String.fs" />

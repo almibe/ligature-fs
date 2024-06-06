@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <Compile Include="Serialization.Test.fs" />
-    <Compile Include="wander/lib/Keylime.Test.fs" />
+    <Compile Include="wander/lib/InMemory.Test.fs" />
 <!--
     <Compile Include="wander/Bindings.Test.fs" />
     <Compile Include="wander/Lexer.Test.fs" />
