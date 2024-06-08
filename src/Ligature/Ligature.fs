@@ -190,6 +190,7 @@ type Network(statements: Set<Statement>) =
                           Attribute = (PatternIdentifier.Id attribute)
                           Value = value })
                 statements
+
         Network(res)
 
     member this.Extract(pattern: Network) : Map<Slot, Value> list =

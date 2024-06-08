@@ -2,13 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.LigatureStore
+module Ligature.Wander.Lib.Store
 
 open Ligature.Wander.Model
 open Ligature.Main
-open Ligature.LigatureStore
 open System
 open System.Collections.Generic
+open Ligature.LigatureStore
 
 let networksFunction (store: LigatureStore) =
     WanderValue.Function(
@@ -95,9 +95,7 @@ let readFunction (store: LigatureStore) =
         )
     )
 
-let inMemoryLib =
-    let store = InMemoryStore.empty ()
-
+let storeLib store =
     WanderValue.Namespace(
         Map.ofList
             [ ("networks", networksFunction store)

@@ -23,13 +23,14 @@
     <Compile Include="wander/lib/Identifier.fs" />
     <Compile Include="wander/lib/Int.fs" />
     <Compile Include="wander/lib/Ligature.fs" />
-    <Compile Include="wander/lib/InMemoryStore.fs" />
+    <Compile Include="wander/lib/Store.fs" />
     <Compile Include="wander/lib/Statement.fs" />
     <Compile Include="wander/lib/String.fs" />
     <Compile Include="wander/lib/Ulid.fs" />
     <Compile Include="wander/lib/Wander.fs" />
     <Compile Include="wander/Environments.fs" />
     <Compile Include="Serialization.fs" />
+    <Compile Include="LigatureSqlite.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,8 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Donald" Version="10.1.0" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
-    <PackageReference Include="LightningDB" Version="0.16.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
     <PackageReference Include="Ulid" Version="1.3.3" />
   </ItemGroup>
 </Project>

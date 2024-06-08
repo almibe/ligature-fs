@@ -4,29 +4,28 @@
 
 module Ligature.Serialization
 
-// open Main
-// open InMemoryNetwork
-// open Wander.Lexer
-// open FsToolkit.ErrorHandling
-// open Wander.Model
-// open System.Collections
-// open System.IO
-// open Wander.Main
-// open Wander.Bindings
+open Main
+open FsToolkit.ErrorHandling
+open Wander.Model
+open System.Collections
+open System.IO
+open Wander.Main
+open Wander.Bindings
 
-// let readLigature (input: string): Result<Network, LigatureError> =
-//     match run input (newBindings ()) with
-//     | Ok(WanderValue.Network(res)) ->
-//         match res.ToNetwork with
-//         | Some res -> Ok(res)
-//         | _ -> failwith "TODO"
-//     | _ -> failwith "Error"
+let readLigature (input: string) : Result<Network, LigatureError> =
+    match run input (newBindings ()) with
+    | Ok(WanderValue.Network(res)) -> Ok(res)
+    | _ -> failwith "Error"
 
-// let writeLigature (input: Network): string =
-//     let sb = new System.Text.StringBuilder()
-//     sb.Append("{")
-//     Seq.iter (fun statement ->
-//         let s: string = printStatement statement
-//         sb.Append(s) |> ignore) (input.all())
-//     sb.Append("}")
-//     sb.ToString()
+let writeLigature (input: Network) : string =
+    let sb = new System.Text.StringBuilder()
+    sb.Append("{")
+
+    Seq.iter
+        (fun statement ->
+            let s: string = printStatement statement
+            sb.Append(s) |> ignore)
+        (input.AllStatements())
+
+    sb.Append("}")
+    sb.ToString()

@@ -12,10 +12,10 @@ open Lib.Ligature
 open Lib.Int
 open Lib.Wander
 open Lib.DateTime
-open Lib.LigatureStore
-open LightningDB
+open Lib.Store
+open Ligature.LigatureStore
 
-let bindCoreHostFunctions bindings =
+let bindCoreHostFunctions bindings store =
     bindings
     |> Bindings.bind "Array" Lib.Array.arrayLib
     |> Bindings.bind "Assert" Lib.Assert.assertLib
@@ -24,7 +24,7 @@ let bindCoreHostFunctions bindings =
     |> Bindings.bind "DateTime" dateTimeLib
     |> Bindings.bind "Ligature" Lib.Ligature.ligatureLib
     |> Bindings.bind "Identifier" identifierLib
-    |> Bindings.bind "InMemory" inMemoryLib
+    |> Bindings.bind "Store" (storeLib store)
     |> Bindings.bind "Int" intLib
     |> Bindings.bind "Statement" Lib.Statement.statementLib
     |> Bindings.bind "String" Lib.String.stringLib
@@ -32,30 +32,30 @@ let bindCoreHostFunctions bindings =
     |> Bindings.bind "Wander" wanderLib
 
 /// Provides an Environment that provides only the core Host Functions.
-let coreEnvironment () =
-    bindCoreHostFunctions (Bindings.newBindings ())
+let coreEnvironment (store: LigatureStore) =
+    bindCoreHostFunctions (Bindings.newBindings ()) store
 
-let bindWanderLibs bindings =
-    match System.Environment.GetEnvironmentVariable "WANDER_LIBS" with
-    | null -> failwith "WANDER_LIBS not set"
-    | value ->
-        let mutable bindings = bindings
+// let bindWanderLibs bindings store =
+//     match System.Environment.GetEnvironmentVariable "WANDER_LIBS" with
+//     | null -> failwith "WANDER_LIBS not set"
+//     | value ->
+//         let mutable bindings = bindings
 
-        System.IO.Directory.GetFiles(value, "*.wander", new System.IO.EnumerationOptions(RecurseSubdirectories = true))
-        |> Array.filter (fun file -> not <| file.Contains(".test."))
-        |> Array.iter (fun file ->
-            let scriptName = (System.IO.Path.GetFileName file).Split(".") |> Array.head
-            let script = System.IO.File.ReadAllText file
+//         System.IO.Directory.GetFiles(value, "*.wander", new System.IO.EnumerationOptions(RecurseSubdirectories = true))
+//         |> Array.filter (fun file -> not <| file.Contains(".test."))
+//         |> Array.iter (fun file ->
+//             let scriptName = (System.IO.Path.GetFileName file).Split(".") |> Array.head
+//             let script = System.IO.File.ReadAllText file
 
-            match Ligature.Wander.Main.run script (coreEnvironment ()) with
-            | Ok res ->
-                match Bindings.read scriptName bindings with
-                | None -> bindings <- Bindings.bind scriptName res bindings
-                | _ -> failwith $"Error {scriptName} is already bound."
-            | Error err -> failwith $"Error evaluating script {scriptName} -- {err.UserMessage}")
+//             match Ligature.Wander.Main.run script (coreEnvironment (store)) with
+//             | Ok res ->
+//                 match Bindings.read scriptName bindings with
+//                 | None -> bindings <- Bindings.bind scriptName res bindings
+//                 | _ -> failwith $"Error {scriptName} is already bound."
+//             | Error err -> failwith $"Error evaluating script {scriptName} -- {err.UserMessage}")
 
-        bindings
+//         bindings
 
 /// Provices an Environment that provides the core Host Functions and loads namespaces from WANDER_LIBS.
-let standardEnvironment () =
-    bindCoreHostFunctions (Bindings.newBindings ()) |> bindWanderLibs
+// let standardEnvironment (store: LigatureStore) =
+//     bindCoreHostFunctions (Bindings.newBindings ()) store |> bindWanderLibs
