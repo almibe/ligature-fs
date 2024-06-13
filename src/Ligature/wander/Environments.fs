@@ -14,26 +14,27 @@ open Lib.Wander
 open Lib.DateTime
 open Lib.Store
 open Ligature.LigatureStore
+open Ligature.Wander.Model
 
 let bindCoreHostFunctions bindings store =
     bindings
-    |> Bindings.bind "Array" Lib.Array.arrayLib
-    |> Bindings.bind "Assert" Lib.Assert.assertLib
-    |> Bindings.bind "Bool" boolLib
-    |> Bindings.bind "Bytes" bytesLib
-    |> Bindings.bind "DateTime" dateTimeLib
-    |> Bindings.bind "Ligature" Lib.Ligature.ligatureLib
-    |> Bindings.bind "Identifier" identifierLib
-    |> Bindings.bind "Store" (storeLib store)
-    |> Bindings.bind "Int" intLib
-    |> Bindings.bind "Statement" Lib.Statement.statementLib
-    |> Bindings.bind "String" Lib.String.stringLib
-    |> Bindings.bind "Ulid" Lib.Ulid.ulidLib
-    |> Bindings.bind "Wander" wanderLib
+    // |> Bindings.bind "Array" Lib.Array.arrayLib
+    // |> Bindings.bind "Assert" Lib.Assert.assertLib
+    // |> Bindings.bind "Bool" boolLib
+    // |> Bindings.bind "Bytes" bytesLib
+    // |> Bindings.bind "DateTime" dateTimeLib
+    // |> Bindings.bind "Ligature" Lib.Ligature.ligatureLib
+    // |> Bindings.bind "Identifier" identifierLib
+    // |> Bindings.bind "Store" (storeLib store)
+    // |> Bindings.bind "Int" intLib
+    // |> Bindings.bind "Statement" Lib.Statement.statementLib
+    // |> Bindings.bind "String" Lib.String.stringLib
+    // |> Bindings.bind "Ulid" Lib.Ulid.ulidLib
+    // |> Bindings.bind "Wander" wanderLib
 
 /// Provides an Environment that provides only the core Host Functions.
 let coreEnvironment (store: LigatureStore) =
-    bindCoreHostFunctions (Bindings.newBindings ()) store
+    bindCoreHostFunctions (newBindings ()) store
 
 // let bindWanderLibs bindings store =
 //     match System.Environment.GetEnvironmentVariable "WANDER_LIBS" with

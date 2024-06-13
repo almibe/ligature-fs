@@ -10,7 +10,7 @@ open Wander.Model
 open System.Collections
 open System.IO
 open Wander.Main
-open Wander.Bindings
+open Wander.Model
 
 let readLigature (input: string) : Result<Network, LigatureError> =
     match run input (newBindings ()) with

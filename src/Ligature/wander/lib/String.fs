@@ -8,8 +8,6 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let catFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             HostFunction(
                 (fun args _ ->
                     match args with
@@ -25,50 +23,34 @@ let catFunction =
                         |> Ok
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let lengthFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(value) ] -> Ok(WanderValue.Int(String.length value |> bigint))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let toBytesFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(value) ] -> Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes value))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let fromBytesFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.String(System.Text.Encoding.UTF8.GetString bytes))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let stringLib =
-    WanderValue.Namespace(
         Map
             [ ("cat", catFunction)
               ("fromBytes", fromBytesFunction)
               ("length", lengthFunction)
               ("toBytes", toBytesFunction) ]
-    )

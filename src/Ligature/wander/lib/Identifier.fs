@@ -8,20 +8,14 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let valueFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
                     | _ -> error "Invalid call to Statement.value function." None)
             )
-        )
-    )
 
 let toBytesFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -29,12 +23,8 @@ let toBytesFunction<'t> =
                         Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes(readIdentifier value)))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let fromBytesFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -44,13 +34,9 @@ let fromBytesFunction<'t> =
                         | Error(err) -> Error(err)
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let identifierLib<'t> =
-    WanderValue.Namespace(
         Map
             [ ("toBytes", toBytesFunction)
               ("fromBytes", fromBytesFunction)
               ("value", valueFunction) ]
-    )

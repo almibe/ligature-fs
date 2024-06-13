@@ -9,8 +9,6 @@ open Ligature.Main
 open System
 
 let nextFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             HostFunction(
                 (fun args _ ->
                     match args with
@@ -20,7 +18,5 @@ let nextFunction<'t> =
                         | _ -> error $"Invalid prefix for Identifier {prefix}." None
                     | _ -> error "Invalid call to Ulid.next function." None)
             )
-        )
-    )
 
-let ulidLib<'t> = WanderValue.Namespace(Map [ ("next", nextFunction) ])
+let ulidLib<'t> = Map [ ("next", nextFunction) ]

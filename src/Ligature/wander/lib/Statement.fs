@@ -14,32 +14,22 @@ let slotIdentiferToWanderValue si =
     | PatternIdentifier.Id identifier -> WanderValue.Identifier identifier
 
 let entityFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
                     | _ -> error "Invalid call to Statement.entity function." None)
             )
-        )
-    )
 
 let attributeFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args bindings ->
                     match args with
                     | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
                     | _ -> error "Invalid call to Statement.attribute function." None)
             )
-        )
-    )
 
 let valueFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args bindings ->
                     match args with
@@ -52,13 +42,9 @@ let valueFunction<'t> =
                         | Value.Slot(value) -> failwith "TODO"
                     | _ -> error "Invalid call to Statement.value function." None)
             )
-        )
-    )
 
 let statementLib<'t> =
-    WanderValue.Namespace(
         Map
             [ ("entity", entityFunction)
               ("attribute", attributeFunction)
               ("value", valueFunction) ]
-    )

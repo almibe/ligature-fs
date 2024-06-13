@@ -14,8 +14,6 @@ let patternStatementToStatement (pattern: Statement) : Statement option =
     | _ -> failwith "TODO"
 
 let applyFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
@@ -39,22 +37,14 @@ let applyFunction =
 
                     Ok(WanderValue.Network(pattern.Apply res))
                 | value -> error $"Unexpected value passed to Pattern.apply - {value}." None)
-        )
-    )
 
 let countFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (pattern.Count())))
                 | value -> error $"Unexpected value - {value}." None)
-        )
-    )
 
 let extractFunction =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(fun args _ ->
                 match args with
                 | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
@@ -75,11 +65,8 @@ let extractFunction =
                     |> WanderValue.Array
                     |> Ok
                 | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
-        )
-    )
 
 let ligatureLib =
-    WanderValue.Namespace(
         Map
             [ ("count", countFunction)
               ("extract", extractFunction)
@@ -89,4 +76,3 @@ let ligatureLib =
               //query
               //trans
               ]
-    )

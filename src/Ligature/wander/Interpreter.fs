@@ -5,11 +5,10 @@
 module Ligature.Wander.Interpreter
 
 open Ligature.Wander.Model
-open Ligature.Wander.Bindings
 open Ligature.Main
 open Ligature.LigatureStore.InMemoryStore
 
-let readName (name: string) (bindings: Bindings<string, WanderValue>) =
+let readName (name: string) (bindings: Bindings) =
     let namePath = List.ofArray (name.Split("."))
 
     match read (List.head namePath) bindings with
@@ -37,8 +36,8 @@ let rec evalExpression bindings expression =
     let rec bindArguments
         (args: Model.Expression list)
         (parameters: string list)
-        (bindings: Bindings<_, _>)
-        : Result<Bindings<_, _>, LigatureError> =
+        (bindings: Bindings)
+        : Result<Bindings, LigatureError> =
         if List.length args <> List.length parameters then
             failwith "todo"
         else if List.isEmpty args && List.isEmpty parameters then
@@ -137,7 +136,6 @@ let rec evalExpression bindings expression =
         match error with
         | None -> Ok((WanderValue.Array(res), bindings))
         | Some(err) -> Error(err)
-    | Expression.Lambda(parameters, body) -> handleLambda bindings parameters body
     | Expression.Record(values) -> handleRecord bindings values
     //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
@@ -146,18 +144,18 @@ let rec evalExpression bindings expression =
     | Expression.Colon -> failwith "Should never reach"
     | Expression.Slot slot -> Ok(WanderValue.Slot(slot), bindings)
 
-and callFunction (fn: Function) (args: WanderValue list) (bindings: Bindings<_, _>) =
-    match fn with
-    | Function.Lambda(parameters, body) ->
-        if (List.length parameters) = (List.length args) then
-            let binding =
-                (List.zip parameters args)
-                |> List.fold (fun bindings (name, value) -> bind name value bindings) bindings
+// and callFunction (fn: Function) (args: WanderValue list) (bindings: Bindings) =
+//     match fn with
+//     | Function.Lambda(parameters, body) ->
+//         if (List.length parameters) = (List.length args) then
+//             let binding =
+//                 (List.zip parameters args)
+//                 |> List.fold (fun bindings (name, value) -> bind name value bindings) bindings
 
-            evalExpression binding body |> Result.map (fun (value, _) -> value)
-        else
-            error $"Improper parameters passed to lambda - {parameters}" None
-    | Function.HostFunction(hf) -> hf.Run args bindings
+//             evalExpression binding body |> Result.map (fun (value, _) -> value)
+//         else
+//             error $"Improper parameters passed to lambda - {parameters}" None
+//     | Function.HostFunction(hf) -> hf.Run args bindings
 
 and handleRecord bindings values =
     let res =
@@ -255,9 +253,6 @@ and handleApplication bindings values =
     match List.tryHead values with
     | Some(Expression.Name(functionName)) ->
         match readName functionName bindings with
-        | Some(WanderValue.Function(Function.Lambda(parameters, body))) -> evalLambda bindings parameters body arguments
-        | Some(WanderValue.Function(Function.HostFunction(hostFunction))) ->
-            evalHostFunction bindings hostFunction arguments
         | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
         | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
         | Some _ -> error "Improper application." None
@@ -291,18 +286,18 @@ and handleIdentifierConcat bindings identifier values =
         | Ok identifier -> Ok(WanderValue.Identifier(identifier), bindings)
         | Error err -> failwith "todo")
 
-and evalHostFunction bindings hostFunction arguments =
-    let values =
-        List.map
-            (fun arg ->
-                match evalExpression bindings arg with
-                | Ok((value, _)) -> value
-                | Error(err) -> failwith $"Error calling Host Function: {err}")
-            arguments
+// and evalHostFunction bindings hostFunction arguments =
+//     let values =
+//         List.map
+//             (fun arg ->
+//                 match evalExpression bindings arg with
+//                 | Ok((value, _)) -> value
+//                 | Error(err) -> failwith $"Error calling Host Function: {err}")
+//             arguments
 
-    match hostFunction.Run values bindings with
-    | Ok(res) -> Ok(res, bindings)
-    | Error(err) -> Error(err)
+//     match hostFunction.Run values bindings with
+//     | Ok(res) -> Ok(res, bindings)
+//     | Error(err) -> Error(err)
 
 and evalArray bindings array arguments =
     match arguments with
@@ -332,12 +327,9 @@ and evalLambda bindings parameters body arguments =
     match error with
     | Some(err) -> Error(err)
     | None ->
-        let mutable scope = Bindings.addScope bindings
-        List.iteri (fun i arg -> scope <- Bindings.bind (List.item i parameters) arg scope) (Array.toList args)
+        let mutable scope = addScope bindings
+        List.iteri (fun i arg -> scope <- bind (List.item i parameters) arg scope) (Array.toList args)
         evalExpression scope body
-
-and handleLambda bindings parameters body =
-    Ok(WanderValue.Function(Function.Lambda(parameters, body)), bindings)
 
 // and checkPattern bindings (input: Network) (pattern: DatasetPatternRoot list) : bool =
 //     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
@@ -377,9 +369,9 @@ and handleLambda bindings parameters body =
 //     | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
 and evalExpressions
-    (bindings: Bindings.Bindings<_, _>)
+    (bindings: Bindings)
     (expressions: Expression list)
-    : Result<(WanderValue * Bindings.Bindings<_, _>), LigatureError> =
+    : Result<(WanderValue * Bindings), LigatureError> =
     match List.length expressions with
     | 0 -> Ok(WanderValue.Network(emptyNetwork), bindings)
     | 1 -> evalExpression bindings (List.head expressions)

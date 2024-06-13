@@ -15,7 +15,6 @@ open Donald.IDataReaderExtensions
 open Ligature.Serialization
 open Ligature.Wander.Main
 open Ligature.Wander.Model
-open Ligature.Wander.Bindings
 
 type Event =
     { Network: string

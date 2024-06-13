@@ -26,7 +26,6 @@ type Expression =
     | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
     | Pattern of DatasetPatternRoot list
-    | Lambda of list<string> * Expression
 
 and EntityDescription = Expression * Expression list
 
@@ -40,24 +39,13 @@ type WanderValue =
     | Identifier of Identifier
     | Slot of Slot
     | Statement of Ligature.Main.Statement
-    | Function of Function
     | Array of WanderValue array
     | Network of Network
     | Namespace of Map<string, WanderValue>
     | Bytes of byte array
     | Nothing
 
-and [<RequireQualifiedAccess>] Function =
-    | Lambda of paramters: string list * body: Expression
-    | HostFunction of HostFunction
-
-and HostFunction(eval: WanderValue list -> Bindings.Bindings<string, WanderValue> -> Result<WanderValue, LigatureError>)
-    =
-    member _.Run args bindings = eval args bindings
-
 type Parameter = { name: string; tag: string }
-
-type Bindings = Bindings.Bindings<string, WanderValue>
 
 //TODO try to remove this
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
@@ -90,7 +78,6 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Statement(statement) -> printStatement statement
     | WanderValue.Namespace(values) -> printRecord values
-    | WanderValue.Function(_) -> "Function"
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Network(values) -> printNetwork values
     | WanderValue.Nothing -> "Nothing"
@@ -139,3 +126,39 @@ and printLigatureValue value =
 
 and printValues values =
     Seq.fold (fun x y -> x + (prettyPrint y) + ", ") "" values
+
+type Scope = Map<string, WanderValue>
+
+type HostFunction(eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError>)
+    =
+    member _.Run args bindings = eval args bindings
+
+and Bindings =
+    { functions: Map<string, HostFunction>
+      current: Scope
+      stack: Scope list }
+
+let newBindings () =
+    { functions = Map.empty; current = Map.empty; stack = [] }
+
+let bind name value bindings =
+    let current' = Map.add name value bindings.current
+    { bindings with current = current' }
+
+let addScope bindings =
+    let current = Map []
+    let stack = List.append [ bindings.current ] bindings.stack
+    { bindings with current = current; stack = stack }
+
+let removeScope bindings =
+    let current = List.head bindings.stack
+    let stack = List.tail bindings.stack
+    { bindings with current = current; stack = stack }
+
+let rec read name bindings =
+    if Map.containsKey name bindings.current then
+        Some(Map.find name bindings.current)
+    else if List.isEmpty bindings.stack then
+        None
+    else
+        read name (removeScope bindings)

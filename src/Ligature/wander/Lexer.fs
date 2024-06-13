@@ -32,7 +32,6 @@ type Token =
     | EqualsSign
     | Asterisk
     | Hash
-    | Lambda
     | Comma
     | Pipe
 
@@ -132,7 +131,6 @@ let tokenNibbler =
                   takeAndMap ":" Token.Colon
                   takeAndMap "|" Token.Pipe
                   takeAndMap "=" Token.EqualsSign
-                  takeAndMap "\\" Token.Lambda
                   commentTokenNibbler ]
             )
         )

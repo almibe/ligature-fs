@@ -11,8 +11,6 @@ open System.Collections.Generic
 open Ligature.LigatureStore
 
 let networksFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -24,12 +22,8 @@ let networksFunction (store: LigatureStore) =
                         |> Ok
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let addNetworkFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -38,12 +32,8 @@ let addNetworkFunction (store: LigatureStore) =
                         Ok(WanderValue.Nothing)
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let removeNetworkFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -52,12 +42,8 @@ let removeNetworkFunction (store: LigatureStore) =
                         Ok(WanderValue.Nothing)
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let addFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -66,12 +52,8 @@ let addFunction (store: LigatureStore) =
                         Ok(WanderValue.Nothing)
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let removeFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -80,28 +62,20 @@ let removeFunction (store: LigatureStore) =
                         Ok(WanderValue.Nothing)
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let readFunction (store: LigatureStore) =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(name) ] -> Ok(WanderValue.Network(store.read name))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 let storeLib store =
-    WanderValue.Namespace(
-        Map.ofList
+        Map
             [ ("networks", networksFunction store)
               ("addNetwork", addNetworkFunction store)
               ("removeNetwork", removeNetworkFunction store)
               ("add", addFunction store)
               ("remove", removeFunction store)
               ("read", readFunction store) ]
-    )

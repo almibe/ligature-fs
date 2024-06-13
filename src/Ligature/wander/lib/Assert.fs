@@ -8,8 +8,6 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let equalFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -20,20 +18,14 @@ let equalFunction<'t> =
                             error $"{prettyPrint left} != {prettyPrint right}" None
                     | _ -> error "Invalid call to Assert.equal function." None)
             )
-        )
-    )
 
 let failFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.String(message) ] -> error message None
                     | _ -> error "Invalid call to Assert.fail function." None)
             )
-        )
-    )
 
 let assertLib<'t> =
-    WanderValue.Namespace(Map [ ("equal", equalFunction); ("fail", failFunction) ])
+    Map [ ("equal", equalFunction); ("fail", failFunction) ]

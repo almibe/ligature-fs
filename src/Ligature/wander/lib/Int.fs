@@ -9,16 +9,12 @@ open Ligature.Main
 open System
 
 let ltFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Int(left); WanderValue.Int(right) ] -> Ok(WanderValue.Bool(left < right))
                     | _ -> error "Invalid call to map function." None)
             )
-        )
-    )
 
 // let toBytesFunction<'t> =
 //     WanderValue.Function(
@@ -45,8 +41,6 @@ let ltFunction<'t> =
 //     )
 
 let intLib<'t> =
-    WanderValue.Namespace(
         Map [ ("lt", ltFunction) ]
     //              ("toBytes", toBytesFunction)
     //              ("fromBytes", fromBytesFunction) ]
-    )

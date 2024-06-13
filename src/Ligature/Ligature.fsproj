@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="Ligature.fs" />
     <Compile Include="LigatureStore.fs" />
-    <Compile Include="wander/Bindings.fs" />
     <Compile Include="wander/Model.fs" />
     <Compile Include="wander/LexerUtil.fs" />
     <Compile Include="wander/Lexer.fs" />

@@ -8,32 +8,22 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let notFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args.Head with
                     | WanderValue.Bool(value) -> Ok(WanderValue.Bool(not value))
                     | _ -> error "Invalid call to not function." None)
             )
-        )
-    )
 
 let andFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
                     | [ WanderValue.Bool(left); WanderValue.Bool(right) ] -> Ok(WanderValue.Bool(left && right))
                     | _ -> error "Invalid call to and function." None)
             )
-        )
-    )
 
 let toBytesFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -41,12 +31,8 @@ let toBytesFunction<'t> =
                     | [ WanderValue.Bool(true) ] -> Ok(WanderValue.Bytes([| 1uy |]))
                     | _ -> error "Invalid call to Bool.toBytes function." None)
             )
-        )
-    )
 
 let fromBytesFunction<'t> =
-    WanderValue.Function(
-        Function.HostFunction(
             new HostFunction(
                 (fun args _ ->
                     match args with
@@ -54,14 +40,10 @@ let fromBytesFunction<'t> =
                     | [ WanderValue.Bytes([| 1uy |]) ] -> Ok(WanderValue.Bool(true))
                     | _ -> error "Invalid call to Bool.fromBytes function." None)
             )
-        )
-    )
 
 let boolLib<'t> =
-    WanderValue.Namespace(
         Map
             [ ("toBytes", toBytesFunction)
               ("fromBytes", fromBytesFunction)
               ("not", notFunction)
               ("and", andFunction) ]
-    )

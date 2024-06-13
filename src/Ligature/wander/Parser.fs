@@ -24,7 +24,6 @@ type Element =
     | Slot of Ligature.Main.Slot
     | Array of Element list
     | Let of string * Element
-    | Lambda of string list * Element
     | Namespace of (string * Element) list
     | Pattern of DatasetPatternRoot list
     | Pipe
@@ -61,18 +60,6 @@ let readAssignment gaze =
             })
         gaze
 
-let lambdaAssignmentNib gaze =
-    Gaze.attempt
-        (fun gaze ->
-            result {
-                let! name = Gaze.attempt nameStrNibbler gaze
-                let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
-                let! _ = Gaze.attempt (take Token.EqualsSign) gaze
-                let! body = Gaze.attempt elementNib gaze
-                return Element.Let(name, Element.Lambda(parameters, body))
-            })
-        gaze
-
 let patternsNibbler (gaze: Gaze.Gaze<Token>) =
     result {
         let! _ = Gaze.attempt (take Token.Asterisk) gaze
@@ -85,18 +72,6 @@ let patternsNibbler (gaze: Gaze.Gaze<Token>) =
 let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
 
 let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
-
-let lambdaNib gaze =
-    Gaze.attempt
-        (fun gaze ->
-            result {
-                let! _ = Gaze.attempt (take Token.Lambda) gaze
-                let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
-                let! _ = Gaze.attempt (take Token.Arrow) gaze
-                let! body = Gaze.attempt elementNib gaze
-                return Element.Lambda(parameters, body)
-            })
-        gaze
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
@@ -185,21 +160,12 @@ let declarationsNib (gaze: Gaze.Gaze<Token>) =
         return (name, expression)
     }
 
-let lambdaDeclarationsNib (gaze: Gaze.Gaze<Token>) =
-    result {
-        let! name = Gaze.attempt nameStrNibbler gaze
-        let! parameters = Gaze.attempt (repeat nameStrNibbler) gaze
-        let! _ = Gaze.attempt equalSignNib gaze
-        let! body = Gaze.attempt elementNib gaze
-        return (name, Element.Lambda(parameters, body))
-    }
-
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
 
         let! declarations =
-            (optional (repeatSep (takeFirst [ lambdaDeclarationsNib; declarationsNib ]) Token.Comma)) gaze
+            (optional (repeatSep declarationsNib Token.Comma)) gaze
 
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
 
@@ -295,12 +261,11 @@ let applicationInnerNib =
           arrayNib
           recordNib
           datasetNib
-          lambdaNib
           groupingNib ]
 
 let elementNib =
     takeFirst
-        [ lambdaAssignmentNib
+        [
           readAssignment
           applicationNib
           nameNib
@@ -308,7 +273,6 @@ let elementNib =
           arrayNib
           recordNib
           datasetNib
-          lambdaNib
           groupingNib ]
 
 let scriptNib = repeatSep elementNib Token.Comma
@@ -377,9 +341,6 @@ let handleRecord (declarations: list<string * Element>) =
 
     Expression.Record res
 
-let handleLambda (parameters: string list) body =
-    Expression.Lambda(parameters, (expressElement body))
-
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
     let currentPart = new Generic.List<Expression>()
@@ -416,7 +377,6 @@ let rec expressElement (element: Element) =
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
     | Element.Namespace declarations -> handleRecord declarations
-    | Element.Lambda(parameters, body) -> handleLambda parameters body
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
     | Element.Pattern value -> expressDataset value
