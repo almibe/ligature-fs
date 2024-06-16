@@ -10,46 +10,46 @@ open FsToolkit.ErrorHandling
 open Ligature.Wander.Interpreter
 
 let distinctFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.distinct array))
-                    | _ -> error "Improper call to map function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.distinct array))
+            | _ -> error "Improper call to map function." None)
+    )
 
 let catFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ WanderValue.Array(array) ] ->
-                        let res =
-                            Array.fold
-                                (fun state value ->
-                                    match value with
-                                    | WanderValue.String(value) -> state + value
-                                    | _ -> failwith "TODO")
-                                ""
-                                array
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ WanderValue.Array(array) ] ->
+                let res =
+                    Array.fold
+                        (fun state value ->
+                            match value with
+                            | WanderValue.String(value) -> state + value
+                            | _ -> failwith "TODO")
+                        ""
+                        array
 
-                        Ok(WanderValue.String(res))
-                    | _ -> error "Improper call to map function." None)
-            )
+                Ok(WanderValue.String(res))
+            | _ -> error "Improper call to map function." None)
+    )
 
 let insertFirstFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.insertAt 0 value array))
-                    | _ -> error "Improper call to Array.insertFirst function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.insertAt 0 value array))
+            | _ -> error "Improper call to Array.insertFirst function." None)
+    )
 
 let insertLastFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.append [| value |] array))
-                    | _ -> error "Improper call to Array.insertLast function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.append [| value |] array))
+            | _ -> error "Improper call to Array.insertLast function." None)
+    )
 
 // let mapFunction<'t> =
 //             new HostFunction(
@@ -97,20 +97,20 @@ let insertLastFunction<'t> =
 //             )
 
 let lengthFunction<'t> =
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.Array(array) ] -> Ok(WanderValue.Int(Array.length array |> bigint))
-                    | _ -> error "Improper call to map function." None)
-            )
+    new HostFunction(
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Array(array) ] -> Ok(WanderValue.Int(Array.length array |> bigint))
+            | _ -> error "Improper call to map function." None)
+    )
 
 let arrayLib<'t> =
-        Map
-            [ ("cat", catFunction)
-//              ("map", mapFunction)
-//              ("reduce", reduceFunction)
-//              ("fold", foldFunction)
-              ("insertFirst", insertFirstFunction)
-              ("insertLast", insertLastFunction)
-              ("distinct", distinctFunction)
-              ("length", lengthFunction) ]
+    Map
+        [ ("cat", catFunction)
+          //              ("map", mapFunction)
+          //              ("reduce", reduceFunction)
+          //              ("fold", foldFunction)
+          ("insertFirst", insertFirstFunction)
+          ("insertLast", insertLastFunction)
+          ("distinct", distinctFunction)
+          ("length", lengthFunction) ]

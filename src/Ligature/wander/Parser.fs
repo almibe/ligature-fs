@@ -164,8 +164,7 @@ let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
 
-        let! declarations =
-            (optional (repeatSep declarationsNib Token.Comma)) gaze
+        let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
 
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
 
@@ -265,8 +264,7 @@ let applicationInnerNib =
 
 let elementNib =
     takeFirst
-        [
-          readAssignment
+        [ readAssignment
           applicationNib
           nameNib
           readValue

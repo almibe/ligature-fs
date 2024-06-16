@@ -14,37 +14,37 @@ let slotIdentiferToWanderValue si =
     | PatternIdentifier.Id identifier -> WanderValue.Identifier identifier
 
 let entityFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
-                    | _ -> error "Invalid call to Statement.entity function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
+            | _ -> error "Invalid call to Statement.entity function." None)
+    )
 
 let attributeFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
-                    | _ -> error "Invalid call to Statement.attribute function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
+            | _ -> error "Invalid call to Statement.attribute function." None)
+    )
 
 let valueFunction<'t> =
-            new HostFunction(
-                (fun args bindings ->
-                    match args with
-                    | [ WanderValue.Statement(statement) ] ->
-                        match statement.Value with
-                        | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
-                        | Value.String(value) -> Ok(WanderValue.String(value))
-                        | Value.Int(value) -> Ok(WanderValue.Int(value))
-                        | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
-                        | Value.Slot(value) -> failwith "TODO"
-                    | _ -> error "Invalid call to Statement.value function." None)
-            )
+    new HostFunction(
+        (fun args bindings ->
+            match args with
+            | [ WanderValue.Statement(statement) ] ->
+                match statement.Value with
+                | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
+                | Value.String(value) -> Ok(WanderValue.String(value))
+                | Value.Int(value) -> Ok(WanderValue.Int(value))
+                | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
+                | Value.Slot(value) -> failwith "TODO"
+            | _ -> error "Invalid call to Statement.value function." None)
+    )
 
 let statementLib<'t> =
-        Map
-            [ ("entity", entityFunction)
-              ("attribute", attributeFunction)
-              ("value", valueFunction) ]
+    Map
+        [ ("entity", entityFunction)
+          ("attribute", attributeFunction)
+          ("value", valueFunction) ]

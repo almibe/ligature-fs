@@ -8,24 +8,23 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let equalFunction<'t> =
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(desc); left; right ] ->
-                        if (left = right) || (wanderEquals left right) then
-                            Ok(WanderValue.Network(Network(Set.empty)))
-                        else
-                            error $"{prettyPrint left} != {prettyPrint right}" None
-                    | _ -> error "Invalid call to Assert.equal function." None)
-            )
+    new HostFunction(
+        (fun args _ ->
+            match args with
+            | [ WanderValue.String(desc); left; right ] ->
+                if (left = right) || (wanderEquals left right) then
+                    Ok(WanderValue.Network(Network(Set.empty)))
+                else
+                    error $"{prettyPrint left} != {prettyPrint right}" None
+            | _ -> error "Invalid call to Assert.equal function." None)
+    )
 
 let failFunction<'t> =
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(message) ] -> error message None
-                    | _ -> error "Invalid call to Assert.fail function." None)
-            )
+    new HostFunction(
+        (fun args _ ->
+            match args with
+            | [ WanderValue.String(message) ] -> error message None
+            | _ -> error "Invalid call to Assert.fail function." None)
+    )
 
-let assertLib<'t> =
-    Map [ ("equal", equalFunction); ("fail", failFunction) ]
+let assertLib<'t> = Map [ ("equal", equalFunction); ("fail", failFunction) ]

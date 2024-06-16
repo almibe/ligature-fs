@@ -9,16 +9,18 @@ open Ligature.Main
 open Ligature.Wander.Main
 
 let writeValueFunction<'t> =
-            HostFunction(fun args _ ->
-                match args with
-                | [ value ] -> Ok(WanderValue.String(prettyPrint value))
-                | value -> error $"Unexpected value - {value}." None)
+    HostFunction(fun args _ ->
+        match args with
+        | [ value ] -> Ok(WanderValue.String(prettyPrint value))
+        | value -> error $"Unexpected value - {value}." None)
 
 let readValueFunction<'t> =
-            HostFunction(fun args _ ->
-                match args with
-                | [ WanderValue.String(input) ] -> run input (newBindings ())
-                | value -> error $"Unexpected value - {value}." None)
+    HostFunction(fun args _ ->
+        match args with
+        | [ WanderValue.String(input) ] -> run input (newBindings ())
+        | value -> error $"Unexpected value - {value}." None)
 
 let wanderLib<'t> =
-    Map [ ("Wander.writeValue", writeValueFunction); ("Wander.readValue", readValueFunction) ]
+    Map
+        [ ("Wander.writeValue", writeValueFunction)
+          ("Wander.readValue", readValueFunction) ]

@@ -9,11 +9,11 @@ open Ligature.Main
 open System
 
 let ticksFunction<'t> =
-            new HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
-                    | _ -> error "Invalid call to map function." None)
-            )
+    new HostFunction(
+        (fun args _ ->
+            match args with
+            | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
+            | _ -> error "Invalid call to map function." None)
+    )
 
 let dateTimeLib<'t> = Map [ ("ticks", ticksFunction) ]

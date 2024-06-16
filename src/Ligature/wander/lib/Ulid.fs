@@ -9,14 +9,14 @@ open Ligature.Main
 open System
 
 let nextFunction<'t> =
-            HostFunction(
-                (fun args _ ->
-                    match args with
-                    | [ WanderValue.String(prefix) ] ->
-                        match identifier (prefix + Ulid.NewUlid().ToString()) with
-                        | Ok identifier -> Ok(WanderValue.Identifier(identifier))
-                        | _ -> error $"Invalid prefix for Identifier {prefix}." None
-                    | _ -> error "Invalid call to Ulid.next function." None)
-            )
+    HostFunction(
+        (fun args _ ->
+            match args with
+            | [ WanderValue.String(prefix) ] ->
+                match identifier (prefix + Ulid.NewUlid().ToString()) with
+                | Ok identifier -> Ok(WanderValue.Identifier(identifier))
+                | _ -> error $"Invalid prefix for Identifier {prefix}." None
+            | _ -> error "Invalid call to Ulid.next function." None)
+    )
 
 let ulidLib<'t> = Map [ ("next", nextFunction) ]

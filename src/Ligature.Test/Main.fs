@@ -24,8 +24,14 @@ let tests =
           testCase "Check Statement Equality"
           <| fun _ ->
               Expect.equal
-                  (statement (ident "a") (ident "b") (Value.Identifier(ident "c")))
-                  (statement (ident "a") (ident "b") (Value.Identifier(ident "c")))
+                  (statement
+                      (PatternIdentifier.Id(ident "a"))
+                      (PatternIdentifier.Id(ident "b"))
+                      (Value.Identifier(ident "c")))
+                  (statement
+                      (PatternIdentifier.Id(ident "a"))
+                      (PatternIdentifier.Id(ident "b"))
+                      (Value.Identifier(ident "c")))
                   "" ]
 
 [<EntryPoint>]

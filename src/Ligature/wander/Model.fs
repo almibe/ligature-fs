@@ -129,8 +129,7 @@ and printValues values =
 
 type Scope = Map<string, WanderValue>
 
-type HostFunction(eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError>)
-    =
+type HostFunction(eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError>) =
     member _.Run args bindings = eval args bindings
 
 and Bindings =
@@ -139,7 +138,9 @@ and Bindings =
       stack: Scope list }
 
 let newBindings () =
-    { functions = Map.empty; current = Map.empty; stack = [] }
+    { functions = Map.empty
+      current = Map.empty
+      stack = [] }
 
 let bind name value bindings =
     let current' = Map.add name value bindings.current
@@ -148,12 +149,18 @@ let bind name value bindings =
 let addScope bindings =
     let current = Map []
     let stack = List.append [ bindings.current ] bindings.stack
-    { bindings with current = current; stack = stack }
+
+    { bindings with
+        current = current
+        stack = stack }
 
 let removeScope bindings =
     let current = List.head bindings.stack
     let stack = List.tail bindings.stack
-    { bindings with current = current; stack = stack }
+
+    { bindings with
+        current = current
+        stack = stack }
 
 let rec read name bindings =
     if Map.containsKey name bindings.current then

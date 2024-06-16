@@ -57,6 +57,8 @@ type Slot private (name: string option) =
         let other = other :?> Slot
         this.Name = other.Name
 
+    override this.GetHashCode() = name.GetHashCode()
+
     interface System.IComparable with
         member this.CompareTo(other) =
             let other = other :?> Slot
@@ -124,7 +126,6 @@ let getLeaves (patternSet: Set<Statement>) : Set<PatternIdentifier> =
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
-
 
 let readIdentifier (Identifier identifier) = identifier
 

@@ -31,12 +31,10 @@ let main args =
         if inmem then
             InMemoryStore.empty ()
         else
-            match System.Environment.GetEnvironmentVariable "LIGATURE_HOME" with
-            | path ->
-                let store = new LigatureSqlite(path + "\\sqlite\\store.db")
-                store.initialize ()
-                store
-            | null -> failwith "LIGATURE_HOME not set!"
+            let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
+            let store = new LigatureSqlite(path + "\\sqlite\\store.db")
+            store.initialize () |> ignore
+            store
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")

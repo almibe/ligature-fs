@@ -19,7 +19,7 @@ let readLigature (input: string) : Result<Network, LigatureError> =
 
 let writeLigature (input: Network) : string =
     let sb = new System.Text.StringBuilder()
-    sb.Append("{")
+    sb.Append("{") |> ignore
 
     Seq.iter
         (fun statement ->
@@ -27,5 +27,5 @@ let writeLigature (input: Network) : string =
             sb.Append(s) |> ignore)
         (input.AllStatements())
 
-    sb.Append("}")
+    sb.Append("}") |> ignore
     sb.ToString()

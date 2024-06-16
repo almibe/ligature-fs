@@ -6,7 +6,6 @@ module Ligature.Wander.Parser.Test
 
 open Expecto
 open Ligature.Main
-open Ligature.InMemoryNetwork
 
 let ident id =
     match identifier id with
@@ -25,18 +24,26 @@ let tests =
         [ testCase "Parse empty Network"
           <| fun _ ->
               let result = Ligature.Serialization.readLigature "{}"
-              let expect: Result<Network, LigatureError> = Ok(InMemoryNetwork(Set.empty))
+              let expect: Result<Network, LigatureError> = Ok(Network(Set.empty))
               Expect.equal result expect ""
           testCase "Parse simple Network"
           <| fun _ ->
               let result = Ligature.Serialization.readLigature "{`a` `b` `c`}"
 
               let expect: Result<Network, LigatureError> =
-                  Ok(InMemoryNetwork(Set.ofList [ statement (ident "a") (ident "b") (vident "c") ]))
+                  Ok(
+                      Network(
+                          Set.ofList
+                              [ statement
+                                    (PatternIdentifier.Id(ident "a"))
+                                    (PatternIdentifier.Id(ident "b"))
+                                    (vident "c") ]
+                      )
+                  )
 
               Expect.equal result expect ""
           testCase "Write Empty Network"
           <| fun _ ->
-              let result = Ligature.Serialization.writeLigature (InMemoryNetwork(Set.empty))
+              let result = Ligature.Serialization.writeLigature (Network(Set.empty))
               let expect = "{}"
               Expect.equal result expect "" ]

@@ -61,7 +61,7 @@ type LigatureSqlite(path: string) =
                 match run script (newBindings ()) with
                 | Ok(WanderValue.Network(value)) -> store.add event.Network value |> ignore
                 | _ -> failwith "Error"
-            | "RS" -> 
+            | "RS" ->
                 let script =
                     match event.Ligature with
                     | Some(script) -> script
@@ -92,7 +92,7 @@ type LigatureSqlite(path: string) =
         member this.networks() = store.networks ()
 
         member this.add networkName network =
-            store.add networkName network
+            store.add networkName network |> ignore
             let ligature = writeLigature network
 
             conn
@@ -103,7 +103,7 @@ type LigatureSqlite(path: string) =
             Ok(())
 
         member this.remove networkName network =
-            store.remove networkName network
+            store.remove networkName network |> ignore
             let ligature = writeLigature network
 
             conn
