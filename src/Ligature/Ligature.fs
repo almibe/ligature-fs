@@ -99,7 +99,11 @@ type Statement =
         | _ -> false
 
     override this.GetHashCode() =
-        HashCode.Combine(this.Entity, this.Attribute, this.Value)
+        #if !FABLE_COMPILER
+            HashCode.Combine(this.Entity, this.Attribute, this.Value)
+        #else
+            failwith "TODO"
+        #endif
 
     interface IComparable with
         member this.CompareTo(other) =

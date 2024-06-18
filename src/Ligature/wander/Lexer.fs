@@ -58,7 +58,12 @@ let slotTokenNibbler =
             | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
-let bytesFromString (s: string) = System.Convert.FromHexString(s)
+let bytesFromString (s: string) = 
+    #if !FABLE_COMPILER
+        System.Convert.FromHexString(s)
+    #else
+        failwith "TODO"
+    #endif
 
 let bytesTokenNibbler =
     Gaze.map bytesNibbler (fun value ->

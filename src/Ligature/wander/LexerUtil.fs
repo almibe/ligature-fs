@@ -27,7 +27,11 @@ let slotNibbler =
           Nibblers.optional slotCharacterNibbler ]
 
 let parseString (s: string) =
-    System.Text.Json.Nodes.JsonNode.Parse(s)
+    #if !FABLE_COMPILER
+        System.Text.Json.Nodes.JsonNode.Parse(s)
+    #else
+        failwith "TODO"
+    #endif
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"

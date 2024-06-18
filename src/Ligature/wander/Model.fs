@@ -66,7 +66,11 @@ let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
         | _ -> left = right
 
 let encodeString string =
-    System.Web.HttpUtility.JavaScriptStringEncode(string, true)
+    #if !FABLE_COMPILER
+        System.Web.HttpUtility.JavaScriptStringEncode(string, true)
+    #else
+        failwith "TODO"
+    #endif
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
