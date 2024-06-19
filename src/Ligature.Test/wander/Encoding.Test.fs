@@ -6,7 +6,7 @@ module Ligature.Wander.Test.Encoding
 
 open Expecto
 open Ligature.Wander.Main
-open Ligature.Wander.Lib.Preludes
+open Ligature.Wander.Bindings
 open Ligature.Wander.Model
 
 let config =
@@ -19,13 +19,21 @@ let properties =
         "Encoding and Decoding Tests"
         [ testProperty "Encode and decode Int"
           <| fun (value: bigint) ->
-              match run (prettyPrint (WanderValue.Int(value))) (standardPrelude ()) with
+              match
+                  run
+                      (prettyPrint (WanderValue.Int(value)))
+                      (coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))
+              with
               | Ok(WanderValue.Int(res)) -> value = res
               | _ -> false
           testProperty "Encode and decode String"
           <| fun (value: string) ->
               if value <> null then
-                  match run (prettyPrint (WanderValue.String(value))) (standardPrelude ()) with
+                  match
+                      run
+                          (prettyPrint (WanderValue.String(value)))
+                          (coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))
+                  with
                   | Ok(WanderValue.String(res)) -> value = res
                   | _ -> false
               else

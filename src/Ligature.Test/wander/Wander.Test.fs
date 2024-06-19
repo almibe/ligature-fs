@@ -7,9 +7,7 @@ module Ligature.Wander.Main.Test
 open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
-open Ligature.InMemory.Pattern
-open Ligature
-open Ligature.Wander.InMemoryNetwork
+open Ligature.Main
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -34,13 +32,13 @@ let vident id =
 
 let slot id =
     WanderValue.Slot(
-        match Ligature.slot (Some id) with
+        match Ligature.Main.slot (Some id) with
         | Ok v -> v
         | Error _ -> todo
     )
 
-
-let bindings = Ligature.Wander.Lib.Preludes.standardPrelude ()
+let bindings =
+    Ligature.Wander.Bindings.coreBindings (Ligature.LigatureStore.InMemoryStore.empty ())
 
 [<Tests>]
 let tests =
@@ -98,7 +96,7 @@ let tests =
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Value(Value.Identifier(ident "c")) } ]
+                                      Value = Value.Identifier(ident "c") } ]
 
                           )
                       )
@@ -118,7 +116,7 @@ let tests =
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Value(Value.Int(5I)) } ]
+                                      Value = Value.Int(5I) } ]
 
                           )
                       )
@@ -137,7 +135,7 @@ let tests =
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Value(Value.String("Hi")) } ]
+                                      Value = Value.String("Hi") } ]
                           )
                       )
 
@@ -156,7 +154,7 @@ let tests =
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Value(Value.Bytes([| 0uy |])) } ]
+                                      Value = Value.Bytes([| 0uy |]) } ]
                           )
                       )
                   ))
@@ -174,7 +172,7 @@ let tests =
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "e")
                                       Attribute = PatternIdentifier.Id(ident "a")
-                                      Value = Value.Value(Value.Identifier(ident "v")) } ]
+                                      Value = Value.Identifier(ident "v") } ]
                           )
                       )
                   ))
@@ -200,16 +198,6 @@ let tests =
               let script = "x = 5,\nx"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(5I))) ""
-          testCase "Define and call Lambda"
-          <| fun _ ->
-              let script = "id = \\x -> x,\nid 45"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(45I))) ""
-          testCase "Define and call Lambda with multiple params"
-          <| fun _ ->
-              let script = "first = \\x y -> x,\nfirst 45 27"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(45I))) ""
           testCase "Identifier concat"
           <| fun _ ->
               let script = "`a`:`b`"

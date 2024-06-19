@@ -5,9 +5,9 @@
 module Ligature.Wander.Parser.Test
 
 open Expecto
-open Ligature
-open Wander.Parser
-open Wander.Lexer
+open Ligature.Main
+open Ligature.Wander.Parser
+open Ligature.Wander.Lexer
 
 let unsafe result =
     match result with
@@ -184,21 +184,6 @@ let tests =
               let tokens = tokenize "{ x = 5, y = false }"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Namespace([ ("x", Element.Int(5I)); ("y", Element.Bool(false)) ]) ])) ""
-          testCase "Parse Lambda"
-          <| fun _ ->
-              let tokens = tokenize "\\x -> x"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Lambda([ "x" ], Element.Name("x")) ])) ""
-          testCase "Parse Function Defintion"
-          <| fun _ ->
-              let tokens = tokenize "id i = i"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Let("id", Element.Lambda([ "i" ], Element.Name("i"))) ])) ""
-          testCase "Parse Function Defintion with two Params"
-          <| fun _ ->
-              let tokens = tokenize "first x y = x"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Let("first", Element.Lambda([ "x"; "y" ], Element.Name("x"))) ])) ""
 
           testCase "Parse Application"
           <| fun _ ->

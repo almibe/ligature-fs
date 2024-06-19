@@ -7,7 +7,7 @@ module Ligature.Wander.Lexer.Test
 open Expecto
 open Ligature.Wander.Lexer
 open Ligature.Wander.Model
-open Ligature
+open Ligature.Main
 
 let ident id =
     Token.Identifier(

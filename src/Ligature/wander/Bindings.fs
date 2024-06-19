@@ -33,7 +33,7 @@ let bindCoreHostFunctions bindings store =
 // |> Bindings.bind "Wander" wanderLib
 
 /// Provides an Environment that provides only the core Host Functions.
-let coreEnvironment (store: LigatureStore) =
+let coreBindings (store: LigatureStore) =
     bindCoreHostFunctions (newBindings ()) store
 
 // let bindWanderLibs bindings store =
