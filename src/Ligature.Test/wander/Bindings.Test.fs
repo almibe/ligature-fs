@@ -6,6 +6,7 @@ module Ligature.Wander.Bindings.Test
 
 open Expecto
 open Ligature.Wander.Bindings
+open Ligature.Wander.Model
 
 [<Tests>]
 let tests =
@@ -15,19 +16,22 @@ let tests =
           <| fun _ ->
               let bindings = newBindings ()
               Expect.equal (read "test" bindings) None "Bindings should start empty."
-              let bindings = bind "hello" (5) bindings
-              Expect.equal (read "hello" bindings) (Some(5)) "Read bindings after adding known value."
+              let bindings = bind "hello" (WanderValue.Int 5) bindings
+              Expect.equal (read "hello" bindings) (Some(WanderValue.Int 5)) "Read bindings after adding known value."
               Expect.equal (read "test" bindings) None "Test still should not be bound."
           testCase "test scoping"
           <| fun _ ->
               let bindings = newBindings ()
               Expect.equal (read "test" bindings) None "Bindings should start empty."
-              let bindings = bind "hello" (5) bindings
+              let bindings = bind "hello" (WanderValue.Int 5) bindings
               let bindings = addScope bindings
-              Expect.equal (read "hello" bindings) (Some(5)) "Read bindings after adding known value."
-              let bindings = bind "hello" (6) bindings
+              Expect.equal (read "hello" bindings) (Some(WanderValue.Int 5)) "Read bindings after adding known value."
+              let bindings = bind "hello" (WanderValue.Int 6) bindings
 
-              Expect.equal (read "hello" bindings) (Some(6)) "Read bindings after adding known value in new scope."
+              Expect.equal
+                  (read "hello" bindings)
+                  (Some(WanderValue.Int 6))
+                  "Read bindings after adding known value in new scope."
 
               let bindings = removeScope bindings
-              Expect.equal (read "hello" bindings) (Some(5)) "Read bindings after adding known value." ]
+              Expect.equal (read "hello" bindings) (Some(WanderValue.Int 5)) "Read bindings after adding known value." ]

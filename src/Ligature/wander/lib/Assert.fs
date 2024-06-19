@@ -27,4 +27,5 @@ let failFunction<'t> =
             | _ -> error "Invalid call to Assert.fail function." None)
     )
 
-let assertLib<'t> = Map [ ("equal", equalFunction); ("fail", failFunction) ]
+let assertLib<'t> =
+    Map [ ("Assert.equal", equalFunction); ("Assert.fail", failFunction) ]

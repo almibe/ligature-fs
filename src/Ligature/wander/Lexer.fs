@@ -60,11 +60,11 @@ let slotTokenNibbler =
     )
 
 let bytesFromString (s: string) =
-    #if !FABLE_COMPILER
-        System.Convert.FromHexString(s)
-    #else
-        emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
-    #endif
+#if !FABLE_COMPILER
+    System.Convert.FromHexString(s)
+#else
+    emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
+#endif
 
 let bytesTokenNibbler =
     Gaze.map bytesNibbler (fun value ->

@@ -66,11 +66,11 @@ let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
         | _ -> left = right
 
 let encodeString string =
-    #if !FABLE_COMPILER
-        System.Web.HttpUtility.JavaScriptStringEncode(string, true)
-    #else
-        failwith "TODO"
-    #endif
+#if !FABLE_COMPILER
+    System.Web.HttpUtility.JavaScriptStringEncode(string, true)
+#else
+    failwith "TODO"
+#endif
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
@@ -146,9 +146,16 @@ let newBindings () =
       current = Map.empty
       stack = [] }
 
-let bind name value bindings =
+let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
     let current' = Map.add name value bindings.current
     { bindings with current = current' }
+
+let bindFunction (name: string) (fn: HostFunction) (bindings: Bindings) : Bindings =
+    let functions' = Map.add name fn bindings.functions
+    { bindings with functions = functions' }
+
+let bindFunctions (functions: Map<string, HostFunction>) (bindings: Bindings) : Bindings =
+    Map.fold (fun state key value -> bindFunction key value state) bindings functions
 
 let addScope bindings =
     let current = Map []

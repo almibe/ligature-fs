@@ -160,8 +160,11 @@ let apply (statements: Network) (data: Map<Slot, Value>) : Network =
                                 failwith "Error"
                         | v -> v
 
-                    { Entity = (PatternIdentifier.Id entity); Attribute = (PatternIdentifier.Id attribute); Value = value })
+                    { Entity = (PatternIdentifier.Id entity)
+                      Attribute = (PatternIdentifier.Id attribute)
+                      Value = value })
             statements
+
     Network(res)
 
 let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
@@ -194,8 +197,7 @@ let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
                         ()
 
                 match pattern.Attribute with
-                | PatternIdentifier.Id identifier ->
-                    matched <- statement.Attribute = PatternIdentifier.Id identifier
+                | PatternIdentifier.Id identifier -> matched <- statement.Attribute = PatternIdentifier.Id identifier
                 | PatternIdentifier.Sl slot ->
                     if slot.Named then
                         if currentNames.ContainsKey slot then

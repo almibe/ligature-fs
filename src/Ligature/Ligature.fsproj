@@ -27,7 +27,7 @@
     <Compile Include="wander/lib/String.fs" />
     <Compile Include="wander/lib/Ulid.fs" />
     <Compile Include="wander/lib/Wander.fs" />
-    <Compile Include="wander/Environments.fs" />
+    <Compile Include="wander/Bindings.fs" />
     <Compile Include="Serialization.fs" />
   </ItemGroup>
 

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Environments
+module Ligature.Wander.Bindings
 
 open Ligature.Wander
 open Lib.Bool
@@ -16,9 +16,10 @@ open Lib.Store
 open Ligature.LigatureStore
 open Ligature.Wander.Model
 
-let bindCoreHostFunctions bindings store = bindings
-// |> Bindings.bind "Array" Lib.Array.arrayLib
-// |> Bindings.bind "Assert" Lib.Assert.assertLib
+let bindCoreHostFunctions bindings store =
+    bindings
+    // |> Bindings.bind "Array" Lib.Array.arrayLib
+    |> bindFunctions Lib.Assert.assertLib
 // |> Bindings.bind "Bool" boolLib
 // |> Bindings.bind "Bytes" bytesLib
 // |> Bindings.bind "DateTime" dateTimeLib
