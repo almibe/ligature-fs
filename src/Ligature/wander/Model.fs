@@ -23,7 +23,6 @@ type Expression =
     | Grouping of Expression list
     | Array of Expression list
     | Application of Expression list
-    | FunctionCall of name: string * arguments: Expression list
     | Record of list<string * Expression>
     | Pattern of DatasetPatternRoot list
 

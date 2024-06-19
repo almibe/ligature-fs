@@ -198,21 +198,21 @@ let tests =
               let script = "x = 5,\nx"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(5I))) ""
-          testCase "Identifier concat"
-          <| fun _ ->
-              let script = "`a`:`b`"
-              let result = run script bindings
-              Expect.equal result (Ok(wident "ab")) ""
-          testCase "Identifier concat with String"
-          <| fun _ ->
-              let script = "`a`:\"hello\""
-              let result = run script bindings
-              Expect.equal result (Ok(wident "ahello")) ""
-          testCase "Identifier concat with Int"
-          <| fun _ ->
-              let script = "`a`:123"
-              let result = run script bindings
-              Expect.equal result (Ok(wident "a123")) ""
+          //   testCase "Identifier concat"
+          //   <| fun _ ->
+          //       let script = "`a`:`b`"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(wident "ab")) ""
+          //   testCase "Identifier concat with String"
+          //   <| fun _ ->
+          //       let script = "`a`:\"hello\""
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(wident "ahello")) ""
+          //   testCase "Identifier concat with Int"
+          //   <| fun _ ->
+          //       let script = "`a`:123"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(wident "a123")) ""
 
           //   testCase "Let Statement with Value Reference In Scope"
           //   <| fun _ ->

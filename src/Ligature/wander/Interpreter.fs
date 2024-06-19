@@ -46,7 +46,6 @@ let rec evalExpression bindings expression =
             let bindings = bind name value bindings
             Ok((value, bindings))
         | Error(_) -> res
-    | Expression.FunctionCall(name, args) -> failwith "TODO"
     // let args = List.map ( fun a ->
     //     match evalExpression bindings a with
     //     | Ok(v, _) -> failwith "todo" //Expression.Value(v)
@@ -105,8 +104,7 @@ let rec evalExpression bindings expression =
                         if Option.isNone error then
                             error <- Some(err)
 
-                        //WanderValue.Dataset(new InMemoryNetwork(Set.empty)))
-                        failwith "TODO")
+                        WanderValue.Nothing)
                 (Array.ofList expressions)
 
         match error with

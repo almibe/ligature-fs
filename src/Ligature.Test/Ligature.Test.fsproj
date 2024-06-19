@@ -13,11 +13,13 @@
     <Compile Include="wander/Parser.Test.fs" />
     <Compile Include="wander/Wander.Test.fs" />
     <Compile Include="wander/Encoding.Test.fs" />
+    <Compile Include="LigatureTestSuiteMain.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Expecto" Version="10.*" />
+    <PackageReference Include="FSharpPlus" Version="1.6.1" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Update="FSharp.Core" Version="8.*" />
