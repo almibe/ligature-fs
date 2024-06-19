@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "demo.ts", "vite-env.d.ts"]
+  "include": ["src", "ligature.test.ts", "vite-env.d.ts"]
 }

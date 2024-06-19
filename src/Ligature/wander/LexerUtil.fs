@@ -7,6 +7,7 @@ module Ligature.Wander.LexerUtil
 open System.Text.RegularExpressions
 open Ligature.Main
 open Nibblers
+open Fable.Core.JsInterop
 
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
@@ -26,11 +27,11 @@ let slotNibbler =
         [ Nibblers.takeAll [ Nibblers.take '$' ]
           Nibblers.optional slotCharacterNibbler ]
 
-let parseString (s: string) =
+let parseString (input: string) =
     #if !FABLE_COMPILER
-        System.Text.Json.Nodes.JsonNode.Parse(s)
+        System.Text.Json.Nodes.JsonNode.Parse(input)
     #else
-        failwith "TODO"
+        emitJsExpr (input) "JSON.parse($0)"
     #endif
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =

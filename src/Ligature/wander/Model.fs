@@ -87,7 +87,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Nothing -> "Nothing"
 
 and printNetwork (network: Network) : string =
-    (Seq.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" (network.AllStatements()))
+    (Seq.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" (network))
     + "}"
 
 and printBytes bytes =

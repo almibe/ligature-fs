@@ -6,6 +6,7 @@ module Ligature.Wander.Lexer
 
 open Ligature.Main
 open LexerUtil
+open Fable.Core.JsInterop
 
 [<RequireQualifiedAccess>]
 type Token =
@@ -58,11 +59,11 @@ let slotTokenNibbler =
             | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
     )
 
-let bytesFromString (s: string) = 
+let bytesFromString (s: string) =
     #if !FABLE_COMPILER
         System.Convert.FromHexString(s)
     #else
-        failwith "TODO"
+        emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
     #endif
 
 let bytesTokenNibbler =

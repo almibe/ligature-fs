@@ -25,7 +25,7 @@ let writeLigature (input: Network) : string =
         (fun statement ->
             let s: string = printStatement statement
             sb.Append(s) |> ignore)
-        (input.AllStatements())
+        (input)
 
     sb.Append("}") |> ignore
     sb.ToString()

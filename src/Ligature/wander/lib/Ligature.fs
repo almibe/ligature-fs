@@ -35,20 +35,20 @@ let applyFunction =
                     | _ -> failwith "Error")
                 |> Map.ofSeq
 
-            Ok(WanderValue.Network(pattern.Apply res))
-        | value -> error $"Unexpected value passed to Pattern.apply - {value}." None)
+            Ok(WanderValue.Network(apply pattern res))
+        | value -> error $"Unexpected value passed to Ligature.apply - {value}." None)
 
 let countFunction =
     new HostFunction(fun args _ ->
         match args with
-        | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (pattern.Count())))
+        | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
         | value -> error $"Unexpected value - {value}." None)
 
 let extractFunction =
     new HostFunction(fun args _ ->
         match args with
         | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
-            network.Extract pattern
+            extract network pattern
             |> List.map (fun res ->
                 res
                 |> Map.toSeq

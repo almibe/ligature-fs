@@ -84,39 +84,10 @@ type Value =
     | Int of bigint
     | Bytes of byte array
 
-[<CustomEquality; CustomComparison>]
 type Statement =
     { Entity: PatternIdentifier
       Attribute: PatternIdentifier
       Value: Value }
-
-    override this.Equals(other) =
-        match other with
-        | :? Statement as other ->
-            this.Entity = other.Entity
-            && this.Attribute = other.Attribute
-            && this.Value = other.Value
-        | _ -> false
-
-    override this.GetHashCode() =
-        #if !FABLE_COMPILER
-            HashCode.Combine(this.Entity, this.Attribute, this.Value)
-        #else
-            failwith "TODO"
-        #endif
-
-    interface IComparable with
-        member this.CompareTo(other) =
-            match other with
-            | :? Statement as other ->
-                let e = other.Entity.ToString().CompareTo(this.Entity.ToString())
-                let a = other.Attribute.ToString().CompareTo(this.Attribute.ToString())
-                let v = other.Value.ToString().CompareTo(this.Value.ToString())
-
-                if e <> 0 then e
-                else if a <> 0 then a
-                else v
-            | _ -> failwith "Error"
 
 let getRoots (patternSet: Set<Statement>) : Set<PatternIdentifier> =
     Set.map (fun (statement: Statement) -> statement.Entity) patternSet
@@ -139,124 +110,119 @@ let readPatternIdentifier (identifier: PatternIdentifier) : string =
     //  | PatternIdentifier.Sl(Slot(name)) -> name
     | _ -> failwith "TODO"
 
-type Network(statements: Set<Statement>) =
-    member _.Count() : int64 = Set.count statements
-    member _.AllStatements() : Set<Statement> = statements
+type Network = Set<Statement>
 
-    member this.Apply(data: Map<Slot, Value>) : Network =
-        let res: Set<Statement> =
-            Set.map
-                (fun (statement: Statement) ->
-                    match statement with
-                    // | { Entity = PatternIdentifier.Id(_)
-                    //     Attribute = PatternIdentifier.Id(_)
-                    //     Value = Value(_) } -> failwith "TODO"
-                    | _ ->
-                        let entity =
-                            match statement.Entity with
-                            | PatternIdentifier.Id(identifier) -> identifier
-                            | PatternIdentifier.Sl(slot) ->
-                                if slot.Named then
-                                    match data.TryFind slot with
-                                    | Some value ->
-                                        match value with
-                                        | Value.Identifier identifier -> identifier
-                                        | _ -> failwith "Error"
-                                    | None -> failwith "Error"
-                                else
-                                    failwith "Error"
+let apply (statements: Network) (data: Map<Slot, Value>) : Network =
+    let res: Set<Statement> =
+        Set.map
+            (fun (statement: Statement) ->
+                match statement with
+                // | { Entity = PatternIdentifier.Id(_)
+                //     Attribute = PatternIdentifier.Id(_)
+                //     Value = Value(_) } -> failwith "TODO"
+                | _ ->
+                    let entity =
+                        match statement.Entity with
+                        | PatternIdentifier.Id(identifier) -> identifier
+                        | PatternIdentifier.Sl(slot) ->
+                            if slot.Named then
+                                match data.TryFind slot with
+                                | Some value ->
+                                    match value with
+                                    | Value.Identifier identifier -> identifier
+                                    | _ -> failwith "Error"
+                                | None -> failwith "Error"
+                            else
+                                failwith "Error"
 
-                        let attribute =
-                            match statement.Attribute with
-                            | PatternIdentifier.Id(identifier) -> identifier
-                            | PatternIdentifier.Sl(slot) ->
-                                if slot.Named then
-                                    match data.TryFind slot with
-                                    | Some value ->
-                                        match value with
-                                        | Value.Identifier identifier -> identifier
-                                        | _ -> failwith "Error"
-                                    | None -> failwith "Error"
-                                else
-                                    failwith "Error"
+                    let attribute =
+                        match statement.Attribute with
+                        | PatternIdentifier.Id(identifier) -> identifier
+                        | PatternIdentifier.Sl(slot) ->
+                            if slot.Named then
+                                match data.TryFind slot with
+                                | Some value ->
+                                    match value with
+                                    | Value.Identifier identifier -> identifier
+                                    | _ -> failwith "Error"
+                                | None -> failwith "Error"
+                            else
+                                failwith "Error"
 
-                        let value =
-                            match statement.Value with
-                            | Value.Slot(slot) ->
-                                if slot.Named then
-                                    match data.TryFind slot with
-                                    | Some value -> value
-                                    | None -> failwith "Error"
-                                else
-                                    failwith "Error"
-                            | v -> v
+                    let value =
+                        match statement.Value with
+                        | Value.Slot(slot) ->
+                            if slot.Named then
+                                match data.TryFind slot with
+                                | Some value -> value
+                                | None -> failwith "Error"
+                            else
+                                failwith "Error"
+                        | v -> v
 
-                        { Entity = (PatternIdentifier.Id entity)
-                          Attribute = (PatternIdentifier.Id attribute)
-                          Value = value })
-                statements
-
-        Network(res)
-
-    member this.Extract(pattern: Network) : Map<Slot, Value> list =
-        if statements.IsEmpty || pattern.AllStatements().IsEmpty then
-            List.Empty
-        else
-            let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
-            let mutable currentNames: Map<Slot, Value> = Map.empty
-
+                    { Entity = (PatternIdentifier.Id entity); Attribute = (PatternIdentifier.Id attribute); Value = value })
             statements
-            |> Set.iter (fun statement ->
-                currentNames <- Map.empty //reset state
+    Network(res)
 
-                pattern.AllStatements()
-                |> Set.iter (fun (pattern: Statement) ->
-                    let mutable matched = true
+let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
+    if statements.IsEmpty || pattern.IsEmpty then
+        List.Empty
+    else
+        let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
+        let mutable currentNames: Map<Slot, Value> = Map.empty
 
-                    match pattern.Entity with
-                    | PatternIdentifier.Id identifier -> matched <- statement.Entity = PatternIdentifier.Id identifier
-                    | PatternIdentifier.Sl slot ->
-                        if slot.Named then
-                            if currentNames.ContainsKey slot then
-                                failwith "TODO"
-                            else
-                                match statement.Entity with
-                                | PatternIdentifier.Id identifier ->
-                                    currentNames <- currentNames.Add(slot, Value.Identifier identifier)
-                                | PatternIdentifier.Sl slot -> failwith "Error"
+        statements
+        |> Set.iter (fun statement ->
+            currentNames <- Map.empty //reset state
+
+            pattern
+            |> Set.iter (fun (pattern: Statement) ->
+                let mutable matched = true
+
+                match pattern.Entity with
+                | PatternIdentifier.Id identifier -> matched <- statement.Entity = PatternIdentifier.Id identifier
+                | PatternIdentifier.Sl slot ->
+                    if slot.Named then
+                        if currentNames.ContainsKey slot then
+                            failwith "TODO"
                         else
-                            ()
+                            match statement.Entity with
+                            | PatternIdentifier.Id identifier ->
+                                currentNames <- currentNames.Add(slot, Value.Identifier identifier)
+                            | PatternIdentifier.Sl slot -> failwith "Error"
+                    else
+                        ()
 
-                    match pattern.Attribute with
-                    | PatternIdentifier.Id identifier ->
-                        matched <- statement.Attribute = PatternIdentifier.Id identifier
-                    | PatternIdentifier.Sl slot ->
-                        if slot.Named then
-                            if currentNames.ContainsKey slot then
-                                failwith "TODO"
-                            else
-                                match statement.Attribute with
-                                | PatternIdentifier.Id identifier ->
-                                    currentNames <- currentNames.Add(slot, Value.Identifier identifier)
-                                | _ -> failwith "Error"
+                match pattern.Attribute with
+                | PatternIdentifier.Id identifier ->
+                    matched <- statement.Attribute = PatternIdentifier.Id identifier
+                | PatternIdentifier.Sl slot ->
+                    if slot.Named then
+                        if currentNames.ContainsKey slot then
+                            failwith "TODO"
                         else
-                            ()
+                            match statement.Attribute with
+                            | PatternIdentifier.Id identifier ->
+                                currentNames <- currentNames.Add(slot, Value.Identifier identifier)
+                            | _ -> failwith "Error"
+                    else
+                        ()
 
-                    match pattern.Value with
-                    | Value.Slot slot ->
-                        if slot.Named then
-                            if currentNames.ContainsKey slot then
-                                failwith "TODO"
-                            else
-                                currentNames <- currentNames.Add(slot, statement.Value)
+                match pattern.Value with
+                | Value.Slot slot ->
+                    if slot.Named then
+                        if currentNames.ContainsKey slot then
+                            failwith "TODO"
                         else
-                            ()
-                    | value -> matched <- statement.Value = value
+                            currentNames <- currentNames.Add(slot, statement.Value)
+                    else
+                        ()
+                | value -> matched <- statement.Value = value
 
-                    if matched then
-                        res <- List.append res [ currentNames ]))
+                if matched then
+                    res <- List.append res [ currentNames ]))
 
-            List.ofSeq res
+        List.ofSeq res
 
 let statement entity attribute value =
     { Entity = entity
