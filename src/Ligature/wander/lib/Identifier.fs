@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let valueFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
@@ -16,7 +16,7 @@ let valueFunction<'t> =
     )
 
 let toBytesFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Identifier(value) ] ->
@@ -25,7 +25,7 @@ let toBytesFunction<'t> =
     )
 
 let fromBytesFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Bytes(bytes) ] ->

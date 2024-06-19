@@ -11,12 +11,12 @@ open System.Collections.Generic
 open Ligature.LigatureStore
 
 let networksFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ _ ] ->
                 store.networks ()
-                |> Seq.map (fun networkName -> WanderValue.String networkName)
+                |> Seq.map WanderValue.String
                 |> Seq.toArray
                 |> WanderValue.Array
                 |> Ok
@@ -24,7 +24,7 @@ let networksFunction (store: LigatureStore) =
     )
 
 let addNetworkFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(name) ] ->
@@ -34,7 +34,7 @@ let addNetworkFunction (store: LigatureStore) =
     )
 
 let removeNetworkFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(name) ] ->
@@ -44,7 +44,7 @@ let removeNetworkFunction (store: LigatureStore) =
     )
 
 let addFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(name); WanderValue.Network(network) ] ->
@@ -54,7 +54,7 @@ let addFunction (store: LigatureStore) =
     )
 
 let removeFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(name); WanderValue.Network(network) ] ->
@@ -64,7 +64,7 @@ let removeFunction (store: LigatureStore) =
     )
 
 let readFunction (store: LigatureStore) =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(name) ] -> Ok(WanderValue.Network(store.read name))

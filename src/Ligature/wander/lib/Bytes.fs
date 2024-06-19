@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let lengthFunction<'t> =
-    new HostFunction(fun args _ ->
+    HostFunction(fun args _ ->
         match args with
         | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes |> bigint))
         | _ -> error "Invalid call to map function." None)

@@ -10,7 +10,7 @@ open FsToolkit.ErrorHandling
 open Ligature.Wander.Interpreter
 
 let distinctFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.distinct array))
@@ -18,7 +18,7 @@ let distinctFunction<'t> =
     )
 
 let catFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Array(array) ] ->
@@ -36,7 +36,7 @@ let catFunction<'t> =
     )
 
 let insertFirstFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.insertAt 0 value array))
@@ -44,7 +44,7 @@ let insertFirstFunction<'t> =
     )
 
 let insertLastFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ value; WanderValue.Array(array) ] -> Ok(WanderValue.Array(Array.append [| value |] array))
@@ -52,7 +52,7 @@ let insertLastFunction<'t> =
     )
 
 // let mapFunction<'t> =
-//             new HostFunction(
+//             HostFunction(
 //                 (fun args bindings ->
 //                     match args with
 //                     | [ WanderValue.Function(fn); WanderValue.Array(array) ] ->
@@ -64,7 +64,7 @@ let insertLastFunction<'t> =
 //             )
 
 // let reduceFunction<'t> =
-//             new HostFunction(
+//             HostFunction(
 //                 (fun args bindings ->
 //                     match args with
 //                     | [ WanderValue.Function(fn); WanderValue.Array(array) ] ->
@@ -80,7 +80,7 @@ let insertLastFunction<'t> =
 //             )
 
 // let foldFunction<'t> =
-//             new HostFunction(
+//             HostFunction(
 //                 (fun args bindings ->
 //                     match args with
 //                     | [ WanderValue.Function(fn); initial; WanderValue.Array(array) ] ->
@@ -97,7 +97,7 @@ let insertLastFunction<'t> =
 //             )
 
 let lengthFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Array(array) ] -> Ok(WanderValue.Int(Array.length array |> bigint))

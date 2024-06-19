@@ -14,7 +14,7 @@ let patternStatementToStatement (pattern: Statement) : Statement option =
     | _ -> failwith "TODO"
 
 let applyFunction =
-    new HostFunction(fun args _ ->
+    HostFunction(fun args _ ->
         match args with
         | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
             let res =
@@ -39,13 +39,13 @@ let applyFunction =
         | value -> error $"Unexpected value passed to Ligature.apply - {value}." None)
 
 let countFunction =
-    new HostFunction(fun args _ ->
+    HostFunction(fun args _ ->
         match args with
         | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
         | value -> error $"Unexpected value - {value}." None)
 
 let extractFunction =
-    new HostFunction(fun args _ ->
+    HostFunction(fun args _ ->
         match args with
         | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
             extract network pattern

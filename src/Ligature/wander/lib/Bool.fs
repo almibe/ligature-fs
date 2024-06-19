@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let notFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args.Head with
             | WanderValue.Bool(value) -> Ok(WanderValue.Bool(not value))
@@ -16,7 +16,7 @@ let notFunction<'t> =
     )
 
 let andFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Bool(left); WanderValue.Bool(right) ] -> Ok(WanderValue.Bool(left && right))
@@ -24,7 +24,7 @@ let andFunction<'t> =
     )
 
 let toBytesFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Bool(false) ] -> Ok(WanderValue.Bytes([| 0uy |]))
@@ -33,7 +33,7 @@ let toBytesFunction<'t> =
     )
 
 let fromBytesFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Bytes([| 0uy |]) ] -> Ok(WanderValue.Bool(false))

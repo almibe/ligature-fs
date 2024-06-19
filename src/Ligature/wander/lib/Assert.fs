@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let equalFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(desc); left; right ] ->
@@ -20,7 +20,7 @@ let equalFunction<'t> =
     )
 
 let failFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.String(message) ] -> error message None

@@ -9,7 +9,7 @@ open Ligature.Main
 open System
 
 let ltFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ WanderValue.Int(left); WanderValue.Int(right) ] -> Ok(WanderValue.Bool(left < right))
@@ -19,7 +19,7 @@ let ltFunction<'t> =
 // let toBytesFunction<'t> =
 //     WanderValue.Function(
 //         Function.HostFunction(
-//             new HostFunction(
+//             HostFunction(
 //                 (fun args _ ->
 //                     match args with
 //                     | [ WanderValue.Int(value) ] -> Ok(WanderValue.Bytes(BitConverter.GetBytes value))
@@ -31,7 +31,7 @@ let ltFunction<'t> =
 // let fromBytesFunction<'t> =
 //     WanderValue.Function(
 //         Function.HostFunction(
-//             new HostFunction(
+//             HostFunction(
 //                 (fun args _ ->
 //                     match args with
 //                     | [ WanderValue.Bytes(value) ] -> Ok(WanderValue.Int(BitConverter.ToInt64 value))

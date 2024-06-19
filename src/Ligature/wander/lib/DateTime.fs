@@ -9,7 +9,7 @@ open Ligature.Main
 open System
 
 let ticksFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args _ ->
             match args with
             | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))

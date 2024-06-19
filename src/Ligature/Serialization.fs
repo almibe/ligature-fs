@@ -18,7 +18,7 @@ let readLigature (input: string) : Result<Network, LigatureError> =
     | _ -> failwith "Error"
 
 let writeLigature (input: Network) : string =
-    let sb = new System.Text.StringBuilder()
+    let sb = System.Text.StringBuilder()
     sb.Append("{") |> ignore
 
     Seq.iter

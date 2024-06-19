@@ -14,7 +14,7 @@ let slotIdentiferToWanderValue si =
     | PatternIdentifier.Id identifier -> WanderValue.Identifier identifier
 
 let entityFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
@@ -22,7 +22,7 @@ let entityFunction<'t> =
     )
 
 let attributeFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
@@ -30,7 +30,7 @@ let attributeFunction<'t> =
     )
 
 let valueFunction<'t> =
-    new HostFunction(
+    HostFunction(
         (fun args bindings ->
             match args with
             | [ WanderValue.Statement(statement) ] ->
