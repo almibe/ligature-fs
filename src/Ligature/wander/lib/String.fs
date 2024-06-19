@@ -50,7 +50,7 @@ let fromBytesFunction =
 
 let stringLib =
     Map
-        [ ("cat", catFunction)
-          ("fromBytes", fromBytesFunction)
-          ("length", lengthFunction)
-          ("toBytes", toBytesFunction) ]
+        [ ("String.cat", catFunction)
+          ("String.fromBytes", fromBytesFunction)
+          ("String.length", lengthFunction)
+          ("String.toBytes", toBytesFunction) ]

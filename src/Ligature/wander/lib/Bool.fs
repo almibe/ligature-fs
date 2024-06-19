@@ -43,7 +43,7 @@ let fromBytesFunction<'t> =
 
 let boolLib<'t> =
     Map
-        [ ("toBytes", toBytesFunction)
-          ("fromBytes", fromBytesFunction)
-          ("not", notFunction)
-          ("and", andFunction) ]
+        [ ("Bool.toBytes", toBytesFunction)
+          ("Bool.fromBytes", fromBytesFunction)
+          ("Bool.not", notFunction)
+          ("Bool.and", andFunction) ]

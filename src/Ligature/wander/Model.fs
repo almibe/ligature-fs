@@ -180,3 +180,5 @@ let rec read name bindings =
         None
     else
         read name (removeScope bindings)
+
+let readFunction name bindings = Map.tryFind name bindings.functions

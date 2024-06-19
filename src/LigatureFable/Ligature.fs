@@ -5,4 +5,4 @@
 let run script =
     Ligature.Wander.Main.run
         script
-        (Ligature.Wander.Environments.coreEnvironment (Ligature.LigatureStore.InMemoryStore.empty ()))
+        (Ligature.Wander.Bindings.coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))

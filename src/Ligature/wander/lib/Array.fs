@@ -96,7 +96,7 @@ let insertLastFunction<'t> =
 //                     | _ -> error "Improper call to Array.fold function." None)
 //             )
 
-let lengthFunction<'t> =
+let lengthFunction =
     HostFunction(
         (fun args _ ->
             match args with
@@ -104,13 +104,13 @@ let lengthFunction<'t> =
             | _ -> error "Improper call to map function." None)
     )
 
-let arrayLib<'t> =
+let arrayLib =
     Map
-        [ ("cat", catFunction)
+        [ ("Array.cat", catFunction)
           //              ("map", mapFunction)
           //              ("reduce", reduceFunction)
           //              ("fold", foldFunction)
-          ("insertFirst", insertFirstFunction)
-          ("insertLast", insertLastFunction)
-          ("distinct", distinctFunction)
-          ("length", lengthFunction) ]
+          ("Array.insertFirst", insertFirstFunction)
+          ("Array.insertLast", insertLastFunction)
+          ("Array.distinct", distinctFunction)
+          ("Array.length", lengthFunction) ]

@@ -8,30 +8,6 @@ open Ligature.Wander.Model
 open Ligature.Main
 open Ligature.LigatureStore.InMemoryStore
 
-let readName (name: string) (bindings: Bindings) =
-    let namePath = List.ofArray (name.Split("."))
-
-    match read (List.head namePath) bindings with
-    | Some(value) ->
-        match value with
-        | WanderValue.Namespace(values) ->
-            match namePath.Tail with
-            | [] -> Some(WanderValue.Namespace values)
-            | namePath ->
-                List.fold
-                    (fun values name ->
-                        match values with
-                        | Some(WanderValue.Namespace(values)) ->
-                            match Map.tryFind name values with
-                            | Some(res) -> Some(res)
-                            | None -> None
-                        | None -> failwith "Not Implemented"
-                        | Some(value) -> Some value)
-                    (Some(WanderValue.Namespace(values)))
-                    namePath
-        | value -> Some value
-    | None -> None
-
 let rec evalExpression bindings expression =
     let rec bindArguments
         (args: Model.Expression list)
@@ -53,7 +29,7 @@ let rec evalExpression bindings expression =
 
     match expression with
     | Expression.Name(name) ->
-        match readName name bindings with
+        match read name bindings with
         | Some(value) -> Ok((value, bindings))
         | None -> error $"Could not read {name}" None
     | Expression.Grouping(expressions) ->
@@ -248,14 +224,22 @@ and handlePattern bindings values =
     Ok(WanderValue.Network(Network(final)), bindings)
 
 and handleApplication bindings values =
-    let arguments = List.tail values
+    let arguments =
+        List.tail values
+        |> List.map (fun expr ->
+            match evalExpression bindings expr with
+            | Ok(res, _) -> res
+            | Error err -> failwith (err.ToString()))
 
     match List.tryHead values with
     | Some(Expression.Name(functionName)) ->
-        match readName functionName bindings with
-        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
-        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
-        | Some _ -> error "Improper application." None
+        match readFunction functionName bindings with
+        //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
+        //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
+        | Some fn ->
+            match fn.Run arguments bindings with
+            | Ok res -> Ok(res, bindings)
+            | Error err -> Error err
         | None -> error $"Function {functionName} not found." None
     | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
     | Some(head) -> evalExpression bindings head

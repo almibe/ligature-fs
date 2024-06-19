@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 open System
 
-let nextFunction<'t> =
+let nextFunction =
 #if !FABLE_COMPILER
     HostFunction(
         (fun args _ ->
@@ -20,7 +20,7 @@ let nextFunction<'t> =
             | _ -> error "Invalid call to Ulid.next function." None)
     )
 #else
-    failwith "TODO"
+    () //should never reach
 #endif
 
-let ulidLib<'t> = Map [ ("next", nextFunction) ]
+let ulidLib = Map [ ("Ulid.next", nextFunction) ]
