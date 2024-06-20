@@ -1,4 +1,4 @@
-import { run } from "./src/main.ts"
+import { run } from "./lib/main.js"
 import { glob } from "glob"
 import fs from 'node:fs'
 import { expect, test } from 'vitest'

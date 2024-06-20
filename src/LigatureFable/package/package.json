@@ -3,9 +3,18 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
+  "files": ["dist"],
+  "main": "./dist/ligature.umd.cjs",
+  "module": "./dist/ligature.js",
+  "exports": {
+    ".": {
+      "import": "./dist/ligature.js",
+      "require": "./dist/ligature.umd.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test-ui": "vitest --ui"
