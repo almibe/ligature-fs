@@ -1,3 +1,3 @@
-import { run } from "../../Ligature.fs.js"
+import { run as _run } from "../../Ligature.fs.js"
 
-export { run }
+export let run = (input) => JSON.parse(JSON.stringify(_run(input)))
