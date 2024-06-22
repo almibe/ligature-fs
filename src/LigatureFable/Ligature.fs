@@ -6,3 +6,5 @@ let run script =
     Ligature.Wander.Main.run
         script
         (Ligature.Wander.Bindings.coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))
+
+let printResult result = Ligature.Wander.Main.printResult result
