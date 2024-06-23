@@ -235,7 +235,7 @@ and handleApplication bindings values =
         //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
         //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
         | Some fn ->
-            match fn.Run arguments bindings with
+            match fn.Eval arguments bindings with
             | Ok res -> Ok(res, bindings)
             | Error err -> Error err
         | None -> error $"Function {functionName} not found." None

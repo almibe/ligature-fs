@@ -14,66 +14,80 @@ let patternStatementToStatement (pattern: Statement) : Statement option =
     | _ -> failwith "TODO"
 
 let applyFunction =
-    HostFunction(fun args _ ->
-        match args with
-        | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
-            let res =
-                data
-                |> Map.toSeq
-                |> Seq.map (fun (k, v) ->
-                    match slot (Some k) with
-                    | Ok slot ->
-                        let v =
-                            match v with
-                            | WanderValue.Identifier i -> Value.Identifier i
-                            | WanderValue.Int i -> Value.Int i
-                            | WanderValue.String s -> Value.String s
-                            | WanderValue.Bytes b -> Value.Bytes b
-                            | _ -> failwith "Error"
+    { Name = "apply"
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
+                let res =
+                    data
+                    |> Map.toSeq
+                    |> Seq.map (fun (k, v) ->
+                        match slot (Some k) with
+                        | Ok slot ->
+                            let v =
+                                match v with
+                                | WanderValue.Identifier i -> Value.Identifier i
+                                | WanderValue.Int i -> Value.Int i
+                                | WanderValue.String s -> Value.String s
+                                | WanderValue.Bytes b -> Value.Bytes b
+                                | _ -> failwith "Error"
 
-                        (slot, v)
-                    | _ -> failwith "Error")
-                |> Map.ofSeq
+                            (slot, v)
+                        | _ -> failwith "Error")
+                    |> Map.ofSeq
 
-            Ok(WanderValue.Network(apply pattern res))
-        | value -> error $"Unexpected value passed to Ligature.apply - {value}." None)
+                Ok(WanderValue.Network(apply pattern res))
+            | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
+
+let mergeFunction =
+    { Name = "merge"
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> failwith "TODO"
+            | _ -> failwith "error") }
 
 let countFunction =
-    HostFunction(fun args _ ->
-        match args with
-        | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
-        | value -> error $"Unexpected value - {value}." None)
+    { Name = "count"
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
+            | value -> error $"Unexpected value - {value}." None) }
 
 let extractFunction =
-    HostFunction(fun args _ ->
-        match args with
-        | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
-            extract network pattern
-            |> List.map (fun res ->
-                res
-                |> Map.toSeq
-                |> Seq.map (fun (k, v) ->
-                    (k.Name,
-                     match v with
-                     | Value.Int value -> WanderValue.Int value
-                     | Value.Bytes value -> WanderValue.Bytes value
-                     | Value.Identifier value -> WanderValue.Identifier value
-                     | Value.String value -> WanderValue.String value
-                     | Value.Slot value -> WanderValue.Slot value))
-                |> Map.ofSeq
-                |> WanderValue.Namespace)
-            |> Array.ofList
-            |> WanderValue.Array
-            |> Ok
-        | value -> error $"Unexpected value passed to Pattern.extract - {value}." None)
+    { Name = "extract"
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
+                extract network pattern
+                |> List.map (fun res ->
+                    res
+                    |> Map.toSeq
+                    |> Seq.map (fun (k, v) ->
+                        (k.Name,
+                         match v with
+                         | Value.Int value -> WanderValue.Int value
+                         | Value.Bytes value -> WanderValue.Bytes value
+                         | Value.Identifier value -> WanderValue.Identifier value
+                         | Value.String value -> WanderValue.String value
+                         | Value.Slot value -> WanderValue.Slot value))
+                    |> Map.ofSeq
+                    |> WanderValue.Namespace)
+                |> Array.ofList
+                |> WanderValue.Array
+                |> Ok
+            | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let ligatureLib =
-    Map
-        [ ("count", countFunction)
-          ("extract", extractFunction)
-          ("apply", applyFunction)
-          //merge
-          //minus
-          //query
-          //trans
-          ]
+    [ countFunction
+      extractFunction
+      applyFunction
+      mergeFunction
+      //("minus
+      //query
+      //trans
+      //infer
+      ]

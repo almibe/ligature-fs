@@ -39,5 +39,6 @@
     <PackageReference Include="Fable.Core" Version="4.3.0" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
     <PackageReference Include="Ulid" Version="1.3.3" />
+    <PackageReference Include="FSharpPlus" Version="1.6.1" />
   </ItemGroup>
 </Project>

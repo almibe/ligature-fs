@@ -7,43 +7,38 @@ module Ligature.Wander.Lib.Bool
 open Ligature.Wander.Model
 open Ligature.Main
 
-let notFunction<'t> =
-    HostFunction(
+let notFunction =
+    { Name = "not"
+      Eval =
         (fun args _ ->
             match args.Head with
             | WanderValue.Bool(value) -> Ok(WanderValue.Bool(not value))
-            | _ -> error "Invalid call to not function." None)
-    )
+            | _ -> error "Invalid call to not function." None) }
 
-let andFunction<'t> =
-    HostFunction(
+let andFunction =
+    { Name = "and"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.Bool(left); WanderValue.Bool(right) ] -> Ok(WanderValue.Bool(left && right))
-            | _ -> error "Invalid call to and function." None)
-    )
+            | _ -> error "Invalid call to and function." None) }
 
-let toBytesFunction<'t> =
-    HostFunction(
+let toBytesFunction =
+    { Name = "toBytes"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.Bool(false) ] -> Ok(WanderValue.Bytes([| 0uy |]))
             | [ WanderValue.Bool(true) ] -> Ok(WanderValue.Bytes([| 1uy |]))
-            | _ -> error "Invalid call to Bool.toBytes function." None)
-    )
+            | _ -> error "Invalid call to Bool.toBytes function." None) }
 
-let fromBytesFunction<'t> =
-    HostFunction(
+let fromBytesFunction =
+    { Name = "fromBytes"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.Bytes([| 0uy |]) ] -> Ok(WanderValue.Bool(false))
             | [ WanderValue.Bytes([| 1uy |]) ] -> Ok(WanderValue.Bool(true))
-            | _ -> error "Invalid call to Bool.fromBytes function." None)
-    )
+            | _ -> error "Invalid call to Bool.fromBytes function." None) }
 
-let boolLib<'t> =
-    Map
-        [ ("Bool.toBytes", toBytesFunction)
-          ("Bool.fromBytes", fromBytesFunction)
-          ("Bool.not", notFunction)
-          ("Bool.and", andFunction) ]
+let boolLib = [ toBytesFunction; fromBytesFunction; notFunction; andFunction ]

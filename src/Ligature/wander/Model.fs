@@ -132,16 +132,21 @@ and printValues values =
 
 type Scope = Map<string, WanderValue>
 
-type HostFunction(eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError>) =
-    member _.Run args bindings = eval args bindings
+type HostFunction =
+    { Name: string
+      // parameters: (string * string) list
+      // result: string
+      // shortDescription: string
+      // longDescription: string
+      Eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError> }
 
 and Bindings =
-    { functions: Map<string, HostFunction>
+    { functions: HostFunction list
       current: Scope
       stack: Scope list }
 
 let newBindings () =
-    { functions = Map.empty
+    { functions = []
       current = Map.empty
       stack = [] }
 
@@ -149,12 +154,13 @@ let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
     let current' = Map.add name value bindings.current
     { bindings with current = current' }
 
-let bindFunction (name: string) (fn: HostFunction) (bindings: Bindings) : Bindings =
-    let functions' = Map.add name fn bindings.functions
+let bindFunction (fn: HostFunction) (bindings: Bindings) : Bindings =
+    let functions' = fn :: bindings.functions
     { bindings with functions = functions' }
 
-let bindFunctions (functions: Map<string, HostFunction>) (bindings: Bindings) : Bindings =
-    Map.fold (fun state key value -> bindFunction key value state) bindings functions
+let bindFunctions (functions: List<HostFunction>) (bindings: Bindings) : Bindings =
+    let functions' = functions @ bindings.functions
+    { bindings with functions = functions' }
 
 let addScope bindings =
     let current = Map []
@@ -180,4 +186,5 @@ let rec read name bindings =
     else
         read name (removeScope bindings)
 
-let readFunction name bindings = Map.tryFind name bindings.functions
+let readFunction (name: string) (bindings: Bindings) : HostFunction option =
+    List.tryFind (fun fn -> fn.Name = name) bindings.functions

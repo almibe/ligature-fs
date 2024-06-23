@@ -8,7 +8,8 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let catFunction =
-    HostFunction(
+    { Name = "cat"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.Array(values) ] ->
@@ -21,36 +22,30 @@ let catFunction =
                     values
                 |> WanderValue.String
                 |> Ok
-            | _ -> error "Invalid call to map function." None)
-    )
+            | _ -> error "Invalid call to map function." None) }
 
 let lengthFunction =
-    HostFunction(
+    { Name = "length"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.String(value) ] -> Ok(WanderValue.Int(String.length value |> bigint))
-            | _ -> error "Invalid call to map function." None)
-    )
+            | _ -> error "Invalid call to map function." None) }
 
 let toBytesFunction =
-    HostFunction(
+    { Name = "toBytes"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.String(value) ] -> Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes value))
-            | _ -> error "Invalid call to map function." None)
-    )
+            | _ -> error "Invalid call to map function." None) }
 
 let fromBytesFunction =
-    HostFunction(
+    { Name = "fromBytes"
+      Eval =
         (fun args _ ->
             match args with
             | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.String(System.Text.Encoding.UTF8.GetString bytes))
-            | _ -> error "Invalid call to map function." None)
-    )
+            | _ -> error "Invalid call to map function." None) }
 
-let stringLib =
-    Map
-        [ ("String.cat", catFunction)
-          ("String.fromBytes", fromBytesFunction)
-          ("String.length", lengthFunction)
-          ("String.toBytes", toBytesFunction) ]
+let stringLib = [ catFunction; fromBytesFunction; lengthFunction; toBytesFunction ]
