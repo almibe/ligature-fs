@@ -14,7 +14,13 @@ let patternStatementToStatement (pattern: Statement) : Statement option =
     | _ -> failwith "TODO"
 
 let applyFunction =
-    { Name = "apply"
+    { 
+      Module = "Ligature"
+      Name = "apply"
+      Description = "Take a Pattern and set of named values and use the named values to fill Slots in the Pattern."
+//      Examples = []
+      Parameters = [("pattern", WanderType.Network); ("values", WanderType.Record)]
+      Returns = WanderType.Network
       Eval =
         (fun args _ ->
             match args with
@@ -41,7 +47,23 @@ let applyFunction =
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let mergeFunction =
-    { Name = "merge"
+    { Module = "Ligature"
+      Name = "merge"
+      Description = "Merge two Networks together."
+      Parameters = [("left", WanderType.Network); ("right", WanderType.Network)]
+      Returns = WanderType.Network
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> failwith "TODO"
+            | _ -> failwith "error") }
+
+let minusFunction =
+    { Module = "Ligature"
+      Name = "minus"
+      Description = "Remove all Statements in the right Network from the left Network."
+      Parameters = [("left", WanderType.Network); ("right", WanderType.Network)]
+      Returns = WanderType.Network
       Eval =
         (fun args _ ->
             match args with
@@ -49,7 +71,12 @@ let mergeFunction =
             | _ -> failwith "error") }
 
 let countFunction =
-    { Name = "count"
+    { 
+      Module = "Ligature"
+      Name = "count"
+      Description = "Count the number of Statements in a Network."
+      Parameters = [("network", WanderType.Network)]
+      Returns = WanderType.Int
       Eval =
         (fun args _ ->
             match args with
@@ -57,7 +84,12 @@ let countFunction =
             | value -> error $"Unexpected value - {value}." None) }
 
 let extractFunction =
-    { Name = "extract"
+    { 
+      Module = "Ligature"
+      Name = "extract"
+      Description = "Take a Pattern and Network and extract out the Slots from matching subnetworks."
+      Parameters = [("pattern", WanderType.Network); ("network", WanderType.Network)]
+      Returns = WanderType.Array
       Eval =
         (fun args _ ->
             match args with
@@ -81,13 +113,44 @@ let extractFunction =
                 |> Ok
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
+let matchFunction =
+    { 
+      Module = "Ligature"
+      Name = "match"
+      Description = "Take a Pattern and Network and return all Statements that match in a new Network."
+      Parameters = [("pattern", WanderType.Network); ("network", WanderType.Network)]
+      Returns = WanderType.Array
+      Eval =
+        (fun args _ ->
+            match args with
+            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
+                extract network pattern
+                |> List.map (fun res ->
+                    res
+                    |> Map.toSeq
+                    |> Seq.map (fun (k, v) ->
+                        (k.Name,
+                         match v with
+                         | Value.Int value -> WanderValue.Int value
+                         | Value.Bytes value -> WanderValue.Bytes value
+                         | Value.Identifier value -> WanderValue.Identifier value
+                         | Value.String value -> WanderValue.String value
+                         | Value.Slot value -> WanderValue.Slot value))
+                    |> Map.ofSeq
+                    |> WanderValue.Namespace)
+                |> Array.ofList
+                |> WanderValue.Array
+                |> Ok
+                |> failwith "TODO -- this is just copied from extract currently"
+            | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
+
 let ligatureLib =
     [ countFunction
       extractFunction
       applyFunction
       mergeFunction
-      //("minus
-      //query
+      minusFunction
+      matchFunction
       //trans
       //infer
       ]

@@ -15,6 +15,7 @@ open Lib.DateTime
 open Lib.Store
 open Ligature.LigatureStore
 open Ligature.Wander.Model
+open Ligature.Main
 
 let bindCoreHostFunctions bindings store =
     bindings
@@ -34,5 +35,44 @@ let bindCoreHostFunctions bindings store =
 #endif
     |> bindFunctions wanderLib
 
+let identifierUnsafe id =
+    match identifier id with
+    | Ok id -> id
+    | _ -> failwith "error"
+
+let wanderTypeToIdentifier (wt: WanderType): Identifier =
+    match wt with
+    | WanderType.String -> identifierUnsafe "String"
+    | WanderType.Int -> identifierUnsafe "Int"
+    | WanderType.Bytes -> identifierUnsafe "Bytes"
+    | WanderType.Identifier -> identifierUnsafe "Identifier"
+    | WanderType.Slot -> identifierUnsafe "Slot"
+    | WanderType.Network -> identifierUnsafe "Network"
+    | WanderType.Record -> identifierUnsafe "Record"
+    | WanderType.Value -> identifierUnsafe "Value"
+    | WanderType.Array -> identifierUnsafe "Array"
+    | WanderType.Anything -> identifierUnsafe "Anything"
+    | WanderType.Nothing -> identifierUnsafe "Nothing"
+
+let createLib (bindings: Bindings): Set<Statement> =
+    bindings.Functions
+    |> List.map (fun fn -> [
+            { 
+                Entity = PatternIdentifier.Id (identifierUnsafe fn.Name) 
+                Attribute = PatternIdentifier.Id (identifierUnsafe "isa")
+                Value = Value.Identifier (identifierUnsafe "HostFunction") 
+            }
+            {
+                Entity = PatternIdentifier.Id (identifierUnsafe fn.Name)
+                Attribute = PatternIdentifier.Id (identifierUnsafe "returns")
+                Value = Value.Identifier (wanderTypeToIdentifier fn.Returns)
+            }
+        ])
+    |> List.concat
+    |> Set.ofList
+
+let bindLib (bindings: Bindings) =
+    bindings |> bind "lib" (WanderValue.Network (createLib bindings))
+
 let coreBindings (store: LigatureStore) =
-    bindCoreHostFunctions (newBindings ()) store
+    store |> bindCoreHostFunctions (newBindings ()) |> bindLib

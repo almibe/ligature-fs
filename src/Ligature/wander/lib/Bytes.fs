@@ -7,12 +7,13 @@ module Ligature.Wander.Lib.Bytes
 open Ligature.Wander.Model
 open Ligature.Main
 
-let lengthFunction =
-    { Name = "length"
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes |> bigint))
-            | _ -> error "Invalid call to map function." None) }
+// let lengthFunction =
+//     { Name = "length"
+//       Returns = WanderType.Int
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes |> bigint))
+//             | _ -> error "Invalid call to map function." None) }
 
-let bytesLib = [ lengthFunction ]
+let bytesLib = []// lengthFunction ]

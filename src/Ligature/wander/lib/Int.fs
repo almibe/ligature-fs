@@ -8,13 +8,14 @@ open Ligature.Wander.Model
 open Ligature.Main
 open System
 
-let lessThanFunction =
-    { Name = "lessThan"
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.Int(left); WanderValue.Int(right) ] -> Ok(WanderValue.Bool(left < right))
-            | _ -> error "Invalid call to map function." None) }
+// let lessThanFunction =
+//     { Name = "lessThan"
+//       Returns = WanderType.Identifier
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.Int(left); WanderValue.Int(right) ] -> Ok(WanderValue.Bool(left < right))
+//             | _ -> error "Invalid call to map function." None) }
 
 // let toBytesFunction =
 //     WanderValue.Function(
@@ -40,6 +41,6 @@ let lessThanFunction =
 //         )
 //     )
 
-let intLib = [ lessThanFunction ]
+let intLib = []// lessThanFunction ]
 //              ("toBytes", toBytesFunction)
 //              ("fromBytes", fromBytesFunction) ]

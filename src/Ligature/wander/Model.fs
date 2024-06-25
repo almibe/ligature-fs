@@ -132,59 +132,72 @@ and printValues values =
 
 type Scope = Map<string, WanderValue>
 
+type WanderType =
+    | String
+    | Int
+    | Bytes
+    | Identifier
+    | Slot
+    | Network
+    | Record
+    | Value
+    | Array
+    | Anything
+    | Nothing
+
 type HostFunction =
-    { Name: string
-      // parameters: (string * string) list
-      // result: string
-      // shortDescription: string
-      // longDescription: string
+    { Module: string
+      Name: string
+      Parameters: (string * WanderType) list
+      Returns: WanderType
+      Description: string
       Eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError> }
 
 and Bindings =
-    { functions: HostFunction list
-      current: Scope
-      stack: Scope list }
+    { Functions: HostFunction list
+      Current: Scope
+      Stack: Scope list }
 
 let newBindings () =
-    { functions = []
-      current = Map.empty
-      stack = [] }
+    { Functions = []
+      Current = Map.empty
+      Stack = [] }
 
 let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
-    let current' = Map.add name value bindings.current
-    { bindings with current = current' }
+    let current' = Map.add name value bindings.Current
+    { bindings with Current = current' }
 
 let bindFunction (fn: HostFunction) (bindings: Bindings) : Bindings =
-    let functions' = fn :: bindings.functions
-    { bindings with functions = functions' }
+    let functions' = fn :: bindings.Functions
+    { bindings with Functions = functions' }
 
 let bindFunctions (functions: List<HostFunction>) (bindings: Bindings) : Bindings =
-    let functions' = functions @ bindings.functions
-    { bindings with functions = functions' }
+    let functions' = functions @ bindings.Functions
+    { bindings with Functions = functions' }
 
 let addScope bindings =
     let current = Map []
-    let stack = List.append [ bindings.current ] bindings.stack
+    let stack = List.append [ bindings.Current ] bindings.Stack
 
     { bindings with
-        current = current
-        stack = stack }
+        Current = current
+        Stack = stack }
 
 let removeScope bindings =
-    let current = List.head bindings.stack
-    let stack = List.tail bindings.stack
+    let current = List.head bindings.Stack
+    let stack = List.tail bindings.Stack
 
     { bindings with
-        current = current
-        stack = stack }
+        Current = current
+        Stack = stack }
 
 let rec read name bindings =
-    if Map.containsKey name bindings.current then
-        Some(Map.find name bindings.current)
-    else if List.isEmpty bindings.stack then
+    if Map.containsKey name bindings.Current then
+        Some(Map.find name bindings.Current)
+    else if List.isEmpty bindings.Stack then
         None
     else
         read name (removeScope bindings)
 
 let readFunction (name: string) (bindings: Bindings) : HostFunction option =
-    List.tryFind (fun fn -> fn.Name = name) bindings.functions
+    List.tryFind (fun fn -> fn.Name = name) bindings.Functions

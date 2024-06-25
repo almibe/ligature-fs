@@ -7,32 +7,35 @@ module Ligature.Wander.Lib.Identifier
 open Ligature.Wander.Model
 open Ligature.Main
 
-let valueFunction =
-    { Name = "value"
-      Eval =
-        (fun args bindings ->
-            match args with
-            | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
-            | _ -> error "Invalid call to Statement.value function." None) }
+// let valueFunction =
+//     { Name = "value"
+//       Returns = WanderType.Value
+//       Eval =
+//         (fun args bindings ->
+//             match args with
+//             | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
+//             | _ -> error "Invalid call to Statement.value function." None) }
 
-let toBytesFunction =
-    { Name = "toBytes"
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.Identifier(value) ] ->
-                Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes(readIdentifier value)))
-            | _ -> error "Invalid call to map function." None) }
+// let toBytesFunction =
+//     { Name = "toBytes"
+//       Returns = WanderType.Bytes
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.Identifier(value) ] ->
+//                 Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes(readIdentifier value)))
+//             | _ -> error "Invalid call to map function." None) }
 
-let fromBytesFunction =
-    { Name = "fromBytes"
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.Bytes(bytes) ] ->
-                match identifier (System.Text.Encoding.UTF8.GetString(bytes)) with
-                | Ok(identifer) -> Ok(WanderValue.Identifier(identifer))
-                | Error(err) -> Error(err)
-            | _ -> error "Invalid call to map function." None) }
+// let fromBytesFunction =
+//     { Name = "fromBytes"
+//       Returns = WanderType.Identifier
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.Bytes(bytes) ] ->
+//                 match identifier (System.Text.Encoding.UTF8.GetString(bytes)) with
+//                 | Ok(identifer) -> Ok(WanderValue.Identifier(identifer))
+//                 | Error(err) -> Error(err)
+//             | _ -> error "Invalid call to map function." None) }
 
-let identifierLib = [ toBytesFunction; fromBytesFunction; valueFunction ]
+let identifierLib = []// toBytesFunction; fromBytesFunction; valueFunction ]

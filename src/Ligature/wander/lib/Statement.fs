@@ -13,34 +13,37 @@ let slotIdentiferToWanderValue si =
     | PatternIdentifier.Sl slot -> WanderValue.Slot(slot)
     | PatternIdentifier.Id identifier -> WanderValue.Identifier identifier
 
-let entityFunction =
-    { Name = "entity"
-      Eval =
-        (fun args bindings ->
-            match args with
-            | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
-            | _ -> error "Invalid call to Statement.entity function." None) }
+// let entityFunction =
+//     { Name = "entity"
+//       Returns = WanderType.Identifier
+//       Eval =
+//         (fun args bindings ->
+//             match args with
+//             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
+//             | _ -> error "Invalid call to Statement.entity function." None) }
 
-let attributeFunction =
-    { Name = "attribute"
-      Eval =
-        (fun args bindings ->
-            match args with
-            | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
-            | _ -> error "Invalid call to Statement.attribute function." None) }
+// let attributeFunction =
+//     { Name = "attribute"
+//       Returns = WanderType.Identifier
+//       Eval =
+//         (fun args bindings ->
+//             match args with
+//             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
+//             | _ -> error "Invalid call to Statement.attribute function." None) }
 
-let valueFunction =
-    { Name = "value"
-      Eval =
-        (fun args bindings ->
-            match args with
-            | [ WanderValue.Statement(statement) ] ->
-                match statement.Value with
-                | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
-                | Value.String(value) -> Ok(WanderValue.String(value))
-                | Value.Int(value) -> Ok(WanderValue.Int(value))
-                | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
-                | Value.Slot(value) -> failwith "TODO"
-            | _ -> error "Invalid call to Statement.value function." None) }
+// let valueFunction =
+//     { Name = "value"
+//       Returns = WanderType.Identifier
+//       Eval =
+//         (fun args bindings ->
+//             match args with
+//             | [ WanderValue.Statement(statement) ] ->
+//                 match statement.Value with
+//                 | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
+//                 | Value.String(value) -> Ok(WanderValue.String(value))
+//                 | Value.Int(value) -> Ok(WanderValue.Int(value))
+//                 | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
+//                 | Value.Slot(value) -> failwith "TODO"
+//             | _ -> error "Invalid call to Statement.value function." None) }
 
-let statementLib = [ entityFunction; attributeFunction; valueFunction ]
+let statementLib = []// entityFunction; attributeFunction; valueFunction ]

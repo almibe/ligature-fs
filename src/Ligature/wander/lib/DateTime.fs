@@ -8,12 +8,13 @@ open Ligature.Wander.Model
 open Ligature.Main
 open System
 
-let ticksFunction =
-    { Name = "ticks"
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
-            | _ -> error "Invalid call to map function." None) }
+// let ticksFunction =
+//     { Name = "ticks"
+//       Returns = WanderType.Int
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
+//             | _ -> error "Invalid call to map function." None) }
 
-let dateTimeLib = [ ticksFunction ]
+let dateTimeLib = []// ticksFunction ]
