@@ -17,7 +17,7 @@ type LigatureStore =
     abstract member read: string -> Network
 
 module InMemoryStore =
-    type InMemoryStore(store: Dictionary<string, Set<Statement>>) =
+    type InMemoryStore(store: Dictionary<string, Set<Triple>>) =
         interface LigatureStore with
             member this.addNetwork networkName = store.Add(networkName, Set.empty)
 
@@ -41,6 +41,6 @@ module InMemoryStore =
                 Network(store)
 
     let empty () : LigatureStore =
-        InMemoryStore(new Dictionary<string, Set<Statement>>())
+        InMemoryStore(new Dictionary<string, Set<Triple>>())
 
     let emptyNetwork: Network = new Network(Set.empty)

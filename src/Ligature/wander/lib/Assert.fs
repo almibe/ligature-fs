@@ -29,4 +29,4 @@ module Ligature.Wander.Lib.Assert
 //             | [ WanderValue.String(message) ] -> error message None
 //             | _ -> error "Invalid call to Assert.fail function." None) }
 
-let assertLib = []// equalFunction; failFunction ]
+let assertLib = [] // equalFunction; failFunction ]

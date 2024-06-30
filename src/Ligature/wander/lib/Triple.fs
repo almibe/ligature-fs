@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.Statement
+module Ligature.Wander.Lib.Triple
 
 open Ligature.Wander.Model
 open Ligature.Main
@@ -19,8 +19,8 @@ let slotIdentiferToWanderValue si =
 //       Eval =
 //         (fun args bindings ->
 //             match args with
-//             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Entity)
-//             | _ -> error "Invalid call to Statement.entity function." None) }
+//             | [ WanderValue.Triple(triple) ] -> Ok(slotIdentiferToWanderValue triple.Entity)
+//             | _ -> error "Invalid call to Triple.entity function." None) }
 
 // let attributeFunction =
 //     { Name = "attribute"
@@ -28,8 +28,8 @@ let slotIdentiferToWanderValue si =
 //       Eval =
 //         (fun args bindings ->
 //             match args with
-//             | [ WanderValue.Statement(statement) ] -> Ok(slotIdentiferToWanderValue statement.Attribute)
-//             | _ -> error "Invalid call to Statement.attribute function." None) }
+//             | [ WanderValue.Triple(triple) ] -> Ok(slotIdentiferToWanderValue triple.Attribute)
+//             | _ -> error "Invalid call to Triple.attribute function." None) }
 
 // let valueFunction =
 //     { Name = "value"
@@ -37,13 +37,13 @@ let slotIdentiferToWanderValue si =
 //       Eval =
 //         (fun args bindings ->
 //             match args with
-//             | [ WanderValue.Statement(statement) ] ->
-//                 match statement.Value with
+//             | [ WanderValue.Triple(triple) ] ->
+//                 match triple.Value with
 //                 | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
 //                 | Value.String(value) -> Ok(WanderValue.String(value))
 //                 | Value.Int(value) -> Ok(WanderValue.Int(value))
 //                 | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))
 //                 | Value.Slot(value) -> failwith "TODO"
-//             | _ -> error "Invalid call to Statement.value function." None) }
+//             | _ -> error "Invalid call to Triple.value function." None) }
 
-let statementLib = []// entityFunction; attributeFunction; valueFunction ]
+let tripleLib = [] // entityFunction; attributeFunction; valueFunction ]

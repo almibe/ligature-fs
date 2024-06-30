@@ -7,19 +7,18 @@ module Ligature.Wander.Lib.Ligature
 open Ligature.Wander.Model
 open Ligature.Main
 
-let patternStatementToStatement (pattern: Statement) : Statement option =
+let patternTripleToTriple (pattern: Triple) : Triple option =
     match pattern with
     | { Entity = PatternIdentifier.Id(entity)
         Attribute = PatternIdentifier.Id(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
 let applyFunction =
-    { 
-      Module = "Ligature"
+    { Module = "Ligature"
       Name = "apply"
       Description = "Take a Pattern and set of named values and use the named values to fill Slots in the Pattern."
-//      Examples = []
-      Parameters = [("pattern", WanderType.Network); ("values", WanderType.Record)]
+      //      Examples = []
+      Parameters = [ ("pattern", WanderType.Network); ("values", WanderType.Record) ]
       Returns = WanderType.Network
       Eval =
         (fun args _ ->
@@ -50,7 +49,7 @@ let mergeFunction =
     { Module = "Ligature"
       Name = "merge"
       Description = "Merge two Networks together."
-      Parameters = [("left", WanderType.Network); ("right", WanderType.Network)]
+      Parameters = [ ("left", WanderType.Network); ("right", WanderType.Network) ]
       Returns = WanderType.Network
       Eval =
         (fun args _ ->
@@ -61,8 +60,8 @@ let mergeFunction =
 let minusFunction =
     { Module = "Ligature"
       Name = "minus"
-      Description = "Remove all Statements in the right Network from the left Network."
-      Parameters = [("left", WanderType.Network); ("right", WanderType.Network)]
+      Description = "Remove all Triples in the right Network from the left Network."
+      Parameters = [ ("left", WanderType.Network); ("right", WanderType.Network) ]
       Returns = WanderType.Network
       Eval =
         (fun args _ ->
@@ -71,11 +70,10 @@ let minusFunction =
             | _ -> failwith "error") }
 
 let countFunction =
-    { 
-      Module = "Ligature"
+    { Module = "Ligature"
       Name = "count"
-      Description = "Count the number of Statements in a Network."
-      Parameters = [("network", WanderType.Network)]
+      Description = "Count the number of Triples in a Network."
+      Parameters = [ ("network", WanderType.Network) ]
       Returns = WanderType.Int
       Eval =
         (fun args _ ->
@@ -84,11 +82,10 @@ let countFunction =
             | value -> error $"Unexpected value - {value}." None) }
 
 let extractFunction =
-    { 
-      Module = "Ligature"
+    { Module = "Ligature"
       Name = "extract"
       Description = "Take a Pattern and Network and extract out the Slots from matching subnetworks."
-      Parameters = [("pattern", WanderType.Network); ("network", WanderType.Network)]
+      Parameters = [ ("pattern", WanderType.Network); ("network", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->
@@ -114,11 +111,10 @@ let extractFunction =
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let matchFunction =
-    { 
-      Module = "Ligature"
+    { Module = "Ligature"
       Name = "match"
-      Description = "Take a Pattern and Network and return all Statements that match in a new Network."
-      Parameters = [("pattern", WanderType.Network); ("network", WanderType.Network)]
+      Description = "Take a Pattern and Network and return all Triples that match in a new Network."
+      Parameters = [ ("pattern", WanderType.Network); ("network", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->

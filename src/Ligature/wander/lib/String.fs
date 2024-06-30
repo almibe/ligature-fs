@@ -52,4 +52,4 @@ open Ligature.Main
 //             | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.String(System.Text.Encoding.UTF8.GetString bytes))
 //             | _ -> error "Invalid call to map function." None) }
 
-let stringLib = []// catFunction; fromBytesFunction; lengthFunction; toBytesFunction ]
+let stringLib = [] // catFunction; fromBytesFunction; lengthFunction; toBytesFunction ]

@@ -188,12 +188,12 @@ let tests =
               let script = " 1,  true,  \n  \"hello\", \r\n 5,  321 \n"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(321I))) ""
-          testCase "Let Statement"
+          testCase "Let Triple"
           <| fun _ ->
               let script = "x = 5"
               let result = run script bindings
               Expect.equal result (Ok(WanderValue.Int(5I))) ""
-          testCase "Let Statement with Value Reference"
+          testCase "Let Triple with Value Reference"
           <| fun _ ->
               let script = "x = 5,\nx"
               let result = run script bindings
@@ -214,12 +214,12 @@ let tests =
           //       let result = run script bindings
           //       Expect.equal result (Ok(wident "a123")) ""
 
-          //   testCase "Let Statement with Value Reference In Scope"
+          //   testCase "Let Triple with Value Reference In Scope"
           //   <| fun _ ->
           //       let script = "(let x 5, x)"
           //       let result = run script bindings
           //       Expect.equal result (Ok(WanderValue.Int(5))) ""
-          //   testCase "Let Statement with Value Reference Outside Scope"
+          //   testCase "Let Triple with Value Reference Outside Scope"
           //   <| fun _ ->
           //       let script = "let x = 4 { let x = 5\nx } x"
           //       let result = run script bindings

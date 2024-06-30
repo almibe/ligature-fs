@@ -59,7 +59,7 @@ let tests =
               let tokens = tokenize "\"hello\""
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.String("hello") ])) ""
-          testCase "Parse Let Statements"
+          testCase "Parse Let Triples"
           <| fun _ ->
               let tokens = tokenize "x = 5"
               let ast = parse (unsafe tokens)
@@ -105,7 +105,7 @@ let tests =
                   ))
                   ""
 
-          testCase "Parse Dataset Literal with two Statements"
+          testCase "Parse Dataset Literal with two Triples"
           <| fun _ ->
               let tokens = tokenize "{ `a` `b` `c`, `d` `e` `f` }"
               let ast = parse (unsafe tokens)
@@ -194,7 +194,7 @@ let tests =
                   ast
                   (Ok([ Element.Application([ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]) ]))
                   ""
-          testCase "Parse Let Statement with Name"
+          testCase "Parse Let Triple with Name"
           <| fun _ ->
               let tokens = tokenize "x = 5, x"
               let ast = parse (unsafe tokens)

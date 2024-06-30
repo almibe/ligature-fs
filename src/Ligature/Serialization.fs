@@ -22,8 +22,8 @@ let writeLigature (input: Network) : string =
     sb.Append("{") |> ignore
 
     Seq.iter
-        (fun statement ->
-            let s: string = printStatement statement
+        (fun triple ->
+            let s: string = printTriple triple
             sb.Append(s) |> ignore)
         (input)
 

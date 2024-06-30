@@ -16,4 +16,4 @@ open Ligature.Main
 //             | [ WanderValue.Bytes(bytes) ] -> Ok(WanderValue.Int(Array.length bytes |> bigint))
 //             | _ -> error "Invalid call to map function." None) }
 
-let bytesLib = []// lengthFunction ]
+let bytesLib = [] // lengthFunction ]

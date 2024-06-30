@@ -1,6 +1,7 @@
 bin/
 obj/
 *.fs.js
+*.fs.ts
 .fake
 *.trx
 *.sqlite3

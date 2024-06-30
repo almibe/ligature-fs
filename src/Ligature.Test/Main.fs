@@ -21,14 +21,14 @@ let tests =
               match identifier "hello" with
               | Ok id -> Expect.equal (readIdentifier id) "hello" "Identifiers should be equal"
               | Error(_) -> failtest "Error parsing Identifier."
-          testCase "Check Statement Equality"
+          testCase "Check Triple Equality"
           <| fun _ ->
               Expect.equal
-                  (statement
+                  (triple
                       (PatternIdentifier.Id(ident "a"))
                       (PatternIdentifier.Id(ident "b"))
                       (Value.Identifier(ident "c")))
-                  (statement
+                  (triple
                       (PatternIdentifier.Id(ident "a"))
                       (PatternIdentifier.Id(ident "b"))
                       (Value.Identifier(ident "c")))

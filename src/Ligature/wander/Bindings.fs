@@ -28,7 +28,7 @@ let bindCoreHostFunctions bindings store =
     |> bindFunctions identifierLib
     |> bindFunctions (storeLib store)
     |> bindFunctions intLib
-    |> bindFunctions Lib.Statement.statementLib
+    |> bindFunctions Lib.Triple.tripleLib
     |> bindFunctions Lib.String.stringLib
 #if !FABLE_COMPILER
     |> bindFunctions Lib.Ulid.ulidLib
@@ -40,7 +40,7 @@ let identifierUnsafe id =
     | Ok id -> id
     | _ -> failwith "error"
 
-let wanderTypeToIdentifier (wt: WanderType): Identifier =
+let wanderTypeToIdentifier (wt: WanderType) : Identifier =
     match wt with
     | WanderType.String -> identifierUnsafe "String"
     | WanderType.Int -> identifierUnsafe "Int"
@@ -54,25 +54,20 @@ let wanderTypeToIdentifier (wt: WanderType): Identifier =
     | WanderType.Anything -> identifierUnsafe "Anything"
     | WanderType.Nothing -> identifierUnsafe "Nothing"
 
-let createLib (bindings: Bindings): Set<Statement> =
+let createLib (bindings: Bindings) : Set<Triple> =
     bindings.Functions
-    |> List.map (fun fn -> [
-            { 
-                Entity = PatternIdentifier.Id (identifierUnsafe fn.Name) 
-                Attribute = PatternIdentifier.Id (identifierUnsafe "isa")
-                Value = Value.Identifier (identifierUnsafe "HostFunction") 
-            }
-            {
-                Entity = PatternIdentifier.Id (identifierUnsafe fn.Name)
-                Attribute = PatternIdentifier.Id (identifierUnsafe "returns")
-                Value = Value.Identifier (wanderTypeToIdentifier fn.Returns)
-            }
-        ])
+    |> List.map (fun fn ->
+        [ { Entity = PatternIdentifier.Id(identifierUnsafe fn.Name)
+            Attribute = PatternIdentifier.Id(identifierUnsafe "isa")
+            Value = Value.Identifier(identifierUnsafe "HostFunction") }
+          { Entity = PatternIdentifier.Id(identifierUnsafe fn.Name)
+            Attribute = PatternIdentifier.Id(identifierUnsafe "returns")
+            Value = Value.Identifier(wanderTypeToIdentifier fn.Returns) } ])
     |> List.concat
     |> Set.ofList
 
 let bindLib (bindings: Bindings) =
-    bindings |> bind "lib" (WanderValue.Network (createLib bindings))
+    bindings |> bind "lib" (WanderValue.Network(createLib bindings))
 
 let coreBindings (store: LigatureStore) =
     store |> bindCoreHostFunctions (newBindings ()) |> bindLib

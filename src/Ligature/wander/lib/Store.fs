@@ -37,7 +37,7 @@ open Ligature.LigatureStore
 
 // let removeNetworkFunction (store: LigatureStore) =
 //     { Name = "removeNetwork"
-//       Returns = WanderType.Nothing      
+//       Returns = WanderType.Nothing
 //       Eval =
 //         (fun args _ ->
 //             match args with
@@ -80,9 +80,9 @@ open Ligature.LigatureStore
 //             | _ -> error "Invalid call to map function." None) }
 
 let storeLib store = []
-    // [ (networksFunction store)
-    //   (addNetworkFunction store)
-    //   (removeNetworkFunction store)
-    //   (addFunction store)
-    //   (removeFunction store)
-    //   (readFunction store) ]
+// [ (networksFunction store)
+//   (addNetworkFunction store)
+//   (removeNetworkFunction store)
+//   (addFunction store)
+//   (removeFunction store)
+//   (readFunction store) ]

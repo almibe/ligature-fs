@@ -34,7 +34,7 @@ let tests =
                   Ok(
                       Network(
                           Set.ofList
-                              [ statement
+                              [ triple
                                     (PatternIdentifier.Id(ident "a"))
                                     (PatternIdentifier.Id(ident "b"))
                                     (vident "c") ]

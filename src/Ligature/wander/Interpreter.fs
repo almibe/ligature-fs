@@ -160,7 +160,7 @@ and handleEntityDescription bindings (attribute, values) =
     (attribute, values)
 
 and handleDatasetRootPattern bindings (entity, entityDescriptions) =
-    let mutable statements: Set<Statement> = Set.empty
+    let mutable triples: Set<Triple> = Set.empty
 
     let entity =
         match evalExpression bindings entity with
@@ -197,25 +197,25 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                         | WanderValue.Slot slot -> Value.Slot(slot)
                         | _ -> failwith "TODO"
 
-                    statements <-
+                    triples <-
                         Set.add
                             { Entity = entity
                               Attribute = attribute
                               Value = value }
-                            statements)
+                            triples)
                 values)
         entityDescriptions
 
-    Ok statements
+    Ok triples
 
 and handlePattern bindings values =
     let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
-    let mutable final: Set<Statement> = Set.empty
+    let mutable final: Set<Triple> = Set.empty
 
     List.iter
         (fun ds ->
             match ds with
-            | Ok(res: Set<Statement>) -> final <- final + res
+            | Ok(res: Set<Triple>) -> final <- final + res
             | _ -> failwith "TODO")
         res
 
@@ -318,8 +318,8 @@ and evalLambda bindings parameters body arguments =
 //     //this only works for matching with literals and no destructuring
 //     match evalExpression bindings (Expression.Pattern(pattern)) with
 //     | Ok(WanderValue.Network(pattern), _) -> failwith "TODO"
-//     // match (pattern.AllStatements (), input.AllStatements ()) with
-//     // | (Ok(pattern), Ok(statements)) -> Set.isSubset (Set.ofList pattern) (Set.ofList statements)
+//     // match (pattern.AllTriples (), input.AllTriples ()) with
+//     // | (Ok(pattern), Ok(triples)) -> Set.isSubset (Set.ofList pattern) (Set.ofList triples)
 //     // | _ -> failwith "Error"
 //     | _ -> failwith "Error"
 
@@ -338,9 +338,9 @@ and evalLambda bindings parameters body arguments =
 //                             match evalExpression bindings body with
 //                             | Ok(WanderValue.Dataset(dataset), _) ->
 //                                 failwith "TODO"
-//                                 // match dataset.AllStatements () with
-//                                 // | Ok(statements) -> results <- InMemoryNetwork (results.statements + (Set.ofList statements))
-//                                 // | _ -> failwith "Error reading Statements"
+//                                 // match dataset.AllTriples () with
+//                                 // | Ok(triples) -> results <- InMemoryNetwork (results.triples + (Set.ofList triples))
+//                                 // | _ -> failwith "Error reading Triples"
 //                             | _ -> failwith "Invalid body."
 //                     | _ -> failwith "Invalid pattern.")
 //                 patterns

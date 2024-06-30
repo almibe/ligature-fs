@@ -45,4 +45,4 @@ module Ligature.Wander.Lib.Bool
 //             | [ WanderValue.Bytes([| 1uy |]) ] -> Ok(WanderValue.Bool(true))
 //             | _ -> error "Invalid call to Bool.fromBytes function." None) }
 
-let boolLib = []// toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = [] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]

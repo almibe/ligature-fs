@@ -14,7 +14,7 @@ open Ligature.Main
 //         (fun args bindings ->
 //             match args with
 //             | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
-//             | _ -> error "Invalid call to Statement.value function." None) }
+//             | _ -> error "Invalid call to Triple.value function." None) }
 
 // let toBytesFunction =
 //     { Name = "toBytes"
@@ -38,4 +38,4 @@ open Ligature.Main
 //                 | Error(err) -> Error(err)
 //             | _ -> error "Invalid call to map function." None) }
 
-let identifierLib = []// toBytesFunction; fromBytesFunction; valueFunction ]
+let identifierLib = [] // toBytesFunction; fromBytesFunction; valueFunction ]

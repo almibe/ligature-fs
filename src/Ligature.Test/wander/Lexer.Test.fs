@@ -68,7 +68,7 @@ let tests =
               Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot.Empty) ])) ""
               Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
-          testCase "Read Statement"
+          testCase "Read Triple"
           <| fun _ ->
               Expect.equal
                   (tokenize "(`a` `b` `c`)")

@@ -84,18 +84,18 @@ type Value =
     | Int of bigint
     | Bytes of byte array
 
-type Statement =
+type Triple =
     { Entity: PatternIdentifier
       Attribute: PatternIdentifier
       Value: Value }
 
-let getRoots (patternSet: Set<Statement>) : Set<PatternIdentifier> =
-    Set.map (fun (statement: Statement) -> statement.Entity) patternSet
+let getRoots (patternSet: Set<Triple>) : Set<PatternIdentifier> =
+    Set.map (fun (triple: Triple) -> triple.Entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<PatternIdentifier> =
+let getLeaves (patternSet: Set<Triple>) : Set<PatternIdentifier> =
     patternSet
-    |> Set.map (fun (statement: Statement) ->
-        match statement.Value with
+    |> Set.map (fun (triple: Triple) ->
+        match triple.Value with
         | Value.Identifier identifier -> Some(PatternIdentifier.Id identifier)
         | Value.Slot slot -> Some(PatternIdentifier.Sl slot)
         | _ -> None)
@@ -110,19 +110,19 @@ let readPatternIdentifier (identifier: PatternIdentifier) : string =
     //  | PatternIdentifier.Sl(Slot(name)) -> name
     | _ -> failwith "TODO"
 
-type Network = Set<Statement>
+type Network = Set<Triple>
 
-let apply (statements: Network) (data: Map<Slot, Value>) : Network =
-    let res: Set<Statement> =
+let apply (triples: Network) (data: Map<Slot, Value>) : Network =
+    let res: Set<Triple> =
         Set.map
-            (fun (statement: Statement) ->
-                match statement with
+            (fun (triple: Triple) ->
+                match triple with
                 // | { Entity = PatternIdentifier.Id(_)
                 //     Attribute = PatternIdentifier.Id(_)
                 //     Value = Value(_) } -> failwith "TODO"
                 | _ ->
                     let entity =
-                        match statement.Entity with
+                        match triple.Entity with
                         | PatternIdentifier.Id(identifier) -> identifier
                         | PatternIdentifier.Sl(slot) ->
                             if slot.Named then
@@ -136,7 +136,7 @@ let apply (statements: Network) (data: Map<Slot, Value>) : Network =
                                 failwith "Error"
 
                     let attribute =
-                        match statement.Attribute with
+                        match triple.Attribute with
                         | PatternIdentifier.Id(identifier) -> identifier
                         | PatternIdentifier.Sl(slot) ->
                             if slot.Named then
@@ -150,7 +150,7 @@ let apply (statements: Network) (data: Map<Slot, Value>) : Network =
                                 failwith "Error"
 
                     let value =
-                        match statement.Value with
+                        match triple.Value with
                         | Value.Slot(slot) ->
                             if slot.Named then
                                 match data.TryFind slot with
@@ -163,33 +163,33 @@ let apply (statements: Network) (data: Map<Slot, Value>) : Network =
                     { Entity = (PatternIdentifier.Id entity)
                       Attribute = (PatternIdentifier.Id attribute)
                       Value = value })
-            statements
+            triples
 
     Network(res)
 
-let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
-    if statements.IsEmpty || pattern.IsEmpty then
+let extract (triples: Network) (pattern: Network) : Map<Slot, Value> list =
+    if triples.IsEmpty || pattern.IsEmpty then
         List.Empty
     else
         let mutable res: Map<Slot, Value> list = List.empty //TODO make a list
         let mutable currentNames: Map<Slot, Value> = Map.empty
 
-        statements
-        |> Set.iter (fun statement ->
+        triples
+        |> Set.iter (fun triple ->
             currentNames <- Map.empty //reset state
 
             pattern
-            |> Set.iter (fun (pattern: Statement) ->
+            |> Set.iter (fun (pattern: Triple) ->
                 let mutable matched = true
 
                 match pattern.Entity with
-                | PatternIdentifier.Id identifier -> matched <- statement.Entity = PatternIdentifier.Id identifier
+                | PatternIdentifier.Id identifier -> matched <- triple.Entity = PatternIdentifier.Id identifier
                 | PatternIdentifier.Sl slot ->
                     if slot.Named then
                         if currentNames.ContainsKey slot then
                             failwith "TODO"
                         else
-                            match statement.Entity with
+                            match triple.Entity with
                             | PatternIdentifier.Id identifier ->
                                 currentNames <- currentNames.Add(slot, Value.Identifier identifier)
                             | PatternIdentifier.Sl slot -> failwith "Error"
@@ -197,13 +197,13 @@ let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
                         ()
 
                 match pattern.Attribute with
-                | PatternIdentifier.Id identifier -> matched <- statement.Attribute = PatternIdentifier.Id identifier
+                | PatternIdentifier.Id identifier -> matched <- triple.Attribute = PatternIdentifier.Id identifier
                 | PatternIdentifier.Sl slot ->
                     if slot.Named then
                         if currentNames.ContainsKey slot then
                             failwith "TODO"
                         else
-                            match statement.Attribute with
+                            match triple.Attribute with
                             | PatternIdentifier.Id identifier ->
                                 currentNames <- currentNames.Add(slot, Value.Identifier identifier)
                             | _ -> failwith "Error"
@@ -216,17 +216,17 @@ let extract (statements: Network) (pattern: Network) : Map<Slot, Value> list =
                         if currentNames.ContainsKey slot then
                             failwith "TODO"
                         else
-                            currentNames <- currentNames.Add(slot, statement.Value)
+                            currentNames <- currentNames.Add(slot, triple.Value)
                     else
                         ()
-                | value -> matched <- statement.Value = value
+                | value -> matched <- triple.Value = value
 
                 if matched then
                     res <- List.append res [ currentNames ]))
 
         List.ofSeq res
 
-let statement entity attribute value =
+let triple entity attribute value =
     { Entity = entity
       Attribute = attribute
       Value = value }

@@ -20,8 +20,8 @@ let id ident =
     | Ok(i) -> PatternIdentifier.Id i
     | Error(_) -> failwith "error making Identifier"
 
-/// Unsafe helper function for creating statements for testing.
-let statement (entity: string) (attribute: string) (value: Value) =
+/// Unsafe helper function for creating triples for testing.
+let triple (entity: string) (attribute: string) (value: Value) =
     let e = id entity
     let a = id attribute
 

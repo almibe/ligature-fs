@@ -37,7 +37,7 @@ type WanderValue =
     | Bool of bool
     | Identifier of Identifier
     | Slot of Slot
-    | Statement of Ligature.Main.Statement
+    | Triple of Ligature.Main.Triple
     | Array of WanderValue array
     | Network of Network
     | Namespace of Map<string, WanderValue>
@@ -79,14 +79,14 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Slot s -> $"${(s.Name)}"
     | WanderValue.Array(values) -> $"[{printValues values}]"
-    | WanderValue.Statement(statement) -> printStatement statement
+    | WanderValue.Triple(triple) -> printTriple triple
     | WanderValue.Namespace(values) -> printRecord values
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Network(values) -> printNetwork values
     | WanderValue.Nothing -> "Nothing"
 
 and printNetwork (network: Network) : string =
-    (Seq.fold (fun state statement -> state + " " + (printStatement statement) + ", ") "{" (network))
+    (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network))
     + "}"
 
 and printBytes bytes =
@@ -100,8 +100,8 @@ and printRecord values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "}"
 
-and printStatement statement =
-    $"`{(readPatternIdentifier statement.Entity)}` `{(readPatternIdentifier statement.Attribute)}` {(printLigatureValue statement.Value)}"
+and printTriple triple =
+    $"`{(readPatternIdentifier triple.Entity)}` `{(readPatternIdentifier triple.Attribute)}` {(printLigatureValue triple.Value)}"
 
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
@@ -116,7 +116,7 @@ and printValue (value: Value) =
     | Value.Bytes(bytes) -> printBytes bytes
     | Value.Slot(slot) -> $"${(slot.Name)}"
 
-and printPattern (pattern: Statement) =
+and printPattern (pattern: Triple) =
     $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printValue pattern.Value)}"
 
 and printLigatureValue value =
