@@ -46,16 +46,16 @@ let applyFunction =
             //                Ok(WanderValue.Network(apply pattern res))
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
-let mergeFunction =
+let unionFunction =
     { Module = "Ligature"
-      Name = "merge"
-      Description = "Merge two Networks together."
+      Name = "union"
+      Description = "Combine two Networks together."
       Parameters = [ ("left", WanderType.Network); ("right", WanderType.Network) ]
       Returns = WanderType.Network
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> failwith "TODO"
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> Ok(WanderValue.Network(left.Union(right)))
             | _ -> failwith "error") }
 
 let minusFunction =
@@ -79,7 +79,7 @@ let countFunction =
       Eval =
         (fun args _ ->
             match args with
-            //| [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
+            | [ WanderValue.Network(network) ] -> Ok(WanderValue.Int(bigint (network.Count())))
             | value -> error $"Unexpected value - {value}." None) }
 
 let extractFunction =
@@ -145,9 +145,9 @@ let ligatureLib =
     [ countFunction
       extractFunction
       applyFunction
-      mergeFunction
+      unionFunction
       minusFunction
       matchFunction
-      //trans
-      //infer
+      //queryFunction
+      //inferFunction
       ]

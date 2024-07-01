@@ -17,15 +17,15 @@ let readLigature (input: string) : Result<Network, LigatureError> =
     | Ok(WanderValue.Network(res)) -> Ok(res)
     | _ -> failwith "Error"
 
-let writeLigature (input: Network) : string = failwith "TODO"
-// let sb = System.Text.StringBuilder()
-// sb.Append("{") |> ignore
+let writeLigature (input: Network) : string =
+    let sb = System.Text.StringBuilder()
+    sb.Append("{") |> ignore
 
-// Seq.iter
-//     (fun triple ->
-//         let s: string = printTriple triple
-//         sb.Append(s) |> ignore)
-//     (input)
+    Seq.iter
+        (fun triple ->
+            let s: string = printTriple triple
+            sb.Append(s) |> ignore)
+        (input.Write())
 
-// sb.Append("}") |> ignore
-// sb.ToString()
+    sb.Append("}") |> ignore
+    sb.ToString()
