@@ -29,4 +29,18 @@ let tests =
           testCase "count Network"
           <| fun _ ->
               let network: Network = empty ()
-              Expect.equal (network.Count()) (0) "" ]
+              Expect.equal (network.Count()) (0) ""
+          testCase "union two Networks"
+          <| fun _ ->
+              let left: Network = InMemoryNetwork(Set [])
+              let right: Network = InMemoryNetwork(Set [])
+
+              Expect.equal
+                  (left.Union(right))
+                  (InMemoryNetwork(
+                      Set
+                          [
+
+                          ]
+                  ))
+                  "" ]

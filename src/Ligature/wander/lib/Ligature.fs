@@ -42,8 +42,7 @@ let applyFunction =
                         | _ -> failwith "Error")
                     |> Map.ofSeq
 
-                failwith "TODO"
-            //                Ok(WanderValue.Network(apply pattern res))
+                Ok(WanderValue.Network(pattern.Apply(res)))
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let unionFunction =
@@ -67,7 +66,7 @@ let minusFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> failwith "TODO"
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] -> Ok(WanderValue.Network(left.Minus(right)))
             | _ -> failwith "error") }
 
 let countFunction =
@@ -82,72 +81,57 @@ let countFunction =
             | [ WanderValue.Network(network) ] -> Ok(WanderValue.Int(bigint (network.Count())))
             | value -> error $"Unexpected value - {value}." None) }
 
-let extractFunction =
+let educeFunction =
     { Module = "Ligature"
-      Name = "extract"
+      Name = "educe"
       Description = "Take a Pattern and Network and extract out the Slots from matching subnetworks."
-      Parameters = [ ("pattern", WanderType.Network); ("network", WanderType.Network) ]
+      Parameters = [ ("network", WanderType.Network); ("pattern", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] -> failwith "TODO"
-            // extract network pattern
-            // |> List.map (fun res ->
-            //     res
-            //     |> Map.toSeq
-            //     |> Seq.map (fun (k, v) ->
-            //         (k.Name,
-            //          match v with
-            //          | Value.Int value -> WanderValue.Int value
-            //          | Value.Bytes value -> WanderValue.Bytes value
-            //          | Value.Identifier value -> WanderValue.Identifier value
-            //          | Value.String value -> WanderValue.String value
-            //          | Value.Slot value -> WanderValue.Slot value))
-            //     |> Map.ofSeq
-            //     |> WanderValue.Namespace)
-            // |> Array.ofList
-            // |> WanderValue.Array
-            // |> Ok
+            | [ WanderValue.Network(network); WanderValue.Network(pattern) ] ->
+                network.Educe pattern
+                Ok(WanderValue.Namespace(Map []))
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
-let matchFunction =
-    { Module = "Ligature"
-      Name = "match"
-      Description = "Take a Pattern and Network and return all Triples that match in a new Network."
-      Parameters = [ ("pattern", WanderType.Network); ("network", WanderType.Network) ]
-      Returns = WanderType.Array
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] -> failwith "TODO"
-            // extract network pattern
-            // |> List.map (fun res ->
-            //     res
-            //     |> Map.toSeq
-            //     |> Seq.map (fun (k, v) ->
-            //         (k.Name,
-            //          match v with
-            //          | Value.Int value -> WanderValue.Int value
-            //          | Value.Bytes value -> WanderValue.Bytes value
-            //          | Value.Identifier value -> WanderValue.Identifier value
-            //          | Value.String value -> WanderValue.String value
-            //          | Value.Slot value -> WanderValue.Slot value))
-            //     |> Map.ofSeq
-            //     |> WanderValue.Namespace)
-            // |> Array.ofList
-            // |> WanderValue.Array
-            // |> Ok
-            // |> failwith "TODO -- this is just copied from extract currently"
-            | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
+// let matchFunction =
+//     { Module = "Ligature"
+//       Name = "match"
+//       Description = "Take a Pattern and Network and return all Triples that match in a new Network."
+//       Parameters = [ ("pattern", WanderType.Network); ("network", WanderType.Network) ]
+//       Returns = WanderType.Array
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
+//                 extract network pattern
+//                 |> List.map (fun res ->
+//                     res
+//                     |> Map.toSeq
+//                     |> Seq.map (fun (k, v) ->
+//                         (k.Name,
+//                         match v with
+//                         | Value.Int value -> WanderValue.Int value
+//                         | Value.Bytes value -> WanderValue.Bytes value
+//                         | Value.Identifier value -> WanderValue.Identifier value
+//                         | Value.String value -> WanderValue.String value
+//                         | Value.Slot value -> WanderValue.Slot value))
+//                     |> Map.ofSeq
+//                     |> WanderValue.Namespace)
+//                 |> Array.ofList
+//                 |> WanderValue.Array
+//                 |> Ok
+//                 |> failwith "TODO -- this is just copied from extract currently"
+//             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let ligatureLib =
     [ countFunction
-      extractFunction
+      educeFunction
       applyFunction
       unionFunction
       minusFunction
-      matchFunction
+      //matchFunction
       //queryFunction
       //inferFunction
       ]
