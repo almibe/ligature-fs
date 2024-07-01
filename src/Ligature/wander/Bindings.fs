@@ -17,7 +17,7 @@ open Ligature.LigatureStore
 open Ligature.Wander.Model
 open Ligature.Main
 
-let bindCoreHostFunctions bindings store =
+let bindCoreHostFunctions bindings = //store =
     bindings
     |> bindFunctions Lib.Array.arrayLib
     |> bindFunctions Lib.Assert.assertLib
@@ -26,7 +26,7 @@ let bindCoreHostFunctions bindings store =
     |> bindFunctions dateTimeLib
     |> bindFunctions Lib.Ligature.ligatureLib
     |> bindFunctions identifierLib
-    |> bindFunctions (storeLib store)
+    //|> bindFunctions (storeLib store)
     |> bindFunctions intLib
     |> bindFunctions Lib.Triple.tripleLib
     |> bindFunctions Lib.String.stringLib
@@ -66,8 +66,8 @@ let createLib (bindings: Bindings) : Set<Triple> =
     |> List.concat
     |> Set.ofList
 
-let bindLib (bindings: Bindings) =
-    bindings |> bind "lib" (WanderValue.Network(createLib bindings))
+let bindLib (bindings: Bindings) = failwith "TODO"
+// bindings |> bind "lib" (WanderValue.Network(createLib bindings))
 
-let coreBindings (store: LigatureStore) =
-    store |> bindCoreHostFunctions (newBindings ()) |> bindLib
+let coreBindings = bindCoreHostFunctions (newBindings ()) //(store: LigatureStore) =
+//store |>

@@ -6,7 +6,8 @@ module Ligature.Wander.Interpreter
 
 open Ligature.Wander.Model
 open Ligature.Main
-open Ligature.LigatureStore.InMemoryStore
+open Ligature.InMemoryNetwork
+open Ligature.LigatureStore
 
 let rec evalExpression bindings expression =
     let rec bindArguments
@@ -219,7 +220,7 @@ and handlePattern bindings values =
             | _ -> failwith "TODO")
         res
 
-    Ok(WanderValue.Network(Network(final)), bindings)
+    Ok(WanderValue.Network(InMemoryNetwork(final)), bindings)
 
 and handleApplication bindings values =
     let arguments =
@@ -290,8 +291,8 @@ and evalLambda bindings parameters body arguments =
     let mutable i = 0
     let mutable error = None
 
-    let args =
-        Array.init (List.length parameters) (fun _ -> WanderValue.Network(Network(Set.empty)))
+    let args = failwith "TODO"
+    // Array.init (List.length parameters) (fun _ -> WanderValue.Network(Network(Set.empty)))
 
     List.tryFind
         (fun arg ->
@@ -355,24 +356,24 @@ and evalExpressions
     (expressions: Expression list)
     : Result<(WanderValue * Bindings), LigatureError> =
     match List.length expressions with
-    | 0 -> Ok(WanderValue.Network(emptyNetwork), bindings)
+    | 0 -> failwith "TODO" //Ok(WanderValue.Network(emptyNetwork), bindings)
     | 1 -> evalExpression bindings (List.head expressions)
-    | _ ->
-        let mutable result = Ok(WanderValue.Network(emptyNetwork), bindings)
-        let mutable cont = true
-        let mutable bindings = bindings
-        let mutable expressions = expressions
+    | _ -> failwith "TODO"
+//        let mutable result = Ok(WanderValue.Network(emptyNetwork), bindings)
+// let mutable cont = true
+// let mutable bindings = bindings
+// let mutable expressions = expressions
 
-        while cont && not (List.isEmpty expressions) do
-            result <- evalExpression bindings (List.head expressions)
-            expressions <- List.tail expressions
+// while cont && not (List.isEmpty expressions) do
+//     result <- evalExpression bindings (List.head expressions)
+//     expressions <- List.tail expressions
 
-            match result with
-            | Ok((res, b)) ->
-                bindings <- b
-                result <- Ok((res, b))
-            | Error(err) ->
-                result <- Error(err)
-                cont <- false
+//     match result with
+//     | Ok((res, b)) ->
+//         bindings <- b
+//         result <- Ok((res, b))
+//     | Error(err) ->
+//         result <- Error(err)
+//         cont <- false
 
-        result
+// result

@@ -10,7 +10,7 @@ open FSharpPlus
 open Ligature.Wander.Main
 open Ligature.Wander.Bindings
 open Ligature.Serialization
-open Ligature.LigatureStore.InMemoryStore
+open Ligature.LigatureStore
 open Ligature.Main
 open Ligature.Wander.Model
 
@@ -40,8 +40,7 @@ let rec allFiles dirs =
 
 [<Tests>]
 let wanderTestSuite =
-    let createBindings () =
-        coreBindings (Ligature.LigatureStore.InMemoryStore.empty ())
+    let createBindings () = coreBindings //(Ligature.LigatureStore.InMemoryStore.empty ())
 
     let ligatureTestSuite =
         System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")

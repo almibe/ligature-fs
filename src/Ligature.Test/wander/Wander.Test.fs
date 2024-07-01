@@ -8,6 +8,7 @@ open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature.Main
+open Ligature.InMemoryNetwork
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -37,8 +38,7 @@ let slot id =
         | Error _ -> todo
     )
 
-let bindings =
-    Ligature.Wander.Bindings.coreBindings (Ligature.LigatureStore.InMemoryStore.empty ())
+let bindings = Ligature.Wander.Bindings.coreBindings // (Ligature.LigatureStore.InMemoryStore.empty ())
 
 [<Tests>]
 let tests =
@@ -48,7 +48,7 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(Network(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Network(InMemoryNetwork(Set.empty)))) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
@@ -81,7 +81,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(Network(Set.empty)))) ""
+              Expect.equal result (Ok(WanderValue.Network(InMemoryNetwork(Set.empty)))) ""
           testCase "Run Dataset literal"
           <| fun _ ->
               let script = "{`a` `b` `c`}"
@@ -91,8 +91,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          Network(
-
+                          InMemoryNetwork(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
@@ -111,8 +110,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          Network(
-
+                          InMemoryNetwork(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
@@ -131,7 +129,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          Network(
+                          InMemoryNetwork(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
@@ -150,7 +148,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          Network(
+                          InMemoryNetwork(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "a")
                                       Attribute = PatternIdentifier.Id(ident "b")
@@ -168,7 +166,7 @@ let tests =
                   result
                   (Ok(
                       WanderValue.Network(
-                          Network(
+                          InMemoryNetwork(
                               Set.ofSeq
                                   [ { Entity = PatternIdentifier.Id(ident "e")
                                       Attribute = PatternIdentifier.Id(ident "a")

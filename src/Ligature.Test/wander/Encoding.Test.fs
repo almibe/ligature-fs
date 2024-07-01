@@ -20,9 +20,7 @@ let properties =
         [ testProperty "Encode and decode Int"
           <| fun (value: bigint) ->
               match
-                  run
-                      (prettyPrint (WanderValue.Int(value)))
-                      (coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))
+                  run (prettyPrint (WanderValue.Int(value))) (coreBindings) //(Ligature.LigatureStore.InMemoryStore.empty ()))
               with
               | Ok(WanderValue.Int(res)) -> value = res
               | _ -> false
@@ -30,9 +28,7 @@ let properties =
           <| fun (value: string) ->
               if value <> null then
                   match
-                      run
-                          (prettyPrint (WanderValue.String(value)))
-                          (coreBindings (Ligature.LigatureStore.InMemoryStore.empty ()))
+                      run (prettyPrint (WanderValue.String(value))) (coreBindings) // (Ligature.LigatureStore.InMemoryStore.empty ()))
                   with
                   | Ok(WanderValue.String(res)) -> value = res
                   | _ -> false

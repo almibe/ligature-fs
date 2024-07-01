@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureSqlite.fs" />
+    <!-- <Compile Include="LigatureSqlite.fs" /> -->
     <Compile Include="Config.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

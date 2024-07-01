@@ -7,7 +7,7 @@ module Ligature.Wander.Model
 open Ligature.Main
 open System
 open System.Text.RegularExpressions
-open Ligature.LigatureStore.InMemoryStore
+//open Ligature.LigatureStore.InMemoryStore
 
 [<RequireQualifiedAccess>]
 type Expression =
@@ -47,22 +47,22 @@ type WanderValue =
 type Parameter = { name: string; tag: string }
 
 //TODO try to remove this
-let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
-    if
-        (left = WanderValue.Network(emptyNetwork)
-         || left = WanderValue.Namespace(Map.empty))
-        && (right = WanderValue.Network(emptyNetwork)
-            || right = WanderValue.Namespace(Map.empty))
-    then
-        true
-    else
-        match left, right with
-        | WanderValue.Array(left), WanderValue.Array(right) ->
-            if left.Length = right.Length then
-                Array.forall2 (fun left right -> wanderEquals left right) left right
-            else
-                false
-        | _ -> left = right
+let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool = failwith "TODO"
+// if
+//     (left = WanderValue.Network(emptyNetwork)
+//      || left = WanderValue.Namespace(Map.empty))
+//     && (right = WanderValue.Network(emptyNetwork)
+//         || right = WanderValue.Namespace(Map.empty))
+// then
+//     true
+// else
+//     match left, right with
+//     | WanderValue.Array(left), WanderValue.Array(right) ->
+//         if left.Length = right.Length then
+//             Array.forall2 (fun left right -> wanderEquals left right) left right
+//         else
+//             false
+//     | _ -> left = right
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -86,7 +86,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Nothing -> "Nothing"
 
 and printNetwork (network: Network) : string =
-    (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network))
+    (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network.Write()))
     + "}"
 
 and printBytes bytes =

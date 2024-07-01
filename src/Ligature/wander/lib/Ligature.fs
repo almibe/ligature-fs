@@ -42,7 +42,8 @@ let applyFunction =
                         | _ -> failwith "Error")
                     |> Map.ofSeq
 
-                Ok(WanderValue.Network(apply pattern res))
+                failwith "TODO"
+            //                Ok(WanderValue.Network(apply pattern res))
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let mergeFunction =
@@ -78,7 +79,7 @@ let countFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
+            //| [ WanderValue.Network(pattern) ] -> Ok(WanderValue.Int(bigint (Set.count pattern)))
             | value -> error $"Unexpected value - {value}." None) }
 
 let extractFunction =
@@ -90,24 +91,24 @@ let extractFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
-                extract network pattern
-                |> List.map (fun res ->
-                    res
-                    |> Map.toSeq
-                    |> Seq.map (fun (k, v) ->
-                        (k.Name,
-                         match v with
-                         | Value.Int value -> WanderValue.Int value
-                         | Value.Bytes value -> WanderValue.Bytes value
-                         | Value.Identifier value -> WanderValue.Identifier value
-                         | Value.String value -> WanderValue.String value
-                         | Value.Slot value -> WanderValue.Slot value))
-                    |> Map.ofSeq
-                    |> WanderValue.Namespace)
-                |> Array.ofList
-                |> WanderValue.Array
-                |> Ok
+            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] -> failwith "TODO"
+            // extract network pattern
+            // |> List.map (fun res ->
+            //     res
+            //     |> Map.toSeq
+            //     |> Seq.map (fun (k, v) ->
+            //         (k.Name,
+            //          match v with
+            //          | Value.Int value -> WanderValue.Int value
+            //          | Value.Bytes value -> WanderValue.Bytes value
+            //          | Value.Identifier value -> WanderValue.Identifier value
+            //          | Value.String value -> WanderValue.String value
+            //          | Value.Slot value -> WanderValue.Slot value))
+            //     |> Map.ofSeq
+            //     |> WanderValue.Namespace)
+            // |> Array.ofList
+            // |> WanderValue.Array
+            // |> Ok
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let matchFunction =
@@ -119,25 +120,25 @@ let matchFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] ->
-                extract network pattern
-                |> List.map (fun res ->
-                    res
-                    |> Map.toSeq
-                    |> Seq.map (fun (k, v) ->
-                        (k.Name,
-                         match v with
-                         | Value.Int value -> WanderValue.Int value
-                         | Value.Bytes value -> WanderValue.Bytes value
-                         | Value.Identifier value -> WanderValue.Identifier value
-                         | Value.String value -> WanderValue.String value
-                         | Value.Slot value -> WanderValue.Slot value))
-                    |> Map.ofSeq
-                    |> WanderValue.Namespace)
-                |> Array.ofList
-                |> WanderValue.Array
-                |> Ok
-                |> failwith "TODO -- this is just copied from extract currently"
+            | [ WanderValue.Network(pattern); WanderValue.Network(network) ] -> failwith "TODO"
+            // extract network pattern
+            // |> List.map (fun res ->
+            //     res
+            //     |> Map.toSeq
+            //     |> Seq.map (fun (k, v) ->
+            //         (k.Name,
+            //          match v with
+            //          | Value.Int value -> WanderValue.Int value
+            //          | Value.Bytes value -> WanderValue.Bytes value
+            //          | Value.Identifier value -> WanderValue.Identifier value
+            //          | Value.String value -> WanderValue.String value
+            //          | Value.Slot value -> WanderValue.Slot value))
+            //     |> Map.ofSeq
+            //     |> WanderValue.Namespace)
+            // |> Array.ofList
+            // |> WanderValue.Array
+            // |> Ok
+            // |> failwith "TODO -- this is just copied from extract currently"
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let ligatureLib =
