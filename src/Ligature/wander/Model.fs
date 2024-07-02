@@ -77,7 +77,8 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.String s -> encodeString s
     | WanderValue.Bool b -> sprintf "%b" b
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
-    | WanderValue.Slot s -> $"${(s.Name)}"
+    | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
+    | WanderValue.Slot(Slot(None)) -> "$"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Triple(triple) -> printTriple triple
     | WanderValue.Namespace(values) -> printRecord values
@@ -106,7 +107,8 @@ and printTriple triple =
 and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
     match patternIdentifier with
     | PatternIdentifier.Id(identifier) -> $"`{readIdentifier identifier}`"
-    | PatternIdentifier.Sl(slot) -> $"${(slot.Name)}"
+    | PatternIdentifier.Sl(Slot(Some(name))) -> $"${name}"
+    | PatternIdentifier.Sl(Slot(None)) -> "$"
 
 and printValue (value: Value) =
     match value with
@@ -114,7 +116,8 @@ and printValue (value: Value) =
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
     | Value.Bytes(bytes) -> printBytes bytes
-    | Value.Slot(slot) -> $"${(slot.Name)}"
+    | Value.Slot(Slot(Some(name))) -> $"${name}"
+    | Value.Slot(Slot(None)) -> "$"
 
 and printPattern (pattern: Triple) =
     $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printValue pattern.Value)}"

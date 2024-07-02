@@ -31,45 +31,47 @@ let identifier =
         else
             invalidIdentifier id
 
-type Slot private (name: string option) =
-    member _.Named = name.IsSome
+type Slot = Slot of string option
 
-    member _.Name =
-        match name with
-        | Some name -> name
-        | None -> ""
+// type Slot = private Slot of string option
+//     member _.Named = name.IsSome
 
-    static member New(name: string option) =
-        let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
-        let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
+//     member _.Name =
+//         match name with
+//         | Some name -> name
+//         | None -> ""
 
-        match name with
-        | Some name ->
-            if slotPattern.IsMatch(name) then
-                Ok(Slot(Some name))
-            else
-                invalidSlot name
-        | None -> Ok(Slot(None))
+//     static member New(name: string option) =
+//         let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
+//         let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
 
-    static member Empty = Slot(None)
+//         match name with
+//         | Some name ->
+//             if slotPattern.IsMatch(name) then
+//                 Ok(Slot(Some name))
+//             else
+//                 invalidSlot name
+//         | None -> Ok(Slot(None))
 
-    override this.Equals(other) =
-        let other = other :?> Slot
-        this.Name = other.Name
+//     static member Empty = Slot(None)
 
-    override this.GetHashCode() = name.GetHashCode()
+//     override this.Equals(other) =
+//         let other = other :?> Slot
+//         this.Name = other.Name
 
-    interface System.IComparable with
-        member this.CompareTo(other) =
-            let other = other :?> Slot
-            this.Name.CompareTo(other.Name)
+//     override this.GetHashCode() = name.GetHashCode()
 
-let slot name = Slot.New name
+//     interface System.IComparable with
+//         member this.CompareTo(other) =
+//             let other = other :?> Slot
+//             this.Name.CompareTo(other.Name)
 
-let slotUnsafe name =
-    match Slot.New name with
-    | Ok(slot) -> slot
-    | Error(_) -> failwith "Error"
+// let slot name = Slot.New name
+
+// let slotUnsafe name =
+//     match Slot.New name with
+//     | Ok(slot) -> slot
+//     | Error(_) -> failwith "Error"
 
 [<RequireQualifiedAccess>]
 type PatternIdentifier =

@@ -24,25 +24,22 @@ let applyFunction =
         (fun args _ ->
             match args with
             | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
-                let res =
-                    data
-                    |> Map.toSeq
-                    |> Seq.map (fun (k, v) ->
-                        match slot (Some k) with
-                        | Ok slot ->
-                            let v =
-                                match v with
-                                | WanderValue.Identifier i -> Value.Identifier i
-                                | WanderValue.Int i -> Value.Int i
-                                | WanderValue.String s -> Value.String s
-                                | WanderValue.Bytes b -> Value.Bytes b
-                                | _ -> failwith "Error"
-
-                            (slot, v)
-                        | _ -> failwith "Error")
-                    |> Map.ofSeq
-
-                Ok(WanderValue.Network(pattern.Apply(res)))
+                // let res data =
+                //     data
+                //     |> Map.toSeq
+                //     |> Seq.map (fun (k, v) ->
+                //         let k = Slot(Some(k))
+                //         let v =
+                //             match v with
+                //             | WanderValue.Identifier i -> Value.Identifier i
+                //             | WanderValue.Int i -> Value.Int i
+                //             | WanderValue.String s -> Value.String s
+                //             | WanderValue.Bytes b -> Value.Bytes b
+                //             | _ -> failwith "Error"
+                //         (k, v)
+                //     |> Map.ofSeq
+                // Ok(WanderValue.Network(pattern.Apply(res data)))
+                failwith "TODO"
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let unionFunction =
