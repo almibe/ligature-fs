@@ -55,22 +55,22 @@ let toWanderValue (value: Value) : WanderValue =
 type Parameter = { name: string; tag: string }
 
 //TODO try to remove this
-let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool = failwith "TODO"
-// if
-//     (left = WanderValue.Network(emptyNetwork)
-//      || left = WanderValue.AssocArray(Map.empty))
-//     && (right = WanderValue.Network(emptyNetwork)
-//         || right = WanderValue.AssocArray(Map.empty))
-// then
-//     true
-// else
-//     match left, right with
-//     | WanderValue.Array(left), WanderValue.Array(right) ->
-//         if left.Length = right.Length then
-//             Array.forall2 (fun left right -> wanderEquals left right) left right
-//         else
-//             false
-//     | _ -> left = right
+let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
+    if
+        (left = WanderValue.Array(Array.empty)
+        || left = WanderValue.AssocArray(Map.empty))
+        && (right = WanderValue.Array(Array.empty)
+            || right = WanderValue.AssocArray(Map.empty))
+    then
+        true
+    else
+        match left, right with
+        | WanderValue.Array(left), WanderValue.Array(right) ->
+            if left.Length = right.Length then
+                Array.forall2 (fun left right -> wanderEquals left right) left right
+            else
+                false
+        | _ -> left = right
 
 let encodeString string =
 #if !FABLE_COMPILER
