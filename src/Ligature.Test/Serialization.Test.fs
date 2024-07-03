@@ -24,22 +24,17 @@ let tests =
         "Parser Suite"
         [ testCase "Parse empty Network"
           <| fun _ ->
-              let result = Ligature.Serialization.readLigature "{}"
-              let expect: Result<Network, LigatureError> = Ok(empty ())
-              Expect.equal result expect ""
+              let result = (Ligature.Serialization.readLigature "{}") |> Result.toOption
+              let expect: Network = emptyNetwork
+              Expect.equal (result.Value.Write()) (expect.Write()) ""
           testCase "Parse simple Network"
           <| fun _ ->
-              let result = Ligature.Serialization.readLigature "{`a` `b` `c`}"
+              let result = Ligature.Serialization.readLigature "{`a` `b` `c`}" |> Result.toOption
 
-              let expect: Result<Network, LigatureError> =
-                  Ok(
-                      InMemoryNetwork(
-                          Set.ofList
-                              [ triple (PatternIdentifier.Id(ident "a")) (PatternIdentifier.Id(ident "b")) (vident "c") ]
-                      )
-                  )
+              let expect: Set<Triple> =
+                  Set.ofList [ triple (PatternIdentifier.Id(ident "a")) (PatternIdentifier.Id(ident "b")) (vident "c") ]
 
-              Expect.equal result expect ""
+              Expect.equal (result.Value.Write()) expect ""
           testCase "Write Empty Network"
           <| fun _ ->
               let result = Ligature.Serialization.writeLigature (InMemoryNetwork(Set.empty))

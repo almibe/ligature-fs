@@ -13,6 +13,26 @@ let patternTripleToTriple (pattern: Triple) : Triple option =
         Attribute = PatternIdentifier.Id(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
+let apply (network: Network) (pattern: Map<string, WanderValue>) =
+    let res data =
+        data
+        |> Map.toSeq
+        |> Seq.map (fun (k, v) ->
+            let k = Slot(Some(k))
+
+            let v =
+                match v with
+                | WanderValue.Identifier i -> Value.Identifier i
+                | WanderValue.Int i -> Value.Int i
+                | WanderValue.String s -> Value.String s
+                | WanderValue.Bytes b -> Value.Bytes b
+                | _ -> failwith "Error"
+
+            (k, v))
+        |> Map.ofSeq
+
+    Ok(WanderValue.Network(network.Apply(res pattern)))
+
 let applyFunction =
     { Module = "Ligature"
       Name = "apply"
@@ -23,23 +43,7 @@ let applyFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] ->
-                // let res data =
-                //     data
-                //     |> Map.toSeq
-                //     |> Seq.map (fun (k, v) ->
-                //         let k = Slot(Some(k))
-                //         let v =
-                //             match v with
-                //             | WanderValue.Identifier i -> Value.Identifier i
-                //             | WanderValue.Int i -> Value.Int i
-                //             | WanderValue.String s -> Value.String s
-                //             | WanderValue.Bytes b -> Value.Bytes b
-                //             | _ -> failwith "Error"
-                //         (k, v)
-                //     |> Map.ofSeq
-                // Ok(WanderValue.Network(pattern.Apply(res data)))
-                failwith "TODO"
+            | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] -> apply pattern data
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let unionFunction =
@@ -78,6 +82,28 @@ let countFunction =
             | [ WanderValue.Network(network) ] -> Ok(WanderValue.Int(bigint (network.Count())))
             | value -> error $"Unexpected value - {value}." None) }
 
+let mapEduceResult (res: Set<Map<Slot, Value>>) : Result<WanderValue, LigatureError> =
+    res
+    |> Array.ofSeq
+    |> Array.map (fun (value: Map<Slot, Value>) ->
+        Map.fold
+            (fun state key value ->
+                match key with
+                | Slot(None) -> state
+                | Slot(Some(name)) -> Map.add name (toWanderValue value) state)
+            Map.empty
+            value)
+    //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.Namespace value)
+    |> Array.map (WanderValue.Namespace)
+    |> WanderValue.Array
+    |> Ok
+
+
+//|> WanderValue.Array
+//|> WanderValue.Namespace
+//|> Ok
+//    Ok(WanderValue.Namespace(Map []))
+
 let educeFunction =
     { Module = "Ligature"
       Name = "educe"
@@ -87,9 +113,7 @@ let educeFunction =
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(network); WanderValue.Network(pattern) ] ->
-                network.Educe pattern
-                Ok(WanderValue.Namespace(Map []))
+            | [ WanderValue.Network(network); WanderValue.Network(pattern) ] -> network.Educe pattern |> mapEduceResult
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 // let matchFunction =

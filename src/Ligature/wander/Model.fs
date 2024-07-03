@@ -44,6 +44,14 @@ type WanderValue =
     | Bytes of byte array
     | Nothing
 
+let toWanderValue (value: Value) : WanderValue =
+    match value with
+    | Value.Identifier id -> WanderValue.Identifier id
+    | Value.Bytes bytes -> WanderValue.Bytes bytes
+    | Value.Int i -> WanderValue.Int i
+    | Value.String s -> WanderValue.String s
+    | Value.Slot s -> WanderValue.Slot s
+
 type Parameter = { name: string; tag: string }
 
 //TODO try to remove this

@@ -31,13 +31,6 @@ let vident id =
         | Error _ -> todo
     )
 
-let slot id =
-    WanderValue.Slot(
-        match Ligature.Main.slot (Some id) with
-        | Ok v -> v
-        | Error _ -> todo
-    )
-
 let bindings = Ligature.Wander.Bindings.coreBindings // (Ligature.LigatureStore.InMemoryStore.empty ())
 
 [<Tests>]
@@ -76,7 +69,7 @@ let tests =
           <| fun _ ->
               let script = "$hello"
               let result = run script bindings
-              Expect.equal result (Ok(slot "hello")) ""
+              Expect.equal result (Ok(WanderValue.Slot(Slot(Some("hello"))))) ""
           testCase "Run Empty Dataset literal"
           <| fun _ ->
               let script = "{}"

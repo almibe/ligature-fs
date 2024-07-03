@@ -356,10 +356,10 @@ and evalExpressions
     (expressions: Expression list)
     : Result<(WanderValue * Bindings), LigatureError> =
     match List.length expressions with
-    | 0 -> failwith "TODO" //Ok(WanderValue.Network(emptyNetwork), bindings)
+    | 0 -> Ok(WanderValue.Network(emptyNetwork), bindings)
     | 1 -> evalExpression bindings (List.head expressions)
     | _ ->
-        let mutable result = Ok(WanderValue.Network(empty ()), bindings)
+        let mutable result = Ok(WanderValue.Network(emptyNetwork), bindings)
         let mutable cont = true
         let mutable bindings = bindings
         let mutable expressions = expressions

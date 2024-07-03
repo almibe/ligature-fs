@@ -16,12 +16,7 @@ let ident id =
         | Error(_) -> failwith "todo"
     )
 
-let slot (id: string) =
-    Token.Slot(
-        match slot (Some id) with
-        | Ok(v) -> v
-        | Error(_) -> failwith "todo"
-    )
+let slot (id: string) = Token.Slot(Slot(Some(id)))
 
 [<Tests>]
 let tests =
@@ -65,7 +60,7 @@ let tests =
               Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
           testCase "Read Slots"
           <| fun _ ->
-              Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot.Empty) ])) ""
+              Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot(None)) ])) ""
               Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
           testCase "Read Triple"

@@ -19,11 +19,6 @@ let ident id =
     | Ok(v) -> v
     | Error(_) -> failwith "todo"
 
-let slot id =
-    match slot (Some id) with
-    | Ok(v) -> v
-    | Error(_) -> failwith "todo"
-
 [<Tests>]
 let tests =
     testList
@@ -52,7 +47,7 @@ let tests =
           <| fun _ ->
               let tokens = tokenize "$hello"
               let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Slot(slot "hello") ])) ""
+              Expect.equal ast (Ok([ Element.Slot(Slot(Some "hello")) ])) ""
 
           testCase "Parse String"
           <| fun _ ->
@@ -147,7 +142,7 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Pattern(
-                            [ (Element.Slot(Slot.Empty), [ (Element.Slot(Slot.Empty), [ Element.Slot(Slot.Empty) ]) ]) ]
+                            [ (Element.Slot(Slot(None)), [ (Element.Slot(Slot(None)), [ Element.Slot(Slot(None)) ]) ]) ]
                         ) ]
                   ))
                   ""
@@ -161,8 +156,8 @@ let tests =
                   ast
                   (Ok(
                       [ Element.Pattern(
-                            [ (Element.Slot(slot "entity")),
-                              [ (Element.Slot(slot "attribute")), [ Element.Slot(slot "value") ] ] ]
+                            [ (Element.Slot(Slot(Some("entity")))),
+                              [ (Element.Slot(Slot(Some("attribute")))), [ Element.Slot(Slot(Some("value"))) ] ] ]
                         ) ]
                   ))
                   ""
