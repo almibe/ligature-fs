@@ -38,12 +38,12 @@ let applyFunction =
       Name = "apply"
       Description = "Take a Pattern and set of named values and use the named values to fill Slots in the Pattern."
       //      Examples = []
-      Parameters = [ ("pattern", WanderType.Network); ("values", WanderType.Record) ]
+      Parameters = [ ("pattern", WanderType.Network); ("values", WanderType.AssocArray) ]
       Returns = WanderType.Network
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(pattern); WanderValue.Namespace(data) ] -> apply pattern data
+            | [ WanderValue.Network(pattern); WanderValue.AssocArray(data) ] -> apply pattern data
             | value -> error $"Unexpected value passed to Ligature.apply - {value}." None) }
 
 let unionFunction =
@@ -93,16 +93,16 @@ let mapEduceResult (res: Set<Map<Slot, Value>>) : Result<WanderValue, LigatureEr
                 | Slot(Some(name)) -> Map.add name (toWanderValue value) state)
             Map.empty
             value)
-    //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.Namespace value)
-    |> Array.map (WanderValue.Namespace)
+    //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.AssocArray value)
+    |> Array.map (WanderValue.AssocArray)
     |> WanderValue.Array
     |> Ok
 
 
 //|> WanderValue.Array
-//|> WanderValue.Namespace
+//|> WanderValue.AssocArray
 //|> Ok
-//    Ok(WanderValue.Namespace(Map []))
+//    Ok(WanderValue.AssocArray(Map []))
 
 let educeFunction =
     { Module = "Ligature"
@@ -139,7 +139,7 @@ let educeFunction =
 //                         | Value.String value -> WanderValue.String value
 //                         | Value.Slot value -> WanderValue.Slot value))
 //                     |> Map.ofSeq
-//                     |> WanderValue.Namespace)
+//                     |> WanderValue.AssocArray)
 //                 |> Array.ofList
 //                 |> WanderValue.Array
 //                 |> Ok

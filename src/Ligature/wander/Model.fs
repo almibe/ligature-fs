@@ -23,7 +23,7 @@ type Expression =
     | Grouping of Expression list
     | Array of Expression list
     | Application of Expression list
-    | Record of list<string * Expression>
+    | AssocArray of list<string * Expression>
     | Pattern of DatasetPatternRoot list
 
 and EntityDescription = Expression * Expression list
@@ -40,7 +40,7 @@ type WanderValue =
     | Triple of Ligature.Main.Triple
     | Array of WanderValue array
     | Network of Network
-    | Namespace of Map<string, WanderValue>
+    | AssocArray of Map<string, WanderValue>
     | Bytes of byte array
     | Nothing
 
@@ -58,9 +58,9 @@ type Parameter = { name: string; tag: string }
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool = failwith "TODO"
 // if
 //     (left = WanderValue.Network(emptyNetwork)
-//      || left = WanderValue.Namespace(Map.empty))
+//      || left = WanderValue.AssocArray(Map.empty))
 //     && (right = WanderValue.Network(emptyNetwork)
-//         || right = WanderValue.Namespace(Map.empty))
+//         || right = WanderValue.AssocArray(Map.empty))
 // then
 //     true
 // else
@@ -89,7 +89,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Slot(Slot(None)) -> "$"
     | WanderValue.Array(values) -> $"[{printValues values}]"
     | WanderValue.Triple(triple) -> printTriple triple
-    | WanderValue.Namespace(values) -> printRecord values
+    | WanderValue.AssocArray(values) -> printAssocArray values
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Network(values) -> printNetwork values
     | WanderValue.Nothing -> "Nothing"
@@ -104,10 +104,10 @@ and printBytes bytes =
     |> Array.insertAt 0 "0x"
     |> String.concat String.Empty
 
-and printRecord values =
-    "{ "
+and printAssocArray values =
+    "[ "
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
-    + "}"
+    + "]"
 
 and printTriple triple =
     $"`{(readPatternIdentifier triple.Entity)}` `{(readPatternIdentifier triple.Attribute)}` {(printLigatureValue triple.Value)}"
@@ -150,7 +150,7 @@ type WanderType =
     | Identifier
     | Slot
     | Network
-    | Record
+    | AssocArray
     | Value
     | Array
     | Anything

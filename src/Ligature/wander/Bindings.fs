@@ -48,7 +48,7 @@ let wanderTypeToIdentifier (wt: WanderType) : Identifier =
     | WanderType.Identifier -> identifierUnsafe "Identifier"
     | WanderType.Slot -> identifierUnsafe "Slot"
     | WanderType.Network -> identifierUnsafe "Network"
-    | WanderType.Record -> identifierUnsafe "Record"
+    | WanderType.AssocArray -> identifierUnsafe "AssocArray"
     | WanderType.Value -> identifierUnsafe "Value"
     | WanderType.Array -> identifierUnsafe "Array"
     | WanderType.Anything -> identifierUnsafe "Anything"

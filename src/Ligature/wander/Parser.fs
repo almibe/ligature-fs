@@ -24,7 +24,7 @@ type Element =
     | Slot of Ligature.Main.Slot
     | Array of Element list
     | Let of string * Element
-    | Namespace of (string * Element) list
+    | AssocArray of (string * Element) list
     | Pattern of DatasetPatternRoot list
     | Pipe
     | Colon
@@ -160,18 +160,18 @@ let declarationsNib (gaze: Gaze.Gaze<Token>) =
         return (name, expression)
     }
 
-let recordNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
 
         let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
 
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
 
         if List.isEmpty declarations then
-            return Element.Pattern(List.empty)
+            return Element.Array(List.empty)
         else
-            return Element.Namespace(declarations)
+            return Element.AssocArray(declarations)
     }
 
 /// Read the next Element from the given instance of Gaze<Token>
@@ -257,8 +257,8 @@ let applicationInnerNib =
           colonNib
           readValue
           nameNib
+          assocArrayNib
           arrayNib
-          recordNib
           datasetNib
           groupingNib ]
 
@@ -268,8 +268,8 @@ let elementNib =
           applicationNib
           nameNib
           readValue
+          assocArrayNib
           arrayNib
-          recordNib
           datasetNib
           groupingNib ]
 
@@ -333,11 +333,11 @@ let expressGrouping values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Grouping res
 
-let handleRecord (declarations: list<string * Element>) =
+let handleAssocArray (declarations: list<string * Element>) =
     let res =
         List.map (fun (name, value) -> (name, (expressElement value))) declarations
 
-    Expression.Record res
+    Expression.AssocArray res
 
 let expressApplication elements =
     let parts = new Generic.List<Expression list>()
@@ -374,7 +374,7 @@ let rec expressElement (element: Element) =
     | Element.Array values -> expressArray values
     | Element.Grouping elements -> expressGrouping elements
     | Element.Application elements -> expressApplication elements
-    | Element.Namespace declarations -> handleRecord declarations
+    | Element.AssocArray declarations -> handleAssocArray declarations
     | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
     | Element.Pattern value -> expressDataset value

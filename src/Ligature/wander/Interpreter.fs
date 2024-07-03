@@ -111,7 +111,7 @@ let rec evalExpression bindings expression =
         match error with
         | None -> Ok((WanderValue.Array(res), bindings))
         | Some(err) -> Error(err)
-    | Expression.Record(values) -> handleRecord bindings values
+    | Expression.AssocArray(values) -> handleAssocArray bindings values
     //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
     | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
@@ -132,7 +132,7 @@ let rec evalExpression bindings expression =
 //             error $"Improper parameters passed to lambda - {parameters}" None
 //     | Function.HostFunction(hf) -> hf.Run args bindings
 
-and handleRecord bindings values =
+and handleAssocArray bindings values =
     let res =
         List.map
             (fun (name, expr) ->
@@ -142,7 +142,7 @@ and handleRecord bindings values =
             values
 
     let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
-    Ok(WanderValue.Namespace(v), bindings)
+    Ok(WanderValue.AssocArray(v), bindings)
 
 and handleEntityDescription bindings (attribute, values) =
     let attribute =
