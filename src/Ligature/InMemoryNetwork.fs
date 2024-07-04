@@ -63,24 +63,32 @@ let educeNetworkNetwork (network: Set<Triple>) (pattern: Set<Triple>) : Set<Map<
             Set.empty
             pattern
 
+
 type InMemoryNetwork(network: Set<Triple>) =
-    override this.Equals(other) =
+    let processQueryResults (trans: Network) (values: Set<Map<string, Value>>): Network =
+        List.ofSeq values
+        |> List.map (fun values -> trans.Apply values)
+        |> List.fold (fun state network -> state.Union network) (InMemoryNetwork(Set.empty))
+
+    override _.Equals(other) =
         match other with
         | :? Network as other -> network = other.Write()
         | _ -> false
 
+    override _.GetHashCode () =
+        network.GetHashCode()
     interface Network with
-        member this.Write() = network
+        member _.Write() = network
 
-        member this.Count() = Set.count network
+        member _.Count() = Set.count network
 
-        member this.Union other =
+        member _.Union other =
             InMemoryNetwork(Set.union network (other.Write()))
 
-        member this.Minus other =
+        member _.Minus other =
             InMemoryNetwork(Set.difference (other.Write()) network)
 
-        member this.Apply(values: Map<string, Value>) =
+        member _.Apply(values: Map<string, Value>) =
             let res: Set<Triple> =
                 Set.map
                     (fun (triple: Triple) ->
@@ -138,9 +146,13 @@ type InMemoryNetwork(network: Set<Triple>) =
         member this.Educe pattern : Set<Map<string, Value>> =
             educeNetworkNetwork network (pattern.Write())
 
-        member this.Query pattern trans : Network = failwith "TODO"
+        member this.Query pattern trans : Network = 
+            (this :> Network).Educe pattern
+            |> processQueryResults trans
 
-        member this.Infer pattern trans : Network = failwith "TODO"
+        member this.Infer pattern trans : Network =
+            (this :> Network).Query pattern trans
+            |> (this :> Network).Union
 
 let emptyNetwork: Network = InMemoryNetwork(Set.empty)
 
