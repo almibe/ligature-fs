@@ -117,8 +117,8 @@ type Network =
     abstract member Count: unit -> int64
     abstract member Union: Network -> Network
     abstract member Minus: Network -> Network
-    abstract member Apply: Map<Slot, Value> -> Network
-    abstract member Educe: Network -> Set<Map<Slot, Value>>
+    abstract member Apply: Map<string, Value> -> Network
+    abstract member Educe: Network -> Set<Map<string, Value>>
     abstract member Query: Network -> Network -> Network
     abstract member Infer: Network -> Network -> Network
 

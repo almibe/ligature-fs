@@ -53,7 +53,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run script (createBindings ()) with
+                match run script coreBindings with
                 | Ok(_) -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

@@ -13,40 +13,48 @@ let patternIdentifierToValue (patternIdentifier: PatternIdentifier) : Value =
     | PatternIdentifier.Id identifier -> Value.Identifier identifier
     | PatternIdentifier.Sl slot -> Value.Slot slot
 
-let educeTripleTriple (triple: Triple) (patternTriple: Triple) : Map<Slot, Value> =
+let educeTripleTriple (triple: Triple) (patternTriple: Triple) : Option<Map<string, Value>> =
     let mutable cont = true
-    let mutable result: Map<Slot, Value> = Map []
+    let mutable result: Map<string, Value> = Map.empty
 
     match patternTriple.Entity with
     | PatternIdentifier.Sl(Slot(Some(name))) ->
-        result <- Map.add (Slot(Some(name))) (triple.Entity |> patternIdentifierToValue) result
+        result <- Map.add name (triple.Entity |> patternIdentifierToValue) result
     | PatternIdentifier.Sl(Slot(None)) -> ignore ()
     | PatternIdentifier.Id id -> cont <- (patternTriple.Entity = triple.Entity)
-    | _ -> failwith "Error"
 
     if cont then
         match patternTriple.Attribute with
         | PatternIdentifier.Sl(Slot(Some(name))) ->
-            result <- Map.add (Slot(Some(name))) (triple.Attribute |> patternIdentifierToValue) result
+            if Map.containsKey name result then
+                cont <- (Map.find name result) = (patternIdentifierToValue triple.Attribute)
+            else
+                result <- Map.add name (triple.Attribute |> patternIdentifierToValue) result
         | PatternIdentifier.Sl(Slot(None)) -> ignore ()
         | PatternIdentifier.Id id -> cont <- (patternTriple.Attribute = triple.Attribute)
-        | _ -> failwith "Error"
 
     if cont then
         match patternTriple.Value with
-        | Value.Slot(Slot(Some(name))) -> result <- Map.add (Slot(Some(name))) (triple.Value) result
+        | Value.Slot(Slot(Some(name))) ->
+            if Map.containsKey name result then
+                cont <- (Map.find name result) = (triple.Value)
+            else
+                result <- Map.add name (triple.Value) result
         | Value.Slot(Slot(None)) -> ignore ()
-    //| Value.Int(i) -> patternTriple.Value = triple.Value
-    //| Value.String(s) -> patternTriple.Value = triple.Value
-    //| Value.Bytes(b) -> patternTriple.Value = triple.Value
-    //| Value.Identifier(i) -> patternTriple.Value = triple.Value
-    // | _ -> cont <- (patternTriple.Value = triple.Value)
-    result
+        | _ -> cont <- patternTriple.Value = triple.Value
 
-let educeNetworkTriple (network: Set<Triple>) (pattern: Triple) : Set<Map<Slot, Value>> =
+    if cont then Some(result) else None
+
+let educeNetworkTriple (network: Set<Triple>) (pattern: Triple) : Set<Map<string, Value>> =
     Set.map (fun triple -> educeTripleTriple triple pattern) network
+    |> Set.fold
+        (fun state values ->
+            match values with
+            | Some(values) -> Set.add values state
+            | None -> state)
+        Set.empty
 
-let educeNetworkNetwork (network: Set<Triple>) (pattern: Set<Triple>) : Set<Map<Slot, Value>> =
+let educeNetworkNetwork (network: Set<Triple>) (pattern: Set<Triple>) : Set<Map<string, Value>> =
     if network.IsEmpty || pattern.IsEmpty then
         Set.empty
     else
@@ -72,7 +80,7 @@ type InMemoryNetwork(network: Set<Triple>) =
         member this.Minus other =
             InMemoryNetwork(Set.difference (other.Write()) network)
 
-        member this.Apply(values: Map<Slot, Value>) =
+        member this.Apply(values: Map<string, Value>) =
             let res: Set<Triple> =
                 Set.map
                     (fun (triple: Triple) ->
@@ -87,7 +95,7 @@ type InMemoryNetwork(network: Set<Triple>) =
                                 | PatternIdentifier.Sl(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
-                                        match values.TryFind slot with
+                                        match values.TryFind name with
                                         | Some value ->
                                             match value with
                                             | Value.Identifier identifier -> identifier
@@ -101,7 +109,7 @@ type InMemoryNetwork(network: Set<Triple>) =
                                 | PatternIdentifier.Sl(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
-                                        match values.TryFind slot with
+                                        match values.TryFind name with
                                         | Some value ->
                                             match value with
                                             | Value.Identifier identifier -> identifier
@@ -114,7 +122,7 @@ type InMemoryNetwork(network: Set<Triple>) =
                                 | Value.Slot(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
-                                        match values.TryFind slot with
+                                        match values.TryFind name with
                                         | Some value -> value
                                         | None -> failwith "Error"
                                     | Slot(None) -> failwith "Error"
@@ -127,7 +135,7 @@ type InMemoryNetwork(network: Set<Triple>) =
 
             InMemoryNetwork(res)
 
-        member this.Educe pattern : Set<Map<Slot, Value>> =
+        member this.Educe pattern : Set<Map<string, Value>> =
             educeNetworkNetwork network (pattern.Write())
 
         member this.Query pattern trans : Network = failwith "TODO"

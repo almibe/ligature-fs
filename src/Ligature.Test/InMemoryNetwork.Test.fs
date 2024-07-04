@@ -50,7 +50,7 @@ let tests =
                   (educeTripleTriple
                       (triple (ident "a") (ident "b") (vident "c"))
                       (triple (ident "a") (ident "b") (vident "c")))
-                  (Map.empty)
+                  (Some(Map.empty))
                   ""
           testCase "calling educe on non-matching triples"
           <| fun _ ->
@@ -58,13 +58,13 @@ let tests =
                   (educeTripleTriple
                       (triple (ident "e") (ident "b") (vident "c"))
                       (triple (ident "a") (ident "b") (vident "c")))
-                  (Map.empty)
+                  (None)
                   ""
           testCase "calling educe on simple matching triple"
           <| fun _ ->
               Expect.equal
                   (educeTripleTriple
                       (triple (ident "e") (ident "a") (vident "v"))
-                      (triple (slot "test") (ident "b") (vident "c")))
-                  (Map [ (Slot(Some("test")), Value.Identifier(id "e")) ])
+                      (triple (slot "test") (ident "a") (vident "v")))
+                  (Some(Map [ ("test", Value.Identifier(id "e")) ]))
                   "" ]

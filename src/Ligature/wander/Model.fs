@@ -58,7 +58,7 @@ type Parameter = { name: string; tag: string }
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
     if
         (left = WanderValue.Array(Array.empty)
-        || left = WanderValue.AssocArray(Map.empty))
+         || left = WanderValue.AssocArray(Map.empty))
         && (right = WanderValue.Array(Array.empty)
             || right = WanderValue.AssocArray(Map.empty))
     then

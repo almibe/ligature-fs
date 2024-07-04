@@ -18,8 +18,6 @@ let apply (network: Network) (pattern: Map<string, WanderValue>) =
         data
         |> Map.toSeq
         |> Seq.map (fun (k, v) ->
-            let k = Slot(Some(k))
-
             let v =
                 match v with
                 | WanderValue.Identifier i -> Value.Identifier i
@@ -82,15 +80,13 @@ let countFunction =
             | [ WanderValue.Network(network) ] -> Ok(WanderValue.Int(bigint (network.Count())))
             | value -> error $"Unexpected value - {value}." None) }
 
-let mapEduceResult (res: Set<Map<Slot, Value>>) : Result<WanderValue, LigatureError> =
+let mapEduceResult (res: Set<Map<string, Value>>) : Result<WanderValue, LigatureError> =
     res
     |> Array.ofSeq
-    |> Array.map (fun (value: Map<Slot, Value>) ->
+    |> Array.map (fun (value: Map<string, Value>) ->
         Map.fold
-            (fun state key value ->
-                match key with
-                | Slot(None) -> state
-                | Slot(Some(name)) -> Map.add name (toWanderValue value) state)
+            (fun (state: Map<string, WanderValue>) (key: string) (value: Value) ->
+                Map.add key (toWanderValue value) state)
             Map.empty
             value)
     //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.AssocArray value)
