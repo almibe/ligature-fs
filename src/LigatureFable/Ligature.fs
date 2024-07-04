@@ -3,8 +3,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 let run script =
-    Ligature.Wander.Main.run
-        script
-        (Ligature.Wander.Bindings.coreBindings)
+    Ligature.Wander.Main.run script (Ligature.Wander.Bindings.coreBindings)
 
 let printResult result = Ligature.Wander.Main.printResult result

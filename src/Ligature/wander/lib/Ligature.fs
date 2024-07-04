@@ -115,25 +115,29 @@ let educeFunction =
 let queryFunction =
     { Module = "Ligature"
       Name = "query"
-      Description = "Search using the given pattern, and then transform the selected reselts with the transform Network."
+      Description =
+        "Search using the given pattern, and then transform the selected reselts with the transform Network."
       Parameters = [ ("network", WanderType.Network); ("pattern", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(network); WanderValue.Network(pattern); WanderValue.Network(trans) ] -> Ok(WanderValue.Network(network.Query pattern trans))
+            | [ WanderValue.Network(network); WanderValue.Network(pattern); WanderValue.Network(trans) ] ->
+                Ok(WanderValue.Network(network.Query pattern trans))
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 let inferFunction =
     { Module = "Ligature"
       Name = "infer"
-      Description = "Search using the given pattern, and then transform the selected reselts with the transform Network and merge the results back into the original Network."
+      Description =
+        "Search using the given pattern, and then transform the selected reselts with the transform Network and merge the results back into the original Network."
       Parameters = [ ("network", WanderType.Network); ("pattern", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(network); WanderValue.Network(pattern); WanderValue.Network(trans) ] -> Ok(WanderValue.Network(network.Infer pattern trans))
+            | [ WanderValue.Network(network); WanderValue.Network(pattern); WanderValue.Network(trans) ] ->
+                Ok(WanderValue.Network(network.Infer pattern trans))
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
 
 
@@ -175,5 +179,4 @@ let ligatureLib =
       minusFunction
       //matchFunction
       queryFunction
-      inferFunction
-      ]
+      inferFunction ]

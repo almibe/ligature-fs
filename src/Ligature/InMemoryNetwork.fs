@@ -65,7 +65,7 @@ let educeNetworkNetwork (network: Set<Triple>) (pattern: Set<Triple>) : Set<Map<
 
 
 type InMemoryNetwork(network: Set<Triple>) =
-    let processQueryResults (trans: Network) (values: Set<Map<string, Value>>): Network =
+    let processQueryResults (trans: Network) (values: Set<Map<string, Value>>) : Network =
         List.ofSeq values
         |> List.map (fun values -> trans.Apply values)
         |> List.fold (fun state network -> state.Union network) (InMemoryNetwork(Set.empty))
@@ -75,8 +75,8 @@ type InMemoryNetwork(network: Set<Triple>) =
         | :? Network as other -> network = other.Write()
         | _ -> false
 
-    override _.GetHashCode () =
-        network.GetHashCode()
+    override _.GetHashCode() = network.GetHashCode()
+
     interface Network with
         member _.Write() = network
 
@@ -146,13 +146,11 @@ type InMemoryNetwork(network: Set<Triple>) =
         member this.Educe pattern : Set<Map<string, Value>> =
             educeNetworkNetwork network (pattern.Write())
 
-        member this.Query pattern trans : Network = 
-            (this :> Network).Educe pattern
-            |> processQueryResults trans
+        member this.Query pattern trans : Network =
+            (this :> Network).Educe pattern |> processQueryResults trans
 
         member this.Infer pattern trans : Network =
-            (this :> Network).Query pattern trans
-            |> (this :> Network).Union
+            (this :> Network).Query pattern trans |> (this :> Network).Union
 
 let emptyNetwork: Network = InMemoryNetwork(Set.empty)
 
