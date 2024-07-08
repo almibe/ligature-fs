@@ -62,7 +62,7 @@ type LigatureSqlite(path: string) =
                 match run script (newBindings ()) with
                 | Ok(WanderValue.Network(value)) -> store.add event.Network value |> ignore
                 | _ -> failwith "Error"
-            | "RS" -> 
+            | "RS" ->
                 let script =
                     match event.Ligature with
                     | Some(script) -> script

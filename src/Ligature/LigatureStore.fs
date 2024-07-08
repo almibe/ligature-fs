@@ -7,6 +7,7 @@ module Ligature.LigatureStore
 open Ligature.Main
 open System
 open System.Collections.Generic
+open Ligature.InMemoryNetwork
 
 type LigatureStore =
     abstract member networks: unit -> string seq
@@ -38,9 +39,9 @@ module InMemoryStore =
 
             member this.read name =
                 let store = store.Item(name)
-                failwith "TODO" //new Network(store)
+                networkOf store
 
     let empty () : LigatureStore =
         InMemoryStore(new Dictionary<string, Set<Triple>>())
 
-    let emptyNetwork: Network = failwith "TODO" //new Network(Set.empty)
+    let emptyNetwork: Network = networkOf (Set.empty)
