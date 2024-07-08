@@ -16,31 +16,31 @@ type LigatureStore =
     abstract member remove: string -> Network -> Result<unit, LigatureError>
     abstract member read: string -> Network
 
-// module InMemoryStore =
-//     type InMemoryStore(store: Dictionary<string, Set<Triple>>) =
-//         interface LigatureStore with
-//             member this.addNetwork networkName = store.Add(networkName, Set.empty)
+module InMemoryStore =
+    type InMemoryStore(store: Dictionary<string, Set<Triple>>) =
+        interface LigatureStore with
+            member this.addNetwork networkName = store.Add(networkName, Set.empty)
 
-//             member this.removeNetwork networkName = store.Remove(networkName) |> ignore
-//             member this.networks() = store.Keys
+            member this.removeNetwork networkName = store.Remove(networkName) |> ignore
+            member this.networks() = store.Keys
 
-//             member this.add name network =
-//                 let oldNetwork = store.Item(name)
-//                 store.Remove(name) |> ignore
-//                 store.Add(name, (Set.union oldNetwork (network)))
-//                 Ok(())
+            member this.add name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name) |> ignore
+                store.Add(name, (Set.union oldNetwork (network.Write())))
+                Ok(())
 
-//             member this.remove name network =
-//                 let oldNetwork = store.Item(name)
-//                 store.Remove(name) |> ignore
-//                 store.Add(name, (Set.difference oldNetwork (network)))
-//                 Ok(())
+            member this.remove name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name) |> ignore
+                store.Add(name, (Set.difference oldNetwork (network.Write())))
+                Ok(())
 
-//             member this.read name =
-//                 let store = store.Item(name)
-//                 Network(store)
+            member this.read name =
+                let store = store.Item(name)
+                failwith "TODO" //new Network(store)
 
-//     let empty () : LigatureStore =
-//         InMemoryStore(new Dictionary<string, Set<Triple>>())
+    let empty () : LigatureStore =
+        InMemoryStore(new Dictionary<string, Set<Triple>>())
 
-//     let emptyNetwork: Network = new Network(Set.empty)
+    let emptyNetwork: Network = failwith "TODO" //new Network(Set.empty)

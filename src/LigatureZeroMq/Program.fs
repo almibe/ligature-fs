@@ -12,14 +12,14 @@ open NetMQ
 open System
 open Ligature.Wander.Bindings
 open Ligature.LigatureStore
-//open Ligature.LigatureStore.InMemoryStore
-//open Ligature.LigatureSqlite
+open Ligature.LigatureStore.InMemoryStore
+open Ligature.LigatureSqlite
 
-let rec serve (server: ResponseSocket) = //(store: LigatureStore) =
+let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script coreBindings
+    let res = run script (stdBindings store)
     server.SendFrame(printResult res)
-    serve server
+    serve server store
 
 [<EntryPoint>]
 let main args =
@@ -27,18 +27,18 @@ let main args =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
 
-    // let store =
-    //     if inmem then
-    //         failwith "TODO"
-    //         //InMemoryStore.empty ()
-    //     else
-    //         let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
-    //         let store = InMemoryStore.empty () //new LigatureSqlite(path + "\\sqlite\\store.db")
-    //         //store.initialize () |> ignore
-    //         store
+    let store =
+        if inmem then
+            failwith "TODO"
+        //InMemoryStore.empty ()
+        else
+            let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
+            let store = InMemoryStore.empty () //new LigatureSqlite(path + "\\sqlite\\store.db")
+            //store.initialize () |> ignore
+            store
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")
     Console.WriteLine("Started on port 4200.")
-    serve server // store
+    serve server store
     0

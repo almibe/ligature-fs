@@ -16,8 +16,11 @@ open Lib.Store
 open Ligature.LigatureStore
 open Ligature.Wander.Model
 open Ligature.Main
+open Ligature.InMemoryNetwork
 
-let bindCoreHostFunctions bindings = //store =
+let bindStore (store: LigatureStore) bindings = bindFunctions (storeLib store) bindings
+
+let bindCoreHostFunctions bindings =
     bindings
     |> bindFunctions Lib.Array.arrayLib
     |> bindFunctions Lib.Assert.assertLib
@@ -26,7 +29,6 @@ let bindCoreHostFunctions bindings = //store =
     |> bindFunctions dateTimeLib
     |> bindFunctions Lib.Ligature.ligatureLib
     |> bindFunctions identifierLib
-    //|> bindFunctions (storeLib store)
     |> bindFunctions intLib
     |> bindFunctions Lib.Triple.tripleLib
     |> bindFunctions Lib.String.stringLib
@@ -54,7 +56,7 @@ let wanderTypeToIdentifier (wt: WanderType) : Identifier =
     | WanderType.Anything -> identifierUnsafe "Anything"
     | WanderType.Nothing -> identifierUnsafe "Nothing"
 
-let createLib (bindings: Bindings) : Set<Triple> =
+let createLib (bindings: Bindings) : Network =
     bindings.Functions
     |> List.map (fun fn ->
         [ { Entity = PatternIdentifier.Id(identifierUnsafe fn.Name)
@@ -64,10 +66,12 @@ let createLib (bindings: Bindings) : Set<Triple> =
             Attribute = PatternIdentifier.Id(identifierUnsafe "returns")
             Value = Value.Identifier(wanderTypeToIdentifier fn.Returns) } ])
     |> List.concat
-    |> Set.ofList
+    |> networkOf
 
-let bindLib (bindings: Bindings) = failwith "TODO"
-// bindings |> bind "lib" (WanderValue.Network(createLib bindings))
+let bindLib (bindings: Bindings) =
+    bindings |> bind "lib" (WanderValue.Network(createLib bindings))
 
-let coreBindings = bindCoreHostFunctions (newBindings ()) //(store: LigatureStore) =
-//store |>
+let coreBindings = bindCoreHostFunctions (newBindings ()) |> bindLib
+
+let stdBindings (store: LigatureStore) =
+    bindCoreHostFunctions (newBindings ()) |> bindStore store |> bindLib
