@@ -29,12 +29,11 @@ let main args =
 
     let store =
         if inmem then
-            failwith "TODO"
-        //InMemoryStore.empty ()
+            empty ()
         else
             let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
-            let store = InMemoryStore.empty () //new LigatureSqlite(path + "\\sqlite\\store.db")
-            //store.initialize () |> ignore
+            let store = new LigatureSqlite(path + "\\sqlite\\store.db")
+            store.initialize () |> ignore
             store
 
     use server = new ResponseSocket()
