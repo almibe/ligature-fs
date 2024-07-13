@@ -1,4 +1,4 @@
-import { run as _run } from "../../Ligature.fs.js"
+import { run as _run, coreBindings as _coreBindings } from "../../Ligature.fs.js"
 import { printResult as _printResult } from "../../Ligature.fs.js"
 
 export type Identifier = { "identifier": string }
@@ -10,6 +10,8 @@ export type Value = bigint | Identifier | string | Uint8Array | Slot
 export type Triple = [Identifier | Slot, Identifier | Slot, Value]
 
 export type Error = { "error": string }
+
+export const coreBindings = _coreBindings
 
 const processValue = (type: string, value: any): any => {
     if (type == "Network") {
@@ -33,8 +35,8 @@ const processValue = (type: string, value: any): any => {
     }
 }
 
-export let run = (input: string): Triple[] | Value | Error => {
-    const res = JSON.parse(JSON.stringify(_run(input)))
+export let run = (input: string, bindings: any = coreBindings): Triple[] | Value | Error => {
+    const res = JSON.parse(JSON.stringify(_run(input, bindings)))
     if (res[0] == 'Ok') {
         const resValue = res[1]
         const type = resValue[0]
