@@ -1,4 +1,7 @@
-import { run as _run, coreBindings as _coreBindings } from "../../Ligature.fs.js"
+import { HostFunction, WanderType, WanderValue } from "../../../Ligature/wander/Model.fs.js"
+import { singleton } from "../../fable_modules/fable-library-js.4.19.2/List.js"
+import { FSharpResult$2 } from "../../fable_modules/fable-library-js.4.19.2/Result.js"
+import { run as _run, coreBindings as _coreBindings, bindFunction as _bindFunction } from "../../Ligature.fs.js"
 import { printResult as _printResult } from "../../Ligature.fs.js"
 
 export type Identifier = { "identifier": string }
@@ -12,6 +15,28 @@ export type Triple = [Identifier | Slot, Identifier | Slot, Value]
 export type Error = { "error": string }
 
 export const coreBindings = _coreBindings
+
+export type WanderFunction = {
+    module: string,
+    name: string,
+    description: string,
+    eval: (args: (Triple | Value)[]) => Triple | Value | Error
+}
+
+export const bindFunction = (fn: WanderFunction, bindings) => {
+    const hostFn = new HostFunction(
+        fn.module,
+        fn.name, 
+        singleton([]), //TODO
+        new WanderType(1, []), //TODO
+        fn.description, 
+        (args, _arg) => new FSharpResult$2(0, [new WanderValue(1, [
+            "test"
+        ])])
+    )
+
+    return _bindFunction(hostFn, bindings)
+}
 
 const processValue = (type: string, value: any): any => {
     if (type == "Network") {
