@@ -29,7 +29,7 @@ test("Eval Networks", () => {
     ])
 })
 
-test("Add HostFunction from JS", () => {
+test("Add Basic HostFunction from JS", () => {
     const testFunction: WanderFunction = {
         module: "test",
         name: "test",
@@ -39,4 +39,18 @@ test("Add HostFunction from JS", () => {
 
     const newBindings = bindFunction(testFunction, coreBindings)
     expect(run("test ()", newBindings)).toEqual("test")
+})
+
+test("Add Basic HostFunction from JS That Uses Args", () => {
+    const testFunction: WanderFunction = {
+        module: "test",
+        name: "add",
+        description: "test",
+        eval: (args) => {
+            return args[0] + args[1]
+        },
+    }
+
+    const newBindings = bindFunction(testFunction, coreBindings)
+    expect(run("add 1 2", newBindings)).toEqual(3n)
 })

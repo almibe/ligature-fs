@@ -1,5 +1,5 @@
 import { HostFunction, WanderType, WanderValue } from "../../../Ligature/wander/Model.fs.js"
-import { singleton } from "../../fable_modules/fable-library-js.4.19.2/List.js"
+import { singleton, toArray } from "../../fable_modules/fable-library-js.4.19.2/List.js"
 import { FSharpResult$2 } from "../../fable_modules/fable-library-js.4.19.2/Result.js"
 import { run as _run, coreBindings as _coreBindings, bindFunction as _bindFunction } from "../../Ligature.fs.js"
 import { printResult as _printResult } from "../../Ligature.fs.js"
@@ -20,7 +20,27 @@ export type WanderFunction = {
     module: string,
     name: string,
     description: string,
-    eval: (args: (Triple | Value)[]) => Triple | Value | Error
+    eval: (args: (Triple[] | Value)[]) => Triple[] | Value | Error
+}
+
+function wanderValueToJSValue(value): Value | Triple[] {
+    if (value.tag == 0) {
+        return BigInt(value.fields[0])
+    } else if (value.tag == 1) {
+        return value.fields[0]
+    } else if (value.tag == 7) {
+        return [] //TODO
+    }
+    throw "TODO"
+}
+
+function jsValueToWanderValue(value: Value): WanderValue {
+    if (typeof value == "bigint") {
+        return new WanderValue(0, [value])
+    } else if (typeof value == "string") {
+        return new WanderValue(1, [value])
+    }
+    throw "TODO"
 }
 
 export const bindFunction = (fn: WanderFunction, bindings) => {
@@ -30,9 +50,11 @@ export const bindFunction = (fn: WanderFunction, bindings) => {
         singleton([]), //TODO
         new WanderType(1, []), //TODO
         fn.description, 
-        (args, _arg) => new FSharpResult$2(0, [new WanderValue(1, [
-            "test"
-        ])])
+        (args, _arg) => {            
+            const mappedArgs = toArray(args).map((arg) => wanderValueToJSValue(arg))
+            const res = fn.eval(mappedArgs)
+            return new FSharpResult$2(0, [jsValueToWanderValue(res)])
+        }
     )
 
     return _bindFunction(hostFn, bindings)
