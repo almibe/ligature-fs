@@ -8,6 +8,7 @@ open Ligature.Wander.Model
 open Parser
 open Lexer
 open Ligature.Main
+open NewInterpreter
 
 let run (input: string) (bindings: Bindings) =
     //try
@@ -22,14 +23,14 @@ let run (input: string) (bindings: Bindings) =
 //with
 //| x -> error $"Error running script. {x}" None
 
-let newRun (input: string) (bindings: Bindings) =
+let newRun (input: string) (environment: Environment): Result<WanderValue list, LigatureError> =
     //try
     match tokenize input with
     | Ok tokens ->
         match parse tokens with
         | Ok ast ->
             let expressions = express ast
-            Result.map (fun (res, _) -> res) (NewInterpreter.evalExpressions bindings expressions)
+            Result.map (fun (res) -> res) (NewInterpreter.evalExpressions environment expressions)
         | Error(err) -> error $"Error parsing.\n{err}" None
     | Error _ -> error "Error tokenizing." None
 //with
