@@ -12,6 +12,7 @@
     <Compile Include="wander/Lexer.Test.fs" />
     <Compile Include="wander/Parser.Test.fs" />
     <Compile Include="wander/Wander.Test.fs" />
+    <Compile Include="wander/NewWander.Test.fs" />
     <Compile Include="wander/Encoding.Test.fs" />
     <Compile Include="InMemoryNetwork.Test.fs" />
     <Compile Include="LigatureTestSuiteMain.fs" />

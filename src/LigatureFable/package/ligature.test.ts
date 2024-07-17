@@ -29,6 +29,10 @@ test("Eval Networks", () => {
     ])
 })
 
+test("Call Function", () => {
+    expect(run("count {`a` `b` `c`}")).toEqual(1n)
+})
+
 test("Add Basic HostFunction from JS", () => {
     const testFunction: WanderFunction = {
         module: "test",

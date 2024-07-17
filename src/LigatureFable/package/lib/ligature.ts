@@ -23,6 +23,20 @@ export type WanderFunction = {
     eval: (args: (Triple[] | Value)[]) => Triple[] | Value | Error
 }
 
+// export type FunctionDetails = {
+//     module: string,
+//     name: string,
+//     description: string,
+// }
+
+// export const bindingsToFunctionDetails = (bindings): FunctionDetails[] => 
+//     toArray(bindings.Functions)
+//     .map((f: any) => { return {
+//         module: f.Module,
+//         name: f.Name,
+//         description: f.Description
+//     }})
+
 function wanderValueToJSValue(value): Value | Triple[] {
     if (value.tag == 0) {
         return BigInt(value.fields[0])
@@ -94,4 +108,4 @@ export let run = (input: string, bindings: any = coreBindings): Triple[] | Value
     }
 }
 
-export let printResult = (result: string): string => _printResult(_run(result))
+export let printResult = (result: string, bindings: any = coreBindings): string => _printResult(_run(result, bindings))

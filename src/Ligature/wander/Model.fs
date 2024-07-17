@@ -43,6 +43,7 @@ type WanderValue =
     | AssocArray of Map<string, WanderValue>
     | Bytes of byte array
     | Nothing
+    | Name of string
 
 let toWanderValue (value: Value) : WanderValue =
     match value with
@@ -155,6 +156,7 @@ type WanderType =
     | Array
     | Anything
     | Nothing
+    | Function
 
 type HostFunction =
     { Module: string
