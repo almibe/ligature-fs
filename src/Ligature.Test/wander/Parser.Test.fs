@@ -180,46 +180,47 @@ let tests =
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.AssocArray([ ("x", Element.Int(5I)); ("y", Element.Bool(false)) ]) ])) ""
 
-          testCase "Parse Application"
-          <| fun _ ->
-              let tokens = tokenize "Bool.and false true"
-              let ast = parse (unsafe tokens)
+          //   testCase "Parse Application"
+          //   <| fun _ ->
+          //       let tokens = tokenize "Bool.and false true"
+          //       let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok([ Element.Application([ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]) ]))
-                  ""
+          //       Expect.equal
+          //           ast
+          //           (Ok([ Element.Application([ Element.Name("Bool.and"); Element.Bool(false); Element.Bool(true) ]) ]))
+          //           ""
           testCase "Parse Let Triple with Name"
           <| fun _ ->
               let tokens = tokenize "x = 5, x"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Let("x", Element.Int(5I)); Element.Name("x") ])) ""
-          testCase "Parse Grouping"
+          testCase "Parse Quote"
           <| fun _ ->
               let tokens = tokenize "(x = 5, x)"
               let ast = parse (unsafe tokens)
 
-              Expect.equal ast (Ok([ Element.Grouping([ Element.Let("x", Element.Int(5I)); Element.Name("x") ]) ])) ""
+              Expect.equal ast (Ok([ Element.Quote([ Element.Let("x", Element.Int(5I)); Element.Name("x") ]) ])) ""
 
-          testCase "Parse pipes"
-          <| fun _ ->
-              let tokens = tokenize "|||"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.Pipe; Element.Pipe; Element.Pipe ] ])) ""
-          testCase "Parse question marks"
-          <| fun _ ->
-              let tokens = tokenize "? ?"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Application [ Element.Name("?"); Element.Name("?") ] ])) ""
-          testCase "Parse identifier concat"
-          <| fun _ ->
-              let tokens = tokenize "`a`:`b`"
-              let ast = parse (unsafe tokens)
+          //   testCase "Parse pipes"
+          //   <| fun _ ->
+          //       let tokens = tokenize "|||"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.Application [ Element.Pipe; Element.Pipe; Element.Pipe ] ])) ""
+          //   testCase "Parse question marks"
+          //   <| fun _ ->
+          //       let tokens = tokenize "? ?"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.Application [ Element.Name("?"); Element.Name("?") ] ])) ""
+          //   testCase "Parse identifier concat"
+          //   <| fun _ ->
+          //       let tokens = tokenize "`a`:`b`"
+          //       let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok(
-                      [ Element.Application
-                            [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ]
-                  ))
-                  "" ]
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Application
+          //                     [ Element.Identifier(ident "a"); Element.Colon; Element.Identifier(ident "b") ] ]
+          //           ))
+          //           ""
+          ]

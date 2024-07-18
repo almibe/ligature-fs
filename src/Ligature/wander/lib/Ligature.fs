@@ -82,16 +82,16 @@ let countFunction =
 
 let mapEduceResult (res: Set<Map<string, Value>>) : Result<WanderValue, LigatureError> =
     res
-    |> Array.ofSeq
-    |> Array.map (fun (value: Map<string, Value>) ->
+    |> List.ofSeq
+    |> List.map (fun (value: Map<string, Value>) ->
         Map.fold
             (fun (state: Map<string, WanderValue>) (key: string) (value: Value) ->
                 Map.add key (toWanderValue value) state)
             Map.empty
             value)
     //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.AssocArray value)
-    |> Array.map (WanderValue.AssocArray)
-    |> WanderValue.Array
+    |> List.map (WanderValue.AssocArray)
+    |> WanderValue.Quote
     |> Ok
 
 

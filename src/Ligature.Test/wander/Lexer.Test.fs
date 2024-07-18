@@ -170,5 +170,6 @@ let tests =
               Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") ""
-          testCase "read pipe expression"
-          <| fun _ -> Expect.equal (tokenize "|") (Ok([ Token.Pipe ])) "" ]
+          //   testCase "read pipe expression"
+          //   <| fun _ -> Expect.equal (tokenize "|") (Ok([ Token.Pipe ])) ""
+          ]

@@ -7,6 +7,7 @@ let coreBindings = Ligature.Wander.Bindings.coreBindings
 let bindFunction (hostFunction: Ligature.Wander.Model.HostFunction) (bindings: Ligature.Wander.Model.Bindings) =
     Ligature.Wander.Model.bindFunction hostFunction bindings
 
-let run script bindings = Ligature.Wander.Main.run script bindings
+let run script bindings =
+    Ligature.Wander.Main.run script bindings
 
 let printResult result = Ligature.Wander.Main.printResult result

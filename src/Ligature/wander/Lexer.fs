@@ -10,7 +10,6 @@ open Fable.Core.JsInterop
 
 [<RequireQualifiedAccess>]
 type Token =
-    | Bool of bool
     | WhiteSpace of string
     | Identifier of Identifier
     | Slot of Slot
@@ -20,7 +19,7 @@ type Token =
     | NewLine of string
     | StringLiteral of string
     | BytesLiteral of byte array
-    | Name of string
+    | Word of string
     | OpenBrace
     | CloseBrace
     | Colon
@@ -34,7 +33,6 @@ type Token =
     | Asterisk
     | Hash
     | Comma
-    | Pipe
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -97,14 +95,8 @@ let commentTokenNibbler =
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
-let createNameOrKeyword (name: string) =
-    match name with
-    | "true" -> Token.Bool(true)
-    | "false" -> Token.Bool(false)
-    | _ -> Token.Name(name)
-
 let nameOrKeywordTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> createNameOrKeyword)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Word)
 
 let tokenNibbler =
     Nibblers.optional (
@@ -132,7 +124,6 @@ let tokenNibbler =
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
                   takeAndMap ":" Token.Colon
-                  takeAndMap "|" Token.Pipe
                   takeAndMap "=" Token.EqualsSign
                   commentTokenNibbler ]
             )

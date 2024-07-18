@@ -23,7 +23,7 @@ let run (input: string) (bindings: Bindings) =
 //with
 //| x -> error $"Error running script. {x}" None
 
-let newRun (input: string) (environment: Environment): Result<WanderValue list, LigatureError> =
+let newRun (input: string) (environment: Environment) : Result<WanderValue list, LigatureError> =
     //try
     match tokenize input with
     | Ok tokens ->

@@ -7,162 +7,74 @@ module Ligature.Wander.NewInterpreter
 open Ligature.Wander.Model
 open Ligature.Main
 open Ligature.InMemoryNetwork
-open Ligature.LigatureStore
 
-type Environment = {
-    Functions: Map<string, WanderValue list -> WanderValue list>
-    Stack: WanderValue list
-}
+type Stack = WanderValue list
 
-let emptyEnvironment = {
-    Functions = Map.empty
-    Stack = List.empty
-}
+type Word =
+    { Eval: Environment -> Result<Stack, LigatureError> }
 
-let rec evalExpression (environment: Environment) (expression: Expression): Result<WanderValue list, LigatureError> =
+and Environment =
+    { Words: Map<string, Word>
+      Stack: Stack }
+
+let emptyEnvironment =
+    { Words = Map.empty
+      Stack = List.empty }
+
+let rec evalExpression (environment: Environment) (expression: Expression) : Result<WanderValue list, LigatureError> =
     match expression with
     | Expression.Int value -> Ok((WanderValue.Int value) :: environment.Stack)
     | Expression.String value -> Ok((WanderValue.String value) :: environment.Stack)
     | Expression.Identifier value -> Ok((WanderValue.Identifier value) :: environment.Stack)
     | Expression.Slot value -> Ok((WanderValue.Slot value) :: environment.Stack)
-    | Expression.Pattern(values) -> handlePattern environment values
-    | _ -> failwith "TODO"
-    // let rec bindArguments
-    //     (args: Model.Expression list)
-    //     (parameters: string list)
-    //     (bindings: Bindings)
-    //     : Result<Bindings, LigatureError> =
-    //     if List.length args <> List.length parameters then
-    //         failwith "todo"
-    //     else if List.isEmpty args && List.isEmpty parameters then
-    //         Ok bindings
-    //     else
-    //         let arg = List.head args
-    //         let parameter = List.head parameters
-    //         let value = evalExpression bindings arg
+    | Expression.Network(values) -> handlePattern environment values
+    | Expression.Word name -> handleWord environment name
+    | Expression.Quote quote -> handleQuote environment quote
+    | x -> failwith $"TODO - {x}"
+// | Expression.AssocArray(values) -> handleAssocArray bindings values
+// //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
+// | Expression.Application(values) -> handleApplication bindings values
+// | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
+// | Expression.Pattern(values) -> handlePattern bindings values
+// | Expression.Colon -> failwith "Should never reach"
+// | Expression.Slot slot -> Ok(WanderValue.Slot(slot))
 
-    //         match value with
-    //         | Ok(value) -> Ok(bind parameter value bindings)
-    //         | Error(err) -> Error(err)
+and evalValue (environment: Environment) (value: WanderValue) : Result<WanderValue list, LigatureError> =
+    match value with
+    | WanderValue.Word word -> handleWord environment word
+    | value -> Ok(value :: environment.Stack)
 
-    // match expression with
-    // | Expression.Name(name) ->
-    //     match read name bindings with
-    //     | Some(value) -> Ok(value)
-    //     | None -> error $"Could not read {name}" None
-    // | Expression.Grouping(expressions) ->
-    //     let bindings' = addScope bindings
+and handleQuote (environment: Environment) (expressions: Expression list) =
+    let mutable error = None
 
-    //     match evalExpressions bindings' expressions with
-    //     | Error(err) -> Error(err)
-    //     | Ok(res) -> failwith "TODO" //Ok(res)
-    // | Expression.Let(name, expression) ->
-    //     let res = evalExpression bindings expression
+    let res: WanderValue list =
+        //TODO this doesn't short circuit on first error
+        List.map
+            (fun expr ->
+                match expr with
+                | Expression.Int value -> WanderValue.Int value
+                | Expression.Word value -> WanderValue.Word value
+                //| Expression.Quote quote -> WanderValue.Quote quote)
+                | _ -> failwith "TODO")
+            expressions
 
-    //     match res with
-    //     | Ok((value)) ->
-    //         let bindings = bind name value bindings
-    //         Ok((value))
-    //     | Error(_) -> res
-    // let args = List.map ( fun a ->
-    //     match evalExpression bindings a with
-    //     | Ok(v, _) -> failwith "todo" //Expression.Value(v)
-    //     | Error(err) -> todo)
-    //             args
-    //     match Bindings.read name bindings with
-    //     | Some(WanderValue.HostFunction(funct)) ->
-    //         match funct.Run args bindings with
-    //         | Ok res -> Ok (res, bindings)
-    //         | Error(err) -> Error(err)
-    //     // | Some(WanderValue.Lambda(parameters, body)) ->
-    //     //     match bindArguments args parameters bindings with
-    //     //     | Ok(bindings) -> evalExpression bindings body
-    //     //     | Error(err) -> Error(err)
-    //     | None -> error $"{name} function not found." None
-    //     | _ -> todo //type error
-    // // | Expression.Conditional(conditional) ->
-    // //     let ifCondition = evalExpression bindings conditional.ifCase.condition
-    // //     let mutable result = None
+    match error with
+    | None -> Ok([ WanderValue.Quote(res) ])
+    | Some(err) -> Error(err)
 
-    //     result <-
-    //         match ifCondition with
-    //         | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings conditional.ifCase.body)
-    //         | Ok(WanderValue.Bool(false), _) -> None
-    //         | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
-    //         | Error x -> Some(Error x)
+and handleAssocArray bindings values = failwith "TODO"
+// let res =
+//     List.map
+//         (fun (name, expr) ->
+//             match evalExpression bindings expr with
+//             | Error(err) -> failwith "TODO"
+//             | Ok((res)) -> (name, res))
+//         values
 
-    // let mutable elsifCases = conditional.elsifCases
-    // while Option.isNone result && not elsifCases.IsEmpty do
-    //     let case = elsifCases.Head
-    //     result <-
-    //         match evalExpression bindings case.condition with
-    //         | Ok(WanderValue.Bool(true), bindings) -> Some (evalExpression bindings case.body)
-    //         | Ok(WanderValue.Bool(false), _) -> None
-    //         | Ok _ -> Some(error "Type mismatch, expecting boolean." None)
-    //         | Error x -> Some(Error x)
-    //     elsifCases <- elsifCases.Tail
+// let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
+// Ok([WanderValue.AssocArray(v)])
 
-    // match result with
-    // | None -> evalExpression bindings conditional.elseBody
-    // | Some(result) -> result
-    // | Expression.Int value -> Ok(WanderValue.Int value)
-    // | Expression.String value -> Ok(WanderValue.String value)
-    // | Expression.Bool value -> Ok(WanderValue.Bool value)
-    // | Expression.Identifier id -> Ok(WanderValue.Identifier id)
-    // | Expression.Array(expressions) ->
-    //     let mutable error = None
-
-    //     let res: WanderValue array =
-    //         //TODO this doesn't short circuit on first error
-    //         Array.map
-    //             (fun e ->
-    //                 match evalExpression bindings e with
-    //                 | Ok(value) -> value
-    //                 | Error(err) ->
-    //                     if Option.isNone error then
-    //                         error <- Some(err)
-
-    //                     WanderValue.Nothing)
-    //             (Array.ofList expressions)
-
-    //     match error with
-    //     | None -> Ok((WanderValue.Array(res)))
-    //     | Some(err) -> Error(err)
-    // | Expression.AssocArray(values) -> handleAssocArray bindings values
-    // //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
-    // | Expression.Application(values) -> handleApplication bindings values
-    // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
-    // | Expression.Pattern(values) -> handlePattern bindings values
-    // | Expression.Colon -> failwith "Should never reach"
-    // | Expression.Slot slot -> Ok(WanderValue.Slot(slot))
-
-// and callFunction (fn: Function) (args: WanderValue list) (bindings: Bindings) =
-//     match fn with
-//     | Function.Lambda(parameters, body) ->
-//         if (List.length parameters) = (List.length args) then
-//             let binding =
-//                 (List.zip parameters args)
-//                 |> List.fold (fun bindings (name, value) -> bind name value bindings) bindings
-
-//             evalExpression binding body |> Result.map (fun (value, _) -> value)
-//         else
-//             error $"Improper parameters passed to lambda - {parameters}" None
-//     | Function.HostFunction(hf) -> hf.Run args bindings
-
-and handleAssocArray bindings values =
-    failwith "TODO"
-    // let res =
-    //     List.map
-    //         (fun (name, expr) ->
-    //             match evalExpression bindings expr with
-    //             | Error(err) -> failwith "TODO"
-    //             | Ok((res)) -> (name, res))
-    //         values
-
-    // let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
-    // Ok([WanderValue.AssocArray(v)])
-
-and handleEntityDescription bindings (attribute, values) =
+and handleEntityDescription bindings (attribute, values) : List<WanderValue> * List<List<WanderValue>> =
     let attribute =
         match evalExpression bindings attribute with
         | Ok(res) -> res
@@ -183,11 +95,11 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
 
     let entity =
         match evalExpression bindings entity with
-        | Ok([res]) -> res
+        | Ok([ res ]) -> res
         | _ -> failwith "TODO"
 
-    let entityDescriptions =
-        List.map (fun entityDescription -> handleEntityDescription bindings entityDescription) entityDescriptions
+    // let (entityDescriptions: List<WanderValue * List<List<WanderValue>>>) =
+    //     List.map (fun entityDescription -> handleEntityDescription bindings entityDescription) entityDescriptions
 
     List.iter
         (fun entityDescription ->
@@ -223,8 +135,9 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                               Value = value }
                             triples)
                 values)
-//        entityDescriptions
+        //         entityDescriptions
         (failwith "TODO")
+
     Ok triples
 
 and handlePattern bindings values =
@@ -238,56 +151,57 @@ and handlePattern bindings values =
             | _ -> failwith "TODO")
         res
 
-    Ok([WanderValue.Network(InMemoryNetwork(final))])
+    Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
-and handleApplication bindings values =
-    failwith "TODO"
-    // let arguments =
-    //     List.tail values
-    //     |> List.map (fun expr ->
-    //         match evalExpression bindings expr with
-    //         | Ok(res) -> res
-    //         | Error err -> failwith (err.ToString()))
+and handleWord environment word =
+    match Map.tryFind word environment.Words with
+    | Some res -> res.Eval environment
+    | None -> error $"Could not find Word {word}" None
+// let arguments =
+//     List.tail values
+//     |> List.map (fun expr ->
+//         match evalExpression bindings expr with
+//         | Ok(res) -> res
+//         | Error err -> failwith (err.ToString()))
 
-    // match List.tryHead values with
-    // | Some(Expression.Name(functionName)) ->
-    //     match readFunction functionName bindings with
-    //     //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
-    //     //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
-    //     | Some fn ->
-    //         match fn.Eval arguments bindings with
-    //         | Ok res -> Ok(res)
-    //         | Error err -> Error err
-    //     | None -> error $"Function {functionName} not found." None
-    // | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
-    // | Some(head) -> evalExpression bindings head
-    // | None -> error "Should never reach, evaling empty Application." None
+// match List.tryHead values with
+// | Some(Expression.Name(functionName)) ->
+//     match readFunction functionName bindings with
+//     //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
+//     //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
+//     | Some fn ->
+//         match fn.Eval arguments bindings with
+//         | Ok res -> Ok(res)
+//         | Error err -> Error err
+//     | None -> error $"Function {functionName} not found." None
+// | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
+// | Some(head) -> evalExpression bindings head
+// | None -> error "Should never reach, evaling empty Application." None
 
-and handleIdentifierConcat bindings identifier values =
-    failwith "TODO"
-    // List.mapi
-    //     (fun i value ->
-    //         if i % 2 = 1 then
-    //             match evalExpression bindings value with
-    //             | Ok(WanderValue.Identifier identifier) -> Some(readIdentifier identifier)
-    //             | Ok(WanderValue.String string) -> Some(string)
-    //             | Ok(WanderValue.Int int) -> Some(int.ToString())
-    //             | value -> failwith $"Unexpected value: {value}"
-    //         else if value = Expression.Colon then
-    //             None
-    //         else
-    //             failwith "error")
-    //     values
-    // |> List.fold
-    //     (fun state current ->
-    //         match current with
-    //         | Some value -> state + value
-    //         | None -> state)
-    //     (readIdentifier identifier)
-    // |> (fun res ->
-    //     match Ligature.Main.identifier res with
-    //     | Ok identifier -> Ok(WanderValue.Identifier(identifier))
-    //     | Error err -> failwith "todo")
+and handleIdentifierConcat bindings identifier values = failwith "TODO"
+// List.mapi
+//     (fun i value ->
+//         if i % 2 = 1 then
+//             match evalExpression bindings value with
+//             | Ok(WanderValue.Identifier identifier) -> Some(readIdentifier identifier)
+//             | Ok(WanderValue.String string) -> Some(string)
+//             | Ok(WanderValue.Int int) -> Some(int.ToString())
+//             | value -> failwith $"Unexpected value: {value}"
+//         else if value = Expression.Colon then
+//             None
+//         else
+//             failwith "error")
+//     values
+// |> List.fold
+//     (fun state current ->
+//         match current with
+//         | Some value -> state + value
+//         | None -> state)
+//     (readIdentifier identifier)
+// |> (fun res ->
+//     match Ligature.Main.identifier res with
+//     | Ok identifier -> Ok(WanderValue.Identifier(identifier))
+//     | Error err -> failwith "todo")
 
 // and evalHostFunction bindings hostFunction arguments =
 //     let values =
@@ -329,11 +243,10 @@ and evalLambda bindings parameters body arguments =
 
     match error with
     | Some(err) -> Error(err)
-    | None ->
-        failwith "TODO"
-        // let mutable scope = addScope bindings
-        // List.iteri (fun i arg -> scope <- bind (List.item i parameters) arg scope) (Array.toList args)
-        // evalExpression scope body
+    | None -> failwith "TODO"
+// let mutable scope = addScope bindings
+// List.iteri (fun i arg -> scope <- bind (List.item i parameters) arg scope) (Array.toList args)
+// evalExpression scope body
 
 // and checkPattern bindings (input: Network) (pattern: DatasetPatternRoot list) : bool =
 //     //NOTE: calling evalExpression below is wrong since it will eval any names used for pattern matching
@@ -397,4 +310,28 @@ and evalExpressions
         //         result <- Error(err)
         //         cont <- false
         failwith "TODO"
-        //result
+//result
+
+and evalValues (environment: Environment) (values: WanderValue list) : Result<WanderValue list, LigatureError> =
+    match List.length values with
+    | 0 -> Ok([])
+    | 1 -> evalValue environment (List.head values)
+    | _ ->
+        // let mutable result = Ok(WanderValue.Network(emptyNetwork), bindings)
+        // let mutable cont = true
+        // let mutable bindings = bindings
+        // let mutable expressions = expressions
+
+        // while cont && not (List.isEmpty expressions) do
+        //     result <- evalExpression bindings (List.head expressions)
+        //     expressions <- List.tail expressions
+
+        //     match result with
+        //     | Ok((res, b)) ->
+        //         bindings <- b
+        //         result <- Ok((res, b))
+        //     | Error(err) ->
+        //         result <- Error(err)
+        //         cont <- false
+        failwith "TODO"
+//result

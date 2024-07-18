@@ -15,20 +15,17 @@ type Expression =
     | Int of bigint
     | Bytes of byte array
     | String of string
-    | Bool of bool
     | Identifier of Identifier
     | Slot of Slot
-    | Let of name: string * value: Expression
-    | Name of string
-    | Grouping of Expression list
-    | Array of Expression list
-    | Application of Expression list
+    | Definition of name: string * value: Expression
+    | Word of string
+    | Quote of Expression list
     | AssocArray of list<string * Expression>
-    | Pattern of DatasetPatternRoot list
+    | Network of NetworkRoot list
 
 and EntityDescription = Expression * Expression list
 
-and DatasetPatternRoot = Expression * EntityDescription list
+and NetworkRoot = Expression * EntityDescription list
 
 [<RequireQualifiedAccess>]
 type WanderValue =
@@ -38,12 +35,12 @@ type WanderValue =
     | Identifier of Identifier
     | Slot of Slot
     | Triple of Ligature.Main.Triple
-    | Array of WanderValue array
+    | Quote of WanderValue list
     | Network of Network
     | AssocArray of Map<string, WanderValue>
     | Bytes of byte array
     | Nothing
-    | Name of string
+    | Word of string
 
 let toWanderValue (value: Value) : WanderValue =
     match value with
@@ -58,17 +55,16 @@ type Parameter = { name: string; tag: string }
 //TODO try to remove this
 let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
     if
-        (left = WanderValue.Array(Array.empty)
-         || left = WanderValue.AssocArray(Map.empty))
-        && (right = WanderValue.Array(Array.empty)
+        (left = WanderValue.Quote(List.empty) || left = WanderValue.AssocArray(Map.empty))
+        && (right = WanderValue.Quote(List.empty)
             || right = WanderValue.AssocArray(Map.empty))
     then
         true
     else
         match left, right with
-        | WanderValue.Array(left), WanderValue.Array(right) ->
+        | WanderValue.Quote(left), WanderValue.Quote(right) ->
             if left.Length = right.Length then
-                Array.forall2 (fun left right -> wanderEquals left right) left right
+                List.forall2 (fun left right -> wanderEquals left right) left right
             else
                 false
         | _ -> left = right
@@ -88,12 +84,13 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
     | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | WanderValue.Slot(Slot(None)) -> "$"
-    | WanderValue.Array(values) -> $"[{printValues values}]"
+    | WanderValue.Quote(values) -> $"[{printValues values}]"
     | WanderValue.Triple(triple) -> printTriple triple
     | WanderValue.AssocArray(values) -> printAssocArray values
     | WanderValue.Bytes(bytes) -> printBytes bytes
     | WanderValue.Network(values) -> printNetwork values
     | WanderValue.Nothing -> "Nothing"
+    | WanderValue.Word(name) -> name
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network.Write()))

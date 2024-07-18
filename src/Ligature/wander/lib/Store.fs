@@ -22,8 +22,8 @@ let networksFunction (store: LigatureStore) =
             | [ _ ] ->
                 store.networks ()
                 |> Seq.map WanderValue.String
-                |> Seq.toArray
-                |> WanderValue.Array
+                |> Seq.toList
+                |> WanderValue.Quote
                 |> Ok
             | _ -> error "Invalid call to map function." None) }
 

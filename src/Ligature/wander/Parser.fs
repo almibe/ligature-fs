@@ -13,20 +13,16 @@ open System.Collections
 
 [<RequireQualifiedAccess>]
 type Element =
-    | Name of string
-    | Grouping of Element list
-    | Application of Element list
+    | Word of string
+    | Quote of Element list
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Bool of bool
     | Identifier of Ligature.Main.Identifier
     | Slot of Ligature.Main.Slot
-    | Array of Element list
-    | Let of string * Element
+    | Defintion of string * Element
     | AssocArray of (string * Element) list
-    | Pattern of DatasetPatternRoot list
-    | Pipe
+    | Network of DatasetPatternRoot list
     | Colon
 
 and EntityDescription = Element * Element list
@@ -37,7 +33,7 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(value)) -> Ok(value)
+            | Ok(Token.Word(value)) -> Ok(value)
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
@@ -45,7 +41,7 @@ let nameNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(Element.Name(name))
+            | Ok(Token.Word(name)) -> Ok(Element.Word(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -56,7 +52,7 @@ let readAssignment gaze =
                 let! name = Gaze.attempt nameStrNibbler gaze
                 let! _ = Gaze.attempt (take Token.EqualsSign) gaze
                 let! v = elementNib gaze
-                return Element.Let(name, v)
+                return Element.Defintion(name, v)
             })
         gaze
 
@@ -69,8 +65,6 @@ let patternsNibbler (gaze: Gaze.Gaze<Token>) =
         return (pattern, body)
     }
 
-let readPipe = Gaze.map (take Token.Pipe) (fun _ -> Element.Pipe)
-
 let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
@@ -80,9 +74,6 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
             | Ok(Token.Int(i)) -> Ok(Element.Int(i))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
-
-let applicationNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.map (repeatMulti applicationInnerNib) (fun elements -> Element.Application(elements)) gaze
 
 let equalSignNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
@@ -100,20 +91,12 @@ let wideArrowNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let arrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeatSep elementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Array(values)
-    }
-
-let groupingNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! values = Gaze.attempt (optional (repeatSep elementNib Token.Comma)) gaze
-        let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Element.Grouping(values)
+        return Element.Quote(values)
     }
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
@@ -144,12 +127,12 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetPatternRoot, Gaze.Ga
             return DatasetPatternRoot(entity, entityDescriptions)
         }
 
-let datasetNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! datasetInternals = (optional (repeatSep datasetRootNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Pattern(datasetInternals)
+        return Element.Network(datasetInternals)
     }
 
 let declarationsNib (gaze: Gaze.Gaze<Token>) =
@@ -169,7 +152,7 @@ let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
 
         if List.isEmpty declarations then
-            return Element.Array(List.empty)
+            return Element.Quote(List.empty)
         else
             return Element.AssocArray(declarations)
     }
@@ -182,7 +165,6 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Error(err) -> Error err
     | Ok(Token.Bytes(value)) -> Ok(Element.Bytes(value))
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
-    | Ok(Token.Bool(value)) -> Ok(Element.Bool value)
     | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
@@ -220,7 +202,6 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Error(err) -> Error err
     | Ok(Token.Bytes(value)) -> Ok([ Element.Bytes(value) ])
     | Ok(Token.Int(value)) -> Ok([ Element.Int value ])
-    | Ok(Token.Bool(value)) -> Ok([ Element.Bool value ])
     | Ok(Token.Identifier(value)) -> Ok([ Element.Identifier value ])
     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
@@ -246,32 +227,22 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let patternMatchBodyNib =
-    takeFirst [ datasetNib; nameNib; groupingNib; applicationNib ]
+let patternMatchBodyNib = takeFirst [ networkNib; nameNib; quoteNib ]
 
-let patternNib = takeFirst [ datasetNib ]
+let patternNib = takeFirst [ networkNib ]
 
 let applicationInnerNib =
-    takeFirst
-        [ readPipe
-          colonNib
-          readValue
-          nameNib
-          assocArrayNib
-          arrayNib
-          datasetNib
-          groupingNib ]
+    takeFirst [ colonNib; readValue; nameNib; assocArrayNib; networkNib; quoteNib ]
 
 let elementNib =
     takeFirst
         [ readAssignment
-          applicationNib
           nameNib
           readValue
           assocArrayNib
-          arrayNib
-          datasetNib
-          groupingNib ]
+          quoteNib
+          networkNib
+          quoteNib ]
 
 let scriptNib = repeatSep elementNib Token.Comma
 
@@ -308,9 +279,9 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressArray values =
+let expressQuote values =
     let res = List.map (fun value -> expressElement value) values
-    Expression.Array res
+    Expression.Quote res
 
 let expressEntityDescription entityDescription =
     let (attribute, values) = entityDescription
@@ -325,13 +296,9 @@ let expressDatasetRoot (datasetRoot: DatasetPatternRoot) =
 
     (entity, entityDescriptions)
 
-let expressDataset (values: DatasetPatternRoot list) =
+let expressNetwork (values: DatasetPatternRoot list) =
     let res = List.map (fun datasetRoot -> expressDatasetRoot datasetRoot) values
-    Expression.Pattern res
-
-let expressGrouping values =
-    let res = List.map (fun value -> expressElement value) values
-    Expression.Grouping res
+    Expression.Network res
 
 let handleAssocArray (declarations: list<string * Element>) =
     let res =
@@ -339,26 +306,22 @@ let handleAssocArray (declarations: list<string * Element>) =
 
     Expression.AssocArray res
 
-let expressApplication elements =
-    let parts = new Generic.List<Expression list>()
-    let currentPart = new Generic.List<Expression>()
+// let expressApplication elements =
+//     let parts = new Generic.List<Expression list>()
+//     let currentPart = new Generic.List<Expression>()
 
-    List.iter
-        (fun element ->
-            match element with
-            | Element.Pipe ->
-                let part = List.ofSeq currentPart
-                parts.Add part
-                currentPart.Clear()
-            | el -> currentPart.Add(expressElement el))
-        elements
+//     List.iter
+//         (fun element ->
+//             match element with
+//             | el -> currentPart.Add(expressElement el))
+//         elements
 
-    parts.Add(List.ofSeq currentPart)
+//     parts.Add(List.ofSeq currentPart)
 
-    List.fold
-        (fun expr application -> List.append application [ expr ] |> Expression.Application)
-        (Expression.Application(parts[0]))
-        (List.ofSeq parts).Tail
+//     List.fold
+//         (fun expr application -> List.append application [ expr ] |> Expression.Application)
+//         (Expression.Application(parts[0]))
+//         (List.ofSeq parts).Tail
 
 let express (elements: Element list) : Expression list =
     List.map (fun element -> expressElement element) elements
@@ -366,17 +329,13 @@ let express (elements: Element list) : Expression list =
 let rec expressElement (element: Element) =
     match element with
     | Element.Int value -> Expression.Int value
-    | Element.Bool value -> Expression.Bool value
-    | Element.Name namePath -> Expression.Name namePath
+    | Element.Word namePath -> Expression.Word namePath
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Let(name, value) -> Expression.Let(name, (expressElement value))
-    | Element.Array values -> expressArray values
-    | Element.Grouping elements -> expressGrouping elements
-    | Element.Application elements -> expressApplication elements
+    | Element.Defintion(name, value) -> Expression.Definition(name, (expressElement value))
+    | Element.Quote elements -> expressQuote elements
     | Element.AssocArray declarations -> handleAssocArray declarations
-    | Element.Pipe -> failwith "Not Implemented"
     | Element.Bytes bytes -> Expression.Bytes bytes
-    | Element.Pattern value -> expressDataset value
+    | Element.Network value -> expressNetwork value
     | Element.Colon -> Expression.Colon
     | Element.Slot slot -> Expression.Slot slot

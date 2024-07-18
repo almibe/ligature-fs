@@ -29,17 +29,17 @@ let rec evalExpression bindings expression =
             | Error(err) -> Error(err)
 
     match expression with
-    | Expression.Name(name) ->
+    | Expression.Word(name) ->
         match read name bindings with
         | Some(value) -> Ok((value, bindings))
         | None -> error $"Could not read {name}" None
-    | Expression.Grouping(expressions) ->
+    | Expression.Quote(expressions) ->
         let bindings' = addScope bindings
 
         match evalExpressions bindings' expressions with
         | Error(err) -> Error(err)
         | Ok((res, _)) -> Ok((res, bindings))
-    | Expression.Let(name, expression) ->
+    | Expression.Definition(name, expression) ->
         let res = evalExpression bindings expression
 
         match res with
@@ -90,32 +90,30 @@ let rec evalExpression bindings expression =
     // | Some(result) -> result
     | Expression.Int value -> Ok(WanderValue.Int value, bindings)
     | Expression.String value -> Ok(WanderValue.String value, bindings)
-    | Expression.Bool value -> Ok(WanderValue.Bool value, bindings)
     | Expression.Identifier id -> Ok(WanderValue.Identifier id, bindings)
-    | Expression.Array(expressions) ->
-        let mutable error = None
+    // | Expression.Quote(expressions) ->
+    //     let mutable error = None
 
-        let res: WanderValue array =
-            //TODO this doesn't short circuit on first error
-            Array.map
-                (fun e ->
-                    match evalExpression bindings e with
-                    | Ok(value, _) -> value
-                    | Error(err) ->
-                        if Option.isNone error then
-                            error <- Some(err)
+    //     let res: WanderValue list =
+    //         //TODO this doesn't short circuit on first error
+    //         List.map
+    //             (fun e ->
+    //                 match evalExpression bindings e with
+    //                 | Ok(value, _) -> value
+    //                 | Error(err) ->
+    //                     if Option.isNone error then
+    //                         error <- Some(err)
 
-                        WanderValue.Nothing)
-                (Array.ofList expressions)
+    //                     WanderValue.Nothing)
+    //             expressions
 
-        match error with
-        | None -> Ok((WanderValue.Array(res), bindings))
-        | Some(err) -> Error(err)
+    //     match error with
+    //     | None -> Ok((WanderValue.Quote(res), bindings))
+    //     | Some(err) -> Error(err)
     | Expression.AssocArray(values) -> handleAssocArray bindings values
     //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
-    | Expression.Application(values) -> handleApplication bindings values
     | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value), bindings)
-    | Expression.Pattern(values) -> handlePattern bindings values
+    | Expression.Network(values) -> handlePattern bindings values
     | Expression.Colon -> failwith "Should never reach"
     | Expression.Slot slot -> Ok(WanderValue.Slot(slot), bindings)
 
@@ -231,7 +229,7 @@ and handleApplication bindings values =
             | Error err -> failwith (err.ToString()))
 
     match List.tryHead values with
-    | Some(Expression.Name(functionName)) ->
+    | Some(Expression.Word(functionName)) ->
         match readFunction functionName bindings with
         //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
         //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
