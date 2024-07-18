@@ -5,7 +5,6 @@
 module Ligature.Wander.Bindings.Test
 
 open Expecto
-open Ligature.Wander.Bindings
 open Ligature.Wander.Model
 
 [<Tests>]

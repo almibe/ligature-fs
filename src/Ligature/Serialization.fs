@@ -11,10 +11,11 @@ open System.Collections
 open System.IO
 open Wander.Main
 open Wander.Model
+open Ligature.Wander.Interpreter
 
 let readLigature (input: string) : Result<Network, LigatureError> =
-    match run input (newBindings ()) with
-    | Ok(WanderValue.Network(res)) -> Ok(res)
+    match run input emptyEnvironment with
+    | Ok([ WanderValue.Network(res) ]) -> Ok(res)
     | _ -> failwith "Error"
 
 let writeLigature (input: Network) : string =

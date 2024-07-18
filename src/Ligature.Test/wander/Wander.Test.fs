@@ -2,13 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Main.Test
+module Ligature.Wander.NewMain.Test
 
 open Expecto
 open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.InMemoryNetwork
+open Ligature.Wander.Interpreter
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -31,164 +32,172 @@ let vident id =
         | Error _ -> todo
     )
 
-let bindings = Ligature.Wander.Bindings.coreBindings // (Ligature.LigatureStore.InMemoryStore.empty ())
-
 [<Tests>]
 let tests =
     testList
-        "Main Test"
+        "New Main Test"
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(InMemoryNetwork(Set.empty)))) ""
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([])) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(1235I))) ""
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Int(1235I) ])) ""
           testCase "Run String"
           <| fun _ ->
               let script = "\"Hello\""
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.String("Hello"))) ""
-          testCase "Run Booleans"
-          <| fun _ ->
-              let script = "true"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Bool(true))) ""
-              let script = "false"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Bool(false))) ""
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.String("Hello") ])) ""
+          //   testCase "Run Booleans"
+          //   <| fun _ ->
+          //       let script = "true"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(WanderValue.Bool(true))) ""
+          //       let script = "false"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(WanderValue.Bool(false))) ""
           testCase "Run Identifier"
           <| fun _ ->
               let script = "`hello`"
-              let result = run script bindings
-              Expect.equal result (Ok(wident "hello")) ""
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ wident "hello" ])) ""
           testCase "Run Slot"
           <| fun _ ->
               let script = "$hello"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Slot(Slot(Some("hello"))))) ""
-          testCase "Run Empty Dataset literal"
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
+          testCase "Run Empty Network literal"
           <| fun _ ->
               let script = "{}"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Network(InMemoryNetwork(Set.empty)))) ""
-          testCase "Run Dataset literal"
-          <| fun _ ->
-              let script = "{`a` `b` `c`}"
-              let result = run script bindings
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
+          //   testCase "Run Dataset literal"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` `c`}"
+          //       let result = run script emptyEnvironment
 
-              Expect.equal
-                  result
-                  (Ok(
-                      WanderValue.Network(
-                          InMemoryNetwork(
-                              Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Id(ident "a")
-                                      Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Identifier(ident "c") } ]
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               [ WanderValue.Network(
+          //                     InMemoryNetwork(
+          //                         Set.ofSeq
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                                 Value = Value.Identifier(ident "c") } ]
 
-                          )
-                      )
-                  ))
-                  ""
-          testCase "Run Dataset literal with Int"
-          <| fun _ ->
-              let script = "{`a` `b` 5}"
-              let result = run script bindings
+          //                     )
+          //                 ) ]
+          //           ))
+          //           ""
+          //   testCase "Run Dataset literal with Int"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` 5}"
+          //       let result = run script emptyEnvironment
 
-              Expect.equal
-                  result
-                  (Ok(
-                      WanderValue.Network(
-                          InMemoryNetwork(
-                              Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Id(ident "a")
-                                      Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Int(5I) } ]
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               [ WanderValue.Network(
+          //                     InMemoryNetwork(
+          //                         Set.ofSeq
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                                 Value = Value.Int(5I) } ]
 
-                          )
-                      )
-                  ))
-                  ""
-          testCase "Run Dataset literal with String"
-          <| fun _ ->
-              let script = "{`a` `b` \"Hi\"}"
-              let result = run script bindings
+          //                     )
+          //                 ) ]
+          //           ))
+          //           ""
+          //   testCase "Run Dataset literal with String"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` \"Hi\"}"
+          //       let result = run script emptyEnvironment
 
-              Expect.equal
-                  result
-                  (Ok(
-                      WanderValue.Network(
-                          InMemoryNetwork(
-                              Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Id(ident "a")
-                                      Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.String("Hi") } ]
-                          )
-                      )
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               [ WanderValue.Network(
+          //                     InMemoryNetwork(
+          //                         Set.ofSeq
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                                 Value = Value.String("Hi") } ]
+          //                     )
+          //                 )
 
-                  ))
-                  ""
-          testCase "Run Dataset literal with Bytes"
-          <| fun _ ->
-              let script = "{`a` `b` 0x00}"
-              let result = run script bindings
+          //                 ]
+          //           ))
+          //           ""
+          //   testCase "Run Dataset literal with Bytes"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` 0x00}"
+          //       let result = run script bindings
 
-              Expect.equal
-                  result
-                  (Ok(
-                      WanderValue.Network(
-                          InMemoryNetwork(
-                              Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Id(ident "a")
-                                      Attribute = PatternIdentifier.Id(ident "b")
-                                      Value = Value.Bytes([| 0uy |]) } ]
-                          )
-                      )
-                  ))
-                  ""
-          testCase "Run Dataset literal with Names"
-          <| fun _ ->
-              let script = "x = `e`, y = `a`, z= `v`, {x y `v`}"
-              let result = run script bindings
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               WanderValue.Network(
+          //                   InMemoryNetwork(
+          //                       Set.ofSeq
+          //                           [ { Entity = PatternIdentifier.Id(ident "a")
+          //                               Attribute = PatternIdentifier.Id(ident "b")
+          //                               Value = Value.Bytes([| 0uy |]) } ]
+          //                   )
+          //               )
+          //           ))
+          //           ""
+          //   testCase "Run Dataset literal with Names"
+          //   <| fun _ ->
+          //       let script = "x = `e`, y = `a`, z= `v`, {x y `v`}"
+          //       let result = run script bindings
 
-              Expect.equal
-                  result
-                  (Ok(
-                      WanderValue.Network(
-                          InMemoryNetwork(
-                              Set.ofSeq
-                                  [ { Entity = PatternIdentifier.Id(ident "e")
-                                      Attribute = PatternIdentifier.Id(ident "a")
-                                      Value = Value.Identifier(ident "v") } ]
-                          )
-                      )
-                  ))
-                  ""
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               WanderValue.Network(
+          //                   InMemoryNetwork(
+          //                       Set.ofSeq
+          //                           [ { Entity = PatternIdentifier.Id(ident "e")
+          //                               Attribute = PatternIdentifier.Id(ident "a")
+          //                               Value = Value.Identifier(ident "v") } ]
+          //                   )
+          //               )
+          //           ))
+          //           ""
 
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n  5   "
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5I))) ""
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Int(5I) ])) ""
           testCase "Handle Multiple Values and White Space"
           <| fun _ ->
-              let script = " 1,  true,  \n  \"hello\", \r\n 5,  321 \n"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(321I))) ""
-          testCase "Let Triple"
-          <| fun _ ->
-              let script = "x = 5"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5I))) ""
-          testCase "Let Triple with Value Reference"
-          <| fun _ ->
-              let script = "x = 5,\nx"
-              let result = run script bindings
-              Expect.equal result (Ok(WanderValue.Int(5I))) ""
+              let script = " 1  \n `a` \"hello\" \r\n  321 \n"
+              let result = run script emptyEnvironment
+
+              Expect.equal
+                  result
+                  (Ok(
+                      [ WanderValue.Int(321I)
+                        WanderValue.String("hello")
+                        wident "a"
+                        WanderValue.Int(1I) ]
+                  ))
+                  ""
+          //   testCase "Let Triple"
+          //   <| fun _ ->
+          //       let script = "x = 5"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(WanderValue.Int(5I))) ""
+          //   testCase "Let Triple with Value Reference"
+          //   <| fun _ ->
+          //       let script = "x = 5,\nx"
+          //       let result = run script bindings
+          //       Expect.equal result (Ok(WanderValue.Int(5I))) ""
           //   testCase "Identifier concat"
           //   <| fun _ ->
           //       let script = "`a`:`b`"

@@ -9,7 +9,6 @@ open FsToolkit.ErrorHandling
 open Model
 open Nibblers
 open Ligature.Main
-open System.Collections
 
 [<RequireQualifiedAccess>]
 type Element =
@@ -20,7 +19,7 @@ type Element =
     | Bytes of byte array
     | Identifier of Ligature.Main.Identifier
     | Slot of Ligature.Main.Slot
-    | Defintion of string * Element
+    | Definition of string * Element
     | AssocArray of (string * Element) list
     | Network of DatasetPatternRoot list
     | Colon
@@ -52,7 +51,7 @@ let readAssignment gaze =
                 let! name = Gaze.attempt nameStrNibbler gaze
                 let! _ = Gaze.attempt (take Token.EqualsSign) gaze
                 let! v = elementNib gaze
-                return Element.Defintion(name, v)
+                return Element.Definition(name, v)
             })
         gaze
 
@@ -244,7 +243,7 @@ let elementNib =
           networkNib
           quoteNib ]
 
-let scriptNib = repeatSep elementNib Token.Comma
+let scriptNib = repeat elementNib
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -306,23 +305,6 @@ let handleAssocArray (declarations: list<string * Element>) =
 
     Expression.AssocArray res
 
-// let expressApplication elements =
-//     let parts = new Generic.List<Expression list>()
-//     let currentPart = new Generic.List<Expression>()
-
-//     List.iter
-//         (fun element ->
-//             match element with
-//             | el -> currentPart.Add(expressElement el))
-//         elements
-
-//     parts.Add(List.ofSeq currentPart)
-
-//     List.fold
-//         (fun expr application -> List.append application [ expr ] |> Expression.Application)
-//         (Expression.Application(parts[0]))
-//         (List.ofSeq parts).Tail
-
 let express (elements: Element list) : Expression list =
     List.map (fun element -> expressElement element) elements
 
@@ -332,7 +314,7 @@ let rec expressElement (element: Element) =
     | Element.Word namePath -> Expression.Word namePath
     | Element.String value -> Expression.String value
     | Element.Identifier id -> Expression.Identifier id
-    | Element.Defintion(name, value) -> Expression.Definition(name, (expressElement value))
+    | Element.Definition(name, value) -> Expression.Definition(name, (expressElement value))
     | Element.Quote elements -> expressQuote elements
     | Element.AssocArray declarations -> handleAssocArray declarations
     | Element.Bytes bytes -> Expression.Bytes bytes
