@@ -36,7 +36,7 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
-let nameNib (gaze: Gaze.Gaze<Token>) =
+let wordNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
@@ -100,14 +100,14 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
     result {
-        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
+        let! attribute = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
         return (attribute, values)
     }
 
 let singleEntityDescriptNib gaze =
     result {
-        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
+        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
         return DatasetPatternRoot(entity, [ entityDescriptions ])
     }
@@ -119,7 +119,7 @@ let datasetRootNib (gaze: Gaze.Gaze<Token>) : Result<DatasetPatternRoot, Gaze.Ga
     | Ok _ -> singleEntityDescription
     | _ ->
         result {
-            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; nameNib ]) gaze //TODO only match Identifier or Name
+            let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
@@ -206,7 +206,7 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
     | Ok(Token.OpenSquare) -> readValueList [] gaze
     | _ ->
-        match Gaze.attempt nameNib gaze with
+        match Gaze.attempt wordNib gaze with
         | Ok res -> Ok([ res ])
         | Error err -> Error(Gaze.GazeError.NoMatch)
 
@@ -226,17 +226,17 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let patternMatchBodyNib = takeFirst [ networkNib; nameNib; quoteNib ]
+let patternMatchBodyNib = takeFirst [ networkNib; wordNib; quoteNib ]
 
 let patternNib = takeFirst [ networkNib ]
 
 let applicationInnerNib =
-    takeFirst [ colonNib; readValue; nameNib; assocArrayNib; networkNib; quoteNib ]
+    takeFirst [ colonNib; readValue; wordNib; assocArrayNib; networkNib; quoteNib ]
 
 let elementNib =
     takeFirst
         [ readAssignment
-          nameNib
+          wordNib
           readValue
           assocArrayNib
           quoteNib

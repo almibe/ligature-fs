@@ -11,7 +11,6 @@
     <Compile Include="InMemoryNetwork.Test.fs" />
     <Compile Include="wander/Wander.Test.fs" />
     <Compile Include="wander/Encoding.Test.fs" />
-    <Compile Include="wander/Bindings.Test.fs" />
     <Compile Include="Serialization.Test.fs" />
     <Compile Include="wander/Lexer.Test.fs" />
     <Compile Include="wander/Parser.Test.fs" />

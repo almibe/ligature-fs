@@ -6,7 +6,6 @@ module Ligature.Wander.Lexer
 
 open Ligature.Main
 open LexerUtil
-open Fable.Core.JsInterop
 
 [<RequireQualifiedAccess>]
 type Token =

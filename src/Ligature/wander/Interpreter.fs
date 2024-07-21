@@ -30,14 +30,12 @@ let rec evalExpression (environment: Environment) (expression: Expression) : Res
     | Expression.Network(values) -> handlePattern environment values
     | Expression.Word name -> handleWord environment name
     | Expression.Quote quote -> handleQuote environment quote
-    | x -> failwith $"TODO - {x}"
+    | Expression.Colon -> failwith "Not Implemented"
+    | Expression.Bytes(_) -> failwith "Not Implemented"
+    | Expression.Definition(name, value) -> failwith "Not Implemented"
+    | Expression.AssocArray(_) -> failwith "Not Implemented"
 // | Expression.AssocArray(values) -> handleAssocArray bindings values
-// //    | Expression.Query(expression, conditionals) -> handleQuery bindings expression conditionals
-// | Expression.Application(values) -> handleApplication bindings values
 // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
-// | Expression.Pattern(values) -> handlePattern bindings values
-// | Expression.Colon -> failwith "Should never reach"
-// | Expression.Slot slot -> Ok(WanderValue.Slot(slot))
 
 and evalValue (environment: Environment) (value: WanderValue) : Result<WanderValue list, LigatureError> =
     match value with
@@ -157,26 +155,6 @@ and handleWord environment word =
     match Map.tryFind word environment.Words with
     | Some res -> res.Eval environment
     | None -> error $"Could not find Word {word}" None
-// let arguments =
-//     List.tail values
-//     |> List.map (fun expr ->
-//         match evalExpression bindings expr with
-//         | Ok(res) -> res
-//         | Error err -> failwith (err.ToString()))
-
-// match List.tryHead values with
-// | Some(Expression.Name(functionName)) ->
-//     match readFunction functionName bindings with
-//     //        | Some(WanderValue.Array(values)) -> evalArray bindings values arguments
-//     //        | Some(WanderValue.Identifier identifer) -> handleIdentifierConcat bindings identifer values.Tail
-//     | Some fn ->
-//         match fn.Eval arguments bindings with
-//         | Ok res -> Ok(res)
-//         | Error err -> Error err
-//     | None -> error $"Function {functionName} not found." None
-// | Some(Expression.Identifier identifier) -> handleIdentifierConcat bindings identifier values.Tail
-// | Some(head) -> evalExpression bindings head
-// | None -> error "Should never reach, evaling empty Application." None
 
 and handleIdentifierConcat bindings identifier values = failwith "TODO"
 // List.mapi
@@ -257,28 +235,13 @@ and evalExpressions
     (environment: Environment)
     (expressions: Expression list)
     : Result<WanderValue list, LigatureError> =
-    match List.length expressions with
-    | 0 -> Ok([])
-    | 1 -> evalExpression environment (List.head expressions)
-    | _ ->
-        let mutable result = Ok([])
-        let mutable cont = true
-        let mutable environment = environment
-        let mutable expressions = expressions
-
-        while cont && not (List.isEmpty expressions) do
-            result <- evalExpression environment (List.head expressions)
-            expressions <- List.tail expressions
-
-            match result with
-            | Ok((res)) ->
-                environment <- { environment with Stack = res }
-                result <- Ok((res))
-            | Error(err) ->
-                result <- Error(err)
-                cont <- false
-
-        result
+        match expressions with
+        | [] -> Ok([])
+        | [head] -> evalExpression environment head
+        | head::tail ->
+            match evalExpression environment head with
+            | Ok(res) -> evalExpressions { environment with Stack = res } tail
+            | Error(err) -> Error(err)
 
 and evalValues (environment: Environment) (values: WanderValue list) : Result<WanderValue list, LigatureError> =
     let mutable result = Ok([])

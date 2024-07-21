@@ -47,7 +47,7 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-let printResult (result: Result<WanderValue, LigatureError>) =
+let printResult (result: Result<WanderValue list, LigatureError>) =
     match result with
-    | Ok value -> prettyPrint value
+    | Ok value -> prettyPrint value.Head
     | Error err -> err.UserMessage

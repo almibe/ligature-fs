@@ -10,14 +10,14 @@ open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Ligature.Wander.Bindings
 open Ligature.LigatureStore
 open Ligature.LigatureStore.InMemoryStore
 open Ligature.LigatureSqlite
+open Ligature.Wander.Interpreter
 
 let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script (stdBindings store)
+    let res = run script (emptyEnvironment)
     server.SendFrame(printResult res)
     serve server store
 

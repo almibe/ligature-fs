@@ -4,18 +4,14 @@
 
 module Ligature.LigatureSqlite
 
-open Ligature.Main
 open Ligature.LigatureStore
-open System
-open System.Collections.Generic
 open System.Data
 open Microsoft.Data.Sqlite
 open Donald
-open Donald.IDataReaderExtensions
 open Ligature.Serialization
 open Ligature.Wander.Main
 open Ligature.Wander.Model
-open Ligature.Wander.Bindings
+open Ligature.Wander.Interpreter
 
 type Event =
     { Network: string
@@ -59,17 +55,17 @@ type LigatureSqlite(path: string) =
                     | Some(script) -> script
                     | _ -> failwith "Error"
 
-                match run script (newBindings ()) with
-                | Ok(WanderValue.Network(value)) -> store.add event.Network value |> ignore
-                | _ -> failwith "Error"
+                match run script emptyEnvironment with
+                | Ok([WanderValue.Network(value)]) -> store.add event.Network value |> ignore
+                | err -> failwith $"Error - {err}"
             | "RS" ->
                 let script =
                     match event.Ligature with
                     | Some(script) -> script
                     | _ -> failwith "Error"
 
-                match run script (newBindings ()) with
-                | Ok(WanderValue.Network(value)) -> store.remove event.Network value |> ignore
+                match run script emptyEnvironment with
+                | Ok([WanderValue.Network(value)]) -> store.remove event.Network value |> ignore
                 | _ -> failwith "Error"
             | _ -> failwith "Error")
 
