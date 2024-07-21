@@ -52,8 +52,16 @@ and handleQuote (environment: Environment) (expressions: Expression list) =
                 match expr with
                 | Expression.Int value -> WanderValue.Int value
                 | Expression.Word value -> WanderValue.Word value
-                //| Expression.Quote quote -> WanderValue.Quote quote)
-                | _ -> failwith "TODO")
+                | Expression.Quote quote -> failwith "TODO" //WanderValue.Quote quote
+                | Expression.Colon -> failwith "Not Implemented"
+                | Expression.Bytes value -> WanderValue.Bytes value
+                | Expression.String value -> WanderValue.String value
+                | Expression.Identifier identifier -> WanderValue.Identifier identifier
+                | Expression.Slot slot -> WanderValue.Slot slot
+                | Expression.Definition(name, value) -> failwith "Not Implemented"
+                | Expression.Quote(_) -> failwith "Not Implemented"
+                | Expression.AssocArray assocArray -> failwith "TODO" //WanderValue.AssocArray assocArray
+                | Expression.Network network -> failwith "TODO")
             expressions
 
     match error with
@@ -107,13 +115,13 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                 match entity with
                 | WanderValue.Slot slot -> PatternIdentifier.Sl slot
                 | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
-                | _ -> failwith "TODO"
+                | _ -> failwith "TODO - entity"
 
             let attribute =
                 match attribute with
                 | WanderValue.Slot slot -> PatternIdentifier.Sl slot
                 | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
-                | _ -> failwith "TODO"
+                | _ -> failwith "TODO - attribute"
 
             List.iter
                 (fun value ->
@@ -124,7 +132,7 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
                         | WanderValue.Identifier value -> Value.Identifier value
                         | WanderValue.String value -> Value.String value
                         | WanderValue.Slot slot -> Value.Slot(slot)
-                        | _ -> failwith "TODO"
+                        | _ -> failwith "TODO - value"
 
                     triples <-
                         Set.add
@@ -139,15 +147,15 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
     Ok triples
 
 and handlePattern bindings values =
-    let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
+    // let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
     let mutable final: Set<Triple> = Set.empty
 
-    List.iter
-        (fun ds ->
-            match ds with
-            | Ok(res: Set<Triple>) -> final <- final + res
-            | _ -> failwith "TODO")
-        res
+    // List.iter
+    //     (fun ds ->
+    //         match ds with
+    //         | Ok(res: Set<Triple>) -> final <- final + res
+    //         | _ -> failwith "TODO")
+    //     res
 
     Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 

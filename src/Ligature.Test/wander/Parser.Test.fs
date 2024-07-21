@@ -158,7 +158,7 @@ let tests =
                   ""
 
 
-          testCase "Parse Empty Dataset"
+          testCase "Parse Empty Network"
           <| fun _ ->
               let tokens = tokenize "{ }"
               let ast = parse (unsafe tokens)

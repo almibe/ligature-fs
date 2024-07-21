@@ -14,10 +14,11 @@ open Ligature.LigatureStore
 open Ligature.LigatureStore.InMemoryStore
 open Ligature.LigatureSqlite
 open Ligature.Wander.Interpreter
+open Ligature.Wander.Lib.Stack
 
 let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script (emptyEnvironment)
+    let res = run script { Words = stdLib; Stack = List.empty }
     server.SendFrame(printResult res)
     serve server store
 

@@ -21,7 +21,8 @@ let run (input: string) (environment: Environment) : Result<WanderValue list, Li
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
-        error $"Error running script. {x}" None
+        failwith $"{x}"
+        //error $"Error running script. {x}" None
 
 type Introspect =
     { tokens: Result<Token list, string>
@@ -49,5 +50,5 @@ let introspect (input: string) =
 
 let printResult (result: Result<WanderValue list, LigatureError>) =
     match result with
-    | Ok value -> prettyPrint value.Head
+    | Ok value -> printValues value
     | Error err -> err.UserMessage

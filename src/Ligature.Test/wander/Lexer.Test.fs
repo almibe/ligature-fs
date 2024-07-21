@@ -88,8 +88,6 @@ let tests =
                   ""
           testCase "read String Literal"
           <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok([ Token.StringLiteral("hello") ])) ""
-          // testCase "read Bytes Literal" <| fun _ ->
-          //     Expect.equal (tokenize "0x55") (Ok([Bytes("0x55")])) ""
           testCase "read braces"
           <| fun _ ->
               Expect.equal (tokenize "{") (Ok([ Token.OpenBrace ])) ""
@@ -160,6 +158,4 @@ let tests =
               Expect.equal (tokenize "x = 5") (Ok([ Token.Word("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") ""
-          //   testCase "read pipe expression"
-          //   <| fun _ -> Expect.equal (tokenize "|") (Ok([ Token.Pipe ])) ""
           ]

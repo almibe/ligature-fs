@@ -74,25 +74,35 @@ let tests =
               let script = "{}"
               let result = run script emptyEnvironment
               Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
-          //   testCase "Run Dataset literal"
-          //   <| fun _ ->
-          //       let script = "{`a` `b` `c`}"
-          //       let result = run script emptyEnvironment
+          testCase "Run Empty Quote Literal"
+          <| fun _ ->
+              let script = "[]"
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
+          testCase "Test running with Words"
+          <| fun _ ->
+              let script = "1 2 pop"
+              let result = run script { Words = Ligature.Wander.Lib.Stack.stdLib; Stack = List.empty }
+              Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
+        //   testCase "Run Dataset literal"
+        //   <| fun _ ->
+        //       let script = "{`a` `b` `c`}"
+        //       let result = run script emptyEnvironment
+  
+        //       Expect.equal
+        //           result
+        //           (Ok(
+        //               [ WanderValue.Network(
+        //                       InMemoryNetwork(
+        //                           Set.ofSeq
+        //                               [ { Entity = PatternIdentifier.Id(ident "a")
+        //                                   Attribute = PatternIdentifier.Id(ident "b")
+        //                                   Value = Value.Identifier(ident "c") } ]
 
-          //       Expect.equal
-          //           result
-          //           (Ok(
-          //               [ WanderValue.Network(
-          //                     InMemoryNetwork(
-          //                         Set.ofSeq
-          //                             [ { Entity = PatternIdentifier.Id(ident "a")
-          //                                 Attribute = PatternIdentifier.Id(ident "b")
-          //                                 Value = Value.Identifier(ident "c") } ]
-
-          //                     )
-          //                 ) ]
-          //           ))
-          //           ""
+        //                     )
+        //                 ) ]
+        //         ))
+        //         ""
           //   testCase "Run Dataset literal with Int"
           //   <| fun _ ->
           //       let script = "{`a` `b` 5}"
