@@ -56,7 +56,7 @@ type LigatureSqlite(path: string) =
                     | _ -> failwith "Error"
 
                 match run script emptyEnvironment with
-                | Ok([WanderValue.Network(value)]) -> store.add event.Network value |> ignore
+                | Ok([ WanderValue.Network(value) ]) -> store.add event.Network value |> ignore
                 | err -> failwith $"Error - {err}"
             | "RS" ->
                 let script =
@@ -65,7 +65,7 @@ type LigatureSqlite(path: string) =
                     | _ -> failwith "Error"
 
                 match run script emptyEnvironment with
-                | Ok([WanderValue.Network(value)]) -> store.remove event.Network value |> ignore
+                | Ok([ WanderValue.Network(value) ]) -> store.remove event.Network value |> ignore
                 | _ -> failwith "Error"
             | _ -> failwith "Error")
 

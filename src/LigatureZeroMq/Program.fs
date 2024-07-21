@@ -14,7 +14,7 @@ open Ligature.LigatureStore
 open Ligature.LigatureStore.InMemoryStore
 open Ligature.LigatureSqlite
 open Ligature.Wander.Interpreter
-open Ligature.Wander.Lib.Stack
+open Ligature.Wander.Lib.Lib
 
 let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()

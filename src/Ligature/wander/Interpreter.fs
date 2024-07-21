@@ -243,13 +243,13 @@ and evalExpressions
     (environment: Environment)
     (expressions: Expression list)
     : Result<WanderValue list, LigatureError> =
-        match expressions with
-        | [] -> Ok([])
-        | [head] -> evalExpression environment head
-        | head::tail ->
-            match evalExpression environment head with
-            | Ok(res) -> evalExpressions { environment with Stack = res } tail
-            | Error(err) -> Error(err)
+    match expressions with
+    | [] -> Ok([])
+    | [ head ] -> evalExpression environment head
+    | head :: tail ->
+        match evalExpression environment head with
+        | Ok(res) -> evalExpressions { environment with Stack = res } tail
+        | Error(err) -> Error(err)
 
 and evalValues (environment: Environment) (values: WanderValue list) : Result<WanderValue list, LigatureError> =
     let mutable result = Ok([])

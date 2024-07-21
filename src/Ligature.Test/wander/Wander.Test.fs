@@ -10,6 +10,7 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
+open Ligature.Wander.Lib.Lib
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
@@ -79,30 +80,45 @@ let tests =
               let script = "[]"
               let result = run script emptyEnvironment
               Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
+          testCase "Run Quote Literal"
+          <| fun _ ->
+              let script = "[1 `test`]"
+              let result = run script emptyEnvironment
+              Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
           testCase "Test running with Words"
           <| fun _ ->
               let script = "1 2 pop"
-              let result = run script { Words = Ligature.Wander.Lib.Stack.stdLib; Stack = List.empty }
+              let result = run script { Words = stdLib; Stack = List.empty }
               Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
-        //   testCase "Run Dataset literal"
-        //   <| fun _ ->
-        //       let script = "{`a` `b` `c`}"
-        //       let result = run script emptyEnvironment
-  
-        //       Expect.equal
-        //           result
-        //           (Ok(
-        //               [ WanderValue.Network(
-        //                       InMemoryNetwork(
-        //                           Set.ofSeq
-        //                               [ { Entity = PatternIdentifier.Id(ident "a")
-        //                                   Attribute = PatternIdentifier.Id(ident "b")
-        //                                   Value = Value.Identifier(ident "c") } ]
+          testCase "Test apply combinator"
+          <| fun _ ->
+              let script = "[1 2] apply"
+              let result = run script { Words = stdLib; Stack = List.empty }
+              Expect.equal result (Ok([ WanderValue.Int(2I); WanderValue.Int(1I) ])) ""
+          testCase "Test apply combinator with another combinator"
+          <| fun _ ->
+              let script = "[1 2 pop] apply"
+              let result = run script { Words = stdLib; Stack = List.empty }
+              Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
+          //   testCase "Run Dataset literal"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` `c`}"
+          //       let result = run script emptyEnvironment
 
-        //                     )
-        //                 ) ]
-        //         ))
-        //         ""
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               [ WanderValue.Network(
+          //                       InMemoryNetwork(
+          //                           Set.ofSeq
+          //                               [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                   Attribute = PatternIdentifier.Id(ident "b")
+          //                                   Value = Value.Identifier(ident "c") } ]
+
+          //                     )
+          //                 ) ]
+          //         ))
+          //         ""
           //   testCase "Run Dataset literal with Int"
           //   <| fun _ ->
           //       let script = "{`a` `b` 5}"

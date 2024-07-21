@@ -137,7 +137,7 @@ and printLigatureValue value =
     | Value.Slot(_) -> failwith "TODO"
 
 and printValues values =
-    Seq.fold (fun x y -> x + (prettyPrint y) + ", ") "" values
+    Seq.fold (fun x y -> x + (prettyPrint y) + " ") "" values
 
 type Scope = Map<string, WanderValue>
 

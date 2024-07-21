@@ -22,7 +22,7 @@ let run (input: string) (environment: Environment) : Result<WanderValue list, Li
         | Error _ -> error "Error tokenizing." None
     with x ->
         failwith $"{x}"
-        //error $"Error running script. {x}" None
+//error $"Error running script. {x}" None
 
 type Introspect =
     { tokens: Result<Token list, string>

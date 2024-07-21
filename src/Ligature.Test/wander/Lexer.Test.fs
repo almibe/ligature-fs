@@ -157,5 +157,4 @@ let tests =
               let ws = Token.WhiteSpace(" ")
               Expect.equal (tokenize "x = 5") (Ok([ Token.Word("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
-          <| fun _ -> Expect.isError (tokenize "\"") ""
-          ]
+          <| fun _ -> Expect.isError (tokenize "\"") "" ]

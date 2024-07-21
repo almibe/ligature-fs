@@ -93,7 +93,7 @@ let wideArrowNib (gaze: Gaze.Gaze<Token>) =
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeatSep elementNib Token.Comma)) gaze
+        let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Element.Quote(values)
     }

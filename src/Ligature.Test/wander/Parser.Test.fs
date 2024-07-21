@@ -76,7 +76,7 @@ let tests =
               Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I) ]) ])) ""
           testCase "Parse Quote with 2 elements"
           <| fun _ ->
-              let tokens = tokenize "[1, 2]"
+              let tokens = tokenize "[1 2]"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I); Element.Int(2I) ]) ])) ""
 
