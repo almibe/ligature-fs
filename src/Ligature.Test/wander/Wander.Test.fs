@@ -40,17 +40,17 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([])) ""
           testCase "Run Integer"
           <| fun _ ->
               let script = "1235"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Int(1235I) ])) ""
           testCase "Run String"
           <| fun _ ->
               let script = "\"Hello\""
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.String("Hello") ])) ""
           //   testCase "Run Booleans"
           //   <| fun _ ->
@@ -63,66 +63,66 @@ let tests =
           testCase "Run Identifier"
           <| fun _ ->
               let script = "`hello`"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ wident "hello" ])) ""
           testCase "Run Slot"
           <| fun _ ->
               let script = "$hello"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
           testCase "Run Empty Network literal"
           <| fun _ ->
               let script = "{}"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
           testCase "Run Empty Quote Literal"
           <| fun _ ->
               let script = "[]"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
           testCase "Run Quote Literal"
           <| fun _ ->
               let script = "[1 `test`]"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
           testCase "Test running with Words"
           <| fun _ ->
               let script = "1 2 pop"
-              let result = run script { Words = stdLib; Stack = List.empty }
+              let result = run script stdLib List.empty
               Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
           testCase "Test apply combinator"
           <| fun _ ->
               let script = "[1 2] apply"
-              let result = run script { Words = stdLib; Stack = List.empty }
+              let result = run script stdLib List.empty
               Expect.equal result (Ok([ WanderValue.Int(2I); WanderValue.Int(1I) ])) ""
           testCase "Test apply combinator with another combinator"
           <| fun _ ->
               let script = "[1 2 pop] apply"
-              let result = run script { Words = stdLib; Stack = List.empty }
+              let result = run script stdLib List.empty
               Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
-          //   testCase "Run Dataset literal"
-          //   <| fun _ ->
-          //       let script = "{`a` `b` `c`}"
-          //       let result = run script emptyEnvironment
+          testCase "Run Dataset literal"
+          <| fun _ ->
+              let script = "{`a` `b` `c`}"
+              let result = run script Map.empty List.empty
 
-          //       Expect.equal
-          //           result
-          //           (Ok(
-          //               [ WanderValue.Network(
-          //                       InMemoryNetwork(
-          //                           Set.ofSeq
-          //                               [ { Entity = PatternIdentifier.Id(ident "a")
-          //                                   Attribute = PatternIdentifier.Id(ident "b")
-          //                                   Value = Value.Identifier(ident "c") } ]
+              Expect.equal
+                  result
+                  (Ok(
+                      [ WanderValue.Network(
+                            InMemoryNetwork(
+                                Set.ofSeq
+                                    [ { Entity = PatternIdentifier.Id(ident "a")
+                                        Attribute = PatternIdentifier.Id(ident "b")
+                                        Value = Value.Identifier(ident "c") } ]
 
-          //                     )
-          //                 ) ]
-          //         ))
-          //         ""
+                            )
+                        ) ]
+                  ))
+                  ""
           //   testCase "Run Dataset literal with Int"
           //   <| fun _ ->
           //       let script = "{`a` `b` 5}"
-          //       let result = run script emptyEnvironment
+          //       let result = run script Map.empty List.empty
 
           //       Expect.equal
           //           result
@@ -141,7 +141,7 @@ let tests =
           //   testCase "Run Dataset literal with String"
           //   <| fun _ ->
           //       let script = "{`a` `b` \"Hi\"}"
-          //       let result = run script emptyEnvironment
+          //       let result = run script Map.empty List.empty
 
           //       Expect.equal
           //           result
@@ -198,12 +198,12 @@ let tests =
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n  5   "
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Int(5I) ])) ""
           testCase "Handle Multiple Values and White Space"
           <| fun _ ->
               let script = " 1  \n `a` \"hello\" \r\n  321 \n"
-              let result = run script emptyEnvironment
+              let result = run script Map.empty List.empty
 
               Expect.equal
                   result

@@ -14,7 +14,7 @@ open Wander.Model
 open Ligature.Wander.Interpreter
 
 let readLigature (input: string) : Result<Network, LigatureError> =
-    match run input emptyEnvironment with
+    match run input Map.empty List.empty with
     | Ok([ WanderValue.Network(res) ]) -> Ok(res)
     | _ -> failwith "Error"
 

@@ -31,30 +31,25 @@ let stdLib: Map<string, Word> =
     Map
         [ ("pop",
            { Eval =
-               fun environment ->
-                   match environment.Stack with
+               fun words stack ->
+                   match stack with
                    | [] -> Ok([]) //TODO maybe have this be an error?
                    | [ _ ] -> Ok([])
                    | _ :: tail -> Ok(tail) })
           ("dup",
            { Eval =
-               fun environment ->
-                   match environment.Stack with
+               fun words stack ->
+                   match stack with
                    | [] -> Ok([]) //TODO maybe have this be an error?
                    | [ head ] -> Ok([ head; head ])
                    | head :: tail -> Ok(head :: head :: tail) })
           ("apply",
            { Eval =
-               fun environment ->
-                   match environment.Stack |> List.tryHead with
+               fun words stack ->
+                   match stack |> List.tryHead with
                    | None -> Ok([]) //TODO maybe have this be an error?
                    | Some(WanderValue.Quote(head)) ->
-                       match
-                           evalValues
-                               { environment with
-                                   Stack = (environment.Stack.Tail) }
-                               head
-                       with
-                       | Ok(res) -> Ok(res @ (List.tail environment.Stack))
+                       match evalValues words (stack.Tail) head with
+                       | Ok(res) -> Ok(res @ (List.tail stack))
                        | Error(err) -> failwith "TODO"
                    | Some(_) -> failwith "TODO" }) ]

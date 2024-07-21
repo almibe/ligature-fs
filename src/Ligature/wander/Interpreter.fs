@@ -11,25 +11,23 @@ open Ligature.InMemoryNetwork
 type Stack = WanderValue list
 
 type Word =
-    { Eval: Environment -> Result<Stack, LigatureError> }
+    { Eval: Words -> Stack -> Result<Stack, LigatureError> }
 
-and Environment =
-    { Words: Map<string, Word>
-      Stack: Stack }
+and Words = Map<string, Word>
 
-let emptyEnvironment =
-    { Words = Map.empty
-      Stack = List.empty }
-
-let rec evalExpression (environment: Environment) (expression: Expression) : Result<WanderValue list, LigatureError> =
+let rec evalExpression
+    (words: Words)
+    (stack: Stack)
+    (expression: Expression)
+    : Result<WanderValue list, LigatureError> =
     match expression with
-    | Expression.Int value -> Ok((WanderValue.Int value) :: environment.Stack)
-    | Expression.String value -> Ok((WanderValue.String value) :: environment.Stack)
-    | Expression.Identifier value -> Ok((WanderValue.Identifier value) :: environment.Stack)
-    | Expression.Slot value -> Ok((WanderValue.Slot value) :: environment.Stack)
-    | Expression.Network(values) -> handlePattern environment values
-    | Expression.Word name -> handleWord environment name
-    | Expression.Quote quote -> handleQuote environment quote
+    | Expression.Int value -> Ok((WanderValue.Int value) :: stack)
+    | Expression.String value -> Ok((WanderValue.String value) :: stack)
+    | Expression.Identifier value -> Ok((WanderValue.Identifier value) :: stack)
+    | Expression.Slot value -> Ok((WanderValue.Slot value) :: stack)
+    | Expression.Network(values) -> handlePattern words stack values
+    | Expression.Word name -> handleWord words stack name
+    | Expression.Quote quote -> handleQuote words stack quote
     | Expression.Colon -> failwith "Not Implemented"
     | Expression.Bytes(_) -> failwith "Not Implemented"
     | Expression.Definition(name, value) -> failwith "Not Implemented"
@@ -37,12 +35,12 @@ let rec evalExpression (environment: Environment) (expression: Expression) : Res
 // | Expression.AssocArray(values) -> handleAssocArray bindings values
 // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
 
-and evalValue (environment: Environment) (value: WanderValue) : Result<WanderValue list, LigatureError> =
+and evalValue (words: Words) (stack: Stack) (value: WanderValue) : Result<WanderValue list, LigatureError> =
     match value with
-    | WanderValue.Word word -> handleWord environment word
-    | value -> Ok(value :: environment.Stack)
+    | WanderValue.Word word -> handleWord words stack word
+    | value -> Ok(value :: stack)
 
-and handleQuote (environment: Environment) (expressions: Expression list) =
+and handleQuote (words: Words) (stack: Stack) (expressions: Expression list) =
     let mutable error = None
 
     let res: WanderValue list =
@@ -80,27 +78,27 @@ and handleAssocArray bindings values = failwith "TODO"
 // let v = List.fold (fun state (name, value) -> Map.add name value state) (Map []) res
 // Ok([WanderValue.AssocArray(v)])
 
-and handleEntityDescription bindings (attribute, values) : List<WanderValue> * List<List<WanderValue>> =
+and handleEntityDescription words stack (attribute, values) : List<WanderValue> * List<List<WanderValue>> =
     let attribute =
-        match evalExpression bindings attribute with
+        match evalExpression words stack attribute with
         | Ok(res) -> res
         | _ -> failwith "TODO"
 
     let values =
         List.map
             (fun value ->
-                match evalExpression bindings value with
+                match evalExpression words stack value with
                 | Ok(res) -> res
                 | _ -> failwith "TODO")
             values
 
     (attribute, values)
 
-and handleDatasetRootPattern bindings (entity, entityDescriptions) =
+and handleDatasetRootPattern words stack (entity, entityDescriptions) =
     let mutable triples: Set<Triple> = Set.empty
 
     let entity =
-        match evalExpression bindings entity with
+        match evalExpression words stack entity with
         | Ok([ res ]) -> res
         | _ -> failwith "TODO"
 
@@ -146,25 +144,26 @@ and handleDatasetRootPattern bindings (entity, entityDescriptions) =
 
     Ok triples
 
-and handlePattern bindings values =
-    // let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
-    let mutable final: Set<Triple> = Set.empty
+and handlePattern words stack values =
+    Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])
+// let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
+//let mutable final: Set<Triple> = Set.empty
 
-    // List.iter
-    //     (fun ds ->
-    //         match ds with
-    //         | Ok(res: Set<Triple>) -> final <- final + res
-    //         | _ -> failwith "TODO")
-    //     res
+// List.iter
+//     (fun ds ->
+//         match ds with
+//         | Ok(res: Set<Triple>) -> final <- final + res
+//         | _ -> failwith "TODO")
+//     res
 
-    Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
+//Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
-and handleWord environment word =
-    match Map.tryFind word environment.Words with
-    | Some res -> res.Eval environment
+and handleWord words stack word =
+    match Map.tryFind word words with
+    | Some res -> res.Eval words stack
     | None -> error $"Could not find Word {word}" None
 
-and handleIdentifierConcat bindings identifier values = failwith "TODO"
+and handleIdentifierConcat words stack identifier values = failwith "TODO"
 // List.mapi
 //     (fun i value ->
 //         if i % 2 = 1 then
@@ -240,30 +239,31 @@ and handleIdentifierConcat bindings identifier values = failwith "TODO"
 //     | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
 and evalExpressions
-    (environment: Environment)
+    (words: Words)
+    (stack: Stack)
     (expressions: Expression list)
     : Result<WanderValue list, LigatureError> =
     match expressions with
     | [] -> Ok([])
-    | [ head ] -> evalExpression environment head
+    | [ head ] -> evalExpression words stack head
     | head :: tail ->
-        match evalExpression environment head with
-        | Ok(res) -> evalExpressions { environment with Stack = res } tail
+        match evalExpression words stack head with
+        | Ok(res) -> evalExpressions words res tail
         | Error(err) -> Error(err)
 
-and evalValues (environment: Environment) (values: WanderValue list) : Result<WanderValue list, LigatureError> =
+and evalValues (words: Words) (stack: Stack) (values: WanderValue list) : Result<WanderValue list, LigatureError> =
     let mutable result = Ok([])
     let mutable cont = true
-    let mutable environment = environment
+    let mutable stack = stack
     let mutable values = values
 
     while cont && not (List.isEmpty values) do
-        result <- evalValue environment (List.head values)
+        result <- evalValue words stack (List.head values)
         values <- List.tail values
 
         match result with
         | Ok((res)) ->
-            environment <- { environment with Stack = res }
+            stack <- res
             result <- Ok((res))
         | Error(err) ->
             result <- Error(err)

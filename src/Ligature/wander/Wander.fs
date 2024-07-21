@@ -10,14 +10,14 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run (input: string) (environment: Environment) : Result<WanderValue list, LigatureError> =
+let run (input: string) (words: Words) (stack: Stack) : Result<WanderValue list, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok ast ->
                 let expressions = express ast
-                Result.map (fun (res) -> res) (Interpreter.evalExpressions environment expressions)
+                Result.map (fun (res) -> res) (Interpreter.evalExpressions words stack expressions)
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
