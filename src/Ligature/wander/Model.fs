@@ -23,9 +23,9 @@ type Expression =
     | AssocArray of list<string * Expression>
     | Network of NetworkRoot list
 
-and EntityDescription = Expression * Expression list
+and EntityDescription = Identifier * Expression list
 
-and NetworkRoot = Expression * EntityDescription list
+and NetworkRoot = Identifier * EntityDescription list
 
 [<RequireQualifiedAccess>]
 type WanderValue =

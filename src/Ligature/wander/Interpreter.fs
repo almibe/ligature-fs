@@ -25,7 +25,7 @@ let rec evalExpression
     | Expression.String value -> Ok((WanderValue.String value) :: stack)
     | Expression.Identifier value -> Ok((WanderValue.Identifier value) :: stack)
     | Expression.Slot value -> Ok((WanderValue.Slot value) :: stack)
-    | Expression.Network(values) -> handlePattern words stack values
+    | Expression.Network(values) -> failwith "TODO" //handleNetwork values
     | Expression.Word name -> handleWord words stack name
     | Expression.Quote quote -> handleQuote words stack quote
     | Expression.Colon -> failwith "Not Implemented"
@@ -34,6 +34,10 @@ let rec evalExpression
     | Expression.AssocArray(_) -> failwith "Not Implemented"
 // | Expression.AssocArray(values) -> handleAssocArray bindings values
 // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
+
+// and handleNetwork (roots: List<NetworkRoot>): Result<list<WanderValue,LigatureError>> =
+
+//     failwith "TODO"
 
 and evalValue (words: Words) (stack: Stack) (value: WanderValue) : Result<WanderValue list, LigatureError> =
     match value with
@@ -94,60 +98,59 @@ and handleEntityDescription words stack (attribute, values) : List<WanderValue> 
 
     (attribute, values)
 
-and handleDatasetRootPattern words stack (entity, entityDescriptions) =
-    let mutable triples: Set<Triple> = Set.empty
+and handleDatasetRootPattern (entity: Identifier) entityDescriptions = failwith "TODO"
+//     let mutable triples: Set<Triple> = Set.empty
 
-    let entity =
-        match evalExpression words stack entity with
-        | Ok([ res ]) -> res
-        | _ -> failwith "TODO"
+//     let entity =
+//         match evalExpression words stack entity with
+//         | Ok([ res ]) -> res
+//         | _ -> failwith "TODO"
 
-    // let (entityDescriptions: List<WanderValue * List<List<WanderValue>>>) =
-    //     List.map (fun entityDescription -> handleEntityDescription bindings entityDescription) entityDescriptions
+//     // let (entityDescriptions: List<WanderValue * List<List<WanderValue>>>) =
+//     //     List.map (fun entityDescription -> handleEntityDescription bindings entityDescription) entityDescriptions
 
-    List.iter
-        (fun entityDescription ->
-            let (attribute, values) = entityDescription
+//     List.iter
+//         (fun entityDescription ->
+//             let (attribute, values) = entityDescription
 
-            let entity =
-                match entity with
-                | WanderValue.Slot slot -> PatternIdentifier.Sl slot
-                | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
-                | _ -> failwith "TODO - entity"
+//             let entity =
+//                 match entity with
+//                 | WanderValue.Slot slot -> PatternIdentifier.Sl slot
+//                 | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
+//                 | _ -> failwith "TODO - entity"
 
-            let attribute =
-                match attribute with
-                | WanderValue.Slot slot -> PatternIdentifier.Sl slot
-                | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
-                | _ -> failwith "TODO - attribute"
+//             let attribute =
+//                 match attribute with
+//                 | WanderValue.Slot slot -> PatternIdentifier.Sl slot
+//                 | WanderValue.Identifier identifier -> PatternIdentifier.Id identifier
+//                 | _ -> failwith "TODO - attribute"
 
-            List.iter
-                (fun value ->
-                    let value =
-                        match value with
-                        | WanderValue.Int value -> Value.Int value
-                        | WanderValue.Bytes value -> Value.Bytes value
-                        | WanderValue.Identifier value -> Value.Identifier value
-                        | WanderValue.String value -> Value.String value
-                        | WanderValue.Slot slot -> Value.Slot(slot)
-                        | _ -> failwith "TODO - value"
+//             List.iter
+//                 (fun value ->
+//                     let value =
+//                         match value with
+//                         | WanderValue.Int value -> Value.Int value
+//                         | WanderValue.Bytes value -> Value.Bytes value
+//                         | WanderValue.Identifier value -> Value.Identifier value
+//                         | WanderValue.String value -> Value.String value
+//                         | WanderValue.Slot slot -> Value.Slot(slot)
+//                         | _ -> failwith "TODO - value"
 
-                    triples <-
-                        Set.add
-                            { Entity = entity
-                              Attribute = attribute
-                              Value = value }
-                            triples)
-                values)
-        //         entityDescriptions
-        (failwith "TODO")
+//                     triples <-
+//                         Set.add
+//                             { Entity = entity
+//                               Attribute = attribute
+//                               Value = value }
+//                             triples)
+//                 values)
+//             entityDescriptions
+// //        (failwith "TODO")
 
-    Ok triples
+//     Ok triples
 
-and handlePattern words stack values =
-    Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])
-// let res = List.map (fun value -> handleDatasetRootPattern bindings value) values
-//let mutable final: Set<Triple> = Set.empty
+and handlePattern (values: List<NetworkRoot>) = failwith "TODO"
+// let res = List.map (fun value -> handleDatasetRootPattern value) values
+// let mutable final: Set<Triple> = Set.empty
 
 // List.iter
 //     (fun ds ->
@@ -156,7 +159,7 @@ and handlePattern words stack values =
 //         | _ -> failwith "TODO")
 //     res
 
-//Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
+// Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
 and handleWord words stack word =
     match Map.tryFind word words with

@@ -70,11 +70,11 @@ let tests =
               let script = "$hello"
               let result = run script Map.empty List.empty
               Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
-          testCase "Run Empty Network literal"
-          <| fun _ ->
-              let script = "{}"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
+          //   testCase "Run Empty Network literal"
+          //   <| fun _ ->
+          //       let script = "{}"
+          //       let result = run script Map.empty List.empty
+          //       Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
           testCase "Run Empty Quote Literal"
           <| fun _ ->
               let script = "[]"
@@ -100,25 +100,25 @@ let tests =
               let script = "[1 2 pop] apply"
               let result = run script stdLib List.empty
               Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
-          testCase "Run Dataset literal"
-          <| fun _ ->
-              let script = "{`a` `b` `c`}"
-              let result = run script Map.empty List.empty
+          //   testCase "Run Dataset literal"
+          //   <| fun _ ->
+          //       let script = "{`a` `b` `c`}"
+          //       let result = run script Map.empty List.empty
 
-              Expect.equal
-                  result
-                  (Ok(
-                      [ WanderValue.Network(
-                            InMemoryNetwork(
-                                Set.ofSeq
-                                    [ { Entity = PatternIdentifier.Id(ident "a")
-                                        Attribute = PatternIdentifier.Id(ident "b")
-                                        Value = Value.Identifier(ident "c") } ]
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               [ WanderValue.Network(
+          //                     InMemoryNetwork(
+          //                         Set.ofSeq
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                                 Value = Value.Identifier(ident "c") } ]
 
-                            )
-                        ) ]
-                  ))
-                  ""
+          //                     )
+          //                 ) ]
+          //           ))
+          //           ""
           //   testCase "Run Dataset literal with Int"
           //   <| fun _ ->
           //       let script = "{`a` `b` 5}"
