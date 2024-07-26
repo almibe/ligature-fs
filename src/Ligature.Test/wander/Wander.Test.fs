@@ -111,8 +111,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternIdentifier.Id(ident "a")
-          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                             [ { Entity = PatternWord.Id(ident "a")
+          //                                 Attribute = PatternWord.Id(ident "b")
           //                                 Value = Value.Identifier(ident "c") } ]
 
           //                     )
@@ -130,8 +130,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternIdentifier.Id(ident "a")
-          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                             [ { Entity = PatternWord.Id(ident "a")
+          //                                 Attribute = PatternWord.Id(ident "b")
           //                                 Value = Value.Int(5I) } ]
 
           //                     )
@@ -149,8 +149,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternIdentifier.Id(ident "a")
-          //                                 Attribute = PatternIdentifier.Id(ident "b")
+          //                             [ { Entity = PatternWord.Id(ident "a")
+          //                                 Attribute = PatternWord.Id(ident "b")
           //                                 Value = Value.String("Hi") } ]
           //                     )
           //                 )
@@ -169,8 +169,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternIdentifier.Id(ident "a")
-          //                               Attribute = PatternIdentifier.Id(ident "b")
+          //                           [ { Entity = PatternWord.Id(ident "a")
+          //                               Attribute = PatternWord.Id(ident "b")
           //                               Value = Value.Bytes([| 0uy |]) } ]
           //                   )
           //               )
@@ -187,8 +187,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternIdentifier.Id(ident "e")
-          //                               Attribute = PatternIdentifier.Id(ident "a")
+          //                           [ { Entity = PatternWord.Id(ident "e")
+          //                               Attribute = PatternWord.Id(ident "a")
           //                               Value = Value.Identifier(ident "v") } ]
           //                   )
           //               )

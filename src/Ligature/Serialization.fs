@@ -12,11 +12,9 @@ open System.IO
 open Wander.Main
 open Wander.Model
 open Ligature.Wander.Interpreter
+open LigatureStore.InMemoryStore
 
-let readLigature (input: string) : Result<Network, LigatureError> =
-    match run input Map.empty List.empty with
-    | Ok([ WanderValue.Network(res) ]) -> Ok(res)
-    | _ -> failwith "Error"
+let readLigature (input: string) : Result<Network, LigatureError> = run input emptyNetwork
 
 let writeLigature (input: Network) : string =
     let sb = System.Text.StringBuilder()

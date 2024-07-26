@@ -10,14 +10,14 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run (input: string) (words: Words) (stack: Stack) : Result<WanderValue list, LigatureError> =
+let run (input: string) (runtimeNetwork: Network) : Result<Network, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok ast ->
                 let expressions = express ast
-                Result.map (fun (res) -> res) (Interpreter.evalExpressions words stack expressions)
+                Result.map (fun (res) -> res) (Interpreter.evalExpressions runtimeNetwork expressions)
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
@@ -48,7 +48,7 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-let printResult (result: Result<WanderValue list, LigatureError>) =
+let printResult (result: Result<Network, LigatureError>) =
     match result with
-    | Ok value -> printValues value
+    | Ok value -> printNetwork value
     | Error err -> err.UserMessage

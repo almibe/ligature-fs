@@ -9,21 +9,21 @@ open Ligature.Main
 
 let patternTripleToTriple (pattern: Triple) : Triple option =
     match pattern with
-    | { Entity = PatternIdentifier.Id(entity)
-        Attribute = PatternIdentifier.Id(attribute) } -> failwith "TODO"
+    | { Entity = PatternWord.Word(entity)
+        Attribute = PatternWord.Word(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
-let apply (network: Network) (pattern: Map<string, WanderValue>) =
+let apply (network: Network) (pattern: Map<string, Value>) =
     let res data =
         data
         |> Map.toSeq
         |> Seq.map (fun (k, v) ->
             let v =
                 match v with
-                | WanderValue.Identifier i -> Value.Identifier i
-                | WanderValue.Int i -> Value.Int i
-                | WanderValue.String s -> Value.String s
-                | WanderValue.Bytes b -> Value.Bytes b
+                | Value.Word w -> Value.Word w
+                | Value.Int i -> Value.Int i
+                | Value.String s -> Value.String s
+                | Value.Bytes b -> Value.Bytes b
                 | _ -> failwith "Error"
 
             (k, v))

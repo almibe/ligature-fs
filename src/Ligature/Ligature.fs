@@ -17,21 +17,23 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Identifier = private Identifier of string
+// type Identifier = private Identifier of string
 
-let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
+// let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
 
-let identifier =
-    let identifierPattern =
-        Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
+// let identifier =
+//     let identifierPattern =
+//         Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
 
-    fun (id: string) ->
-        if identifierPattern.IsMatch(id) then
-            Ok(Identifier id)
-        else
-            invalidIdentifier id
+//     fun (id: string) ->
+//         if identifierPattern.IsMatch(id) then
+//             Ok(Identifier id)
+//         else
+//             invalidIdentifier id
 
 type Slot = Slot of string option
+
+type Word = Word of string
 
 // type Slot = private Slot of string option
 //     member _.Named = name.IsSome
@@ -73,46 +75,43 @@ type Slot = Slot of string option
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-[<RequireQualifiedAccess>]
-type PatternIdentifier =
-    | Sl of Slot
-    | Id of Identifier
+type Arguments = Value list
 
-[<RequireQualifiedAccess>]
-type Value =
+and Quote = {
+    parameters: string list
+    value: Value list
+}
+
+and HostFunction =
+    { Eval: Network -> Arguments -> Result<Network, LigatureError> }
+
+and Words = Map<string, HostFunction>
+
+and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] PatternWord =
     | Slot of Slot
-    | Identifier of Identifier
+    | Word of Word
+
+
+and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] Value =
+    | Slot of Slot
+    | Word of Word
     | String of string
     | Int of bigint
     | Bytes of byte array
+    | Quote of Quote
 
-type Triple =
-    { Entity: PatternIdentifier
-      Attribute: PatternIdentifier
-      Value: Value }
+and Triple = (PatternWord * PatternWord * Value)
 
-let getRoots (patternSet: Set<Triple>) : Set<PatternIdentifier> =
-    Set.map (fun (triple: Triple) -> triple.Entity) patternSet
+and [<RequireQualifiedAccess>] WanderValue =
+    | Quote of WanderValue list
+    | Triple of Triple
+    | Network of Network
+    | AssocArray of Map<string, WanderValue>
+    | Bytes of byte array
+    | Nothing
+    | Word of string
 
-let getLeaves (patternSet: Set<Triple>) : Set<PatternIdentifier> =
-    patternSet
-    |> Set.map (fun (triple: Triple) ->
-        match triple.Value with
-        | Value.Identifier identifier -> Some(PatternIdentifier.Id identifier)
-        | Value.Slot slot -> Some(PatternIdentifier.Sl slot)
-        | _ -> None)
-    |> Set.filter (fun x -> x.IsSome)
-    |> Set.map (fun x -> x.Value)
-
-let readIdentifier (Identifier identifier) = identifier
-
-let readPatternIdentifier (identifier: PatternIdentifier) : string =
-    match identifier with
-    | PatternIdentifier.Id(Identifier identifier) -> identifier
-    //  | PatternIdentifier.Sl(Slot(name)) -> name
-    | _ -> failwith "TODO"
-
-type Network =
+and Network =
     abstract member Write: unit -> Set<Triple>
     abstract member Count: unit -> int64
     abstract member Union: Network -> Network
@@ -122,7 +121,24 @@ type Network =
     abstract member Query: Network -> Network -> Network
     abstract member Infer: Network -> Network -> Network
 
-let triple entity attribute value =
-    { Entity = entity
-      Attribute = attribute
-      Value = value }
+
+let getRoots (patternSet: Set<Triple>) : Set<PatternWord> =
+    Set.map (fun ((entity, _, _): Triple) -> entity) patternSet
+
+let getLeaves (patternSet: Set<Triple>) : Set<PatternWord> =
+    patternSet
+    |> Set.map (fun ((_, _, value): Triple) ->
+        match value with
+        | Value.Word word -> Some(PatternWord.Word word)
+        | Value.Slot slot -> Some(PatternWord.Slot slot)
+        | _ -> None)
+    |> Set.filter (fun x -> x.IsSome)
+    |> Set.map (fun x -> x.Value)
+
+// let readIdentifier (Identifier identifier) = identifier
+
+let readPatternWord (pattern: PatternWord) : string =
+    match pattern with
+    | PatternWord.Word(Word word) -> word
+    //  | PatternWord.Sl(Slot(name)) -> name
+    | _ -> failwith "TODO"

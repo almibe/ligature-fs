@@ -11,7 +11,7 @@ open Fable.Core.JsInterop
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string
-    | Identifier of Identifier
+    // | Identifier of Identifier
     | Slot of Slot
     | Int of bigint
     | Bytes of byte array
@@ -40,12 +40,12 @@ let implode (chars: char list) =
 let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
-let identifierTokenNibbler =
-    Gaze.map identifierNibbler (fun chars ->
-        match chars |> implode |> identifier with
-        | Ok identifier -> Token.Identifier(identifier)
-        | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
-    )
+// let identifierTokenNibbler =
+//     Gaze.map identifierNibbler (fun chars ->
+//         match chars |> implode |> identifier with
+//         | Ok identifier -> Token.Identifier(identifier)
+//         | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
+//     )
 
 let slotTokenNibbler =
     Gaze.map slotNibbler (fun chars ->
@@ -107,7 +107,7 @@ let tokenNibbler =
                   bytesTokenNibbler
                   integerTokenNibbler
                   newLineTokenNibbler
-                  identifierTokenNibbler
+//                  identifierTokenNibbler
                   slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma

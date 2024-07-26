@@ -85,10 +85,10 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 
 let newLineNibbler = Nibblers.takeWhile (fun c -> c = '\n' || c = '\r')
 
-/// <summary>Reads an Identifier in lig format from a Gaze of chars.</summary>
-/// <param name="gaze">An instance of Gaze of chars.</param>
-/// <returns>An Identifier or Error.</returns>
-let readIdentifier gaze =
-    match Gaze.attempt identifierNibbler gaze with
-    | Error(_) -> error "Could not read Identifier." None
-    | Ok(result) -> identifier (System.String(List.toArray result))
+// /// <summary>Reads an Identifier in lig format from a Gaze of chars.</summary>
+// /// <param name="gaze">An instance of Gaze of chars.</param>
+// /// <returns>An Identifier or Error.</returns>
+// let readIdentifier gaze =
+//     match Gaze.attempt identifierNibbler gaze with
+//     | Error(_) -> error "Could not read Identifier." None
+//     | Ok(result) -> identifier (System.String(List.toArray result))

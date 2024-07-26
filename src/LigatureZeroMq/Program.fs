@@ -12,7 +12,7 @@ open NetMQ
 open System
 open Ligature.LigatureStore
 open Ligature.LigatureStore.InMemoryStore
-open Ligature.LigatureSqlite
+//open Ligature.LigatureSqlite
 open Ligature.Wander.Interpreter
 open Ligature.Wander.Lib.Lib
 
@@ -32,10 +32,11 @@ let main args =
         if inmem then
             empty ()
         else
-            let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
-            let store = new LigatureSqlite(path + "\\sqlite\\store.db")
-            store.initialize () |> ignore
-            store
+            empty ()
+            //let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
+            //let store = //new LigatureSqlite(path + "\\sqlite\\store.db")
+            //store.initialize () |> ignore
+            //store
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")

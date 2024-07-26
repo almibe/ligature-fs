@@ -16,40 +16,12 @@ type Expression =
     | Int of bigint
     | Bytes of byte array
     | String of string
-    | Identifier of Identifier
     | Slot of Slot
     | Definition of name: string * value: Expression
     | Word of string
     | Quote of Expression list
     | AssocArray of list<string * Expression>
-    | Network of NetworkRoot list
-
-and EntityDescription = Identifier * Expression list
-
-and NetworkRoot = Identifier * EntityDescription list
-
-[<RequireQualifiedAccess>]
-type WanderValue =
-    | Int of bigint
-    | String of string
-    | Bool of bool
-    | Identifier of Identifier
-    | Slot of Slot
-    | Triple of Ligature.Main.Triple
-    | Quote of WanderValue list
     | Network of Network
-    | AssocArray of Map<string, WanderValue>
-    | Bytes of byte array
-    | Nothing
-    | Word of string
-
-let toWanderValue (value: Value) : WanderValue =
-    match value with
-    | Value.Identifier id -> WanderValue.Identifier id
-    | Value.Bytes bytes -> WanderValue.Bytes bytes
-    | Value.Int i -> WanderValue.Int i
-    | Value.String s -> WanderValue.String s
-    | Value.Slot s -> WanderValue.Slot s
 
 type Parameter = { name: string; tag: string }
 
@@ -77,21 +49,18 @@ let encodeString string =
     failwith "TODO"
 #endif
 
-let rec prettyPrint (value: WanderValue) : string =
+let rec prettyPrint (value: Value) : string =
     match value with
-    | WanderValue.Int i -> sprintf "%A" i
-    | WanderValue.String s -> encodeString s
-    | WanderValue.Bool b -> sprintf "%b" b
-    | WanderValue.Identifier i -> $"`{(readIdentifier i)}`"
-    | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
-    | WanderValue.Slot(Slot(None)) -> "$"
-    | WanderValue.Quote(values) -> $"[{printValues values}]"
-    | WanderValue.Triple(triple) -> printTriple triple
-    | WanderValue.AssocArray(values) -> printAssocArray values
-    | WanderValue.Bytes(bytes) -> printBytes bytes
-    | WanderValue.Network(values) -> printNetwork values
-    | WanderValue.Nothing -> "Nothing"
-    | WanderValue.Word(name) -> name
+    | Value.Int i -> sprintf "%A" i
+    | Value.String s -> encodeString s
+    | Value.Slot(Slot(Some(name))) -> $"${(name)}"
+    | Value.Slot(Slot(None)) -> "$"
+    | Value.Quote(values) -> $"[{printQuote values}]"
+    // | WanderValue.AssocArray(values) -> printAssocArray values
+    // | WanderValue.Bytes(bytes) -> printBytes bytes
+    // | WanderValue.Network(values) -> printNetwork values
+    // | WanderValue.Nothing -> "Nothing"
+    // | WanderValue.Word(name) -> name
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network.Write()))
@@ -108,37 +77,37 @@ and printAssocArray values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "]"
 
-and printTriple triple =
-    $"`{(readPatternIdentifier triple.Entity)}` `{(readPatternIdentifier triple.Attribute)}` {(printLigatureValue triple.Value)}"
+and printTriple ((entity, attribute, value): Triple): string =
+    $"{(readPatternWord entity)} {(readPatternWord attribute)} {(printLigatureValue value)}"
 
-and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
-    match patternIdentifier with
-    | PatternIdentifier.Id(identifier) -> $"`{readIdentifier identifier}`"
-    | PatternIdentifier.Sl(Slot(Some(name))) -> $"${name}"
-    | PatternIdentifier.Sl(Slot(None)) -> "$"
+and printPatternWord (patternWord: PatternWord) =
+    match patternWord with
+    | PatternWord.Word(Word(word)) -> word
+    | PatternWord.Slot(Slot(Some(name))) -> $"${name}"
+    | PatternWord.Slot(Slot(None)) -> "$"
 
 and printValue (value: Value) =
     match value with
-    | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
+    | Value.Word(Word(value)) -> value
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-    | Value.Bytes(bytes) -> printBytes bytes
+//    | Value.Bytes(bytes) -> printBytes bytes
     | Value.Slot(Slot(Some(name))) -> $"${name}"
     | Value.Slot(Slot(None)) -> "$"
 
-and printPattern (pattern: Triple) =
-    $"{(printPatternIdentifier pattern.Entity)} {(printPatternIdentifier pattern.Attribute)} {(printValue pattern.Value)}"
+and printPattern ((entity, attribute, value): Triple) =
+    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(printValue value)}"
 
 and printLigatureValue value =
     match value with
-    | Value.Identifier(value) -> $"`{(readIdentifier value)}`"
+    | Value.Word(Word(word)) -> word
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-    | Value.Bytes(bytes) -> printBytes bytes
+//    | Value.Bytes(bytes) -> printBytes bytes
     | Value.Slot(_) -> failwith "TODO"
 
-and printValues values =
-    Seq.fold (fun x y -> x + (prettyPrint y) + " ") "" values
+and printQuote quote = failwith "TODO"
+//    Seq.fold (fun x y -> x + (prettyPrint y) + " ") "" values
 
 type Scope = Map<string, WanderValue>
 
@@ -170,11 +139,11 @@ and Bindings =
       Stack: Scope list
       Network: Network }
 
-let newBindings () =
+let newBindings (network: Network) =
     { Functions = []
       Current = Map.empty
       Stack = [] 
-      Network = InMemoryNetwork.emptyNetwork }
+      Network = network }
 
 let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
     let current' = Map.add name value bindings.Current

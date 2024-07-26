@@ -15,7 +15,7 @@ let id id =
 
 let ident id =
     match identifier id with
-    | Ok id -> PatternIdentifier.Id id
+    | Ok id -> PatternWord.Id id
     | _ -> failwith "Error"
 
 let vident id =
@@ -23,7 +23,7 @@ let vident id =
     | Ok id -> Value.Identifier id
     | _ -> failwith "Error"
 
-let slot name = PatternIdentifier.Sl(Slot(Some(name)))
+let slot name = PatternWord.Sl(Slot(Some(name)))
 
 [<Tests>]
 let tests =

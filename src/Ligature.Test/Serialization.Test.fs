@@ -8,15 +8,15 @@ open Expecto
 open Ligature.Main
 open Ligature.InMemoryNetwork
 
-let ident id =
-    match identifier id with
-    | Ok id -> id
-    | _ -> failwith "Error"
+// let ident id =
+//     match identifier id with
+//     | Ok id -> id
+//     | _ -> failwith "Error"
 
-let vident id =
-    match identifier id with
-    | Ok id -> Value.Identifier id
-    | _ -> failwith "Error"
+// let vident id =
+//     match identifier id with
+//     | Ok id -> Value.Identifier id
+//     | _ -> failwith "Error"
 
 // [<Tests>]
 // let tests =
@@ -32,7 +32,7 @@ let vident id =
 //           //       let result = Ligature.Serialization.readLigature "{`a` `b` `c`}" |> Result.toOption
 
 //           //       let expect: Set<Triple> =
-//           //           Set.ofList [ triple (PatternIdentifier.Id(ident "a")) (PatternIdentifier.Id(ident "b")) (vident "c") ]
+//           //           Set.ofList [ triple (PatternWord.Id(ident "a")) (PatternWord.Id(ident "b")) (vident "c") ]
 
 //           //       Expect.equal (result.Value.Write()) expect ""
 //           testCase "Write Empty Network"

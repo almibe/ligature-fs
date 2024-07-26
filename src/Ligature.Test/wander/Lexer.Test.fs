@@ -9,13 +9,6 @@ open Ligature.Wander.Lexer
 open Ligature.Wander.Model
 open Ligature.Main
 
-let ident id =
-    Token.Identifier(
-        match identifier id with
-        | Ok(v) -> v
-        | Error(_) -> failwith "todo"
-    )
-
 let slot (id: string) = Token.Slot(Slot(Some(id)))
 
 [<Tests>]
@@ -56,8 +49,8 @@ let tests =
               Expect.equal (tokenize "\r\n\r\n\r\n\n") (Ok([ Token.NewLine("\r\n\r\n\r\n\n") ])) ""
           testCase "Read Identifiers"
           <| fun _ ->
-              Expect.equal (tokenize "`a`") (Ok([ (ident "a") ])) ""
-              Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ ident "https://ligature.dev/#" ])) ""
+              Expect.equal (tokenize "`a`") (Ok([ Token.Word("a") ])) ""
+              Expect.equal (tokenize "`https://ligature.dev/#`") (Ok([ Token.Word("https://ligature.dev/#") ])) ""
           testCase "Read Slots"
           <| fun _ ->
               Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot(None)) ])) ""
@@ -69,11 +62,11 @@ let tests =
                   (tokenize "(`a` `b` `c`)")
                   (Ok(
                       [ Token.OpenParen
-                        ident "a"
+                        Token.Word("a")
                         Token.WhiteSpace " "
-                        ident "b"
+                        Token.Word("b")
                         Token.WhiteSpace " "
-                        ident "c"
+                        Token.Word("c")
                         Token.CloseParen ]
                   ))
                   ""

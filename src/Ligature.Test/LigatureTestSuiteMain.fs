@@ -16,7 +16,7 @@ open Ligature.Wander.Model
 /// Unsafe helper function for creating Identifiers.
 let id ident =
     match identifier ident with
-    | Ok(i) -> PatternIdentifier.Id i
+    | Ok(i) -> PatternWord.Id i
     | Error(_) -> failwith "error making Identifier"
 
 /// Unsafe helper function for creating triples for testing.

@@ -9,6 +9,7 @@ open FsToolkit.ErrorHandling
 open Model
 open Nibblers
 open Ligature.Main
+open Ligature.InMemoryNetwork
 
 [<RequireQualifiedAccess>]
 type Element =
@@ -17,16 +18,15 @@ type Element =
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Identifier of Ligature.Main.Identifier
-    | Slot of Ligature.Main.Slot
+    | Slot of Slot
     | Definition of string * Element
     | AssocArray of (string * Element) list
-    | Network of NetworkRoot list
+    | Network of (Element * Element * Element) list
     | Colon
 
-and EntityDescription = Identifier * Element list
+// and EntityDescription = Identifier * Element list
 
-and NetworkRoot = Identifier * EntityDescription list
+// and NetworkRoot = Identifier * EntityDescription list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
@@ -89,45 +89,65 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Quote(values)
     }
 
-let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
-    let res = result {
-        let! attribute = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
-        let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
-        return (attribute, values)
-    }
-    match res with
-    | Ok((Element.Identifier(identifier), res)) -> Ok(identifier, res)
+// let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
+//     let res = result {
+//         let! attribute = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
+//         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
+//         return (attribute, values)
+//     }
+//     match res with
+//     | Ok((Element.Identifier(identifier), res)) -> Ok(identifier, res)
+//     | _ -> failwith "TODO"
+
+// let singleEntityDescriptNib gaze =
+//     let res = result {
+//         let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
+//         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
+//         return (entity, [ entityDescriptions ])
+//     }
+//     match res with
+//     | Ok(Element.Identifier(entity), descriptions) -> Ok(NetworkRoot(entity, descriptions))
+//     | _ -> failwith "TODO"
+
+// let networkRootNib (gaze: Gaze.Gaze<Token>) : Result<NetworkRoot, Gaze.GazeError> =
+//     let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
+
+//     match singleEntityDescription with
+//     | Ok _ -> singleEntityDescription
+//     | _ ->
+//         result {
+//             let! entity = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
+//             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+//             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
+//             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+//             return (failwith "TODO")
+//         // return NetworkRoot(entity, entityDescriptions)
+//         }
+
+let triplesNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
+    let entity = 
+        match wordNib gaze with
+        | Ok(Element.Word(word)) -> Ok(Element.Word(word))
+        | _ -> failwith "TODO"
+
+    let attribute = 
+        match wordNib gaze with
+        | Ok(Element.Word(word)) -> Ok(Element.Word(word))
+        | _ -> failwith "TODO"
+
+    let value = 
+        match wordNib gaze with
+        | Ok(Element.Word(word)) -> Ok(Element.Word(word))
+        | _ -> failwith "TODO"
+
+    match (entity, attribute, value) with
+    | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> failwith "TODO"
-
-let singleEntityDescriptNib gaze =
-    let res = result {
-        let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
-        let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
-        return (entity, [ entityDescriptions ])
-    }
-    match res with
-    | Ok(Element.Identifier(entity), descriptions) -> Ok(NetworkRoot(entity, descriptions))
-    | _ -> failwith "TODO"
-
-let networkRootNib (gaze: Gaze.Gaze<Token>) : Result<NetworkRoot, Gaze.GazeError> =
-    let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
-
-    match singleEntityDescription with
-    | Ok _ -> singleEntityDescription
-    | _ ->
-        result {
-            let! entity = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
-            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-            let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
-            let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-            return (failwith "TODO")
-        // return NetworkRoot(entity, entityDescriptions)
-        }
 
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! datasetInternals = (optional (repeatSep networkRootNib Token.Comma)) gaze
+        let! datasetInternals = (optional (repeatSep triplesNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Element.Network(datasetInternals)
     }
@@ -162,7 +182,7 @@ let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Error(err) -> Error err
     | Ok(Token.Bytes(value)) -> Ok(Element.Bytes(value))
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
-    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Word(value)) -> Ok(Element.Word value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
@@ -175,7 +195,7 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
     else
         let elements =
             match next with
-            | Ok(Token.Identifier i) -> List.append elements [ (Element.Identifier i) ]
+            | Ok(Token.Word w) -> List.append elements [ (Element.Word w) ]
             | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
             | Ok(Token.Bytes b) -> List.append elements [ (Element.Bytes b) ]
             | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
@@ -199,7 +219,7 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     | Error(err) -> Error err
     | Ok(Token.Bytes(value)) -> Ok([ Element.Bytes(value) ])
     | Ok(Token.Int(value)) -> Ok([ Element.Int value ])
-    | Ok(Token.Identifier(value)) -> Ok([ Element.Identifier value ])
+    | Ok(Token.Word(value)) -> Ok([ Element.Word value ])
     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
     | Ok(Token.OpenSquare) -> readValueList [] gaze
@@ -208,12 +228,12 @@ let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
         | Ok res -> Ok([ res ])
         | Error err -> Error(Gaze.GazeError.NoMatch)
 
-let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let readWord (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Word(value)) -> Ok(Element.Word value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -273,21 +293,26 @@ let expressQuote values =
     let res = List.map (fun value -> expressElement value) values
     Expression.Quote res
 
-let expressEntityDescription (entityDescription: EntityDescription) =
-    let (attribute, values) = entityDescription
-    (attribute, (List.map (fun value -> expressElement value) values))
+// let expressEntityDescription (entityDescription: EntityDescription) =
+//     let (attribute, values) = entityDescription
+//     (attribute, (List.map (fun value -> expressElement value) values))
 
-let expressNetworkRoot (networkRoot: NetworkRoot) =
-    let (entity, entityDescriptions) = networkRoot
+let expressNetwork (network: (Element * Element * Element) list): Expression = 
+    let res: Set<Triple> = (List.map (fun (entity, attribute, value) ->
+        match (entity, attribute, value) with
+        | (Element.Word(entity), Element.Word(attribute), Element.Word(value)) -> 
+            (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), Value.Word(Word(value)))
+        | _ -> failwith "TODO") network) |> Set.ofSeq
+    Expression.Network(networkOf res)
 
-    let entityDescriptions =
-        List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
+//     let entityDescriptions =
+//         List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
 
-    (entity, entityDescriptions)
+//     (entity, entityDescriptions)
 
-let expressNetwork (values: NetworkRoot list) = failwith "TODO"
-// let res = List.map (fun networkRoot -> expressNetworkRoot datasetRoot) values
-// Expression.Network res
+// let expressNetwork (values: NetworkRoot list) =
+//     let res = List.map (fun networkRoot -> expressNetworkRoot networkRoot) values
+//     Expression.Network res
 
 let handleAssocArray (declarations: list<string * Element>) =
     let res =
@@ -303,7 +328,6 @@ let rec expressElement (element: Element) =
     | Element.Int value -> Expression.Int value
     | Element.Word namePath -> Expression.Word namePath
     | Element.String value -> Expression.String value
-    | Element.Identifier id -> Expression.Identifier id
     | Element.Definition(name, value) -> Expression.Definition(name, (expressElement value))
     | Element.Quote elements -> expressQuote elements
     | Element.AssocArray declarations -> handleAssocArray declarations

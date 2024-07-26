@@ -8,40 +8,40 @@ open Ligature.Main
 open System
 open System.Collections.Generic
 
-let patternIdentifierToValue (patternIdentifier: PatternIdentifier) : Value =
-    match patternIdentifier with
-    | PatternIdentifier.Id identifier -> Value.Identifier identifier
-    | PatternIdentifier.Sl slot -> Value.Slot slot
+let patternWordToValue (patternWord: PatternWord) : Value =
+    match patternWord with
+    | PatternWord.Word word -> Value.Word word
+    | PatternWord.Slot slot -> Value.Slot slot
 
-let educeTripleTriple (triple: Triple) (patternTriple: Triple) : Option<Map<string, Value>> =
+let educeTripleTriple ((entity, attribute, value): Triple) ((patternEntity, patternAttribute, patternValue): Triple) : Option<Map<string, Value>> =
     let mutable cont = true
     let mutable result: Map<string, Value> = Map.empty
 
-    match patternTriple.Entity with
-    | PatternIdentifier.Sl(Slot(Some(name))) ->
-        result <- Map.add name (triple.Entity |> patternIdentifierToValue) result
-    | PatternIdentifier.Sl(Slot(None)) -> ignore ()
-    | PatternIdentifier.Id id -> cont <- (patternTriple.Entity = triple.Entity)
+    match patternEntity with
+    | PatternWord.Slot(Slot(Some(name))) ->
+        result <- Map.add name (entity |> patternWordToValue) result
+    | PatternWord.Slot(Slot(None)) -> ignore ()
+    | PatternWord.Word _ -> cont <- (patternEntity = entity)
 
     if cont then
-        match patternTriple.Attribute with
-        | PatternIdentifier.Sl(Slot(Some(name))) ->
+        match patternAttribute with
+        | PatternWord.Slot(Slot(Some(name))) ->
             if Map.containsKey name result then
-                cont <- (Map.find name result) = (patternIdentifierToValue triple.Attribute)
+                cont <- (Map.find name result) = (patternWordToValue attribute)
             else
-                result <- Map.add name (triple.Attribute |> patternIdentifierToValue) result
-        | PatternIdentifier.Sl(Slot(None)) -> ignore ()
-        | PatternIdentifier.Id id -> cont <- (patternTriple.Attribute = triple.Attribute)
+                result <- Map.add name (attribute |> patternWordToValue) result
+        | PatternWord.Slot(Slot(None)) -> ignore ()
+        | PatternWord.Word _ -> cont <- (patternAttribute = attribute)
 
     if cont then
-        match patternTriple.Value with
+        match patternValue with
         | Value.Slot(Slot(Some(name))) ->
             if Map.containsKey name result then
-                cont <- (Map.find name result) = (triple.Value)
+                cont <- (Map.find name result) = (value)
             else
-                result <- Map.add name (triple.Value) result
+                result <- Map.add name (value) result
         | Value.Slot(Slot(None)) -> ignore ()
-        | _ -> cont <- patternTriple.Value = triple.Value
+        | _ -> cont <- patternValue = value
 
     if cont then Some(result) else None
 
@@ -91,42 +91,42 @@ type InMemoryNetwork(network: Set<Triple>) =
         member _.Apply(values: Map<string, Value>) =
             let res: Set<Triple> =
                 Set.map
-                    (fun (triple: Triple) ->
-                        match triple with
-                        // | { Entity = PatternIdentifier.Id(_)
-                        //     Attribute = PatternIdentifier.Id(_)
+                    (fun ((entity, attribute, value): Triple) ->
+                        match (entity, attribute, value) with
+                        // | { Entity = PatternWord.Word(_)
+                        //     Attribute = PatternWord.Word(_)
                         //     Value = Value(_) } -> failwith "TODO"
                         | _ ->
                             let entity =
-                                match triple.Entity with
-                                | PatternIdentifier.Id(identifier) -> identifier
-                                | PatternIdentifier.Sl(slot) ->
+                                match entity with
+                                | PatternWord.Word(word) -> word
+                                | PatternWord.Slot(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
                                         match values.TryFind name with
                                         | Some value ->
                                             match value with
-                                            | Value.Identifier identifier -> identifier
+                                            | Value.Word word -> word
                                             | _ -> failwith "Error"
                                         | None -> failwith "Error"
                                     | Slot(None) -> failwith "Error"
 
                             let attribute =
-                                match triple.Attribute with
-                                | PatternIdentifier.Id(identifier) -> identifier
-                                | PatternIdentifier.Sl(slot) ->
+                                match attribute with
+                                | PatternWord.Word(word) -> word
+                                | PatternWord.Slot(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
                                         match values.TryFind name with
                                         | Some value ->
                                             match value with
-                                            | Value.Identifier identifier -> identifier
+                                            | Value.Word word -> word
                                             | _ -> failwith "Error"
                                         | None -> failwith "Error"
                                     | Slot(None) -> failwith "Error"
 
                             let value =
-                                match triple.Value with
+                                match value with
                                 | Value.Slot(slot) ->
                                     match slot with
                                     | Slot(Some(name)) ->
@@ -136,9 +136,7 @@ type InMemoryNetwork(network: Set<Triple>) =
                                     | Slot(None) -> failwith "Error"
                                 | v -> v
 
-                            { Entity = PatternIdentifier.Id entity
-                              Attribute = PatternIdentifier.Id attribute
-                              Value = value })
+                            (PatternWord.Word(entity), PatternWord.Word(attribute), value))
                     network
 
             InMemoryNetwork(res)
