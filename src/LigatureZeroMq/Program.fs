@@ -18,7 +18,7 @@ open Ligature.Wander.Lib.Lib
 
 let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script { Words = stdLib; Stack = List.empty }
+    let res = run script stdLib List.empty
     server.SendFrame(printResult res)
     serve server store
 

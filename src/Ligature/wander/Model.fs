@@ -7,6 +7,7 @@ module Ligature.Wander.Model
 open Ligature.Main
 open System
 open System.Text.RegularExpressions
+open Ligature
 //open Ligature.LigatureStore.InMemoryStore
 
 [<RequireQualifiedAccess>]
@@ -166,12 +167,14 @@ type HostFunction =
 and Bindings =
     { Functions: HostFunction list
       Current: Scope
-      Stack: Scope list }
+      Stack: Scope list
+      Network: Network }
 
 let newBindings () =
     { Functions = []
       Current = Map.empty
-      Stack = [] }
+      Stack = [] 
+      Network = InMemoryNetwork.emptyNetwork }
 
 let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
     let current' = Map.add name value bindings.Current

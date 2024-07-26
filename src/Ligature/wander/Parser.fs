@@ -55,15 +55,6 @@ let readAssignment gaze =
             })
         gaze
 
-// let patternsNibbler (gaze: Gaze.Gaze<Token>) =
-//     result {
-//         let! _ = Gaze.attempt (take Token.Asterisk) gaze
-//         let! pattern = Gaze.attempt patternNib gaze
-//         let! _ = Gaze.attempt wideArrowNib gaze
-//         let! body = Gaze.attempt patternMatchBodyNib gaze
-//         return (pattern, body)
-//     }
-
 let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
@@ -99,20 +90,24 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     }
 
 let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
-    result {
+    let res = result {
         let! attribute = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
         let! values = Gaze.attempt readValues gaze //TODO match single Value or List of Values
-        return (failwith "TODO")
-    //return (attribute, values)
+        return (attribute, values)
     }
+    match res with
+    | Ok((Element.Identifier(identifier), res)) -> Ok(identifier, res)
+    | _ -> failwith "TODO"
 
 let singleEntityDescriptNib gaze =
-    result {
+    let res = result {
         let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
-        return (failwith "TODO")
-    //return NetworkRoot(entity, [ entityDescriptions ])
+        return (entity, [ entityDescriptions ])
     }
+    match res with
+    | Ok(Element.Identifier(entity), descriptions) -> Ok(NetworkRoot(entity, descriptions))
+    | _ -> failwith "TODO"
 
 let networkRootNib (gaze: Gaze.Gaze<Token>) : Result<NetworkRoot, Gaze.GazeError> =
     let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
@@ -129,14 +124,13 @@ let networkRootNib (gaze: Gaze.Gaze<Token>) : Result<NetworkRoot, Gaze.GazeError
         // return NetworkRoot(entity, entityDescriptions)
         }
 
-//let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-//    failwith "TODO"
-// result {
-//     let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-//     let! datasetInternals = (optional (repeatSep datasetRootNib Token.Comma)) gaze
-//     let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-//     return Element.Network(datasetInternals)
-// }
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! datasetInternals = (optional (repeatSep networkRootNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Element.Network(datasetInternals)
+    }
 
 let declarationsNib (gaze: Gaze.Gaze<Token>) =
     result {
@@ -238,7 +232,7 @@ let applicationInnerNib =
     takeFirst [ colonNib; readValue; wordNib; assocArrayNib; quoteNib ]
 
 let elementNib =
-    takeFirst [ readAssignment; wordNib; readValue; assocArrayNib; quoteNib; quoteNib ]
+    takeFirst [ readAssignment; wordNib; networkNib; readValue; assocArrayNib; quoteNib; quoteNib ]
 
 let scriptNib = repeat elementNib
 

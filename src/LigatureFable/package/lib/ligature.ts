@@ -1,7 +1,7 @@
 import { HostFunction, WanderType, WanderValue } from "../../../Ligature/wander/Model.fs.js"
 import { singleton, toArray } from "../../fable_modules/fable-library-js.4.19.2/List.js"
 import { FSharpResult$2 } from "../../fable_modules/fable-library-js.4.19.2/Result.js"
-import { run as _run, coreBindings as _coreBindings, bindFunction as _bindFunction } from "../../Ligature.fs.js"
+import { run as _run } from "../../Ligature.fs.js"
 import { printResult as _printResult } from "../../Ligature.fs.js"
 
 export type Identifier = { "identifier": string }
@@ -13,8 +13,6 @@ export type Value = bigint | Identifier | string | Uint8Array | Slot
 export type Triple = [Identifier | Slot, Identifier | Slot, Value]
 
 export type Error = { "error": string }
-
-export const coreBindings = _coreBindings
 
 export type WanderFunction = {
     module: string,
@@ -57,22 +55,22 @@ function jsValueToWanderValue(value: Value): WanderValue {
     throw "TODO"
 }
 
-export const bindFunction = (fn: WanderFunction, bindings) => {
-    const hostFn = new HostFunction(
-        fn.module,
-        fn.name, 
-        singleton([]), //TODO
-        new WanderType(1, []), //TODO
-        fn.description, 
-        (args, _arg) => {            
-            const mappedArgs = toArray(args).map((arg) => wanderValueToJSValue(arg))
-            const res = fn.eval(mappedArgs)
-            return new FSharpResult$2(0, [jsValueToWanderValue(res)])
-        }
-    )
+// export const bindFunction = (fn: WanderFunction, bindings) => {
+//     const hostFn = new HostFunction(
+//         fn.module,
+//         fn.name, 
+//         singleton([]), //TODO
+//         new WanderType(1, []), //TODO
+//         fn.description, 
+//         (args, _arg) => {            
+//             const mappedArgs = toArray(args).map((arg) => wanderValueToJSValue(arg))
+//             const res = fn.eval(mappedArgs)
+//             return new FSharpResult$2(0, [jsValueToWanderValue(res)])
+//         }
+//     )
 
-    return _bindFunction(hostFn, bindings)
-}
+//     return _bindFunction(hostFn, bindings)
+// }
 
 const processValue = (type: string, value: any): any => {
     if (type == "Network") {
@@ -96,8 +94,8 @@ const processValue = (type: string, value: any): any => {
     }
 }
 
-export let run = (input: string, bindings: any = coreBindings): Triple[] | Value | Error => {
-    const res = JSON.parse(JSON.stringify(_run(input, bindings)))
+export let run = (input: string, words, stack): Triple[] | Value | Error => {
+    const res = JSON.parse(JSON.stringify(_run(input, words, stack)))
     if (res[0] == 'Ok') {
         const resValue = res[1]
         const type = resValue[0]
@@ -108,4 +106,4 @@ export let run = (input: string, bindings: any = coreBindings): Triple[] | Value
     }
 }
 
-export let printResult = (result: string, bindings: any = coreBindings): string => _printResult(_run(result, bindings))
+export let printResult = (result: string, words, stack): string => _printResult(_run(result, words, stack))
