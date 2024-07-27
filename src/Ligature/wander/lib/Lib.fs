@@ -29,7 +29,7 @@ open Ligature.Wander.Interpreter
 
 let stdLib: Map<string, Word> =
     Map
-        [ 
+        [
         //     ("pop",
         //    { Eval =
         //        fun words stack ->
@@ -53,5 +53,5 @@ let stdLib: Map<string, Word> =
         //                match evalValues words (stack.Tail) head with
         //                | Ok(res) -> Ok(res @ (List.tail stack))
         //                | Error(err) -> failwith "TODO"
-        //            | Some(_) -> failwith "TODO" }) 
+        //            | Some(_) -> failwith "TODO" })
         ]

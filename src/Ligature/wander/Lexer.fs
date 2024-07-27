@@ -75,7 +75,14 @@ let nameNibbler =
         [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_'); ('=', '=') ]) 1)
           Nibblers.optional (
               Nibblers.repeat (
-                  Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('=', '='); ('.', '.') ]
+                  Nibblers.takeInRange
+                      [ ('a', 'z')
+                        ('A', 'Z')
+                        ('0', '9')
+                        ('?', '?')
+                        ('_', '_')
+                        ('=', '=')
+                        ('.', '.') ]
               )
           ) ]
 
@@ -106,7 +113,7 @@ let tokenNibbler =
                   bytesTokenNibbler
                   integerTokenNibbler
                   newLineTokenNibbler
-//                  identifierTokenNibbler
+                  //                  identifierTokenNibbler
                   slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma

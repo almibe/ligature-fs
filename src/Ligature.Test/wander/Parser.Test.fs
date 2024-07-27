@@ -49,83 +49,83 @@ let tests =
               let tokens = tokenize "hello.world"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Word("hello.world") ])) ""
-        //   testCase "Parse Empty Quote"
-        //   <| fun _ ->
-        //       let tokens = tokenize "[]"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Element.Quote([]) ])) ""
-        //   testCase "Parse Quote with 1 element"
-        //   <| fun _ ->
-        //       let tokens = tokenize "[1]"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I) ]) ])) ""
-        //   testCase "Parse Quote with 2 elements"
-        //   <| fun _ ->
-        //       let tokens = tokenize "[1 2]"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I); Element.Int(2I) ]) ])) ""
+          //   testCase "Parse Empty Quote"
+          //   <| fun _ ->
+          //       let tokens = tokenize "[]"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.Quote([]) ])) ""
+          //   testCase "Parse Quote with 1 element"
+          //   <| fun _ ->
+          //       let tokens = tokenize "[1]"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I) ]) ])) ""
+          //   testCase "Parse Quote with 2 elements"
+          //   <| fun _ ->
+          //       let tokens = tokenize "[1 2]"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I); Element.Int(2I) ]) ])) ""
 
-        //   testCase "Parse Dataset Literal"
-        //   <| fun _ ->
-        //       let tokens = tokenize "{ `a` `b` `c` }"
-        //       let ast = parse (unsafe tokens)
+          //   testCase "Parse Dataset Literal"
+          //   <| fun _ ->
+          //       let tokens = tokenize "{ `a` `b` `c` }"
+          //       let ast = parse (unsafe tokens)
 
-        //       Expect.equal
-        //           ast
-        //           (Ok(
-        //               [ Element.Network(
-        //                     [ (Element.Word("a"),
-        //                        [ (Element.Word("b"), [ Element.Word("c") ]) ]) ]
-        //                 ) ]
-        //           ))
-        //           ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Network(
+          //                     [ (Element.Word("a"),
+          //                        [ (Element.Word("b"), [ Element.Word("c") ]) ]) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
-        //   testCase "Parse Dataset Literal with two Triples"
-        //   <| fun _ ->
-        //       let tokens = tokenize "{ `a` `b` `c`, `d` `e` `f` }"
-        //       let ast = parse (unsafe tokens)
+          //   testCase "Parse Dataset Literal with two Triples"
+          //   <| fun _ ->
+          //       let tokens = tokenize "{ `a` `b` `c`, `d` `e` `f` }"
+          //       let ast = parse (unsafe tokens)
 
-        //       Expect.equal
-        //           ast
-        //           (Ok(
-        //               [ Element.Network(
-        //                     [ (ident "a",
-        //                        [ (ident "b", [ Element.Identifier(ident "c") ]) ])
-        //                       (ident "d",
-        //                        [ (ident "e", [ Element.Identifier(ident "f") ]) ]) ]
-        //                 ) ]
-        //           ))
-        //           ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Network(
+          //                     [ (ident "a",
+          //                        [ (ident "b", [ Element.Identifier(ident "c") ]) ])
+          //                       (ident "d",
+          //                        [ (ident "e", [ Element.Identifier(ident "f") ]) ]) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
-        //   testCase "Parse Dataset Literal with Value list"
-        //   <| fun _ ->
-        //       let tokens = tokenize "{ `a` `b` [`c`, `d`] }"
-        //       let ast = parse (unsafe tokens)
+          //   testCase "Parse Dataset Literal with Value list"
+          //   <| fun _ ->
+          //       let tokens = tokenize "{ `a` `b` [`c`, `d`] }"
+          //       let ast = parse (unsafe tokens)
 
-        //       Expect.equal
-        //           ast
-        //           (Ok(
-        //               [ Element.Network(
-        //                     [ (ident "a",
-        //                        [ (ident "b",
-        //                           [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ]) ]) ]
-        //                 ) ]
-        //           ))
-        //           ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Network(
+          //                     [ (ident "a",
+          //                        [ (ident "b",
+          //                           [ Element.Identifier(ident "c"); Element.Identifier(ident "d") ]) ]) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
-        //   testCase "Parse Network with all wildcards"
-        //   <| fun _ ->
-        //       let tokens = tokenize "{ $ $ $ }"
-        //       let ast = parse (unsafe tokens)
+          //   testCase "Parse Network with all wildcards"
+          //   <| fun _ ->
+          //       let tokens = tokenize "{ $ $ $ }"
+          //       let ast = parse (unsafe tokens)
 
-        //       Expect.equal
-        //           ast
-        //           (Ok(
-        //               [ Element.Network(
-        //                     [ (Element.Slot(Slot(None)), [ (Element.Slot(Slot(None)), [ Element.Slot(Slot(None)) ]) ]) ]
-        //                 ) ]
-        //           ))
-        //           ""
+          //       Expect.equal
+          //           ast
+          //           (Ok(
+          //               [ Element.Network(
+          //                     [ (Element.Slot(Slot(None)), [ (Element.Slot(Slot(None)), [ Element.Slot(Slot(None)) ]) ]) ]
+          //                 ) ]
+          //           ))
+          //           ""
 
           //   testCase "Parse Network with all Wordd wildcards"
           //   <| fun _ ->
@@ -149,20 +149,20 @@ let tests =
           //       let ast = parse (unsafe tokens)
           //       Expect.equal ast (Ok([ Element.Network([]) ])) ""
 
-        //   testCase "Parse Assoc Array with 1 value"
-        //   <| fun _ ->
-        //       let tokens = tokenize "[ x = 5 ]"
-        //       let ast = parse (unsafe tokens)
-        //       Expect.equal ast (Ok([ Element.AssocArray([ ("x", Element.Int(5I)) ]) ])) ""
-        //   testCase "Parse Assoc Array with 2 values"
-        //   <| fun _ ->
-        //       let tokens = tokenize "[ x = 5, y = \"false\" ]"
-        //       let ast = parse (unsafe tokens)
+          //   testCase "Parse Assoc Array with 1 value"
+          //   <| fun _ ->
+          //       let tokens = tokenize "[ x = 5 ]"
+          //       let ast = parse (unsafe tokens)
+          //       Expect.equal ast (Ok([ Element.AssocArray([ ("x", Element.Int(5I)) ]) ])) ""
+          //   testCase "Parse Assoc Array with 2 values"
+          //   <| fun _ ->
+          //       let tokens = tokenize "[ x = 5, y = \"false\" ]"
+          //       let ast = parse (unsafe tokens)
 
-        //       Expect.equal
-        //           ast
-        //           (Ok([ Element.AssocArray([ ("x", Element.Int(5I)); ("y", Element.String("false")) ]) ]))
-        //           ""
+          //       Expect.equal
+          //           ast
+          //           (Ok([ Element.AssocArray([ ("x", Element.Int(5I)); ("y", Element.String("false")) ]) ]))
+          //           ""
 
           //   testCase "Parse Application"
           //   <| fun _ ->

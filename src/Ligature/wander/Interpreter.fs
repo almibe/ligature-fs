@@ -8,15 +8,12 @@ open Ligature.Wander.Model
 open Ligature.Main
 open Ligature.InMemoryNetwork
 
-let rec evalExpression
-    (runtimeNetwork: Network)
-    (expression: Expression)
-    : Result<Network, LigatureError> =
+let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Result<Network, LigatureError> =
     match expression with
     | Expression.Int value -> failwith "TODO"
     | Expression.String value -> failwith "TODO"
     | Expression.Slot value -> failwith "TODO"
-    | Expression.Network(network) -> Ok(runtimeNetwork.Union(network))//Ok(WanderValue.Network(network) :: stack)
+    | Expression.Network(network) -> Ok(runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
     | Expression.Word name -> handleWord runtimeNetwork name
     | Expression.Quote quote -> failwith "TODO"
     | Expression.Colon -> failwith "Not Implemented"
@@ -27,9 +24,9 @@ let rec evalExpression
 // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
 
 and evalValue (runtimeNetwork: Network) (value: WanderValue) : Result<Network, LigatureError> = failwith "TODO"
-    // match value with
-    // | WanderValue.Word word -> handleWord words stack word
-    // | value -> Ok(value :: stack)
+// match value with
+// | WanderValue.Word word -> handleWord words stack word
+// | value -> Ok(value :: stack)
 
 // and handleQuote (words: Words) (stack: Stack) (expressions: Expression list) =
 //     let mutable error = None
@@ -149,20 +146,20 @@ and handleAssocArray bindings values = failwith "TODO"
 //     Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
 and handleWord network word =
-    let res = 
-        network.Query 
-            (networkOf([(PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name"))))]))
-            (networkOf([(PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name"))))]))
+    let res =
+        network.Query
+            (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
+            (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
 
-    match List.ofSeq (res.Write ()) with
+    match List.ofSeq (res.Write()) with
     | [] -> error $"Could not find Word, {word}" None
-    | [(_, _, Value.Word(word))] ->
-        
+    | [ (_, _, Value.Word(word)) ] ->
+
         // res.Eval words stack
         failwith "TODO"
     | _ -> error $"Multiple matches found for Word, {word}" None
-    // | Ok(_) -> failwith "TODO"
-    // match Map.tryFind word words with
+// | Ok(_) -> failwith "TODO"
+// match Map.tryFind word words with
 
 and handleIdentifierConcat words stack identifier values = failwith "TODO"
 // List.mapi
@@ -239,10 +236,7 @@ and handleIdentifierConcat words stack identifier values = failwith "TODO"
 //         | _ -> error "Can only query Datasets." None
 //     | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
-and evalExpressions
-    (runtimeNetwork: Network)
-    (expressions: Expression list)
-    : Result<Network, LigatureError> =
+and evalExpressions (runtimeNetwork: Network) (expressions: Expression list) : Result<Network, LigatureError> =
     match expressions with
     | [] -> Ok(runtimeNetwork)
     | [ head ] -> evalExpression runtimeNetwork head
@@ -261,8 +255,7 @@ and evalValues (runtimeNetwork: Network) (values: WanderValue list) : Result<Net
         values <- List.tail values
 
         match result with
-        | Ok((res)) ->
-            result <- Ok((res))
+        | Ok((res)) -> result <- Ok((res))
         | Error(err) ->
             result <- Error(err)
             cont <- false

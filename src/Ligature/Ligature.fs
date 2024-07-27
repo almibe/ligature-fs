@@ -77,21 +77,20 @@ type Word = Word of string
 
 type Arguments = Value list
 
-and Quote = {
-    parameters: string list
-    value: Value list
-}
+and Quote =
+    { parameters: string list
+      value: Value list }
 
 and HostFunction =
     { Eval: Network -> Arguments -> Result<Network, LigatureError> }
 
 and Words = Map<string, HostFunction>
 
-and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] PatternWord =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternWord =
     | Slot of Slot
     | Word of Word
 
-and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] Value =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Value =
     | Slot of Slot
     | Word of Word
     | String of string

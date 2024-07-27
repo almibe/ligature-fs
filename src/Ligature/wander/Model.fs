@@ -56,11 +56,11 @@ let rec prettyPrint (value: Value) : string =
     | Value.Slot(Slot(Some(name))) -> $"${(name)}"
     | Value.Slot(Slot(None)) -> "$"
     | Value.Quote(values) -> $"[{printQuote values}]"
-    // | WanderValue.AssocArray(values) -> printAssocArray values
-    // | WanderValue.Bytes(bytes) -> printBytes bytes
-    // | WanderValue.Network(values) -> printNetwork values
-    // | WanderValue.Nothing -> "Nothing"
-    // | WanderValue.Word(name) -> name
+// | WanderValue.AssocArray(values) -> printAssocArray values
+// | WanderValue.Bytes(bytes) -> printBytes bytes
+// | WanderValue.Network(values) -> printNetwork values
+// | WanderValue.Nothing -> "Nothing"
+// | WanderValue.Word(name) -> name
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network.Write()))
@@ -77,7 +77,7 @@ and printAssocArray values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "]"
 
-and printTriple ((entity, attribute, value): Triple): string =
+and printTriple ((entity, attribute, value): Triple) : string =
     $"{(readPatternWord entity)} {(readPatternWord attribute)} {(printLigatureValue value)}"
 
 and printPatternWord (patternWord: PatternWord) =
@@ -91,7 +91,7 @@ and printValue (value: Value) =
     | Value.Word(Word(value)) -> value
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-//    | Value.Bytes(bytes) -> printBytes bytes
+    //    | Value.Bytes(bytes) -> printBytes bytes
     | Value.Slot(Slot(Some(name))) -> $"${name}"
     | Value.Slot(Slot(None)) -> "$"
 
@@ -103,7 +103,7 @@ and printLigatureValue value =
     | Value.Word(Word(word)) -> word
     | Value.Int(value) -> value.ToString()
     | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-//    | Value.Bytes(bytes) -> printBytes bytes
+    //    | Value.Bytes(bytes) -> printBytes bytes
     | Value.Slot(_) -> failwith "TODO"
 
 and printQuote quote = failwith "TODO"
@@ -142,7 +142,7 @@ and Bindings =
 let newBindings (network: Network) =
     { Functions = []
       Current = Map.empty
-      Stack = [] 
+      Stack = []
       Network = network }
 
 let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =

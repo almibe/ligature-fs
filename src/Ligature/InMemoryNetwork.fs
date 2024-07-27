@@ -13,13 +13,15 @@ let patternWordToValue (patternWord: PatternWord) : Value =
     | PatternWord.Word word -> Value.Word word
     | PatternWord.Slot slot -> Value.Slot slot
 
-let educeTripleTriple ((entity, attribute, value): Triple) ((patternEntity, patternAttribute, patternValue): Triple) : Option<Map<string, Value>> =
+let educeTripleTriple
+    ((entity, attribute, value): Triple)
+    ((patternEntity, patternAttribute, patternValue): Triple)
+    : Option<Map<string, Value>> =
     let mutable cont = true
     let mutable result: Map<string, Value> = Map.empty
 
     match patternEntity with
-    | PatternWord.Slot(Slot(Some(name))) ->
-        result <- Map.add name (entity |> patternWordToValue) result
+    | PatternWord.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternWordToValue) result
     | PatternWord.Slot(Slot(None)) -> ignore ()
     | PatternWord.Word _ -> cont <- (patternEntity = entity)
 

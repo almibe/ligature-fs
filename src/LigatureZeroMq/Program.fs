@@ -28,15 +28,11 @@ let main args =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
 
-    let store =
-        if inmem then
-            empty ()
-        else
-            empty ()
-            //let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
-            //let store = //new LigatureSqlite(path + "\\sqlite\\store.db")
-            //store.initialize () |> ignore
-            //store
+    let store = if inmem then empty () else empty ()
+    //let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
+    //let store = //new LigatureSqlite(path + "\\sqlite\\store.db")
+    //store.initialize () |> ignore
+    //store
 
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")

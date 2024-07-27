@@ -57,7 +57,7 @@ type LigatureSqlite(path: string) =
 
                 match run script Map.empty List.empty with
                 | Ok([ WanderValue.Network(value) ]) -> store.add event.Network value |> ignore
-                | err -> ()//failwith $"Error - {err}"
+                | err -> () //failwith $"Error - {err}"
             | "RS" ->
                 let script =
                     match event.Ligature with

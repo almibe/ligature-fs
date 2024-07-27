@@ -106,17 +106,17 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 //         }
 
 let triplesNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
-    let entity = 
+    let entity =
         match wordNib gaze with
         | Ok(Element.Word(word)) -> Ok(Element.Word(word))
         | _ -> failwith "TODO"
 
-    let attribute = 
+    let attribute =
         match wordNib gaze with
         | Ok(Element.Word(word)) -> Ok(Element.Word(word))
         | _ -> failwith "TODO"
 
-    let value = 
+    let value =
         match valueNib gaze with
         | Ok(Element.Word(word)) -> Ok(Element.Word(word))
         | Ok(Element.Quote(quote)) -> Ok(Element.Quote(quote))
@@ -137,12 +137,12 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     }
 
 let declarationsNib (gaze: Gaze.Gaze<Token>) = failwith "TODO"
-    // result {
-    //     let! name = Gaze.attempt nameStrNibbler gaze
-    //     let! _ = Gaze.attempt equalSignNib gaze
-    //     let! expression = Gaze.attempt elementNib gaze
-    //     return (name, expression)
-    // }
+// result {
+//     let! name = Gaze.attempt nameStrNibbler gaze
+//     let! _ = Gaze.attempt equalSignNib gaze
+//     let! expression = Gaze.attempt elementNib gaze
+//     return (name, expression)
+// }
 
 let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -281,18 +281,24 @@ let expressQuote values =
 //     let (attribute, values) = entityDescription
 //     (attribute, (List.map (fun value -> expressElement value) values))
 
-let expressNetwork (network: (Element * Element * Element) list): Expression = 
-    let res: Set<Triple> = (List.map (fun (entity, attribute, value) ->
-        match (entity, attribute, value) with
-        | (Element.Word(entity), Element.Word(attribute), value) ->
-            let value =
-                match value with
-                | Element.Word w -> Value.Word(Word w)
-                | Element.Int i -> Value.Int i
-                | Element.String s -> Value.String s
-                | _ -> failwith "TODO"
-            (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)
-        | _ -> failwith "TODO") network) |> Set.ofSeq
+let expressNetwork (network: (Element * Element * Element) list) : Expression =
+    let res: Set<Triple> =
+        (List.map
+            (fun (entity, attribute, value) ->
+                match (entity, attribute, value) with
+                | (Element.Word(entity), Element.Word(attribute), value) ->
+                    let value =
+                        match value with
+                        | Element.Word w -> Value.Word(Word w)
+                        | Element.Int i -> Value.Int i
+                        | Element.String s -> Value.String s
+                        | _ -> failwith "TODO"
+
+                    (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)
+                | _ -> failwith "TODO")
+            network)
+        |> Set.ofSeq
+
     Expression.Network(networkOf res)
 
 //     let entityDescriptions =
