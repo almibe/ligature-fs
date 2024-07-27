@@ -91,7 +91,6 @@ and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] P
     | Slot of Slot
     | Word of Word
 
-
 and [<RequireQualifiedAccess>] [<StructuralEquality>] [<StructuralComparison>] Value =
     | Slot of Slot
     | Word of Word

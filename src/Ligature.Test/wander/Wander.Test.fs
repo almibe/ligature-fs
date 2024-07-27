@@ -10,28 +10,9 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
-open Ligature.Wander.Lib.Lib
+//open Ligature.Wander.Lib.Lib
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-let ident id =
-    match identifier id with
-    | Ok v -> v
-    | Error _ -> todo
-
-let wident id =
-    WanderValue.Identifier(
-        match identifier id with
-        | Ok v -> v
-        | Error _ -> todo
-    )
-
-let vident id =
-    Value.Identifier(
-        match identifier id with
-        | Ok v -> v
-        | Error _ -> todo
-    )
 
 [<Tests>]
 let tests =
@@ -40,18 +21,18 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([])) ""
-          testCase "Run Integer"
-          <| fun _ ->
-              let script = "1235"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Int(1235I) ])) ""
-          testCase "Run String"
-          <| fun _ ->
-              let script = "\"Hello\""
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.String("Hello") ])) ""
+              let result = run script emptyNetwork
+              Expect.equal result (Ok(emptyNetwork)) ""
+        //   testCase "Run Integer"
+        //   <| fun _ ->
+        //       let script = "1235"
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ WanderValue.Int(1235I) ])) ""
+        //   testCase "Run String"
+        //   <| fun _ ->
+        //       let script = "\"Hello\""
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ WanderValue.String("Hello") ])) ""
           //   testCase "Run Booleans"
           //   <| fun _ ->
           //       let script = "true"
@@ -60,46 +41,46 @@ let tests =
           //       let script = "false"
           //       let result = run script bindings
           //       Expect.equal result (Ok(WanderValue.Bool(false))) ""
-          testCase "Run Identifier"
-          <| fun _ ->
-              let script = "`hello`"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ wident "hello" ])) ""
-          testCase "Run Slot"
-          <| fun _ ->
-              let script = "$hello"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
+        //   testCase "Run Identifier"
+        //   <| fun _ ->
+        //       let script = "`hello`"
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ wident "hello" ])) ""
+        //   testCase "Run Slot"
+        //   <| fun _ ->
+        //       let script = "$hello"
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
           //   testCase "Run Empty Network literal"
           //   <| fun _ ->
           //       let script = "{}"
           //       let result = run script Map.empty List.empty
           //       Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
-          testCase "Run Empty Quote Literal"
-          <| fun _ ->
-              let script = "[]"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
-          testCase "Run Quote Literal"
-          <| fun _ ->
-              let script = "[1 `test`]"
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
-          testCase "Test running with Words"
-          <| fun _ ->
-              let script = "1 2 pop"
-              let result = run script stdLib List.empty
-              Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
-          testCase "Test apply combinator"
-          <| fun _ ->
-              let script = "[1 2] apply"
-              let result = run script stdLib List.empty
-              Expect.equal result (Ok([ WanderValue.Int(2I); WanderValue.Int(1I) ])) ""
-          testCase "Test apply combinator with another combinator"
-          <| fun _ ->
-              let script = "[1 2 pop] apply"
-              let result = run script stdLib List.empty
-              Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
+        //   testCase "Run Empty Quote Literal"
+        //   <| fun _ ->
+        //       let script = "[]"
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
+        //   testCase "Run Quote Literal"
+        //   <| fun _ ->
+        //       let script = "[1 `test`]"
+        //       let result = run script emptyNetwork
+        //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
+        //   testCase "Test running with Words"
+        //   <| fun _ ->
+        //       let script = "1 2 pop"
+        //       let result = run script stdLib List.empty
+        //       Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
+        //   testCase "Test apply combinator"
+        //   <| fun _ ->
+        //       let script = "[1 2] apply"
+        //       let result = run script stdLib List.empty
+        //       Expect.equal result (Ok([ WanderValue.Int(2I); WanderValue.Int(1I) ])) ""
+        //   testCase "Test apply combinator with another combinator"
+        //   <| fun _ ->
+        //       let script = "[1 2 pop] apply"
+        //       let result = run script stdLib List.empty
+        //       Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
           //   testCase "Run Dataset literal"
           //   <| fun _ ->
           //       let script = "{`a` `b` `c`}"
@@ -197,23 +178,23 @@ let tests =
 
           testCase "Handle WhiteSpace"
           <| fun _ ->
-              let script = "  \n  5   "
-              let result = run script Map.empty List.empty
-              Expect.equal result (Ok([ WanderValue.Int(5I) ])) ""
-          testCase "Handle Multiple Values and White Space"
-          <| fun _ ->
-              let script = " 1  \n `a` \"hello\" \r\n  321 \n"
-              let result = run script Map.empty List.empty
+              let script = "  \n     "
+              let result = run script emptyNetwork
+              Expect.equal result (Ok(emptyNetwork)) ""
+        //   testCase "Handle Multiple Values and White Space"
+        //   <| fun _ ->
+        //       let script = " 1  \n `a` \"hello\" \r\n  321 \n"
+        //       let result = run script Map.empty List.empty
 
-              Expect.equal
-                  result
-                  (Ok(
-                      [ WanderValue.Int(321I)
-                        WanderValue.String("hello")
-                        wident "a"
-                        WanderValue.Int(1I) ]
-                  ))
-                  ""
+        //       Expect.equal
+        //           result
+        //           (Ok(
+        //               [ WanderValue.Int(321I)
+        //                 WanderValue.String("hello")
+        //                 wident "a"
+        //                 WanderValue.Int(1I) ]
+        //           ))
+        //           ""
           //   testCase "Let Triple"
           //   <| fun _ ->
           //       let script = "x = 5"

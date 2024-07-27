@@ -13,21 +13,6 @@ open Ligature.LigatureStore
 open Ligature.Main
 open Ligature.Wander.Model
 
-/// Unsafe helper function for creating Identifiers.
-let id ident =
-    match identifier ident with
-    | Ok(i) -> PatternWord.Id i
-    | Error(_) -> failwith "error making Identifier"
-
-/// Unsafe helper function for creating triples for testing.
-let triple (entity: string) (attribute: string) (value: Value) =
-    let e = id entity
-    let a = id attribute
-
-    { Entity = e
-      Attribute = a
-      Value = value }
-
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
         Seq.empty

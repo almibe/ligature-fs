@@ -44,17 +44,6 @@ let wordNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let readAssignment gaze =
-    Gaze.attempt
-        (fun gaze ->
-            result {
-                let! name = Gaze.attempt nameStrNibbler gaze
-                let! _ = Gaze.attempt (take Token.EqualsSign) gaze
-                let! v = elementNib gaze
-                return Element.Definition(name, v)
-            })
-        gaze
-
 let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
@@ -62,14 +51,6 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.Int(i)) -> Ok(Element.Int(i))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
-
-let equalSignNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.EqualsSign) -> Ok(())
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -136,9 +117,12 @@ let triplesNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), 
         | _ -> failwith "TODO"
 
     let value = 
-        match wordNib gaze with
+        match valueNib gaze with
         | Ok(Element.Word(word)) -> Ok(Element.Word(word))
-        | _ -> failwith "TODO"
+        | Ok(Element.Quote(quote)) -> Ok(Element.Quote(quote))
+        | Ok(Element.Int(int)) -> Ok(Element.Int(int))
+        | Ok(Element.String(string)) -> Ok(Element.String(string))
+        | Error(e) -> failwith $"TODO - {e}"
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -152,13 +136,13 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Network(datasetInternals)
     }
 
-let declarationsNib (gaze: Gaze.Gaze<Token>) =
-    result {
-        let! name = Gaze.attempt nameStrNibbler gaze
-        let! _ = Gaze.attempt equalSignNib gaze
-        let! expression = Gaze.attempt elementNib gaze
-        return (name, expression)
-    }
+let declarationsNib (gaze: Gaze.Gaze<Token>) = failwith "TODO"
+    // result {
+    //     let! name = Gaze.attempt nameStrNibbler gaze
+    //     let! _ = Gaze.attempt equalSignNib gaze
+    //     let! expression = Gaze.attempt elementNib gaze
+    //     return (name, expression)
+    // }
 
 let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -175,7 +159,7 @@ let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     }
 
 /// Read the next Element from the given instance of Gaze<Token>
-let readValue (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
@@ -249,10 +233,10 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 //let patternNib = takeFirst [ networkNib ]
 
 let applicationInnerNib =
-    takeFirst [ colonNib; readValue; wordNib; assocArrayNib; quoteNib ]
+    takeFirst [ colonNib; valueNib; wordNib; assocArrayNib; quoteNib ]
 
 let elementNib =
-    takeFirst [ readAssignment; wordNib; networkNib; readValue; assocArrayNib; quoteNib; quoteNib ]
+    takeFirst [ wordNib; networkNib; valueNib; assocArrayNib; quoteNib; quoteNib ]
 
 let scriptNib = repeat elementNib
 
@@ -300,8 +284,14 @@ let expressQuote values =
 let expressNetwork (network: (Element * Element * Element) list): Expression = 
     let res: Set<Triple> = (List.map (fun (entity, attribute, value) ->
         match (entity, attribute, value) with
-        | (Element.Word(entity), Element.Word(attribute), Element.Word(value)) -> 
-            (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), Value.Word(Word(value)))
+        | (Element.Word(entity), Element.Word(attribute), value) ->
+            let value =
+                match value with
+                | Element.Word w -> Value.Word(Word w)
+                | Element.Int i -> Value.Int i
+                | Element.String s -> Value.String s
+                | _ -> failwith "TODO"
+            (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)
         | _ -> failwith "TODO") network) |> Set.ofSeq
     Expression.Network(networkOf res)
 

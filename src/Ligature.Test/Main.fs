@@ -15,13 +15,13 @@ let tests =
           testCase "Check Triple Equality"
           <| fun _ ->
               Expect.equal
-                  (triple
-                      (PatternWord.Word(Word("a")))
-                      (PatternWord.Word(Word("b")))
+                  (
+                      (PatternWord.Word(Word("a"))),
+                      (PatternWord.Word(Word("b"))),
                       (Value.Word(Word("c"))))
-                  (triple
-                      (PatternWord.Word(Word("a")))
-                      (PatternWord.Word(Word("b")))
+                  (
+                      (PatternWord.Word(Word("a"))),
+                      (PatternWord.Word(Word("b"))),
                       (Value.Word(Word("c"))))
                   "" ]
 

@@ -8,23 +8,6 @@ open Expecto
 open Ligature.Main
 open Ligature.InMemoryNetwork
 
-let id id =
-    match identifier id with
-    | Ok id -> id
-    | _ -> failwith "Error"
-
-let ident id =
-    match identifier id with
-    | Ok id -> PatternWord.Id id
-    | _ -> failwith "Error"
-
-let vident id =
-    match identifier id with
-    | Ok id -> Value.Identifier id
-    | _ -> failwith "Error"
-
-let slot name = PatternWord.Sl(Slot(Some(name)))
-
 [<Tests>]
 let tests =
     testList
@@ -48,23 +31,23 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (educeTripleTriple
-                      (triple (ident "a") (ident "b") (vident "c"))
-                      (triple (ident "a") (ident "b") (vident "c")))
+                      (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
+                      (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c"))))
                   (Some(Map.empty))
                   ""
           testCase "calling educe on non-matching triples"
           <| fun _ ->
               Expect.equal
                   (educeTripleTriple
-                      (triple (ident "e") (ident "b") (vident "c"))
-                      (triple (ident "a") (ident "b") (vident "c")))
+                      (PatternWord.Word(Word("e")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
+                      (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c"))))
                   (None)
                   ""
           testCase "calling educe on simple matching triple"
           <| fun _ ->
               Expect.equal
                   (educeTripleTriple
-                      (triple (ident "e") (ident "a") (vident "v"))
-                      (triple (slot "test") (ident "a") (vident "v")))
-                  (Some(Map [ ("test", Value.Identifier(id "e")) ]))
+                      (PatternWord.Word(Word("e")), PatternWord.Word(Word("a")), Value.Word(Word("v")))
+                      (PatternWord.Slot(Slot(Some("test"))), PatternWord.Word(Word("a")), Value.Word(Word("v"))))
+                  (Some(Map [ ("test", Value.Word(Word("e"))) ]))
                   "" ]

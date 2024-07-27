@@ -29,7 +29,6 @@ type Token =
     | CloseSquare
     | Arrow
     | WideArrow
-    | EqualsSign
     | Asterisk
     | Hash
     | Comma
@@ -73,10 +72,10 @@ let stringLiteralTokenNibbler =
 
 let nameNibbler =
     Nibblers.takeAll
-        [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_') ]) 1)
+        [ (Nibblers.repeatN (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_'); ('=', '=') ]) 1)
           Nibblers.optional (
               Nibblers.repeat (
-                  Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('.', '.') ]
+                  Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('0', '9'); ('?', '?'); ('_', '_'); ('=', '='); ('.', '.') ]
               )
           ) ]
 
@@ -124,7 +123,6 @@ let tokenNibbler =
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
                   takeAndMap ":" Token.Colon
-                  takeAndMap "=" Token.EqualsSign
                   commentTokenNibbler ]
             )
         )

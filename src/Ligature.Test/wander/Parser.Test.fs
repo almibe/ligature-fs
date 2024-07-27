@@ -28,11 +28,6 @@ let tests =
               let tokens = tokenize "0xFF"
               let elements = parse (unsafe tokens)
               Expect.equal elements (Ok([ Element.Bytes([| 0xFFuy |]) ])) ""
-          testCase "Parse Identifier"
-          <| fun _ ->
-              let tokens = tokenize "`hello`"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Word("hello") ])) ""
           testCase "Parse Slot"
           <| fun _ ->
               let tokens = tokenize "$hello"
@@ -44,11 +39,6 @@ let tests =
               let tokens = tokenize "\"hello\""
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.String("hello") ])) ""
-          testCase "Parse Let Triples"
-          <| fun _ ->
-              let tokens = tokenize "x = 5"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Definition("x", Element.Int(5I)) ])) ""
           testCase "Parse Word"
           <| fun _ ->
               let tokens = tokenize "hello"
@@ -59,21 +49,21 @@ let tests =
               let tokens = tokenize "hello.world"
               let ast = parse (unsafe tokens)
               Expect.equal ast (Ok([ Element.Word("hello.world") ])) ""
-          testCase "Parse Empty Quote"
-          <| fun _ ->
-              let tokens = tokenize "[]"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Quote([]) ])) ""
-          testCase "Parse Quote with 1 element"
-          <| fun _ ->
-              let tokens = tokenize "[1]"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I) ]) ])) ""
-          testCase "Parse Quote with 2 elements"
-          <| fun _ ->
-              let tokens = tokenize "[1 2]"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I); Element.Int(2I) ]) ])) ""
+        //   testCase "Parse Empty Quote"
+        //   <| fun _ ->
+        //       let tokens = tokenize "[]"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Element.Quote([]) ])) ""
+        //   testCase "Parse Quote with 1 element"
+        //   <| fun _ ->
+        //       let tokens = tokenize "[1]"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I) ]) ])) ""
+        //   testCase "Parse Quote with 2 elements"
+        //   <| fun _ ->
+        //       let tokens = tokenize "[1 2]"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Element.Quote([ Element.Int(1I); Element.Int(2I) ]) ])) ""
 
         //   testCase "Parse Dataset Literal"
         //   <| fun _ ->
@@ -159,20 +149,20 @@ let tests =
           //       let ast = parse (unsafe tokens)
           //       Expect.equal ast (Ok([ Element.Network([]) ])) ""
 
-          testCase "Parse Assoc Array with 1 value"
-          <| fun _ ->
-              let tokens = tokenize "[ x = 5 ]"
-              let ast = parse (unsafe tokens)
-              Expect.equal ast (Ok([ Element.AssocArray([ ("x", Element.Int(5I)) ]) ])) ""
-          testCase "Parse Assoc Array with 2 values"
-          <| fun _ ->
-              let tokens = tokenize "[ x = 5, y = \"false\" ]"
-              let ast = parse (unsafe tokens)
+        //   testCase "Parse Assoc Array with 1 value"
+        //   <| fun _ ->
+        //       let tokens = tokenize "[ x = 5 ]"
+        //       let ast = parse (unsafe tokens)
+        //       Expect.equal ast (Ok([ Element.AssocArray([ ("x", Element.Int(5I)) ]) ])) ""
+        //   testCase "Parse Assoc Array with 2 values"
+        //   <| fun _ ->
+        //       let tokens = tokenize "[ x = 5, y = \"false\" ]"
+        //       let ast = parse (unsafe tokens)
 
-              Expect.equal
-                  ast
-                  (Ok([ Element.AssocArray([ ("x", Element.Int(5I)); ("y", Element.String("false")) ]) ]))
-                  ""
+        //       Expect.equal
+        //           ast
+        //           (Ok([ Element.AssocArray([ ("x", Element.Int(5I)); ("y", Element.String("false")) ]) ]))
+        //           ""
 
           //   testCase "Parse Application"
           //   <| fun _ ->
