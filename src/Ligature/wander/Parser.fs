@@ -19,10 +19,7 @@ type Element =
     | Int of bigint
     | Bytes of byte array
     | Slot of Slot
-    | Definition of string * Element
-    | AssocArray of (string * Element) list
     | Network of (Element * Element * Element) list
-    | Colon
 
 // and EntityDescription = Identifier * Element list
 
@@ -43,8 +40,6 @@ let wordNib (gaze: Gaze.Gaze<Token>) =
             | Ok(Token.Word(name)) -> Ok(Element.Word(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
-
-let colonNib = Gaze.map (take Token.Colon) (fun _ -> Element.Colon)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
@@ -105,7 +100,7 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 //         // return NetworkRoot(entity, entityDescriptions)
 //         }
 
-let triplesNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
     let entity = wordNib gaze
     let attribute = wordNib gaze
 
@@ -129,31 +124,9 @@ let quotekNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! datasetInternals = (optional (repeatSep triplesNib Token.Comma)) gaze
+        let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Network(datasetInternals)
-    }
-
-let declarationsNib (gaze: Gaze.Gaze<Token>) = failwith "TODO"
-// result {
-//     let! name = Gaze.attempt nameStrNibbler gaze
-//     let! _ = Gaze.attempt equalSignNib gaze
-//     let! expression = Gaze.attempt elementNib gaze
-//     return (name, expression)
-// }
-
-let assocArrayNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-
-        let! declarations = (optional (repeatSep declarationsNib Token.Comma)) gaze
-
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-
-        if List.isEmpty declarations then
-            return Element.Quote(List.empty)
-        else
-            return Element.AssocArray(declarations)
+        return Element.Network(statements)
     }
 
 /// Read the next Element from the given instance of Gaze<Token>
@@ -264,29 +237,43 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressQuote values =
-    let res = List.map (fun value -> expressElement value) values
-    Expression.Quote res
+let expressQuote values = failwith "TODO"
+// let res = List.map (fun value -> expressElement value) values
+// Expression.Quote res
 
 // let expressEntityDescription (entityDescription: EntityDescription) =
 //     let (attribute, values) = entityDescription
 //     (attribute, (List.map (fun value -> expressElement value) values))
 
-let handleQuote (quote: Element list) : LigatureValue =
-    let res = List.map (fun element -> expressElement element) quote
+let elementToValue (element: Element) : LigatureValue =
+    match element with
+    | Element.Int i -> LigatureValue.Int i
+    | Element.Bytes b -> LigatureValue.Bytes b
+    | Element.Network n -> LigatureValue.Network(handleNetwork n)
+    | Element.Quote q -> handleQuote q
+    | Element.Slot s -> LigatureValue.Slot s
+    | Element.String s -> LigatureValue.String s
+    | Element.Word w -> LigatureValue.Word(Word w)
 
-    let res =
-        List.map
-            (fun expression ->
-                match expression with
-                | Expression.Int i -> LigatureValue.Int i
-                | Expression.String s -> LigatureValue.String s
-                | Expression.Word w -> LigatureValue.Word(Word(w)))
-            res
+let handleQuote (quote: Element list) : LigatureValue =
+    let res = List.map (fun element -> elementToValue element) quote
+
+    // let res =
+    //     List.map
+    //         (fun expression ->
+    //             match expression with
+    //             | Expression.Int i -> LigatureValue.Int i
+    //             | Expression.String s -> LigatureValue.String s
+    //             | Expression.Word w -> LigatureValue.Word(Word(w))
+    //             | Expression.Network n -> LigatureValue.Network(n)
+    //             | Expression.Bytes b -> LigatureValue.Bytes b
+    //             | Expression.Slot s -> LigatureValue.Slot s
+    //             | Expression.Quote q -> failwith "TODO")//LigatureValue.Quote q)
+    //         res
 
     LigatureValue.Quote(res) //({ parameters = []; value = res })
 
-let expressNetwork (network: (Element * Element * Element) list) : Expression =
+let handleNetwork (network: (Element * Element * Element) list) : Network =
     let res: Set<Statement> =
         (List.map
             (fun (entity, attribute, value) ->
@@ -306,7 +293,7 @@ let expressNetwork (network: (Element * Element * Element) list) : Expression =
             network)
         |> Set.ofSeq
 
-    Expression.Network(res)
+    res
 
 //     let entityDescriptions =
 //         List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
@@ -317,24 +304,16 @@ let expressNetwork (network: (Element * Element * Element) list) : Expression =
 //     let res = List.map (fun networkRoot -> expressNetworkRoot networkRoot) values
 //     Expression.Network res
 
-let handleAssocArray (declarations: list<string * Element>) =
-    let res =
-        List.map (fun (name, value) -> (name, (expressElement value))) declarations
+// let handleAssocArray (declarations: list<string * Element>) =
+//     let res =
+//         List.map (fun (name, value) -> (name, (expressElement value))) declarations
 
-    Expression.AssocArray res
+//     Expression.AssocArray res
 
-let express (elements: Element list) : Expression list =
-    List.map (fun element -> expressElement element) elements
-
-let rec expressElement (element: Element) =
-    match element with
-    | Element.Int value -> Expression.Int value
-    | Element.Word namePath -> Expression.Word namePath
-    | Element.String value -> Expression.String value
-    | Element.Definition(name, value) -> Expression.Definition(name, (expressElement value))
-    | Element.Quote elements -> expressQuote elements
-    | Element.AssocArray declarations -> handleAssocArray declarations
-    | Element.Bytes bytes -> Expression.Bytes bytes
-    | Element.Network value -> expressNetwork value
-    | Element.Colon -> Expression.Colon
-    | Element.Slot slot -> Expression.Slot slot
+let rec express (elements: Element list) (expressions: Expression list) : Expression list =
+    match elements with
+    | [] -> expressions
+    | head :: tail ->
+        match head with
+        | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
+        | _ -> failwith "TODO"

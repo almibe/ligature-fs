@@ -10,18 +10,8 @@ open Ligature.InMemoryNetwork
 
 let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Result<Network, LigatureError> =
     match expression with
-    | Expression.Int value -> failwith "TODO"
-    | Expression.String value -> failwith "TODO"
-    | Expression.Slot value -> failwith "TODO"
     | Expression.Network(network) -> Ok(Set.union runtimeNetwork network) //runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
-    | Expression.Word name -> handleWord runtimeNetwork name
-    | Expression.Quote quote -> failwith "TODO"
-    | Expression.Colon -> failwith "Not Implemented"
-    | Expression.Bytes(_) -> failwith "Not Implemented"
-    | Expression.Definition(name, value) -> failwith "Not Implemented"
-    | Expression.AssocArray(_) -> failwith "Not Implemented"
-// | Expression.AssocArray(values) -> handleAssocArray bindings values
-// | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
+    | Expression.Call(name, args) -> handleWord runtimeNetwork name args
 
 and evalValue (runtimeNetwork: Network) (value: LigatureValue) : Result<Network, LigatureError> = failwith "TODO"
 // match value with
@@ -145,21 +135,23 @@ and handleAssocArray bindings values = failwith "TODO"
 
 //     Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
-and handleWord network word = failwith "TODO"
-//     let res =
-//         network.Query
-//             (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
-//             (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
+and handleWord network word args =
+    let res =
+        Set.filter
+            (fun (e, a, v) ->
+                match (e, a, v) with
+                | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.Quote(_)) ->
+                    entity = word && attribute = Word("=")
+                | _ -> false)
+            network
+    // network.Query
+    //     (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
+    //     (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
 
-//     match List.ofSeq (res.Write()) with
-//     | [] -> error $"Could not find Word, {word}" None
-//     | [ (_, _, Value.Quote(quote)) ] ->
-//         evalValues network quote.value
-//     | _ -> error $"Multiple matches found for Word, {word}" None
-
-
-// | Ok(_) -> failwith "TODO"
-// match Map.tryFind word words with
+    match List.ofSeq (res) with
+    | [] -> error $"Could not find Word, {word}" None
+    | [ (_, _, LigatureValue.Quote(quote)) ] -> evalValues network quote
+    | _ -> error $"Multiple matches found for Word, {word}" None
 
 and handleIdentifierConcat words stack identifier values = failwith "TODO"
 // List.mapi

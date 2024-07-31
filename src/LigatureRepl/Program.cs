@@ -12,7 +12,7 @@ namespace RadLine.Examples
         public static async Task Main()
         {
             Console.WriteLine("Welcome to Ligature's REPL!\nEnter :q to quit and :c to clear.");
-
+            var runtimeNetwork = Ligature.InMemoryNetwork.emptyNetwork;
             var editor = new LineEditor()
             {
                 MultiLine = true,
@@ -35,8 +35,11 @@ namespace RadLine.Examples
                 else
                 {
                     editor.History.Add(source);
-                    var res = Ligature.Wander.Main.printResult(Ligature.Wander.Main.run(source, Ligature.InMemoryNetwork.emptyNetwork));
-                    Console.WriteLine(res);
+                    var res = Ligature.Wander.Main.run(source, runtimeNetwork);
+                    if (res.IsOk) {
+                        runtimeNetwork = res.ResultValue;
+                    }
+                    Console.WriteLine(Ligature.Wander.Main.printResult(res));
                 }
             }
         }

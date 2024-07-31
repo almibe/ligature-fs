@@ -12,15 +12,7 @@ open Ligature
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | Colon
-    | Int of bigint
-    | Bytes of byte array
-    | String of string
-    | Slot of Slot
-    | Definition of name: string * value: Expression
-    | Word of string
-    | Quote of Expression list
-    | AssocArray of list<string * Expression>
+    | Call of Word * Quote
     | Network of Network
 
 type Parameter = { name: string; tag: string }
@@ -51,16 +43,14 @@ let encodeString string =
 
 let rec prettyPrint (value: LigatureValue) : string =
     match value with
-    | LigatureValue.Int i -> sprintf "%A" i
+    | LigatureValue.Word(Word(value)) -> value
+    | LigatureValue.Int i -> i.ToString()
     | LigatureValue.String s -> encodeString s
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | LigatureValue.Slot(Slot(None)) -> "$"
     | LigatureValue.Quote(values) -> $"[{printQuote values}]"
-// | LigatureValue.AssocArray(values) -> printAssocArray values
-// | LigatureValue.Bytes(bytes) -> printBytes bytes
-// | LigatureValue.Network(values) -> printNetwork values
-// | LigatureValue.Nothing -> "Nothing"
-// | LigatureValue.Word(name) -> name
+    | LigatureValue.Bytes(bytes) -> printBytes bytes
+    | LigatureValue.Network n -> printNetwork n
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))
@@ -78,7 +68,7 @@ and printAssocArray values =
     + "]"
 
 and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(readPatternWord entity)} {(readPatternWord attribute)} {(printLigatureValue value)}"
+    $"{(readPatternWord entity)} {(readPatternWord attribute)} {(prettyPrint value)}"
 
 and printPatternWord (patternWord: PatternWord) =
     match patternWord with
@@ -86,17 +76,8 @@ and printPatternWord (patternWord: PatternWord) =
     | PatternWord.Slot(Slot(Some(name))) -> $"${name}"
     | PatternWord.Slot(Slot(None)) -> "$"
 
-and printLigatureValue (value: LigatureValue) =
-    match value with
-    | LigatureValue.Word(Word(value)) -> value
-    | LigatureValue.Int(value) -> value.ToString()
-    | LigatureValue.String(value) -> $"\"{value}\"" //TODO escape properly
-    //    | LigatureValue.Bytes(bytes) -> printBytes bytes
-    | LigatureValue.Slot(Slot(Some(name))) -> $"${name}"
-    | LigatureValue.Slot(Slot(None)) -> "$"
-
 and printPattern ((entity, attribute, value): Statement) =
-    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(printLigatureValue value)}"
+    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(prettyPrint value)}"
 
 
 // and printLigatureValue value =

@@ -35,13 +35,6 @@ let implode (chars: char list) =
 let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
-// let identifierTokenNibbler =
-//     Gaze.map identifierNibbler (fun chars ->
-//         match chars |> implode |> identifier with
-//         | Ok identifier -> Token.Identifier(identifier)
-//         | Error _ -> failwith "todo" //TODO fix this when Gaze works with Results instead of Options
-//     )
-
 let slotTokenNibbler =
     Gaze.map slotNibbler (fun chars ->
         if chars = [ '$' ] then

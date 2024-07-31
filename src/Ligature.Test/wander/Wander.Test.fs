@@ -10,6 +10,8 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
+open Ligature.Wander.Lexer
+open Ligature.Wander.Parser
 //open Ligature.Wander.Lib.Lib
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
@@ -30,6 +32,39 @@ let tests =
               let script = "{}"
               let result = run script emptyNetwork
               Expect.equal result (Ok(emptyNetwork)) ""
+
+          testCase "Parse Network"
+          <| fun _ ->
+              let script = "{a b c}"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) ->
+                      Expect.equal
+                          res
+                          [ Element.Network [ (Element.Word("a"), Element.Word("b"), Element.Word("c")) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
+          testCase "Run Network"
+          <| fun _ ->
+              let script = "{a b c, e f 89, a b $test}"
+              let result = run script emptyNetwork
+
+              Expect.equal
+                  result
+                  (Ok(
+                      Set.ofSeq
+                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
+                            (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
+                            (PatternWord.Word(Word("a")),
+                             PatternWord.Word(Word("b")),
+                             LigatureValue.Slot(Slot(Some("test")))) ]
+                  ))
+                  ""
+
           //   testCase "Run Network"
           //   <| fun _ ->
           //       let script = "{a b c, e f 89, a b $test}"

@@ -15,9 +15,7 @@ let run (input: string) (runtimeNetwork: Network) : Result<Network, LigatureErro
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast ->
-                let expressions = express ast
-                Result.map (fun (res) -> res) (Interpreter.evalExpressions runtimeNetwork expressions)
+            | Ok ast -> express ast [] |> evalExpressions runtimeNetwork
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
@@ -34,7 +32,7 @@ let introspect (input: string) =
     | Ok tokens ->
         match parse tokens with
         | Ok elements ->
-            let expressions = express elements
+            let expressions = express elements []
 
             { tokens = Ok tokens
               elements = Ok elements
