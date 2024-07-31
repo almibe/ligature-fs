@@ -13,7 +13,7 @@ let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Resu
     | Expression.Int value -> failwith "TODO"
     | Expression.String value -> failwith "TODO"
     | Expression.Slot value -> failwith "TODO"
-    | Expression.Network(network) -> Ok(Set.union runtimeNetwork network)//runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
+    | Expression.Network(network) -> Ok(Set.union runtimeNetwork network) //runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
     | Expression.Word name -> handleWord runtimeNetwork name
     | Expression.Quote quote -> failwith "TODO"
     | Expression.Colon -> failwith "Not Implemented"
@@ -246,7 +246,7 @@ and evalExpressions (runtimeNetwork: Network) (expressions: Expression list) : R
         | Error(err) -> Error(err)
 
 and evalValues (runtimeNetwork: Network) (values: LigatureValue list) : Result<Network, LigatureError> =
-    let mutable result = Ok(Set.empty)//emptyNetwork)
+    let mutable result = Ok(Set.empty) //emptyNetwork)
     let mutable cont = true
     let mutable values = values
 

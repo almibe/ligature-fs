@@ -30,36 +30,36 @@ let tests =
               let script = "{}"
               let result = run script emptyNetwork
               Expect.equal result (Ok(emptyNetwork)) ""
-        //   testCase "Run Network"
-        //   <| fun _ ->
-        //       let script = "{a b c, e f 89, a b $test}"
-        //       let result = run script emptyNetwork
+          //   testCase "Run Network"
+          //   <| fun _ ->
+          //       let script = "{a b c, e f 89, a b $test}"
+          //       let result = run script emptyNetwork
 
-            //   Expect.equal
-            //       result
-            //       (Ok(
-            //           networkOf (
-            //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
-            //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), Value.Int(89I))
-            //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Slot(Slot(Some("test")))) ]
-            //           )
-                //   ))
-                //   ""
-        //   testCase "Run Network with Quote"
-        //   <| fun _ ->
-        //       let script = "{empty = []}"
-        //       let result = run script emptyNetwork
+          //   Expect.equal
+          //       result
+          //       (Ok(
+          //           networkOf (
+          //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
+          //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), Value.Int(89I))
+          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Slot(Slot(Some("test")))) ]
+          //           )
+          //   ))
+          //   ""
+          //   testCase "Run Network with Quote"
+          //   <| fun _ ->
+          //       let script = "{empty = []}"
+          //       let result = run script emptyNetwork
 
-        //       Expect.equal
-        //           result
-        //           (Ok(
-        //               networkOf (
-        //                   [ (PatternWord.Word(Word("empty")),
-        //                      PatternWord.Word(Word("=")),
-        //                      Value.Quote({ parameters = []; value = [] })) ]
-        //               )
-        //           ))
-        //           ""
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               networkOf (
+          //                   [ (PatternWord.Word(Word("empty")),
+          //                      PatternWord.Word(Word("=")),
+          //                      Value.Quote({ parameters = []; value = [] })) ]
+          //               )
+          //           ))
+          //           ""
           //   testCase "Run Slot"
           //   <| fun _ ->
           //       let script = "$hello"

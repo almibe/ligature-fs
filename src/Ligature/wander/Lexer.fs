@@ -115,7 +115,7 @@ let tokenNibbler =
                   takeAndMap "]" Token.CloseSquare
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
-                  takeAndMap ":" Token.Colon]
+                  takeAndMap ":" Token.Colon ]
             )
         )
     )

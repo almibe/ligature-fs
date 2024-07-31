@@ -21,11 +21,11 @@ let tests =
               Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
               Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
               Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) ""
-        //   testCase "Read Bytes Token"
-        //   <| fun _ ->
-        //       Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
-        //       Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([| 0x01uy |]) ])) ""
-        //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
+          //   testCase "Read Bytes Token"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
+          //       Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([| 0x01uy |]) ])) ""
+          //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
           testCase "Read Words"
           <| fun _ ->
               Expect.equal (tokenize "x") (Ok([ Token.Word("x") ])) ""
@@ -52,15 +52,15 @@ let tests =
               Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot(None)) ])) ""
               Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
-        //   testCase "Read comments"
-        //   <| fun _ ->
-        //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""
-        //       Expect.equal (tokenize "--hello") (Ok([ Token.Comment("--hello") ])) ""
+          //   testCase "Read comments"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""
+          //       Expect.equal (tokenize "--hello") (Ok([ Token.Comment("--hello") ])) ""
 
-        //       Expect.equal
-        //           (tokenize "-- this is a@#$@%$#@$%@ comment;;;;  ")
-        //           (Ok([ Token.Comment("-- this is a@#$@%$#@$%@ comment;;;;  ") ]))
-        //           ""
+          //       Expect.equal
+          //           (tokenize "-- this is a@#$@%$#@$%@ comment;;;;  ")
+          //           (Ok([ Token.Comment("-- this is a@#$@%$#@$%@ comment;;;;  ") ]))
+          //           ""
           testCase "read String Literal"
           <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok([ Token.StringLiteral("hello") ])) ""
           testCase "read braces"

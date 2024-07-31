@@ -284,7 +284,7 @@ let handleQuote (quote: Element list) : LigatureValue =
                 | Expression.Word w -> LigatureValue.Word(Word(w)))
             res
 
-    LigatureValue.Quote(res)//({ parameters = []; value = res })
+    LigatureValue.Quote(res) //({ parameters = []; value = res })
 
 let expressNetwork (network: (Element * Element * Element) list) : Expression =
     let res: Set<Statement> =

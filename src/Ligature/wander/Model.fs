@@ -26,22 +26,21 @@ type Expression =
 type Parameter = { name: string; tag: string }
 
 //TODO try to remove this
-let rec wanderEquals (left: LigatureValue) (right: LigatureValue) : bool =
-    failwith "TODO"
-    // if
-    //     (left = LigatureValue.Quote(List.empty) || left = LigatureValue.Quote(Map.empty))
-    //     && (right = LigatureValue.Quote(List.empty)
-    //         || right = LigatureValue.AssocArray(Map.empty))
-    // then
-    //     true
-    // else
-    //     match left, right with
-    //     | LigatureValue.Quote(left), LigatureValue.Quote(right) ->
-    //         if left.Length = right.Length then
-    //             List.forall2 (fun left right -> wanderEquals left right) left right
-    //         else
-    //             false
-    //     | _ -> left = right
+let rec wanderEquals (left: LigatureValue) (right: LigatureValue) : bool = failwith "TODO"
+// if
+//     (left = LigatureValue.Quote(List.empty) || left = LigatureValue.Quote(Map.empty))
+//     && (right = LigatureValue.Quote(List.empty)
+//         || right = LigatureValue.AssocArray(Map.empty))
+// then
+//     true
+// else
+//     match left, right with
+//     | LigatureValue.Quote(left), LigatureValue.Quote(right) ->
+//         if left.Length = right.Length then
+//             List.forall2 (fun left right -> wanderEquals left right) left right
+//         else
+//             false
+//     | _ -> left = right
 
 let encodeString string =
 #if !FABLE_COMPILER
