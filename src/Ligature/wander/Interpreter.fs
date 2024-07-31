@@ -13,7 +13,8 @@ let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Resu
     | Expression.Network(network) -> Ok(Set.union runtimeNetwork network) //runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
     | Expression.Call(name, args) -> handleWord runtimeNetwork name args
 
-and evalValue (runtimeNetwork: Network) (value: LigatureValue) : Result<Network, LigatureError> = failwith "TODO"
+and evalQuote (runtimeNetwork: Network) (quote: Quote) : Result<Network, LigatureError> = 
+    failwith "TODO"
 // match value with
 // | WanderValue.Word word -> handleWord words stack word
 // | value -> Ok(value :: stack)
@@ -237,19 +238,35 @@ and evalExpressions (runtimeNetwork: Network) (expressions: Expression list) : R
         | Ok(res) -> evalExpressions res tail
         | Error(err) -> Error(err)
 
+and valuesToExpressions (values: LigatureValue list) (expressions: Expression list): Result<Expression list, LigatureError> =
+    match values with
+    | [] -> Ok(expressions)
+    | head :: tail -> 
+        match head with
+        | LigatureValue.Network n -> 
+            valuesToExpressions tail (List.append expressions [Expression.Network n])
+        | LigatureValue.Word w -> 
+            match tail with
+            | LigatureValue.Quote q :: tail -> failwith "TODO"
+            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call (w, { parameterNames = []; quote = [] }) ])
+        | _ -> error "Invalid Quote" None
+
 and evalValues (runtimeNetwork: Network) (values: LigatureValue list) : Result<Network, LigatureError> =
-    let mutable result = Ok(Set.empty) //emptyNetwork)
-    let mutable cont = true
-    let mutable values = values
+    match valuesToExpressions values [] with
+    | Ok(expressions) -> evalExpressions runtimeNetwork expressions 
+    | _ -> failwith "TODO"
+    // let mutable result = Ok(Set.empty) //emptyNetwork)
+    // let mutable cont = true
+    // let mutable values = values
 
-    while cont && not (List.isEmpty values) do
-        result <- evalValue runtimeNetwork (List.head values)
-        values <- List.tail values
+    // while cont && not (List.isEmpty values) do
+    //     result <- evalValue runtimeNetwork (List.head values)
+    //     values <- List.tail values
 
-        match result with
-        | Ok((res)) -> result <- Ok((res))
-        | Error(err) ->
-            result <- Error(err)
-            cont <- false
+    //     match result with
+    //     | Ok((res)) -> result <- Ok((res))
+    //     | Error(err) ->
+    //         result <- Error(err)
+    //         cont <- false
 
-    result
+    // result

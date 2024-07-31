@@ -10,15 +10,15 @@ open Ligature.Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Ligature.LigatureStore
-open Ligature.LigatureStore.InMemoryStore
+// open Ligature.LigatureStore
+// open Ligature.LigatureStore.InMemoryStore
 open Ligature.Wander.Interpreter
 
-let rec serve (server: ResponseSocket) (store: LigatureStore) =
+let rec serve (server: ResponseSocket) = //(store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script emptyNetwork
+    let res = run script Set.empty
     server.SendFrame(printResult res)
-    serve server store
+    serve server // store
 
 [<EntryPoint>]
 let main args =
@@ -26,7 +26,7 @@ let main args =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     let config = readConfig ()
 
-    let store = if inmem then empty () else empty ()
+    //    let store = if inmem then empty () else empty ()
     //let path = System.Environment.GetEnvironmentVariable "LIGATURE_HOME"
     //let store = //new LigatureSqlite(path + "\\sqlite\\store.db")
     //store.initialize () |> ignore
@@ -35,5 +35,5 @@ let main args =
     use server = new ResponseSocket()
     server.Bind("tcp://localhost:4200")
     Console.WriteLine("Started on port 4200.")
-    serve server store
+    serve server //store
     0

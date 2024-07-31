@@ -316,4 +316,6 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
     | head :: tail ->
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
+        | Element.Word w ->
+            express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
         | _ -> failwith "TODO"

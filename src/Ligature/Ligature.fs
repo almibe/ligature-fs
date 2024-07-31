@@ -78,8 +78,8 @@ type Word = Word of string
 type Arguments = LigatureValue list
 
 and [<StructuralEquality; StructuralComparison>] Quote =
-    { parameters: string list
-      value: LigatureValue list }
+    { parameterNames: string list
+      quote: LigatureValue list }
 
 and HostFunction =
     { Eval: Network -> Arguments -> Result<Network, LigatureError> }

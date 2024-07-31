@@ -89,9 +89,8 @@ and printPattern ((entity, attribute, value): Statement) =
 //     //    | LigatureValue.Bytes(bytes) -> printBytes bytes
 //     | LigatureValue.Slot(_) -> failwith "TODO"
 
-and printQuote quote = "Quote"
-//(List.fold(fun state value -> state + " " + (printLigatureValue value)) "[" quote.parameters) + "]"
-//    Seq.fold (fun x y -> x + (prettyPrint y) + " ") "" values
+and printQuote quote =
+    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
 
 type Scope = Map<string, LigatureValue>
 
