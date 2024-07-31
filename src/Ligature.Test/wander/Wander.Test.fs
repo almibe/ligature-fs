@@ -14,6 +14,8 @@ open Ligature.Wander.Interpreter
 
 let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
 
+let emptyNetwork = Set.empty
+
 [<Tests>]
 let tests =
     testList
@@ -23,29 +25,41 @@ let tests =
               let script = ""
               let result = run script emptyNetwork
               Expect.equal result (Ok(emptyNetwork)) ""
-          //   testCase "Run Integer"
-          //   <| fun _ ->
-          //       let script = "1235"
-          //       let result = run script emptyNetwork
-          //       Expect.equal result (Ok([ WanderValue.Int(1235I) ])) ""
-          //   testCase "Run String"
-          //   <| fun _ ->
-          //       let script = "\"Hello\""
-          //       let result = run script emptyNetwork
-          //       Expect.equal result (Ok([ WanderValue.String("Hello") ])) ""
-          //   testCase "Run Booleans"
-          //   <| fun _ ->
-          //       let script = "true"
-          //       let result = run script bindings
-          //       Expect.equal result (Ok(WanderValue.Bool(true))) ""
-          //       let script = "false"
-          //       let result = run script bindings
-          //       Expect.equal result (Ok(WanderValue.Bool(false))) ""
-          //   testCase "Run Identifier"
-          //   <| fun _ ->
-          //       let script = "`hello`"
-          //       let result = run script emptyNetwork
-          //       Expect.equal result (Ok([ wident "hello" ])) ""
+          testCase "Run Empty Network"
+          <| fun _ ->
+              let script = "{}"
+              let result = run script emptyNetwork
+              Expect.equal result (Ok(emptyNetwork)) ""
+        //   testCase "Run Network"
+        //   <| fun _ ->
+        //       let script = "{a b c, e f 89, a b $test}"
+        //       let result = run script emptyNetwork
+
+            //   Expect.equal
+            //       result
+            //       (Ok(
+            //           networkOf (
+            //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
+            //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), Value.Int(89I))
+            //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Slot(Slot(Some("test")))) ]
+            //           )
+                //   ))
+                //   ""
+        //   testCase "Run Network with Quote"
+        //   <| fun _ ->
+        //       let script = "{empty = []}"
+        //       let result = run script emptyNetwork
+
+        //       Expect.equal
+        //           result
+        //           (Ok(
+        //               networkOf (
+        //                   [ (PatternWord.Word(Word("empty")),
+        //                      PatternWord.Word(Word("=")),
+        //                      Value.Quote({ parameters = []; value = [] })) ]
+        //               )
+        //           ))
+        //           ""
           //   testCase "Run Slot"
           //   <| fun _ ->
           //       let script = "$hello"

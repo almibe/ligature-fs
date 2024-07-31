@@ -13,7 +13,7 @@ let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Resu
     | Expression.Int value -> failwith "TODO"
     | Expression.String value -> failwith "TODO"
     | Expression.Slot value -> failwith "TODO"
-    | Expression.Network(network) -> Ok(runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
+    | Expression.Network(network) -> Ok(Set.union runtimeNetwork network)//runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
     | Expression.Word name -> handleWord runtimeNetwork name
     | Expression.Quote quote -> failwith "TODO"
     | Expression.Colon -> failwith "Not Implemented"
@@ -23,7 +23,7 @@ let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Resu
 // | Expression.AssocArray(values) -> handleAssocArray bindings values
 // | Expression.Bytes(value) -> Ok(WanderValue.Bytes(value))
 
-and evalValue (runtimeNetwork: Network) (value: WanderValue) : Result<Network, LigatureError> = failwith "TODO"
+and evalValue (runtimeNetwork: Network) (value: LigatureValue) : Result<Network, LigatureError> = failwith "TODO"
 // match value with
 // | WanderValue.Word word -> handleWord words stack word
 // | value -> Ok(value :: stack)
@@ -145,19 +145,19 @@ and handleAssocArray bindings values = failwith "TODO"
 
 //     Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
-and handleWord network word =
-    let res =
-        network.Query
-            (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
-            (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
+and handleWord network word = failwith "TODO"
+//     let res =
+//         network.Query
+//             (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
+//             (networkOf ([ (PatternWord.Word(Word(word)), PatternWord.Word(Word("=")), Value.Slot(Slot(Some("name")))) ]))
 
-    match List.ofSeq (res.Write()) with
-    | [] -> error $"Could not find Word, {word}" None
-    | [ (_, _, Value.Word(word)) ] ->
+//     match List.ofSeq (res.Write()) with
+//     | [] -> error $"Could not find Word, {word}" None
+//     | [ (_, _, Value.Quote(quote)) ] ->
+//         evalValues network quote.value
+//     | _ -> error $"Multiple matches found for Word, {word}" None
 
-        // res.Eval words stack
-        failwith "TODO"
-    | _ -> error $"Multiple matches found for Word, {word}" None
+
 // | Ok(_) -> failwith "TODO"
 // match Map.tryFind word words with
 
@@ -245,8 +245,8 @@ and evalExpressions (runtimeNetwork: Network) (expressions: Expression list) : R
         | Ok(res) -> evalExpressions res tail
         | Error(err) -> Error(err)
 
-and evalValues (runtimeNetwork: Network) (values: WanderValue list) : Result<Network, LigatureError> =
-    let mutable result = Ok(emptyNetwork)
+and evalValues (runtimeNetwork: Network) (values: LigatureValue list) : Result<Network, LigatureError> =
+    let mutable result = Ok(Set.empty)//emptyNetwork)
     let mutable cont = true
     let mutable values = values
 

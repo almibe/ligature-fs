@@ -26,21 +26,22 @@ type Expression =
 type Parameter = { name: string; tag: string }
 
 //TODO try to remove this
-let rec wanderEquals (left: WanderValue) (right: WanderValue) : bool =
-    if
-        (left = WanderValue.Quote(List.empty) || left = WanderValue.AssocArray(Map.empty))
-        && (right = WanderValue.Quote(List.empty)
-            || right = WanderValue.AssocArray(Map.empty))
-    then
-        true
-    else
-        match left, right with
-        | WanderValue.Quote(left), WanderValue.Quote(right) ->
-            if left.Length = right.Length then
-                List.forall2 (fun left right -> wanderEquals left right) left right
-            else
-                false
-        | _ -> left = right
+let rec wanderEquals (left: LigatureValue) (right: LigatureValue) : bool =
+    failwith "TODO"
+    // if
+    //     (left = LigatureValue.Quote(List.empty) || left = LigatureValue.Quote(Map.empty))
+    //     && (right = LigatureValue.Quote(List.empty)
+    //         || right = LigatureValue.AssocArray(Map.empty))
+    // then
+    //     true
+    // else
+    //     match left, right with
+    //     | LigatureValue.Quote(left), LigatureValue.Quote(right) ->
+    //         if left.Length = right.Length then
+    //             List.forall2 (fun left right -> wanderEquals left right) left right
+    //         else
+    //             false
+    //     | _ -> left = right
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -49,21 +50,21 @@ let encodeString string =
     failwith "TODO"
 #endif
 
-let rec prettyPrint (value: Value) : string =
+let rec prettyPrint (value: LigatureValue) : string =
     match value with
-    | Value.Int i -> sprintf "%A" i
-    | Value.String s -> encodeString s
-    | Value.Slot(Slot(Some(name))) -> $"${(name)}"
-    | Value.Slot(Slot(None)) -> "$"
-    | Value.Quote(values) -> $"[{printQuote values}]"
-// | WanderValue.AssocArray(values) -> printAssocArray values
-// | WanderValue.Bytes(bytes) -> printBytes bytes
-// | WanderValue.Network(values) -> printNetwork values
-// | WanderValue.Nothing -> "Nothing"
-// | WanderValue.Word(name) -> name
+    | LigatureValue.Int i -> sprintf "%A" i
+    | LigatureValue.String s -> encodeString s
+    | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
+    | LigatureValue.Slot(Slot(None)) -> "$"
+    | LigatureValue.Quote(values) -> $"[{printQuote values}]"
+// | LigatureValue.AssocArray(values) -> printAssocArray values
+// | LigatureValue.Bytes(bytes) -> printBytes bytes
+// | LigatureValue.Network(values) -> printNetwork values
+// | LigatureValue.Nothing -> "Nothing"
+// | LigatureValue.Word(name) -> name
 
 and printNetwork (network: Network) : string =
-    (Seq.fold (fun state triple -> state + " " + (printTriple triple) + ", ") "{" (network.Write()))
+    (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))
     + "}"
 
 and printBytes bytes =
@@ -77,7 +78,7 @@ and printAssocArray values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "]"
 
-and printTriple ((entity, attribute, value): Triple) : string =
+and printStatement ((entity, attribute, value): Statement) : string =
     $"{(readPatternWord entity)} {(readPatternWord attribute)} {(printLigatureValue value)}"
 
 and printPatternWord (patternWord: PatternWord) =
@@ -86,30 +87,33 @@ and printPatternWord (patternWord: PatternWord) =
     | PatternWord.Slot(Slot(Some(name))) -> $"${name}"
     | PatternWord.Slot(Slot(None)) -> "$"
 
-and printValue (value: Value) =
+and printLigatureValue (value: LigatureValue) =
     match value with
-    | Value.Word(Word(value)) -> value
-    | Value.Int(value) -> value.ToString()
-    | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-    //    | Value.Bytes(bytes) -> printBytes bytes
-    | Value.Slot(Slot(Some(name))) -> $"${name}"
-    | Value.Slot(Slot(None)) -> "$"
+    | LigatureValue.Word(Word(value)) -> value
+    | LigatureValue.Int(value) -> value.ToString()
+    | LigatureValue.String(value) -> $"\"{value}\"" //TODO escape properly
+    //    | LigatureValue.Bytes(bytes) -> printBytes bytes
+    | LigatureValue.Slot(Slot(Some(name))) -> $"${name}"
+    | LigatureValue.Slot(Slot(None)) -> "$"
 
-and printPattern ((entity, attribute, value): Triple) =
-    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(printValue value)}"
+and printPattern ((entity, attribute, value): Statement) =
+    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(printLigatureValue value)}"
 
-and printLigatureValue value =
-    match value with
-    | Value.Word(Word(word)) -> word
-    | Value.Int(value) -> value.ToString()
-    | Value.String(value) -> $"\"{value}\"" //TODO escape properly
-    //    | Value.Bytes(bytes) -> printBytes bytes
-    | Value.Slot(_) -> failwith "TODO"
 
-and printQuote quote = failwith "TODO"
+// and printLigatureValue value =
+//     match value with
+//     | LigatureValue.Word(Word(word)) -> word
+//     | LigatureValue.Int(value) -> value.ToString()
+//     | LigatureValue.String(value) -> $"\"{value}\"" //TODO escape properly
+//     | LigatureValue.Quote(quote) -> printQuote quote
+//     //    | LigatureValue.Bytes(bytes) -> printBytes bytes
+//     | LigatureValue.Slot(_) -> failwith "TODO"
+
+and printQuote quote = "Quote"
+//(List.fold(fun state value -> state + " " + (printLigatureValue value)) "[" quote.parameters) + "]"
 //    Seq.fold (fun x y -> x + (prettyPrint y) + " ") "" values
 
-type Scope = Map<string, WanderValue>
+type Scope = Map<string, LigatureValue>
 
 type WanderType =
     | String
@@ -119,7 +123,7 @@ type WanderType =
     | Slot
     | Network
     | AssocArray
-    | Value
+    | LigatureValue
     | Array
     | Anything
     | Nothing
@@ -131,7 +135,7 @@ type HostFunction =
       Parameters: (string * WanderType) list
       Returns: WanderType
       Description: string
-      Eval: WanderValue list -> Bindings -> Result<WanderValue, LigatureError> }
+      Eval: LigatureValue list -> Bindings -> Result<LigatureValue, LigatureError> }
 
 and Bindings =
     { Functions: HostFunction list
@@ -145,7 +149,7 @@ let newBindings (network: Network) =
       Stack = []
       Network = network }
 
-let bind (name: string) (value: WanderValue) (bindings: Bindings) : Bindings =
+let bind (name: string) (value: LigatureValue) (bindings: Bindings) : Bindings =
     let current' = Map.add name value bindings.Current
     { bindings with Current = current' }
 

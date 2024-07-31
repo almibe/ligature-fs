@@ -9,7 +9,7 @@ open Ligature
 open FSharpPlus
 open Ligature.Wander.Main
 open Ligature.Serialization
-open Ligature.LigatureStore
+//open Ligature.LigatureStore
 open Ligature.Main
 open Ligature.Wander.Model
 

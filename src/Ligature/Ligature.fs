@@ -75,11 +75,11 @@ type Word = Word of string
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-type Arguments = Value list
+type Arguments = LigatureValue list
 
-and Quote =
+and [<StructuralEquality; StructuralComparison>] Quote =
     { parameters: string list
-      value: Value list }
+      value: LigatureValue list }
 
 and HostFunction =
     { Eval: Network -> Arguments -> Result<Network, LigatureError> }
@@ -90,45 +90,37 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern
     | Slot of Slot
     | Word of Word
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Value =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
     | Word of Word
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Quote of Quote
-
-and Triple = (PatternWord * PatternWord * Value)
-
-and [<RequireQualifiedAccess>] WanderValue =
-    | Quote of WanderValue list
-    | Triple of Triple
+    | Quote of LigatureValue list
     | Network of Network
-    | AssocArray of Map<string, WanderValue>
-    | Bytes of byte array
-    | Nothing
-    | Word of string
 
-and Network =
-    abstract member Write: unit -> Set<Triple>
-    abstract member Count: unit -> int64
-    abstract member Union: Network -> Network
-    abstract member Minus: Network -> Network
-    abstract member Apply: Map<string, Value> -> Network
-    abstract member Educe: Network -> Set<Map<string, Value>>
-    abstract member Query: Network -> Network -> Network
-    abstract member Infer: Network -> Network -> Network
+and Statement = (PatternWord * PatternWord * LigatureValue)
 
+and Network = Set<Statement>
+// and [<StructuralEquality; StructuralComparison>] Network =
+//     abstract member Write: unit -> Set<Statement>
+//     abstract member Count: unit -> int64
+//     abstract member Union: Network -> Network
+//     abstract member Minus: Network -> Network
+//     abstract member Apply: Map<string, LigatureValue> -> Network
+//     abstract member Educe: Network -> Set<Map<string, LigatureValue>>
+//     abstract member Query: Network -> Network -> Network
+//     abstract member Infer: Network -> Network -> Network
 
-let getRoots (patternSet: Set<Triple>) : Set<PatternWord> =
-    Set.map (fun ((entity, _, _): Triple) -> entity) patternSet
+let getRoots (patternSet: Set<Statement>) : Set<PatternWord> =
+    Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Triple>) : Set<PatternWord> =
+let getLeaves (patternSet: Set<Statement>) : Set<PatternWord> =
     patternSet
-    |> Set.map (fun ((_, _, value): Triple) ->
+    |> Set.map (fun ((_, _, value): Statement) ->
         match value with
-        | Value.Word word -> Some(PatternWord.Word word)
-        | Value.Slot slot -> Some(PatternWord.Slot slot)
+        | LigatureValue.Word word -> Some(PatternWord.Word word)
+        | LigatureValue.Slot slot -> Some(PatternWord.Slot slot)
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)

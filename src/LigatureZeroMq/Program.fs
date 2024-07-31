@@ -12,13 +12,11 @@ open NetMQ
 open System
 open Ligature.LigatureStore
 open Ligature.LigatureStore.InMemoryStore
-//open Ligature.LigatureSqlite
 open Ligature.Wander.Interpreter
-open Ligature.Wander.Lib.Lib
 
 let rec serve (server: ResponseSocket) (store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script stdLib List.empty
+    let res = run script emptyNetwork
     server.SendFrame(printResult res)
     serve server store
 

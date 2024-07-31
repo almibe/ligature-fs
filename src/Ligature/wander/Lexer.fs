@@ -11,14 +11,10 @@ open Fable.Core.JsInterop
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string
-    // | Identifier of Identifier
     | Slot of Slot
     | Int of bigint
-    | Bytes of byte array
-    | Comment of string
     | NewLine of string
     | StringLiteral of string
-    | BytesLiteral of byte array
     | Word of string
     | OpenBrace
     | CloseBrace
@@ -60,11 +56,6 @@ let bytesFromString (s: string) =
     emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
 #endif
 
-let bytesTokenNibbler =
-    Gaze.map bytesNibbler (fun value ->
-        let bytes = System.String.Concat(Array.ofList (List.concat value))
-        Token.Bytes(bytesFromString (bytes.[2..])))
-
 let integerTokenNibbler = Gaze.map integerNibbler (fun int -> Token.Int(int))
 
 let stringLiteralTokenNibbler =
@@ -95,9 +86,6 @@ let newLineTokenNibbler =
 let commentNibbler =
     Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
 
-let commentTokenNibbler =
-    Gaze.map commentNibbler (fun commentText -> commentText |> List.concat |> implode |> Token.Comment)
-
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
@@ -110,10 +98,8 @@ let tokenNibbler =
             Nibblers.takeFirst (
                 [ whiteSpaceNibbler
                   nameOrKeywordTokenNibbler
-                  bytesTokenNibbler
                   integerTokenNibbler
                   newLineTokenNibbler
-                  //                  identifierTokenNibbler
                   slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
@@ -129,8 +115,7 @@ let tokenNibbler =
                   takeAndMap "]" Token.CloseSquare
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
-                  takeAndMap ":" Token.Colon
-                  commentTokenNibbler ]
+                  takeAndMap ":" Token.Colon]
             )
         )
     )

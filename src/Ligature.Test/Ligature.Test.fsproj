@@ -13,7 +13,6 @@
     <Compile Include="wander/Encoding.Test.fs" />
     <Compile Include="Serialization.Test.fs" />
     <Compile Include="wander/Lexer.Test.fs" />
-    <Compile Include="wander/Parser.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

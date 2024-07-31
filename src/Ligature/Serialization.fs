@@ -12,19 +12,19 @@ open System.IO
 open Wander.Main
 open Wander.Model
 open Ligature.Wander.Interpreter
-open LigatureStore.InMemoryStore
+//open LigatureStore.InMemoryStore
 
-let readLigature (input: string) : Result<Network, LigatureError> = run input emptyNetwork
+let readLigature (input: string) : Result<Network, LigatureError> = run input Set.empty//emptyNetwork
 
 let writeLigature (input: Network) : string =
     let sb = System.Text.StringBuilder()
     sb.Append("{") |> ignore
 
     Seq.iter
-        (fun triple ->
-            let s: string = printTriple triple
+        (fun statement ->
+            let s: string = printStatement statement
             sb.Append(s) |> ignore)
-        (input.Write())
+        input
 
     sb.Append("}") |> ignore
     sb.ToString()

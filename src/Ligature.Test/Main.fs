@@ -14,8 +14,8 @@ let tests =
         [ testCase "Check Triple Equality"
           <| fun _ ->
               Expect.equal
-                  ((PatternWord.Word(Word("a"))), (PatternWord.Word(Word("b"))), (Value.Word(Word("c"))))
-                  ((PatternWord.Word(Word("a"))), (PatternWord.Word(Word("b"))), (Value.Word(Word("c"))))
+                  ((PatternWord.Word(Word("a"))), (PatternWord.Word(Word("b"))), (LigatureValue.Word(Word("c"))))
+                  ((PatternWord.Word(Word("a"))), (PatternWord.Word(Word("b"))), (LigatureValue.Word(Word("c"))))
                   "" ]
 
 [<EntryPoint>]
