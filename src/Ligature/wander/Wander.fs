@@ -10,12 +10,18 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run (input: string) (runtimeNetwork: Network) : Result<Network, LigatureError> =
+let std: Map<string, HostFunction> = Map.empty
+
+let run
+    (hostFunctions: Map<string, HostFunction>)
+    (runtimeNetwork: Network)
+    (input: string)
+    : Result<Network, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalExpressions runtimeNetwork
+            | Ok ast -> express ast [] |> evalExpressions hostFunctions runtimeNetwork
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

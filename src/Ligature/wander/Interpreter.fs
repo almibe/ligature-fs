@@ -8,13 +8,15 @@ open Ligature.Wander.Model
 open Ligature.Main
 open Ligature.InMemoryNetwork
 
-let rec evalExpression (runtimeNetwork: Network) (expression: Expression) : Result<Network, LigatureError> =
+let rec evalExpression
+    (hostFunctions: Map<string, HostFunction>)
+    (runtimeNetwork: Network)
+    (expression: Expression)
+    : Result<Network, LigatureError> =
     match expression with
     | Expression.Network(network) -> Ok(Set.union runtimeNetwork network) //runtimeNetwork.Union(network)) //Ok(WanderValue.Network(network) :: stack)
-    | Expression.Call(name, args) -> handleWord runtimeNetwork name args
+    | Expression.Call(name, args) -> handleWord hostFunctions runtimeNetwork name args
 
-and evalQuote (runtimeNetwork: Network) (quote: Quote) : Result<Network, LigatureError> = 
-    failwith "TODO"
 // match value with
 // | WanderValue.Word word -> handleWord words stack word
 // | value -> Ok(value :: stack)
@@ -136,12 +138,14 @@ and handleAssocArray bindings values = failwith "TODO"
 
 //     Ok([ WanderValue.Network(InMemoryNetwork(final)) ])
 
-and handleWord network word args =
+and handleWord (hostFunctions: Map<string, HostFunction>) network word args =
     let res =
         Set.filter
             (fun (e, a, v) ->
                 match (e, a, v) with
                 | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.Quote(_)) ->
+                    entity = word && attribute = Word("=")
+                | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.HostFunction(name)) ->
                     entity = word && attribute = Word("=")
                 | _ -> false)
             network
@@ -151,7 +155,8 @@ and handleWord network word args =
 
     match List.ofSeq (res) with
     | [] -> error $"Could not find Word, {word}" None
-    | [ (_, _, LigatureValue.Quote(quote)) ] -> evalValues network quote
+    | [ (_, _, LigatureValue.Quote(names, quote)) ] -> evalQuote hostFunctions network names quote
+    //    | [(_, _, LigatureValue.HostFunction(name))] -> evalHostFunction hostFunctions network name
     | _ -> error $"Multiple matches found for Word, {word}" None
 
 and handleIdentifierConcat words stack identifier values = failwith "TODO"
@@ -229,44 +234,58 @@ and handleIdentifierConcat words stack identifier values = failwith "TODO"
 //         | _ -> error "Can only query Datasets." None
 //     | Error(errorValue) -> error $"Error handling expression {inputExpression}.\n{errorValue.UserMessage}" None
 
-and evalExpressions (runtimeNetwork: Network) (expressions: Expression list) : Result<Network, LigatureError> =
+and evalExpressions
+    (hostFunctions: Map<string, HostFunction>)
+    (runtimeNetwork: Network)
+    (expressions: Expression list)
+    : Result<Network, LigatureError> =
     match expressions with
     | [] -> Ok(runtimeNetwork)
-    | [ head ] -> evalExpression runtimeNetwork head
+    | [ head ] -> evalExpression hostFunctions runtimeNetwork head
     | head :: tail ->
-        match evalExpression runtimeNetwork head with
-        | Ok(res) -> evalExpressions res tail
+        match evalExpression hostFunctions runtimeNetwork head with
+        | Ok(res) -> evalExpressions hostFunctions res tail
         | Error(err) -> Error(err)
 
-and valuesToExpressions (values: LigatureValue list) (expressions: Expression list): Result<Expression list, LigatureError> =
+and valuesToExpressions
+    (values: LigatureValue list)
+    (expressions: Expression list)
+    : Result<Expression list, LigatureError> =
     match values with
     | [] -> Ok(expressions)
-    | head :: tail -> 
+    | head :: tail ->
         match head with
-        | LigatureValue.Network n -> 
-            valuesToExpressions tail (List.append expressions [Expression.Network n])
-        | LigatureValue.Word w -> 
+        | LigatureValue.Network n -> valuesToExpressions tail (List.append expressions [ Expression.Network n ])
+        | LigatureValue.Word w ->
             match tail with
-            | LigatureValue.Quote q :: tail -> failwith "TODO"
-            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call (w, { parameterNames = []; quote = [] }) ])
+            | LigatureValue.Quote(p, q) :: tail -> failwith "TODO"
+            | _ ->
+                valuesToExpressions
+                    []
+                    (List.append expressions [ Expression.Call(w, { parameterNames = []; quote = [] }) ])
         | _ -> error "Invalid Quote" None
 
-and evalValues (runtimeNetwork: Network) (values: LigatureValue list) : Result<Network, LigatureError> =
+and evalQuote
+    (hostFunctions)
+    (runtimeNetwork: Network)
+    (names: string list)
+    (values: LigatureValue list)
+    : Result<Network, LigatureError> =
     match valuesToExpressions values [] with
-    | Ok(expressions) -> evalExpressions runtimeNetwork expressions 
+    | Ok(expressions) -> evalExpressions hostFunctions runtimeNetwork expressions
     | _ -> failwith "TODO"
-    // let mutable result = Ok(Set.empty) //emptyNetwork)
-    // let mutable cont = true
-    // let mutable values = values
+// let mutable result = Ok(Set.empty) //emptyNetwork)
+// let mutable cont = true
+// let mutable values = values
 
-    // while cont && not (List.isEmpty values) do
-    //     result <- evalValue runtimeNetwork (List.head values)
-    //     values <- List.tail values
+// while cont && not (List.isEmpty values) do
+//     result <- evalValue runtimeNetwork (List.head values)
+//     values <- List.tail values
 
-    //     match result with
-    //     | Ok((res)) -> result <- Ok((res))
-    //     | Error(err) ->
-    //         result <- Error(err)
-    //         cont <- false
+//     match result with
+//     | Ok((res)) -> result <- Ok((res))
+//     | Error(err) ->
+//         result <- Error(err)
+//         cont <- false
 
-    // result
+// result

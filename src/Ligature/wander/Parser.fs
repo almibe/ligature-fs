@@ -9,16 +9,16 @@ open FsToolkit.ErrorHandling
 open Model
 open Nibblers
 open Ligature.Main
-open Ligature.InMemoryNetwork
 
 [<RequireQualifiedAccess>]
 type Element =
     | Word of string
-    | Quote of Element list
+    | Quote of string list * Element list
     | String of string
     | Int of bigint
     | Bytes of byte array
     | Slot of Slot
+    | Call of string * Element list
     | Network of (Element * Element * Element) list
 
 // and EntityDescription = Identifier * Element list
@@ -41,6 +41,17 @@ let wordNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
+let callNib (gaze: Gaze.Gaze<Token>) =
+    result {
+        let! word = Gaze.attempt (wordNib) gaze
+        let! values = Gaze.attempt (optional (repeatN quoteNib 1)) gaze
+
+        match (word, values) with
+        | (Element.Word(word), []) -> return Element.Call(word, values)
+        | (Element.Word(word), [ Element.Quote(name, quote) ]) -> return Element.Call(word, quote)
+        | (_, _) -> return failwith "TODO"
+    }
+
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
@@ -62,7 +73,7 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Quote(values)
+        return Element.Quote([], values)
     }
 
 // let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
@@ -116,9 +127,29 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element)
 let quotekNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! contents = (optional (repeatSep elementNib Token.Comma)) gaze
+        let! first = (optional (repeat elementNib)) gaze
+        let! second = Gaze.attempt (optional (repeatN (take Token.Arrow) 1)) gaze
+        let! third = (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Quote(contents)
+
+        let (names, contents) =
+            match (first, second, third) with
+            | [], [], [] -> ([], [])
+            | parts, [], [] -> ([], parts)
+            | names, [ _ ], parts ->
+                let names =
+                    List.map
+                        (fun name ->
+                            match name with
+                            | Element.Word(name) -> name
+                            | Element.Call(name, []) -> name
+                            | _ -> failwith "Error")
+                        names
+
+                (names, parts)
+            | _ -> failwith ""
+
+        return Element.Quote(names, contents)
     }
 
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -201,7 +232,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ wordNib; networkNib ]
+let elementNib = takeFirst [ callNib; networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -250,12 +281,13 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Int i -> LigatureValue.Int i
     | Element.Bytes b -> LigatureValue.Bytes b
     | Element.Network n -> LigatureValue.Network(handleNetwork n)
-    | Element.Quote q -> handleQuote q
+    | Element.Quote(p, q) -> handleQuote p q
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Word w -> LigatureValue.Word(Word w)
+    | Element.Call(w, []) -> LigatureValue.Word(Word w)
 
-let handleQuote (quote: Element list) : LigatureValue =
+let handleQuote (names: string list) (quote: Element list) : LigatureValue =
     let res = List.map (fun element -> elementToValue element) quote
 
     // let res =
@@ -271,7 +303,7 @@ let handleQuote (quote: Element list) : LigatureValue =
     //             | Expression.Quote q -> failwith "TODO")//LigatureValue.Quote q)
     //         res
 
-    LigatureValue.Quote(res) //({ parameters = []; value = res })
+    LigatureValue.Quote(names, res) //({ parameters = []; value = res })
 
 let handleNetwork (network: (Element * Element * Element) list) : Network =
     let res: Set<Statement> =
@@ -285,7 +317,7 @@ let handleNetwork (network: (Element * Element * Element) list) : Network =
                         | Element.Int i -> LigatureValue.Int i
                         | Element.String s -> LigatureValue.String s
                         | Element.Slot s -> LigatureValue.Slot s
-                        | Element.Quote q -> handleQuote q
+                        | Element.Quote(p, q) -> handleQuote p q
                         | _ -> failwith "TODO"
 
                     (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)
@@ -316,6 +348,9 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
     | head :: tail ->
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
-        | Element.Word w ->
+        // | Element.Word w ->
+        //     express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
+        | Element.Call(w, q) ->
+            //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
         | _ -> failwith "TODO"

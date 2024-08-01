@@ -96,7 +96,8 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Quote of LigatureValue list
+    | Quote of String list * LigatureValue list
+    | HostFunction of string
     | Network of Network
 
 and Statement = (PatternWord * PatternWord * LigatureValue)

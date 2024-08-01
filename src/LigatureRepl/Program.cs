@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.FSharp.Collections;
 using Spectre.Console;
 
 namespace RadLine.Examples
@@ -35,7 +36,7 @@ namespace RadLine.Examples
                 else
                 {
                     editor.History.Add(source);
-                    var res = Ligature.Wander.Main.run(source, runtimeNetwork);
+                    var res = Ligature.Wander.Main.run(Ligature.Wander.Main.std, runtimeNetwork, source);
                     if (res.IsOk) {
                         runtimeNetwork = res.ResultValue;
                     }

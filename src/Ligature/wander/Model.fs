@@ -48,7 +48,7 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.String s -> encodeString s
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | LigatureValue.Slot(Slot(None)) -> "$"
-    | LigatureValue.Quote(values) -> $"[{printQuote values}]"
+    | LigatureValue.Quote(names, values) -> $"[{names} -> {printQuote values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
 

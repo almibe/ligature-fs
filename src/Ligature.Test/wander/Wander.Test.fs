@@ -25,12 +25,12 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run script emptyNetwork
+              let result = run Map.empty emptyNetwork script
               Expect.equal result (Ok(emptyNetwork)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run script emptyNetwork
+              let result = run Map.empty emptyNetwork script
               Expect.equal result (Ok(emptyNetwork)) ""
 
           testCase "Parse Network"
@@ -48,10 +48,55 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
+          testCase "Parse Network With Quote"
+          <| fun _ ->
+              let script = "{id = [ x ]}"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) ->
+                      Expect.equal
+                          res
+                          [ Element.Network
+                                [ (Element.Word("id"), Element.Word("="), Element.Quote([], [ Element.Call("x", []) ])) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
+          testCase "Parse Network With Quote With Parameters"
+          <| fun _ ->
+              let script = "{id = [ x -> x ]}"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) ->
+                      Expect.equal
+                          res
+                          [ Element.Network
+                                [ (Element.Word("id"),
+                                   Element.Word("="),
+                                   Element.Quote([ "x" ], [ Element.Call("x", []) ])) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
+          testCase "Parse Calling a Word with Empty Quote as argument"
+          <| fun _ ->
+              let script = "word []"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) -> Expect.equal res [ Element.Call("word", []) ] ""
+                  | _ -> failwith "Error Parsing"
+              | _ -> failwith "Error Tokenizing"
+
           testCase "Run Network"
           <| fun _ ->
               let script = "{a b c, e f 89, a b $test}"
-              let result = run script emptyNetwork
+              let result = run Map.empty emptyNetwork script
 
               Expect.equal
                   result
@@ -64,6 +109,21 @@ let tests =
                              LigatureValue.Slot(Slot(Some("test")))) ]
                   ))
                   ""
+
+          //   testCase "Define 'call' Word with Parameters"
+          //   <| fun _ ->
+          //       let script = "{ call = [ x -> x ] } call [ {a b c} ]"
+          //       let result = run Map.empty emptyNetwork script
+
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               Set.ofSeq [
+          //                 (PatternWord.Word(Word("id")), PatternWord.Word(Word("=")), LigatureValue.Quote(["x"], [LigatureValue.Word(Word("x"))]));
+          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
+          //           ))
+          //           ""
+
 
           //   testCase "Run Network"
           //   <| fun _ ->
@@ -228,7 +288,7 @@ let tests =
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n     "
-              let result = run script emptyNetwork
+              let result = run Map.empty emptyNetwork script
               Expect.equal result (Ok(emptyNetwork)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
