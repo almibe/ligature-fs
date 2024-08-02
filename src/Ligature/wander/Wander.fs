@@ -10,10 +10,10 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let std: Map<string, HostFunction> = Map.empty
+let std: Map<string, Combinator> = Map.empty
 
 let run
-    (hostFunctions: Map<string, HostFunction>)
+    (hostFunctions: Map<string, Combinator>)
     (runtimeNetwork: Network)
     (input: string)
     : Result<Network, LigatureError> =

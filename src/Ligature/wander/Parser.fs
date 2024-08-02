@@ -303,7 +303,7 @@ let handleQuote (names: string list) (quote: Element list) : LigatureValue =
     //             | Expression.Quote q -> failwith "TODO")//LigatureValue.Quote q)
     //         res
 
-    LigatureValue.Quote(names, res) //({ parameters = []; value = res })
+    LigatureValue.Pipeline(res) //({ parameters = []; value = res })
 
 let handleNetwork (network: (Element * Element * Element) list) : Network =
     let res: Set<Statement> =

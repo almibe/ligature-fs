@@ -25,6 +25,7 @@ type Token =
     | CloseSquare
     | Arrow
     | WideArrow
+    | AtSign
     | Asterisk
     | Hash
     | Comma
@@ -99,6 +100,7 @@ let tokenNibbler =
                   takeAndMap "=>" Token.WideArrow
                   takeAndMap "->" Token.Arrow
                   takeAndMap "*" Token.Asterisk
+                  takeAndMap "@" Token.AtSign
                   takeAndMap "#" Token.Hash
                   takeAndMap "(" Token.OpenParen
                   takeAndMap ")" Token.CloseParen

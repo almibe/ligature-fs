@@ -110,20 +110,19 @@ let tests =
                   ))
                   ""
 
-          //   testCase "Define 'call' Word with Parameters"
-          //   <| fun _ ->
-          //       let script = "{ call = [ x -> x ] } call [ {a b c} ]"
-          //       let result = run Map.empty emptyNetwork script
+          testCase "Define 'call' Word with Parameters"
+          <| fun _ ->
+              let script = "{ call = [ x ] } call [ {a b c} ]"
+              let result = run Map.empty emptyNetwork script
 
-          //       Expect.equal
-          //           result
-          //           (Ok(
-          //               Set.ofSeq [
-          //                 (PatternWord.Word(Word("id")), PatternWord.Word(Word("=")), LigatureValue.Quote(["x"], [LigatureValue.Word(Word("x"))]));
-          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
-          //           ))
-          //           ""
-
+              Expect.equal
+                  result
+                  (Ok(
+                      Set.ofSeq [
+                        (PatternWord.Word(Word("call")), PatternWord.Word(Word("=")), LigatureValue.Pipeline([LigatureValue.Word(Word("x"))]));
+                        (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
+                  ))
+                  ""
 
           //   testCase "Run Network"
           //   <| fun _ ->

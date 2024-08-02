@@ -81,10 +81,10 @@ and [<StructuralEquality; StructuralComparison>] Quote =
     { parameterNames: string list
       quote: LigatureValue list }
 
-and HostFunction =
-    { Eval: Network -> Arguments -> Result<Network, LigatureError> }
+and Combinator =
+    { Eval: Network -> Result<Network, LigatureError> }
 
-and Words = Map<string, HostFunction>
+and Words = Map<string, Combinator>
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternWord =
     | Slot of Slot
@@ -96,8 +96,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Quote of String list * LigatureValue list
-    | HostFunction of string
+    | Pipeline of LigatureValue list
     | Network of Network
 
 and Statement = (PatternWord * PatternWord * LigatureValue)
