@@ -14,10 +14,6 @@ open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
 //open Ligature.Wander.Lib.Lib
 
-let inline todo<'T> : 'T = raise (System.NotImplementedException("todo"))
-
-let emptyNetwork = Set.empty
-
 [<Tests>]
 let tests =
     testList
@@ -25,13 +21,13 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run Map.empty emptyNetwork script
-              Expect.equal result (Ok(emptyNetwork)) ""
+              let result = run Map.empty defaultState script
+              Expect.equal result (Ok(defaultState)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run Map.empty emptyNetwork script
-              Expect.equal result (Ok(emptyNetwork)) ""
+              let result = run Map.empty defaultState script
+              Expect.equal result (Ok(defaultState)) ""
 
           testCase "Parse Network"
           <| fun _ ->
@@ -64,9 +60,9 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Network With Quote With Parameters"
+          testCase "Parse Named Network"
           <| fun _ ->
-              let script = "{id = [ x -> x ]}"
+              let script = "@name {a b c}"
 
               match tokenize script with
               | Ok(res) ->
@@ -74,60 +70,63 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ Element.Network
-                                [ (Element.Word("id"),
-                                   Element.Word("="),
-                                   Element.Quote([ "x" ], [ Element.Call("x", []) ])) ] ]
+                          [ Element.NetworkName("name")
+                            Element.Network [ Element.Word("a"), Element.Word("b"), Element.Word("c") ] ]
                           ""
-                  | _ -> failwith "Error"
-              | _ -> failwith "Error"
-
-          testCase "Parse Calling a Word with Empty Quote as argument"
-          <| fun _ ->
-              let script = "word []"
-
-              match tokenize script with
-              | Ok(res) ->
-                  match parse res with
-                  | Ok(res) -> Expect.equal res [ Element.Call("word", []) ] ""
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
-
-          testCase "Run Network"
-          <| fun _ ->
-              let script = "{a b c, e f 89, a b $test}"
-              let result = run Map.empty emptyNetwork script
-
-              Expect.equal
-                  result
-                  (Ok(
-                      Set.ofSeq
-                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
-                            (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
-                            (PatternWord.Word(Word("a")),
-                             PatternWord.Word(Word("b")),
-                             LigatureValue.Slot(Slot(Some("test")))) ]
-                  ))
-                  ""
-
-          testCase "Define 'call' Word with Parameters"
-          <| fun _ ->
-              let script = "{ call = [ x ] } call [ {a b c} ]"
-              let result = run Map.empty emptyNetwork script
-
-              Expect.equal
-                  result
-                  (Ok(
-                      Set.ofSeq [
-                        (PatternWord.Word(Word("call")), PatternWord.Word(Word("=")), LigatureValue.Pipeline([LigatureValue.Word(Word("x"))]));
-                        (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
-                  ))
-                  ""
 
           //   testCase "Run Network"
           //   <| fun _ ->
           //       let script = "{a b c, e f 89, a b $test}"
-          //       let result = run script emptyNetwork
+          //       let result = run Map.empty defaultState script
+          //       failwith "TODO"
+          //   Expect.equal
+          //       result
+          //       (Ok(
+          //           Set.ofSeq
+          //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
+          //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
+          //                 (PatternWord.Word(Word("a")),
+          //                  PatternWord.Word(Word("b")),
+          //                  LigatureValue.Slot(Slot(Some("test")))) ]
+          //   ))
+          //   ""
+
+          //   testCase "Run Named Network"
+          //   <| fun _ ->
+          //       let script = "@test {a b c}"
+          //       let result = run Map.empty defaultState script
+          //       Expect.equal
+          //           result
+          //           (Ok(defaultState
+          //             //   Set.ofSeq
+          //             //       [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
+          //             //         (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
+          //             //         (PatternWord.Word(Word("a")),
+          //             //          PatternWord.Word(Word("b")),
+          //             //          LigatureValue.Slot(Slot(Some("test")))) ]
+          //           ))
+          //           ""
+
+          //   testCase "Define 'call' Word with Parameters"
+          //   <| fun _ ->
+          //       let script = "{ call = [ x ] } call [ {a b c} ]"
+          //       let result = run Map.empty emptyState script
+
+          //       Expect.equal
+          //           result
+          //           (Ok(
+          //               Set.ofSeq [
+          //                 (PatternWord.Word(Word("call")), PatternWord.Word(Word("=")), LigatureValue.Pipeline([LigatureValue.Word(Word("x"))]));
+          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
+          //           ))
+          //           ""
+
+          //   testCase "Run Network"
+          //   <| fun _ ->
+          //       let script = "{a b c, e f 89, a b $test}"
+          //       let result = run script emptyState
 
           //   Expect.equal
           //       result
@@ -142,7 +141,7 @@ let tests =
           //   testCase "Run Network with Quote"
           //   <| fun _ ->
           //       let script = "{empty = []}"
-          //       let result = run script emptyNetwork
+          //       let result = run script emptyState
 
           //       Expect.equal
           //           result
@@ -157,7 +156,7 @@ let tests =
           //   testCase "Run Slot"
           //   <| fun _ ->
           //       let script = "$hello"
-          //       let result = run script emptyNetwork
+          //       let result = run script emptyState
           //       Expect.equal result (Ok([ WanderValue.Slot(Slot(Some("hello"))) ])) ""
           //   testCase "Run Empty Network literal"
           //   <| fun _ ->
@@ -167,12 +166,12 @@ let tests =
           //   testCase "Run Empty Quote Literal"
           //   <| fun _ ->
           //       let script = "[]"
-          //       let result = run script emptyNetwork
+          //       let result = run script emptyState
           //       Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
           //   testCase "Run Quote Literal"
           //   <| fun _ ->
           //       let script = "[1 `test`]"
-          //       let result = run script emptyNetwork
+          //       let result = run script emptyState
           //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
           //   testCase "Test running with Words"
           //   <| fun _ ->
@@ -287,8 +286,8 @@ let tests =
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n     "
-              let result = run Map.empty emptyNetwork script
-              Expect.equal result (Ok(emptyNetwork)) ""
+              let result = run Map.empty defaultState script
+              Expect.equal result (Ok(defaultState)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
           //       let script = " 1  \n `a` \"hello\" \r\n  321 \n"

@@ -14,7 +14,7 @@ open Wander.Model
 open Ligature.Wander.Interpreter
 //open LigatureStore.InMemoryStore
 
-let readLigature (input: string) : Result<Network, LigatureError> = run (Map.empty) Set.empty input //emptyNetwork
+let readLigature (input: string) : Result<Network, LigatureError> = failwith "TODO" //run (Map.empty) Set.empty input //emptyNetwork
 
 let writeLigature (input: Network) : string =
     let sb = System.Text.StringBuilder()

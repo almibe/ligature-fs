@@ -13,6 +13,7 @@ open Ligature.Main
 [<RequireQualifiedAccess>]
 type Element =
     | Word of string
+    | NetworkName of string
     | Quote of string list * Element list
     | String of string
     | Int of bigint
@@ -160,6 +161,14 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Network(statements)
     }
 
+let networkNameNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Element.Network(statements)
+    }
+
 /// Read the next Element from the given instance of Gaze<Token>
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -232,7 +241,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ callNib; networkNib ]
+let elementNib = takeFirst [ networkNameNib; callNib; networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -352,5 +361,5 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         //     express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
         | Element.Call(w, q) ->
             //            List.map (fun x -> express x) q
-            express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
+            express tail (List.append expressions [ Expression.Call(Word(w)) ])
         | _ -> failwith "TODO"

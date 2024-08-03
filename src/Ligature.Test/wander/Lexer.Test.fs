@@ -52,6 +52,11 @@ let tests =
               Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot(None)) ])) ""
               Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
+          testCase "Read Network Names"
+          <| fun _ ->
+              Expect.equal (tokenize "@") (Ok([ Token.NetworkName("") ])) ""
+              Expect.equal (tokenize "@a") (Ok([ (Token.NetworkName "a") ])) ""
+              Expect.equal (tokenize "@this_is_also234") (Ok([ Token.NetworkName "this_is_also234" ])) ""
           //   testCase "Read comments"
           //   <| fun _ ->
           //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""

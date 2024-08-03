@@ -102,6 +102,20 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
 and Statement = (PatternWord * PatternWord * LigatureValue)
 
 and Network = Set<Statement>
+
+and NetworkName = string
+
+and Networks = Map<NetworkName, Network>
+
+and State = NetworkName * Networks
+
+let defaultState: State = ("", Map.ofSeq ([ ("", Set.empty) ]))
+
+let currentNetwork ((name, networks): State) : Result<Network, LigatureError> =
+    match Map.tryFind (name) networks with
+    | Some(res) -> Ok res
+    | _ -> failwith "TODO"
+
 // and [<StructuralEquality; StructuralComparison>] Network =
 //     abstract member Write: unit -> Set<Statement>
 //     abstract member Count: unit -> int64

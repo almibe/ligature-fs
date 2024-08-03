@@ -12,7 +12,8 @@ open Ligature
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | Call of Word * Quote
+    | NetworkName of NetworkName
+    | Call of Word
     | Network of Network
 
 type Parameter = { name: string; tag: string }

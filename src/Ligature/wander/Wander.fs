@@ -12,16 +12,12 @@ open Interpreter
 
 let std: Map<string, Combinator> = Map.empty
 
-let run
-    (hostFunctions: Map<string, Combinator>)
-    (runtimeNetwork: Network)
-    (input: string)
-    : Result<Network, LigatureError> =
+let run (hostFunctions: Map<string, Combinator>) (inputState: State) (input: string) : Result<State, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalExpressions hostFunctions runtimeNetwork
+            | Ok ast -> express ast [] |> evalExpressions hostFunctions inputState
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

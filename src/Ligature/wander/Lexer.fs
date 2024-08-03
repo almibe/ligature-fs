@@ -6,12 +6,12 @@ module Ligature.Wander.Lexer
 
 open Ligature.Main
 open LexerUtil
-open Fable.Core.JsInterop
 
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string
     | Slot of Slot
+    | NetworkName of string
     | Int of bigint
     | NewLine of string
     | StringLiteral of string
@@ -25,7 +25,6 @@ type Token =
     | CloseSquare
     | Arrow
     | WideArrow
-    | AtSign
     | Asterisk
     | Hash
     | Comma
@@ -42,6 +41,13 @@ let slotTokenNibbler =
             Token.Slot(Slot(None))
         else
             chars.[1..] |> implode |> Some |> Slot |> Token.Slot)
+
+let networkNameTokenNibbler =
+    Gaze.map networkNameNibbler (fun chars ->
+        if chars = [ '@' ] then
+            Token.NetworkName("")
+        else
+            chars.[1..] |> implode |> Token.NetworkName)
 
 let bytesFromString (s: string) =
 #if !FABLE_COMPILER
@@ -95,12 +101,12 @@ let tokenNibbler =
                   integerTokenNibbler
                   newLineTokenNibbler
                   slotTokenNibbler
+                  networkNameTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
                   takeAndMap "=>" Token.WideArrow
                   takeAndMap "->" Token.Arrow
                   takeAndMap "*" Token.Asterisk
-                  takeAndMap "@" Token.AtSign
                   takeAndMap "#" Token.Hash
                   takeAndMap "(" Token.OpenParen
                   takeAndMap ")" Token.CloseParen

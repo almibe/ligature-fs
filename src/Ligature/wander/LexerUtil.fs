@@ -27,6 +27,11 @@ let slotNibbler =
         [ Nibblers.takeAll [ Nibblers.take '$' ]
           Nibblers.optional slotCharacterNibbler ]
 
+let networkNameNibbler =
+    Nibblers.takeAllFlatten
+        [ Nibblers.takeAll [ Nibblers.take '@' ]
+          Nibblers.optional slotCharacterNibbler ]
+
 let parseString (input: string) =
 #if !FABLE_COMPILER
     System.Text.Json.Nodes.JsonNode.Parse(input)
