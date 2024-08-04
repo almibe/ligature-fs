@@ -112,10 +112,9 @@ and State = NetworkName * Networks
 let defaultState: State = ("", Map.ofSeq ([ ("", Set.empty) ]))
 
 let currentNetwork ((name, networks): State) : Result<Network, LigatureError> =
-    match Map.tryFind (name) networks with
-    | Some(res) -> Ok res
-    | _ -> failwith "TODO"
-
+    match Map.tryFind name networks with
+    | Some res -> Ok res
+    | None -> Ok Set.empty
 // and [<StructuralEquality; StructuralComparison>] Network =
 //     abstract member Write: unit -> Set<Statement>
 //     abstract member Count: unit -> int64

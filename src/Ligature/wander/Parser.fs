@@ -42,6 +42,14 @@ let wordNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
+let networkNameNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
 let callNib (gaze: Gaze.Gaze<Token>) =
     result {
         let! word = Gaze.attempt (wordNib) gaze
@@ -161,14 +169,6 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Network(statements)
     }
 
-let networkNameNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Element.Network(statements)
-    }
-
 /// Read the next Element from the given instance of Gaze<Token>
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -178,6 +178,7 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Word(value)) -> Ok(Element.Word value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
+    | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -241,7 +242,10 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ networkNameNib; callNib; networkNib ]
+let elementNib = takeFirst [ 
+    networkNameNib; 
+    callNib; 
+    networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -362,4 +366,5 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         | Element.Call(w, q) ->
             //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Word(w)) ])
+        | Element.NetworkName name -> express tail (List.append expressions [ Expression.NetworkName name ])
         | _ -> failwith "TODO"

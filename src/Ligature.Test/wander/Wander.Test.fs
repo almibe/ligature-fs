@@ -76,38 +76,40 @@ let tests =
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
 
-          //   testCase "Run Network"
-          //   <| fun _ ->
-          //       let script = "{a b c, e f 89, a b $test}"
-          //       let result = run Map.empty defaultState script
-          //       failwith "TODO"
-          //   Expect.equal
-          //       result
-          //       (Ok(
-          //           Set.ofSeq
-          //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
-          //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
-          //                 (PatternWord.Word(Word("a")),
-          //                  PatternWord.Word(Word("b")),
-          //                  LigatureValue.Slot(Slot(Some("test")))) ]
-          //   ))
-          //   ""
+          testCase "Run Network"
+          <| fun _ ->
+              let script = "{a b c, e f 89, a b $test}"
+              let result = run Map.empty defaultState script
+              Expect.equal
+                  result
+                  (Ok((NetworkName(""),
+                      Map.ofSeq [(NetworkName(""),
+                      
+                      Set.ofSeq [ 
+                          (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
+                          (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
+                          (PatternWord.Word(Word("a")),
+                          PatternWord.Word(Word("b")),
+                          LigatureValue.Slot(Slot(Some("test")))) ]
+                      )]
+                  )))
+                  ""
 
-          //   testCase "Run Named Network"
-          //   <| fun _ ->
-          //       let script = "@test {a b c}"
-          //       let result = run Map.empty defaultState script
-          //       Expect.equal
-          //           result
-          //           (Ok(defaultState
-          //             //   Set.ofSeq
-          //             //       [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
-          //             //         (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
-          //             //         (PatternWord.Word(Word("a")),
-          //             //          PatternWord.Word(Word("b")),
-          //             //          LigatureValue.Slot(Slot(Some("test")))) ]
-          //           ))
-          //           ""
+          testCase "Run Named Network"
+          <| fun _ ->
+              let script = "@test {a b c}"
+              let result = run Map.empty defaultState script
+              Expect.equal
+                  result
+                  (Ok((NetworkName("test"),
+                      Map.ofSeq [ 
+                        (NetworkName "", Set.empty)
+                        (NetworkName "test",
+                        Set.ofSeq
+                            [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]                      
+                      ) ]
+                  )))
+                  ""
 
           //   testCase "Define 'call' Word with Parameters"
           //   <| fun _ ->
