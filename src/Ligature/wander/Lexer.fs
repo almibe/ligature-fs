@@ -10,23 +10,16 @@ open LexerUtil
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string
-    | Slot of Slot
-    | NetworkName of string
-    | Int of bigint
     | NewLine of string
-    | StringLiteral of string
+    | Slot of Slot
     | Word of string
+    | NetworkName of string
+    | StringLiteral of string
+    | Int of bigint
     | OpenBrace
     | CloseBrace
-    | Colon
-    | OpenParen
-    | CloseParen
     | OpenSquare
     | CloseSquare
-    | Arrow
-    | WideArrow
-    | Asterisk
-    | Hash
     | Comma
 
 let implode (chars: char list) =
@@ -104,19 +97,12 @@ let tokenNibbler =
                   networkNameTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
-                  takeAndMap "=>" Token.WideArrow
-                  takeAndMap "->" Token.Arrow
-                  takeAndMap "*" Token.Asterisk
-                  takeAndMap "#" Token.Hash
-                  takeAndMap "(" Token.OpenParen
-                  takeAndMap ")" Token.CloseParen
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
                   takeAndMap "[" Token.OpenSquare
                   takeAndMap "]" Token.CloseSquare
                   takeAndMap "{" Token.OpenBrace
-                  takeAndMap "}" Token.CloseBrace
-                  takeAndMap ":" Token.Colon ]
+                  takeAndMap "}" Token.CloseBrace ]
             )
         )
     )

@@ -55,7 +55,7 @@ let tests =
                       Expect.equal
                           res
                           [ Element.Network
-                                [ (Element.Word("id"), Element.Word("="), Element.Quote([], [ Element.Call("x", []) ])) ] ]
+                                [ (Element.Word("id"), Element.Word("="), Element.Pipeline([ Element.Call("x", []) ])) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -80,35 +80,42 @@ let tests =
           <| fun _ ->
               let script = "{a b c, e f 89, a b $test}"
               let result = run Map.empty defaultState script
+
               Expect.equal
                   result
-                  (Ok((NetworkName(""),
-                      Map.ofSeq [(NetworkName(""),
-                      
-                      Set.ofSeq [ 
-                          (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
-                          (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
-                          (PatternWord.Word(Word("a")),
-                          PatternWord.Word(Word("b")),
-                          LigatureValue.Slot(Slot(Some("test")))) ]
-                      )]
-                  )))
+                  (Ok(
+                      (NetworkName(""),
+                       Map.ofSeq
+                           [ (NetworkName(""),
+
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Word(Word("c")))
+                                    (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
+                                    (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Slot(Slot(Some("test")))) ]) ])
+                  ))
                   ""
 
           testCase "Run Named Network"
           <| fun _ ->
               let script = "@test {a b c}"
               let result = run Map.empty defaultState script
+
               Expect.equal
                   result
-                  (Ok((NetworkName("test"),
-                      Map.ofSeq [ 
-                        (NetworkName "", Set.empty)
-                        (NetworkName "test",
-                        Set.ofSeq
-                            [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]                      
-                      ) ]
-                  )))
+                  (Ok(
+                      (NetworkName("test"),
+                       Map.ofSeq
+                           [ (NetworkName "", Set.empty)
+                             (NetworkName "test",
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Word(Word("c"))) ]) ])
+                  ))
                   ""
 
           //   testCase "Define 'call' Word with Parameters"

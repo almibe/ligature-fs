@@ -14,7 +14,7 @@ open Ligature.Main
 type Element =
     | Word of string
     | NetworkName of string
-    | Quote of string list * Element list
+    | Pipeline of Element list
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -53,11 +53,11 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
 let callNib (gaze: Gaze.Gaze<Token>) =
     result {
         let! word = Gaze.attempt (wordNib) gaze
-        let! values = Gaze.attempt (optional (repeatN quoteNib 1)) gaze
+        let! values = Gaze.attempt (optional (repeatN pipelineNib 1)) gaze
 
         match (word, values) with
         | (Element.Word(word), []) -> return Element.Call(word, values)
-        | (Element.Word(word), [ Element.Quote(name, quote) ]) -> return Element.Call(word, quote)
+        | (Element.Word(word), [ Element.Pipeline(quote) ]) -> return Element.Call(word, quote)
         | (_, _) -> return failwith "TODO"
     }
 
@@ -69,20 +69,12 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let wideArrowNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.Arrow) -> Ok(())
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
-
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Quote([], values)
+        return Element.Pipeline(values)
     }
 
 // let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
@@ -136,29 +128,9 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element)
 let quotekNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! first = (optional (repeat elementNib)) gaze
-        let! second = Gaze.attempt (optional (repeatN (take Token.Arrow) 1)) gaze
-        let! third = (optional (repeat elementNib)) gaze
+        let! values = (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-
-        let (names, contents) =
-            match (first, second, third) with
-            | [], [], [] -> ([], [])
-            | parts, [], [] -> ([], parts)
-            | names, [ _ ], parts ->
-                let names =
-                    List.map
-                        (fun name ->
-                            match name with
-                            | Element.Word(name) -> name
-                            | Element.Call(name, []) -> name
-                            | _ -> failwith "Error")
-                        names
-
-                (names, parts)
-            | _ -> failwith ""
-
-        return Element.Quote(names, contents)
+        return Element.Pipeline(values)
     }
 
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -238,14 +210,11 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-//let patternMatchBodyNib = takeFirst [ networkNib; wordNib; quoteNib ]
+//let patternMatchBodyNib = takeFirst [ networkNib; wordNib; pipelineNib ]
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ 
-    networkNameNib; 
-    callNib; 
-    networkNib ]
+let elementNib = takeFirst [ networkNameNib; callNib; networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -294,13 +263,13 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Int i -> LigatureValue.Int i
     | Element.Bytes b -> LigatureValue.Bytes b
     | Element.Network n -> LigatureValue.Network(handleNetwork n)
-    | Element.Quote(p, q) -> handleQuote p q
+    | Element.Pipeline(q) -> handlePipeline q
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Word w -> LigatureValue.Word(Word w)
     | Element.Call(w, []) -> LigatureValue.Word(Word w)
 
-let handleQuote (names: string list) (quote: Element list) : LigatureValue =
+let handlePipeline (quote: Element list) : LigatureValue =
     let res = List.map (fun element -> elementToValue element) quote
 
     // let res =
@@ -330,7 +299,7 @@ let handleNetwork (network: (Element * Element * Element) list) : Network =
                         | Element.Int i -> LigatureValue.Int i
                         | Element.String s -> LigatureValue.String s
                         | Element.Slot s -> LigatureValue.Slot s
-                        | Element.Quote(p, q) -> handleQuote p q
+                        | Element.Pipeline(q) -> handlePipeline q
                         | _ -> failwith "TODO"
 
                     (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)

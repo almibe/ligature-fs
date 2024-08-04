@@ -84,29 +84,29 @@ let tests =
                   ))
                   ""
 
-          testCase "read colon"
-          <| fun _ ->
-              Expect.equal (tokenize ":") (Ok([ Token.Colon ])) ""
-              Expect.equal (tokenize "::::") (Ok([ Token.Colon; Token.Colon; Token.Colon; Token.Colon ])) ""
+          //   testCase "read colon"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize ":") (Ok([ Token.Colon ])) ""
+          //       Expect.equal (tokenize "::::") (Ok([ Token.Colon; Token.Colon; Token.Colon; Token.Colon ])) ""
           //   testCase "read dot"
           //   <| fun _ ->
           //       Expect.equal (tokenize ".") (Ok([ Token.Dot ])) ""
           //       Expect.equal (tokenize "....") (Ok([ Token.Dot; Token.Dot; Token.Dot; Token.Dot ])) ""
-          testCase "read parens"
-          <| fun _ ->
-              Expect.equal (tokenize "(") (Ok([ Token.OpenParen ])) ""
-              Expect.equal (tokenize ")") (Ok([ Token.CloseParen ])) ""
+          //   testCase "read parens"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize "(") (Ok([ Token.OpenParen ])) ""
+          //       Expect.equal (tokenize ")") (Ok([ Token.CloseParen ])) ""
 
-              Expect.equal
-                  (tokenize "(()))")
-                  (Ok(
-                      [ Token.OpenParen
-                        Token.OpenParen
-                        Token.CloseParen
-                        Token.CloseParen
-                        Token.CloseParen ]
-                  ))
-                  ""
+          //       Expect.equal
+          //           (tokenize "(()))")
+          //           (Ok(
+          //               [ Token.OpenParen
+          //                 Token.OpenParen
+          //                 Token.CloseParen
+          //                 Token.CloseParen
+          //                 Token.CloseParen ]
+          //           ))
+          //           ""
           testCase "read square brackets"
           <| fun _ ->
               Expect.equal (tokenize "[") (Ok([ Token.OpenSquare ])) ""
@@ -122,13 +122,13 @@ let tests =
                         Token.CloseSquare ]
                   ))
                   ""
-          testCase "read arrows, asterisk, and hash"
-          <| fun _ ->
-              Expect.equal (tokenize "*") (Ok([ Token.Asterisk ])) ""
-              Expect.equal (tokenize "->") (Ok([ Token.Arrow ])) ""
-              Expect.equal (tokenize "#") (Ok([ Token.Hash ])) ""
-              Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
-              Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
+          //   testCase "read arrows, asterisk, and hash"
+          //   <| fun _ ->
+          //       Expect.equal (tokenize "*") (Ok([ Token.Asterisk ])) ""
+          //       Expect.equal (tokenize "->") (Ok([ Token.Arrow ])) ""
+          //       Expect.equal (tokenize "#") (Ok([ Token.Hash ])) ""
+          //       Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
+          //       Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
           testCase "read question mark"
           <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Word "?" ])) ""
           //   testCase "read simple let expression"
