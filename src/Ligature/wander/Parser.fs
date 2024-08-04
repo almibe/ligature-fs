@@ -74,8 +74,8 @@ let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     }
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
-    let entity = wordNib gaze
-    let attribute = wordNib gaze
+    let entity = patternNib gaze
+    let attribute = patternNib gaze
 
     let value =
         match Gaze.check valueNib gaze with
@@ -101,6 +101,13 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Element.Network(statements)
     }
+
+let patternNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Error(err) -> Error err
+    | Ok(Token.Word(value)) -> Ok(Element.Word value)
+    | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
+    | _ -> Error(Gaze.GazeError.NoMatch)
 
 /// Read the next Element from the given instance of Gaze<Token>
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -210,25 +217,33 @@ let handlePipeline (quote: Element list) : LigatureValue =
 
     LigatureValue.Pipeline(res) //({ parameters = []; value = res })
 
-let handleNetwork (network: (Element * Element * Element) list) : Network =
-    let res: Set<Statement> =
-        (List.map
-            (fun (entity, attribute, value) ->
-                match (entity, attribute, value) with
-                | (Element.Word(entity), Element.Word(attribute), value) ->
-                    let value =
-                        match value with
-                        | Element.Word w -> LigatureValue.Word(Word w)
-                        | Element.Int i -> LigatureValue.Int i
-                        | Element.String s -> LigatureValue.String s
-                        | Element.Slot s -> LigatureValue.Slot s
-                        | Element.Pipeline(q) -> handlePipeline q
-                        | _ -> failwith "TODO"
+let elementTupleToStatement ((e, a, v): (Element * Element * Element)) : (PatternWord * PatternWord * LigatureValue) =
+    let entity =
+        match e with
+        | Element.Word w -> PatternWord.Word(Word w)
+        | Element.Slot s -> PatternWord.Slot s
+        | _ -> failwith "TODO"
 
-                    (PatternWord.Word(Word(entity)), PatternWord.Word(Word(attribute)), value)
-                | _ -> failwith "TODO")
-            network)
-        |> Set.ofSeq
+    let attribute =
+        match a with
+        | Element.Word w -> PatternWord.Word(Word w)
+        | Element.Slot s -> PatternWord.Slot s
+        | _ -> failwith "TODO"
+
+    let value =
+        match v with
+        | Element.Word w -> LigatureValue.Word(Word w)
+        | Element.Int i -> LigatureValue.Int i
+        | Element.String s -> LigatureValue.String s
+        | Element.Slot s -> LigatureValue.Slot s
+        | Element.Pipeline(q) -> handlePipeline q
+        | Element.NetworkName n -> LigatureValue.NetworkName n
+        | _ -> failwith "TODO"
+
+    (entity, attribute, value)
+
+let handleNetwork (network: (Element * Element * Element) list) : Network =
+    let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
 
     res
 

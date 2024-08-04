@@ -35,6 +35,7 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.Pipeline(values) -> $"[{printQuote values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
+    | LigatureValue.NetworkName n -> $"@{n}"
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))
@@ -52,7 +53,7 @@ and printAssocArray values =
     + "]"
 
 and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(readPatternWord entity)} {(readPatternWord attribute)} {(prettyPrint value)}"
+    $"{(printPatternWord entity)} {(printPatternWord attribute)} {(prettyPrint value)}"
 
 and printPatternWord (patternWord: PatternWord) =
     match patternWord with
@@ -75,6 +76,7 @@ type WanderType =
     | Identifier
     | Slot
     | Network
+    | NetworkName
     | AssocArray
     | LigatureValue
     | Array

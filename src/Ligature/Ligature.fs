@@ -98,6 +98,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | Bytes of byte array
     | Pipeline of LigatureValue list
     | Network of Network
+    | NetworkName of NetworkName
 
 and Statement = (PatternWord * PatternWord * LigatureValue)
 
@@ -115,6 +116,7 @@ let currentNetwork ((name, networks): State) : Network =
     match Map.tryFind name networks with
     | Some res -> res
     | None -> Set.empty
+
 // and [<StructuralEquality; StructuralComparison>] Network =
 //     abstract member Write: unit -> Set<Statement>
 //     abstract member Count: unit -> int64
@@ -140,8 +142,8 @@ let getLeaves (patternSet: Set<Statement>) : Set<PatternWord> =
 
 // let readIdentifier (Identifier identifier) = identifier
 
-let readPatternWord (pattern: PatternWord) : string =
+let printPatternWord (pattern: PatternWord) : string =
     match pattern with
     | PatternWord.Word(Word word) -> word
-    //  | PatternWord.Sl(Slot(name)) -> name
-    | _ -> failwith "TODO"
+    | PatternWord.Slot(Slot(Some(name))) -> $"${name}"
+    | PatternWord.Slot(Slot(None)) -> "$"
