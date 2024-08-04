@@ -13,10 +13,11 @@ open System
 // open Ligature.LigatureStore
 // open Ligature.LigatureStore.InMemoryStore
 open Ligature.Wander.Interpreter
+open Ligature.Main
 
 let rec serve (server: ResponseSocket) = //(store: LigatureStore) =
     let script = server.ReceiveFrameString()
-    let res = run script Set.empty
+    let res = run Map.empty defaultState script
     server.SendFrame(printResult res)
     serve server // store
 

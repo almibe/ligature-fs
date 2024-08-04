@@ -22,10 +22,6 @@ type Element =
     | Call of string * Element list
     | Network of (Element * Element * Element) list
 
-// and EntityDescription = Identifier * Element list
-
-// and NetworkRoot = Identifier * EntityDescription list
-
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
         (fun gaze ->
@@ -76,41 +72,6 @@ let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Element.Pipeline(values)
     }
-
-// let rec readEntityDescription gaze : Result<EntityDescription, Gaze.GazeError> =
-//     let res = result {
-//         let! attribute = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
-//         let! values = Gaze.attempt readLigatureValues gaze //TODO match single LigatureValue or List of LigatureValues
-//         return (attribute, values)
-//     }
-//     match res with
-//     | Ok((Element.Identifier(identifier), res)) -> Ok(identifier, res)
-//     | _ -> failwith "TODO"
-
-// let singleEntityDescriptNib gaze =
-//     let res = result {
-//         let! entity = Gaze.attempt (takeFirst [ readIdentifier; readSlot; wordNib ]) gaze //TODO only match Identifier or Name
-//         let! entityDescriptions = readEntityDescription gaze //Gaze.attempt (repeat readEntityDescription) gaze
-//         return (entity, [ entityDescriptions ])
-//     }
-//     match res with
-//     | Ok(Element.Identifier(entity), descriptions) -> Ok(NetworkRoot(entity, descriptions))
-//     | _ -> failwith "TODO"
-
-// let networkRootNib (gaze: Gaze.Gaze<Token>) : Result<NetworkRoot, Gaze.GazeError> =
-//     let singleEntityDescription = Gaze.attempt singleEntityDescriptNib gaze
-
-//     match singleEntityDescription with
-//     | Ok _ -> singleEntityDescription
-//     | _ ->
-//         result {
-//             let! entity = Gaze.attempt (takeFirst [ readIdentifier ]) gaze //TODO only match Identifier or Name
-//             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-//             let! entityDescriptions = (repeatSep readEntityDescription Token.Comma) gaze //Gaze.attempt (repeat readEntityDescription) gaze
-//             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-//             return (failwith "TODO")
-//         // return NetworkRoot(entity, entityDescriptions)
-//         }
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
     let entity = wordNib gaze
@@ -177,23 +138,6 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             readValueList elements gaze
         | _ -> failwith "TODO"
 
-/// Read the Value position of the
-// let readValues (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
-//     let next = Gaze.next gaze
-
-//     match next with
-//     | Error(err) -> Error err
-//     | Ok(Token.Bytes(value)) -> Ok([ Element.Bytes(value) ])
-//     | Ok(Token.Int(value)) -> Ok([ Element.Int value ])
-//     | Ok(Token.Word(value)) -> Ok([ Element.Word value ])
-//     | Ok(Token.StringLiteral(value)) -> Ok([ Element.String value ])
-//     | Ok(Token.Slot(slot)) -> Ok([ Element.Slot slot ])
-//     | Ok(Token.OpenSquare) -> readValueList [] gaze
-//     | _ ->
-//         match Gaze.attempt wordNib gaze with
-//         | Ok res -> Ok([ res ])
-//         | Error err -> Error(Gaze.GazeError.NoMatch)
-
 let readWord (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
@@ -250,14 +194,6 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressQuote values = failwith "TODO"
-// let res = List.map (fun value -> expressElement value) values
-// Expression.Quote res
-
-// let expressEntityDescription (entityDescription: EntityDescription) =
-//     let (attribute, values) = entityDescription
-//     (attribute, (List.map (fun value -> expressElement value) values))
-
 let elementToValue (element: Element) : LigatureValue =
     match element with
     | Element.Int i -> LigatureValue.Int i
@@ -271,19 +207,6 @@ let elementToValue (element: Element) : LigatureValue =
 
 let handlePipeline (quote: Element list) : LigatureValue =
     let res = List.map (fun element -> elementToValue element) quote
-
-    // let res =
-    //     List.map
-    //         (fun expression ->
-    //             match expression with
-    //             | Expression.Int i -> LigatureValue.Int i
-    //             | Expression.String s -> LigatureValue.String s
-    //             | Expression.Word w -> LigatureValue.Word(Word(w))
-    //             | Expression.Network n -> LigatureValue.Network(n)
-    //             | Expression.Bytes b -> LigatureValue.Bytes b
-    //             | Expression.Slot s -> LigatureValue.Slot s
-    //             | Expression.Quote q -> failwith "TODO")//LigatureValue.Quote q)
-    //         res
 
     LigatureValue.Pipeline(res) //({ parameters = []; value = res })
 
@@ -308,21 +231,6 @@ let handleNetwork (network: (Element * Element * Element) list) : Network =
         |> Set.ofSeq
 
     res
-
-//     let entityDescriptions =
-//         List.map (fun entityDescription -> expressEntityDescription entityDescription) entityDescriptions
-
-//     (entity, entityDescriptions)
-
-// let expressNetwork (values: NetworkRoot list) =
-//     let res = List.map (fun networkRoot -> expressNetworkRoot networkRoot) values
-//     Expression.Network res
-
-// let handleAssocArray (declarations: list<string * Element>) =
-//     let res =
-//         List.map (fun (name, value) -> (name, (expressElement value))) declarations
-
-//     Expression.AssocArray res
 
 let rec express (elements: Element list) (expressions: Expression list) : Expression list =
     match elements with

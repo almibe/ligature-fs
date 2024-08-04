@@ -18,23 +18,6 @@ type Expression =
 
 type Parameter = { name: string; tag: string }
 
-//TODO try to remove this
-let rec wanderEquals (left: LigatureValue) (right: LigatureValue) : bool = failwith "TODO"
-// if
-//     (left = LigatureValue.Quote(List.empty) || left = LigatureValue.Quote(Map.empty))
-//     && (right = LigatureValue.Quote(List.empty)
-//         || right = LigatureValue.AssocArray(Map.empty))
-// then
-//     true
-// else
-//     match left, right with
-//     | LigatureValue.Quote(left), LigatureValue.Quote(right) ->
-//         if left.Length = right.Length then
-//             List.forall2 (fun left right -> wanderEquals left right) left right
-//         else
-//             false
-//     | _ -> left = right
-
 let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
@@ -79,16 +62,6 @@ and printPatternWord (patternWord: PatternWord) =
 
 and printPattern ((entity, attribute, value): Statement) =
     $"{(printPatternWord entity)} {(printPatternWord attribute)} {(prettyPrint value)}"
-
-
-// and printLigatureValue value =
-//     match value with
-//     | LigatureValue.Word(Word(word)) -> word
-//     | LigatureValue.Int(value) -> value.ToString()
-//     | LigatureValue.String(value) -> $"\"{value}\"" //TODO escape properly
-//     | LigatureValue.Quote(quote) -> printQuote quote
-//     //    | LigatureValue.Bytes(bytes) -> printBytes bytes
-//     | LigatureValue.Slot(_) -> failwith "TODO"
 
 and printQuote quote =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)

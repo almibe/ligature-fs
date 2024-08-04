@@ -10,7 +10,6 @@
     <Compile Include="wander/Model.fs" />
     <Compile Include="InMemoryNetwork.fs" />
 <!--    <Compile Include="LigatureStore.fs" /> -->
-    <Compile Include="wander/LexerUtil.fs" />
     <Compile Include="wander/Lexer.fs" />
     <Compile Include="wander/Parser.fs" />
     <Compile Include="wander/Interpreter.fs" />

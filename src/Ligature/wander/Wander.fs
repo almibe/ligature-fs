@@ -48,7 +48,7 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-let printResult (result: Result<Network, LigatureError>) =
+let printResult (result: Result<State, LigatureError>) =
     match result with
-    | Ok value -> printNetwork value
+    | Ok value -> printNetwork (currentNetwork value)
     | Error err -> err.UserMessage
