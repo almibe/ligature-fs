@@ -12,6 +12,7 @@ open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
 open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
+open Ligature.Wander.Lib.Lib
 //open Ligature.Wander.Lib.Lib
 
 [<Tests>]
@@ -115,6 +116,27 @@ let tests =
                                   [ (PatternWord.Word(Word("a")),
                                      PatternWord.Word(Word("b")),
                                      LigatureValue.Word(Word("c"))) ]) ])
+                  ))
+                  ""
+
+          testCase "Run Id Combinator"
+          <| fun _ ->
+              let script = "{a b c} id"
+              let result = run Map.empty stdState script
+
+              Expect.equal
+                  result
+                  (Ok(
+                      (NetworkName(""),
+                       Map.ofSeq
+                           [ (NetworkName "",
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Word(Word("c")))
+                                    (PatternWord.Word(Word("id")),
+                                     PatternWord.Word(Word("=")),
+                                     LigatureValue.HostCombinator(idCombinator)) ]) ])
                   ))
                   ""
 

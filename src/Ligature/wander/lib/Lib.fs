@@ -27,31 +27,44 @@ open Ligature.Wander.Interpreter
 //             | [ WanderValue.String(input) ] -> run input (newBindings ())
 //             | value -> error $"Unexpected value - {value}." None) }
 
-let stdLib: Map<string, Word> =
-    Map
-        [
-        //     ("pop",
-        //    { Eval =
-        //        fun words stack ->
-        //            match stack with
-        //            | [] -> Ok([]) //TODO maybe have this be an error?
-        //            | [ _ ] -> Ok([])
-        //            | _ :: tail -> Ok(tail) })
-        //   ("dup",
-        //    { Eval =
-        //        fun words stack ->
-        //            match stack with
-        //            | [] -> Ok([]) //TODO maybe have this be an error?
-        //            | [ head ] -> Ok([ head; head ])
-        //            | head :: tail -> Ok(head :: head :: tail) })
-        //   ("apply",
-        //    { Eval =
-        //        fun words stack ->
-        //            match stack |> List.tryHead with
-        //            | None -> Ok([]) //TODO maybe have this be an error?
-        //            | Some(WanderValue.Quote(head)) ->
-        //                match evalValues words (stack.Tail) head with
-        //                | Ok(res) -> Ok(res @ (List.tail stack))
-        //                | Error(err) -> failwith "TODO"
-        //            | Some(_) -> failwith "TODO" })
-        ]
+let idCombinator: Combinator =
+    { Name = "id"
+      Eval = fun (input: State) -> Ok input }
+
+let stdState: State =
+    ("",
+     Map.ofSeq (
+         [ ("",
+            Set.ofSeq
+                [ (PatternWord.Word(Word("id")), PatternWord.Word(Word("=")), LigatureValue.HostCombinator idCombinator) ]) ]
+     ))
+
+
+// let stdLib: Map<string, Word> =
+//     Map
+//         [
+//         //     ("pop",
+//         //    { Eval =
+//         //        fun words stack ->
+//         //            match stack with
+//         //            | [] -> Ok([]) //TODO maybe have this be an error?
+//         //            | [ _ ] -> Ok([])
+//         //            | _ :: tail -> Ok(tail) })
+//         //   ("dup",
+//         //    { Eval =
+//         //        fun words stack ->
+//         //            match stack with
+//         //            | [] -> Ok([]) //TODO maybe have this be an error?
+//         //            | [ head ] -> Ok([ head; head ])
+//         //            | head :: tail -> Ok(head :: head :: tail) })
+//         //   ("apply",
+//         //    { Eval =
+//         //        fun words stack ->
+//         //            match stack |> List.tryHead with
+//         //            | None -> Ok([]) //TODO maybe have this be an error?
+//         //            | Some(WanderValue.Quote(head)) ->
+//         //                match evalValues words (stack.Tail) head with
+//         //                | Ok(res) -> Ok(res @ (List.tail stack))
+//         //                | Error(err) -> failwith "TODO"
+//         //            | Some(_) -> failwith "TODO" })
+//         ]

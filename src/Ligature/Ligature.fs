@@ -81,10 +81,24 @@ and [<StructuralEquality; StructuralComparison>] Quote =
     { parameterNames: string list
       quote: LigatureValue list }
 
-and Combinator =
-    { Eval: Network -> Result<Network, LigatureError> }
+and [<CustomEquality; CustomComparison>] Combinator =
+    { Name: string
+      Eval: State -> Result<State, LigatureError> }
 
-and Words = Map<string, Combinator>
+    member private this.Compare other = compare this.Name other.Name
+
+    override this.Equals other =
+        match other with
+        | :? Combinator as other -> this.Compare other = 0
+        | _ -> false
+
+    override this.GetHashCode() = hash this.Name
+
+    interface IComparable with
+        member this.CompareTo other =
+            match other with
+            | :? Combinator as other -> this.Compare other
+            | _ -> -1
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternWord =
     | Slot of Slot
@@ -99,6 +113,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | Pipeline of LigatureValue list
     | Network of Network
     | NetworkName of NetworkName
+    | HostCombinator of Combinator
 
 and Statement = (PatternWord * PatternWord * LigatureValue)
 

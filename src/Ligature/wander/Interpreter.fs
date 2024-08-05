@@ -23,29 +23,24 @@ let rec evalExpression
     match expression with
     | Expression.NetworkName name -> evalNetworkName name inputState
     | Expression.Network(network) -> evalNetwork inputState network
-    | Expression.Call(name) -> handleWord hostFunctions inputState name
+    | Expression.Call(name) -> handleWord inputState name
 
-and handleWord (hostFunctions: Map<string, Combinator>) (inputState: State) (word: Word) =
+and handleWord (inputState: State) (word: Word) =
     let res =
         Set.filter
             (fun (e, a, v) ->
                 match (e, a, v) with
                 | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.Pipeline(_)) ->
                     entity = word && attribute = Word("=")
-                // | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.HostFunction(name)) ->
-                //     entity = word && attribute = Word("=")
+                | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.HostCombinator(_)) ->
+                    entity = word && attribute = Word("=")
                 | _ -> false)
             (currentNetwork inputState)
 
     match (word, List.ofSeq (res)) with
-    | (Word(word), []) ->
-        match Map.tryFind word hostFunctions with
-        | Some(res) -> failwith "TODO"
-        | None ->
-
-            error $"Could not find Word, {word}" None
+    | (Word(word), []) -> error $"Could not find Word, {word}" None
     | (_, [ (_, _, LigatureValue.Pipeline(quote)) ]) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-    | (_, [ (_, _, LigatureValue.Word(name)) ]) -> failwith "TODO"
+    | (_, [ (_, _, LigatureValue.HostCombinator(combinator)) ]) -> combinator.Eval inputState
     | _ -> error $"Multiple matches found for Word, {word}" None
 
 and evalExpressions
