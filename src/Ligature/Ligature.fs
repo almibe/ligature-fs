@@ -127,10 +127,37 @@ and State = NetworkName * Networks
 
 let defaultState: State = ("", Map.ofSeq ([ ("", Set.empty) ]))
 
+let readNetwork (name: NetworkName) ((_, networks): State) : Network =
+    match Map.tryFind name networks with
+    | Some res -> res
+    | None -> Set.empty
+
 let currentNetwork ((name, networks): State) : Network =
     match Map.tryFind name networks with
     | Some res -> res
     | None -> Set.empty
+
+let readBinding (name: PatternWord) (network: Network) : Option<LigatureValue> =
+    let res =
+        Set.filter
+            (fun (e, a, v) ->
+                match (name, e, a, v) with
+                | (PatternWord.Word(name),
+                   PatternWord.Word(entity),
+                   PatternWord.Word(attribute),
+                   LigatureValue.Pipeline(_)) -> entity = name && attribute = Word("=")
+                | (PatternWord.Word(name),
+                   PatternWord.Word(entity),
+                   PatternWord.Word(attribute),
+                   LigatureValue.HostCombinator(_)) -> entity = name && attribute = Word("=")
+                | _ -> false)
+            network
+
+    match List.ofSeq (res) with
+    | [] -> None
+    | [ (_, _, LigatureValue.Pipeline(quote)) ] -> Some(LigatureValue.Pipeline(quote)) //evalQuote hostFunctions runtimeNetwork quote
+    | [ (_, _, LigatureValue.HostCombinator(combinator)) ] -> Some(LigatureValue.HostCombinator(combinator))
+    | _ -> None
 
 // and [<StructuralEquality; StructuralComparison>] Network =
 //     abstract member Write: unit -> Set<Statement>

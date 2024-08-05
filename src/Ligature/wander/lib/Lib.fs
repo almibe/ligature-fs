@@ -31,14 +31,30 @@ let idCombinator: Combinator =
     { Name = "id"
       Eval = fun (input: State) -> Ok input }
 
+let clearCombinator =
+    { Name = "clear"
+      Eval = fun ((networkName, networks): State) -> Ok(networkName, (Map.remove networkName networks)) }
+
+let applyCombinator: Combinator =
+    { Name = "apply"
+      Eval =
+        fun (inputState: State) ->
+            let currentNetwork = currentNetwork inputState
+            //read data
+            //read template
+            //read out
+            failwith "" }
+
 let stdState: State =
     ("",
      Map.ofSeq (
-         [ ("",
+         [ ("combinators",
             Set.ofSeq
-                [ (PatternWord.Word(Word("id")), PatternWord.Word(Word("=")), LigatureValue.HostCombinator idCombinator) ]) ]
+                [ (PatternWord.Word(Word("id")), PatternWord.Word(Word("=")), LigatureValue.HostCombinator idCombinator)
+                  (PatternWord.Word(Word("clear")),
+                   PatternWord.Word(Word("=")),
+                   LigatureValue.HostCombinator clearCombinator) ]) ]
      ))
-
 
 // let stdLib: Map<string, Word> =
 //     Map

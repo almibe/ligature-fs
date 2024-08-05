@@ -140,6 +140,47 @@ let tests =
                   ))
                   ""
 
+          testCase "Run Apply Combinator"
+          <| fun _ ->
+              let script =
+                  "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
+
+              let result = run Map.empty stdState script
+
+              Expect.equal
+                  result
+                  (Ok(
+                      (NetworkName("result"),
+                       Map.ofSeq
+                           [ (NetworkName "",
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("template")),
+                                     PatternWord.Word(Word("=")),
+                                     LigatureValue.NetworkName("t"))
+                                    (PatternWord.Word(Word("data")),
+                                     PatternWord.Word(Word("=")),
+                                     LigatureValue.NetworkName("d"))
+                                    (PatternWord.Word(Word("out")),
+                                     PatternWord.Word(Word("=")),
+                                     LigatureValue.NetworkName("result")) ])
+                             (NetworkName "result",
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Word(Word("c"))) ])
+                             (NetworkName "d",
+                              Set.ofSeq
+                                  [ (PatternWord.Slot(Slot(Some("c"))),
+                                     PatternWord.Word(Word("=")),
+                                     LigatureValue.Word(Word("c"))) ])
+                             (NetworkName "t",
+                              Set.ofSeq
+                                  [ (PatternWord.Word(Word("a")),
+                                     PatternWord.Word(Word("b")),
+                                     LigatureValue.Slot(Slot(Some("c")))) ]) ])
+                  ))
+                  ""
+
           //   testCase "Define 'call' Word with Parameters"
           //   <| fun _ ->
           //       let script = "{ call = [ x ] } call [ {a b c} ]"

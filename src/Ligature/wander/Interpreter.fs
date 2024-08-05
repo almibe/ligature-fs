@@ -15,45 +15,38 @@ let evalNetwork ((name, networks): State) (network: Network) : Result<State, Lig
     let newNetworks = Map.add name newNetwork networks
     Ok(name, newNetworks)
 
-let rec evalExpression
-    (hostFunctions: Map<string, Combinator>)
-    (inputState: State)
-    (expression: Expression)
-    : Result<State, LigatureError> =
+let rec evalExpression (inputState: State) (expression: Expression) : Result<State, LigatureError> =
     match expression with
     | Expression.NetworkName name -> evalNetworkName name inputState
     | Expression.Network(network) -> evalNetwork inputState network
     | Expression.Call(name) -> handleWord inputState name
 
 and handleWord (inputState: State) (word: Word) =
-    let res =
-        Set.filter
-            (fun (e, a, v) ->
-                match (e, a, v) with
-                | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.Pipeline(_)) ->
-                    entity = word && attribute = Word("=")
-                | (PatternWord.Word(entity), PatternWord.Word(attribute), LigatureValue.HostCombinator(_)) ->
-                    entity = word && attribute = Word("=")
-                | _ -> false)
-            (currentNetwork inputState)
+    let currentResults = readBinding (PatternWord.Word word) (currentNetwork inputState)
 
-    match (word, List.ofSeq (res)) with
-    | (Word(word), []) -> error $"Could not find Word, {word}" None
-    | (_, [ (_, _, LigatureValue.Pipeline(quote)) ]) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-    | (_, [ (_, _, LigatureValue.HostCombinator(combinator)) ]) -> combinator.Eval inputState
-    | _ -> error $"Multiple matches found for Word, {word}" None
+    let combinatorResults =
+        readBinding (PatternWord.Word word) (readNetwork (NetworkName("combinators")) inputState)
 
-and evalExpressions
-    (hostFunctions: Map<string, Combinator>)
-    (inputState: State)
-    (expressions: Expression list)
-    : Result<State, LigatureError> =
+    if currentResults.IsSome then
+        match currentResults.Value with
+        | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
+        | LigatureValue.Pipeline(pipeline) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
+        | _ -> failwith "TODO"
+    else if combinatorResults.IsSome then
+        match combinatorResults.Value with
+        | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
+        | LigatureValue.Pipeline(pipeline) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
+        | _ -> failwith "TODO"
+    else
+        error $"Could not find Word, {word}" None
+
+and evalExpressions (inputState: State) (expressions: Expression list) : Result<State, LigatureError> =
     match expressions with
     | [] -> Ok(inputState)
-    | [ head ] -> evalExpression hostFunctions inputState head
+    | [ head ] -> evalExpression inputState head
     | head :: tail ->
-        match evalExpression hostFunctions inputState head with
-        | Ok(res) -> evalExpressions hostFunctions res tail
+        match evalExpression inputState head with
+        | Ok(res) -> evalExpressions res tail
         | Error(err) -> Error(err)
 
 and valuesToExpressions
