@@ -19,13 +19,14 @@ let rec evalExpression (inputState: State) (expression: Expression) : Result<Sta
     match expression with
     | Expression.NetworkName name -> evalNetworkName name inputState
     | Expression.Network(network) -> evalNetwork inputState network
-    | Expression.Call(name) -> handleWord inputState name
+    | Expression.Call(name) -> handleIdentifier inputState name
 
-and handleWord (inputState: State) (word: Word) =
-    let currentResults = readBinding (PatternWord.Word word) (currentNetwork inputState)
+and handleIdentifier (inputState: State) (identifier: Identifier) =
+    let currentResults =
+        readBinding (PatternIdentifier.Identifier identifier) (currentNetwork inputState)
 
     let combinatorResults =
-        readBinding (PatternWord.Word word) (readNetwork (NetworkName("combinators")) inputState)
+        readBinding (PatternIdentifier.Identifier identifier) (readNetwork (NetworkName("combinators")) inputState)
 
     if currentResults.IsSome then
         match currentResults.Value with
@@ -38,7 +39,7 @@ and handleWord (inputState: State) (word: Word) =
         | LigatureValue.Pipeline(pipeline) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
         | _ -> failwith "TODO"
     else
-        error $"Could not find Word, {word}" None
+        error $"Could not find Identifier, {identifier}" None
 
 and evalExpressions (inputState: State) (expressions: Expression list) : Result<State, LigatureError> =
     match expressions with
@@ -54,14 +55,14 @@ and valuesToExpressions
     (expressions: Expression list)
     : Result<Expression list, LigatureError> =
     match values with
-    | [] -> Ok(expressions)
+    | [] -> Ok expressions
     | head :: tail ->
         match head with
         | LigatureValue.Network n -> valuesToExpressions tail (List.append expressions [ Expression.Network n ])
-        | LigatureValue.Word w ->
+        | LigatureValue.Identifier i ->
             match tail with
-            | LigatureValue.Pipeline(q) :: tail -> failwith "TODO"
-            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call(w) ])
+            | LigatureValue.Pipeline p :: tail -> failwith "TODO"
+            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call i ])
         | _ -> error "Invalid Quote" None
 
 and evalQuote

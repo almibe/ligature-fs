@@ -31,24 +31,24 @@ let tests =
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
-          //               (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c"))))
+          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c")))
+          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c"))))
           //           (Some(Map.empty))
           //           ""
           //   testCase "calling educe on non-matching triples"
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternWord.Word(Word("e")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
-          //               (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c"))))
+          //               (PatternIdentifier.Identifier(Identifier("e")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c")))
+          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c"))))
           //           (None)
           //           ""
           //   testCase "calling educe on simple matching triple"
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternWord.Word(Word("e")), PatternWord.Word(Word("a")), Value.Word(Word("v")))
-          //               (PatternWord.Slot(Slot(Some("test"))), PatternWord.Word(Word("a")), Value.Word(Word("v"))))
-          //           (Some(Map [ ("test", Value.Word(Word("e"))) ]))
+          //               (PatternIdentifier.Identifier(Identifier("e")), PatternIdentifier.Identifier(Identifier("a")), Value.Identifier(Identifier("v")))
+          //               (PatternIdentifier.Slot(Slot(Some("test"))), PatternIdentifier.Identifier(Identifier("a")), Value.Identifier(Identifier("v"))))
+          //           (Some(Map [ ("test", Value.Identifier(Identifier("e"))) ]))
           //   "" ]
           ]

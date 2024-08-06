@@ -7,9 +7,6 @@ module Ligature.Wander.Lexer
 open Ligature.Main
 
 open System.Text.RegularExpressions
-open Ligature.Main
-open Nibblers
-open Fable.Core.JsInterop
 
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
@@ -92,7 +89,7 @@ type Token =
     | WhiteSpace of string
     | NewLine of string
     | Slot of Slot
-    | Word of string
+    | Identifier of string
     | NetworkName of string
     | StringLiteral of string
     | Int of bigint
@@ -162,15 +159,15 @@ let commentNibbler =
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
-let nameOrKeywordTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Word)
+let nameOrKeyidentifierTokenNibbler =
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Identifier)
 
 let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
             Nibblers.takeFirst (
                 [ whiteSpaceNibbler
-                  nameOrKeywordTokenNibbler
+                  nameOrKeyidentifierTokenNibbler
                   integerTokenNibbler
                   newLineTokenNibbler
                   slotTokenNibbler

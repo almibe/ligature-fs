@@ -40,7 +40,8 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ Element.Network [ (Element.Word("a"), Element.Word("b"), Element.Word("c")) ] ]
+                          [ Element.Network
+                                [ (Element.Identifier("a"), Element.Identifier("b"), Element.Identifier("c")) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -50,13 +51,15 @@ let tests =
               let script = "{id = [ x ]}"
 
               match tokenize script with
-              | Ok(res) ->
+              | Ok res ->
                   match parse res with
-                  | Ok(res) ->
+                  | Ok res ->
                       Expect.equal
                           res
                           [ Element.Network
-                                [ (Element.Word("id"), Element.Word("="), Element.Pipeline([ Element.Call("x", []) ])) ] ]
+                                [ (Element.Identifier "id",
+                                   Element.Identifier "=",
+                                   Element.Pipeline [ Element.Call "x" ]) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -72,7 +75,8 @@ let tests =
                       Expect.equal
                           res
                           [ Element.NetworkName("name")
-                            Element.Network [ Element.Word("a"), Element.Word("b"), Element.Word("c") ] ]
+                            Element.Network
+                                [ Element.Identifier("a"), Element.Identifier("b"), Element.Identifier("c") ] ]
                           ""
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
@@ -90,12 +94,14 @@ let tests =
                            [ (NetworkName(""),
 
                               Set.ofSeq
-                                  [ (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
-                                     LigatureValue.Word(Word("c")))
-                                    (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), LigatureValue.Int(89I))
-                                    (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
+                                  [ (PatternIdentifier.Identifier(Identifier("a")),
+                                     PatternIdentifier.Identifier(Identifier("b")),
+                                     LigatureValue.Identifier(Identifier("c")))
+                                    (PatternIdentifier.Identifier(Identifier("e")),
+                                     PatternIdentifier.Identifier(Identifier("f")),
+                                     LigatureValue.Int(89I))
+                                    (PatternIdentifier.Identifier(Identifier("a")),
+                                     PatternIdentifier.Identifier(Identifier("b")),
                                      LigatureValue.Slot(Slot(Some("test")))) ]) ])
                   ))
                   ""
@@ -113,9 +119,9 @@ let tests =
                            [ (NetworkName "", Set.empty)
                              (NetworkName "test",
                               Set.ofSeq
-                                  [ (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
-                                     LigatureValue.Word(Word("c"))) ]) ])
+                                  [ (PatternIdentifier.Identifier(Identifier("a")),
+                                     PatternIdentifier.Identifier(Identifier("b")),
+                                     LigatureValue.Identifier(Identifier("c"))) ]) ])
                   ))
                   ""
 
@@ -129,7 +135,9 @@ let tests =
                   Expect.equal
                       (currentNetwork (name, networks))
                       (Set.ofSeq
-                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ])
+                          [ (PatternIdentifier.Identifier(Identifier("a")),
+                             PatternIdentifier.Identifier(Identifier("b")),
+                             LigatureValue.Identifier(Identifier("c"))) ])
                       ""
               | Error _ -> failwith "Error"
           testCase "Run Clear Combinator"
@@ -138,11 +146,7 @@ let tests =
               let result = run stdState script
 
               match result with
-              | Ok(name, networks) ->
-                  Expect.equal
-                      (currentNetwork (name, networks))
-                      (Set.ofSeq [])
-                      ""
+              | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
               | Error _ -> failwith "Error"
 
           testCase "Run Union Combinator"
@@ -157,29 +161,33 @@ let tests =
                   Expect.equal
                       (currentNetwork (name, networks))
                       (Set.ofSeq
-                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
-                            (PatternWord.Word(Word("d")), PatternWord.Word(Word("e")), LigatureValue.Word(Word("f"))) ])
+                          [ (PatternIdentifier.Identifier(Identifier("a")),
+                             PatternIdentifier.Identifier(Identifier("b")),
+                             LigatureValue.Identifier(Identifier("c")))
+                            (PatternIdentifier.Identifier(Identifier("d")),
+                             PatternIdentifier.Identifier(Identifier("e")),
+                             LigatureValue.Identifier(Identifier("f"))) ])
                       ""
               | Error _ -> failwith "Error"
 
 
-        //   testCase "Run Apply Combinator"
-        //   <| fun _ ->
-        //       let script =
-        //           "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
+          //   testCase "Run Apply Combinator"
+          //   <| fun _ ->
+          //       let script =
+          //           "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
 
-        //       let result = run stdState script
+          //       let result = run stdState script
 
-        //       match result with
-        //       | Ok(name, networks) ->
-        //           Expect.equal
-        //               (currentNetwork (name, networks))
-        //               (Set.ofSeq
-        //                   [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ])
-        //               ""
-        //       | Error _ -> failwith "Error"
+          //       match result with
+          //       | Ok(name, networks) ->
+          //           Expect.equal
+          //               (currentNetwork (name, networks))
+          //               (Set.ofSeq
+          //                   [ (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), LigatureValue.Identifier(Identifier("c"))) ])
+          //               ""
+          //       | Error _ -> failwith "Error"
 
-          //   testCase "Define 'call' Word with Parameters"
+          //   testCase "Define 'call' Identifier with Parameters"
           //   <| fun _ ->
           //       let script = "{ call = [ x ] } call [ {a b c} ]"
           //       let result = run Map.empty emptyState script
@@ -188,8 +196,8 @@ let tests =
           //           result
           //           (Ok(
           //               Set.ofSeq [
-          //                 (PatternWord.Word(Word("call")), PatternWord.Word(Word("=")), LigatureValue.Pipeline([LigatureValue.Word(Word("x"))]));
-          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ]
+          //                 (PatternIdentifier.Identifier(Identifier("call")), PatternIdentifier.Identifier(Identifier("=")), LigatureValue.Pipeline([LigatureValue.Identifier(Identifier("x"))]));
+          //                 (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), LigatureValue.Identifier(Identifier("c"))) ]
           //           ))
           //           ""
 
@@ -202,9 +210,9 @@ let tests =
           //       result
           //       (Ok(
           //           networkOf (
-          //               [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Word(Word("c")))
-          //                 (PatternWord.Word(Word("e")), PatternWord.Word(Word("f")), Value.Int(89I))
-          //                 (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), Value.Slot(Slot(Some("test")))) ]
+          //               [ (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c")))
+          //                 (PatternIdentifier.Identifier(Identifier("e")), PatternIdentifier.Identifier(Identifier("f")), Value.Int(89I))
+          //                 (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Slot(Slot(Some("test")))) ]
           //           )
           //   ))
           //   ""
@@ -217,8 +225,8 @@ let tests =
           //           result
           //           (Ok(
           //               networkOf (
-          //                   [ (PatternWord.Word(Word("empty")),
-          //                      PatternWord.Word(Word("=")),
+          //                   [ (PatternIdentifier.Identifier(Identifier("empty")),
+          //                      PatternIdentifier.Identifier(Identifier("=")),
           //                      Value.Quote({ parameters = []; value = [] })) ]
           //               )
           //           ))
@@ -243,7 +251,7 @@ let tests =
           //       let script = "[1 `test`]"
           //       let result = run script emptyState
           //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
-          //   testCase "Test running with Words"
+          //   testCase "Test running with Identifiers"
           //   <| fun _ ->
           //       let script = "1 2 pop"
           //       let result = run script stdLib List.empty
@@ -269,8 +277,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternWord.Id(ident "a")
-          //                                 Attribute = PatternWord.Id(ident "b")
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
           //                                 Value = Value.Identifier(ident "c") } ]
 
           //                     )
@@ -288,8 +296,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternWord.Id(ident "a")
-          //                                 Attribute = PatternWord.Id(ident "b")
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
           //                                 Value = Value.Int(5I) } ]
 
           //                     )
@@ -307,8 +315,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternWord.Id(ident "a")
-          //                                 Attribute = PatternWord.Id(ident "b")
+          //                             [ { Entity = PatternIdentifier.Id(ident "a")
+          //                                 Attribute = PatternIdentifier.Id(ident "b")
           //                                 Value = Value.String("Hi") } ]
           //                     )
           //                 )
@@ -327,8 +335,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternWord.Id(ident "a")
-          //                               Attribute = PatternWord.Id(ident "b")
+          //                           [ { Entity = PatternIdentifier.Id(ident "a")
+          //                               Attribute = PatternIdentifier.Id(ident "b")
           //                               Value = Value.Bytes([| 0uy |]) } ]
           //                   )
           //               )
@@ -345,8 +353,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternWord.Id(ident "e")
-          //                               Attribute = PatternWord.Id(ident "a")
+          //                           [ { Entity = PatternIdentifier.Id(ident "e")
+          //                               Attribute = PatternIdentifier.Id(ident "a")
           //                               Value = Value.Identifier(ident "v") } ]
           //                   )
           //               )

@@ -33,7 +33,7 @@ let error userMessage debugMessage =
 
 type Slot = Slot of string option
 
-type Word = Word of string
+type Identifier = Identifier of string
 
 // type Slot = private Slot of string option
 //     member _.Named = name.IsSome
@@ -100,13 +100,13 @@ and [<CustomEquality; CustomComparison>] Combinator =
             | :? Combinator as other -> this.Compare other
             | _ -> -1
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternWord =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternIdentifier =
     | Slot of Slot
-    | Word of Word
+    | Identifier of Identifier
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
-    | Word of Word
+    | Identifier of Identifier
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -115,7 +115,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | NetworkName of NetworkName
     | HostCombinator of Combinator
 
-and Statement = (PatternWord * PatternWord * LigatureValue)
+and Statement = (PatternIdentifier * PatternIdentifier * LigatureValue)
 
 and Network = Set<Statement>
 
@@ -137,14 +137,14 @@ let currentNetwork ((name, networks): State) : Network =
     | Some res -> res
     | None -> Set.empty
 
-let readBinding (name: PatternWord) (network: Network) : Option<LigatureValue> =
+let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureValue> =
     let res =
         Set.filter
             (fun (e, a, _) ->
                 match (name, e, a) with
-                | (PatternWord.Word(name),
-                   PatternWord.Word(entity),
-                   PatternWord.Word(Word("="))) -> entity = name
+                | (PatternIdentifier.Identifier(name),
+                   PatternIdentifier.Identifier(entity),
+                   PatternIdentifier.Identifier(Identifier("="))) -> entity = name
                 | _ -> false)
             network
 
@@ -153,8 +153,7 @@ let readBinding (name: PatternWord) (network: Network) : Option<LigatureValue> =
     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
-let applyTemplate (template: Network) (data: Network) (out: Network) = 
-    failwith "TODO"
+let applyTemplate (template: Network) (data: Network) (out: Network) = failwith "TODO"
 
 //     abstract member Union: Network -> Network
 //     abstract member Minus: Network -> Network
@@ -163,23 +162,23 @@ let applyTemplate (template: Network) (data: Network) (out: Network) =
 //     abstract member Query: Network -> Network -> Network
 //     abstract member Infer: Network -> Network -> Network
 
-let getRoots (patternSet: Set<Statement>) : Set<PatternWord> =
+let getRoots (patternSet: Set<Statement>) : Set<PatternIdentifier> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<PatternWord> =
+let getLeaves (patternSet: Set<Statement>) : Set<PatternIdentifier> =
     patternSet
     |> Set.map (fun ((_, _, value): Statement) ->
         match value with
-        | LigatureValue.Word word -> Some(PatternWord.Word word)
-        | LigatureValue.Slot slot -> Some(PatternWord.Slot slot)
+        | LigatureValue.Identifier identifier -> Some(PatternIdentifier.Identifier identifier)
+        | LigatureValue.Slot slot -> Some(PatternIdentifier.Slot slot)
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
 
 // let readIdentifier (Identifier identifier) = identifier
 
-let printPatternWord (pattern: PatternWord) : string =
+let printPatternIdentifier (pattern: PatternIdentifier) : string =
     match pattern with
-    | PatternWord.Word(Word word) -> word
-    | PatternWord.Slot(Slot(Some(name))) -> $"${name}"
-    | PatternWord.Slot(Slot(None)) -> "$"
+    | PatternIdentifier.Identifier(Identifier identifier) -> identifier
+    | PatternIdentifier.Slot(Slot(Some(name))) -> $"${name}"
+    | PatternIdentifier.Slot(Slot(None)) -> "$"

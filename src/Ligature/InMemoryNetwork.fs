@@ -10,10 +10,10 @@ open System.Collections.Generic
 
 let emptyNetwork: Network = Set.empty
 
-// let patternWordToValue (patternWord: PatternWord) : Value =
-//     match patternWord with
-//     | PatternWord.Word word -> Value.Word word
-//     | PatternWord.Slot slot -> Value.Slot slot
+// let patternIdentifierToValue (patternIdentifier: PatternIdentifier) : Value =
+//     match patternIdentifier with
+//     | PatternIdentifier.Identifier identifier -> Value.Identifier identifier
+//     | PatternIdentifier.Slot slot -> Value.Slot slot
 
 // let educeTripleTriple
 //     ((entity, attribute, value): Triple)
@@ -23,19 +23,19 @@ let emptyNetwork: Network = Set.empty
 //     let mutable result: Map<string, Value> = Map.empty
 
 //     match patternEntity with
-//     | PatternWord.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternWordToValue) result
-//     | PatternWord.Slot(Slot(None)) -> ignore ()
-//     | PatternWord.Word _ -> cont <- (patternEntity = entity)
+//     | PatternIdentifier.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternIdentifierToValue) result
+//     | PatternIdentifier.Slot(Slot(None)) -> ignore ()
+//     | PatternIdentifier.Identifier _ -> cont <- (patternEntity = entity)
 
 //     if cont then
 //         match patternAttribute with
-//         | PatternWord.Slot(Slot(Some(name))) ->
+//         | PatternIdentifier.Slot(Slot(Some(name))) ->
 //             if Map.containsKey name result then
-//                 cont <- (Map.find name result) = (patternWordToValue attribute)
+//                 cont <- (Map.find name result) = (patternIdentifierToValue attribute)
 //             else
-//                 result <- Map.add name (attribute |> patternWordToValue) result
-//         | PatternWord.Slot(Slot(None)) -> ignore ()
-//         | PatternWord.Word _ -> cont <- (patternAttribute = attribute)
+//                 result <- Map.add name (attribute |> patternIdentifierToValue) result
+//         | PatternIdentifier.Slot(Slot(None)) -> ignore ()
+//         | PatternIdentifier.Identifier _ -> cont <- (patternAttribute = attribute)
 
 //     if cont then
 //         match patternValue with
@@ -97,34 +97,34 @@ let emptyNetwork: Network = Set.empty
 //                 Set.map
 //                     (fun ((entity, attribute, value): Triple) ->
 //                         match (entity, attribute, value) with
-//                         // | { Entity = PatternWord.Word(_)
-//                         //     Attribute = PatternWord.Word(_)
+//                         // | { Entity = PatternIdentifier.Identifier(_)
+//                         //     Attribute = PatternIdentifier.Identifier(_)
 //                         //     Value = Value(_) } -> failwith "TODO"
 //                         | _ ->
 //                             let entity =
 //                                 match entity with
-//                                 | PatternWord.Word(word) -> word
-//                                 | PatternWord.Slot(slot) ->
+//                                 | PatternIdentifier.Identifier(identifier) -> identifier
+//                                 | PatternIdentifier.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | Value.Word word -> word
+//                                             | Value.Identifier identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
 
 //                             let attribute =
 //                                 match attribute with
-//                                 | PatternWord.Word(word) -> word
-//                                 | PatternWord.Slot(slot) ->
+//                                 | PatternIdentifier.Identifier(identifier) -> identifier
+//                                 | PatternIdentifier.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | Value.Word word -> word
+//                                             | Value.Identifier identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
@@ -140,7 +140,7 @@ let emptyNetwork: Network = Set.empty
 //                                     | Slot(None) -> failwith "Error"
 //                                 | v -> v
 
-//                             (PatternWord.Word(entity), PatternWord.Word(attribute), value))
+//                             (PatternIdentifier.Identifier(entity), PatternIdentifier.Identifier(attribute), value))
 //                     network
 
 //             InMemoryNetwork(res)

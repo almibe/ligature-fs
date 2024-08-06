@@ -94,8 +94,8 @@ const processValue = (type: string, value: any): any => {
     }
 }
 
-export let run = (input: string, words, stack): Triple[] | Value | Error => {
-    const res = JSON.parse(JSON.stringify(_run(input, words, stack)))
+export let run = (input: string, identifiers, stack): Triple[] | Value | Error => {
+    const res = JSON.parse(JSON.stringify(_run(input, identifiers, stack)))
     if (res[0] == 'Ok') {
         const resValue = res[1]
         const type = resValue[0]
@@ -106,4 +106,4 @@ export let run = (input: string, words, stack): Triple[] | Value | Error => {
     }
 }
 
-export let printResult = (result: string, words, stack): string => _printResult(_run(result, words, stack))
+export let printResult = (result: string, identifiers, stack): string => _printResult(_run(result, identifiers, stack))

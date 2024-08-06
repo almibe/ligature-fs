@@ -32,7 +32,7 @@ open Ligature.InMemoryNetwork
 //           //       let result = Ligature.Serialization.readLigature "{`a` `b` `c`}" |> Result.toOption
 
 //           //       let expect: Set<Triple> =
-//           //           Set.ofList [ triple (PatternWord.Id(ident "a")) (PatternWord.Id(ident "b")) (vident "c") ]
+//           //           Set.ofList [ triple (PatternIdentifier.Id(ident "a")) (PatternIdentifier.Id(ident "b")) (vident "c") ]
 
 //           //       Expect.equal (result.Value.Write()) expect ""
 //           testCase "Write Empty Network"

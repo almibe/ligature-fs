@@ -12,29 +12,29 @@ open Ligature.Main
 
 [<RequireQualifiedAccess>]
 type Element =
-    | Word of string
+    | Identifier of string
     | NetworkName of string
     | Pipeline of Element list
     | String of string
     | Int of bigint
     | Bytes of byte array
     | Slot of Slot
-    | Call of string * Element list
+    | Call of string
     | Network of (Element * Element * Element) list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Word(value)) -> Ok(value)
+            | Ok(Token.Identifier(value)) -> Ok(value)
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
-let wordNib (gaze: Gaze.Gaze<Token>) =
+let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Word(name)) -> Ok(Element.Word(name))
+            | Ok(Token.Identifier(name)) -> Ok(Element.Identifier(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -48,13 +48,11 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
 
 let callNib (gaze: Gaze.Gaze<Token>) =
     result {
-        let! word = Gaze.attempt (wordNib) gaze
-        let! values = Gaze.attempt (optional (repeatN pipelineNib 1)) gaze
+        let! identifier = Gaze.attempt (identifierNib) gaze
 
-        match (word, values) with
-        | (Element.Word(word), []) -> return Element.Call(word, values)
-        | (Element.Word(word), [ Element.Pipeline(quote) ]) -> return Element.Call(word, quote)
-        | (_, _) -> return failwith "TODO"
+        match identifier with
+        | Element.Identifier(identifier) -> return Element.Call(identifier)
+        | _ -> return failwith "TODO"
     }
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
@@ -105,7 +103,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Word(value)) -> Ok(Element.Word value)
+    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -116,7 +114,7 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     match next with
     | Error(err) -> Error err
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
-    | Ok(Token.Word(value)) -> Ok(Element.Word value)
+    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
@@ -130,7 +128,7 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
     else
         let elements =
             match next with
-            | Ok(Token.Word w) -> List.append elements [ (Element.Word w) ]
+            | Ok(Token.Identifier w) -> List.append elements [ (Element.Identifier w) ]
             | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
             | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
             | Ok(Token.Slot s) -> List.append elements [ (Element.Slot s) ]
@@ -145,12 +143,12 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             readValueList elements gaze
         | _ -> failwith "TODO"
 
-let readWord (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Word(value)) -> Ok(Element.Word value)
+    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -161,7 +159,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-//let patternMatchBodyNib = takeFirst [ networkNib; wordNib; pipelineNib ]
+//let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; pipelineNib ]
 
 //let patternNib = takeFirst [ networkNib ]
 
@@ -209,30 +207,32 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Pipeline(q) -> handlePipeline q
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
-    | Element.Word w -> LigatureValue.Word(Word w)
-    | Element.Call(w, []) -> LigatureValue.Word(Word w)
+    | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
+    | Element.Call i -> LigatureValue.Identifier(Identifier i)
 
 let handlePipeline (quote: Element list) : LigatureValue =
     let res = List.map (fun element -> elementToValue element) quote
 
     LigatureValue.Pipeline(res) //({ parameters = []; value = res })
 
-let elementTupleToStatement ((e, a, v): (Element * Element * Element)) : (PatternWord * PatternWord * LigatureValue) =
+let elementTupleToStatement
+    ((e, a, v): (Element * Element * Element))
+    : (PatternIdentifier * PatternIdentifier * LigatureValue) =
     let entity =
         match e with
-        | Element.Word w -> PatternWord.Word(Word w)
-        | Element.Slot s -> PatternWord.Slot s
+        | Element.Identifier i -> PatternIdentifier.Identifier(Identifier i)
+        | Element.Slot s -> PatternIdentifier.Slot s
         | _ -> failwith "TODO"
 
     let attribute =
         match a with
-        | Element.Word w -> PatternWord.Word(Word w)
-        | Element.Slot s -> PatternWord.Slot s
+        | Element.Identifier i -> PatternIdentifier.Identifier(Identifier i)
+        | Element.Slot s -> PatternIdentifier.Slot s
         | _ -> failwith "TODO"
 
     let value =
         match v with
-        | Element.Word w -> LigatureValue.Word(Word w)
+        | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
         | Element.Int i -> LigatureValue.Int i
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
@@ -253,10 +253,10 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
     | head :: tail ->
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
-        // | Element.Word w ->
-        //     express tail (List.append expressions [ Expression.Call(Word(w), { parameterNames = []; quote = [] }) ])
-        | Element.Call(w, q) ->
+        // | Element.Identifier w ->
+        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; quote = [] }) ])
+        | Element.Call i ->
             //            List.map (fun x -> express x) q
-            express tail (List.append expressions [ Expression.Call(Word(w)) ])
+            express tail (List.append expressions [ Expression.Call(Identifier(i)) ])
         | Element.NetworkName name -> express tail (List.append expressions [ Expression.NetworkName name ])
         | _ -> failwith "TODO"

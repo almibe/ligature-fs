@@ -26,12 +26,12 @@ let tests =
           //       Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
           //       Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([| 0x01uy |]) ])) ""
           //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
-          testCase "Read Words"
+          testCase "Read Identifiers"
           <| fun _ ->
-              Expect.equal (tokenize "x") (Ok([ Token.Word("x") ])) ""
-              Expect.equal (tokenize "hello") (Ok([ Token.Word("hello") ])) ""
-              Expect.equal (tokenize "x.y") (Ok([ Token.Word("x.y") ])) ""
-              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Word("hello.t.x.a") ])) ""
+              Expect.equal (tokenize "x") (Ok([ Token.Identifier("x") ])) ""
+              Expect.equal (tokenize "hello") (Ok([ Token.Identifier("hello") ])) ""
+              Expect.equal (tokenize "x.y") (Ok([ Token.Identifier("x.y") ])) ""
+              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Identifier("hello.t.x.a") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -130,10 +130,10 @@ let tests =
           //       Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
           //       Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
           testCase "read question mark"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Word "?" ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Identifier "?" ])) ""
           //   testCase "read simple let expression"
           //   <| fun _ ->
           //       let ws = Token.WhiteSpace(" ")
-          //       Expect.equal (tokenize "x = 5") (Ok([ Token.Word("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
+          //       Expect.equal (tokenize "x = 5") (Ok([ Token.Identifier("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") "" ]
