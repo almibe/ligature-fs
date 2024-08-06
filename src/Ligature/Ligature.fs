@@ -77,9 +77,9 @@ type Identifier = Identifier of string
 
 type Arguments = LigatureValue list
 
-and [<StructuralEquality; StructuralComparison>] Quote =
+and [<StructuralEquality; StructuralComparison>] Pipeline =
     { parameterNames: string list
-      quote: LigatureValue list }
+      pipeline: LigatureValue list }
 
 and [<CustomEquality; CustomComparison>] Combinator =
     { Name: string
@@ -153,7 +153,7 @@ let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureVa
 
     match List.ofSeq (res) with
     | [] -> None
-    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
+    | [ (_, _, value) ] -> Some(value) //evalPipeline hostFunctions runtimeNetwork pipeline
     | _ -> None
 
 let applyTemplate (template: Network) (data: Network) (out: Network) = failwith "TODO"

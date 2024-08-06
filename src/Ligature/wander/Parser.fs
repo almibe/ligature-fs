@@ -71,6 +71,14 @@ let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
         return Element.Pipeline(values)
     }
 
+// let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+//     result {
+//         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
+//         let! values = (optional (repeat elementNib)) gaze
+//         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
+//         return Element.Pipeline(values)
+//     }
+
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
     let entity = patternNib gaze
     let attribute = patternNib gaze
@@ -78,19 +86,11 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element)
     let value =
         match Gaze.check valueNib gaze with
         | Ok(_) -> valueNib gaze
-        | Error(_) -> quotekNib gaze
+        | Error(_) -> pipelineNib gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
-
-let quotekNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = (optional (repeat elementNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Pipeline(values)
-    }
 
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -211,8 +211,8 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Call i -> LigatureValue.Identifier(Identifier i)
     | Element.NetworkName n -> LigatureValue.NetworkName n
 
-let handlePipeline (quote: Element list) : LigatureValue =
-    List.map (fun element -> elementToValue element) quote |> LigatureValue.Pipeline
+let handlePipeline (pipeline: Element list) : LigatureValue =
+    List.map (fun element -> elementToValue element) pipeline |> LigatureValue.Pipeline
 
 let elementTupleToStatement
     ((e, a, v): (Element * Element * Element))
@@ -253,7 +253,7 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
         // | Element.Identifier w ->
-        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; quote = [] }) ])
+        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; pipeline = [] }) ])
         | Element.Call i ->
             //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Identifier(i)) ])

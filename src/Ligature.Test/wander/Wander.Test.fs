@@ -42,7 +42,7 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Network With Quote"
+          testCase "Parse Network With Pipeline"
           <| fun _ ->
               let script = "{id = [ x ]}"
 
@@ -231,7 +231,7 @@ let tests =
           //           )
           //   ))
           //   ""
-          //   testCase "Run Network with Quote"
+          //   testCase "Run Network with Pipeline"
           //   <| fun _ ->
           //       let script = "{empty = []}"
           //       let result = run script emptyState
@@ -242,7 +242,7 @@ let tests =
           //               networkOf (
           //                   [ (PatternIdentifier.Identifier(Identifier("empty")),
           //                      PatternIdentifier.Identifier(Identifier("=")),
-          //                      Value.Quote({ parameters = []; value = [] })) ]
+          //                      Value.Pipeline({ parameters = []; value = [] })) ]
           //               )
           //           ))
           //           ""
@@ -256,16 +256,16 @@ let tests =
           //       let script = "{}"
           //       let result = run script Map.empty List.empty
           //       Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
-          //   testCase "Run Empty Quote Literal"
+          //   testCase "Run Empty Pipeline Literal"
           //   <| fun _ ->
           //       let script = "[]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
-          //   testCase "Run Quote Literal"
+          //       Expect.equal result (Ok([ WanderValue.Pipeline([]) ])) ""
+          //   testCase "Run Pipeline Literal"
           //   <| fun _ ->
           //       let script = "[1 `test`]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
+          //       Expect.equal result (Ok([ WanderValue.Pipeline([ WanderValue.Int(1I); wident "test" ]) ])) ""
           //   testCase "Test running with Identifiers"
           //   <| fun _ ->
           //       let script = "1 2 pop"
