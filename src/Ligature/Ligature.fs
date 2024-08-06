@@ -140,28 +140,22 @@ let currentNetwork ((name, networks): State) : Network =
 let readBinding (name: PatternWord) (network: Network) : Option<LigatureValue> =
     let res =
         Set.filter
-            (fun (e, a, v) ->
-                match (name, e, a, v) with
+            (fun (e, a, _) ->
+                match (name, e, a) with
                 | (PatternWord.Word(name),
                    PatternWord.Word(entity),
-                   PatternWord.Word(attribute),
-                   LigatureValue.Pipeline(_)) -> entity = name && attribute = Word("=")
-                | (PatternWord.Word(name),
-                   PatternWord.Word(entity),
-                   PatternWord.Word(attribute),
-                   LigatureValue.HostCombinator(_)) -> entity = name && attribute = Word("=")
+                   PatternWord.Word(Word("="))) -> entity = name
                 | _ -> false)
             network
 
     match List.ofSeq (res) with
     | [] -> None
-    | [ (_, _, LigatureValue.Pipeline(quote)) ] -> Some(LigatureValue.Pipeline(quote)) //evalQuote hostFunctions runtimeNetwork quote
-    | [ (_, _, LigatureValue.HostCombinator(combinator)) ] -> Some(LigatureValue.HostCombinator(combinator))
+    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
-// and [<StructuralEquality; StructuralComparison>] Network =
-//     abstract member Write: unit -> Set<Statement>
-//     abstract member Count: unit -> int64
+let applyTemplate (template: Network) (data: Network) (out: Network) = 
+    failwith "TODO"
+
 //     abstract member Union: Network -> Network
 //     abstract member Minus: Network -> Network
 //     abstract member Apply: Map<string, LigatureValue> -> Network

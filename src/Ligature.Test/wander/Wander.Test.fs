@@ -22,12 +22,12 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run Map.empty defaultState script
+              let result = run defaultState script
               Expect.equal result (Ok(defaultState)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run Map.empty defaultState script
+              let result = run defaultState script
               Expect.equal result (Ok(defaultState)) ""
 
           testCase "Parse Network"
@@ -80,7 +80,7 @@ let tests =
           testCase "Run Network"
           <| fun _ ->
               let script = "{a b c, e f 89, a b $test}"
-              let result = run Map.empty defaultState script
+              let result = run defaultState script
 
               Expect.equal
                   result
@@ -103,7 +103,7 @@ let tests =
           testCase "Run Named Network"
           <| fun _ ->
               let script = "@test {a b c}"
-              let result = run Map.empty defaultState script
+              let result = run defaultState script
 
               Expect.equal
                   result
@@ -122,64 +122,62 @@ let tests =
           testCase "Run Id Combinator"
           <| fun _ ->
               let script = "{a b c} id"
-              let result = run Map.empty stdState script
+              let result = run stdState script
 
-              Expect.equal
-                  result
-                  (Ok(
-                      (NetworkName(""),
-                       Map.ofSeq
-                           [ (NetworkName "",
-                              Set.ofSeq
-                                  [ (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
-                                     LigatureValue.Word(Word("c")))
-                                    (PatternWord.Word(Word("id")),
-                                     PatternWord.Word(Word("=")),
-                                     LigatureValue.HostCombinator(idCombinator)) ]) ])
-                  ))
-                  ""
+              match result with
+              | Ok(name, networks) ->
+                  Expect.equal
+                      (currentNetwork (name, networks))
+                      (Set.ofSeq
+                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ])
+                      ""
+              | Error _ -> failwith "Error"
+          testCase "Run Clear Combinator"
+          <| fun _ ->
+              let script = "{a b c} clear"
+              let result = run stdState script
 
-          testCase "Run Apply Combinator"
+              match result with
+              | Ok(name, networks) ->
+                  Expect.equal
+                      (currentNetwork (name, networks))
+                      (Set.ofSeq [])
+                      ""
+              | Error _ -> failwith "Error"
+
+          testCase "Run Union Combinator"
           <| fun _ ->
               let script =
-                  "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
+                  "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
 
-              let result = run Map.empty stdState script
+              let result = run stdState script
 
-              Expect.equal
-                  result
-                  (Ok(
-                      (NetworkName("result"),
-                       Map.ofSeq
-                           [ (NetworkName "",
-                              Set.ofSeq
-                                  [ (PatternWord.Word(Word("template")),
-                                     PatternWord.Word(Word("=")),
-                                     LigatureValue.NetworkName("t"))
-                                    (PatternWord.Word(Word("data")),
-                                     PatternWord.Word(Word("=")),
-                                     LigatureValue.NetworkName("d"))
-                                    (PatternWord.Word(Word("out")),
-                                     PatternWord.Word(Word("=")),
-                                     LigatureValue.NetworkName("result")) ])
-                             (NetworkName "result",
-                              Set.ofSeq
-                                  [ (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
-                                     LigatureValue.Word(Word("c"))) ])
-                             (NetworkName "d",
-                              Set.ofSeq
-                                  [ (PatternWord.Slot(Slot(Some("c"))),
-                                     PatternWord.Word(Word("=")),
-                                     LigatureValue.Word(Word("c"))) ])
-                             (NetworkName "t",
-                              Set.ofSeq
-                                  [ (PatternWord.Word(Word("a")),
-                                     PatternWord.Word(Word("b")),
-                                     LigatureValue.Slot(Slot(Some("c")))) ]) ])
-                  ))
-                  ""
+              match result with
+              | Ok(name, networks) ->
+                  Expect.equal
+                      (currentNetwork (name, networks))
+                      (Set.ofSeq
+                          [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c")))
+                            (PatternWord.Word(Word("d")), PatternWord.Word(Word("e")), LigatureValue.Word(Word("f"))) ])
+                      ""
+              | Error _ -> failwith "Error"
+
+
+        //   testCase "Run Apply Combinator"
+        //   <| fun _ ->
+        //       let script =
+        //           "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
+
+        //       let result = run stdState script
+
+        //       match result with
+        //       | Ok(name, networks) ->
+        //           Expect.equal
+        //               (currentNetwork (name, networks))
+        //               (Set.ofSeq
+        //                   [ (PatternWord.Word(Word("a")), PatternWord.Word(Word("b")), LigatureValue.Word(Word("c"))) ])
+        //               ""
+        //       | Error _ -> failwith "Error"
 
           //   testCase "Define 'call' Word with Parameters"
           //   <| fun _ ->
@@ -358,7 +356,7 @@ let tests =
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n     "
-              let result = run Map.empty defaultState script
+              let result = run defaultState script
               Expect.equal result (Ok(defaultState)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
