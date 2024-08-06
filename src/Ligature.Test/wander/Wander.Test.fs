@@ -42,7 +42,7 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Network With Pipeline"
+          testCase "Parse Network With Quote"
           <| fun _ ->
               let script = "{id = [ x ]}"
 
@@ -55,7 +55,7 @@ let tests =
                           [ Element.Network
                                 [ (Element.Identifier "id",
                                    Element.Identifier "=",
-                                   Element.Pipeline [ Element.Call "x" ]) ] ]
+                                   Element.Quote [ Element.Call "x" ]) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -211,7 +211,7 @@ let tests =
           //           result
           //           (Ok(
           //               Set.ofSeq [
-          //                 (PatternIdentifier.Identifier(Identifier("call")), PatternIdentifier.Identifier(Identifier("=")), LigatureValue.Pipeline([LigatureValue.Identifier(Identifier("x"))]));
+          //                 (PatternIdentifier.Identifier(Identifier("call")), PatternIdentifier.Identifier(Identifier("=")), LigatureValue.Quote([LigatureValue.Identifier(Identifier("x"))]));
           //                 (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), LigatureValue.Identifier(Identifier("c"))) ]
           //           ))
           //           ""
@@ -231,7 +231,7 @@ let tests =
           //           )
           //   ))
           //   ""
-          //   testCase "Run Network with Pipeline"
+          //   testCase "Run Network with Quote"
           //   <| fun _ ->
           //       let script = "{empty = []}"
           //       let result = run script emptyState
@@ -242,7 +242,7 @@ let tests =
           //               networkOf (
           //                   [ (PatternIdentifier.Identifier(Identifier("empty")),
           //                      PatternIdentifier.Identifier(Identifier("=")),
-          //                      Value.Pipeline({ parameters = []; value = [] })) ]
+          //                      Value.Quote({ parameters = []; value = [] })) ]
           //               )
           //           ))
           //           ""
@@ -256,16 +256,16 @@ let tests =
           //       let script = "{}"
           //       let result = run script Map.empty List.empty
           //       Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
-          //   testCase "Run Empty Pipeline Literal"
+          //   testCase "Run Empty Quote Literal"
           //   <| fun _ ->
           //       let script = "[]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Pipeline([]) ])) ""
-          //   testCase "Run Pipeline Literal"
+          //       Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
+          //   testCase "Run Quote Literal"
           //   <| fun _ ->
           //       let script = "[1 `test`]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Pipeline([ WanderValue.Int(1I); wident "test" ]) ])) ""
+          //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
           //   testCase "Test running with Identifiers"
           //   <| fun _ ->
           //       let script = "1 2 pop"

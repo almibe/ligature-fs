@@ -91,7 +91,7 @@ let mapEduceResult (res: Set<Map<string, Value>>) : Result<WanderValue, Ligature
             value)
     //    |> List.map (fun (value: Map<string, WanderValue>) -> WanderValue.AssocArray value)
     |> List.map (WanderValue.AssocArray)
-    |> WanderValue.Pipeline
+    |> WanderValue.Quote
     |> Ok
 
 

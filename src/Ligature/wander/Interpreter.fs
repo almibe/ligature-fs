@@ -31,12 +31,12 @@ and handleIdentifier (inputState: State) (identifier: Identifier) =
     if currentResults.IsSome then
         match currentResults.Value with
         | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-        | LigatureValue.Pipeline(pipeline) -> failwith "TODO" //evalPipeline hostFunctions runtimeNetwork pipeline
+        | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
         | _ -> failwith "TODO"
     else if combinatorResults.IsSome then
         match combinatorResults.Value with
         | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-        | LigatureValue.Pipeline(pipeline) -> failwith "TODO" //evalPipeline hostFunctions runtimeNetwork pipeline
+        | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
         | _ -> failwith "TODO"
     else
         error $"Could not find Identifier, {identifier}" None
@@ -61,11 +61,11 @@ and valuesToExpressions
         | LigatureValue.Network n -> valuesToExpressions tail (List.append expressions [ Expression.Network n ])
         | LigatureValue.Identifier i ->
             match tail with
-            | LigatureValue.Pipeline p :: tail -> failwith "TODO"
+            | LigatureValue.Quote p :: tail -> failwith "TODO"
             | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call i ])
-        | _ -> error "Invalid Pipeline" None
+        | _ -> error "Invalid Quote" None
 
-and evalPipeline
+and evalQuote
     (hostFunctions)
     (inputState: State)
     (names: string list)

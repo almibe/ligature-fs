@@ -77,9 +77,9 @@ type Identifier = Identifier of string
 
 type Arguments = LigatureValue list
 
-and [<StructuralEquality; StructuralComparison>] Pipeline =
+and [<StructuralEquality; StructuralComparison>] Quote =
     { parameterNames: string list
-      pipeline: LigatureValue list }
+      quote: LigatureValue list }
 
 and [<CustomEquality; CustomComparison>] Combinator =
     { Name: string
@@ -110,7 +110,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Pipeline of LigatureValue list
+    | Quote of LigatureValue list
     | Network of Network
     | NetworkName of NetworkName
     | HostCombinator of Combinator
@@ -153,7 +153,7 @@ let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureVa
 
     match List.ofSeq (res) with
     | [] -> None
-    | [ (_, _, value) ] -> Some(value) //evalPipeline hostFunctions runtimeNetwork pipeline
+    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
 let applyTemplate (template: Network) (data: Network) (out: Network) = failwith "TODO"

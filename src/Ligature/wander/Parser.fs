@@ -14,7 +14,7 @@ open Ligature.Main
 type Element =
     | Identifier of string
     | NetworkName of string
-    | Pipeline of Element list
+    | Quote of Element list
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -63,20 +63,20 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Element.Pipeline(values)
+        return Element.Quote(values)
     }
 
-// let pipelineNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+// let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 //     result {
 //         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
 //         let! values = (optional (repeat elementNib)) gaze
 //         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-//         return Element.Pipeline(values)
+//         return Element.Quote(values)
 //     }
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
@@ -86,7 +86,7 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element)
     let value =
         match Gaze.check valueNib gaze with
         | Ok(_) -> valueNib gaze
-        | Error(_) -> pipelineNib gaze
+        | Error(_) -> quoteNib gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -159,7 +159,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-//let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; pipelineNib ]
+//let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; quoteNib ]
 
 //let patternNib = takeFirst [ networkNib ]
 
@@ -204,15 +204,15 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Int i -> LigatureValue.Int i
     | Element.Bytes b -> LigatureValue.Bytes b
     | Element.Network n -> LigatureValue.Network(handleNetwork n)
-    | Element.Pipeline p -> handlePipeline p
+    | Element.Quote p -> handleQuote p
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
     | Element.Call i -> LigatureValue.Identifier(Identifier i)
     | Element.NetworkName n -> LigatureValue.NetworkName n
 
-let handlePipeline (pipeline: Element list) : LigatureValue =
-    List.map (fun element -> elementToValue element) pipeline |> LigatureValue.Pipeline
+let handleQuote (quote: Element list) : LigatureValue =
+    List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
 
 let elementTupleToStatement
     ((e, a, v): (Element * Element * Element))
@@ -235,7 +235,7 @@ let elementTupleToStatement
         | Element.Int i -> LigatureValue.Int i
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
-        | Element.Pipeline(q) -> handlePipeline q
+        | Element.Quote(q) -> handleQuote q
         | Element.NetworkName n -> LigatureValue.NetworkName n
         | _ -> failwith "TODO"
 
@@ -253,7 +253,7 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
         // | Element.Identifier w ->
-        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; pipeline = [] }) ])
+        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; quote = [] }) ])
         | Element.Call i ->
             //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Identifier(i)) ])
