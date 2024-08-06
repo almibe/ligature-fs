@@ -204,16 +204,15 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Int i -> LigatureValue.Int i
     | Element.Bytes b -> LigatureValue.Bytes b
     | Element.Network n -> LigatureValue.Network(handleNetwork n)
-    | Element.Pipeline(q) -> handlePipeline q
+    | Element.Pipeline p -> handlePipeline p
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
     | Element.Call i -> LigatureValue.Identifier(Identifier i)
+    | Element.NetworkName n -> LigatureValue.NetworkName n
 
 let handlePipeline (quote: Element list) : LigatureValue =
-    let res = List.map (fun element -> elementToValue element) quote
-
-    LigatureValue.Pipeline(res) //({ parameters = []; value = res })
+    List.map (fun element -> elementToValue element) quote |> LigatureValue.Pipeline
 
 let elementTupleToStatement
     ((e, a, v): (Element * Element * Element))

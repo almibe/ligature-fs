@@ -166,6 +166,23 @@ let tests =
                       ""
               | Error _ -> failwith "Error"
 
+          testCase "Run Minus Combinator"
+          <| fun _ ->
+              let script =
+                  "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
+
+              let result = run stdState script
+
+              match result with
+              | Ok(name, networks) ->
+                  Expect.equal
+                      (currentNetwork (name, networks))
+                      (Set.ofSeq
+                          [ (PatternIdentifier.Identifier(Identifier("a")),
+                             PatternIdentifier.Identifier(Identifier("b")),
+                             LigatureValue.Identifier(Identifier("c"))) ])
+                      ""
+              | Error err -> failwith $"Error {err}"
 
           //   testCase "Run Apply Combinator"
           //   <| fun _ ->
