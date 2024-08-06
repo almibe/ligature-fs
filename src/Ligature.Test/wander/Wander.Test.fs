@@ -5,15 +5,11 @@
 module Ligature.Wander.NewMain.Test
 
 open Expecto
-open Ligature.Wander.Model
 open Ligature.Wander.Main
 open Ligature.Main
-open Ligature.InMemoryNetwork
-open Ligature.Wander.Interpreter
 open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
-open Ligature.Wander.Lib.Lib
-//open Ligature.Wander.Lib.Lib
+open Ligature.Wander.Lib.Combinators
 
 [<Tests>]
 let tests =

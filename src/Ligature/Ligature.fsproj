@@ -14,7 +14,7 @@
     <Compile Include="wander/Parser.fs" />
     <Compile Include="wander/Interpreter.fs" />
     <Compile Include="wander/Wander.fs" />
-    <Compile Include="wander/lib/Lib.fs" />
+    <Compile Include="wander/lib/Combinators.fs" />
 <!--    <Compile Include="wander/lib/Array.fs" />
     <Compile Include="wander/lib/Assert.fs" />
     <Compile Include="wander/lib/Bool.fs" />
