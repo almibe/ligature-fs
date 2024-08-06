@@ -72,6 +72,7 @@ let applyCombinator: Combinator =
     { Name = "apply"
       Eval =
         fun (inputState: State) ->
+            let (networkName, networks) = inputState
             let currentNetwork = currentNetwork inputState
 
             let data =
@@ -90,8 +91,47 @@ let applyCombinator: Combinator =
                 let dataNetwork = readNetwork data inputState
                 let templateNetwork = readNetwork template inputState
                 let outNetwork = readNetwork out inputState
-                //iterate through all of the statements in
-                failwith "TODO"
+
+                let resultNetwork =
+                    Set.map
+                        (fun ((e, a, v)) ->
+                            let entity =
+                                match e with
+                                | PatternIdentifier.Slot s ->
+                                    match readBinding (PatternIdentifier.Slot s) dataNetwork with
+                                    | Some(LigatureValue.Identifier(i)) -> PatternIdentifier.Identifier i
+                                    | Some(LigatureValue.Slot(s)) -> PatternIdentifier.Slot s
+                                    | Some _ ->
+                                        failwith "TODO - unexpected value - only Slots or Identifiers are allowed"
+                                    | None -> PatternIdentifier.Slot s
+                                | PatternIdentifier.Identifier i -> PatternIdentifier.Identifier i
+
+                            let attribute =
+                                match a with
+                                | PatternIdentifier.Slot s ->
+                                    match readBinding (PatternIdentifier.Slot s) dataNetwork with
+                                    | Some(LigatureValue.Identifier(i)) -> PatternIdentifier.Identifier i
+                                    | Some(LigatureValue.Slot(s)) -> PatternIdentifier.Slot s
+                                    | Some _ ->
+                                        failwith "TODO - unexpected value - only Slots or Identifiers are allowed"
+                                    | None -> PatternIdentifier.Slot s
+                                | PatternIdentifier.Identifier i -> PatternIdentifier.Identifier i
+
+                            let value =
+                                match v with
+                                | LigatureValue.Slot s ->
+                                    match readBinding (PatternIdentifier.Slot s) dataNetwork with
+                                    | Some value -> value
+                                    | None -> LigatureValue.Slot s
+                                | v -> v
+
+                            (entity, attribute, value))
+                        templateNetwork
+
+                Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
+            //iterate through all of the statements in the templateNetwork,
+            //whenever a slot is found lookup in the dataNetwork to see if that value has been bound,
+            //if so replace that slot with the binding and merge the final result into the outNetwork
             | _ -> failwith "TODO" }
 
 let stdState: State =

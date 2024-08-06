@@ -145,6 +145,9 @@ let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureVa
                 | (PatternIdentifier.Identifier(name),
                    PatternIdentifier.Identifier(entity),
                    PatternIdentifier.Identifier(Identifier("="))) -> entity = name
+                | (PatternIdentifier.Slot(slot),
+                   PatternIdentifier.Slot(entity),
+                   PatternIdentifier.Identifier(Identifier("="))) -> entity = slot
                 | _ -> false)
             network
 

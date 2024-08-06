@@ -184,21 +184,23 @@ let tests =
                       ""
               | Error err -> failwith $"Error {err}"
 
-          //   testCase "Run Apply Combinator"
-          //   <| fun _ ->
-          //       let script =
-          //           "@t { a b $c } @d { $c = c } @ { template = @t, data = @d, out = @result } apply @result"
+          testCase "Run Apply Combinator"
+          <| fun _ ->
+              let script =
+                  "@t { $a $b $c } @d { $a = a, $b = b, $c = c } @ { template = @t, data = @d, out = @result } apply @result"
 
-          //       let result = run stdState script
+              let result = run stdState script
 
-          //       match result with
-          //       | Ok(name, networks) ->
-          //           Expect.equal
-          //               (currentNetwork (name, networks))
-          //               (Set.ofSeq
-          //                   [ (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), LigatureValue.Identifier(Identifier("c"))) ])
-          //               ""
-          //       | Error _ -> failwith "Error"
+              match result with
+              | Ok(name, networks) ->
+                  Expect.equal
+                      (currentNetwork (name, networks))
+                      (Set.ofSeq
+                          [ (PatternIdentifier.Identifier(Identifier("a")),
+                             PatternIdentifier.Identifier(Identifier("b")),
+                             LigatureValue.Identifier(Identifier("c"))) ])
+                      ""
+              | Error _ -> failwith "Error"
 
           //   testCase "Define 'call' Identifier with Parameters"
           //   <| fun _ ->
