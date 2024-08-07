@@ -135,9 +135,9 @@ let applyCombinator: Combinator =
             | _ -> failwith "TODO" }
 
 let stdState: State =
-    ("",
+    (NetworkName(""),
      Map.ofSeq (
-         [ ("combinators",
+         [ (NetworkName("combinators"),
             Set.ofSeq
                 [ (PatternIdentifier.Identifier(Identifier("id")),
                    PatternIdentifier.Identifier(Identifier("=")),

@@ -119,13 +119,13 @@ and Statement = (PatternIdentifier * PatternIdentifier * LigatureValue)
 
 and Network = Set<Statement>
 
-and NetworkName = string
+and NetworkName = NetworkName of string
 
 and Networks = Map<NetworkName, Network>
 
 and State = NetworkName * Networks
 
-let defaultState: State = ("", Map.ofSeq ([ ("", Set.empty) ]))
+let defaultState: State = (NetworkName(""), Map.ofSeq ([ (NetworkName(""), Set.empty) ]))
 
 let readNetwork (name: NetworkName) ((_, networks): State) : Network =
     match Map.tryFind name networks with

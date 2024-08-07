@@ -35,7 +35,7 @@ let parseString (input: string) =
 #if !FABLE_COMPILER
     System.Text.Json.Nodes.JsonNode.Parse(input)
 #else
-    emitJsExpr (input) "JSON.parse($0)"
+    Fable.Core.JsInterop.emitJsExpr (input) "JSON.parse($0)"
 #endif
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
@@ -123,7 +123,7 @@ let bytesFromString (s: string) =
 #if !FABLE_COMPILER
     System.Convert.FromHexString(s)
 #else
-    emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
+    Fable.Core.JsInterop.emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
 #endif
 
 let integerTokenNibbler = Gaze.map integerNibbler (fun int -> Token.Int(int))

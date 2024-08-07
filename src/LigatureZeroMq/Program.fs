@@ -14,7 +14,7 @@ open System
 // open Ligature.LigatureStore.InMemoryStore
 open Ligature.Wander.Interpreter
 open Ligature.Main
-open Ligature.Wander.Lib.Lib
+open Ligature.Wander.Lib.Combinators
 
 let rec serve (server: ResponseSocket) = //(store: LigatureStore) =
     let script = server.ReceiveFrameString()
