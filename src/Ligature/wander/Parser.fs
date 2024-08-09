@@ -209,7 +209,7 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.String s -> LigatureValue.String s
     | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
     | Element.Call i -> LigatureValue.Identifier(Identifier i)
-    | Element.NetworkName n -> LigatureValue.NetworkName (NetworkName(n))
+    | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
 let handleQuote (quote: Element list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
@@ -236,7 +236,7 @@ let elementTupleToStatement
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
         | Element.Quote(q) -> handleQuote q
-        | Element.NetworkName n -> LigatureValue.NetworkName (NetworkName(n))
+        | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
         | _ -> failwith "TODO"
 
     (entity, attribute, value)
@@ -257,5 +257,6 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         | Element.Call i ->
             //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Identifier(i)) ])
-        | Element.NetworkName name -> express tail (List.append expressions [ Expression.NetworkName (NetworkName(name)) ])
+        | Element.NetworkName name ->
+            express tail (List.append expressions [ Expression.NetworkName(NetworkName(name)) ])
         | _ -> failwith "TODO"

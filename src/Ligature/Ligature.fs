@@ -35,6 +35,12 @@ type Slot = Slot of string option
 
 type Identifier = Identifier of string
 
+type NetworkName = NetworkName of string
+
+let readNetworkName (networkName: NetworkName) : string =
+    match networkName with
+    | NetworkName(name) -> name
+
 // type Slot = private Slot of string option
 //     member _.Named = name.IsSome
 
@@ -119,13 +125,12 @@ and Statement = (PatternIdentifier * PatternIdentifier * LigatureValue)
 
 and Network = Set<Statement>
 
-and NetworkName = NetworkName of string
-
 and Networks = Map<NetworkName, Network>
 
 and State = NetworkName * Networks
 
-let defaultState: State = (NetworkName(""), Map.ofSeq ([ (NetworkName(""), Set.empty) ]))
+let defaultState: State =
+    (NetworkName(""), Map.ofSeq ([ (NetworkName(""), Set.empty) ]))
 
 let readNetwork (name: NetworkName) ((_, networks): State) : Network =
     match Map.tryFind name networks with

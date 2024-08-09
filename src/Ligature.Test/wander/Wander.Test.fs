@@ -53,9 +53,7 @@ let tests =
                       Expect.equal
                           res
                           [ Element.Network
-                                [ (Element.Identifier "id",
-                                   Element.Identifier "=",
-                                   Element.Quote [ Element.Call "x" ]) ] ]
+                                [ (Element.Identifier "id", Element.Identifier "=", Element.Quote [ Element.Call "x" ]) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"

@@ -2,8 +2,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-open FSharp.Json
+open Ligature.Main
+open Ligature.Wander.Lib.Combinators
+open Ligature.Wander.Main
+open Fable.Core.JsInterop
 
-let run script network = Ligature.Wander.Main.run script network |> Json.serialize 
+let printResult (script: string) : string = run stdState script |> printResult
 
-let printResult result = Ligature.Wander.Main.printResult result |> Json.serialize 
+let run script =
+    let res = createEmpty
+
+    match run stdState script with
+    | Ok(NetworkName(_), networks) -> res
+    | Error err ->
+        res?errpr <- err.UserMessage
+        res

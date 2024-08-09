@@ -1,10 +1,10 @@
-import { run, coreBindings, WanderFunction, bindFunction } from "./lib/ligature.ts"
+import { run } from "./lib/ligature.ts"
 import { glob } from "glob"
 import fs from 'node:fs'
 import { expect, test } from 'vitest'
 
-const dir = process.env.LIGATURE_TEST_SUITE + "/wander/*.wander"
-const wanderFiles = await glob(dir)
+// const dir = process.env.LIGATURE_TEST_SUITE + "/wander/*.wander"
+// const wanderFiles = await glob(dir)
 
 // for (const file of wanderFiles) {
 //     test(`Testing ${file.replace("\\", "/").split("/").at(-1)}`, () => {
@@ -15,19 +15,15 @@ const wanderFiles = await glob(dir)
 //     })
 // }
 
-test("Basic values", () => {
-//    expect(run("{}")).toEqual([])
-    expect(run("24601"), [], []).toEqual(24601n)
-    // expect(run('"test"')).toEqual("test")
-    // expect(run("`test`")).toEqual({"identifier": "test"})
-    // expect(run("$test")).toEqual({"slot": "test"})
+test("Empty Network", () => {
+    expect(run("{}")).toEqual({})
 })
 
-// test("Eval Networks", () => {
-//     expect(run("{`a` `b` `c`}")).toEqual([
-//         [{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]
-//     ])
-// })
+test("Eval Networks", () => {
+    expect(run("{a b c}")).toEqual([
+        [{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]
+    ])
+})
 
 // test("Call Function", () => {
 //     expect(run("count {`a` `b` `c`}")).toEqual(1n)
