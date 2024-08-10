@@ -60,5 +60,7 @@ let newEngine () =
                 state <- res
                 stateToJS res
             | Error err -> failwith err.UserMessage
-
+    engine?addCombinator <-
+        fun (name: string) combinator ->
+            failwith "TODO"
     engine

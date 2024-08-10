@@ -1,7 +1,9 @@
 {
   "name": "@ligature/ligature",
+  "license": "MPL-2.0",
+  "author": { "name": "Alex Michael Berry", "url": "https://almibe.dev" },
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "files": [
     "dist"
