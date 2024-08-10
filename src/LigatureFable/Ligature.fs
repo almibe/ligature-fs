@@ -9,11 +9,56 @@ open Fable.Core.JsInterop
 
 let printResult (script: string) : string = run stdState script |> printResult
 
-let run script =
-    let res = createEmpty
+let stateToJS (networkName, networks) =
+    let currentNetwork = currentNetwork (networkName, networks)
+    let mutable resNetwork = [||]
 
-    match run stdState script with
-    | Ok(NetworkName(_), networks) -> res
-    | Error err ->
-        res?errpr <- err.UserMessage
-        res
+    Set.iter
+        (fun (e, a, v) ->
+            let entity = createEmpty
+            let attribute = createEmpty
+            let value = createEmpty
+
+            match e with
+            | PatternIdentifier.Identifier(Identifier(id)) -> entity?identifier <- id
+            | PatternIdentifier.Slot(Slot(Some(slot))) -> entity?slot <- slot
+            | PatternIdentifier.Slot(Slot(None)) -> entity?slot <- ""
+
+            match a with
+            | PatternIdentifier.Identifier(Identifier(id)) -> attribute?identifier <- id
+            | PatternIdentifier.Slot(Slot(Some(slot))) -> attribute?slot <- slot
+            | PatternIdentifier.Slot(Slot(None)) -> attribute?slot <- ""
+
+            match v with
+            | LigatureValue.Bytes b -> failwith "TODO"
+            | LigatureValue.Int i -> value?int <- i
+            | LigatureValue.Network n -> failwith "TODO"
+            | LigatureValue.NetworkName n -> failwith "TODO"
+            | LigatureValue.HostCombinator hc -> failwith "TODO"
+            | LigatureValue.Quote q -> failwith "TODO"
+            | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
+            | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
+            | LigatureValue.String s -> value?string <- s
+            | LigatureValue.Identifier(Identifier(i)) -> value?identifier <- i
+
+            resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
+        currentNetwork
+
+    let res = createEmpty
+    res?name <- readNetworkName networkName
+    res?network <- resNetwork
+    res
+
+let newEngine () =
+    let engine = createEmpty
+    let mutable state = defaultState
+
+    engine?run <-
+        fun (script: string) ->
+            match run state script with
+            | Ok res ->
+                state <- res
+                stateToJS res
+            | Error err -> failwith err.UserMessage
+
+    engine

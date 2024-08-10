@@ -1,4 +1,4 @@
-import { run } from "./lib/ligature.ts"
+import { run, newEngine } from "./lib/ligature.js"
 import { glob } from "glob"
 import fs from 'node:fs'
 import { expect, test } from 'vitest'
@@ -16,13 +16,13 @@ import { expect, test } from 'vitest'
 // }
 
 test("Empty Network", () => {
-    expect(run("{}")).toEqual({})
+    let engine = newEngine()
+    expect(engine.run("{}")).toEqual({name: "", network: []})
 })
 
 test("Eval Networks", () => {
-    expect(run("{a b c}")).toEqual([
-        [{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]
-    ])
+    let engine = newEngine()
+    expect(engine.run("{a b c}")).toEqual({ name: "", network: [[{identifier:"a"},{identifier:"b"},{identifier:"c"}]] })
 })
 
 // test("Call Function", () => {
