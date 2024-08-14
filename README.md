@@ -23,12 +23,12 @@ This repo is made up of a couple of different projects, below is a description o
 Some of these projects have a sibling project like Ligature.Test that simply contains a
 test suite for the other project.
 
-| Project           | Description                                                        |
-| ----------------- | ------------------------------------------------------------------ |
-| build             | Fake build script.                                                 |
-| Gaze              | A parsing library.                                                 |
-| Ligature          | Main code base including the main logic and types.                 |
-| LigatureZeroMQ    | A backend of Ligature using ZeroMQ.                                |
+| Project            | Description                                                        |
+| ------------------ | ------------------------------------------------------------------ |
+| build              | Fake build script.                                                 |
+| Gaze               | A parsing library.                                                 |
+| Ligature           | Main code base including the main logic and types.                 |
+| LigatureWebSockets | A backend of Ligature using Suave and WebSockets.                  |
 
 ## Setup
 
@@ -52,12 +52,12 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
-## LigatureZeroMQ
+## LigatureWebSockets
 
-LigatureZeroMQ is a project that allows running Wander code against an instance of Ligature via [ZeroMQ]().
+LigatureWebSockets is a project that allows running Wander code against an instance of Ligature via WebSockets.
 
-### Running LigatureZeroMQ
+### Running LigatureWebSockets
 
-`dotnet run --project src/LigatureZeroMQ`
+`dotnet run --project src/LigatureWebSockets`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
