@@ -134,6 +134,94 @@ let applyCombinator: Combinator =
             //if so replace that slot with the binding and merge the final result into the outNetwork
             | _ -> failwith "TODO" }
 
+let assertEqualCombinator = 
+    { Name = "assert-equal"
+      Eval =
+        fun (inputState: State) ->
+            let (networkName, networks) = inputState
+            let currentNetwork = currentNetwork inputState
+
+            let given =
+                readBinding (PatternIdentifier.Identifier(Identifier("given"))) currentNetwork
+
+            let expect =
+                readBinding (PatternIdentifier.Identifier(Identifier("expect"))) currentNetwork
+
+            match (given, expect) with
+            | (Some(LigatureValue.NetworkName(given)),
+               Some(LigatureValue.NetworkName(expect))) ->
+                let givenNetwork = readNetwork given inputState
+                let expectNetwork = readNetwork expect inputState
+
+                if givenNetwork = expectNetwork then
+                    Ok inputState
+                else
+                    error "Assertion failed." None
+            | _ -> failwith "TODO" }
+
+
+let educeCombinator = 
+    { Name = "educe"
+      Eval =
+        fun (inputState: State) ->
+            let (networkName, networks) = inputState
+            let currentNetwork = currentNetwork inputState
+
+            let src =
+                readBinding (PatternIdentifier.Identifier(Identifier("in"))) currentNetwork
+
+            let pattern =
+                readBinding (PatternIdentifier.Identifier(Identifier("pattern"))) currentNetwork
+
+            let out =
+                readBinding (PatternIdentifier.Identifier(Identifier("out"))) currentNetwork
+
+            match (src, pattern, out) with
+            | (Some(LigatureValue.NetworkName(src)),
+               Some(LigatureValue.NetworkName(pattern)),
+               Some(LigatureValue.NetworkName(out))) ->
+                let srcNetwork = readNetwork src inputState
+                let patternNetwork = readNetwork pattern inputState
+                let outNetwork = readNetwork out inputState
+
+                let resultNetwork = failwith "TODO"
+                Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
+            | _ -> failwith "TODO" }
+
+
+let queryCombinator = 
+    { Name = "query"
+      Eval =
+        fun (inputState: State) ->
+            let (networkName, networks) = inputState
+            let currentNetwork = currentNetwork inputState
+
+            let src =
+                readBinding (PatternIdentifier.Identifier(Identifier("src"))) currentNetwork
+
+            let template =
+                readBinding (PatternIdentifier.Identifier(Identifier("template"))) currentNetwork
+
+            let pattern =
+                readBinding (PatternIdentifier.Identifier(Identifier("pattern"))) currentNetwork
+
+            let out =
+                readBinding (PatternIdentifier.Identifier(Identifier("out"))) currentNetwork
+
+            match (src, template, pattern, out) with
+            | (Some(LigatureValue.NetworkName(src)),
+               Some(LigatureValue.NetworkName(template)),
+               Some(LigatureValue.NetworkName(pattern)),
+               Some(LigatureValue.NetworkName(out))) ->
+                let srcNetwork = readNetwork src inputState
+                let templateNetwork = readNetwork template inputState
+                let patternNetwork = readNetwork pattern inputState
+                let outNetwork = readNetwork out inputState
+
+                let resultNetwork = failwith "TODO"
+                Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
+            | _ -> failwith "TODO" }
+
 let stdState: State =
     (NetworkName(""),
      Map.ofSeq (
@@ -145,6 +233,15 @@ let stdState: State =
                   (PatternIdentifier.Identifier(Identifier("union")),
                    PatternIdentifier.Identifier(Identifier("=")),
                    LigatureValue.HostCombinator unionCombinator)
+                  (PatternIdentifier.Identifier(Identifier("assert-equal")),
+                   PatternIdentifier.Identifier(Identifier("=")),
+                   LigatureValue.HostCombinator assertEqualCombinator)
+                  (PatternIdentifier.Identifier(Identifier("educe")),
+                   PatternIdentifier.Identifier(Identifier("=")),
+                   LigatureValue.HostCombinator queryCombinator)
+                  (PatternIdentifier.Identifier(Identifier("query")),
+                   PatternIdentifier.Identifier(Identifier("=")),
+                   LigatureValue.HostCombinator queryCombinator)
                   (PatternIdentifier.Identifier(Identifier("clear")),
                    PatternIdentifier.Identifier(Identifier("=")),
                    LigatureValue.HostCombinator clearCombinator)

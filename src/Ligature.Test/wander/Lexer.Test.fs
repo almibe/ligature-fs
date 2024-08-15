@@ -28,6 +28,7 @@ let tests =
           //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
           testCase "Read Identifiers"
           <| fun _ ->
+              Expect.equal (tokenize "a-x") (Ok([ Token.Identifier("a-x") ])) ""
               Expect.equal (tokenize "x") (Ok([ Token.Identifier("x") ])) ""
               Expect.equal (tokenize "hello") (Ok([ Token.Identifier("hello") ])) ""
               Expect.equal (tokenize "x.y") (Ok([ Token.Identifier("x.y") ])) ""
