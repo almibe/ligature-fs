@@ -13,8 +13,6 @@ open Ligature.Main
 [<RequireQualifiedAccess>]
 type Element =
     | Name of string
-    | NetworkName of string
-    | QualifiedName of string * string
     | Quote of Element list
     | String of string
     | Int of bigint
@@ -36,22 +34,6 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.Name(name)) -> Ok(Element.Name(name))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
-
-let networkNameNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
-
-let qualifiedNameNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.QualifiedName(networkName, name)) -> Ok(Element.QualifiedName(networkName, name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -125,8 +107,6 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
     | Ok(Token.Name(value)) -> Ok(Element.Name value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
-    | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
-    | Ok(Token.QualifiedName(networkName, name)) -> Ok(Element.QualifiedName(networkName, name))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -173,7 +153,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ qualifiedNameNib; networkNameNib; callNib; networkNib ]
+let elementNib = takeFirst [ callNib; networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -219,8 +199,6 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.String s -> LigatureValue.String s
     | Element.Name i -> LigatureValue.Name(Name i)
     | Element.Call i -> LigatureValue.Name(Name i)
-    | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
-    | Element.QualifiedName(networkName, name) -> LigatureValue.QualifiedName(NetworkName(networkName), Name(name))
 
 let handleQuote (quote: Element list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
@@ -247,8 +225,6 @@ let elementTupleToStatement
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
         | Element.Quote(q) -> handleQuote q
-        | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
-        | Element.QualifiedName(networkName, name) -> LigatureValue.QualifiedName(NetworkName(networkName), Name(name))
         | _ -> failwith "TODO"
 
     (entity, attribute, value)
@@ -269,6 +245,4 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         | Element.Call i ->
             //            List.map (fun x -> express x) q
             express tail (List.append expressions [ Expression.Call(Name(i)) ])
-        | Element.NetworkName name ->
-            express tail (List.append expressions [ Expression.NetworkName(NetworkName(name)) ])
         | _ -> failwith "TODO"

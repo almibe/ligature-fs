@@ -35,14 +35,6 @@ type Slot = Slot of string option
 
 type Name = Name of string
 
-type NetworkName = NetworkName of string
-
-type QualifiedName = NetworkName * Name
-
-let readNetworkName (networkName: NetworkName) : string =
-    match networkName with
-    | NetworkName(name) -> name
-
 // type Slot = private Slot of string option
 //     member _.Named = name.IsSome
 
@@ -115,8 +107,6 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
     | Name of Name
-    | NetworkName of NetworkName
-    | QualifiedName of NetworkName * Name
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -128,22 +118,9 @@ and Statement = (PatternName * PatternName * LigatureValue)
 
 and Network = Set<Statement>
 
-and Networks = Map<NetworkName, Network>
+and State = Network
 
-and State = NetworkName * Networks
-
-let defaultState: State =
-    (NetworkName(""), Map.ofSeq ([ (NetworkName(""), Set.empty) ]))
-
-let readNetwork (name: NetworkName) ((_, networks): State) : Network =
-    match Map.tryFind name networks with
-    | Some res -> res
-    | None -> Set.empty
-
-let currentNetwork ((name, networks): State) : Network =
-    match Map.tryFind name networks with
-    | Some res -> res
-    | None -> Set.empty
+let defaultState: State  = Set.empty
 
 let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
     let res =

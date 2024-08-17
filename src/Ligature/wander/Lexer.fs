@@ -95,8 +95,6 @@ type Token =
     | NewLine of string
     | Slot of Slot
     | Name of string
-    | NetworkName of string
-    | QualifiedName of string * string
     | StringLiteral of string
     | Int of bigint
     | OpenBrace
@@ -117,20 +115,6 @@ let slotTokenNibbler =
             Token.Slot(Slot(None))
         else
             chars.[1..] |> implode |> Some |> Slot |> Token.Slot)
-
-let networkNameTokenNibbler =
-    Gaze.map networkNameNibbler (fun chars ->
-        if chars = [ '@' ] then
-            Token.NetworkName("")
-        else
-            let name = chars.[1..] |> implode
-            if name.Contains(".") then
-                match name.Split(".") with
-                | [| networkName; name |] -> 
-                    Token.QualifiedName (networkName, name)
-                | _ -> failwith "TODO"
-            else
-                Token.NetworkName name)
 
 let bytesFromString (s: string) =
 #if !FABLE_COMPILER
@@ -186,7 +170,6 @@ let tokenNibbler =
                   integerTokenNibbler
                   newLineTokenNibbler
                   slotTokenNibbler
-                  networkNameTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
                   takeAndMap "{" Token.OpenBrace

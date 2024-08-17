@@ -12,7 +12,6 @@ open Ligature
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | NetworkName of NetworkName
     | Call of Name
     | Network of Network
 
@@ -35,9 +34,7 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.Quote(values) -> $"[{printQuote values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
-    | LigatureValue.NetworkName n -> $"@{n}"
     | LigatureValue.HostCombinator(combinator) -> $"Combinator({combinator.Name})"
-    | LigatureValue.QualifiedName(NetworkName(networkName), Name(name)) -> $"@{networkName}.{name}"
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))

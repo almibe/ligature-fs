@@ -42,6 +42,8 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
+          //TODO add test for Nested Networks
+
           testCase "Parse Network With Quote"
           <| fun _ ->
               let script = "{id = [ x ]}"
@@ -58,35 +60,14 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Named Network"
-          <| fun _ ->
-              let script = "@name {a b c}"
-
-              match tokenize script with
-              | Ok(res) ->
-                  match parse res with
-                  | Ok(res) ->
-                      Expect.equal
-                          res
-                          [ Element.NetworkName("name")
-                            Element.Network
-                                [ Element.Name("a"), Element.Name("b"), Element.Name("c") ] ]
-                          ""
-                  | _ -> failwith "Error Parsing"
-              | _ -> failwith "Error Tokenizing"
-
           testCase "Run Network"
           <| fun _ ->
-              let script = "{a b c, e f 89, a b $test, a b @test, a b @test.value }"
+              let script = "{a b c, e f 89, a b $test, a b test, a b test.value }"
               let result = run defaultState script
 
               Expect.equal
                   result
                   (Ok(
-                      (NetworkName(""),
-                       Map.ofSeq
-                           [ (NetworkName(""),
-
                               Set.ofSeq
                                   [ (PatternName.Name(Name("a")),
                                      PatternName.Name(Name("b")),
@@ -99,94 +80,74 @@ let tests =
                                      LigatureValue.Slot(Slot(Some("test")))) 
                                     (PatternName.Name(Name("a")),
                                      PatternName.Name(Name("b")),
-                                     LigatureValue.NetworkName(NetworkName("test")))
+                                     LigatureValue.Name(Name("test")))
                                     (PatternName.Name(Name("a")),
                                      PatternName.Name(Name("b")),
-                                     LigatureValue.QualifiedName(NetworkName("test"), Name("value")))])])
-                  ))
+                                     LigatureValue.Name(Name("test.value")))]))
                   ""
 
-          testCase "Run Named Network"
-          <| fun _ ->
-              let script = "@test {a b c}"
-              let result = run defaultState script
+        //   testCase "Run Id Combinator"
+        //   <| fun _ ->
+        //       let script = "{a b c} id"
+        //       let result = run Set.empty script
 
-              Expect.equal
-                  result
-                  (Ok(
-                      (NetworkName("test"),
-                       Map.ofSeq
-                           [ (NetworkName "", Set.empty)
-                             (NetworkName "test",
-                              Set.ofSeq
-                                  [ (PatternName.Name(Name("a")),
-                                     PatternName.Name(Name("b")),
-                                     LigatureValue.Name(Name("c"))) ]) ])
-                  ))
-                  ""
+        //       match result with
+        //       | Ok(name, networks) ->
+        //           Expect.equal
+        //               (currentNetwork (name, networks))
+        //               (Set.ofSeq
+        //                   [ (PatternName.Name(Name("a")),
+        //                      PatternName.Name(Name("b")),
+        //                      LigatureValue.Name(Name("c"))) ])
+        //               ""
+        //       | Error _ -> failwith "Error"
+        //   testCase "Run Clear Combinator"
+        //   <| fun _ ->
+        //       let script = "{a b c} clear"
+        //       let result = run stdState script
 
-          testCase "Run Id Combinator"
-          <| fun _ ->
-              let script = "{a b c} id"
-              let result = run stdState script
+        //       match result with
+        //       | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
+        //       | Error _ -> failwith "Error"
 
-              match result with
-              | Ok(name, networks) ->
-                  Expect.equal
-                      (currentNetwork (name, networks))
-                      (Set.ofSeq
-                          [ (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Name(Name("c"))) ])
-                      ""
-              | Error _ -> failwith "Error"
-          testCase "Run Clear Combinator"
-          <| fun _ ->
-              let script = "{a b c} clear"
-              let result = run stdState script
+        //   testCase "Run Union Combinator"
+        //   <| fun _ ->
+        //       let script =
+        //           "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
 
-              match result with
-              | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
-              | Error _ -> failwith "Error"
+        //       let result = run stdState script
 
-          testCase "Run Union Combinator"
-          <| fun _ ->
-              let script =
-                  "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
+        //       match result with
+        //       | Ok(name, networks) ->
+        //           Expect.equal
+        //               (currentNetwork (name, networks))
+        //               (Set.ofSeq
+        //                   [ (PatternName.Name(Name("a")),
+        //                      PatternName.Name(Name("b")),
+        //                      LigatureValue.Name(Name("c")))
+        //                     (PatternName.Name(Name("d")),
+        //                      PatternName.Name(Name("e")),
+        //                      LigatureValue.Name(Name("f"))) ])
+        //               ""
+        //       | Error _ -> failwith "Error"
 
-              let result = run stdState script
+        //   testCase "Run Minus Combinator"
+        //   <| fun _ ->
+        //       let script =
+        //           "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
 
-              match result with
-              | Ok(name, networks) ->
-                  Expect.equal
-                      (currentNetwork (name, networks))
-                      (Set.ofSeq
-                          [ (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Name(Name("c")))
-                            (PatternName.Name(Name("d")),
-                             PatternName.Name(Name("e")),
-                             LigatureValue.Name(Name("f"))) ])
-                      ""
-              | Error _ -> failwith "Error"
+        //       let result = run Set.empty script //TODO don't use Set.empty, use stdLib
 
-          testCase "Run Minus Combinator"
-          <| fun _ ->
-              let script =
-                  "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
-
-              let result = run stdState script
-
-              match result with
-              | Ok(name, networks) ->
-                  Expect.equal
-                      (currentNetwork (name, networks))
-                      (Set.ofSeq
-                          [ (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Name(Name("c"))) ])
-                      ""
-              | Error err -> failwith $"Error {err}"
+        //       match result with
+        //       | Ok(state) ->
+        //           Expect.equal
+        //               state
+        //               (Set.ofSeq
+        //                   [ (PatternName.Name(Name("a")),
+        //                      PatternName.Name(Name("b")),
+        //                      LigatureValue.Name(Name("c"))) ])
+        //               ""
+        //       | Error err -> failwith $"Error {err}"
 
           //   testCase "Run Network"
           //   <| fun _ ->
