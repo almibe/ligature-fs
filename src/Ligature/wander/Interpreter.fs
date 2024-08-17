@@ -7,33 +7,32 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Main
 
-let evalNetwork (state: State) (network: Network) : Result<State, LigatureError> =
-    Ok (Set.union state network)
+let evalNetwork (state: State) (network: Network) : Result<State, LigatureError> = Ok(Set.union state network)
 
 let rec evalExpression (inputState: State) (expression: Expression) : Result<State, LigatureError> =
     match expression with
     | Expression.Network(network) -> evalNetwork inputState network
-    | Expression.Call(name) -> handleName inputState name
+    | Expression.Call(name, _) -> handleName inputState name
 
 and handleName (inputState: State) (identifier: Name) = failwith "TODO"
-    // let currentResults =
-    //     readBinding (PatternName.Name identifier) (state)
+// let currentResults =
+//     readBinding (PatternName.Name identifier) (state)
 
-    // let combinatorResults =
-    //     readBinding (PatternName.Name identifier) (readNetwork (NetworkName("combinators")) inputState)
+// let combinatorResults =
+//     readBinding (PatternName.Name identifier) (readNetwork (NetworkName("combinators")) inputState)
 
-    // if currentResults.IsSome then
-    //     match currentResults.Value with
-    //     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-    //     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-    //     | _ -> failwith "TODO"
-    // else if combinatorResults.IsSome then
-    //     match combinatorResults.Value with
-    //     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-    //     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-    //     | _ -> failwith "TODO"
-    // else
-    //     error $"Could not find Name, {identifier}" None
+// if currentResults.IsSome then
+//     match currentResults.Value with
+//     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
+//     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
+//     | _ -> failwith "TODO"
+// else if combinatorResults.IsSome then
+//     match combinatorResults.Value with
+//     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
+//     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
+//     | _ -> failwith "TODO"
+// else
+//     error $"Could not find Name, {identifier}" None
 
 and evalExpressions (inputState: State) (expressions: Expression list) : Result<State, LigatureError> =
     match expressions with
@@ -56,7 +55,7 @@ and valuesToExpressions
         | LigatureValue.Name i ->
             match tail with
             | LigatureValue.Quote p :: tail -> failwith "TODO"
-            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call i ])
+            | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call(i, []) ])
         | _ -> error "Invalid Quote" None
 
 and evalQuote

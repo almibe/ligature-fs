@@ -12,7 +12,7 @@ open Ligature
 
 [<RequireQualifiedAccess>]
 type Expression =
-    | Call of Name
+    | Call of Name * (Name * LigatureValue) list
     | Network of Network
 
 type Parameter = { name: string; tag: string }

@@ -25,7 +25,7 @@ let rec allFiles dirs =
 
 [<Tests>]
 let wanderTestSuite =
-//    let createBindings () = coreBindings //(Ligature.LigatureStore.InMemoryStore.empty ())
+    //    let createBindings () = coreBindings //(Ligature.LigatureStore.InMemoryStore.empty ())
 
     let ligatureTestSuite =
         System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")

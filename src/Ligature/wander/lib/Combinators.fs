@@ -70,7 +70,7 @@ let idCombinator: Combinator =
 //         fun (inputState: State) ->
 //             let (networkName, networks) = inputState
 //             let currentNetwork = currentNetwork inputState
- 
+
 //             let input =
 //                 readBinding (PatternName.Name(Name("in"))) currentNetwork
 
@@ -89,8 +89,8 @@ let idCombinator: Combinator =
 //                 let outNetwork = readNetwork out inputState
 
 //                 match readBinding (PatternName.Name(name)) inputNetwork with
-//                 | Some(LigatureValue.Quote(values)) -> 
-                    
+//                 | Some(LigatureValue.Quote(values)) ->
+
 //                     failwith "TODO"
 //                 | _ -> failwith "TODO"
 
@@ -136,7 +136,7 @@ let idCombinator: Combinator =
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-// let assertEqualCombinator = 
+// let assertEqualCombinator =
 //     { Name = "assert-equal"
 //       Eval =
 //         fun (inputState: State) ->
@@ -161,7 +161,7 @@ let idCombinator: Combinator =
 //                     error "Assertion failed." None
 //             | _ -> failwith "TODO" }
 
-// let queryCombinator = 
+// let queryCombinator =
 //     { Name = "query"
 //       Eval =
 //         fun (inputState: State) ->

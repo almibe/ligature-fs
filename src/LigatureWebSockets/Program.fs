@@ -22,28 +22,26 @@ open Ligature.Wander.Interpreter
 open Ligature.Main
 open Ligature.Wander.Lib.Combinators
 
-let ws (webSocket : WebSocket) (context: HttpContext) =
+let ws (webSocket: WebSocket) (context: HttpContext) =
     socket {
         let mutable loop = true
         let mutable state = Set.empty
 
         while loop do
-            let! msg = webSocket.read()
+            let! msg = webSocket.read ()
 
             match msg with
             | (Text, data, true) ->
                 let script = UTF8.toString data
-                let res = run state script 
+                let res = run state script
+
                 match res with
                 | Ok(newState) -> state <- newState
                 | _ -> ignore
-                
+
                 let res = res |> printResult
 
-                let byteResponse =
-                    res
-                    |> System.Text.Encoding.ASCII.GetBytes
-                    |> ByteSegment
+                let byteResponse = res |> System.Text.Encoding.ASCII.GetBytes |> ByteSegment
                 do! webSocket.send Text byteResponse true
 
             | (Close, _, _) ->
@@ -52,16 +50,18 @@ let ws (webSocket : WebSocket) (context: HttpContext) =
                 loop <- false
 
             | _ -> ()
-      }
+    }
 
-let app =
-  choose
-    [ path "/websocket" >=> handShake ws ]
+let app = choose [ path "/websocket" >=> handShake ws ]
 
 [<EntryPoint>]
-let main argv = 
+let main argv =
     let cts = new CancellationTokenSource()
-    let conf = { defaultConfig with cancellationToken = cts.Token }
+
+    let conf =
+        { defaultConfig with
+            cancellationToken = cts.Token }
+
     let listening, server = startWebServerAsync conf app
 
     Async.Start(server, cts.Token)

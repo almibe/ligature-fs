@@ -18,7 +18,7 @@ type Element =
     | Int of bigint
     | Bytes of byte array
     | Slot of Slot
-    | Call of string
+    | Call of string * (string * Element) list
     | Network of (Element * Element * Element) list
 
 let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
@@ -42,7 +42,7 @@ let callNib (gaze: Gaze.Gaze<Token>) =
         let! identifier = Gaze.attempt (identifierNib) gaze
 
         match identifier with
-        | Element.Name(identifier) -> return Element.Call(identifier)
+        | Element.Name(identifier) -> return Element.Call(identifier, [])
         | _ -> return failwith "TODO"
     }
 
@@ -98,8 +98,7 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-/// Read the next Element from the given instance of Gaze<Token>
-let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
@@ -109,6 +108,8 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
+
+let valueNib = takeFirst [ atomicValueNib; networkNib ]
 
 let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result<Element list, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -198,14 +199,16 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Name i -> LigatureValue.Name(Name i)
-    | Element.Call i -> LigatureValue.Name(Name i)
+    | Element.Call(i, _) -> failwith "Error?" //LigatureValue.Name(Name i) //TODO I don't think this should ever be called?
 
 let handleQuote (quote: Element list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
 
-let elementTupleToStatement
-    ((e, a, v): (Element * Element * Element))
-    : (PatternName * PatternName * LigatureValue) =
+let handleNetwork (network: (Element * Element * Element) list) : Network =
+    let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
+    res
+
+let elementTupleToStatement ((e, a, v): (Element * Element * Element)) : (PatternName * PatternName * LigatureValue) =
     let entity =
         match e with
         | Element.Name i -> PatternName.Name(Name i)
@@ -224,15 +227,10 @@ let elementTupleToStatement
         | Element.Int i -> LigatureValue.Int i
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
-        | Element.Quote(q) -> handleQuote q
-        | _ -> failwith "TODO"
+        | Element.Quote q -> handleQuote q
+        | Element.Network n -> LigatureValue.Network(handleNetwork n)
 
     (entity, attribute, value)
-
-let handleNetwork (network: (Element * Element * Element) list) : Network =
-    let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
-
-    res
 
 let rec express (elements: Element list) (expressions: Expression list) : Expression list =
     match elements with
@@ -242,7 +240,7 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
         // | Element.Name w ->
         //     express tail (List.append expressions [ Expression.Call(Name(w), { parameterNames = []; quote = [] }) ])
-        | Element.Call i ->
+        | Element.Call(i, _) ->
             //            List.map (fun x -> express x) q
-            express tail (List.append expressions [ Expression.Call(Name(i)) ])
+            express tail (List.append expressions [ Expression.Call(Name(i), []) ])
         | _ -> failwith "TODO"

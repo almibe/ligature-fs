@@ -120,19 +120,15 @@ and Network = Set<Statement>
 
 and State = Network
 
-let defaultState: State  = Set.empty
+let defaultState: State = Set.empty
 
 let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
     let res =
         Set.filter
             (fun (e, a, _) ->
                 match (name, e, a) with
-                | (PatternName.Name(name),
-                   PatternName.Name(entity),
-                   PatternName.Name(Name("="))) -> entity = name
-                | (PatternName.Slot(slot),
-                   PatternName.Slot(entity),
-                   PatternName.Name(Name("="))) -> entity = slot
+                | (PatternName.Name(name), PatternName.Name(entity), PatternName.Name(Name("="))) -> entity = name
+                | (PatternName.Slot(slot), PatternName.Slot(entity), PatternName.Name(Name("="))) -> entity = slot
                 | _ -> false)
             network
 

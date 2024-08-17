@@ -36,13 +36,10 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ Element.Network
-                                [ (Element.Name("a"), Element.Name("b"), Element.Name("c")) ] ]
+                          [ Element.Network [ (Element.Name("a"), Element.Name("b"), Element.Name("c")) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
-
-          //TODO add test for Nested Networks
 
           testCase "Parse Network With Quote"
           <| fun _ ->
@@ -55,7 +52,43 @@ let tests =
                       Expect.equal
                           res
                           [ Element.Network
-                                [ (Element.Name "id", Element.Name "=", Element.Quote [ Element.Call "x" ]) ] ]
+                                [ (Element.Name "id", Element.Name "=", Element.Quote [ Element.Call("x", []) ]) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
+          testCase "Parse Nested Networks"
+          <| fun _ ->
+              let script = "{test = {a b c} }"
+
+              match tokenize script with
+              | Ok res ->
+                  match parse res with
+                  | Ok res ->
+                      Expect.equal
+                          res
+                          [ Element.Network
+                                [ (Element.Name "test",
+                                   Element.Name "=",
+                                   Element.Network([ (Element.Name("a"), Element.Name("b"), Element.Name("c")) ])) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
+          testCase "Parse Combinator Call with Arguments"
+          <| fun _ ->
+              let script = "( A.b c = {d e f}, h = 4 )"
+
+              match tokenize script with
+              | Ok res ->
+                  match parse res with
+                  | Ok res ->
+                      Expect.equal
+                          res
+                          [ Element.Call(
+                                "A.b",
+                                [ ("c", Element.Network([ (Element.Name("d"), Element.Name("e"), Element.Name("d")) ])) ]
+                            ) ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -68,86 +101,81 @@ let tests =
               Expect.equal
                   result
                   (Ok(
-                              Set.ofSeq
-                                  [ (PatternName.Name(Name("a")),
-                                     PatternName.Name(Name("b")),
-                                     LigatureValue.Name(Name("c")))
-                                    (PatternName.Name(Name("e")),
-                                     PatternName.Name(Name("f")),
-                                     LigatureValue.Int(89I))
-                                    (PatternName.Name(Name("a")),
-                                     PatternName.Name(Name("b")),
-                                     LigatureValue.Slot(Slot(Some("test")))) 
-                                    (PatternName.Name(Name("a")),
-                                     PatternName.Name(Name("b")),
-                                     LigatureValue.Name(Name("test")))
-                                    (PatternName.Name(Name("a")),
-                                     PatternName.Name(Name("b")),
-                                     LigatureValue.Name(Name("test.value")))]))
+                      Set.ofSeq
+                          [ (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("c")))
+                            (PatternName.Name(Name("e")), PatternName.Name(Name("f")), LigatureValue.Int(89I))
+                            (PatternName.Name(Name("a")),
+                             PatternName.Name(Name("b")),
+                             LigatureValue.Slot(Slot(Some("test"))))
+                            (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("test")))
+                            (PatternName.Name(Name("a")),
+                             PatternName.Name(Name("b")),
+                             LigatureValue.Name(Name("test.value"))) ]
+                  ))
                   ""
 
-        //   testCase "Run Id Combinator"
-        //   <| fun _ ->
-        //       let script = "{a b c} id"
-        //       let result = run Set.empty script
+          //   testCase "Run Id Combinator"
+          //   <| fun _ ->
+          //       let script = "{a b c} id"
+          //       let result = run Set.empty script
 
-        //       match result with
-        //       | Ok(name, networks) ->
-        //           Expect.equal
-        //               (currentNetwork (name, networks))
-        //               (Set.ofSeq
-        //                   [ (PatternName.Name(Name("a")),
-        //                      PatternName.Name(Name("b")),
-        //                      LigatureValue.Name(Name("c"))) ])
-        //               ""
-        //       | Error _ -> failwith "Error"
-        //   testCase "Run Clear Combinator"
-        //   <| fun _ ->
-        //       let script = "{a b c} clear"
-        //       let result = run stdState script
+          //       match result with
+          //       | Ok(name, networks) ->
+          //           Expect.equal
+          //               (currentNetwork (name, networks))
+          //               (Set.ofSeq
+          //                   [ (PatternName.Name(Name("a")),
+          //                      PatternName.Name(Name("b")),
+          //                      LigatureValue.Name(Name("c"))) ])
+          //               ""
+          //       | Error _ -> failwith "Error"
+          //   testCase "Run Clear Combinator"
+          //   <| fun _ ->
+          //       let script = "{a b c} clear"
+          //       let result = run stdState script
 
-        //       match result with
-        //       | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
-        //       | Error _ -> failwith "Error"
+          //       match result with
+          //       | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
+          //       | Error _ -> failwith "Error"
 
-        //   testCase "Run Union Combinator"
-        //   <| fun _ ->
-        //       let script =
-        //           "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
+          //   testCase "Run Union Combinator"
+          //   <| fun _ ->
+          //       let script =
+          //           "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
 
-        //       let result = run stdState script
+          //       let result = run stdState script
 
-        //       match result with
-        //       | Ok(name, networks) ->
-        //           Expect.equal
-        //               (currentNetwork (name, networks))
-        //               (Set.ofSeq
-        //                   [ (PatternName.Name(Name("a")),
-        //                      PatternName.Name(Name("b")),
-        //                      LigatureValue.Name(Name("c")))
-        //                     (PatternName.Name(Name("d")),
-        //                      PatternName.Name(Name("e")),
-        //                      LigatureValue.Name(Name("f"))) ])
-        //               ""
-        //       | Error _ -> failwith "Error"
+          //       match result with
+          //       | Ok(name, networks) ->
+          //           Expect.equal
+          //               (currentNetwork (name, networks))
+          //               (Set.ofSeq
+          //                   [ (PatternName.Name(Name("a")),
+          //                      PatternName.Name(Name("b")),
+          //                      LigatureValue.Name(Name("c")))
+          //                     (PatternName.Name(Name("d")),
+          //                      PatternName.Name(Name("e")),
+          //                      LigatureValue.Name(Name("f"))) ])
+          //               ""
+          //       | Error _ -> failwith "Error"
 
-        //   testCase "Run Minus Combinator"
-        //   <| fun _ ->
-        //       let script =
-        //           "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
+          //   testCase "Run Minus Combinator"
+          //   <| fun _ ->
+          //       let script =
+          //           "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
 
-        //       let result = run Set.empty script //TODO don't use Set.empty, use stdLib
+          //       let result = run Set.empty script //TODO don't use Set.empty, use stdLib
 
-        //       match result with
-        //       | Ok(state) ->
-        //           Expect.equal
-        //               state
-        //               (Set.ofSeq
-        //                   [ (PatternName.Name(Name("a")),
-        //                      PatternName.Name(Name("b")),
-        //                      LigatureValue.Name(Name("c"))) ])
-        //               ""
-        //       | Error err -> failwith $"Error {err}"
+          //       match result with
+          //       | Ok(state) ->
+          //           Expect.equal
+          //               state
+          //               (Set.ofSeq
+          //                   [ (PatternName.Name(Name("a")),
+          //                      PatternName.Name(Name("b")),
+          //                      LigatureValue.Name(Name("c"))) ])
+          //               ""
+          //       | Error err -> failwith $"Error {err}"
 
           //   testCase "Run Network"
           //   <| fun _ ->
