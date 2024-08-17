@@ -74,9 +74,9 @@ let applyCombinator: Combinator =
         fun (inputState: State) ->
             let (networkName, networks) = inputState
             let currentNetwork = currentNetwork inputState
-
-            let data =
-                readBinding (PatternName.Name(Name("data"))) currentNetwork
+ 
+            let input =
+                readBinding (PatternName.Name(Name("in"))) currentNetwork
 
             let template =
                 readBinding (PatternName.Name(Name("template"))) currentNetwork
@@ -84,13 +84,19 @@ let applyCombinator: Combinator =
             let out =
                 readBinding (PatternName.Name(Name("out"))) currentNetwork
 
-            match (data, template, out) with
-            | (Some(LigatureValue.NetworkName(data)),
+            match (input, template, out) with
+            | (Some(LigatureValue.QualifiedName(networkName, name)),
                Some(LigatureValue.NetworkName(template)),
                Some(LigatureValue.NetworkName(out))) ->
-                let dataNetwork = readNetwork data inputState
+                let inputNetwork = readNetwork networkName inputState
                 let templateNetwork = readNetwork template inputState
                 let outNetwork = readNetwork out inputState
+
+                match readBinding (PatternName.Name(name)) inputNetwork with
+                | Some(LigatureValue.Quote(values)) -> 
+                    
+                    failwith "TODO"
+                | _ -> failwith "TODO"
 
                 let resultNetwork =
                     Set.map

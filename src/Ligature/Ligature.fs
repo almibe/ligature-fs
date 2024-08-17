@@ -115,12 +115,13 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
     | Name of Name
+    | NetworkName of NetworkName
+    | QualifiedName of NetworkName * Name
     | String of string
     | Int of bigint
     | Bytes of byte array
     | Quote of LigatureValue list
     | Network of Network
-    | NetworkName of NetworkName
     | HostCombinator of Combinator
 
 and Statement = (PatternName * PatternName * LigatureValue)

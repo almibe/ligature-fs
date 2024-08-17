@@ -37,6 +37,7 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.Network n -> printNetwork n
     | LigatureValue.NetworkName n -> $"@{n}"
     | LigatureValue.HostCombinator(combinator) -> $"Combinator({combinator.Name})"
+    | LigatureValue.QualifiedName(NetworkName(networkName), Name(name)) -> $"@{networkName}.{name}"
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))

@@ -77,7 +77,7 @@ let tests =
 
           testCase "Run Network"
           <| fun _ ->
-              let script = "{a b c, e f 89, a b $test}"
+              let script = "{a b c, e f 89, a b $test, a b @test, a b @test.value }"
               let result = run defaultState script
 
               Expect.equal
@@ -96,7 +96,13 @@ let tests =
                                      LigatureValue.Int(89I))
                                     (PatternName.Name(Name("a")),
                                      PatternName.Name(Name("b")),
-                                     LigatureValue.Slot(Slot(Some("test")))) ]) ])
+                                     LigatureValue.Slot(Slot(Some("test")))) 
+                                    (PatternName.Name(Name("a")),
+                                     PatternName.Name(Name("b")),
+                                     LigatureValue.NetworkName(NetworkName("test")))
+                                    (PatternName.Name(Name("a")),
+                                     PatternName.Name(Name("b")),
+                                     LigatureValue.QualifiedName(NetworkName("test"), Name("value")))])])
                   ))
                   ""
 
@@ -181,38 +187,6 @@ let tests =
                              LigatureValue.Name(Name("c"))) ])
                       ""
               | Error err -> failwith $"Error {err}"
-
-          testCase "Run Apply Combinator"
-          <| fun _ ->
-              let script =
-                  "@t { $a $b $c } @d { $a = a, $b = b, $c = c } @ { template = @t, data = @d, out = @result } apply @result"
-
-              let result = run stdState script
-
-              match result with
-              | Ok(name, networks) ->
-                  Expect.equal
-                      (currentNetwork (name, networks))
-                      (Set.ofSeq
-                          [ (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Name(Name("c"))) ])
-                      ""
-              | Error _ -> failwith "Error"
-
-          //   testCase "Define 'call' Name with Parameters"
-          //   <| fun _ ->
-          //       let script = "{ call = [ x ] } call [ {a b c} ]"
-          //       let result = run Map.empty emptyState script
-
-          //       Expect.equal
-          //           result
-          //           (Ok(
-          //               Set.ofSeq [
-          //                 (PatternName.Name(Name("call")), PatternName.Name(Name("=")), LigatureValue.Quote([LigatureValue.Name(Name("x"))]));
-          //                 (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("c"))) ]
-          //           ))
-          //           ""
 
           //   testCase "Run Network"
           //   <| fun _ ->

@@ -14,6 +14,7 @@ open Ligature.Main
 type Element =
     | Name of string
     | NetworkName of string
+    | QualifiedName of string * string
     | Quote of Element list
     | String of string
     | Int of bigint
@@ -43,6 +44,14 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
+let qualifiedNameNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.QualifiedName(networkName, name)) -> Ok(Element.QualifiedName(networkName, name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -117,6 +126,7 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Name(value)) -> Ok(Element.Name value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
+    | Ok(Token.QualifiedName(networkName, name)) -> Ok(Element.QualifiedName(networkName, name))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -163,7 +173,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ networkNameNib; callNib; networkNib ]
+let elementNib = takeFirst [ qualifiedNameNib; networkNameNib; callNib; networkNib ]
 
 let scriptNib = repeat elementNib
 
@@ -210,6 +220,7 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Name i -> LigatureValue.Name(Name i)
     | Element.Call i -> LigatureValue.Name(Name i)
     | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
+    | Element.QualifiedName(networkName, name) -> LigatureValue.QualifiedName(NetworkName(networkName), Name(name))
 
 let handleQuote (quote: Element list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
@@ -237,6 +248,7 @@ let elementTupleToStatement
         | Element.Slot s -> LigatureValue.Slot s
         | Element.Quote(q) -> handleQuote q
         | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
+        | Element.QualifiedName(networkName, name) -> LigatureValue.QualifiedName(NetworkName(networkName), Name(name))
         | _ -> failwith "TODO"
 
     (entity, attribute, value)
