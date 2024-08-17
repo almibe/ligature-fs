@@ -58,6 +58,11 @@ let tests =
               Expect.equal (tokenize "@") (Ok([ Token.NetworkName("") ])) ""
               Expect.equal (tokenize "@a") (Ok([ (Token.NetworkName "a") ])) ""
               Expect.equal (tokenize "@this_is_also234") (Ok([ Token.NetworkName "this_is_also234" ])) ""
+          testCase "Read Qualified Names"
+          <| fun _ ->
+              Expect.equal (tokenize "@.test") (Ok([ Token.QualifiedName("", "test") ])) ""
+              Expect.equal (tokenize "@a.test") (Ok([ (Token.QualifiedName("a", "test")) ])) ""
+              Expect.equal (tokenize "@test.this_is_also234") (Ok([ Token.QualifiedName("test", "this_is_also234")])) ""
           //   testCase "Read comments"
           //   <| fun _ ->
           //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""
