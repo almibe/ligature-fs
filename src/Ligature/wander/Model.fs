@@ -13,7 +13,7 @@ open Ligature
 [<RequireQualifiedAccess>]
 type Expression =
     | NetworkName of NetworkName
-    | Call of Identifier
+    | Call of Name
     | Network of Network
 
 type Parameter = { name: string; tag: string }
@@ -27,7 +27,7 @@ let encodeString string =
 
 let rec prettyPrint (value: LigatureValue) : string =
     match value with
-    | LigatureValue.Identifier(Identifier(value)) -> value
+    | LigatureValue.Name(Name(value)) -> value
     | LigatureValue.Int i -> i.ToString()
     | LigatureValue.String s -> encodeString s
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
@@ -54,16 +54,16 @@ and printAssocArray values =
     + "]"
 
 and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(printPatternIdentifier entity)} {(printPatternIdentifier attribute)} {(prettyPrint value)}"
+    $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
 
-and printPatternIdentifier (patternIdentifier: PatternIdentifier) =
-    match patternIdentifier with
-    | PatternIdentifier.Identifier(Identifier(identifier)) -> identifier
-    | PatternIdentifier.Slot(Slot(Some(name))) -> $"${name}"
-    | PatternIdentifier.Slot(Slot(None)) -> "$"
+and printPatternName (patternName: PatternName) =
+    match patternName with
+    | PatternName.Name(Name(identifier)) -> identifier
+    | PatternName.Slot(Slot(Some(name))) -> $"${name}"
+    | PatternName.Slot(Slot(None)) -> "$"
 
 and printPattern ((entity, attribute, value): Statement) =
-    $"{(printPatternIdentifier entity)} {(printPatternIdentifier attribute)} {(prettyPrint value)}"
+    $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
 
 and printQuote quote =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
@@ -74,7 +74,7 @@ type WanderType =
     | String
     | Int
     | Bytes
-    | Identifier
+    | Name
     | Slot
     | Network
     | NetworkName

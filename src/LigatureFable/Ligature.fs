@@ -20,14 +20,14 @@ let stateToJS (networkName, networks) =
             let value = createEmpty
 
             match e with
-            | PatternIdentifier.Identifier(Identifier(id)) -> entity?identifier <- id
-            | PatternIdentifier.Slot(Slot(Some(slot))) -> entity?slot <- slot
-            | PatternIdentifier.Slot(Slot(None)) -> entity?slot <- ""
+            | PatternName.Name(Name(id)) -> entity?identifier <- id
+            | PatternName.Slot(Slot(Some(slot))) -> entity?slot <- slot
+            | PatternName.Slot(Slot(None)) -> entity?slot <- ""
 
             match a with
-            | PatternIdentifier.Identifier(Identifier(id)) -> attribute?identifier <- id
-            | PatternIdentifier.Slot(Slot(Some(slot))) -> attribute?slot <- slot
-            | PatternIdentifier.Slot(Slot(None)) -> attribute?slot <- ""
+            | PatternName.Name(Name(id)) -> attribute?identifier <- id
+            | PatternName.Slot(Slot(Some(slot))) -> attribute?slot <- slot
+            | PatternName.Slot(Slot(None)) -> attribute?slot <- ""
 
             match v with
             | LigatureValue.Bytes b -> failwith "TODO"
@@ -39,7 +39,7 @@ let stateToJS (networkName, networks) =
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
             | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
             | LigatureValue.String s -> value?string <- s
-            | LigatureValue.Identifier(Identifier(i)) -> value?identifier <- i
+            | LigatureValue.Name(Name(i)) -> value?identifier <- i
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
         currentNetwork

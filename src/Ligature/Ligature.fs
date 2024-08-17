@@ -17,9 +17,9 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-// type Identifier = private Identifier of string
+// type Name = private Name of string
 
-// let invalidIdentifier (id: string) = error $"Invalid Identifier, {id}" None
+// let invalidName (id: string) = error $"Invalid Name, {id}" None
 
 // let identifier =
 //     let identifierPattern =
@@ -27,15 +27,17 @@ let error userMessage debugMessage =
 
 //     fun (id: string) ->
 //         if identifierPattern.IsMatch(id) then
-//             Ok(Identifier id)
+//             Ok(Name id)
 //         else
-//             invalidIdentifier id
+//             invalidName id
 
 type Slot = Slot of string option
 
-type Identifier = Identifier of string
+type Name = Name of string
 
 type NetworkName = NetworkName of string
+
+type QualifiedName = NetworkName * Name
 
 let readNetworkName (networkName: NetworkName) : string =
     match networkName with
@@ -106,13 +108,13 @@ and [<CustomEquality; CustomComparison>] Combinator =
             | :? Combinator as other -> this.Compare other
             | _ -> -1
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternIdentifier =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
     | Slot of Slot
-    | Identifier of Identifier
+    | Name of Name
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
-    | Identifier of Identifier
+    | Name of Name
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -121,7 +123,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | NetworkName of NetworkName
     | HostCombinator of Combinator
 
-and Statement = (PatternIdentifier * PatternIdentifier * LigatureValue)
+and Statement = (PatternName * PatternName * LigatureValue)
 
 and Network = Set<Statement>
 
@@ -142,17 +144,17 @@ let currentNetwork ((name, networks): State) : Network =
     | Some res -> res
     | None -> Set.empty
 
-let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureValue> =
+let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
     let res =
         Set.filter
             (fun (e, a, _) ->
                 match (name, e, a) with
-                | (PatternIdentifier.Identifier(name),
-                   PatternIdentifier.Identifier(entity),
-                   PatternIdentifier.Identifier(Identifier("="))) -> entity = name
-                | (PatternIdentifier.Slot(slot),
-                   PatternIdentifier.Slot(entity),
-                   PatternIdentifier.Identifier(Identifier("="))) -> entity = slot
+                | (PatternName.Name(name),
+                   PatternName.Name(entity),
+                   PatternName.Name(Name("="))) -> entity = name
+                | (PatternName.Slot(slot),
+                   PatternName.Slot(entity),
+                   PatternName.Name(Name("="))) -> entity = slot
                 | _ -> false)
             network
 
@@ -161,32 +163,21 @@ let readBinding (name: PatternIdentifier) (network: Network) : Option<LigatureVa
     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
-let applyTemplate (template: Network) (data: Network) (out: Network) = failwith "TODO"
-
-//     abstract member Union: Network -> Network
-//     abstract member Minus: Network -> Network
-//     abstract member Apply: Map<string, LigatureValue> -> Network
-//     abstract member Educe: Network -> Set<Map<string, LigatureValue>>
-//     abstract member Query: Network -> Network -> Network
-//     abstract member Infer: Network -> Network -> Network
-
-let getRoots (patternSet: Set<Statement>) : Set<PatternIdentifier> =
+let getRoots (patternSet: Set<Statement>) : Set<PatternName> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<PatternIdentifier> =
+let getLeaves (patternSet: Set<Statement>) : Set<PatternName> =
     patternSet
     |> Set.map (fun ((_, _, value): Statement) ->
         match value with
-        | LigatureValue.Identifier identifier -> Some(PatternIdentifier.Identifier identifier)
-        | LigatureValue.Slot slot -> Some(PatternIdentifier.Slot slot)
+        | LigatureValue.Name identifier -> Some(PatternName.Name identifier)
+        | LigatureValue.Slot slot -> Some(PatternName.Slot slot)
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
 
-// let readIdentifier (Identifier identifier) = identifier
-
-let printPatternIdentifier (pattern: PatternIdentifier) : string =
+let printPatternName (pattern: PatternName) : string =
     match pattern with
-    | PatternIdentifier.Identifier(Identifier identifier) -> identifier
-    | PatternIdentifier.Slot(Slot(Some(name))) -> $"${name}"
-    | PatternIdentifier.Slot(Slot(None)) -> "$"
+    | PatternName.Name(Name identifier) -> identifier
+    | PatternName.Slot(Slot(Some(name))) -> $"${name}"
+    | PatternName.Slot(Slot(None)) -> "$"

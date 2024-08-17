@@ -26,13 +26,13 @@ let tests =
           //       Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
           //       Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([| 0x01uy |]) ])) ""
           //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
-          testCase "Read Identifiers"
+          testCase "Read Names"
           <| fun _ ->
-              Expect.equal (tokenize "a-x") (Ok([ Token.Identifier("a-x") ])) ""
-              Expect.equal (tokenize "x") (Ok([ Token.Identifier("x") ])) ""
-              Expect.equal (tokenize "hello") (Ok([ Token.Identifier("hello") ])) ""
-              Expect.equal (tokenize "x.y") (Ok([ Token.Identifier("x.y") ])) ""
-              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Identifier("hello.t.x.a") ])) ""
+              Expect.equal (tokenize "a-x") (Ok([ Token.Name("a-x") ])) ""
+              Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
+              Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
+              Expect.equal (tokenize "x.y") (Ok([ Token.Name("x.y") ])) ""
+              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Name("hello.t.x.a") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -131,10 +131,10 @@ let tests =
           //       Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
           //       Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
           testCase "read question mark"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Identifier "?" ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Name "?" ])) ""
           //   testCase "read simple let expression"
           //   <| fun _ ->
           //       let ws = Token.WhiteSpace(" ")
-          //       Expect.equal (tokenize "x = 5") (Ok([ Token.Identifier("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
+          //       Expect.equal (tokenize "x = 5") (Ok([ Token.Name("x"); ws; Token.EqualsSign; ws; Token.Int(5I) ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") "" ]

@@ -20,7 +20,7 @@
     <Compile Include="wander/lib/Bool.fs" />
     <Compile Include="wander/lib/Bytes.fs" />
     <Compile Include="wander/lib/DateTime.fs" />
-    <Compile Include="wander/lib/Identifier.fs" />
+    <Compile Include="wander/lib/Name.fs" />
     <Compile Include="wander/lib/Int.fs" />
     <Compile Include="wander/lib/Ligature.fs" />
     <Compile Include="wander/lib/Store.fs" />

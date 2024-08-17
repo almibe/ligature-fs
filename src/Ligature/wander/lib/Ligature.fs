@@ -9,8 +9,8 @@ open Ligature.Main
 
 let patternTripleToTriple (pattern: Triple) : Triple option =
     match pattern with
-    | { Entity = PatternIdentifier.Identifier(entity)
-        Attribute = PatternIdentifier.Identifier(attribute) } -> failwith "TODO"
+    | { Entity = PatternName.Name(entity)
+        Attribute = PatternName.Name(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
 let apply (network: Network) (pattern: Map<string, Value>) =
@@ -20,7 +20,7 @@ let apply (network: Network) (pattern: Map<string, Value>) =
         |> Seq.map (fun (k, v) ->
             let v =
                 match v with
-                | Value.Identifier i -> Value.Identifier i
+                | Value.Name i -> Value.Name i
                 | Value.Int i -> Value.Int i
                 | Value.String s -> Value.String s
                 | Value.Bytes b -> Value.Bytes b
@@ -160,7 +160,7 @@ let inferFunction =
 //                         match v with
 //                         | Value.Int value -> WanderValue.Int value
 //                         | Value.Bytes value -> WanderValue.Bytes value
-//                         | Value.Identifier value -> WanderValue.Identifier value
+//                         | Value.Name value -> WanderValue.Name value
 //                         | Value.String value -> WanderValue.String value
 //                         | Value.Slot value -> WanderValue.Slot value))
 //                     |> Map.ofSeq

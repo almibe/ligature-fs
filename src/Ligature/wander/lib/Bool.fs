@@ -9,7 +9,7 @@ module Ligature.Wander.Lib.Bool
 
 // let notFunction =
 //     { Name = "not"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args _ ->
 //             match args.Head with
@@ -18,7 +18,7 @@ module Ligature.Wander.Lib.Bool
 
 // let andFunction =
 //     { Name = "and"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args _ ->
 //             match args with
@@ -37,7 +37,7 @@ module Ligature.Wander.Lib.Bool
 
 // let fromBytesFunction =
 //     { Name = "fromBytes"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args _ ->
 //             match args with

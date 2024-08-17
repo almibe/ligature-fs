@@ -10,7 +10,7 @@ open System
 
 // let lessThanFunction =
 //     { Name = "lessThan"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args _ ->
 //             match args with

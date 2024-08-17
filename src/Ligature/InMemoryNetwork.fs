@@ -10,66 +10,65 @@ open System.Collections.Generic
 
 let emptyNetwork: Network = Set.empty
 
-// let patternIdentifierToValue (patternIdentifier: PatternIdentifier) : Value =
-//     match patternIdentifier with
-//     | PatternIdentifier.Identifier identifier -> Value.Identifier identifier
-//     | PatternIdentifier.Slot slot -> Value.Slot slot
+let patternNameToLigatureValue (patternName: PatternName) : LigatureValue =
+    match patternName with
+    | PatternName.Name identifier -> LigatureValue.Name identifier
+    | PatternName.Slot slot -> LigatureValue.Slot slot
 
-// let educeTripleTriple
-//     ((entity, attribute, value): Triple)
-//     ((patternEntity, patternAttribute, patternValue): Triple)
-//     : Option<Map<string, Value>> =
-//     let mutable cont = true
-//     let mutable result: Map<string, Value> = Map.empty
+let educeStatementStatement
+    ((entity, attribute, value): Statement)
+    ((patternEntity, patternAttribute, patternLigatureValue): Statement)
+    : Option<Map<string, LigatureValue>> =
+    let mutable cont = true
+    let mutable result: Map<string, LigatureValue> = Map.empty
 
-//     match patternEntity with
-//     | PatternIdentifier.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternIdentifierToValue) result
-//     | PatternIdentifier.Slot(Slot(None)) -> ignore ()
-//     | PatternIdentifier.Identifier _ -> cont <- (patternEntity = entity)
+    match patternEntity with
+    | PatternName.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToLigatureValue) result
+    | PatternName.Slot(Slot(None)) -> ignore ()
+    | PatternName.Name _ -> cont <- (patternEntity = entity)
 
-//     if cont then
-//         match patternAttribute with
-//         | PatternIdentifier.Slot(Slot(Some(name))) ->
-//             if Map.containsKey name result then
-//                 cont <- (Map.find name result) = (patternIdentifierToValue attribute)
-//             else
-//                 result <- Map.add name (attribute |> patternIdentifierToValue) result
-//         | PatternIdentifier.Slot(Slot(None)) -> ignore ()
-//         | PatternIdentifier.Identifier _ -> cont <- (patternAttribute = attribute)
+    if cont then
+        match patternAttribute with
+        | PatternName.Slot(Slot(Some(name))) ->
+            if Map.containsKey name result then
+                cont <- (Map.find name result) = (patternNameToLigatureValue attribute)
+            else
+                result <- Map.add name (attribute |> patternNameToLigatureValue) result
+        | PatternName.Slot(Slot(None)) -> ignore ()
+        | PatternName.Name _ -> cont <- (patternAttribute = attribute)
 
-//     if cont then
-//         match patternValue with
-//         | Value.Slot(Slot(Some(name))) ->
-//             if Map.containsKey name result then
-//                 cont <- (Map.find name result) = (value)
-//             else
-//                 result <- Map.add name (value) result
-//         | Value.Slot(Slot(None)) -> ignore ()
-//         | _ -> cont <- patternValue = value
+    if cont then
+        match patternLigatureValue with
+        | LigatureValue.Slot(Slot(Some(name))) ->
+            if Map.containsKey name result then
+                cont <- (Map.find name result) = (value)
+            else
+                result <- Map.add name (value) result
+        | LigatureValue.Slot(Slot(None)) -> ignore ()
+        | _ -> cont <- patternLigatureValue = value
 
-//     if cont then Some(result) else None
+    if cont then Some(result) else None
 
-// let educeNetworkTriple (network: Set<Triple>) (pattern: Triple) : Set<Map<string, Value>> =
-//     Set.map (fun triple -> educeTripleTriple triple pattern) network
-//     |> Set.fold
-//         (fun state values ->
-//             match values with
-//             | Some(values) -> Set.add values state
-//             | None -> state)
-//         Set.empty
+let educeNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, LigatureValue>> =
+    Set.map (fun triple -> educeStatementStatement triple pattern) network
+    |> Set.fold
+        (fun state values ->
+            match values with
+            | Some(values) -> Set.add values state
+            | None -> state)
+        Set.empty
 
-// let educeNetworkNetwork (network: Set<Triple>) (pattern: Set<Triple>) : Set<Map<string, Value>> =
-//     if network.IsEmpty || pattern.IsEmpty then
-//         Set.empty
-//     else
-//         Set.fold
-//             (fun state patternTriple -> Set.union (educeNetworkTriple network patternTriple) state)
-//             Set.empty
-//             pattern
+let educeNetworkNetwork (network: Set<Statement>) (pattern: Set<Statement>) : Set<Map<string, LigatureValue>> =
+    if network.IsEmpty || pattern.IsEmpty then
+        Set.empty
+    else
+        Set.fold
+            (fun state patternStatement -> Set.union (educeNetworkStatement network patternStatement) state)
+            Set.empty
+            pattern
 
-
-// type InMemoryNetwork(network: Set<Triple>) =
-//     let processQueryResults (trans: Network) (values: Set<Map<string, Value>>) : Network =
+// type InMemoryNetwork(network: Set<Statement>) =
+//     let processQueryResults (trans: Network) (values: Set<Map<string, LigatureValue>>) : Network =
 //         List.ofSeq values
 //         |> List.map (fun values -> trans.Apply values)
 //         |> List.fold (fun state network -> state.Union network) (InMemoryNetwork(Set.empty))
@@ -92,46 +91,46 @@ let emptyNetwork: Network = Set.empty
 //         member _.Minus other =
 //             InMemoryNetwork(Set.difference (other.Write()) network)
 
-//         member _.Apply(values: Map<string, Value>) =
-//             let res: Set<Triple> =
+//         member _.Apply(values: Map<string, LigatureValue>) =
+//             let res: Set<Statement> =
 //                 Set.map
-//                     (fun ((entity, attribute, value): Triple) ->
+//                     (fun ((entity, attribute, value): Statement) ->
 //                         match (entity, attribute, value) with
-//                         // | { Entity = PatternIdentifier.Identifier(_)
-//                         //     Attribute = PatternIdentifier.Identifier(_)
-//                         //     Value = Value(_) } -> failwith "TODO"
+//                         // | { Entity = PatternName.Name(_)
+//                         //     Attribute = PatternName.Name(_)
+//                         //     LigatureValue = LigatureValue(_) } -> failwith "TODO"
 //                         | _ ->
 //                             let entity =
 //                                 match entity with
-//                                 | PatternIdentifier.Identifier(identifier) -> identifier
-//                                 | PatternIdentifier.Slot(slot) ->
+//                                 | PatternName.Name(identifier) -> identifier
+//                                 | PatternName.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | Value.Identifier identifier -> identifier
+//                                             | LigatureValue.Name identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
 
 //                             let attribute =
 //                                 match attribute with
-//                                 | PatternIdentifier.Identifier(identifier) -> identifier
-//                                 | PatternIdentifier.Slot(slot) ->
+//                                 | PatternName.Name(identifier) -> identifier
+//                                 | PatternName.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | Value.Identifier identifier -> identifier
+//                                             | LigatureValue.Name identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
 
 //                             let value =
 //                                 match value with
-//                                 | Value.Slot(slot) ->
+//                                 | LigatureValue.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
@@ -140,12 +139,12 @@ let emptyNetwork: Network = Set.empty
 //                                     | Slot(None) -> failwith "Error"
 //                                 | v -> v
 
-//                             (PatternIdentifier.Identifier(entity), PatternIdentifier.Identifier(attribute), value))
+//                             (PatternName.Name(entity), PatternName.Name(attribute), value))
 //                     network
 
 //             InMemoryNetwork(res)
 
-//         member this.Educe pattern : Set<Map<string, Value>> =
+//         member this.Educe pattern : Set<Map<string, LigatureValue>> =
 //             educeNetworkNetwork network (pattern.Write())
 
 //         member this.Query pattern trans : Network =
@@ -156,4 +155,4 @@ let emptyNetwork: Network = Set.empty
 
 // let emptyNetwork: Network = InMemoryNetwork(Set.empty)
 
-// let networkOf (input: Triple seq) : Network = InMemoryNetwork(Set.ofSeq input)
+// let networkOf (input: Statement seq) : Network = InMemoryNetwork(Set.ofSeq input)

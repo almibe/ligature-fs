@@ -12,7 +12,7 @@ open Ligature.Main
 
 [<RequireQualifiedAccess>]
 type Element =
-    | Identifier of string
+    | Name of string
     | NetworkName of string
     | Quote of Element list
     | String of string
@@ -26,7 +26,7 @@ let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Identifier(value)) -> Ok(value)
+            | Ok(Token.Name(value)) -> Ok(value)
             | _ -> Error Gaze.GazeError.NoMatch)
         gaze
 
@@ -34,7 +34,7 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Identifier(name)) -> Ok(Element.Identifier(name))
+            | Ok(Token.Name(name)) -> Ok(Element.Name(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -51,7 +51,7 @@ let callNib (gaze: Gaze.Gaze<Token>) =
         let! identifier = Gaze.attempt (identifierNib) gaze
 
         match identifier with
-        | Element.Identifier(identifier) -> return Element.Call(identifier)
+        | Element.Name(identifier) -> return Element.Call(identifier)
         | _ -> return failwith "TODO"
     }
 
@@ -103,7 +103,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Name(value)) -> Ok(Element.Name value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -114,7 +114,7 @@ let valueNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     match next with
     | Error(err) -> Error err
     | Ok(Token.Int(value)) -> Ok(Element.Int value)
-    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Name(value)) -> Ok(Element.Name value)
     | Ok(Token.Slot(value)) -> Ok(Element.Slot(value))
     | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(name))
     | Ok(Token.StringLiteral(value)) -> Ok(Element.String value)
@@ -128,7 +128,7 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
     else
         let elements =
             match next with
-            | Ok(Token.Identifier w) -> List.append elements [ (Element.Identifier w) ]
+            | Ok(Token.Name w) -> List.append elements [ (Element.Name w) ]
             | Ok(Token.StringLiteral s) -> List.append elements [ (Element.String s) ]
             | Ok(Token.Int i) -> List.append elements [ (Element.Int i) ]
             | Ok(Token.Slot s) -> List.append elements [ (Element.Slot s) ]
@@ -143,12 +143,12 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             readValueList elements gaze
         | _ -> failwith "TODO"
 
-let readIdentifier (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let readName (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Identifier(value)) -> Ok(Element.Identifier value)
+    | Ok(Token.Name(value)) -> Ok(Element.Name value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -207,8 +207,8 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Quote p -> handleQuote p
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
-    | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
-    | Element.Call i -> LigatureValue.Identifier(Identifier i)
+    | Element.Name i -> LigatureValue.Name(Name i)
+    | Element.Call i -> LigatureValue.Name(Name i)
     | Element.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
 let handleQuote (quote: Element list) : LigatureValue =
@@ -216,22 +216,22 @@ let handleQuote (quote: Element list) : LigatureValue =
 
 let elementTupleToStatement
     ((e, a, v): (Element * Element * Element))
-    : (PatternIdentifier * PatternIdentifier * LigatureValue) =
+    : (PatternName * PatternName * LigatureValue) =
     let entity =
         match e with
-        | Element.Identifier i -> PatternIdentifier.Identifier(Identifier i)
-        | Element.Slot s -> PatternIdentifier.Slot s
+        | Element.Name i -> PatternName.Name(Name i)
+        | Element.Slot s -> PatternName.Slot s
         | _ -> failwith "TODO"
 
     let attribute =
         match a with
-        | Element.Identifier i -> PatternIdentifier.Identifier(Identifier i)
-        | Element.Slot s -> PatternIdentifier.Slot s
+        | Element.Name i -> PatternName.Name(Name i)
+        | Element.Slot s -> PatternName.Slot s
         | _ -> failwith "TODO"
 
     let value =
         match v with
-        | Element.Identifier i -> LigatureValue.Identifier(Identifier i)
+        | Element.Name i -> LigatureValue.Name(Name i)
         | Element.Int i -> LigatureValue.Int i
         | Element.String s -> LigatureValue.String s
         | Element.Slot s -> LigatureValue.Slot s
@@ -252,11 +252,11 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
     | head :: tail ->
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
-        // | Element.Identifier w ->
-        //     express tail (List.append expressions [ Expression.Call(Identifier(w), { parameterNames = []; quote = [] }) ])
+        // | Element.Name w ->
+        //     express tail (List.append expressions [ Expression.Call(Name(w), { parameterNames = []; quote = [] }) ])
         | Element.Call i ->
             //            List.map (fun x -> express x) q
-            express tail (List.append expressions [ Expression.Call(Identifier(i)) ])
+            express tail (List.append expressions [ Expression.Call(Name(i)) ])
         | Element.NetworkName name ->
             express tail (List.append expressions [ Expression.NetworkName(NetworkName(name)) ])
         | _ -> failwith "TODO"

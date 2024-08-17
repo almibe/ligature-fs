@@ -10,12 +10,12 @@ open FsToolkit.ErrorHandling
 
 let slotIdentiferToWanderValue si =
     match si with
-    | PatternIdentifier.Sl slot -> WanderValue.Slot(slot)
-    | PatternIdentifier.Id identifier -> WanderValue.Identifier identifier
+    | PatternName.Sl slot -> WanderValue.Slot(slot)
+    | PatternName.Id identifier -> WanderValue.Name identifier
 
 // let entityFunction =
 //     { Name = "entity"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args bindings ->
 //             match args with
@@ -24,7 +24,7 @@ let slotIdentiferToWanderValue si =
 
 // let attributeFunction =
 //     { Name = "attribute"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args bindings ->
 //             match args with
@@ -33,13 +33,13 @@ let slotIdentiferToWanderValue si =
 
 // let valueFunction =
 //     { Name = "value"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args bindings ->
 //             match args with
 //             | [ WanderValue.Triple(triple) ] ->
 //                 match triple.Value with
-//                 | Value.Identifier(value) -> Ok(WanderValue.Identifier(value))
+//                 | Value.Name(value) -> Ok(WanderValue.Name(value))
 //                 | Value.String(value) -> Ok(WanderValue.String(value))
 //                 | Value.Int(value) -> Ok(WanderValue.Int(value))
 //                 | Value.Bytes(value) -> Ok(WanderValue.Bytes(value))

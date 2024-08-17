@@ -89,7 +89,7 @@ type Token =
     | WhiteSpace of string
     | NewLine of string
     | Slot of Slot
-    | Identifier of string
+    | Name of string
     | NetworkName of string
     | StringLiteral of string
     | Int of bigint
@@ -162,7 +162,7 @@ let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Identifier)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Name)
 
 let tokenNibbler =
     Nibblers.optional (

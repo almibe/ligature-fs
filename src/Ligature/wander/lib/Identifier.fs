@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.Identifier
+module Ligature.Wander.Lib.Name
 
 open Ligature.Wander.Model
 open Ligature.Main
@@ -13,7 +13,7 @@ open Ligature.Main
 //       Eval =
 //         (fun args bindings ->
 //             match args with
-//             | [ WanderValue.Identifier(identifier) ] -> Ok(WanderValue.String(readIdentifier identifier))
+//             | [ WanderValue.Name(identifier) ] -> Ok(WanderValue.String(readName identifier))
 //             | _ -> error "Invalid call to Triple.value function." None) }
 
 // let toBytesFunction =
@@ -22,19 +22,19 @@ open Ligature.Main
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.Identifier(value) ] ->
-//                 Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes(readIdentifier value)))
+//             | [ WanderValue.Name(value) ] ->
+//                 Ok(WanderValue.Bytes(System.Text.Encoding.UTF8.GetBytes(readName value)))
 //             | _ -> error "Invalid call to map function." None) }
 
 // let fromBytesFunction =
 //     { Name = "fromBytes"
-//       Returns = WanderType.Identifier
+//       Returns = WanderType.Name
 //       Eval =
 //         (fun args _ ->
 //             match args with
 //             | [ WanderValue.Bytes(bytes) ] ->
 //                 match identifier (System.Text.Encoding.UTF8.GetString(bytes)) with
-//                 | Ok(identifer) -> Ok(WanderValue.Identifier(identifer))
+//                 | Ok(identifer) -> Ok(WanderValue.Name(identifer))
 //                 | Error(err) -> Error(err)
 //             | _ -> error "Invalid call to map function." None) }
 

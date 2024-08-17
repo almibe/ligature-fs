@@ -19,14 +19,14 @@ let rec evalExpression (inputState: State) (expression: Expression) : Result<Sta
     match expression with
     | Expression.NetworkName name -> evalNetworkName name inputState
     | Expression.Network(network) -> evalNetwork inputState network
-    | Expression.Call(name) -> handleIdentifier inputState name
+    | Expression.Call(name) -> handleName inputState name
 
-and handleIdentifier (inputState: State) (identifier: Identifier) =
+and handleName (inputState: State) (identifier: Name) =
     let currentResults =
-        readBinding (PatternIdentifier.Identifier identifier) (currentNetwork inputState)
+        readBinding (PatternName.Name identifier) (currentNetwork inputState)
 
     let combinatorResults =
-        readBinding (PatternIdentifier.Identifier identifier) (readNetwork (NetworkName("combinators")) inputState)
+        readBinding (PatternName.Name identifier) (readNetwork (NetworkName("combinators")) inputState)
 
     if currentResults.IsSome then
         match currentResults.Value with
@@ -39,7 +39,7 @@ and handleIdentifier (inputState: State) (identifier: Identifier) =
         | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
         | _ -> failwith "TODO"
     else
-        error $"Could not find Identifier, {identifier}" None
+        error $"Could not find Name, {identifier}" None
 
 and evalExpressions (inputState: State) (expressions: Expression list) : Result<State, LigatureError> =
     match expressions with
@@ -59,7 +59,7 @@ and valuesToExpressions
     | head :: tail ->
         match head with
         | LigatureValue.Network n -> valuesToExpressions tail (List.append expressions [ Expression.Network n ])
-        | LigatureValue.Identifier i ->
+        | LigatureValue.Name i ->
             match tail with
             | LigatureValue.Quote p :: tail -> failwith "TODO"
             | _ -> valuesToExpressions [] (List.append expressions [ Expression.Call i ])

@@ -31,24 +31,24 @@ let tests =
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c")))
-          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c"))))
+          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c")))
+          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
           //           (Some(Map.empty))
           //           ""
           //   testCase "calling educe on non-matching triples"
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternIdentifier.Identifier(Identifier("e")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c")))
-          //               (PatternIdentifier.Identifier(Identifier("a")), PatternIdentifier.Identifier(Identifier("b")), Value.Identifier(Identifier("c"))))
+          //               (PatternName.Name(Name("e")), PatternName.Name(Name("b")), Value.Name(Name("c")))
+          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
           //           (None)
           //           ""
           //   testCase "calling educe on simple matching triple"
           //   <| fun _ ->
           //       Expect.equal
           //           (educeTripleTriple
-          //               (PatternIdentifier.Identifier(Identifier("e")), PatternIdentifier.Identifier(Identifier("a")), Value.Identifier(Identifier("v")))
-          //               (PatternIdentifier.Slot(Slot(Some("test"))), PatternIdentifier.Identifier(Identifier("a")), Value.Identifier(Identifier("v"))))
-          //           (Some(Map [ ("test", Value.Identifier(Identifier("e"))) ]))
+          //               (PatternName.Name(Name("e")), PatternName.Name(Name("a")), Value.Name(Name("v")))
+          //               (PatternName.Slot(Slot(Some("test"))), PatternName.Name(Name("a")), Value.Name(Name("v"))))
+          //           (Some(Map [ ("test", Value.Name(Name("e"))) ]))
           //   "" ]
           ]
