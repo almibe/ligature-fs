@@ -8,7 +8,7 @@ open Ligature.Main
 
 let idCombinator: Combinator =
     { Name = "id"
-      Eval = fun (input: State) -> Ok input }
+      Eval = fun (input: State) (_: Arguments) -> Ok input }
 
 // let unionCombinator =
 //     { Name = "union"
@@ -136,30 +136,36 @@ let idCombinator: Combinator =
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-// let assertEqualCombinator =
-//     { Name = "assert-equal"
-//       Eval =
-//         fun (inputState: State) ->
-//             let (networkName, networks) = inputState
-//             let currentNetwork = currentNetwork inputState
+let assertEqualCombinator =
+    { Name = "assert-equal"
+      Eval =
+        fun (inputState: State) (arguments: Arguments) ->
 
-//             let given =
-//                 readBinding (PatternName.Name(Name("given"))) currentNetwork
+            let given =
+                match readArgument (Name("given")) arguments with
+                | Some(LigatureValue.Network(given)) -> Some given
+                | Some(LigatureValue.Name(name)) ->
+                    match readBinding (PatternName.Name(name)) inputState with
+                    | Some(LigatureValue.Network n) -> Some n
+                    | _ -> None
+                | _ -> None
 
-//             let expect =
-//                 readBinding (PatternName.Name(Name("expect"))) currentNetwork
+            let expect =
+                match readArgument (Name("expect")) arguments with
+                | Some(LigatureValue.Network(expect)) -> Some expect
+                | Some(LigatureValue.Name(name)) ->
+                    match readBinding (PatternName.Name(name)) inputState with
+                    | Some(LigatureValue.Network n) -> Some n
+                    | _ -> None
+                | _ -> None
 
-//             match (given, expect) with
-//             | (Some(LigatureValue.NetworkName(given)),
-//                Some(LigatureValue.NetworkName(expect))) ->
-//                 let givenNetwork = readNetwork given inputState
-//                 let expectNetwork = readNetwork expect inputState
-
-//                 if givenNetwork = expectNetwork then
-//                     Ok inputState
-//                 else
-//                     error "Assertion failed." None
-//             | _ -> failwith "TODO" }
+            match (given, expect) with
+            | (Some(given), Some(expect)) ->
+                if given = expect then
+                    Ok inputState
+                else
+                    error "Assertion failed." None
+            | _ -> failwith "TODO" }
 
 // let queryCombinator =
 //     { Name = "query"
@@ -194,23 +200,21 @@ let idCombinator: Combinator =
 //                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
 //             | _ -> failwith "TODO" }
 
-// let stdState: State =
-//             Set.ofSeq
-//                 [ (PatternName.Name(Name("id")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator idCombinator)
-//                   (PatternName.Name(Name("union")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator unionCombinator)
-//                   (PatternName.Name(Name("assert-equal")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator assertEqualCombinator)
-//                   (PatternName.Name(Name("query")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator queryCombinator)
-//                   (PatternName.Name(Name("apply")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator applyCombinator)
-//                   (PatternName.Name(Name("minus")),
-//                    PatternName.Name(Name("=")),
-//                    LigatureValue.HostCombinator minusCombinator) ]
+let stdState: State =
+    Set.ofSeq
+        [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
+          // (PatternName.Name(Name("union")),
+          //  PatternName.Name(Name("=")),
+          //  LigatureValue.HostCombinator unionCombinator)
+          (PatternName.Name(Name("assert-equal")),
+           PatternName.Name(Name("=")),
+           LigatureValue.HostCombinator assertEqualCombinator) ]
+// (PatternName.Name(Name("query")),
+//  PatternName.Name(Name("=")),
+//  LigatureValue.HostCombinator queryCombinator)
+// (PatternName.Name(Name("apply")),
+//  PatternName.Name(Name("=")),
+//  LigatureValue.HostCombinator applyCombinator)
+// (PatternName.Name(Name("minus")),
+//  PatternName.Name(Name("=")),
+//  LigatureValue.HostCombinator minusCombinator) ]

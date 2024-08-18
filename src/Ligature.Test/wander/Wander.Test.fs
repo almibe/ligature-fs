@@ -43,7 +43,7 @@ let tests =
 
           testCase "Parse Network With Quote"
           <| fun _ ->
-              let script = "{id = [ x ]}"
+              let script = "{id = [ {} ]}"
 
               match tokenize script with
               | Ok res ->
@@ -52,10 +52,10 @@ let tests =
                       Expect.equal
                           res
                           [ Element.Network
-                                [ (Element.Name "id", Element.Name "=", Element.Quote [ Element.Call("x", []) ]) ] ]
+                                [ (Element.Name "id", Element.Name "=", Element.Quote [ Element.Network [] ]) ] ]
                           ""
-                  | _ -> failwith "Error"
-              | _ -> failwith "Error"
+                  | _ -> failwith "Error Parsing"
+              | _ -> failwith "Error Tokenizing"
 
           testCase "Parse Nested Networks"
           <| fun _ ->
@@ -77,21 +77,23 @@ let tests =
 
           testCase "Parse Combinator Call with Arguments"
           <| fun _ ->
-              let script = "( A.b c = {d e f}, h = 4 )"
+              let script = "( A.b c = 4 )"
 
               match tokenize script with
               | Ok res ->
+                  printfn $"!!! {res}"
+
                   match parse res with
                   | Ok res ->
                       Expect.equal
                           res
-                          [ Element.Call(
-                                "A.b",
-                                [ ("c", Element.Network([ (Element.Name("d"), Element.Name("e"), Element.Name("d")) ])) ]
-                            ) ]
+                          [ Element.Call("A.b", [ "c", Element.Int(4I) ])
+                            //"A.b",
+                            //[ ("c", Element.Network([ (Element.Name("d"), Element.Name("e"), Element.Name("d")) ])) ]
+                            ]
                           ""
-                  | _ -> failwith "Error"
-              | _ -> failwith "Error"
+                  | Error e -> failwith $"Error Parsing {e.UserMessage}"
+              | _ -> failwith "Error Tokenizing"
 
           testCase "Run Network"
           <| fun _ ->

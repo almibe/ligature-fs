@@ -75,7 +75,7 @@ type Name = Name of string
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-type Arguments = LigatureValue list
+type Arguments = (Name * LigatureValue) list
 
 and [<StructuralEquality; StructuralComparison>] Quote =
     { parameterNames: string list
@@ -83,7 +83,7 @@ and [<StructuralEquality; StructuralComparison>] Quote =
 
 and [<CustomEquality; CustomComparison>] Combinator =
     { Name: string
-      Eval: State -> Result<State, LigatureError> }
+      Eval: State -> Arguments -> Result<State, LigatureError> }
 
     member private this.Compare other = compare this.Name other.Name
 
@@ -119,6 +119,10 @@ and Statement = (PatternName * PatternName * LigatureValue)
 and Network = Set<Statement>
 
 and State = Network
+
+let readArgument (name: Name) (arguments: Arguments) : Option<LigatureValue> =
+    List.tryFind (fun (argName, _) -> name = argName) arguments
+    |> Option.map (fun (_, value) -> value)
 
 let defaultState: State = Set.empty
 

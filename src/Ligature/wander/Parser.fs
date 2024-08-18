@@ -37,14 +37,58 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let callNib (gaze: Gaze.Gaze<Token>) =
-    result {
-        let! identifier = Gaze.attempt (identifierNib) gaze
+let readNameStr (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
+    let next = Gaze.next gaze
 
-        match identifier with
-        | Element.Name(identifier) -> return Element.Call(identifier, [])
-        | _ -> return failwith "TODO"
-    }
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Name(value)) -> Ok value
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+
+let readName (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Name(value)) -> Ok(Element.Name value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+
+// let callNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+//     result {
+//         let! _ = Gaze.attempt (take Token.OpenParen) gaze
+//         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
+//         let! _ = Gaze.attempt (take Token.CloseParen) gaze
+//         return Element.Call(values)
+//     }
+
+// let rec readCombinatorArguments (values: Token list) (results: (string * Token) list)  =
+//     match values with
+//     | Token.Name(name) :: Token.Name("=") :: Token.Name
+//     failwith "TODO"
+
+// let callNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+//     let res = result {
+//         let! _ = Gaze.attempt (take Token.OpenParen) gaze
+//         let! name = Gaze.attempt (takeCond (fun token ->
+//             match token with
+//             | Token.Name _ -> true
+//             | _ -> false)) gaze
+//         let! values = Gaze.attempt (takeWhile (fun token ->
+//             match token with
+//             | Token.CloseParen -> false
+//             | _ -> true)) gaze
+//         let! _ = Gaze.attempt (take Token.CloseParen) gaze
+//         return (name, values)
+//     }
+//     match res with
+//     | Ok (Token.Name(name), values) ->
+//         match readCombinatorArguments values [] with
+//         | Ok res -> Ok(Element.Call(name, res))
+//         | _ -> failwith "TODO"
+//     | Ok (_, _) -> failwith "TODO"
+//     | Error err -> Error err
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
@@ -70,6 +114,20 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
 //         return Element.Quote(values)
 //     }
 
+let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * Element), Gaze.GazeError> =
+    let entity = patternNib gaze
+    let attribute = patternNib gaze
+
+    let value =
+        match Gaze.check valueNib gaze with
+        | Ok(_) -> valueNib gaze
+        | Error(_) -> quoteNib gaze
+
+    match (entity, attribute, value) with
+    | (Ok(Element.Name(name)), Ok(a), Ok(v)) -> Ok(name, v)
+    | _ -> Error(Gaze.NoMatch)
+
+
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
     let entity = patternNib gaze
     let attribute = patternNib gaze
@@ -82,6 +140,15 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element)
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
+
+let callNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! name = Gaze.attempt readNameStr gaze
+        let! arguments = (optional (repeatSep argumentNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return Element.Call(name, arguments)
+    }
 
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     result {
@@ -134,13 +201,6 @@ let rec readValueList (elements: Element list) (gaze: Gaze.Gaze<Token>) : Result
             readValueList elements gaze
         | _ -> failwith "TODO"
 
-let readName (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Error(err) -> Error err
-    | Ok(Token.Name(value)) -> Ok(Element.Name value)
-    | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readSlot (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -199,7 +259,7 @@ let elementToValue (element: Element) : LigatureValue =
     | Element.Slot s -> LigatureValue.Slot s
     | Element.String s -> LigatureValue.String s
     | Element.Name i -> LigatureValue.Name(Name i)
-    | Element.Call(i, _) -> failwith "Error?" //LigatureValue.Name(Name i) //TODO I don't think this should ever be called?
+    | Element.Call _ -> failwith "Error?" //LigatureValue.Name(Name i) //TODO I don't think this should ever be called?
 
 let handleQuote (quote: Element list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
@@ -238,9 +298,9 @@ let rec express (elements: Element list) (expressions: Expression list) : Expres
     | head :: tail ->
         match head with
         | Element.Network n -> express tail (List.append expressions [ Expression.Network(handleNetwork n) ])
-        // | Element.Name w ->
-        //     express tail (List.append expressions [ Expression.Call(Name(w), { parameterNames = []; quote = [] }) ])
-        | Element.Call(i, _) ->
-            //            List.map (fun x -> express x) q
-            express tail (List.append expressions [ Expression.Call(Name(i), []) ])
+        | Element.Call(name, arguments) ->
+            let arguments =
+                List.map (fun (name, value) -> (Name(name), (elementToValue value))) arguments
+
+            express tail (List.append expressions [ Expression.Call(Name(name), arguments) ])
         | _ -> failwith "TODO"

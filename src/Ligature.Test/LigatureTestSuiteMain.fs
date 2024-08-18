@@ -38,7 +38,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run Set.empty script with //TODO don't use Set.empty, use stdLib
+                match run stdState script with
                 | Ok(_) -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

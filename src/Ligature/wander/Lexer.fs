@@ -101,6 +101,8 @@ type Token =
     | CloseBrace
     | OpenSquare
     | CloseSquare
+    | OpenParen
+    | CloseParen
     | Comma
 
 let implode (chars: char list) =
@@ -178,8 +180,8 @@ let tokenNibbler =
                   takeAndMap "}" Token.CloseBrace
                   takeAndMap "[" Token.OpenSquare
                   takeAndMap "]" Token.CloseSquare
-                  takeAndMap "{" Token.OpenBrace
-                  takeAndMap "}" Token.CloseBrace ]
+                  takeAndMap "(" Token.OpenParen
+                  takeAndMap ")" Token.CloseParen ]
             )
         )
     )

@@ -12,27 +12,18 @@ let evalNetwork (state: State) (network: Network) : Result<State, LigatureError>
 let rec evalExpression (inputState: State) (expression: Expression) : Result<State, LigatureError> =
     match expression with
     | Expression.Network(network) -> evalNetwork inputState network
-    | Expression.Call(name, _) -> handleName inputState name
+    | Expression.Call(name, arguments) -> handleCall inputState name arguments
 
-and handleName (inputState: State) (identifier: Name) = failwith "TODO"
-// let currentResults =
-//     readBinding (PatternName.Name identifier) (state)
+and handleCall (state: State) (identifier: Name) (arguments: (Name * LigatureValue) list) =
+    let lookupResult = readBinding (PatternName.Name identifier) state
 
-// let combinatorResults =
-//     readBinding (PatternName.Name identifier) (readNetwork (NetworkName("combinators")) inputState)
-
-// if currentResults.IsSome then
-//     match currentResults.Value with
-//     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-//     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-//     | _ -> failwith "TODO"
-// else if combinatorResults.IsSome then
-//     match combinatorResults.Value with
-//     | LigatureValue.HostCombinator(combinator) -> combinator.Eval inputState
-//     | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
-//     | _ -> failwith "TODO"
-// else
-//     error $"Could not find Name, {identifier}" None
+    if lookupResult.IsSome then
+        match lookupResult.Value with
+        | LigatureValue.HostCombinator(combinator) -> combinator.Eval state arguments
+        | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
+        | _ -> failwith "TODO"
+    else
+        error $"Could not find Name, {identifier}" None
 
 and evalExpressions (inputState: State) (expressions: Expression list) : Result<State, LigatureError> =
     match expressions with
