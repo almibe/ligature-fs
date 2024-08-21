@@ -289,6 +289,8 @@ let elementTupleToStatement ((e, a, v): (Element * Element * Element)) : (Patter
         | Element.Slot s -> LigatureValue.Slot s
         | Element.Quote q -> handleQuote q
         | Element.Network n -> LigatureValue.Network(handleNetwork n)
+        | Element.Bytes(_) -> failwith "TODO"
+        | Element.Call(_, _) -> failwith "TODO"
 
     (entity, attribute, value)
 

@@ -9,8 +9,7 @@ open Fable.Core.JsInterop
 
 let printResult (script: string) : string = run stdState script |> printResult
 
-let stateToJS (networkName, networks) =
-    let currentNetwork = currentNetwork (networkName, networks)
+let stateToJS (state: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
@@ -33,7 +32,6 @@ let stateToJS (networkName, networks) =
             | LigatureValue.Bytes b -> failwith "TODO"
             | LigatureValue.Int i -> value?int <- i
             | LigatureValue.Network n -> failwith "TODO"
-            | LigatureValue.NetworkName n -> failwith "TODO"
             | LigatureValue.HostCombinator hc -> failwith "TODO"
             | LigatureValue.Quote q -> failwith "TODO"
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
@@ -42,10 +40,9 @@ let stateToJS (networkName, networks) =
             | LigatureValue.Name(Name(i)) -> value?identifier <- i
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
-        currentNetwork
+        state
 
     let res = createEmpty
-    res?name <- readNetworkName networkName
     res?network <- resNetwork
     res
 

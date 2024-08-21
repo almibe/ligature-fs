@@ -25,7 +25,7 @@ open Ligature.Wander.Lib.Combinators
 let ws (webSocket: WebSocket) (context: HttpContext) =
     socket {
         let mutable loop = true
-        let mutable state = Set.empty
+        let mutable state = stdState
 
         while loop do
             let! msg = webSocket.read ()
