@@ -1,8 +1,8 @@
-import { printResult as _printResult } from "../../Ligature.fs.js"
+import { printNetwork as _printNetwork } from "../../Ligature.fs.js"
 import { newEngine as _newEngine } from "../../Ligature.fs.js"
 
-export let printResult = (input: string): any => {
-    return _printResult(input)
+export let printNetwork = (input: any): any => {
+    return _printNetwork(input)
 }
 
 export let newEngine = () => {

@@ -1,7 +1,8 @@
-import { run, newEngine } from "./lib/ligature.js"
+import { run, newEngine, printNetwork } from "./lib/ligature.js"
 import { glob } from "glob"
 import fs from 'node:fs'
 import { expect, test } from 'vitest'
+import { stateToJS } from "../Ligature.fs.js"
 
 // const dir = process.env.LIGATURE_TEST_SUITE + "/wander/*.wander"
 // const wanderFiles = await glob(dir)
@@ -17,12 +18,19 @@ import { expect, test } from 'vitest'
 
 test("Empty Network", () => {
     let engine = newEngine()
-    expect(engine.run("{}")).toEqual({name: "", network: []})
+    expect(stateToJS(engine.run("{}"))).toEqual({network: []})
 })
 
 test("Eval Networks", () => {
     let engine = newEngine()
-    expect(engine.run("{a b c}")).toEqual({ name: "", network: [[{identifier:"a"},{identifier:"b"},{identifier:"c"}]] })
+    expect(stateToJS(engine.run("{a b c}"))).toEqual({ network: [[{identifier:"a"},{identifier:"b"},{identifier:"c"}]] })
+})
+
+test("Print Network", () => {
+    let engine = newEngine()
+    let resNetwork = engine.run("{a b c}")
+    let resString = printNetwork(resNetwork)
+    expect(resString).toEqual("{ a b c, }")
 })
 
 // test("Call Function", () => {
