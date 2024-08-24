@@ -61,6 +61,14 @@ let readName (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
     | Ok(Token.Name(value)) -> Ok(ParserElement.Name value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let readNetworkName (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.NetworkName(value)) -> Ok(ParserElement.NetworkName value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
@@ -169,7 +177,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ quoteNib; readName; networkNib ]
+let elementNib = takeFirst [ quoteNib; readName; networkNib; readNetworkName ]
 
 let scriptNib = repeat elementNib
 

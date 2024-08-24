@@ -134,7 +134,7 @@ let networkNameTokenNibbler =
             let name = chars.[1..] |> implode
             // if name.Contains(".") then
             //     match name.Split(".") with
-            //     | [| networkName; name |] -> 
+            //     | [| networkName; name |] ->
             //         Token.QualifiedName (networkName, name)
             //     | _ -> failwith "TODO"
             // else
