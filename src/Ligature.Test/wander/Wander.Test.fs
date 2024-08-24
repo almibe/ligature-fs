@@ -18,12 +18,12 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run defaultState script
+              let result = run Map.empty defaultState script
               Expect.equal result (Ok(defaultState)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run defaultState script
+              let result = run Map.empty defaultState script
               Expect.equal result (Ok(defaultState)) ""
 
           testCase "Parse Network"
@@ -36,12 +36,13 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ Element.Network [ (Element.Name("a"), Element.Name("b"), Element.Name("c")) ] ]
+                          [ ParserElement.Network
+                                [ (ParserElement.Name("a"), ParserElement.Name("b"), ParserElement.Name("c")) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Network With Quote"
+          testCase "Parse Network With Pipeline"
           <| fun _ ->
               let script = "{id = [ {} ]}"
 
@@ -51,8 +52,10 @@ let tests =
                   | Ok res ->
                       Expect.equal
                           res
-                          [ Element.Network
-                                [ (Element.Name "id", Element.Name "=", Element.Quote [ Element.Network [] ]) ] ]
+                          [ ParserElement.Network
+                                [ (ParserElement.Name "id",
+                                   ParserElement.Name "=",
+                                   ParserElement.Pipeline [ ParserElement.Network [] ]) ] ]
                           ""
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
@@ -67,27 +70,27 @@ let tests =
                   | Ok res ->
                       Expect.equal
                           res
-                          [ Element.Network
-                                [ (Element.Name "test",
-                                   Element.Name "=",
-                                   Element.Network([ (Element.Name("a"), Element.Name("b"), Element.Name("c")) ])) ] ]
+                          [ ParserElement.Network
+                                [ (ParserElement.Name "test",
+                                   ParserElement.Name "=",
+                                   ParserElement.Network(
+                                       [ (ParserElement.Name("a"), ParserElement.Name("b"), ParserElement.Name("c")) ]
+                                   )) ] ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
           testCase "Parse Combinator Call with Arguments"
           <| fun _ ->
-              let script = "( A.b c = 4 )"
+              let script = "A.b"
 
               match tokenize script with
               | Ok res ->
-                  printfn $"!!! {res}"
-
                   match parse res with
                   | Ok res ->
                       Expect.equal
                           res
-                          [ Element.Call("A.b", [ "c", Element.Int(4I) ])
+                          [ ParserElement.Name("A.b")
                             //"A.b",
                             //[ ("c", Element.Network([ (Element.Name("d"), Element.Name("e"), Element.Name("d")) ])) ]
                             ]
@@ -98,7 +101,7 @@ let tests =
           testCase "Run Network"
           <| fun _ ->
               let script = "{a b c, e f 89, a b $test, a b test, a b test.value }"
-              let result = run defaultState script
+              let result = run Map.empty defaultState script
 
               Expect.equal
                   result
@@ -194,7 +197,7 @@ let tests =
           //           )
           //   ))
           //   ""
-          //   testCase "Run Network with Quote"
+          //   testCase "Run Network with Pipeline"
           //   <| fun _ ->
           //       let script = "{empty = []}"
           //       let result = run script emptyState
@@ -205,7 +208,7 @@ let tests =
           //               networkOf (
           //                   [ (PatternName.Name(Name("empty")),
           //                      PatternName.Name(Name("=")),
-          //                      Value.Quote({ parameters = []; value = [] })) ]
+          //                      Value.Pipeline({ parameters = []; value = [] })) ]
           //               )
           //           ))
           //           ""
@@ -219,16 +222,16 @@ let tests =
           //       let script = "{}"
           //       let result = run script Map.empty List.empty
           //       Expect.equal result (Ok([ WanderValue.Network(InMemoryNetwork(Set.empty)) ])) ""
-          //   testCase "Run Empty Quote Literal"
+          //   testCase "Run Empty Pipeline Literal"
           //   <| fun _ ->
           //       let script = "[]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Quote([]) ])) ""
-          //   testCase "Run Quote Literal"
+          //       Expect.equal result (Ok([ WanderValue.Pipeline([]) ])) ""
+          //   testCase "Run Pipeline Literal"
           //   <| fun _ ->
           //       let script = "[1 `test`]"
           //       let result = run script emptyState
-          //       Expect.equal result (Ok([ WanderValue.Quote([ WanderValue.Int(1I); wident "test" ]) ])) ""
+          //       Expect.equal result (Ok([ WanderValue.Pipeline([ WanderValue.Int(1I); wident "test" ]) ])) ""
           //   testCase "Test running with Names"
           //   <| fun _ ->
           //       let script = "1 2 pop"
@@ -342,7 +345,7 @@ let tests =
           testCase "Handle WhiteSpace"
           <| fun _ ->
               let script = "  \n     "
-              let result = run defaultState script
+              let result = run Map.empty defaultState script
               Expect.equal result (Ok(defaultState)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->

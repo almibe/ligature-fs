@@ -75,15 +75,19 @@ type Name = Name of string
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-type Arguments = (Name * LigatureValue) list
+and [<RequireQualifiedAccessAttribute>] Element =
+    | Pipeline of Pipeline
+    | Name of Name
+    | Network of Network
 
-and [<StructuralEquality; StructuralComparison>] Quote =
-    { parameterNames: string list
-      quote: LigatureValue list }
+and Pipeline = { values: Element list }
+
+and Combinators = Map<Name, Combinator>
 
 and [<CustomEquality; CustomComparison>] Combinator =
-    { Name: string
-      Eval: State -> Arguments -> Result<State, LigatureError> }
+    { Name: Name
+      Doc: string
+      Eval: Combinators -> State -> Result<State, LigatureError> }
 
     member private this.Compare other = compare this.Name other.Name
 
@@ -110,19 +114,14 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Quote of LigatureValue list
+    | Pipeline of Pipeline
     | Network of Network
-    | HostCombinator of Combinator
 
 and Statement = (PatternName * PatternName * LigatureValue)
 
 and Network = Set<Statement>
 
 and State = Network
-
-let readArgument (name: Name) (arguments: Arguments) : Option<LigatureValue> =
-    List.tryFind (fun (argName, _) -> name = argName) arguments
-    |> Option.map (fun (_, value) -> value)
 
 let defaultState: State = Set.empty
 
@@ -138,7 +137,7 @@ let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
 
     match List.ofSeq (res) with
     | [] -> None
-    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
+    | [ (_, _, value) ] -> Some(value) //evalPipeline hostFunctions runtimeNetwork quote
     | _ -> None
 
 let getRoots (patternSet: Set<Statement>) : Set<PatternName> =
@@ -156,6 +155,6 @@ let getLeaves (patternSet: Set<Statement>) : Set<PatternName> =
 
 let printPatternName (pattern: PatternName) : string =
     match pattern with
-    | PatternName.Name(Name identifier) -> identifier
+    | PatternName.Name(Name path) -> failwith "TODO"
     | PatternName.Slot(Slot(Some(name))) -> $"${name}"
     | PatternName.Slot(Slot(None)) -> "$"

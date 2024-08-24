@@ -12,12 +12,12 @@ open Interpreter
 
 let std: Map<string, Combinator> = Map.empty
 
-let run (inputState: State) (input: string) : Result<State, LigatureError> =
+let run (combinators: Combinators) (inputState: State) (input: string) : Result<State, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalExpressions inputState
+            | Ok ast -> express ast [] |> evalElements combinators inputState
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
@@ -27,17 +27,17 @@ let run (inputState: State) (input: string) : Result<State, LigatureError> =
 type Introspect =
     { tokens: Result<Token list, string>
       elements: Result<Element list, string>
-      expressions: Result<Expression list, string> }
+      expressions: Result<Element list, string> }
 
 let introspect (input: string) =
     match tokenize input with
     | Ok tokens ->
         match parse tokens with
         | Ok elements ->
-            let expressions = express elements []
+            let expressions = failwith "TODO" //express elements []
 
             { tokens = Ok tokens
-              elements = Ok elements
+              elements = failwith "TODO" //Ok elements
               expressions = Ok expressions }
         | Error err ->
             { tokens = Ok tokens

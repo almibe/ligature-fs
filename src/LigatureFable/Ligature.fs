@@ -7,7 +7,7 @@ open Ligature.Wander.Lib.Combinators
 open Ligature.Wander.Main
 open Fable.Core.JsInterop
 
-let printNetwork (network: Network) : string = 
+let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
 let stateToJS (state: Network) =
@@ -33,8 +33,8 @@ let stateToJS (state: Network) =
             | LigatureValue.Bytes b -> failwith "TODO"
             | LigatureValue.Int i -> value?int <- i
             | LigatureValue.Network n -> value?network <- "[NETWORK]"
-            | LigatureValue.HostCombinator hc -> value?host <- "[HOST]"//failwith "TODO"
-            | LigatureValue.Quote q -> failwith "TODO"
+            | LigatureValue.HostCombinator hc -> value?host <- "[HOST]" //failwith "TODO"
+            | LigatureValue.Pipeline q -> failwith "TODO"
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
             | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
             | LigatureValue.String s -> value?string <- s
@@ -49,7 +49,7 @@ let stateToJS (state: Network) =
 
 let newEngine () =
     let engine = createEmpty
-    let mutable state = defaultState
+    let mutable state = stdState
 
     engine?run <-
         fun (script: string) ->
@@ -59,5 +59,4 @@ let newEngine () =
                 res
             | Error err -> failwith err.UserMessage
 
-    engine?addCombinator <- fun (name: string) combinator -> failwith "TODO"
     engine

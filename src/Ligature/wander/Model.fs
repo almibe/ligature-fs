@@ -10,13 +10,6 @@ open System.Text.RegularExpressions
 open Ligature
 //open Ligature.LigatureStore.InMemoryStore
 
-[<RequireQualifiedAccess>]
-type Expression =
-    | Call of Name * (Name * LigatureValue) list
-    | Network of Network
-
-type Parameter = { name: string; tag: string }
-
 let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
@@ -26,18 +19,17 @@ let encodeString string =
 
 let rec prettyPrint (value: LigatureValue) : string =
     match value with
-    | LigatureValue.Name(Name(value)) -> value
+    | LigatureValue.Name(Name(value)) -> failwith "TODO" //value
     | LigatureValue.Int i -> i.ToString()
     | LigatureValue.String s -> encodeString s
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | LigatureValue.Slot(Slot(None)) -> "$"
-    | LigatureValue.Quote(values) -> $"[{printQuote values}]" //TODO print names better
+    | LigatureValue.Pipeline(values) -> $"[{printPipeline values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
-    | LigatureValue.HostCombinator(combinator) -> $"Combinator({combinator.Name})"
 
 and printNetwork (network: Network) : string =
-    (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ", ") "{" (network))
+    (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ",\n") "{" (network))
     + "}"
 
 and printBytes bytes =
@@ -54,17 +46,11 @@ and printAssocArray values =
 and printStatement ((entity, attribute, value): Statement) : string =
     $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
 
-and printPatternName (patternName: PatternName) =
-    match patternName with
-    | PatternName.Name(Name(identifier)) -> identifier
-    | PatternName.Slot(Slot(Some(name))) -> $"${name}"
-    | PatternName.Slot(Slot(None)) -> "$"
-
 and printPattern ((entity, attribute, value): Statement) =
     $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
 
-and printQuote quote =
-    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
+and printPipeline quote = failwith "TODO"
+//    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
 
 type Scope = Map<string, LigatureValue>
 

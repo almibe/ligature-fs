@@ -12,7 +12,7 @@ let emptyNetwork: Network = Set.empty
 
 let patternNameToLigatureValue (patternName: PatternName) : LigatureValue =
     match patternName with
-    | PatternName.Name identifier -> LigatureValue.Name identifier
+    | PatternName.Name path -> LigatureValue.Name path
     | PatternName.Slot slot -> LigatureValue.Slot slot
 
 let educeStatementStatement

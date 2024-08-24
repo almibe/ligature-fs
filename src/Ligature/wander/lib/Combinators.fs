@@ -6,148 +6,152 @@ module Ligature.Wander.Lib.Combinators
 
 open Ligature.Main
 
-let idCombinator: Combinator =
-    { Name = "id"
-      Eval = fun (input: State) (_: Arguments) -> Ok input }
+// let idCombinator: Combinator =
+//     { Name = "id"
+//       Eval = fun (input: State) (_: Arguments) -> Ok input }
 
-let unionCombinator =
-    { Name = "union"
-      Eval =
-        fun (inputState: State) (arguments: Arguments) ->
+// let unionCombinator =
+//     { Name = "union"
+//       Eval =
+//         fun (inputState: State) (arguments: Arguments) ->
 
-            let input =
-                match readArgument (Name("in")) arguments with
-                | Some(LigatureValue.Network(input)) -> Some input
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) inputState with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
-                | _ -> None
+//             let input =
+//                 match readArgument (Name("in")) arguments with
+//                 | Some(LigatureValue.Network(input)) -> Some input
+//                 | Some(LigatureValue.Name(name)) ->
+//                     match readBinding (PatternName.Name(name)) inputState with
+//                     | Some(LigatureValue.Network n) -> Some n
+//                     | _ -> None
+//                 | _ -> None
 
-            match input with
-            | Some(network) -> Set.union network inputState |> Ok
-            | _ -> failwith "TODO" }
+//             match input with
+//             | Some(network) -> Set.union network inputState |> Ok
+//             | _ -> failwith "TODO" }
 
-let minusCombinator =
-    { Name = "minus"
-      Eval =
-        fun (inputState: State) (arguments: Arguments) ->
+// let minusCombinator =
+//     { Name = "minus"
+//       Eval =
+//         fun (inputState: State) (arguments: Arguments) ->
 
-            let input =
-                match readArgument (Name("in")) arguments with
-                | Some(LigatureValue.Network(input)) -> Some input
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) inputState with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
-                | _ -> None
+//             let input =
+//                 match readArgument (Name("in")) arguments with
+//                 | Some(LigatureValue.Network(input)) -> Some input
+//                 | Some(LigatureValue.Name(name)) ->
+//                     match readBinding (PatternName.Name(name)) inputState with
+//                     | Some(LigatureValue.Network n) -> Some n
+//                     | _ -> None
+//                 | _ -> None
 
-            match input with
-            | Some(network) -> Set.difference inputState network |> Ok
-            | _ -> failwith "TODO" }
+//             match input with
+//             | Some(network) -> Set.difference inputState network |> Ok
+//             | _ -> failwith "TODO" }
+
+// let lookupNetwork () =
+//     failwith "TODO"
 
 // let applyCombinator: Combinator =
 //     { Name = "apply"
 //       Eval =
 //         fun (inputState: State) ->
-//             let (networkName, networks) = inputState
-//             let currentNetwork = currentNetwork inputState
-
 //             let input =
-//                 readBinding (PatternName.Name(Name("in"))) currentNetwork
+//                 readBinding (PatternName.Name(Name("in"))) inputState
 
 //             let template =
-//                 readBinding (PatternName.Name(Name("template"))) currentNetwork
+//                 readBinding (PatternName.Name(Name("template"))) inputState
 
 //             let out =
-//                 readBinding (PatternName.Name(Name("out"))) currentNetwork
+//                 readBinding (PatternName.Name(Name("out"))) inputState
 
 //             match (input, template, out) with
-//             | (Some(LigatureValue.QualifiedName(networkName, name)),
-//                Some(LigatureValue.NetworkName(template)),
-//                Some(LigatureValue.NetworkName(out))) ->
-//                 let inputNetwork = readNetwork networkName inputState
-//                 let templateNetwork = readNetwork template inputState
-//                 let outNetwork = readNetwork out inputState
+//             | (Some(LigatureValue.Name(input)),
+//                Some(LigatureValue.Name(template)),
+//                Some(LigatureValue.Name(out))) ->
+//                 let input = readBinding (PatternName.Name(input)) inputState
+//                 let template = readBinding (PatternName.Name(template)) inputState
+//                 let out = readBinding (PatternName.Name(out)) inputState
 
-//                 match readBinding (PatternName.Name(name)) inputNetwork with
-//                 | Some(LigatureValue.Quote(values)) ->
+//                 match (input, template, out) with
 
-//                     failwith "TODO"
 //                 | _ -> failwith "TODO"
 
-//                 let resultNetwork =
-//                     Set.map
-//                         (fun ((e, a, v)) ->
-//                             let entity =
-//                                 match e with
-//                                 | PatternName.Slot s ->
-//                                     match readBinding (PatternName.Slot s) dataNetwork with
-//                                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
-//                                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-//                                     | Some _ ->
-//                                         failwith "TODO - unexpected value - only Slots or Names are allowed"
-//                                     | None -> PatternName.Slot s
-//                                 | PatternName.Name i -> PatternName.Name i
+//                 // match readBinding (PatternName.Name(name)) inputNetwork with
+//                 // | Some(LigatureValue.Pipeline(values)) ->
 
-//                             let attribute =
-//                                 match a with
-//                                 | PatternName.Slot s ->
-//                                     match readBinding (PatternName.Slot s) dataNetwork with
-//                                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
-//                                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-//                                     | Some _ ->
-//                                         failwith "TODO - unexpected value - only Slots or Names are allowed"
-//                                     | None -> PatternName.Slot s
-//                                 | PatternName.Name i -> PatternName.Name i
+//                 //     failwith "TODO"
+//                 // | _ -> failwith "TODO"
 
-//                             let value =
-//                                 match v with
-//                                 | LigatureValue.Slot s ->
-//                                     match readBinding (PatternName.Slot s) dataNetwork with
-//                                     | Some value -> value
-//                                     | None -> LigatureValue.Slot s
-//                                 | v -> v
+//                 // let resultNetwork =
+//                 //     Set.map
+//                 //         (fun ((e, a, v)) ->
+//                 //             let entity =
+//                 //                 match e with
+//                 //                 | PatternName.Slot s ->
+//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
+//                 //                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
+//                 //                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
+//                 //                     | Some _ ->
+//                 //                         failwith "TODO - unexpected value - only Slots or Names are allowed"
+//                 //                     | None -> PatternName.Slot s
+//                 //                 | PatternName.Name i -> PatternName.Name i
 
-//                             (entity, attribute, value))
-//                         templateNetwork
+//                 //             let attribute =
+//                 //                 match a with
+//                 //                 | PatternName.Slot s ->
+//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
+//                 //                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
+//                 //                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
+//                 //                     | Some _ ->
+//                 //                         failwith "TODO - unexpected value - only Slots or Names are allowed"
+//                 //                     | None -> PatternName.Slot s
+//                 //                 | PatternName.Name i -> PatternName.Name i
 
-//                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
+//                 //             let value =
+//                 //                 match v with
+//                 //                 | LigatureValue.Slot s ->
+//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
+//                 //                     | Some value -> value
+//                 //                     | None -> LigatureValue.Slot s
+//                 //                 | v -> v
+
+//                 //             (entity, attribute, value))
+//                 //         templateNetwork
+
+//                 // Ok((Set.union outNetwork resultNetwork))
 //             //iterate through all of the statements in the templateNetwork,
 //             //whenever a slot is found lookup in the dataNetwork to see if that value has been bound,
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-let assertEqualCombinator =
-    { Name = "assert-equal"
-      Eval =
-        fun (inputState: State) (arguments: Arguments) ->
+// let assertEqualCombinator =
+//     { Name = "assert-equal"
+//       Eval =
+//         fun (inputState: State) (arguments: Arguments) ->
 
-            let given =
-                match readArgument (Name("given")) arguments with
-                | Some(LigatureValue.Network(given)) -> Some given
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) inputState with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
-                | _ -> None
+//             let given =
+//                 match readArgument (Name("given")) arguments with
+//                 | Some(LigatureValue.Network(given)) -> Some given
+//                 | Some(LigatureValue.Name(name)) ->
+//                     match readBinding (PatternName.Name(name)) inputState with
+//                     | Some(LigatureValue.Network n) -> Some n
+//                     | _ -> None
+//                 | _ -> None
 
-            let expect =
-                match readArgument (Name("expect")) arguments with
-                | Some(LigatureValue.Network(expect)) -> Some expect
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) inputState with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
-                | _ -> None
+//             let expect =
+//                 match readArgument (Name("expect")) arguments with
+//                 | Some(LigatureValue.Network(expect)) -> Some expect
+//                 | Some(LigatureValue.Name(name)) ->
+//                     match readBinding (PatternName.Name(name)) inputState with
+//                     | Some(LigatureValue.Network n) -> Some n
+//                     | _ -> None
+//                 | _ -> None
 
-            match (given, expect) with
-            | (Some(given), Some(expect)) ->
-                if given = expect then
-                    Ok inputState
-                else
-                    error "Assertion failed." None
-            | _ -> failwith "TODO" }
+//             match (given, expect) with
+//             | (Some(given), Some(expect)) ->
+//                 if given = expect then
+//                     Ok inputState
+//                 else
+//                     error "Assertion failed." None
+//             | _ -> failwith "TODO" }
 
 // let queryCombinator =
 //     { Name = "query"
@@ -182,21 +186,21 @@ let assertEqualCombinator =
 //                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
 //             | _ -> failwith "TODO" }
 
-let stdState: State =
-    Set.ofSeq
-        [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
-          (PatternName.Name(Name("union")),
-           PatternName.Name(Name("=")),
-           LigatureValue.HostCombinator unionCombinator)
-          (PatternName.Name(Name("assert-equal")),
-           PatternName.Name(Name("=")),
-           LigatureValue.HostCombinator assertEqualCombinator)
-          (PatternName.Name(Name("minus")),
-           PatternName.Name(Name("=")),
-           LigatureValue.HostCombinator minusCombinator) ]
+let stdState: State = Set.ofSeq []
+// [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
+//   (PatternName.Name(Name("union")),
+//    PatternName.Name(Name("=")),
+//    LigatureValue.HostCombinator unionCombinator)
+//   (PatternName.Name(Name("assert-equal")),
+//    PatternName.Name(Name("=")),
+//    LigatureValue.HostCombinator assertEqualCombinator)
+//   (PatternName.Name(Name("minus")),
+//    PatternName.Name(Name("=")),
+//    LigatureValue.HostCombinator minusCombinator)
+//   (PatternName.Name(Name("apply")),
+//    PatternName.Name(Name("=")),
+//    LigatureValue.HostCombinator applyCombinator)
 // (PatternName.Name(Name("query")),
 //  PatternName.Name(Name("=")),
 //  LigatureValue.HostCombinator queryCombinator)
-// (PatternName.Name(Name("apply")),
-//  PatternName.Name(Name("=")),
-//  LigatureValue.HostCombinator applyCombinator)
+//        ]
