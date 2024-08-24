@@ -13,6 +13,7 @@ open Ligature.Main
 [<RequireQualifiedAccess>]
 type ParserElement =
     | Name of string
+    | NetworkName of string
     | Pipeline of ParserElement list
     | String of string
     | Int of bigint
@@ -33,6 +34,14 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
         (fun gaze ->
             match Gaze.next gaze with
             | Ok(Token.Name(name)) -> Ok(ParserElement.Name(name))
+            | _ -> Error(Gaze.GazeError.NoMatch))
+        gaze
+
+let networkNameNib (gaze: Gaze.Gaze<Token>) =
+    Gaze.attempt
+        (fun gaze ->
+            match Gaze.next gaze with
+            | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(NetworkName(name)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -205,6 +214,7 @@ let elementToValue (element: ParserElement) : LigatureValue =
     | ParserElement.Slot s -> LigatureValue.Slot s
     | ParserElement.String s -> LigatureValue.String s
     | ParserElement.Name p -> failwith "TODO" //LigatureValue.Name(Name i)
+    | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
 let handlePipeline (quote: ParserElement list) : LigatureValue = failwith "TODO"
 //    List.map (fun element -> elementToValue element) quote |> LigatureValue.Pipeline
@@ -237,6 +247,7 @@ let elementTupleToStatement
         | ParserElement.Pipeline q -> handlePipeline q
         | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
         | ParserElement.Bytes b -> LigatureValue.Bytes b
+        | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
     (entity, attribute, value)
 
@@ -250,4 +261,5 @@ let rec express (elements: ParserElement list) (expressions: Element list) : Ele
         | ParserElement.Network n -> express tail (List.append expressions [ Element.Network(handleNetwork n) ])
         | ParserElement.Pipeline p -> express tail (List.append expressions (expressPipeline p))
         | ParserElement.Name n -> express tail (List.append expressions [ Element.Name(Name n) ])
+        | ParserElement.NetworkName n -> express tail (List.append expressions [ Element.NetworkName(NetworkName n) ])
         | _ -> failwith "Error - unexpected token."

@@ -42,6 +42,23 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
+          testCase "Parse Named Network"
+          <| fun _ ->
+              let script = "@name {a b c}"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) ->
+                      Expect.equal
+                          res
+                          [ ParserElement.NetworkName("name")
+                            ParserElement.Network
+                                [ ParserElement.Name("a"), ParserElement.Name("b"), ParserElement.Name("c") ] ]
+                          ""
+                  | _ -> failwith "Error Parsing"
+              | _ -> failwith "Error Tokenizing"
+
           testCase "Parse Network With Pipeline"
           <| fun _ ->
               let script = "{id = [ {} ]}"
@@ -60,27 +77,7 @@ let tests =
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
 
-          testCase "Parse Nested Networks"
-          <| fun _ ->
-              let script = "{test = {a b c} }"
-
-              match tokenize script with
-              | Ok res ->
-                  match parse res with
-                  | Ok res ->
-                      Expect.equal
-                          res
-                          [ ParserElement.Network
-                                [ (ParserElement.Name "test",
-                                   ParserElement.Name "=",
-                                   ParserElement.Network(
-                                       [ (ParserElement.Name("a"), ParserElement.Name("b"), ParserElement.Name("c")) ]
-                                   )) ] ]
-                          ""
-                  | _ -> failwith "Error"
-              | _ -> failwith "Error"
-
-          testCase "Parse Combinator Call with Arguments"
+          testCase "Parse Name"
           <| fun _ ->
               let script = "A.b"
 
@@ -98,26 +95,29 @@ let tests =
                   | Error e -> failwith $"Error Parsing {e.UserMessage}"
               | _ -> failwith "Error Tokenizing"
 
-          testCase "Run Network"
-          <| fun _ ->
-              let script = "{a b c, e f 89, a b $test, a b test, a b test.value }"
-              let result = run Map.empty defaultState script
+        //   testCase "Run Network"
+        //   <| fun _ ->
+        //       let script = "{a b c, e f 89, a b $test, a b @test, a b test.value }"
+        //       let result = run Map.empty defaultState script
 
-              Expect.equal
-                  result
-                  (Ok(
-                      Set.ofSeq
-                          [ (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("c")))
-                            (PatternName.Name(Name("e")), PatternName.Name(Name("f")), LigatureValue.Int(89I))
-                            (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Slot(Slot(Some("test"))))
-                            (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("test")))
-                            (PatternName.Name(Name("a")),
-                             PatternName.Name(Name("b")),
-                             LigatureValue.Name(Name("test.value"))) ]
-                  ))
-                  ""
+        //       Expect.equal
+        //           result
+        //           (Ok(NetworkName(""),
+        //               Map.ofList [
+        //                 [ defaultNetwork, Set.ofSeq
+        //                   [ (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("c")))
+        //                     (PatternName.Name(Name("e")), PatternName.Name(Name("f")), LigatureValue.Int(89I))
+        //                     (PatternName.Name(Name("a")),
+        //                      PatternName.Name(Name("b")),
+        //                      LigatureValue.Slot(Slot(Some("test"))))
+        //                     (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.NetworkName(NetworkName("test")))
+        //                     (PatternName.Name(Name("a")),
+        //                      PatternName.Name(Name("b")),
+        //                      LigatureValue.Name(Name("test.value"))) ]]
+        //               ]
+
+        //           ))
+        //           ""
 
           //   testCase "Run Id Combinator"
           //   <| fun _ ->

@@ -186,7 +186,7 @@ open Ligature.Main
 //                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
 //             | _ -> failwith "TODO" }
 
-let stdState: State = Set.ofSeq []
+let stdState: State = (defaultNetwork, Map.empty) //Set.ofSeq []
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),
 //    PatternName.Name(Name("=")),

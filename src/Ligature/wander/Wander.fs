@@ -50,5 +50,5 @@ let introspect (input: string) =
 
 let printResult (result: Result<State, LigatureError>) =
     match result with
-    | Ok state -> $"{printNetwork state}"
+    | Ok (name, state) -> $"@{name} {printNetwork (currentNetwork (name, state))}"
     | Error err -> err.UserMessage
