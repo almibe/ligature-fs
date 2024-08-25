@@ -33,7 +33,6 @@ let stateToJS (state: Network) =
             | LigatureValue.Bytes b -> failwith "TODO"
             | LigatureValue.Int i -> value?int <- i
             | LigatureValue.Network n -> value?network <- "[NETWORK]"
-            | LigatureValue.HostCombinator hc -> value?host <- "[HOST]" //failwith "TODO"
             | LigatureValue.Pipeline q -> failwith "TODO"
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
             | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
@@ -49,11 +48,12 @@ let stateToJS (state: Network) =
 
 let newEngine () =
     let engine = createEmpty
-    let mutable state = stdState
+    let mutable state = defaultState
+    let combinators = stdCombinators
 
     engine?run <-
         fun (script: string) ->
-            match run state script with
+            match run combinators state script with
             | Ok res ->
                 state <- res
                 res

@@ -38,7 +38,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run Map.empty stdState script with
+                match run stdCombinators defaultState script with
                 | Ok(_) -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

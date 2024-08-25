@@ -29,11 +29,10 @@ let evalNetwork ((name, networks): State) (network: Network) : Result<State, Lig
 //         error $"Could not find Name, {identifier}" None
 
 let evalName (combinators: Combinators) (state: State) (name: Name) : Result<State, LigatureError> =
-    //TODO check state
-    if combinators.ContainsKey name then
-        failwith "TODO"
-    else
-        error $"Could not find name {name}." None
+    //TODO check state for bindings
+    match combinators.TryFind name with
+    | Some(combinataor) -> combinataor.Eval combinators state
+    | None -> error $"Could not find name {name}." None
 
 let rec evalElement (combinators: Combinators) (inputState: State) (element: Element) : Result<State, LigatureError> =
     match element with

@@ -6,9 +6,10 @@ module Ligature.Wander.Lib.Combinators
 
 open Ligature.Main
 
-// let idCombinator: Combinator =
-//     { Name = "id"
-//       Eval = fun (input: State) (_: Arguments) -> Ok input }
+let idCombinator: Combinator =
+    { Name = Name("id")
+      Doc = "Return working state."
+      Eval = fun (combinators: Combinators) (input: State) -> Ok input }
 
 // let unionCombinator =
 //     { Name = "union"
@@ -122,36 +123,36 @@ open Ligature.Main
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-// let assertEqualCombinator =
-//     { Name = "assert-equal"
-//       Eval =
-//         fun (inputState: State) (arguments: Arguments) ->
+let assertEqualCombinator =
+    { Name = Name "assert-equal"
+      Doc = ""
+      Eval =
+        fun (_: Combinators) (inputState: State) ->
+            let given =
+                match readBinding (PatternName.Name(Name("given"))) (currentNetwork inputState) with
+                | Some(LigatureValue.Network(given)) -> Some given
+                | Some(LigatureValue.Name(name)) ->
+                    match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
+                    | Some(LigatureValue.Network n) -> Some n
+                    | _ -> None
+                | _ -> None
 
-//             let given =
-//                 match readArgument (Name("given")) arguments with
-//                 | Some(LigatureValue.Network(given)) -> Some given
-//                 | Some(LigatureValue.Name(name)) ->
-//                     match readBinding (PatternName.Name(name)) inputState with
-//                     | Some(LigatureValue.Network n) -> Some n
-//                     | _ -> None
-//                 | _ -> None
+            let expect =
+                match readBinding (PatternName.Name(Name("expect"))) (currentNetwork inputState) with
+                | Some(LigatureValue.Network(expect)) -> Some expect
+                | Some(LigatureValue.Name(name)) ->
+                    match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
+                    | Some(LigatureValue.Network n) -> Some n
+                    | _ -> None
+                | _ -> None
 
-//             let expect =
-//                 match readArgument (Name("expect")) arguments with
-//                 | Some(LigatureValue.Network(expect)) -> Some expect
-//                 | Some(LigatureValue.Name(name)) ->
-//                     match readBinding (PatternName.Name(name)) inputState with
-//                     | Some(LigatureValue.Network n) -> Some n
-//                     | _ -> None
-//                 | _ -> None
-
-//             match (given, expect) with
-//             | (Some(given), Some(expect)) ->
-//                 if given = expect then
-//                     Ok inputState
-//                 else
-//                     error "Assertion failed." None
-//             | _ -> failwith "TODO" }
+            match (given, expect) with
+            | (Some(given), Some(expect)) ->
+                if given = expect then
+                    Ok inputState
+                else
+                    error "Assertion failed." None
+            | _ -> error $"assert-equal passed illegal arguments given = {given} expect = {expect}" None }
 
 // let queryCombinator =
 //     { Name = "query"
@@ -186,7 +187,10 @@ open Ligature.Main
 //                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
 //             | _ -> failwith "TODO" }
 
-let stdState: State = (defaultNetwork, Map.empty) //Set.ofSeq []
+let stdCombinators = Map.ofList [
+  (assertEqualCombinator.Name, assertEqualCombinator)
+]
+
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),
 //    PatternName.Name(Name("=")),
