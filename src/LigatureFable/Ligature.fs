@@ -33,7 +33,7 @@ let stateToJS (state: Network) =
             | LigatureValue.Bytes b -> failwith "TODO"
             | LigatureValue.Int i -> value?int <- i
             | LigatureValue.Network n -> value?network <- "[NETWORK]"
-            | LigatureValue.Pipeline q -> failwith "TODO"
+            | LigatureValue.Quote q -> failwith "TODO"
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
             | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
             | LigatureValue.String s -> value?string <- s

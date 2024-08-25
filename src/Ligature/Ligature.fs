@@ -78,12 +78,12 @@ type NetworkName = NetworkName of string
 //     | Error(_) -> failwith "Error"
 
 and [<RequireQualifiedAccessAttribute>] Element =
-    | Pipeline of Pipeline
+    | Quote of Quote
     | Name of Name
     | NetworkName of NetworkName
     | Network of Network
 
-and Pipeline = { values: Element list }
+and Quote = { values: Element list }
 
 and Combinators = Map<Name, Combinator>
 
@@ -118,7 +118,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | String of string
     | Int of bigint
     | Bytes of byte array
-    | Pipeline of Pipeline
+    | Quote of Quote
     | Network of Network
 
 and Statement = (PatternName * PatternName * LigatureValue)
@@ -155,7 +155,7 @@ let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
 
     match List.ofSeq (res) with
     | [] -> None
-    | [ (_, _, value) ] -> Some(value) //evalPipeline hostFunctions runtimeNetwork quote
+    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
 let getRoots (patternSet: Set<Statement>) : Set<PatternName> =

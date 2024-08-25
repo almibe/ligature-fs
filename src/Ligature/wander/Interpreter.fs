@@ -23,7 +23,7 @@ let evalNetwork ((name, networks): State) (network: Network) : Result<State, Lig
 //     if lookupResult.IsSome then
 //         match lookupResult.Value with
 //         | LigatureValue.HostCombinator(combinator) -> combinator.Eval state arguments
-//         | LigatureValue.Pipeline(quote) -> failwith "TODO" //evalPipeline hostFunctions runtimeNetwork quote
+//         | LigatureValue.Quote(quote) -> failwith "TODO" //evalQuote hostFunctions runtimeNetwork quote
 //         | _ -> failwith "TODO"
 //     else
 //         error $"Could not find Name, {identifier}" None
@@ -39,7 +39,7 @@ let rec evalElement (combinators: Combinators) (inputState: State) (element: Ele
     | Element.Network network -> evalNetwork inputState network
     | Element.Name name -> evalName combinators inputState name
     | Element.NetworkName name -> evalNetworkName name inputState
-    | Element.Pipeline pipeline -> evalPipeline combinators inputState pipeline
+    | Element.Quote pipeline -> evalQuote combinators inputState pipeline
 
 and evalElements
     (combinators: Combinators)
@@ -65,9 +65,9 @@ and evalElements
 //         | LigatureValue.Network n -> valuesToExpressions tail (List.append expressions [ Expression.Network n ])
 //         | LigatureValue.Name i ->
 //             match tail with
-//             | LigatureValue.Pipeline p :: tail -> failwith "TODO"
+//             | LigatureValue.Quote p :: tail -> failwith "TODO"
 //             | _ -> failwith "TODO" //valuesToExpressions [] (List.append expressions [ Expression.Call(i, []) ])
-//         | _ -> error "Invalid Pipeline" None
+//         | _ -> error "Invalid Quote" None
 
-and evalPipeline (combinators: Combinators) (inputState: State) (pipeline: Pipeline) : Result<State, LigatureError> =
+and evalQuote (combinators: Combinators) (inputState: State) (pipeline: Quote) : Result<State, LigatureError> =
     evalElements combinators inputState pipeline.values

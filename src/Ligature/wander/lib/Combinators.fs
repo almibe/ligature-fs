@@ -76,7 +76,7 @@ let idCombinator: Combinator =
 //                 | _ -> failwith "TODO"
 
 //                 // match readBinding (PatternName.Name(name)) inputNetwork with
-//                 // | Some(LigatureValue.Pipeline(values)) ->
+//                 // | Some(LigatureValue.Quote(values)) ->
 
 //                 //     failwith "TODO"
 //                 // | _ -> failwith "TODO"
@@ -187,9 +187,8 @@ let assertEqualCombinator =
 //                 Ok(networkName, Map.add out (Set.union outNetwork resultNetwork) networks)
 //             | _ -> failwith "TODO" }
 
-let stdCombinators = Map.ofList [
-  (assertEqualCombinator.Name, assertEqualCombinator)
-]
+let stdCombinators =
+    Map.ofList [ (assertEqualCombinator.Name, assertEqualCombinator) ]
 
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),
