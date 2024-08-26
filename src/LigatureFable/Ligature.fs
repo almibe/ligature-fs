@@ -7,10 +7,10 @@ open Ligature.Wander.Lib.Combinators
 open Ligature.Wander.Main
 open Fable.Core.JsInterop
 
-let printNetwork (network: Network) : string =
-    Ligature.Wander.Model.printNetwork network
+// let printNetwork (network: Network) : string =
+//     Ligature.Wander.Model.printNetwork network
 
-let stateToJS (state: Network) =
+let networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
@@ -32,7 +32,7 @@ let stateToJS (state: Network) =
             match v with
             | LigatureValue.Bytes b -> failwith "TODO"
             | LigatureValue.Int i -> value?int <- i
-            | LigatureValue.Network n -> value?network <- "[NETWORK]"
+            | LigatureValue.NetworkName n -> failwith "TODO"
             | LigatureValue.Quote q -> failwith "TODO"
             | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
             | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
@@ -40,10 +40,32 @@ let stateToJS (state: Network) =
             | LigatureValue.Name(Name(i)) -> value?identifier <- i
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
-        state
+        network
 
+    resNetwork
+
+// let stateToJS ((NetworkName(name), networks): State) =
+//     let mutable resNetworks = createEmpty
+
+
+//     let res = createEmpty
+//     res?network <- resNetwork
+//     res
+
+let stateToJS ((NetworkName(name), networks): State) =
     let res = createEmpty
-    res?network <- resNetwork
+    let mutable resNetworks = []
+    res?name <- name
+
+    Map.iter
+        (fun (NetworkName(name)) value ->
+            let networkRes = createEmpty
+            networkRes?name <- name
+            networkRes?network <- networkToJS value
+            resNetworks <- List.append resNetworks [ networkRes ])
+        networks
+
+    res?networks <- List.toArray resNetworks
     res
 
 let newEngine () =
@@ -56,7 +78,8 @@ let newEngine () =
             match run combinators state script with
             | Ok res ->
                 state <- res
-                res
+                //Encode.Auto.toString(stateToJS res)
+                stateToJS res
             | Error err -> failwith err.UserMessage
 
     engine

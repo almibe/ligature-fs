@@ -18,20 +18,29 @@ import { stateToJS } from "../Ligature.fs.js"
 
 test("Empty Network", () => {
     let engine = newEngine()
-    expect(stateToJS(engine.run("{}"))).toEqual({network: []})
+    expect(engine.run("{}")).toEqual({name: "", networks: [{name: "", network: []}]})
 })
 
 test("Eval Networks", () => {
     let engine = newEngine()
-    expect(stateToJS(engine.run("{a b c}"))).toEqual({ network: [[{identifier:"a"},{identifier:"b"},{identifier:"c"}]] })
+    expect(engine.run("{a b c}"))
+        .toEqual({name: "", networks: [{name: "", network: 
+            [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
 })
 
-test("Print Network", () => {
+test("Eval Named Network", () => {
     let engine = newEngine()
-    let resNetwork = engine.run("{a b c}")
-    let resString = printNetwork(resNetwork)
-    expect(resString).toEqual("{ a b c, }")
+    expect(engine.run("@test {a b c}"))
+        .toEqual({name: "test", networks: [{name: "test", network: 
+            [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
 })
+
+// test("Print Network", () => {
+//     let engine = newEngine()
+//     let resNetwork = engine.run("{a b c}")
+//     let resString = printNetwork(resNetwork)
+//     expect(resString).toEqual("{ a b c, }")
+// })
 
 // test("Call Function", () => {
 //     expect(run("count {`a` `b` `c`}")).toEqual(1n)

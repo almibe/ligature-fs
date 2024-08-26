@@ -217,7 +217,7 @@ let elementToValue (element: ParserElement) : LigatureValue =
     match element with
     | ParserElement.Int i -> LigatureValue.Int i
     | ParserElement.Bytes b -> LigatureValue.Bytes b
-    | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
+    | ParserElement.Network n -> failwith "TODO" //LigatureValue.Network(handleNetwork n)
     | ParserElement.Quote p -> handleQuote p
     | ParserElement.Slot s -> LigatureValue.Slot s
     | ParserElement.String s -> LigatureValue.String s
@@ -253,7 +253,7 @@ let elementTupleToStatement
         | ParserElement.String s -> LigatureValue.String s
         | ParserElement.Slot s -> LigatureValue.Slot s
         | ParserElement.Quote q -> handleQuote q
-        | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
+        | ParserElement.Network n -> failwith "TODO" //LigatureValue.Network(handleNetwork n)
         | ParserElement.Bytes b -> LigatureValue.Bytes b
         | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 

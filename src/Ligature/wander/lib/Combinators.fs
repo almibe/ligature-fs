@@ -130,20 +130,20 @@ let assertEqualCombinator =
         fun (_: Combinators) (inputState: State) ->
             let given =
                 match readBinding (PatternName.Name(Name("given"))) (currentNetwork inputState) with
-                | Some(LigatureValue.Network(given)) -> Some given
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
+                //                | Some(LigatureValue.Network(given)) -> Some given
+                // | Some(LigatureValue.Name(name)) ->
+                //     match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
+                //     | Some(LigatureValue.Network n) -> Some n
+                //     | _ -> None
                 | _ -> None
 
             let expect =
                 match readBinding (PatternName.Name(Name("expect"))) (currentNetwork inputState) with
-                | Some(LigatureValue.Network(expect)) -> Some expect
-                | Some(LigatureValue.Name(name)) ->
-                    match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
-                    | Some(LigatureValue.Network n) -> Some n
-                    | _ -> None
+                // | Some(LigatureValue.Network(expect)) -> Some expect
+                // | Some(LigatureValue.Name(name)) ->
+                //     match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
+                //     | Some(LigatureValue.Network n) -> Some n
+                //     | _ -> None
                 | _ -> None
 
             match (given, expect) with

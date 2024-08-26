@@ -70,4 +70,5 @@ and evalElements
 //         | _ -> error "Invalid Quote" None
 
 and evalQuote (combinators: Combinators) (inputState: State) (pipeline: Quote) : Result<State, LigatureError> =
-    evalElements combinators inputState pipeline.values
+    failwith "TODO"
+//evalElements combinators inputState pipeline.values

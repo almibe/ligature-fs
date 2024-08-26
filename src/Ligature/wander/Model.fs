@@ -26,7 +26,6 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.Slot(Slot(None)) -> "$"
     | LigatureValue.Quote(values) -> $"[{printQuote values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
-    | LigatureValue.Network n -> printNetwork n
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ",\n") "{" (network))

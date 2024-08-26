@@ -83,7 +83,7 @@ and [<RequireQualifiedAccessAttribute>] Element =
     | NetworkName of NetworkName
     | Network of Network
 
-and Quote = { values: Element list }
+and Quote = { values: LigatureValue list }
 
 and Combinators = Map<Name, Combinator>
 
@@ -119,7 +119,6 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | Int of bigint
     | Bytes of byte array
     | Quote of Quote
-    | Network of Network
 
 and Statement = (PatternName * PatternName * LigatureValue)
 
