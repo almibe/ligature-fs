@@ -90,18 +90,9 @@ and Combinators = Map<Name, Combinator>
 and Arguments = LigatureValue list
 
 and Combinator =
-    | Full of FullCombinator
-    | Partial of PartialCombinator
-
-and FullCombinator =
     { Name: Name
       Doc: string
-      Eval: Combinators -> State -> Arguments -> Result<State, LigatureError> }
-
-and PartialCombinator =
-    { Name: Name
-      Doc: string
-      Eval: Combinators -> State -> Arguments -> Result<LigatureValue, LigatureError> }
+      Eval: Combinators -> State -> Arguments -> Result<State * LigatureValue option, LigatureError> }
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
     | Slot of Slot
@@ -169,6 +160,6 @@ let getLeaves (patternSet: Set<Statement>) : Set<PatternName> =
 
 let printPatternName (pattern: PatternName) : string =
     match pattern with
-    | PatternName.Name(Name path) -> failwith "TODO"
+    | PatternName.Name(Name path) -> path
     | PatternName.Slot(Slot(Some(name))) -> $"${name}"
     | PatternName.Slot(Slot(None)) -> "$"

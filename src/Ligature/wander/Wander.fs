@@ -12,7 +12,11 @@ open Interpreter
 
 let std: Map<string, Combinator> = Map.empty
 
-let run (combinators: Combinators) (inputState: State) (input: string) : Result<State, LigatureError> =
+let run
+    (combinators: Combinators)
+    (inputState: State)
+    (input: string)
+    : Result<State * LigatureValue option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->

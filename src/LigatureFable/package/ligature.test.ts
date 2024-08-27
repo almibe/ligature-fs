@@ -37,7 +37,8 @@ test("Eval Named Network", () => {
 
 test("Test listeners", () => {
     let engine = newEngine()
-    engine.addListener(state => {
+    engine.addListener((state, partialResult) => {
+        expect(partialResult).toEqual({})
         expect(state)
         .toEqual({name: "test", networks: [{name: "test", network: 
             [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})

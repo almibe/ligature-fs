@@ -132,12 +132,6 @@ let networkNameTokenNibbler =
             Token.NetworkName("")
         else
             let name = chars.[1..] |> implode
-            // if name.Contains(".") then
-            //     match name.Split(".") with
-            //     | [| networkName; name |] ->
-            //         Token.QualifiedName (networkName, name)
-            //     | _ -> failwith "TODO"
-            // else
             Token.NetworkName name)
 
 let stringLiteralTokenNibbler =

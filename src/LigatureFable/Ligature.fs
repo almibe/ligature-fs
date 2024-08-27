@@ -10,34 +10,45 @@ open Fable.Core.JsInterop
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
+let patternNameToJS (p: PatternName) =
+    let res = createEmpty
+
+    match p with
+    | PatternName.Name(Name(id)) -> res?identifier <- id
+    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- slot
+    | PatternName.Slot(Slot(None)) -> res?slot <- ""
+
+    res
+
+let valueToJS (v: LigatureValue) =
+    let value = createEmpty
+
+    match v with
+    | LigatureValue.Bytes b -> failwith "TODO"
+    | LigatureValue.Int i -> value?int <- i
+    | LigatureValue.NetworkName n -> failwith "TODO"
+    | LigatureValue.Quote q -> failwith "TODO"
+    | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
+    | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
+    | LigatureValue.String s -> value?string <- s
+    | LigatureValue.Name(Name(i)) -> value?identifier <- i
+    | LigatureValue.Network n -> failwith "TODO"
+
+    value
+
+let partialResultToJS (result: LigatureValue option) =
+    match result with
+    | Some(value) -> valueToJS value
+    | None -> createEmpty
+
 let networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
         (fun (e, a, v) ->
-            let entity = createEmpty
-            let attribute = createEmpty
-            let value = createEmpty
-
-            match e with
-            | PatternName.Name(Name(id)) -> entity?identifier <- id
-            | PatternName.Slot(Slot(Some(slot))) -> entity?slot <- slot
-            | PatternName.Slot(Slot(None)) -> entity?slot <- ""
-
-            match a with
-            | PatternName.Name(Name(id)) -> attribute?identifier <- id
-            | PatternName.Slot(Slot(Some(slot))) -> attribute?slot <- slot
-            | PatternName.Slot(Slot(None)) -> attribute?slot <- ""
-
-            match v with
-            | LigatureValue.Bytes b -> failwith "TODO"
-            | LigatureValue.Int i -> value?int <- i
-            | LigatureValue.NetworkName n -> failwith "TODO"
-            | LigatureValue.Quote q -> failwith "TODO"
-            | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
-            | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
-            | LigatureValue.String s -> value?string <- s
-            | LigatureValue.Name(Name(i)) -> value?identifier <- i
+            let entity = patternNameToJS e
+            let attribute = patternNameToJS a
+            let value = valueToJS v
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
         network
@@ -69,12 +80,12 @@ let newEngine () =
     engine?run <-
         fun (script: string) ->
             match run combinators state script with
-            | Ok res ->
+            | Ok(res, partialResult) ->
                 state <- res
-                List.iter (fun listener -> listener (stateToJS res)) listeners
+                List.iter (fun listener -> listener (stateToJS res) (partialResultToJS partialResult)) listeners
                 stateToJS res
             | Error err ->
-                List.iter (fun listener -> listener (err)) listeners
+                List.iter (fun listener -> listener (err) createEmpty) listeners
                 err.UserMessage
 
     engine?printState <- fun () -> printResult (Ok state)

@@ -6,10 +6,10 @@ module Ligature.Wander.Lib.Combinators
 
 open Ligature.Main
 
-let idCombinator: FullCombinator =
+let idCombinator: Combinator =
     { Name = Name("id")
       Doc = "Return working state."
-      Eval = fun _ (input: State) _ -> Ok input }
+      Eval = fun _ (input: State) _ -> Ok(input, None) }
 
 // let unionCombinator =
 //     { Name = "union"
@@ -123,7 +123,7 @@ let idCombinator: FullCombinator =
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-let assertEqualCombinator: PartialCombinator =
+let assertEqualCombinator: Combinator =
     { Name = Name "assert-equal"
       Doc = ""
       Eval =
@@ -131,7 +131,7 @@ let assertEqualCombinator: PartialCombinator =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Ok(LigatureValue.String("Sucess!"))
+                    Ok(inputState, Some(LigatureValue.String("Sucess!")))
                 else
                     error "assert-equal failed" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
@@ -170,7 +170,7 @@ let assertEqualCombinator: PartialCombinator =
 //             | _ -> failwith "TODO" }
 
 let stdCombinators =
-    Map.ofList [ (assertEqualCombinator.Name, Partial(assertEqualCombinator)) ]
+    Map.ofList [ (assertEqualCombinator.Name, (assertEqualCombinator)) ]
 
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),
