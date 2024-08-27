@@ -217,15 +217,15 @@ let elementToValue (element: ParserElement) : LigatureValue =
     match element with
     | ParserElement.Int i -> LigatureValue.Int i
     | ParserElement.Bytes b -> LigatureValue.Bytes b
-    | ParserElement.Network n -> failwith "TODO" //LigatureValue.Network(handleNetwork n)
+    | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
     | ParserElement.Quote p -> handleQuote p
     | ParserElement.Slot s -> LigatureValue.Slot s
     | ParserElement.String s -> LigatureValue.String s
-    | ParserElement.Name p -> failwith "TODO" //LigatureValue.Name(Name i)
+    | ParserElement.Name n -> LigatureValue.Name(Name n)
     | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
-let handleQuote (quote: ParserElement list) : LigatureValue = failwith "TODO"
-//    List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
+let handleQuote (quote: ParserElement list) : LigatureValue =
+    List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
 
 let handleNetwork (network: (ParserElement * ParserElement * ParserElement) list) : Network =
     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
@@ -246,20 +246,13 @@ let elementTupleToStatement
         | ParserElement.Slot s -> PatternName.Slot s
         | _ -> failwith "Error - unexpected Attribute."
 
-    let value =
-        match v with
-        | ParserElement.Name p -> LigatureValue.Name(Name(p))
-        | ParserElement.Int i -> LigatureValue.Int i
-        | ParserElement.String s -> LigatureValue.String s
-        | ParserElement.Slot s -> LigatureValue.Slot s
-        | ParserElement.Quote q -> handleQuote q
-        | ParserElement.Network n -> failwith "TODO" //LigatureValue.Network(handleNetwork n)
-        | ParserElement.Bytes b -> LigatureValue.Bytes b
-        | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
+    let value = elementToValue v
 
     (entity, attribute, value)
 
-let expressQuote (elements: ParserElement list) : Element list = express elements []
+let expressQuote (elements: ParserElement list) : Element =
+    let res = List.map (fun element -> elementToValue element) elements
+    Element.Quote res
 
 let rec express (elements: ParserElement list) (expressions: Element list) : Element list =
     match elements with
@@ -267,7 +260,7 @@ let rec express (elements: ParserElement list) (expressions: Element list) : Ele
     | head :: tail ->
         match head with
         | ParserElement.Network n -> express tail (List.append expressions [ Element.Network(handleNetwork n) ])
-        | ParserElement.Quote p -> express tail (List.append expressions (expressQuote p))
+        | ParserElement.Quote p -> express tail (List.append expressions [ expressQuote p ])
         | ParserElement.Name n -> express tail (List.append expressions [ Element.Name(Name n) ])
         | ParserElement.NetworkName n -> express tail (List.append expressions [ Element.NetworkName(NetworkName n) ])
         | _ -> failwith "Error - unexpected token."

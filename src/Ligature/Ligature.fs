@@ -83,29 +83,25 @@ and [<RequireQualifiedAccessAttribute>] Element =
     | NetworkName of NetworkName
     | Network of Network
 
-and Quote = { values: LigatureValue list }
+and Quote = LigatureValue list
 
 and Combinators = Map<Name, Combinator>
 
-and [<CustomEquality; CustomComparison>] Combinator =
+and Arguments = LigatureValue list
+
+and Combinator =
+    | Full of FullCombinator
+    | Partial of PartialCombinator
+
+and FullCombinator =
     { Name: Name
       Doc: string
-      Eval: Combinators -> State -> Result<State, LigatureError> }
+      Eval: Combinators -> State -> Arguments -> Result<State, LigatureError> }
 
-    member private this.Compare other = compare this.Name other.Name
-
-    override this.Equals other =
-        match other with
-        | :? Combinator as other -> this.Compare other = 0
-        | _ -> false
-
-    override this.GetHashCode() = hash this.Name
-
-    interface IComparable with
-        member this.CompareTo other =
-            match other with
-            | :? Combinator as other -> this.Compare other
-            | _ -> -1
+and PartialCombinator =
+    { Name: Name
+      Doc: string
+      Eval: Combinators -> State -> Arguments -> Result<LigatureValue, LigatureError> }
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
     | Slot of Slot
@@ -119,6 +115,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | Int of bigint
     | Bytes of byte array
     | Quote of Quote
+    | Network of Network
 
 and Statement = (PatternName * PatternName * LigatureValue)
 

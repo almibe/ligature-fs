@@ -6,10 +6,10 @@ module Ligature.Wander.Lib.Combinators
 
 open Ligature.Main
 
-let idCombinator: Combinator =
+let idCombinator: FullCombinator =
     { Name = Name("id")
       Doc = "Return working state."
-      Eval = fun (combinators: Combinators) (input: State) -> Ok input }
+      Eval = fun _ (input: State) _ -> Ok input }
 
 // let unionCombinator =
 //     { Name = "union"
@@ -123,36 +123,18 @@ let idCombinator: Combinator =
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-let assertEqualCombinator =
+let assertEqualCombinator: PartialCombinator =
     { Name = Name "assert-equal"
       Doc = ""
       Eval =
-        fun (_: Combinators) (inputState: State) ->
-            let given =
-                match readBinding (PatternName.Name(Name("given"))) (currentNetwork inputState) with
-                //                | Some(LigatureValue.Network(given)) -> Some given
-                // | Some(LigatureValue.Name(name)) ->
-                //     match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
-                //     | Some(LigatureValue.Network n) -> Some n
-                //     | _ -> None
-                | _ -> None
-
-            let expect =
-                match readBinding (PatternName.Name(Name("expect"))) (currentNetwork inputState) with
-                // | Some(LigatureValue.Network(expect)) -> Some expect
-                // | Some(LigatureValue.Name(name)) ->
-                //     match readBinding (PatternName.Name(name)) (currentNetwork inputState) with
-                //     | Some(LigatureValue.Network n) -> Some n
-                //     | _ -> None
-                | _ -> None
-
-            match (given, expect) with
-            | (Some(given), Some(expect)) ->
-                if given = expect then
-                    Ok inputState
+        fun (_: Combinators) (inputState: State) (arguments: Arguments) ->
+            match arguments with
+            | [ first; second ] ->
+                if first = second then
+                    Ok(LigatureValue.String("Sucess!"))
                 else
-                    error "Assertion failed." None
-            | _ -> error $"assert-equal passed illegal arguments given = {given} expect = {expect}" None }
+                    error "assert-equal failed" None
+            | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 // let queryCombinator =
 //     { Name = "query"
@@ -188,7 +170,7 @@ let assertEqualCombinator =
 //             | _ -> failwith "TODO" }
 
 let stdCombinators =
-    Map.ofList [ (assertEqualCombinator.Name, assertEqualCombinator) ]
+    Map.ofList [ (assertEqualCombinator.Name, Partial(assertEqualCombinator)) ]
 
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),

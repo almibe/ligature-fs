@@ -35,6 +35,16 @@ test("Eval Named Network", () => {
             [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
 })
 
+test("Test listeners", () => {
+    let engine = newEngine()
+    engine.addListener(state => {
+        expect(state)
+        .toEqual({name: "test", networks: [{name: "test", network: 
+            [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
+    })
+    engine.run("@test {a b c}")
+})
+
 // test("Print Network", () => {
 //     let engine = newEngine()
 //     let resNetwork = engine.run("{a b c}")

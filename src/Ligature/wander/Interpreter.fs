@@ -7,7 +7,7 @@ module Ligature.Wander.Interpreter
 open Ligature.Wander.Model
 open Ligature.Main
 
-let evalNetworkName (name: NetworkName) ((_, networks): State) : Result<State, LigatureError> = Ok(name, networks)
+let evalNetworkName ((_, networks): State) (name: NetworkName) : Result<State, LigatureError> = Ok(name, networks)
 
 let evalNetwork ((name, networks): State) (network: Network) : Result<State, LigatureError> =
     let currentNetwork = currentNetwork (name, networks)
@@ -28,24 +28,31 @@ let evalNetwork ((name, networks): State) (network: Network) : Result<State, Lig
 //     else
 //         error $"Could not find Name, {identifier}" None
 
-let evalName (combinators: Combinators) (state: State) (name: Name) : Result<State, LigatureError> =
+let evalName
+    (combinators: Combinators)
+    (state: State)
+    (arguments: LigatureValue list)
+    (name: Name)
+    : Result<State, LigatureError> =
     //TODO check state for bindings
     match combinators.TryFind name with
-    | Some(combinataor) -> combinataor.Eval combinators state
+    | Some(Full(combinataor)) -> combinataor.Eval combinators state arguments
+    | Some(Partial(combinator)) -> failwith "TODO" //combinator.Eval combinators state arguments
     | None -> error $"Could not find name {name}." None
 
 let rec evalElement (combinators: Combinators) (inputState: State) (element: Element) : Result<State, LigatureError> =
     match element with
     | Element.Network network -> evalNetwork inputState network
-    | Element.Name name -> evalName combinators inputState name
-    | Element.NetworkName name -> evalNetworkName name inputState
-    | Element.Quote pipeline -> evalQuote combinators inputState pipeline
+    | Element.Name name -> evalName combinators inputState [] name
+    | Element.NetworkName name -> evalNetworkName inputState name
+    | Element.Quote quote -> evalQuote combinators inputState quote
 
 and evalElements
     (combinators: Combinators)
     (inputState: State)
     (elements: Element list)
     : Result<State, LigatureError> =
+    //        failwith "TODO"
     match elements with
     | [] -> Ok(inputState)
     | [ head ] -> evalElement combinators inputState head
@@ -69,6 +76,10 @@ and evalElements
 //             | _ -> failwith "TODO" //valuesToExpressions [] (List.append expressions [ Expression.Call(i, []) ])
 //         | _ -> error "Invalid Quote" None
 
-and evalQuote (combinators: Combinators) (inputState: State) (pipeline: Quote) : Result<State, LigatureError> =
-    failwith "TODO"
-//evalElements combinators inputState pipeline.values
+and evalQuote (combinators: Combinators) (inputState: State) (quote: Quote) : Result<State, LigatureError> =
+    match quote with
+    | [] -> Ok inputState
+    | [ LigatureValue.Name(name) ] -> evalName combinators inputState [] name
+    | [ LigatureValue.NetworkName(name) ] -> evalNetworkName inputState name
+    | LigatureValue.Name(name) :: tail -> evalName combinators inputState tail name
+    | _ -> error "Invalid Quote." None

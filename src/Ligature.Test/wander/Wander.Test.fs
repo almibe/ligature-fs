@@ -77,6 +77,32 @@ let tests =
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
 
+          testCase "Parse Quote"
+          <| fun _ ->
+              let script = "[a b c ]"
+
+              match tokenize script with
+              | Ok(res) ->
+                  match parse res with
+                  | Ok(res) ->
+                      Expect.equal
+                          res
+                          [ ParserElement.Quote
+                                [ ParserElement.Name("a"); ParserElement.Name("b"); ParserElement.Name("c") ] ]
+                          ""
+
+                      let element = express res []
+
+                      Expect.equal
+                          element
+                          [ Element.Quote
+                                [ LigatureValue.Name(Name("a"))
+                                  LigatureValue.Name(Name("b"))
+                                  LigatureValue.Name(Name("c")) ] ]
+                          ""
+                  | _ -> failwith "Error"
+              | _ -> failwith "Error"
+
           testCase "Parse Name"
           <| fun _ ->
               let script = "A.b"

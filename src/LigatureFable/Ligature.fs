@@ -7,8 +7,8 @@ open Ligature.Wander.Lib.Combinators
 open Ligature.Wander.Main
 open Fable.Core.JsInterop
 
-// let printNetwork (network: Network) : string =
-//     Ligature.Wander.Model.printNetwork network
+let printNetwork (network: Network) : string =
+    Ligature.Wander.Model.printNetwork network
 
 let networkToJS (network: Network) =
     let mutable resNetwork = [||]
@@ -44,14 +44,6 @@ let networkToJS (network: Network) =
 
     resNetwork
 
-// let stateToJS ((NetworkName(name), networks): State) =
-//     let mutable resNetworks = createEmpty
-
-
-//     let res = createEmpty
-//     res?network <- resNetwork
-//     res
-
 let stateToJS ((NetworkName(name), networks): State) =
     let res = createEmpty
     let mutable resNetworks = []
@@ -72,14 +64,19 @@ let newEngine () =
     let engine = createEmpty
     let mutable state = defaultState
     let combinators = stdCombinators
+    let mutable listeners = []
 
     engine?run <-
         fun (script: string) ->
             match run combinators state script with
             | Ok res ->
                 state <- res
-                //Encode.Auto.toString(stateToJS res)
+                List.iter (fun listener -> listener (stateToJS res)) listeners
                 stateToJS res
-            | Error err -> failwith err.UserMessage
+            | Error err ->
+                List.iter (fun listener -> listener (err)) listeners
+                err.UserMessage
 
+    engine?printState <- fun () -> printResult (Ok state)
+    engine?addListener <- fun listener -> listeners <- List.append listeners [ listener ]
     engine
