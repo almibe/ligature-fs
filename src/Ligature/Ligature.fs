@@ -78,12 +78,14 @@ type NetworkName = NetworkName of string
 //     | Error(_) -> failwith "Error"
 
 and [<RequireQualifiedAccessAttribute>] Element =
-    | Quote of Quote
+    | Expression of Expression
     | Name of Name
     | NetworkName of NetworkName
     | Network of Network
 
 and Quote = LigatureValue list
+
+and Expression = LigatureValue list
 
 and Combinators = Map<Name, Combinator>
 
@@ -106,6 +108,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Ligatur
     | Int of bigint
     | Bytes of byte array
     | Quote of Quote
+    | Expression of Expression
     | Network of Network
 
 and Statement = (PatternName * PatternName * LigatureValue)

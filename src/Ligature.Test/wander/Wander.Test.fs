@@ -9,7 +9,6 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
-open Ligature.Wander.Lib.Combinators
 
 [<Tests>]
 let tests =
@@ -19,12 +18,12 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState)) ""
+              Expect.equal result (Ok(defaultState, None)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ])) ""
+              Expect.equal result (Ok((defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ]), None)) ""
 
           testCase "Parse Network"
           <| fun _ ->
@@ -77,9 +76,9 @@ let tests =
                   | _ -> failwith "Error Parsing"
               | _ -> failwith "Error Tokenizing"
 
-          testCase "Parse Quote"
+          testCase "Parse Expression"
           <| fun _ ->
-              let script = "[a b c ]"
+              let script = "(a b c )"
 
               match tokenize script with
               | Ok(res) ->
@@ -87,7 +86,7 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ ParserElement.Quote
+                          [ ParserElement.Expression
                                 [ ParserElement.Name("a"); ParserElement.Name("b"); ParserElement.Name("c") ] ]
                           ""
 
@@ -95,7 +94,7 @@ let tests =
 
                       Expect.equal
                           element
-                          [ Element.Quote
+                          [ Element.Expression
                                 [ LigatureValue.Name(Name("a"))
                                   LigatureValue.Name(Name("b"))
                                   LigatureValue.Name(Name("c")) ] ]
@@ -372,7 +371,7 @@ let tests =
           <| fun _ ->
               let script = "  \n     "
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState)) ""
+              Expect.equal result (Ok(defaultState, None)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
           //       let script = " 1  \n `a` \"hello\" \r\n  321 \n"

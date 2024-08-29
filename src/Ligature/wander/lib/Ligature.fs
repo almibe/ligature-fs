@@ -100,9 +100,9 @@ let mapEduceResult (res: Set<Map<string, Value>>) : Result<WanderValue, Ligature
 //|> Ok
 //    Ok(WanderValue.AssocArray(Map []))
 
-let educeFunction =
+let matchFunction =
     { Module = "Ligature"
-      Name = "educe"
+      Name = "match"
       Description = "Take a Pattern and Network and extract out the Slots from matching subnetworks."
       Parameters = [ ("network", WanderType.Network); ("pattern", WanderType.Network) ]
       Returns = WanderType.Array
@@ -173,7 +173,7 @@ let inferFunction =
 
 let ligatureLib =
     [ countFunction
-      educeFunction
+      matchFunction
       applyFunction
       unionFunction
       minusFunction

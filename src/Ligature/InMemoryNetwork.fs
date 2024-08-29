@@ -15,9 +15,9 @@ let patternNameToLigatureValue (patternName: PatternName) : LigatureValue =
     | PatternName.Name path -> LigatureValue.Name path
     | PatternName.Slot slot -> LigatureValue.Slot slot
 
-let educeStatementStatement
-    ((entity, attribute, value): Statement)
+let matchStatementStatement
     ((patternEntity, patternAttribute, patternLigatureValue): Statement)
+    ((entity, attribute, value): Statement)
     : Option<Map<string, LigatureValue>> =
     let mutable cont = true
     let mutable result: Map<string, LigatureValue> = Map.empty
@@ -49,8 +49,8 @@ let educeStatementStatement
 
     if cont then Some(result) else None
 
-let educeNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, LigatureValue>> =
-    Set.map (fun triple -> educeStatementStatement triple pattern) network
+let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, LigatureValue>> =
+    Set.map (fun triple -> matchStatementStatement triple pattern) network
     |> Set.fold
         (fun state values ->
             match values with
@@ -58,14 +58,26 @@ let educeNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<M
             | None -> state)
         Set.empty
 
-let educeNetworkNetwork (network: Set<Statement>) (pattern: Set<Statement>) : Set<Map<string, LigatureValue>> =
+let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, LigatureValue>> =
     if network.IsEmpty || pattern.IsEmpty then
         Set.empty
     else
         Set.fold
-            (fun state patternStatement -> Set.union (educeNetworkStatement network patternStatement) state)
+            (fun state patternStatement -> Set.union (matchNetworkStatement network patternStatement) state)
             Set.empty
             pattern
+
+let mapToNetwork (input: Map<string, LigatureValue>) : Network =
+    Map.toList input
+    |> Set.ofList
+    |> Set.map (fun (name, value) -> (PatternName.Slot((Slot(Some(name)))), PatternName.Name(Name("=")), value))
+
+let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
+    matchNetworkNetwork input pattern
+    |> Set.toList
+    |> List.map mapToNetwork
+    |> List.map LigatureValue.Network
+    |> LigatureValue.Quote
 
 // type InMemoryNetwork(network: Set<Statement>) =
 //     let processQueryResults (trans: Network) (values: Set<Map<string, LigatureValue>>) : Network =
@@ -145,7 +157,7 @@ let educeNetworkNetwork (network: Set<Statement>) (pattern: Set<Statement>) : Se
 //             InMemoryNetwork(res)
 
 //         member this.Educe pattern : Set<Map<string, LigatureValue>> =
-//             educeNetworkNetwork network (pattern.Write())
+//             matchNetworkNetwork network (pattern.Write())
 
 //         member this.Query pattern trans : Network =
 //             (this :> Network).Educe pattern |> processQueryResults trans

@@ -67,13 +67,13 @@ module Ligature.Wander.Lib.Array
 // //                     | _ -> error "Improper call to map function." None)
 // //             )
 
-// // let reduceFunction =
+// // let rmatchFunction =
 // //             HostFunction(
 // //                 (fun args bindings ->
 // //                     match args with
 // //                     | [ WanderValue.Function(fn); WanderValue.Array(array) ] ->
 // //                         Ok(
-// //                             Array.reduce
+// //                             Array.rmatch
 // //                                 (fun lValue rValue ->
 // //                                     match callFunction fn [ lValue; rValue ] bindings with
 // //                                     | Ok(res) -> res
@@ -112,7 +112,7 @@ module Ligature.Wander.Lib.Array
 let arrayLib = []
 //     [ catFunction
 //       //              ("map", mapFunction)
-//       //              ("reduce", reduceFunction)
+//       //              ("rmatch", rmatchFunction)
 //       //              ("fold", foldFunction)
 //       insertFirstFunction
 //       insertLastFunction

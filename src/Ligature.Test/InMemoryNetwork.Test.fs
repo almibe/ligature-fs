@@ -25,28 +25,28 @@ let tests =
           //       let left: Network = Set.empty
           //       let right: Network = Set.empty
           //       Expect.equal (left.Union(right)) (InMemoryNetwork(Set [])) ""
-          //   testCase "empty call to educe"
-          //   <| fun _ -> Expect.equal (educeNetworkNetwork (Set.empty.Write()) (Set.empty.Write())) (Set.empty) ""
-          //   testCase "calling educe on same triple"
+          //   testCase "empty call to match"
+          //   <| fun _ -> Expect.equal (matchNetworkNetwork (Set.empty.Write()) (Set.empty.Write())) (Set.empty) ""
+          //   testCase "calling match on same triple"
           //   <| fun _ ->
           //       Expect.equal
-          //           (educeTripleTriple
+          //           (matchTripleTriple
           //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c")))
           //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
           //           (Some(Map.empty))
           //           ""
-          //   testCase "calling educe on non-matching triples"
+          //   testCase "calling match on non-matching triples"
           //   <| fun _ ->
           //       Expect.equal
-          //           (educeTripleTriple
+          //           (matchTripleTriple
           //               (PatternName.Name(Name("e")), PatternName.Name(Name("b")), Value.Name(Name("c")))
           //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
           //           (None)
           //           ""
-          //   testCase "calling educe on simple matching triple"
+          //   testCase "calling match on simple matching triple"
           //   <| fun _ ->
           //       Expect.equal
-          //           (educeTripleTriple
+          //           (matchTripleTriple
           //               (PatternName.Name(Name("e")), PatternName.Name(Name("a")), Value.Name(Name("v")))
           //               (PatternName.Slot(Slot(Some("test"))), PatternName.Name(Name("a")), Value.Name(Name("v"))))
           //           (Some(Map [ ("test", Value.Name(Name("e"))) ]))

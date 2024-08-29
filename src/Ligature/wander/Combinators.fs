@@ -2,14 +2,47 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.Combinators
+module Ligature.Wander.Combinators
 
 open Ligature.Main
+open Ligature.InMemoryNetwork
+open Interpreter
 
-let idCombinator: Combinator =
-    { Name = Name("id")
-      Doc = "Return working state."
+let ignoreCombinator: Combinator =
+    { Name = Name("ignore")
+      Doc = "Ignore any arguments passed and return working state unchanged."
       Eval = fun _ (input: State) _ -> Ok(input, None) }
+
+let assertEqualCombinator: Combinator =
+    { Name = Name "assert-equal"
+      Doc = ""
+      Eval =
+        fun (combinators: Combinators) (inputState: State) (arguments: Arguments) ->
+            match arguments with
+            | [ first; second ] ->
+                let first =
+                    match first with
+                    | LigatureValue.Expression e ->
+                        match evalExpression combinators inputState e with
+                        | Ok(_, Some(res)) -> res
+                        | _ -> failwith "TODO"
+                    | _ -> first
+
+                let second =
+                    match second with
+                    | LigatureValue.Expression e ->
+                        match evalExpression combinators inputState e with
+                        | Ok(_, Some(res)) -> res
+                        | _ -> failwith "TODO"
+                    | _ -> second
+
+                if first = second then
+                    Ok(inputState, Some(LigatureValue.String("Sucess!")))
+                else
+                    error
+                        $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"
+                        None
+            | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 // let unionCombinator =
 //     { Name = "union"
@@ -123,18 +156,20 @@ let idCombinator: Combinator =
 //             //if so replace that slot with the binding and merge the final result into the outNetwork
 //             | _ -> failwith "TODO" }
 
-let assertEqualCombinator: Combinator =
-    { Name = Name "assert-equal"
-      Doc = ""
+
+let matchCombinator =
+    { Name = Name("match")
+      Doc = "args: pattern data\nreturns: quote of networks"
       Eval =
-        fun (_: Combinators) (inputState: State) (arguments: Arguments) ->
+        fun _ (inputState: State) arguments ->
+            let (networkName, networks) = inputState
+            let currentNetwork = currentNetwork inputState
+
             match arguments with
-            | [ first; second ] ->
-                if first = second then
-                    Ok(inputState, Some(LigatureValue.String("Sucess!")))
-                else
-                    error "assert-equal failed" None
-            | args -> error $"assert-equal passed illegal arguments - {args}" None }
+            | [ LigatureValue.Network(pattern); LigatureValue.Network(data) ] ->
+                let res = matchNetwork pattern data
+                Ok(inputState, Some(res))
+            | _ -> error "" None }
 
 // let queryCombinator =
 //     { Name = "query"
@@ -170,7 +205,10 @@ let assertEqualCombinator: Combinator =
 //             | _ -> failwith "TODO" }
 
 let stdCombinators =
-    Map.ofList [ (assertEqualCombinator.Name, (assertEqualCombinator)) ]
+    Map.ofList
+        [ (assertEqualCombinator.Name, (assertEqualCombinator))
+          (ignoreCombinator.Name, (ignoreCombinator))
+          (matchCombinator.Name, (matchCombinator)) ]
 
 // [ (PatternName.Name(Name("id")), PatternName.Name(Name("=")), LigatureValue.HostCombinator idCombinator)
 //   (PatternName.Name(Name("union")),

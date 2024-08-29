@@ -15,6 +15,7 @@ type ParserElement =
     | Name of string
     | NetworkName of string
     | Quote of ParserElement list
+    | Expression of ParserElement list
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -83,6 +84,14 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return ParserElement.Quote(values)
+    }
+
+let expressionNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! values = Gaze.attempt (optional (repeat elementNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return ParserElement.Expression(values)
     }
 
 // let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * ParserElement), Gaze.GazeError> =
@@ -154,7 +163,6 @@ let rec readValueList
             | Ok(Token.StringLiteral s) -> List.append elements [ (ParserElement.String s) ]
             | Ok(Token.Int i) -> List.append elements [ (ParserElement.Int i) ]
             | Ok(Token.Slot s) -> List.append elements [ (ParserElement.Slot s) ]
-            | _ -> failwith "TODO"
 
         match Gaze.peek gaze with
         | Ok Token.CloseSquare ->
@@ -163,7 +171,6 @@ let rec readValueList
         | Ok Token.Comma ->
             (Gaze.next gaze |> ignore)
             readValueList elements gaze
-        | _ -> failwith "TODO"
 
 let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -177,7 +184,8 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ quoteNib; readName; networkNib; readNetworkName ]
+let elementNib =
+    takeFirst [ quoteNib; expressionNib; readName; networkNib; readNetworkName ]
 
 let scriptNib = repeat elementNib
 
@@ -219,6 +227,7 @@ let elementToValue (element: ParserElement) : LigatureValue =
     | ParserElement.Bytes b -> LigatureValue.Bytes b
     | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
     | ParserElement.Quote p -> handleQuote p
+    | ParserElement.Expression e -> handleExpression e
     | ParserElement.Slot s -> LigatureValue.Slot s
     | ParserElement.String s -> LigatureValue.String s
     | ParserElement.Name n -> LigatureValue.Name(Name n)
@@ -226,6 +235,10 @@ let elementToValue (element: ParserElement) : LigatureValue =
 
 let handleQuote (quote: ParserElement list) : LigatureValue =
     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
+
+let handleExpression (expression: ParserElement list) : LigatureValue =
+    List.map (fun element -> elementToValue element) expression
+    |> LigatureValue.Expression
 
 let handleNetwork (network: (ParserElement * ParserElement * ParserElement) list) : Network =
     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
@@ -250,9 +263,9 @@ let elementTupleToStatement
 
     (entity, attribute, value)
 
-let expressQuote (elements: ParserElement list) : Element =
+let expressExpression (elements: ParserElement list) : Element =
     let res = List.map (fun element -> elementToValue element) elements
-    Element.Quote res
+    Element.Expression res
 
 let rec express (elements: ParserElement list) (expressions: Element list) : Element list =
     match elements with
@@ -260,7 +273,7 @@ let rec express (elements: ParserElement list) (expressions: Element list) : Ele
     | head :: tail ->
         match head with
         | ParserElement.Network n -> express tail (List.append expressions [ Element.Network(handleNetwork n) ])
-        | ParserElement.Quote p -> express tail (List.append expressions [ expressQuote p ])
+        | ParserElement.Expression e -> express tail (List.append expressions [ expressExpression e ])
         | ParserElement.Name n -> express tail (List.append expressions [ Element.Name(Name n) ])
         | ParserElement.NetworkName n -> express tail (List.append expressions [ Element.NetworkName(NetworkName n) ])
         | _ -> failwith "Error - unexpected token."

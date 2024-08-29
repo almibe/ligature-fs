@@ -15,33 +15,18 @@ let patternNameToJS (p: PatternName) =
 
     match p with
     | PatternName.Name(Name(id)) -> res?identifier <- id
-    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- slot
-    | PatternName.Slot(Slot(None)) -> res?slot <- ""
+    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- $"${slot}"
+    | PatternName.Slot(Slot(None)) -> res?slot <- "$"
 
     res
 
-let valueToJS (v: LigatureValue) =
-    let value = createEmpty
+let quoteToJS (q: Quote) =
+    let mutable res = [||]
 
-    match v with
-    | LigatureValue.Bytes b -> failwith "TODO"
-    | LigatureValue.Int i -> value?int <- i
-    | LigatureValue.NetworkName n -> failwith "TODO"
-    | LigatureValue.Quote q -> failwith "TODO"
-    | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
-    | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
-    | LigatureValue.String s -> value?string <- s
-    | LigatureValue.Name(Name(i)) -> value?identifier <- i
-    | LigatureValue.Network n -> failwith "TODO"
+    res
 
-    value
 
-let partialResultToJS (result: LigatureValue option) =
-    match result with
-    | Some(value) -> valueToJS value
-    | None -> createEmpty
-
-let networkToJS (network: Network) =
+let rec networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
@@ -54,6 +39,28 @@ let networkToJS (network: Network) =
         network
 
     resNetwork
+
+and valueToJS (v: LigatureValue) =
+    let value = createEmpty
+
+    match v with
+    | LigatureValue.Bytes b -> failwith "TODO"
+    | LigatureValue.Int i -> value?int <- i
+    | LigatureValue.NetworkName n -> value?networkName <- $"@{n}"
+    | LigatureValue.Quote q -> value?quote <- quoteToJS (q)
+    | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
+    | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
+    | LigatureValue.String s -> value?string <- s
+    | LigatureValue.Name(Name(i)) -> value?identifier <- i
+    | LigatureValue.Network n -> value?network <- networkToJS n
+
+    value
+
+let partialResultToJS (result: LigatureValue option) =
+    match result with
+    | Some(value) -> valueToJS value
+    | None -> createEmpty
+
 
 let stateToJS ((NetworkName(name), networks): State) =
     let res = createEmpty

@@ -8,11 +8,10 @@ open Expecto
 open Ligature
 open FSharpPlus
 open Ligature.Wander.Main
-open Ligature.Serialization
 //open Ligature.LigatureStore
 open Ligature.Main
 open Ligature.Wander.Model
-open Ligature.Wander.Lib.Combinators
+open Ligature.Wander.Combinators
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then

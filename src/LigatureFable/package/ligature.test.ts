@@ -46,6 +46,13 @@ test("Test listeners", () => {
     engine.run("@test {a b c}")
 })
 
+// test("Test match", () => {
+//     let engine = newEngine()
+//     expect(engine.run("[match {$a b c} {a b c}]"))
+//         .toEqual({name: "test", networks: [{name: "test", network: 
+//             [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
+// })
+
 // test("Print Network", () => {
 //     let engine = newEngine()
 //     let resNetwork = engine.run("{a b c}")

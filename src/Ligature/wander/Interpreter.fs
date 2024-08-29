@@ -48,7 +48,7 @@ let rec evalElement
     | Element.Network network -> evalNetwork inputState network
     | Element.Name name -> evalName combinators inputState [] name
     | Element.NetworkName name -> evalNetworkName inputState name
-    | Element.Quote quote -> evalQuote combinators inputState quote
+    | Element.Expression expression -> evalExpression combinators inputState expression
 
 and evalElements
     (combinators: Combinators)
@@ -63,12 +63,12 @@ and evalElements
         | Ok(res, value) -> evalElements combinators res tail
         | Error(err) -> Error(err)
 
-and evalQuote
+and evalExpression
     (combinators: Combinators)
     (inputState: State)
-    (quote: Quote)
+    (expression: Expression)
     : Result<State * LigatureValue option, LigatureError> =
-    match quote with
+    match expression with
     | [] -> Ok(inputState, None)
     | [ LigatureValue.Name(name) ] -> evalName combinators inputState [] name
     | [ LigatureValue.NetworkName(name) ] -> evalNetworkName inputState name
