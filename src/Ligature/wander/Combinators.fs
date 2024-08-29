@@ -25,7 +25,7 @@ let assertEqualCombinator: Combinator =
                     | LigatureValue.Expression e ->
                         match evalExpression combinators inputState e with
                         | Ok(_, Some(res)) -> res
-                        | _ -> failwith "TODO"
+                        | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | _ -> first
 
                 let second =
@@ -83,79 +83,60 @@ let assertEqualCombinator: Combinator =
 // let lookupNetwork () =
 //     failwith "TODO"
 
-// let applyCombinator: Combinator =
-//     { Name = "apply"
-//       Eval =
-//         fun (inputState: State) ->
-//             let input =
-//                 readBinding (PatternName.Name(Name("in"))) inputState
+let applyNetwork (template: Network) (data: Network): Network =
+    Set.map
+        (fun ((e, a, v)) ->
+            let entity =
+                match e with
+                | PatternName.Slot s ->
+                    match readBinding (PatternName.Slot s) data with
+                    | Some(LigatureValue.Name(i)) -> PatternName.Name i
+                    | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
+                    | Some _ ->
+                        failwith "TODO - unexpected value - only Slots or Names are allowed"
+                    | None -> PatternName.Slot s
+                | PatternName.Name i -> PatternName.Name i
 
-//             let template =
-//                 readBinding (PatternName.Name(Name("template"))) inputState
+            let attribute =
+                match a with
+                | PatternName.Slot s ->
+                    match readBinding (PatternName.Slot s) data with
+                    | Some(LigatureValue.Name(i)) -> PatternName.Name i
+                    | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
+                    | Some _ ->
+                        failwith "TODO - unexpected value - only Slots or Names are allowed"
+                    | None -> PatternName.Slot s
+                | PatternName.Name i -> PatternName.Name i
 
-//             let out =
-//                 readBinding (PatternName.Name(Name("out"))) inputState
+            let value =
+                match v with
+                | LigatureValue.Slot s ->
+                    match readBinding (PatternName.Slot s) data with
+                    | Some value -> value
+                    | None -> LigatureValue.Slot s
+                | v -> v
 
-//             match (input, template, out) with
-//             | (Some(LigatureValue.Name(input)),
-//                Some(LigatureValue.Name(template)),
-//                Some(LigatureValue.Name(out))) ->
-//                 let input = readBinding (PatternName.Name(input)) inputState
-//                 let template = readBinding (PatternName.Name(template)) inputState
-//                 let out = readBinding (PatternName.Name(out)) inputState
+            (entity, attribute, value))
+        template
 
-//                 match (input, template, out) with
 
-//                 | _ -> failwith "TODO"
-
-//                 // match readBinding (PatternName.Name(name)) inputNetwork with
-//                 // | Some(LigatureValue.Quote(values)) ->
-
-//                 //     failwith "TODO"
-//                 // | _ -> failwith "TODO"
-
-//                 // let resultNetwork =
-//                 //     Set.map
-//                 //         (fun ((e, a, v)) ->
-//                 //             let entity =
-//                 //                 match e with
-//                 //                 | PatternName.Slot s ->
-//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
-//                 //                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
-//                 //                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-//                 //                     | Some _ ->
-//                 //                         failwith "TODO - unexpected value - only Slots or Names are allowed"
-//                 //                     | None -> PatternName.Slot s
-//                 //                 | PatternName.Name i -> PatternName.Name i
-
-//                 //             let attribute =
-//                 //                 match a with
-//                 //                 | PatternName.Slot s ->
-//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
-//                 //                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
-//                 //                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-//                 //                     | Some _ ->
-//                 //                         failwith "TODO - unexpected value - only Slots or Names are allowed"
-//                 //                     | None -> PatternName.Slot s
-//                 //                 | PatternName.Name i -> PatternName.Name i
-
-//                 //             let value =
-//                 //                 match v with
-//                 //                 | LigatureValue.Slot s ->
-//                 //                     match readBinding (PatternName.Slot s) dataNetwork with
-//                 //                     | Some value -> value
-//                 //                     | None -> LigatureValue.Slot s
-//                 //                 | v -> v
-
-//                 //             (entity, attribute, value))
-//                 //         templateNetwork
-
-//                 // Ok((Set.union outNetwork resultNetwork))
-//             //iterate through all of the statements in the templateNetwork,
-//             //whenever a slot is found lookup in the dataNetwork to see if that value has been bound,
-//             //if so replace that slot with the binding and merge the final result into the outNetwork
-//             | _ -> failwith "TODO" }
-
+let applyCombinator: Combinator =
+    { Name = Name("apply")
+      Doc = ""
+      Eval =
+        fun combinators (inputState: State) arguments ->
+            match arguments with
+            | [LigatureValue.Network(template)
+               LigatureValue.Quote(data)] ->
+                List.map (fun dataset ->
+                    match dataset with
+                    | LigatureValue.Network dataset -> 
+                        applyNetwork template dataset
+                        |> LigatureValue.Network
+                    | _ -> failwith "TODO") data
+                |> LigatureValue.Quote
+                |> fun value -> Ok(inputState, Some(value))
+            | _ -> failwith "TODO" }
 
 let matchCombinator =
     { Name = Name("match")
@@ -206,7 +187,8 @@ let matchCombinator =
 
 let stdCombinators =
     Map.ofList
-        [ (assertEqualCombinator.Name, (assertEqualCombinator))
+        [ (applyCombinator.Name, (applyCombinator))
+          (assertEqualCombinator.Name, (assertEqualCombinator))
           (ignoreCombinator.Name, (ignoreCombinator))
           (matchCombinator.Name, (matchCombinator)) ]
 

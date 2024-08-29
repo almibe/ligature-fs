@@ -16,28 +16,18 @@ let evalNetwork ((name, networks): State) (network: Network) : Result<State * Li
     let newNetworks = Map.add name newNetwork networks
     Ok((name, newNetworks), None)
 
-//let evalNetwork (state: State) (network: Network) : Result<State, LigatureError> = Ok(Set.union state network)
-
-// and handleCall (state: State) (identifier: Name) (arguments: (Name * LigatureValue) list) =
-//     let lookupResult = readBinding (PatternName.Name identifier) state
-
-//     if lookupResult.IsSome then
-//         match lookupResult.Value with
-//         | LigatureValue.HostCombinator(combinator) -> combinator.Eval state arguments
-//         | LigatureValue.Quote(quote) -> evalQuote hostFunctions runtimeNetwork quote
-//     else
-//         error $"Could not find Name, {identifier}" None
 
 let evalName
     (combinators: Combinators)
     (state: State)
     (arguments: LigatureValue list)
-    (name: Name)
+    (Name(name))
     : Result<State * LigatureValue option, LigatureError> =
     //TODO check state for bindings
-    match combinators.TryFind name with
+    match combinators.TryFind (Name(name)) with
     | Some(combinataor) -> combinataor.Eval combinators state arguments
-    | None -> error $"Could not find name {name}." None
+    | None -> 
+        error $"Could not find name {name}" None
 
 let rec evalElement
     (combinators: Combinators)
