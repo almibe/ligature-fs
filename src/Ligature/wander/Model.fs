@@ -14,7 +14,7 @@ let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
 #else
-    failwith "TODO"
+    failwith "Should never run."
 #endif
 
 let rec prettyPrint (value: LigatureValue) : string =

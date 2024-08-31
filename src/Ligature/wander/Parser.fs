@@ -89,7 +89,7 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! values = Gaze.attempt (optional (repeat elementNib)) gaze
+        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
         return ParserElement.Expression(values)
     }
