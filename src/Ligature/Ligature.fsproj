@@ -14,9 +14,9 @@
     <Compile Include="wander/Parser.fs" />
     <Compile Include="wander/Interpreter.fs" />
     <Compile Include="wander/Wander.fs" />
-    <Compile Include="wander/Combinators.fs" />
-<!--    <Compile Include="wander/lib/Array.fs" />
     <Compile Include="wander/lib/Bool.fs" />
+    <Compile Include="wander/lib/Core.fs" />
+<!--    
     <Compile Include="wander/lib/Bytes.fs" />
     <Compile Include="wander/lib/DateTime.fs" />
     <Compile Include="wander/lib/Name.fs" />
@@ -27,6 +27,8 @@
     <Compile Include="wander/lib/String.fs" />
     <Compile Include="wander/lib/Ulid.fs" />
     <Compile Include="wander/lib/Wander.fs" /> -->
+    <Compile Include="wander/lib/Assert.fs" />
+    <Compile Include="wander/Combinators.fs" />
   </ItemGroup>
 
   <ItemGroup>

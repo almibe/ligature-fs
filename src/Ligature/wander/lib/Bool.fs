@@ -4,17 +4,21 @@
 
 module Ligature.Wander.Lib.Bool
 
-// open Ligature.Wander.Model
-// open Ligature.Main
+open Ligature.Wander.Model
+open Ligature.Main
 
-// let notFunction =
-//     { Name = "not"
-//       Returns = WanderType.Name
-//       Eval =
-//         (fun args _ ->
-//             match args.Head with
-//             | WanderValue.Bool(value) -> Ok(WanderValue.Bool(not value))
-//             | _ -> error "Invalid call to not function." None) }
+let notFunction =
+    { Name = Name("not")
+      Doc = ""
+      Eval =
+        (fun _ state args ->
+            match args with
+            | [LigatureValue.Name(value)] -> 
+                match value with
+                | Name("true") -> Ok(state, Some(LigatureValue.Name(Name("false"))))
+                | Name("false") -> Ok(state, Some(LigatureValue.Name(Name("true"))))
+                | _ -> error "Invalid argument passed to not." None
+            | _ -> error "Invalid call to not function." None) }
 
 // let andFunction =
 //     { Name = "and"
@@ -45,4 +49,5 @@ module Ligature.Wander.Lib.Bool
 //             | [ WanderValue.Bytes([| 1uy |]) ] -> Ok(WanderValue.Bool(true))
 //             | _ -> error "Invalid call to Bool.fromBytes function." None) }
 
-let boolLib = [] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = 
+    Map.ofList [ (notFunction.Name, notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]

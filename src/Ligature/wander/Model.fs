@@ -24,7 +24,8 @@ let rec prettyPrint (value: LigatureValue) : string =
     | LigatureValue.String s -> encodeString s
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | LigatureValue.Slot(Slot(None)) -> "$"
-    | LigatureValue.Quote(values) -> $"[{printQuote values}]" //TODO print names better
+    | LigatureValue.Quote values -> $"[{printQuote values}]" //TODO print names better
+    | LigatureValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
     | LigatureValue.NetworkName(NetworkName(n)) -> $"@{n}"
@@ -50,8 +51,13 @@ and printStatement ((entity, attribute, value): Statement) : string =
 and printPattern ((entity, attribute, value): Statement) =
     $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
 
+//TODO might not be correct
 and printQuote quote =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
+
+//TODO might not be correct
+and printExpression expression =
+    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
 type Scope = Map<string, LigatureValue>
 
