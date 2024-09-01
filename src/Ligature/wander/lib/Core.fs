@@ -10,10 +10,11 @@ open Ligature.InMemoryNetwork
 let idCombinator: Combinator =
     { Name = Name("id")
       Doc = "Return the value passed."
-      Eval = fun _ (input: State) arguments ->
-        match arguments with
-        | [ value ] -> Ok(input, Some(value))
-        | _ -> failwith "TODO" }
+      Eval =
+        fun _ (input: State) arguments ->
+            match arguments with
+            | [ value ] -> Ok(input, Some(value))
+            | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
     { Name = Name("ignore")
@@ -23,17 +24,23 @@ let ignoreCombinator: Combinator =
 let docsCombinator: Combinator =
     { Name = Name("docs")
       Doc = "Create a network that contains documentation for the available combinators."
-      Eval = fun combinators (input: State) _ -> 
-        let mutable docs = emptyNetwork
-        Map.toList combinators
-        |> List.iter (fun (name, combinator) -> 
-            docs <- Set.add (PatternName.Name(name), PatternName.Name(Name("")), LigatureValue.String(combinator.Doc)) docs)
-        printfn $"{Ligature.Wander.Model.printNetwork docs}"
-        Ok(input, Some(LigatureValue.Network docs)) }
+      Eval =
+        fun combinators (input: State) _ ->
+            let mutable docs = emptyNetwork
+
+            Map.toList combinators
+            |> List.iter (fun (name, combinator) ->
+                docs <-
+                    Set.add
+                        (PatternName.Name(name), PatternName.Name(Name("")), LigatureValue.String(combinator.Doc))
+                        docs)
+
+            printfn $"{Ligature.Wander.Model.printNetwork docs}"
+            Ok(input, Some(LigatureValue.Network docs)) }
 
 
 let coreCombinators =
-    (Map.ofList [ 
-        (docsCombinator.Name, docsCombinator)
-        (idCombinator.Name, idCombinator)
-        (ignoreCombinator.Name, ignoreCombinator) ])
+    (Map.ofList
+        [ (docsCombinator.Name, docsCombinator)
+          (idCombinator.Name, idCombinator)
+          (ignoreCombinator.Name, ignoreCombinator) ])

@@ -41,5 +41,4 @@ let assertEqualCombinator: Combinator =
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 let assertCombinators =
-    Map.ofList
-        [ (assertEqualCombinator.Name, (assertEqualCombinator)) ]
+    Map.ofList [ (assertEqualCombinator.Name, (assertEqualCombinator)) ]

@@ -24,10 +24,9 @@ let evalName
     (Name(name))
     : Result<State * LigatureValue option, LigatureError> =
     //TODO check state for bindings
-    match combinators.TryFind (Name(name)) with
+    match combinators.TryFind(Name(name)) with
     | Some(combinataor) -> combinataor.Eval combinators state arguments
-    | None -> 
-        error $"Could not find name {name}" None
+    | None -> error $"Could not find name {name}" None
 
 let rec evalElement
     (combinators: Combinators)

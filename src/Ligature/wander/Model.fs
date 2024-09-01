@@ -14,7 +14,7 @@ let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
 #else
-    failwith "Should never run."
+    Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
 let rec prettyPrint (value: LigatureValue) : string =

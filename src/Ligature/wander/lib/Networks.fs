@@ -63,10 +63,9 @@ open FSharpPlus
 //             | Some(network) -> Set.difference inputState network |> Ok
 //             | _ -> failwith "TODO" }
 
-let lookupNetwork () =
-    failwith "TODO"
+let lookupNetwork () = failwith "TODO"
 
-let applyNetwork (template: Network) (data: Network): Network =
+let applyNetwork (template: Network) (data: Network) : Network =
     Set.map
         (fun ((e, a, v)) ->
             let entity =
@@ -75,8 +74,7 @@ let applyNetwork (template: Network) (data: Network): Network =
                     match readBinding (PatternName.Slot s) data with
                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-                    | Some _ ->
-                        failwith "TODO - unexpected value - only Slots or Names are allowed"
+                    | Some _ -> failwith "TODO - unexpected value - only Slots or Names are allowed"
                     | None -> PatternName.Slot s
                 | PatternName.Name i -> PatternName.Name i
 
@@ -86,8 +84,7 @@ let applyNetwork (template: Network) (data: Network): Network =
                     match readBinding (PatternName.Slot s) data with
                     | Some(LigatureValue.Name(i)) -> PatternName.Name i
                     | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-                    | Some _ ->
-                        failwith "TODO - unexpected value - only Slots or Names are allowed"
+                    | Some _ -> failwith "TODO - unexpected value - only Slots or Names are allowed"
                     | None -> PatternName.Slot s
                 | PatternName.Name i -> PatternName.Name i
 
@@ -109,14 +106,13 @@ let applyCombinator: Combinator =
       Eval =
         fun combinators (inputState: State) arguments ->
             match arguments with
-            | [LigatureValue.Network(template)
-               LigatureValue.Quote(data)] ->
-                List.map (fun dataset ->
-                    match dataset with
-                    | LigatureValue.Network dataset -> 
-                        applyNetwork template dataset
-                        |> LigatureValue.Network
-                    | _ -> failwith "TODO") data
+            | [ LigatureValue.Network(template); LigatureValue.Quote(data) ] ->
+                List.map
+                    (fun dataset ->
+                        match dataset with
+                        | LigatureValue.Network dataset -> applyNetwork template dataset |> LigatureValue.Network
+                        | _ -> failwith "TODO")
+                    data
                 |> LigatureValue.Quote
                 |> fun value -> Ok(inputState, Some(value))
             | _ -> failwith "TODO" }
@@ -144,17 +140,23 @@ let queryCombinator =
             let currentNetwork = currentNetwork inputState
 
             match arguments with
-            | [LigatureValue.Network pattern
-               LigatureValue.Network template
-               LigatureValue.Network data] ->
-                match matchCombinator.Eval combinators inputState [LigatureValue.Network pattern; LigatureValue.Network data] with
-                | Ok(_, Some(LigatureValue.Quote(res))) -> 
-                    applyCombinator.Eval combinators inputState [LigatureValue.Network template; LigatureValue.Quote res ]
+            | [ LigatureValue.Network pattern; LigatureValue.Network template; LigatureValue.Network data ] ->
+                match
+                    matchCombinator.Eval
+                        combinators
+                        inputState
+                        [ LigatureValue.Network pattern; LigatureValue.Network data ]
+                with
+                | Ok(_, Some(LigatureValue.Quote(res))) ->
+                    applyCombinator.Eval
+                        combinators
+                        inputState
+                        [ LigatureValue.Network template; LigatureValue.Quote res ]
                 | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
 let coreCombinators =
-    (Map.ofList [ 
-        (applyCombinator.Name, applyCombinator)
-        (matchCombinator.Name, matchCombinator) 
-        (queryCombinator.Name, queryCombinator) ])
+    (Map.ofList
+        [ (applyCombinator.Name, applyCombinator)
+          (matchCombinator.Name, matchCombinator)
+          (queryCombinator.Name, queryCombinator) ])

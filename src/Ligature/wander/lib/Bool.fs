@@ -13,7 +13,7 @@ let notFunction =
       Eval =
         (fun _ state args ->
             match args with
-            | [LigatureValue.Name(value)] -> 
+            | [ LigatureValue.Name(value) ] ->
                 match value with
                 | Name("true") -> Ok(state, Some(LigatureValue.Name(Name("false"))))
                 | Name("false") -> Ok(state, Some(LigatureValue.Name(Name("true"))))
@@ -49,5 +49,4 @@ let notFunction =
 //             | [ WanderValue.Bytes([| 1uy |]) ] -> Ok(WanderValue.Bool(true))
 //             | _ -> error "Invalid call to Bool.fromBytes function." None) }
 
-let boolLib = 
-    Map.ofList [ (notFunction.Name, notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = Map.ofList [ (notFunction.Name, notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
