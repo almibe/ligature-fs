@@ -9,59 +9,40 @@ open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
 open FSharpPlus
 
-// let chompCombinator =
-//     { Name = Name("chomp")
-//       Doc = ""
-//       Eval =
-//         fun _ (inputState: State) (arguments: Arguments) ->
-//             let input =
-//                 match arguments with
-//                 | [LigatureValue.Network(input) -> Some input
-//                 | Some(LigatureValue.Name(name)) ->
-//                     match readBinding (PatternName.Name(name)) inputState with
-//                     | Some(LigatureValue.Network n) -> Some n
-//                     | _ -> None
-//                 | _ -> None
+let chompCombinator =
+    { Name = Name("chomp")
+      Doc = ""
+      Eval =
+        fun _ ((selected, networks): State) (arguments: Arguments) ->
+            match arguments with
+            | [LigatureValue.Network(input)] ->
+                let currentNetwork = currentNetwork (selected, networks)
+                let newNetwork = Set.union input currentNetwork
+                let newNetworks = Map.add selected newNetwork networks
+                Ok((selected, newNetworks), None)
+            | _ -> error "Bad call to chomp." None }
 
-//             match input with
-//             | Some(network) -> Set.union network inputState |> Ok
-//             | _ -> failwith "TODO" }
+let unionCombinator =
+    { Name = Name("union")
+      Doc = "Find the union of two Networks."
+      Eval =
+        fun _ (inputState: State) (arguments: Arguments) ->
+            match arguments with
+            | [LigatureValue.Network(left); LigatureValue.Network(right)] ->
+                let result = Set.union left right |> LigatureValue.Network
+                Ok(inputState, Some(result))
+            | _ -> failwith "TODO" }
 
-// let unionCombinator =
-//     { Name = Name("union")
-//       Doc = ""
-//       Eval =
-//         fun combinators (inputState: State) (arguments: Arguments) ->
-//             let input =
-//                 match arguments with
-//                 | [LigatureValue.Network(input) -> Some input
-//                 | Some(LigatureValue.Name(name)) ->
-//                     match readBinding (PatternName.Name(name)) inputState with
-//                     | Some(LigatureValue.Network n) -> Some n
-//                     | _ -> None
-//                 | _ -> None
-
-//             match input with
-//             | Some(network) -> Set.union network inputState |> Ok
-//             | _ -> failwith "TODO" }
-
-// let minusCombinator =
-//     { Name = Name("minus")
-//       Doc = ""
-//       Eval =
-//         fun _ (inputState: State) (arguments: Arguments) ->
-//             let input =
-//                 match readArgument (Name("in")) arguments with
-//                 | Some(LigatureValue.Network(input)) -> Some input
-//                 | Some(LigatureValue.Name(name)) ->
-//                     match readBinding (PatternName.Name(name)) inputState with
-//                     | Some(LigatureValue.Network n) -> Some n
-//                     | _ -> None
-//                 | _ -> None
-
-//             match input with
-//             | Some(network) -> Set.difference inputState network |> Ok
-//             | _ -> failwith "TODO" }
+let minusCombinator =
+    { Name = Name("minus")
+      Doc = "Remove all Statements from the first Network that are in the second Networks."
+      Eval =
+        fun _ (inputState: State) (arguments: Arguments) ->
+            match arguments with
+            | [LigatureValue.Network(left); LigatureValue.Network(right)] ->
+                let result = Set.difference left right |> LigatureValue.Network
+                Ok(inputState, Some(result))
+            | _ -> failwith "TODO" }
 
 let lookupNetwork () = failwith "TODO"
 
@@ -158,5 +139,8 @@ let queryCombinator =
 let networkCombinators =
     (Map.ofList
         [ (applyCombinator.Name, applyCombinator)
+          (chompCombinator.Name, chompCombinator)
           (matchCombinator.Name, matchCombinator)
-          (queryCombinator.Name, queryCombinator) ])
+          (minusCombinator.Name, minusCombinator)
+          (queryCombinator.Name, queryCombinator)
+          (unionCombinator.Name, unionCombinator) ])
