@@ -146,7 +146,7 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeErr
     | Ok(Token.StringLiteral(value)) -> Ok(ParserElement.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let valueNib = takeFirst [ atomicValueNib; networkNib ]
+let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
 
 let rec readValueList
     (elements: ParserElement list)
@@ -184,8 +184,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib =
-    takeFirst [ quoteNib; expressionNib; readName; networkNib; readNetworkName ]
+let elementNib = takeFirst [ expressionNib; networkNib; readNetworkName ]
 
 let scriptNib = repeat elementNib
 

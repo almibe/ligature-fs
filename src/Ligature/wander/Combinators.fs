@@ -10,3 +10,4 @@ let stdCombinators =
     Lib.Core.coreCombinators
     |> Map.union Lib.Assert.assertCombinators
     |> Map.union Lib.Bool.boolLib
+    |> Map.union Lib.Network.networkCombinators

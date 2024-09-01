@@ -16,6 +16,7 @@
     <Compile Include="wander/Wander.fs" />
     <Compile Include="wander/lib/Bool.fs" />
     <Compile Include="wander/lib/Core.fs" />
+    <Compile Include="wander/lib/Network.fs" />
 <!--    
     <Compile Include="wander/lib/Bytes.fs" />
     <Compile Include="wander/lib/DateTime.fs" />

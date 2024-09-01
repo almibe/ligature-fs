@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lib.Core
+module Ligature.Wander.Lib.Network
 
 open Ligature.Main
 open Ligature.InMemoryNetwork
@@ -155,7 +155,7 @@ let queryCombinator =
                 | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
-let coreCombinators =
+let networkCombinators =
     (Map.ofList
         [ (applyCombinator.Name, applyCombinator)
           (matchCombinator.Name, matchCombinator)

@@ -102,23 +102,45 @@ let tests =
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
-          testCase "Parse Name"
+          testCase "Parse Nested Expressions"
           <| fun _ ->
-              let script = "A.b"
+              let script = "(a (b (c) ))"
 
               match tokenize script with
-              | Ok res ->
+              | Ok(res) ->
                   match parse res with
-                  | Ok res ->
+                  | Ok(res) ->
                       Expect.equal
                           res
-                          [ ParserElement.Name("A.b")
-                            //"A.b",
-                            //[ ("c", Element.Network([ (Element.Name("d"), Element.Name("e"), Element.Name("d")) ])) ]
-                            ]
+                          [ ParserElement.Expression
+                                [ ParserElement.Name("a")
+                                  ParserElement.Expression
+                                      [ ParserElement.Name("b")
+                                        ParserElement.Expression [ ParserElement.Name("c") ] ] ] ]
                           ""
-                  | Error e -> failwith $"Error Parsing {e.UserMessage}"
-              | _ -> failwith "Error Tokenizing"
+
+                      let element = express res []
+
+                      Expect.equal
+                          element
+                          [ Element.Expression
+                                [ LigatureValue.Name(Name("a"))
+                                  LigatureValue.Expression
+                                      [ LigatureValue.Name(Name("b"))
+                                        LigatureValue.Expression [ LigatureValue.Name(Name("c")) ] ] ] ]
+                          ""
+                  | Error err -> failwith $"Error Parsing - {err.UserMessage}"
+              | _ -> failwith "Error"
+
+          testCase "Parse Expression Call"
+          <| fun _ ->
+              let script = "(assert-equal (apply {$a b c} [{$a = b}]) [{b b c }] )"
+
+              match tokenize script with
+              | Ok(res) -> Expect.isOk (parse res) ""
+              | Error err -> failwith $"Error Parsing - {err.UserMessage}"
+              | _ -> failwith "Error"
+
 
           //   testCase "Run Network"
           //   <| fun _ ->
