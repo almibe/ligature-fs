@@ -79,7 +79,6 @@ type NetworkName = NetworkName of string
 
 and [<RequireQualifiedAccessAttribute>] Element =
     | Expression of Expression
-    | Name of Name
     | NetworkName of NetworkName
     | Network of Network
 

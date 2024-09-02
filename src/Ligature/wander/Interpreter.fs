@@ -35,7 +35,6 @@ let rec evalElement
     : Result<State * LigatureValue option, LigatureError> =
     match element with
     | Element.Network network -> evalNetwork inputState network
-    | Element.Name name -> evalName combinators inputState [] name
     | Element.NetworkName name -> evalNetworkName inputState name
     | Element.Expression expression -> evalExpression combinators inputState expression
 

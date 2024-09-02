@@ -10,17 +10,17 @@ open Model
 open Nibblers
 open Ligature.Main
 
-[<RequireQualifiedAccess>]
-type ParserElement =
-    | Name of string
-    | NetworkName of string
-    | Quote of ParserElement list
-    | Expression of ParserElement list
-    | String of string
-    | Int of bigint
-    | Bytes of byte array
-    | Slot of Slot
-    | Network of (ParserElement * ParserElement * ParserElement) list
+// [<RequireQualifiedAccess>]
+// type LigatureValue =
+//     | Name of string
+//     | NetworkName of string
+//     | Quote of LigatureValue list
+//     | Expression of LigatureValue list
+//     | String of string
+//     | Int of bigint
+//     | Bytes of byte array
+//     | Slot of Slot
+//     | Network of (LigatureValue * LigatureValue * LigatureValue) list
 
 // let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 //     Gaze.attempt
@@ -34,7 +34,7 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(ParserElement.Name(name))
+            | Ok(Token.Name(name)) -> Ok(LigatureValue.Name(Name(name)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -54,47 +54,47 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
 //     | Ok(Token.Name(value)) -> Ok value
 //     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let readName (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let readName (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Name(value)) -> Ok(ParserElement.Name value)
+    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let readNetworkName (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let readNetworkName (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.NetworkName(value)) -> Ok(ParserElement.NetworkName value)
+    | Ok(Token.NetworkName(value)) -> Ok(LigatureValue.NetworkName(NetworkName(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Int(i)) -> Ok(ParserElement.Int(i))
+            | Ok(Token.Int(i)) -> Ok(LigatureValue.Int(i))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat elementNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return ParserElement.Quote(values)
+        return LigatureValue.Quote(values)
     }
 
-let expressionNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let expressionNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return ParserElement.Expression(values)
+        return LigatureValue.Expression(values)
     }
 
-// let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * ParserElement), Gaze.GazeError> =
+// let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * LigatureValue), Gaze.GazeError> =
 //     let entity = patternNib gaze
 //     let attribute = patternNib gaze
 
@@ -104,10 +104,10 @@ let expressionNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeErro
 //         | Error(_) -> quoteNib gaze
 
 //     match (entity, attribute, value) with
-//     | (Ok(ParserElement.Name(name)), Ok(a), Ok(v)) -> Ok(name, v)
+//     | (Ok(LigatureValue.Name(name)), Ok(a), Ok(v)) -> Ok(name, v)
 //     | _ -> Error(Gaze.NoMatch)
 
-let statementNib (gaze: Gaze.Gaze<Token>) : Result<(ParserElement * ParserElement * ParserElement), Gaze.GazeError> =
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(LigatureValue * LigatureValue * LigatureValue), Gaze.GazeError> =
     let entity = patternNib gaze
     let attribute = patternNib gaze
 
@@ -120,38 +120,38 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(ParserElement * ParserElemen
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return ParserElement.Network(statements)
+        return LigatureValue.Network(handleNetwork statements)
     }
 
-let patternNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let patternNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Name(value)) -> Ok(ParserElement.Name value)
-    | Ok(Token.Slot(value)) -> Ok(ParserElement.Slot(value))
+    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
+    | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Int(value)) -> Ok(ParserElement.Int value)
-    | Ok(Token.Name(value)) -> Ok(ParserElement.Name value)
-    | Ok(Token.Slot(value)) -> Ok(ParserElement.Slot(value))
-    | Ok(Token.StringLiteral(value)) -> Ok(ParserElement.String value)
+    | Ok(Token.Int(value)) -> Ok(LigatureValue.Int value)
+    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
+    | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
+    | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
 
 let rec readValueList
-    (elements: ParserElement list)
+    (elements: LigatureValue list)
     (gaze: Gaze.Gaze<Token>)
-    : Result<ParserElement list, Gaze.GazeError> =
+    : Result<LigatureValue list, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     if next = Ok Token.CloseSquare then
@@ -159,10 +159,10 @@ let rec readValueList
     else
         let elements =
             match next with
-            | Ok(Token.Name w) -> List.append elements [ (ParserElement.Name w) ]
-            | Ok(Token.StringLiteral s) -> List.append elements [ (ParserElement.String s) ]
-            | Ok(Token.Int i) -> List.append elements [ (ParserElement.Int i) ]
-            | Ok(Token.Slot s) -> List.append elements [ (ParserElement.Slot s) ]
+            | Ok(Token.Name w) -> List.append elements [ (LigatureValue.Name(Name(w))) ]
+            | Ok(Token.StringLiteral s) -> List.append elements [ (LigatureValue.String s) ]
+            | Ok(Token.Int i) -> List.append elements [ (LigatureValue.Int i) ]
+            | Ok(Token.Slot s) -> List.append elements [ (LigatureValue.Slot s) ]
 
         match Gaze.peek gaze with
         | Ok Token.CloseSquare ->
@@ -172,12 +172,12 @@ let rec readValueList
             (Gaze.next gaze |> ignore)
             readValueList elements gaze
 
-let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
+let readSlot (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Slot(value)) -> Ok(ParserElement.Slot value)
+    | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 //let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; quoteNib ]
@@ -186,12 +186,12 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<ParserElement, Gaze.GazeError> =
 
 let elementNib = takeFirst [ expressionNib; networkNib; readNetworkName ]
 
-let scriptNib = repeat elementNib
+let scriptNib = repeat valueNib
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list) : Result<ParserElement list, LigatureError> =
+let parse (tokens: Token list) : Result<LigatureValue list, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -220,59 +220,58 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let elementToValue (element: ParserElement) : LigatureValue =
-    match element with
-    | ParserElement.Int i -> LigatureValue.Int i
-    | ParserElement.Bytes b -> LigatureValue.Bytes b
-    | ParserElement.Network n -> LigatureValue.Network(handleNetwork n)
-    | ParserElement.Quote p -> handleQuote p
-    | ParserElement.Expression e -> handleExpression e
-    | ParserElement.Slot s -> LigatureValue.Slot s
-    | ParserElement.String s -> LigatureValue.String s
-    | ParserElement.Name n -> LigatureValue.Name(Name n)
-    | ParserElement.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
+// let elementToValue (element: LigatureValue) : LigatureValue =
+//     match element with
+//     | LigatureValue.Int i -> LigatureValue.Int i
+//     | LigatureValue.Bytes b -> LigatureValue.Bytes b
+//     | LigatureValue.Network n -> LigatureValue.Network(handleNetwork n)
+//     | LigatureValue.Quote p -> handleQuote p
+//     | LigatureValue.Expression e -> handleExpression e
+//     | LigatureValue.Slot s -> LigatureValue.Slot s
+//     | LigatureValue.String s -> LigatureValue.String s
+//     | LigatureValue.Name n -> LigatureValue.Name(Name n)
+//     | LigatureValue.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
-let handleQuote (quote: ParserElement list) : LigatureValue =
-    List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
+// let handleQuote (quote: LigatureValue list) : LigatureValue =
+//     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote
 
-let handleExpression (expression: ParserElement list) : LigatureValue =
-    List.map (fun element -> elementToValue element) expression
-    |> LigatureValue.Expression
+// let handleExpression (expression: LigatureValue list) : LigatureValue =
+//     List.map (fun element -> elementToValue element) expression
+//     |> LigatureValue.Expression
 
-let handleNetwork (network: (ParserElement * ParserElement * ParserElement) list) : Network =
+let handleNetwork (network: (LigatureValue * LigatureValue * LigatureValue) list) : Network =
     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
     res
 
 let elementTupleToStatement
-    ((e, a, v): (ParserElement * ParserElement * ParserElement))
+    ((e, a, v): (LigatureValue * LigatureValue * LigatureValue))
     : (PatternName * PatternName * LigatureValue) =
     let entity =
         match e with
-        | ParserElement.Name p -> PatternName.Name(Name p)
-        | ParserElement.Slot s -> PatternName.Slot s
+        | LigatureValue.Name p -> PatternName.Name p
+        | LigatureValue.Slot s -> PatternName.Slot s
         | _ -> failwith "Error - unexpected Entity."
 
     let attribute =
         match a with
-        | ParserElement.Name p -> PatternName.Name(Name p)
-        | ParserElement.Slot s -> PatternName.Slot s
+        | LigatureValue.Name p -> PatternName.Name p
+        | LigatureValue.Slot s -> PatternName.Slot s
         | _ -> failwith "Error - unexpected Attribute."
 
-    let value = elementToValue v
+    let value = v
 
     (entity, attribute, value)
 
-let expressExpression (elements: ParserElement list) : Element =
-    let res = List.map (fun element -> elementToValue element) elements
-    Element.Expression res
+let expressExpression (elements: LigatureValue list) : Element =
+    //    let res = List.map (fun element -> elementToValue element) elements
+    Element.Expression elements
 
-let rec express (elements: ParserElement list) (expressions: Element list) : Element list =
+let rec express (elements: LigatureValue list) (expressions: Element list) : Element list =
     match elements with
     | [] -> expressions
     | head :: tail ->
         match head with
-        | ParserElement.Network n -> express tail (List.append expressions [ Element.Network(handleNetwork n) ])
-        | ParserElement.Expression e -> express tail (List.append expressions [ expressExpression e ])
-        | ParserElement.Name n -> express tail (List.append expressions [ Element.Name(Name n) ])
-        | ParserElement.NetworkName n -> express tail (List.append expressions [ Element.NetworkName(NetworkName n) ])
+        | LigatureValue.Network n -> express tail (List.append expressions [ Element.Network n ])
+        | LigatureValue.Expression e -> express tail (List.append expressions [ expressExpression e ])
+        | LigatureValue.NetworkName n -> express tail (List.append expressions [ Element.NetworkName n ])
         | _ -> failwith "Error - unexpected token."
