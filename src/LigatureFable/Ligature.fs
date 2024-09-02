@@ -62,10 +62,11 @@ let partialResultToJS (result: LigatureValue option) =
     | None -> createEmpty
 
 
-let stateToJS ((NetworkName(name), networks): State) =
+let stateToJS ((NetworkName(name), networks, partialResult): State) =
     let res = createEmpty
     let mutable resNetworks = []
     res?name <- name
+    res?partialResult <- partialResultToJS partialResult
 
     Map.iter
         (fun (NetworkName(name)) value ->
@@ -87,12 +88,12 @@ let newEngine () =
     engine?run <-
         fun (script: string) ->
             match run combinators state script with
-            | Ok(res, partialResult) ->
-                state <- res
-                List.iter (fun listener -> listener (stateToJS res) (partialResultToJS partialResult)) listeners
-                stateToJS res
+            | Ok newState ->
+                state <- newState
+                List.iter (fun listener -> listener (stateToJS newState)) listeners
+                stateToJS newState
             | Error err ->
-                List.iter (fun listener -> listener (err) createEmpty) listeners
+                List.iter (fun listener -> listener (err)) listeners
                 err.UserMessage
 
     engine?printState <- fun () -> printResult (Ok state)
