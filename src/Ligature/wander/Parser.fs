@@ -143,6 +143,7 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeErr
     | Ok(Token.Int(value)) -> Ok(LigatureValue.Int value)
     | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
     | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
+    | Ok(Token.NetworkName(value)) -> Ok(LigatureValue.NetworkName(NetworkName(value)))
     | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 

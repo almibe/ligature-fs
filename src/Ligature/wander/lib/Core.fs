@@ -27,6 +27,18 @@ let setCombinator: Combinator =
                 Ok((selected, newNetworks), None)
             | _ -> failwith "TODO" }
 
+let readCombinator: Combinator =
+    { Name = Name("read")
+      Doc = "Read the value of a given Network."
+      Eval =
+        fun _ ((selected, networks): State) arguments ->
+            match arguments with
+            | [ LigatureValue.NetworkName(name) ] ->
+                match Map.tryFind name networks with
+                | Some(network) -> Ok((selected, networks), Some(LigatureValue.Network network))
+                | _ -> failwith "TODO"
+            | _ -> failwith "TODO" }
+
 let ignoreCombinator: Combinator =
     { Name = Name("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
@@ -55,4 +67,5 @@ let coreCombinators =
         [ (docsCombinator.Name, docsCombinator)
           (idCombinator.Name, idCombinator)
           (ignoreCombinator.Name, ignoreCombinator)
+          (readCombinator.Name, readCombinator)
           (setCombinator.Name, setCombinator) ])

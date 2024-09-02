@@ -15,7 +15,7 @@ let chompCombinator =
       Eval =
         fun _ ((selected, networks): State) (arguments: Arguments) ->
             match arguments with
-            | [LigatureValue.Network(input)] ->
+            | [ LigatureValue.Network(input) ] ->
                 let currentNetwork = currentNetwork (selected, networks)
                 let newNetwork = Set.union input currentNetwork
                 let newNetworks = Map.add selected newNetwork networks
@@ -28,7 +28,7 @@ let unionCombinator =
       Eval =
         fun _ (inputState: State) (arguments: Arguments) ->
             match arguments with
-            | [LigatureValue.Network(left); LigatureValue.Network(right)] ->
+            | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
                 let result = Set.union left right |> LigatureValue.Network
                 Ok(inputState, Some(result))
             | _ -> failwith "TODO" }
@@ -39,7 +39,7 @@ let minusCombinator =
       Eval =
         fun _ (inputState: State) (arguments: Arguments) ->
             match arguments with
-            | [LigatureValue.Network(left); LigatureValue.Network(right)] ->
+            | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
                 let result = Set.difference left right |> LigatureValue.Network
                 Ok(inputState, Some(result))
             | _ -> failwith "TODO" }
