@@ -90,10 +90,22 @@ and Combinators = Map<Name, Combinator>
 
 and Arguments = LigatureValue list
 
+and [<RequireQualifiedAccessAttribute>] LigatureType =
+    | String
+    | Int
+    | Bytes
+    | Name
+    | Slot
+    | Network
+    | NetworkName
+    | Quote
+    | Expression
+
 and Combinator =
     { Name: Name
       Doc: string
-      Eval: Combinators -> State -> Arguments -> Result<State * LigatureValue option, LigatureError> }
+      Signature: LigatureType list
+      Eval: Combinators -> NetworkName -> Networks -> Arguments -> Result<State, LigatureError> }
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
     | Slot of Slot
@@ -116,18 +128,18 @@ and Network = Set<Statement>
 
 and Networks = Map<NetworkName, Network>
 
-and State = NetworkName * Networks
+and State = NetworkName * Networks * LigatureValue option
 
 let defaultNetwork = NetworkName("")
 
-let defaultState: State = defaultNetwork, Map.empty
+let defaultState: State = defaultNetwork, Map.empty, None
 
-let readNetwork (name: NetworkName) ((_, networks): State) : Network =
+let readNetwork (name: NetworkName) ((_, networks, _): State) : Network =
     match Map.tryFind name networks with
     | Some res -> res
     | None -> Set.empty
 
-let currentNetwork ((name, networks): State) : Network =
+let currentNetwork name networks : Network =
     match Map.tryFind name networks with
     | Some res -> res
     | None -> Set.empty

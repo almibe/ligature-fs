@@ -10,15 +10,16 @@ open Ligature.Wander.Interpreter
 let assertEqualCombinator: Combinator =
     { Name = Name "assert-equal"
       Doc = ""
+      Signature = []
       Eval =
-        fun (combinators: Combinators) (inputState: State) (arguments: Arguments) ->
+        fun (combinators: Combinators) name networks (arguments: Arguments) ->
             match arguments with
             | [ first; second ] ->
                 let first =
                     match first with
                     | LigatureValue.Expression e ->
-                        match evalExpression combinators inputState e with
-                        | Ok(_, Some(res)) -> res
+                        match evalExpression combinators name networks e with
+                        | Ok(_, _, Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | _ -> first
@@ -26,14 +27,14 @@ let assertEqualCombinator: Combinator =
                 let second =
                     match second with
                     | LigatureValue.Expression e ->
-                        match evalExpression combinators inputState e with
-                        | Ok(_, Some(res)) -> res
+                        match evalExpression combinators name networks e with
+                        | Ok(_, _, Some(res)) -> res
                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | _ -> second
 
                 if first = second then
-                    Ok(inputState, Some(LigatureValue.String("Sucess!")))
+                    Ok(name, networks, Some(LigatureValue.String("Sucess!")))
                 else
                     error
                         $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"

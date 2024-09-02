@@ -10,45 +10,50 @@ open Ligature.InMemoryNetwork
 let idCombinator: Combinator =
     { Name = Name("id")
       Doc = "Return the value passed."
+      Signature = []
       Eval =
-        fun _ (input: State) arguments ->
+        fun _ name networks arguments ->
             match arguments with
-            | [ value ] -> Ok(input, Some(value))
+            | [ value ] -> Ok(name, networks, Some(value))
             | _ -> failwith "TODO" }
 
 let setCombinator: Combinator =
     { Name = Name("set")
       Doc = "Set the value of a given Network."
+      Signature = []
       Eval =
-        fun _ ((selected, networks): State) arguments ->
+        fun _ selected networks arguments ->
             match arguments with
             | [ LigatureValue.NetworkName(name); LigatureValue.Network(value) ] ->
                 let newNetworks = Map.add name value networks
-                Ok((selected, newNetworks), None)
+                Ok(selected, newNetworks, None)
             | _ -> failwith "TODO" }
 
 let readCombinator: Combinator =
     { Name = Name("read")
       Doc = "Read the value of a given Network."
+      Signature = []
       Eval =
-        fun _ ((selected, networks): State) arguments ->
+        fun _ selected networks arguments ->
             match arguments with
             | [ LigatureValue.NetworkName(name) ] ->
                 match Map.tryFind name networks with
-                | Some(network) -> Ok((selected, networks), Some(LigatureValue.Network network))
+                | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
                 | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
     { Name = Name("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
-      Eval = fun _ (input: State) _ -> Ok(input, None) }
+      Signature = []
+      Eval = fun _ name networks _ -> Ok(name, networks, None) }
 
 let docsCombinator: Combinator =
     { Name = Name("docs")
       Doc = "Create a network that contains documentation for the available combinators."
+      Signature = []
       Eval =
-        fun combinators (input: State) _ ->
+        fun combinators name networks _ ->
             let mutable docs = emptyNetwork
 
             Map.toList combinators
@@ -59,7 +64,7 @@ let docsCombinator: Combinator =
                         docs)
 
             printfn $"{Ligature.Wander.Model.printNetwork docs}"
-            Ok(input, Some(LigatureValue.Network docs)) }
+            Ok(name, networks, Some(LigatureValue.Network docs)) }
 
 
 let coreCombinators =

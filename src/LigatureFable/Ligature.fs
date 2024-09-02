@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 open Ligature.Main
-open Ligature.Wander.Lib.Combinators
+open Ligature.Wander.Combinators
 open Ligature.Wander.Main
 open Fable.Core.JsInterop
 

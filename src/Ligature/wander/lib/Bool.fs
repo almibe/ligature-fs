@@ -10,13 +10,14 @@ open Ligature.Main
 let notFunction =
     { Name = Name("not")
       Doc = ""
+      Signature = []
       Eval =
-        (fun _ state args ->
+        (fun _ name networks args ->
             match args with
             | [ LigatureValue.Name(value) ] ->
                 match value with
-                | Name("true") -> Ok(state, Some(LigatureValue.Name(Name("false"))))
-                | Name("false") -> Ok(state, Some(LigatureValue.Name(Name("true"))))
+                | Name("true") -> Ok(name, networks, Some(LigatureValue.Name(Name("false"))))
+                | Name("false") -> Ok(name, networks, Some(LigatureValue.Name(Name("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

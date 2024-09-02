@@ -18,12 +18,12 @@ let tests =
           <| fun _ ->
               let script = ""
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState, None)) ""
+              Expect.equal result (Ok(defaultState)) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok((defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ]), None)) ""
+              Expect.equal result (Ok(defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ], None)) ""
 
           testCase "Parse Network"
           <| fun _ ->
@@ -66,23 +66,23 @@ let tests =
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
               | _ -> failwith "Error Tokenizing"
 
-          //   testCase "Parse Network With Quote"
-          //   <| fun _ ->
-          //       let script = "{id = [ {} ]}"
-
-          //       match tokenize script with
-          //       | Ok res ->
-          //           match parse res with
-          //           | Ok res ->
-          //               Expect.equal
-          //                   res
-          //                   [ ParserElement.Network
-          //                         [ (ParserElement.Name "id",
-          //                            ParserElement.Name "=",
-          //                            ParserElement.Quote [ ParserElement.Network [] ]) ] ]
-          //                   ""
-          //           | _ -> failwith "Error Parsing"
-          //       | _ -> failwith "Error Tokenizing"
+          // testCase "Parse Network With Quote"
+          // <| fun _ ->
+          //     let script = "{id = [ {} ]}"
+          //     failwith "TODO"
+          // match tokenize script with
+          // | Ok res ->
+          //     match parse res with
+          //     | Ok res ->
+          //         Expect.equal
+          //             res
+          //             [ LigatureValue.Network
+          //                   [ (PatternName.Name(Name("id")),
+          //                      ParserElement.Name "=",
+          //                      ParserElement.Quote [ ParserElement.Network [] ]) ] ]
+          //             ""
+          //     | _ -> failwith "Error Parsing"
+          // | _ -> failwith "Error Tokenizing"
 
           //   testCase "Parse Expression"
           //   <| fun _ ->
@@ -400,7 +400,7 @@ let tests =
           <| fun _ ->
               let script = "  \n     "
               let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState, None)) ""
+              Expect.equal result (Ok(defaultState)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
           //       let script = " 1  \n `a` \"hello\" \r\n  321 \n"

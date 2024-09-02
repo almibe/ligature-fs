@@ -60,18 +60,3 @@ and printExpression expression =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
 type Scope = Map<string, LigatureValue>
-
-type WanderType =
-    | String
-    | Int
-    | Bytes
-    | Name
-    | Slot
-    | Network
-    | NetworkName
-    | AssocArray
-    | LigatureValue
-    | Array
-    | Anything
-    | Nothing
-    | Function

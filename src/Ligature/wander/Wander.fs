@@ -12,16 +12,12 @@ open Interpreter
 
 let std: Map<string, Combinator> = Map.empty
 
-let run
-    (combinators: Combinators)
-    (inputState: State)
-    (input: string)
-    : Result<State * LigatureValue option, LigatureError> =
+let run (combinators: Combinators) ((networkName, networks, _): State) (input: string) : Result<State, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalElements combinators inputState
+            | Ok ast -> express ast [] |> evalElements combinators networkName networks
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
@@ -54,5 +50,5 @@ let introspect (input: string) =
 
 let printResult (result: Result<State, LigatureError>) =
     match result with
-    | Ok(name, state) -> $"@{name} {printNetwork (currentNetwork (name, state))}"
+    | Ok(name, state, _) -> $"@{name} {printNetwork (currentNetwork name state)}"
     | Error err -> err.UserMessage
