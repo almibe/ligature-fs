@@ -9,8 +9,8 @@ open Ligature.Main
 
 let notFunction =
     { Name = Name("not")
-      Doc = ""
-      Signature = []
+      Doc = "Boolean not"
+      Signature = [LigatureType.Name], Some(LigatureType.Name)
       Eval =
         (fun _ name networks args ->
             match args with

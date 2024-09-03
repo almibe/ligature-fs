@@ -26,8 +26,8 @@ let run (combinators: Combinators) ((networkName, networks, _): State) (input: s
 
 type Introspect =
     { tokens: Result<Token list, string>
-      elements: Result<Element list, string>
-      expressions: Result<Element list, string> }
+      elements: Result<Command list, string>
+      expressions: Result<Command list, string> }
 
 let introspect (input: string) =
     match tokenize input with

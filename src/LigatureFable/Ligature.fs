@@ -53,6 +53,7 @@ and valueToJS (v: LigatureValue) =
     | LigatureValue.String s -> value?string <- s
     | LigatureValue.Name(Name(i)) -> value?identifier <- i
     | LigatureValue.Network n -> value?network <- networkToJS n
+    | LigatureValue.Expression(_) -> failwith "TODO"
 
     value
 

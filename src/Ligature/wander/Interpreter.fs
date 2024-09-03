@@ -4,8 +4,8 @@
 
 module Ligature.Wander.Interpreter
 
-open Ligature.Wander.Model
 open Ligature.Main
+open Ligature.InMemoryNetwork
 
 let evalNetworkName (networks: Networks) (name: NetworkName) : Result<State, LigatureError> = Ok(name, networks, None)
 
@@ -15,29 +15,41 @@ let evalNetwork name networks (network: Network) : Result<State, LigatureError> 
     let newNetworks = Map.add name newNetwork networks
     Ok(name, newNetworks, None)
 
-let evalName
+let rec evalName
     (combinators: Combinators)
     networkName
     networks
     (arguments: LigatureValue list)
     (Name(name))
     : Result<State, LigatureError> =
-    //TODO check state for bindings
+    let newArguments = processArguments combinators networkName networks arguments
+
     match combinators.TryFind(Name(name)) with
-    | Some(combinataor) -> combinataor.Eval combinators networkName networks arguments
+    | Some(combinataor) -> combinataor.Eval combinators networkName networks newArguments
     | None -> error $"Could not find name {name}" None
 
-let rec evalElement (combinators: Combinators) networkName networks (element: Element) : Result<State, LigatureError> =
+and processArguments combinators networkName networks (arguments: LigatureValue list) : LigatureValue list =
+    List.map
+        (fun argument ->
+            match argument with
+            | LigatureValue.Expression e ->
+                match evalExpression combinators networkName networks e with
+                | Ok(_, _, Some(value)) -> value
+                | _ -> LigatureValue.Network emptyNetwork
+            | value -> value)
+        arguments
+
+and evalElement (combinators: Combinators) networkName networks (element: Command) : Result<State, LigatureError> =
     match element with
-    | Element.Network network -> evalNetwork networkName networks network
-    | Element.NetworkName name -> evalNetworkName networks name
-    | Element.Expression expression -> evalExpression combinators networkName networks expression
+    | Command.Network network -> evalNetwork networkName networks network
+    | Command.NetworkName name -> evalNetworkName networks name
+    | Command.Expression expression -> evalExpression combinators networkName networks expression
 
 and evalElements
     (combinators: Combinators)
     networkName
     networks
-    (elements: Element list)
+    (elements: Command list)
     : Result<State, LigatureError> =
     match elements with
     | [] -> Ok(networkName, networks, None)

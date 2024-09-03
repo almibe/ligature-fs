@@ -77,7 +77,7 @@ type NetworkName = NetworkName of string
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-and [<RequireQualifiedAccessAttribute>] Element =
+and [<RequireQualifiedAccessAttribute>] Command =
     | Expression of Expression
     | NetworkName of NetworkName
     | Network of Network
@@ -100,11 +100,12 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | NetworkName
     | Quote
     | Expression
+    | Any
 
 and Combinator =
     { Name: Name
       Doc: string
-      Signature: LigatureType list
+      Signature: LigatureType list * LigatureType option
       Eval: Combinators -> NetworkName -> Networks -> Arguments -> Result<State, LigatureError> }
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =

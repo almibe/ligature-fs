@@ -42,7 +42,7 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.NetworkName(name)) -> Ok(Element.NetworkName(NetworkName(name)))
+            | Ok(Token.NetworkName(name)) -> Ok(Command.NetworkName(NetworkName(name)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -263,16 +263,16 @@ let elementTupleToStatement
 
     (entity, attribute, value)
 
-let expressExpression (elements: LigatureValue list) : Element =
+let expressExpression (elements: LigatureValue list) : Command =
     //    let res = List.map (fun element -> elementToValue element) elements
-    Element.Expression elements
+    Command.Expression elements
 
-let rec express (elements: LigatureValue list) (expressions: Element list) : Element list =
+let rec express (elements: LigatureValue list) (expressions: Command list) : Command list =
     match elements with
     | [] -> expressions
     | head :: tail ->
         match head with
-        | LigatureValue.Network n -> express tail (List.append expressions [ Element.Network n ])
+        | LigatureValue.Network n -> express tail (List.append expressions [ Command.Network n ])
         | LigatureValue.Expression e -> express tail (List.append expressions [ expressExpression e ])
-        | LigatureValue.NetworkName n -> express tail (List.append expressions [ Element.NetworkName n ])
+        | LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
         | _ -> failwith "Error - unexpected token."

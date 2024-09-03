@@ -9,8 +9,8 @@ open Ligature.Wander.Interpreter
 
 let assertEqualCombinator: Combinator =
     { Name = Name "assert-equal"
-      Doc = ""
-      Signature = []
+      Doc = "Check that two values are equal."
+      Signature = [ LigatureType.Any; LigatureType.Any ], None
       Eval =
         fun (combinators: Combinators) name networks (arguments: Arguments) ->
             match arguments with
