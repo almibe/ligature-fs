@@ -15,13 +15,8 @@ let patternNameToJS (p: PatternName) =
 
     match p with
     | PatternName.Name(Name(id)) -> res?identifier <- id
-    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- $"${slot}"
-    | PatternName.Slot(Slot(None)) -> res?slot <- "$"
-
-    res
-
-let quoteToJS (q: Quote) =
-    let mutable res = [||]
+    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
+    | PatternName.Slot(Slot(None)) -> res?slot <- ""
 
     res
 
@@ -39,6 +34,12 @@ let rec networkToJS (network: Network) =
         network
 
     resNetwork
+
+and quoteToJS (q: Quote) =
+    List.map (fun value ->
+        valueToJS(value)) q
+    |> List.toArray
+
 
 and valueToJS (v: LigatureValue) =
     let value = createEmpty
@@ -61,7 +62,6 @@ let partialResultToJS (result: LigatureValue option) =
     match result with
     | Some(value) -> valueToJS value
     | None -> createEmpty
-
 
 let stateToJS ((NetworkName(name), networks, partialResult): State) =
     let res = createEmpty
