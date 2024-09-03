@@ -81,7 +81,7 @@ let readInteger (gaze: Gaze.Gaze<Token>) =
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeat elementNib)) gaze
+        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return LigatureValue.Quote(values)
     }
