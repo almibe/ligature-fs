@@ -12,7 +12,7 @@ open FSharpPlus
 let chompCombinator =
     { Name = Name("chomp")
       Doc = "Merge the passed Network into the current working Network."
-      Signature = [LigatureType.Network], None
+      Signature = [ LigatureType.Network ], None
       Eval =
         fun _ selected networks (arguments: Arguments) ->
             match arguments with
@@ -26,7 +26,7 @@ let chompCombinator =
 let unionCombinator =
     { Name = Name("union")
       Doc = "Find the union of two Networks."
-      Signature = [LigatureType.Network; LigatureType.Network], Some LigatureType.Network
+      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
         fun _ networkName networks (arguments: Arguments) ->
             match arguments with
@@ -38,7 +38,7 @@ let unionCombinator =
 let minusCombinator =
     { Name = Name("minus")
       Doc = "Remove all Statements from the first Network that are in the second Networks."
-      Signature = [LigatureType.Network; LigatureType.Network], Some LigatureType.Network
+      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
         fun _ networkName networks (arguments: Arguments) ->
             match arguments with
@@ -87,7 +87,7 @@ let applyNetwork (template: Network) (data: Network) : Network =
 let applyCombinator: Combinator =
     { Name = Name("apply")
       Doc = ""
-      Signature = [LigatureType.Network; LigatureType.Quote], Some LigatureType.Network
+      Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
       Eval =
         fun combinators networkName networks arguments ->
             match arguments with
@@ -105,7 +105,7 @@ let applyCombinator: Combinator =
 let matchCombinator =
     { Name = Name("match")
       Doc = "args: pattern data, returns: quote of networks"
-      Signature = [LigatureType.Network; LigatureType.Network], Some LigatureType.Quote
+      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
       Eval =
         fun _ networkName networks arguments ->
             let currentNetwork = currentNetwork networkName networks
@@ -119,7 +119,7 @@ let matchCombinator =
 let queryCombinator =
     { Name = Name("query")
       Doc = "arguments: pattern template data, returns network"
-      Signature = [LigatureType.Network; LigatureType.Network; LigatureType.Network], Some LigatureType.Network
+      Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
         fun combinators networkName networks arguments ->
             let currentNetwork = currentNetwork networkName networks

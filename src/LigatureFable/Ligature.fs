@@ -36,9 +36,7 @@ let rec networkToJS (network: Network) =
     resNetwork
 
 and quoteToJS (q: Quote) =
-    List.map (fun value ->
-        valueToJS(value)) q
-    |> List.toArray
+    List.map (fun value -> valueToJS (value)) q |> List.toArray
 
 
 and valueToJS (v: LigatureValue) =
@@ -81,22 +79,16 @@ let stateToJS ((NetworkName(name), networks, partialResult): State) =
     res
 
 let newEngine () =
+    let wanderEngine: WanderEngine = new InMemoryWanderEngine(stdCombinators)
     let engine = createEmpty
-    let mutable state = defaultState
-    let combinators = stdCombinators
-    let mutable listeners = []
 
-    engine?run <-
-        fun (script: string) ->
-            match run combinators state script with
-            | Ok newState ->
-                state <- newState
-                List.iter (fun listener -> listener (stateToJS newState)) listeners
-                stateToJS newState
-            | Error err ->
-                List.iter (fun listener -> listener (err)) listeners
-                err.UserMessage
+    engine?run <- fun (script: string) -> wanderEngine.Run script
 
-    engine?printState <- fun () -> printResult (Ok state)
-    engine?addListener <- fun listener -> listeners <- List.append listeners [ listener ]
+    engine?readResult <-
+        fun (id: int) ->
+            match (wanderEngine.ReadResult id) with
+            | None -> failwith "TODO"
+            | Some(Ok(Some(res))) -> valueToJS res
+            | _ -> createEmpty
+
     engine

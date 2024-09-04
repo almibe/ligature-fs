@@ -2,7 +2,7 @@
 
 To build this project run
 
-`dotnet fable`
+`dotnet fable -o output`
 
 To test the generated code run
 

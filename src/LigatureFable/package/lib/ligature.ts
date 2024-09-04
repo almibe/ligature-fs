@@ -1,4 +1,4 @@
-import { newEngine as _newEngine } from "../../Ligature.fs.js"
+import { newEngine as _newEngine } from "../../output/Ligature.js"
 
 export let newEngine = () => {
     return _newEngine()
