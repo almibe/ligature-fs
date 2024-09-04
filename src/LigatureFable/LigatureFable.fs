@@ -82,13 +82,11 @@ let newEngine () =
     let wanderEngine: WanderEngine = new InMemoryWanderEngine(stdCombinators)
     let engine = createEmpty
 
-    engine?run <- fun (script: string) -> wanderEngine.Run script
-
-    engine?readResult <-
-        fun (id: int) ->
-            match (wanderEngine.ReadResult id) with
-            | None -> failwith "TODO"
-            | Some(Ok(Some(res))) -> valueToJS res
-            | _ -> createEmpty
+    engine?run <-
+        fun (script: string) ->
+            match wanderEngine.Run script with
+            | Ok(Some(res)) -> valueToJS res
+            | Ok _ -> createEmpty
+            | _ -> failwith "TODO"
 
     engine

@@ -54,32 +54,18 @@ let printResult (result: Result<State, LigatureError>) =
     | Error err -> err.UserMessage
 
 type WanderEngine =
-    abstract Run: script: string -> int
-    abstract ReadResult: id: int -> Result<LigatureValue option, LigatureError> option
-    abstract ReadScript: id: int -> string option
+    abstract Run: script: string -> Result<LigatureValue option, LigatureError>
 
 type InMemoryWanderEngine(combinators: Combinators) =
     let mutable combinators = combinators
     let mutable state = defaultState
-    let mutable resultId = 0
 
-    let mutable results: Map<int, Result<LigatureValue option, LigatureError>> =
-        Map.empty
-
-    let mutable scripts: Map<int, string> = Map.empty
 
     interface WanderEngine with
-        member _.Run(script: string) : int =
+        member _.Run(script: string) : Result<LigatureValue option, LigatureError> =
             match run combinators state script with
             | Ok res ->
                 state <- res
                 let (_, _, res) = res
-                let id = resultId
-                resultId <- resultId + 1
-                scripts <- Map.add id script scripts
-                results <- Map.add id (Ok res) results
-                id
-            | Error err -> failwith "TODO"
-
-        member _.ReadResult(id: int) : Result<LigatureValue option, LigatureError> option = results.TryFind id
-        member _.ReadScript(id: int) : string option = scripts.TryFind id
+                Ok(res)
+            | Error err -> Error err
