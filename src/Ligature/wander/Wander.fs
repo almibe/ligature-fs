@@ -10,8 +10,6 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let std: Map<string, Combinator> = Map.empty
-
 let run (combinators: Combinators) ((networkName, networks, _): State) (input: string) : Result<State, LigatureError> =
     try
         match tokenize input with
@@ -20,9 +18,7 @@ let run (combinators: Combinators) ((networkName, networks, _): State) (input: s
             | Ok ast -> express ast [] |> evalElements combinators networkName networks
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
-    with x ->
-        failwith $"{x}"
-//error $"Error running script. {x}" None
+    with x -> error $"Error running script. {x}" None
 
 type Introspect =
     { tokens: Result<Token list, string>
@@ -59,7 +55,6 @@ type WanderEngine =
 type InMemoryWanderEngine(combinators: Combinators) =
     let mutable combinators = combinators
     let mutable state = defaultState
-
 
     interface WanderEngine with
         member _.Run(script: string) : Result<LigatureValue option, LigatureError> =

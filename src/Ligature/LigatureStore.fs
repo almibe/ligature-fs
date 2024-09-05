@@ -5,43 +5,40 @@
 module Ligature.LigatureStore
 
 open Ligature.Main
-open System
 open System.Collections.Generic
-open Ligature.InMemoryNetwork
 
-// type LigatureStore =
-//     abstract member networks: unit -> string seq
-//     abstract member addNetwork: string -> unit
-//     abstract member removeNetwork: string -> unit
-//     abstract member add: string -> Network -> Result<unit, LigatureError>
-//     abstract member remove: string -> Network -> Result<unit, LigatureError>
-//     abstract member read: string -> Network
+type LigatureStore =
+    abstract Networks: unit -> NetworkName seq
+    abstract AddNetwork: NetworkName -> unit
+    abstract RemoveNetwork: NetworkName -> unit
+    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Read: NetworkName -> Network
 
-// module InMemoryStore =
-//     type InMemoryStore(store: Dictionary<string, Set<Statement>>) =
-//         interface LigatureStore with
-//             member this.addNetwork networkName = store.Add(networkName, Set.empty)
+module InMemoryStore =
+    type InMemoryStore(store: Dictionary<NetworkName, Network>) =
+        interface LigatureStore with
+            member this.AddNetwork networkName = store.Add(networkName, Set.empty)
 
-//             member this.removeNetwork networkName = store.Remove(networkName) |> ignore
-//             member this.networks() = store.Keys
+            member this.RemoveNetwork networkName = store.Remove(networkName) |> ignore
+            member this.Networks() = store.Keys
 
-//             member this.add name network =
-//                 let oldNetwork = store.Item(name)
-//                 store.Remove(name) |> ignore
-//                 store.Add(name, (Set.union oldNetwork (network.Write())))
-//                 Ok(())
+            member this.Add name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name) |> ignore
+                store.Add(name, (Set.union oldNetwork network))
+                Ok(())
 
-//             member this.remove name network =
-//                 let oldNetwork = store.Item(name)
-//                 store.Remove(name) |> ignore
-//                 store.Add(name, (Set.difference oldNetwork (network.Write())))
-//                 Ok(())
+            member this.Remove name network =
+                let oldNetwork = store.Item(name)
+                store.Remove(name) |> ignore
+                store.Add(name, (Set.difference oldNetwork network))
+                Ok(())
 
-//             member this.read name =
-//                 let store = store.Item(name)
-//                 networkOf store
+            member this.Read name =
+                store.Item(name)
 
-//     let empty () : LigatureStore =
-//         InMemoryStore(new Dictionary<string, Set<Statement>>())
+    let empty () : LigatureStore =
+        InMemoryStore(new Dictionary<NetworkName, Set<Statement>>())
 
-//     let emptyNetwork: Network = networkOf (Set.empty)
+    let emptyNetwork: Network = Set.empty

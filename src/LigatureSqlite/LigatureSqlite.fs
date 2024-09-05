@@ -8,7 +8,6 @@ open Ligature.LigatureStore
 open System.Data
 open Microsoft.Data.Sqlite
 open Donald
-open Ligature.Serialization
 open Ligature.Wander.Main
 open Ligature.Wander.Model
 open Ligature.Wander.Interpreter
@@ -70,7 +69,7 @@ type LigatureSqlite(path: string) =
             | _ -> failwith "Error")
 
     interface LigatureStore with
-        member this.addNetwork networkName =
+        member this.AddNetwork networkName =
             store.addNetwork (networkName)
 
             conn

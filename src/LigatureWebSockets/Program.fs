@@ -20,7 +20,7 @@ open Ligature
 open Ligature.Wander.Main
 open Ligature.Wander.Interpreter
 open Ligature.Main
-open Ligature.Wander.Lib.Combinators
+open Ligature.Wander.Combinators
 
 let ws (webSocket: WebSocket) (context: HttpContext) =
     socket {
