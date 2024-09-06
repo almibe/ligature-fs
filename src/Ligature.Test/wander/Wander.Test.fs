@@ -9,6 +9,8 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
+open Ligature.InMemoryNetwork
+open Ligature.LigatureStore.InMemoryStore
 
 [<Tests>]
 let tests =
@@ -17,13 +19,14 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState)) ""
+              let result = run Map.empty emptyStore script
+              Expect.equal result (Ok None) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ], None)) ""
+              let result = run Map.empty emptyStore script
+              failwith "TODO"
+          //Expect.equal result (Ok(defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ], None)) ""
 
           testCase "Parse Network"
           <| fun _ ->
@@ -396,11 +399,12 @@ let tests =
           //           ))
           //           ""
 
-          testCase "Handle WhiteSpace"
-          <| fun _ ->
-              let script = "  \n     "
-              let result = run Map.empty defaultState script
-              Expect.equal result (Ok(defaultState)) ""
+          //   testCase "Handle WhiteSpace"
+          //   <| fun _ ->
+          //     failwith "TODO"
+          //   let script = "  \n     "
+          //   let result = run Map.empty emptyStore script
+          //   Expect.equal result (Ok(emptyStore)) ""
           //   testCase "Handle Multiple Values and White Space"
           //   <| fun _ ->
           //       let script = " 1  \n `a` \"hello\" \r\n  321 \n"

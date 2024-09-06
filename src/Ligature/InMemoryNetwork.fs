@@ -8,8 +8,6 @@ open Ligature.Main
 open System
 open System.Collections.Generic
 
-let emptyNetwork: Network = Set.empty
-
 let patternNameToLigatureValue (patternName: PatternName) : LigatureValue =
     match patternName with
     | PatternName.Name path -> LigatureValue.Name path

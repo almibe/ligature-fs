@@ -12,9 +12,9 @@ let idCombinator: Combinator =
       Doc = "Return the value passed."
       Signature = [ LigatureType.Any ], Some LigatureType.Any
       Eval =
-        fun _ name networks arguments ->
+        fun _ _ arguments ->
             match arguments with
-            | [ value ] -> Ok(name, networks, Some(value))
+            | [ value ] -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
 let setCombinator: Combinator =
@@ -22,31 +22,32 @@ let setCombinator: Combinator =
       Doc = "Set the value of a given Network."
       Signature = [ LigatureType.NetworkName; LigatureType.Network ], None
       Eval =
-        fun _ selected networks arguments ->
+        fun _ ligatureStore arguments ->
             match arguments with
             | [ LigatureValue.NetworkName(name); LigatureValue.Network(value) ] ->
-                let newNetworks = Map.add name value networks
-                Ok(selected, newNetworks, None)
+                // let newNetworks = Map.add name value networks
+                // Ok(selected, newNetworks, None)
+                failwith "TODO"
             | _ -> failwith "TODO" }
 
-let readCombinator: Combinator =
-    { Name = Name("read")
-      Doc = "Read the value of a given Network."
-      Signature = [ LigatureType.NetworkName ], Some LigatureType.Network
-      Eval =
-        fun _ selected networks arguments ->
-            match arguments with
-            | [ LigatureValue.NetworkName(name) ] ->
-                match Map.tryFind name networks with
-                | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
-                | _ -> failwith "TODO"
-            | _ -> failwith "TODO" }
+let readCombinator: Combinator = failwith "TODO"
+// { Name = Name("read")
+//   Doc = "Read the value of a given Network."
+//   Signature = [ LigatureType.NetworkName ], Some LigatureType.Network
+//   Eval =
+//     fun _ selected networks arguments ->
+//         match arguments with
+//         | [ LigatureValue.NetworkName(name) ] ->
+//             match Map.tryFind name networks with
+//             | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
+//             | _ -> failwith "TODO"
+//         | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
     { Name = Name("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
       Signature = [ LigatureType.Any ], None
-      Eval = fun _ name networks _ -> Ok(name, networks, None) }
+      Eval = fun _ networks _ -> Ok(None) }
 
 let printSignature ((arguments, result): LigatureType list * LigatureType option) : LigatureValue =
     LigatureValue.String($"{arguments} -> {result}")
@@ -70,8 +71,8 @@ let docsCombinator: Combinator =
       Doc = "Create a network that contains documentation for the available combinators."
       Signature = [], Some(LigatureType.Network)
       Eval =
-        fun combinators name networks _ ->
-            let mutable docs = emptyNetwork
+        fun combinators networks _ ->
+            let mutable docs = Set.empty
 
             Map.toList combinators
             |> List.iter (fun (name, combinator) ->
@@ -86,7 +87,7 @@ let docsCombinator: Combinator =
 
                 docs <- Set.add (PatternName.Name(name), PatternName.Name(Name("signature")), signature) docs)
 
-            Ok(name, networks, Some(LigatureValue.Network docs)) }
+            Ok(Some(LigatureValue.Network docs)) }
 
 let coreCombinators =
     (Map.ofList

@@ -10,15 +10,20 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run (combinators: Combinators) ((networkName, networks, _): State) (input: string) : Result<State, LigatureError> =
+let run
+    (combinators: Combinators)
+    (store: LigatureStore)
+    (input: string)
+    : Result<LigatureValue option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalElements combinators networkName networks
+            | Ok ast -> express ast [] |> evalElements combinators store
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
-    with x -> error $"Error running script. {x}" None
+    with x ->
+        error $"Error running script. {x}" None
 
 type Introspect =
     { tokens: Result<Token list, string>
@@ -44,23 +49,12 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-let printResult (result: Result<State, LigatureError>) =
-    match result with
-    | Ok(name, state, _) -> $"@{name} {printNetwork (currentNetwork name state)}"
-    | Error err -> err.UserMessage
-
-type WanderEngine =
-    abstract Run: script: string -> Result<LigatureValue option, LigatureError>
-
-type InMemoryWanderEngine(combinators: Combinators) =
-    let mutable combinators = combinators
-    let mutable state = defaultState
-
-    interface WanderEngine with
-        member _.Run(script: string) : Result<LigatureValue option, LigatureError> =
-            match run combinators state script with
-            | Ok res ->
-                state <- res
-                let (_, _, res) = res
-                Ok(res)
-            | Error err -> Error err
+type WanderEngine(combinators: Combinators, store: LigatureStore) =
+    member _.Run: script: string -> Result<LigatureValue option, LigatureError> =
+        failwith "TODO"
+// match run combinators state script with
+// | Ok res ->
+//     state <- res
+//     let (_, _, res) = res
+//     Ok(res)
+// | Error err -> Error err

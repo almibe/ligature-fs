@@ -61,22 +61,22 @@ let partialResultToJS (result: LigatureValue option) =
     | Some(value) -> valueToJS value
     | None -> createEmpty
 
-let stateToJS ((NetworkName(name), networks, partialResult): State) =
-    let res = createEmpty
-    let mutable resNetworks = []
-    res?name <- name
-    res?partialResult <- partialResultToJS partialResult
+let stateToJS ((NetworkName(name), networks, partialResult): State) = failwith "TODO"
+// let res = createEmpty
+// let mutable resNetworks = []
+// res?name <- name
+// res?partialResult <- partialResultToJS partialResult
 
-    Map.iter
-        (fun (NetworkName(name)) value ->
-            let networkRes = createEmpty
-            networkRes?name <- name
-            networkRes?network <- networkToJS value
-            resNetworks <- List.append resNetworks [ networkRes ])
-        networks
+// Map.iter
+//     (fun (NetworkName(name)) value ->
+//         let networkRes = createEmpty
+//         networkRes?name <- name
+//         networkRes?network <- networkToJS value
+//         resNetworks <- List.append resNetworks [ networkRes ])
+//     networks
 
-    res?networks <- List.toArray resNetworks
-    res
+// res?networks <- List.toArray resNetworks
+// res
 
 let newEngine () =
     let wanderEngine: WanderEngine = new InMemoryWanderEngine(stdCombinators)

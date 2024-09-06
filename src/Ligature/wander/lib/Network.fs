@@ -9,30 +9,30 @@ open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
 open FSharpPlus
 
-let chompCombinator =
-    { Name = Name("chomp")
-      Doc = "Merge the passed Network into the current working Network."
-      Signature = [ LigatureType.Network ], None
-      Eval =
-        fun _ selected networks (arguments: Arguments) ->
-            match arguments with
-            | [ LigatureValue.Network(input) ] ->
-                let currentNetwork = currentNetwork selected networks
-                let newNetwork = Set.union input currentNetwork
-                let newNetworks = Map.add selected newNetwork networks
-                Ok(selected, newNetworks, None)
-            | _ -> error "Bad call to chomp." None }
+let chompCombinator = failwith "TODO"
+// { Name = Name("chomp")
+//   Doc = "Merge the passed Network into the current working Network."
+//   Signature = [ LigatureType.Network ], None
+//   Eval =
+//     fun _ selected networks (arguments: Arguments) ->
+//         match arguments with
+//         | [ LigatureValue.Network(input) ] ->
+//             let currentNetwork = currentNetwork selected networks
+//             let newNetwork = Set.union input currentNetwork
+//             let newNetworks = Map.add selected newNetwork networks
+//             Ok(selected, newNetworks, None)
+//         | _ -> error "Bad call to chomp." None }
 
 let unionCombinator =
     { Name = Name("union")
       Doc = "Find the union of two Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
-        fun _ networkName networks (arguments: Arguments) ->
+        fun _ networks (arguments: Arguments) ->
             match arguments with
             | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
                 let result = Set.union left right |> LigatureValue.Network
-                Ok(networkName, networks, Some(result))
+                Ok(Some(result))
             | _ -> failwith "TODO" }
 
 let minusCombinator =
@@ -40,11 +40,11 @@ let minusCombinator =
       Doc = "Remove all Statements from the first Network that are in the second Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
-        fun _ networkName networks (arguments: Arguments) ->
+        fun _ networks (arguments: Arguments) ->
             match arguments with
             | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
                 let result = Set.difference left right |> LigatureValue.Network
-                Ok(networkName, networks, Some(result))
+                Ok(Some(result))
             | _ -> failwith "TODO" }
 
 let lookupNetwork () = failwith "TODO"
@@ -89,7 +89,7 @@ let applyCombinator: Combinator =
       Doc = ""
       Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
       Eval =
-        fun combinators networkName networks arguments ->
+        fun combinators networks arguments ->
             match arguments with
             | [ LigatureValue.Network(template); LigatureValue.Quote(data) ] ->
                 List.map
@@ -99,7 +99,7 @@ let applyCombinator: Combinator =
                         | _ -> failwith "TODO")
                     data
                 |> LigatureValue.Quote
-                |> fun value -> Ok(networkName, networks, Some(value))
+                |> fun value -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
 let matchCombinator =
@@ -107,13 +107,11 @@ let matchCombinator =
       Doc = "args: pattern data, returns: quote of networks"
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
       Eval =
-        fun _ networkName networks arguments ->
-            let currentNetwork = currentNetwork networkName networks
-
+        fun _ networks arguments ->
             match arguments with
             | [ LigatureValue.Network(pattern); LigatureValue.Network(data) ] ->
                 let res = matchNetwork pattern data
-                Ok(networkName, networks, Some(res))
+                Ok(Some(res))
             | _ -> error "" None }
 
 let queryCombinator =
@@ -121,22 +119,20 @@ let queryCombinator =
       Doc = "arguments: pattern template data, returns network"
       Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
-        fun combinators networkName networks arguments ->
-            let currentNetwork = currentNetwork networkName networks
+        fun combinators networks arguments ->
+            let currentNetwork = currentNetwork networks
 
             match arguments with
             | [ LigatureValue.Network pattern; LigatureValue.Network template; LigatureValue.Network data ] ->
                 match
                     matchCombinator.Eval
                         combinators
-                        networkName
                         networks
                         [ LigatureValue.Network pattern; LigatureValue.Network data ]
                 with
-                | Ok(_, _, Some(LigatureValue.Quote(res))) ->
+                | Ok(Some(LigatureValue.Quote(res))) ->
                     applyCombinator.Eval
                         combinators
-                        networkName
                         networks
                         [ LigatureValue.Network template; LigatureValue.Quote res ]
                 | _ -> failwith "TODO"

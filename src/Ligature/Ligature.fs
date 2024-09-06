@@ -79,7 +79,6 @@ type NetworkName = NetworkName of string
 
 and [<RequireQualifiedAccessAttribute>] Command =
     | Expression of Expression
-    | NetworkName of NetworkName
     | Network of Network
 
 and Quote = LigatureValue list
@@ -106,7 +105,7 @@ and Combinator =
     { Name: Name
       Doc: string
       Signature: LigatureType list * LigatureType option
-      Eval: Combinators -> NetworkName -> Networks -> Arguments -> Result<State, LigatureError> }
+      Eval: Combinators -> LigatureStore -> Arguments -> Result<LigatureValue option, LigatureError> }
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
     | Slot of Slot
@@ -127,23 +126,23 @@ and Statement = (PatternName * PatternName * LigatureValue)
 
 and Network = Set<Statement>
 
-and Networks = Map<NetworkName, Network>
-
-and State = NetworkName * Networks * LigatureValue option
+//and Networks = Map<NetworkName, Network>
+and LigatureStore =
+    abstract Networks: unit -> NetworkName seq
+    abstract AddNetwork: NetworkName -> unit
+    abstract RemoveNetwork: NetworkName -> unit
+    abstract ClearNetwork: NetworkName -> unit
+    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Query: NetworkName -> Network -> Network
 
 let defaultNetwork = NetworkName("")
 
-let defaultState: State = defaultNetwork, Map.empty, None
-
-let readNetwork (name: NetworkName) ((_, networks, _): State) : Network =
-    match Map.tryFind name networks with
-    | Some res -> res
-    | None -> Set.empty
-
-let currentNetwork name networks : Network =
-    match Map.tryFind name networks with
-    | Some res -> res
-    | None -> Set.empty
+let currentNetwork name networks : Network = failwith "TODO"
+// match Map.tryFind name networks with
+// | Some res -> res
+// | None -> Set.empty
 
 let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
     let res =

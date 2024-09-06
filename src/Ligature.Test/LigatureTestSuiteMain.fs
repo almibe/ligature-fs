@@ -12,6 +12,7 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.Wander.Model
 open Ligature.Wander.Combinators
+open LigatureStore.InMemoryStore
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -37,8 +38,8 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCombinators defaultState script with
-                | Ok(_) -> ()
+                match run stdCombinators emptyStore script with
+                | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"

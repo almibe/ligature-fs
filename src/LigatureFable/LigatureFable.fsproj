@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Fable.Browser.IndexedDB" Version="2.2.0" />
+  </ItemGroup>
+
 </Project>

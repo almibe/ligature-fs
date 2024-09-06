@@ -42,7 +42,7 @@ let networkNameNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.NetworkName(name)) -> Ok(Command.NetworkName(NetworkName(name)))
+            | Ok(Token.NetworkName(name)) -> failwith "TODO" //Ok(Command.NetworkName(NetworkName(name)))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -274,5 +274,5 @@ let rec express (elements: LigatureValue list) (expressions: Command list) : Com
         match head with
         | LigatureValue.Network n -> express tail (List.append expressions [ Command.Network n ])
         | LigatureValue.Expression e -> express tail (List.append expressions [ expressExpression e ])
-        | LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
+        //| LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
         | _ -> failwith "Error - unexpected token."

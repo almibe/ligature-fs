@@ -12,12 +12,12 @@ let notFunction =
       Doc = "Boolean not"
       Signature = [ LigatureType.Name ], Some(LigatureType.Name)
       Eval =
-        (fun _ name networks args ->
+        (fun _ _ args ->
             match args with
             | [ LigatureValue.Name(value) ] ->
                 match value with
-                | Name("true") -> Ok(name, networks, Some(LigatureValue.Name(Name("false"))))
-                | Name("false") -> Ok(name, networks, Some(LigatureValue.Name(Name("true"))))
+                | Name("true") -> Ok(Some(LigatureValue.Name(Name("false"))))
+                | Name("false") -> Ok(Some(LigatureValue.Name(Name("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 
