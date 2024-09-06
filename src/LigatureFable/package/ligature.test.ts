@@ -1,8 +1,8 @@
-import { run, newEngine, printNetwork } from "./lib/ligature.js"
-import { glob } from "glob"
-import fs from 'node:fs'
+import { newEngine } from "./lib/ligature.js"
+// import { glob } from "glob"
+// import fs from 'node:fs'
 import { expect, test } from 'vitest'
-import { stateToJS } from "../Ligature.fs.js"
+// import { stateToJS } from "../Ligature.fs.js"
 
 // const dir = process.env.LIGATURE_TEST_SUITE + "/wander/*.wander"
 // const wanderFiles = await glob(dir)
@@ -18,55 +18,20 @@ import { stateToJS } from "../Ligature.fs.js"
 
 test("Empty Network", () => {
     let engine = newEngine()
-    let id = engine.run("{}")
-    expect(engine.readResult(id)).toEqual({})
+    expect(engine.run("{}")).toEqual({})
 })
 
 test("Eval Networks", () => {
     let engine = newEngine()
-    let id = engine.run("{a b c}")
-    expect(engine.readResult(id))
-        .toEqual({})
-        // .toEqual({
-        //     name: "", 
-        //     networks: [{name: "", network: 
-        //         [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}],
-        //     partialResult: {}
-        // })
+    expect(engine.run("{a b c}")).toEqual({})
 })
 
-// test("Eval Named Network", () => {
-//     let engine = newEngine()
-//     expect(engine.run("@test {a b c}"))
-//         .toEqual({name: "test", networks: [{
-//             name: "test", 
-//             network: 
-//                 [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}],
-//             partialResult: {}
-//         })
-// })
-
-// test("Test listeners", () => {
-//     let engine = newEngine()
-//     engine.addListener((state) => {
-//         expect(state)
-//         .toEqual({
-//             name: "test", 
-//             networks: [{name: "test", network: 
-//                 [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}],
-//             partialResult: {}
-//         })
-//     })
-//     engine.run("@test {a b c}")
-// })
-
-test("Test parital result", () => {
+test("Eval Named Network", () => {
     let engine = newEngine()
-    let id = engine.run("@test {a b c} @ (read @test)")
-    expect(engine.readResult(id))
-        .toEqual(
-            { network: [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]] }
-        )
+    expect(engine.run("test {a b c} (read test)"))
+        .toEqual({
+            network: 
+                [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]})
 })
 
 // test("Test match", () => {

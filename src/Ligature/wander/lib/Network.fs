@@ -5,9 +5,7 @@
 module Ligature.Wander.Lib.Network
 
 open Ligature.Main
-open Ligature.InMemoryNetwork
-open Ligature.Wander.Interpreter
-open FSharpPlus
+open Ligature.LigatureStore
 
 let chompCombinator =
     { Name = Name("chomp")

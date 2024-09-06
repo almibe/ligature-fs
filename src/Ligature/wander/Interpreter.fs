@@ -5,7 +5,6 @@
 module Ligature.Wander.Interpreter
 
 open Ligature.Main
-open Ligature.InMemoryNetwork
 
 //let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<LigatureValue, LigatureError> = Ok(networks)
 

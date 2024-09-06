@@ -50,11 +50,4 @@ let introspect (input: string) =
           expressions = Error(string err) }
 
 type WanderEngine(combinators: Combinators, store: LigatureStore) =
-    member _.Run: script: string -> Result<LigatureValue option, LigatureError> =
-        failwith "TODO"
-// match run combinators state script with
-// | Ok res ->
-//     state <- res
-//     let (_, _, res) = res
-//     Ok(res)
-// | Error err -> Error err
+    member _.Run(script) = run combinators store script

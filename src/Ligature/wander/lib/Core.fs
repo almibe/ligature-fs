@@ -5,7 +5,6 @@
 module Ligature.Wander.Lib.Core
 
 open Ligature.Main
-open Ligature.InMemoryNetwork
 
 let idCombinator: Combinator =
     { Name = Name("id")

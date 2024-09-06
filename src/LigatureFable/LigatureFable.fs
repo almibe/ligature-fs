@@ -6,6 +6,8 @@ open Ligature.Main
 open Ligature.Wander.Combinators
 open Ligature.Wander.Main
 open Fable.Core.JsInterop
+open Ligature.LigatureStore.InMemoryStore
+open System.Collections.Generic
 
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
@@ -45,7 +47,6 @@ and valueToJS (v: LigatureValue) =
     match v with
     | LigatureValue.Bytes b -> failwith "TODO"
     | LigatureValue.Int i -> value?int <- i
-    | LigatureValue.NetworkName n -> value?networkName <- $"@{n}"
     | LigatureValue.Quote q -> value?quote <- quoteToJS (q)
     | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
     | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
@@ -61,7 +62,7 @@ let partialResultToJS (result: LigatureValue option) =
     | Some(value) -> valueToJS value
     | None -> createEmpty
 
-let stateToJS ((NetworkName(name), networks, partialResult): State) = failwith "TODO"
+//let stateToJS ((NetworkName(name), networks, partialResult): State) = failwith "TODO"
 // let res = createEmpty
 // let mutable resNetworks = []
 // res?name <- name
@@ -79,7 +80,7 @@ let stateToJS ((NetworkName(name), networks, partialResult): State) = failwith "
 // res
 
 let newEngine () =
-    let wanderEngine: WanderEngine = new InMemoryWanderEngine(stdCombinators)
+    let wanderEngine: WanderEngine = new WanderEngine(stdCombinators, emptyStore)
     let engine = createEmpty
 
     engine?run <-
@@ -87,6 +88,9 @@ let newEngine () =
             match wanderEngine.Run script with
             | Ok(Some(res)) -> valueToJS res
             | Ok _ -> createEmpty
-            | _ -> failwith "TODO"
+            | Error err ->
+                let res = createEmpty
+                res?error <- err.UserMessage
+                res
 
     engine
