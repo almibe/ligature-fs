@@ -38,13 +38,13 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let networkNameNib (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.NetworkName(name)) -> failwith "TODO" //Ok(Command.NetworkName(NetworkName(name)))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
+// let networkNameNib (gaze: Gaze.Gaze<Token>) =
+//     Gaze.attempt
+//         (fun gaze ->
+//             match Gaze.next gaze with
+//             | Ok(Token.NetworkName(name)) -> failwith "TODO" //Ok(Command.NetworkName(NetworkName(name)))
+//             | _ -> Error(Gaze.GazeError.NoMatch))
+//         gaze
 
 // let readNameStr (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 //     let next = Gaze.next gaze
@@ -60,14 +60,6 @@ let readName (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     match next with
     | Error(err) -> Error err
     | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
-    | _ -> Error(Gaze.GazeError.NoMatch)
-
-let readNetworkName (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Error(err) -> Error err
-    | Ok(Token.NetworkName(value)) -> Ok(LigatureValue.NetworkName(NetworkName(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readInteger (gaze: Gaze.Gaze<Token>) =
@@ -143,7 +135,6 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeErr
     | Ok(Token.Int(value)) -> Ok(LigatureValue.Int value)
     | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
     | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
-    | Ok(Token.NetworkName(value)) -> Ok(LigatureValue.NetworkName(NetworkName(value)))
     | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.String value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -185,7 +176,7 @@ let readSlot (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
 
 //let patternNib = takeFirst [ networkNib ]
 
-let elementNib = takeFirst [ expressionNib; networkNib; readNetworkName ]
+let elementNib = takeFirst [ expressionNib; networkNib ]
 
 let scriptNib = repeat valueNib
 
@@ -231,7 +222,6 @@ let parseString (input: string) =
 //     | LigatureValue.Slot s -> LigatureValue.Slot s
 //     | LigatureValue.String s -> LigatureValue.String s
 //     | LigatureValue.Name n -> LigatureValue.Name(Name n)
-//     | LigatureValue.NetworkName n -> LigatureValue.NetworkName(NetworkName(n))
 
 // let handleQuote (quote: LigatureValue list) : LigatureValue =
 //     List.map (fun element -> elementToValue element) quote |> LigatureValue.Quote

@@ -46,7 +46,6 @@ and evalElement
     : Result<LigatureValue option, LigatureError> =
     match element with
     | Command.Network network -> evalNetwork store network
-    //| Command.NetworkName name -> evalNetworkName networks name
     | Command.Expression expression -> evalExpression combinators store expression
 
 and evalElements
@@ -70,6 +69,5 @@ and evalExpression
     match expression with
     | [] -> Ok(None)
     | [ LigatureValue.Name(name) ] -> evalName combinators store [] name
-    | [ LigatureValue.NetworkName(name) ] -> failwith "TODO" //evalNetworkName store name
     | LigatureValue.Name(name) :: tail -> evalName combinators store tail name
     | _ -> error "Invalid Quote." None

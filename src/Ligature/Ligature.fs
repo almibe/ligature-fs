@@ -35,8 +35,6 @@ type Slot = Slot of string option
 
 type Name = Name of string
 
-type NetworkName = NetworkName of string
-
 // type Slot = private Slot of string option
 //     member _.Named = name.IsSome
 
@@ -96,7 +94,6 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Name
     | Slot
     | Network
-    | NetworkName
     | Quote
     | Expression
     | Any
@@ -114,7 +111,6 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
     | Name of Name
-    | NetworkName of NetworkName
     | String of string
     | Int of bigint
     | Bytes of byte array
@@ -126,18 +122,17 @@ and Statement = (PatternName * PatternName * LigatureValue)
 
 and Network = Set<Statement>
 
-//and Networks = Map<NetworkName, Network>
 and LigatureStore =
-    abstract Networks: unit -> NetworkName seq
-    abstract AddNetwork: NetworkName -> unit
-    abstract RemoveNetwork: NetworkName -> unit
-    abstract ClearNetwork: NetworkName -> unit
-    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Query: NetworkName -> Network -> Network
+    abstract Networks: unit -> Name seq
+    abstract AddNetwork: Name -> unit
+    abstract RemoveNetwork: Name -> unit
+    abstract ClearNetwork: Name -> unit
+    abstract Add: Name -> Network -> Result<unit, LigatureError>
+    abstract Set: Name -> Network -> Result<unit, LigatureError>
+    abstract Remove: Name -> Network -> Result<unit, LigatureError>
+    abstract Query: Name -> Network -> Network
 
-let defaultNetwork = NetworkName("")
+let defaultNetwork = Name("")
 
 let currentNetwork name networks : Network = failwith "TODO"
 // match Map.tryFind name networks with

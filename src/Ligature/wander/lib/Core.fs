@@ -20,11 +20,11 @@ let idCombinator: Combinator =
 let setCombinator: Combinator =
     { Name = Name("set")
       Doc = "Set the value of a given Network."
-      Signature = [ LigatureType.NetworkName; LigatureType.Network ], None
+      Signature = [ LigatureType.Name; LigatureType.Network ], None
       Eval =
         fun _ ligatureStore arguments ->
             match arguments with
-            | [ LigatureValue.NetworkName(name); LigatureValue.Network(value) ] ->
+            | [ LigatureValue.Name(name); LigatureValue.Network(value) ] ->
                 // let newNetworks = Map.add name value networks
                 // Ok(selected, newNetworks, None)
                 failwith "TODO"

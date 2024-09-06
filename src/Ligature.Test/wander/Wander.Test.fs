@@ -50,7 +50,7 @@ let tests =
 
           testCase "Parse Named Network"
           <| fun _ ->
-              let script = "@name {a b c}"
+              let script = "name {a b c}"
 
               match tokenize script with
               | Ok(res) ->
@@ -58,7 +58,7 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ LigatureValue.NetworkName(NetworkName("name"))
+                          [ LigatureValue.Name(Name("name"))
                             LigatureValue.Network(
                                 Set.ofList
                                     [ PatternName.Name(Name("a")),
