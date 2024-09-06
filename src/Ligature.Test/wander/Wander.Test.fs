@@ -25,8 +25,7 @@ let tests =
           <| fun _ ->
               let script = "{}"
               let result = run Map.empty emptyStore script
-              failwith "TODO"
-          //Expect.equal result (Ok(defaultNetwork, Map.ofList [ defaultNetwork, Set.empty ], None)) ""
+              Expect.equal result (Ok None) ""
 
           testCase "Parse Network"
           <| fun _ ->

@@ -9,19 +9,20 @@ open Ligature.InMemoryNetwork
 open Ligature.Wander.Interpreter
 open FSharpPlus
 
-let chompCombinator = failwith "TODO"
-// { Name = Name("chomp")
-//   Doc = "Merge the passed Network into the current working Network."
-//   Signature = [ LigatureType.Network ], None
-//   Eval =
-//     fun _ selected networks (arguments: Arguments) ->
-//         match arguments with
-//         | [ LigatureValue.Network(input) ] ->
-//             let currentNetwork = currentNetwork selected networks
-//             let newNetwork = Set.union input currentNetwork
-//             let newNetworks = Map.add selected newNetwork networks
-//             Ok(selected, newNetworks, None)
-//         | _ -> error "Bad call to chomp." None }
+let chompCombinator =
+    { Name = Name("chomp")
+      Doc = "Merge the passed Network into the current working Network."
+      Signature = [ LigatureType.Network ], None
+      Eval =
+        fun _ networks (arguments: Arguments) ->
+            match arguments with
+            | [ LigatureValue.Network(input) ] ->
+                // let currentNetwork = currentNetwork networks
+                // let newNetwork = Set.union input currentNetwork
+                // let newNetworks = Map.add selected newNetwork networks
+                // Ok(selected, newNetworks, None)
+                failwith "TODO"
+            | _ -> error "Bad call to chomp." None }
 
 let unionCombinator =
     { Name = Name("union")

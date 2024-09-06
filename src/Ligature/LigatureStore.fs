@@ -10,27 +10,36 @@ open System.Collections.Generic
 module InMemoryStore =
     type InMemoryStore(store: Dictionary<Name, Network>) =
         interface LigatureStore with
-            member this.AddNetwork networkName = store.Add(networkName, Set.empty)
+            member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 
-            member this.RemoveNetwork networkName = store.Remove(networkName) |> ignore
-            member this.Networks() = store.Keys
+            member _.RemoveNetwork networkName = store.Remove(networkName) |> ignore
+            member _.Networks() = store.Keys
 
-            member this.Add name network =
-                let oldNetwork = store.Item(name)
-                store.Remove(name) |> ignore
-                store.Add(name, (Set.union oldNetwork network))
-                Ok(())
+            member _.Add name network =
+                match store.TryGetValue name with
+                | (true, network) ->
+                    let oldNetwork = store.Item(name)
+                    store.Remove(name) |> ignore
+                    store.Add(name, (Set.union oldNetwork network))
+                    Ok(())
+                | (false, _) ->
+                    store.Add(name, network)
+                    Ok(())
 
-            member this.Remove name network =
+            member _.Remove name network =
                 let oldNetwork = store.Item(name)
                 store.Remove(name) |> ignore
                 store.Add(name, (Set.difference oldNetwork network))
                 Ok(())
 
-            member this.Query name network = failwith "TODO"
-            member this.ClearNetwork(arg1: Name) : unit = failwith "Not Implemented"
+            member _.Read name = store.Item(name)
 
-            member this.Set (arg1: Name) (arg2: Network) : Result<unit, LigatureError> = failwith "Not Implemented"
+            member _.Query name network = failwith "TODO"
+            member _.ClearNetwork(arg1: Name) : unit = failwith "Not Implemented"
+
+            member _.Set name network : Result<unit, LigatureError> =
+                store.Add(name, network) |> ignore
+                Ok(())
     //                store.Item(name)
 
     let emptyStore: LigatureStore =

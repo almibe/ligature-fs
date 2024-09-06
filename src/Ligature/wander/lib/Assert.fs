@@ -11,34 +11,35 @@ let assertEqualCombinator: Combinator =
     { Name = Name "assert-equal"
       Doc = "Check that two values are equal."
       Signature = [ LigatureType.Any; LigatureType.Any ], None
-      Eval = fun (combinators: Combinators) networks (arguments: Arguments) -> failwith "TODO"
-    // match arguments with
-    // | [ first; second ] ->
-    //     let first =
-    //         match first with
-    //         | LigatureValue.Expression e ->
-    //             match evalExpression combinators networks e with
-    //             | Ok(Some(res)) -> res
-    //             | Ok _ -> failwith "Invalid first expression passed to assert-equal."
-    //             | Error err -> failwith $"Expression errored: {err.UserMessage}."
-    //         | _ -> first
+      Eval =
+        fun (combinators: Combinators) networks (arguments: Arguments) ->
+            match arguments with
+            | [ first; second ] ->
+                let first =
+                    match first with
+                    | LigatureValue.Expression e ->
+                        match evalExpression combinators networks e with
+                        | Ok(Some(res)) -> res
+                        | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+                        | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                    | _ -> first
 
-    //     let second =
-    //         match second with
-    //         | LigatureValue.Expression e ->
-    //             match evalExpression combinators networks e with
-    //             | Ok res -> res
-    //             | Error err -> failwith $"Expression errored: {err.UserMessage}."
-    //         | _ -> second
+                let second =
+                    match second with
+                    | LigatureValue.Expression e ->
+                        match evalExpression combinators networks e with
+                        | Ok(Some(res)) -> res
+                        | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+                        | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                    | _ -> second
 
-    //     if first = second then
-    //         Ok(Some(LigatureValue.String("Sucess!")))
-    //     else
-    //         error
-    //             $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"
-    //             None
-    // | args -> error $"assert-equal passed illegal arguments - {args}" None }
-    }
+                if first = second then
+                    Ok(Some(LigatureValue.String("Sucess!")))
+                else
+                    error
+                        $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"
+                        None
+            | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 let assertCombinators =
     Map.ofList [ (assertEqualCombinator.Name, (assertEqualCombinator)) ]

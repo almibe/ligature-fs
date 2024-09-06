@@ -75,9 +75,9 @@ type Name = Name of string
 //     | Ok(slot) -> slot
 //     | Error(_) -> failwith "Error"
 
-and [<RequireQualifiedAccessAttribute>] Command =
+and [<RequireQualifiedAccessAttribute>] Element =
     | Expression of Expression
-    | Network of Network
+    | Network of Name * Network
 
 and Quote = LigatureValue list
 
@@ -131,6 +131,7 @@ and LigatureStore =
     abstract Set: Name -> Network -> Result<unit, LigatureError>
     abstract Remove: Name -> Network -> Result<unit, LigatureError>
     abstract Query: Name -> Network -> Network
+    abstract Read: Name -> Network
 
 let defaultNetwork = Name("")
 

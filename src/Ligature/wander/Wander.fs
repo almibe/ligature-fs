@@ -27,8 +27,8 @@ let run
 
 type Introspect =
     { tokens: Result<Token list, string>
-      elements: Result<Command list, string>
-      expressions: Result<Command list, string> }
+      elements: Result<Element list, string>
+      expressions: Result<Element list, string> }
 
 let introspect (input: string) =
     match tokenize input with

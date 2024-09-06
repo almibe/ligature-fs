@@ -22,26 +22,27 @@ let setCombinator: Combinator =
       Doc = "Set the value of a given Network."
       Signature = [ LigatureType.Name; LigatureType.Network ], None
       Eval =
-        fun _ ligatureStore arguments ->
+        fun _ store arguments ->
             match arguments with
             | [ LigatureValue.Name(name); LigatureValue.Network(value) ] ->
-                // let newNetworks = Map.add name value networks
-                // Ok(selected, newNetworks, None)
-                failwith "TODO"
+                store.Set name value |> ignore
+                Ok(None)
             | _ -> failwith "TODO" }
 
-let readCombinator: Combinator = failwith "TODO"
-// { Name = Name("read")
-//   Doc = "Read the value of a given Network."
-//   Signature = [ LigatureType.NetworkName ], Some LigatureType.Network
-//   Eval =
-//     fun _ selected networks arguments ->
-//         match arguments with
-//         | [ LigatureValue.NetworkName(name) ] ->
-//             match Map.tryFind name networks with
-//             | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
-//             | _ -> failwith "TODO"
-//         | _ -> failwith "TODO" }
+let readCombinator: Combinator =
+    { Name = Name("read")
+      Doc = "Read the value of a given Network."
+      Signature = [ LigatureType.Name ], Some LigatureType.Network
+      Eval =
+        fun _ store arguments ->
+            match arguments with
+            | [ LigatureValue.Name(name) ] ->
+                let network = LigatureValue.Network(store.Read name)
+                Ok(Some(network))
+            // match Map.tryFind name networks with
+            // | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
+            // | _ -> failwith "TODO"
+            | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
     { Name = Name("ignore")

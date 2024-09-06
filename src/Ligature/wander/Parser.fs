@@ -253,16 +253,17 @@ let elementTupleToStatement
 
     (entity, attribute, value)
 
-let expressExpression (elements: LigatureValue list) : Command =
+let expressExpression (elements: LigatureValue list) : Element =
     //    let res = List.map (fun element -> elementToValue element) elements
-    Command.Expression elements
+    Element.Expression elements
 
-let rec express (elements: LigatureValue list) (expressions: Command list) : Command list =
+let rec express (elements: LigatureValue list) (expressions: Element list) : Element list =
     match elements with
     | [] -> expressions
-    | head :: tail ->
-        match head with
-        | LigatureValue.Network n -> express tail (List.append expressions [ Command.Network n ])
-        | LigatureValue.Expression e -> express tail (List.append expressions [ expressExpression e ])
-        //| LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
-        | _ -> failwith "Error - unexpected token."
+    | LigatureValue.Network(network) :: tail ->
+        express tail (List.append expressions [ Element.Network(defaultNetwork, network) ])
+    | LigatureValue.Name(name) :: LigatureValue.Network(network) :: tail ->
+        express tail (List.append expressions [ Element.Network(name, network) ])
+    | LigatureValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
+    //| LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
+    | _ -> failwith "Error - unexpected token."

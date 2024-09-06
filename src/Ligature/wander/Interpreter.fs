@@ -9,12 +9,12 @@ open Ligature.InMemoryNetwork
 
 //let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<LigatureValue, LigatureError> = Ok(networks)
 
-let evalNetwork (store: LigatureStore) (network: Network) : Result<LigatureValue option, LigatureError> =
-    failwith "TODO"
-// let currentNetwork = currentNetwork name networks
+let evalNetwork (store: LigatureStore) (name: Name) (network: Network) : Result<LigatureValue option, LigatureError> =
+    store.Add name network |> ignore
+    Ok None
 // let newNetwork = Set.union currentNetwork (network)
 // let newNetworks = Map.add name newNetwork networks
-// Ok(name, newNetworks, None)
+// Ok None
 
 let rec evalName
     (combinators: Combinators)
@@ -28,37 +28,37 @@ let rec evalName
     | Some(combinator) -> combinator.Eval combinators networks newArguments
     | None -> error $"Could not find name {name}" None
 
-and processArguments combinators networks (arguments: LigatureValue list) : LigatureValue list = failwith "TODO"
-// List.map
-//     (fun argument ->
-//         match argument with
-//         | LigatureValue.Expression e ->
-//             match evalExpression combinators networkName networks e with
-//             | Ok(_, _, Some(value)) -> value
-//             | _ -> LigatureValue.Network emptyNetwork
-//         | value -> value)
-//     arguments
+and processArguments combinators networks (arguments: LigatureValue list) : LigatureValue list =
+    List.map
+        (fun argument ->
+            match argument with
+            | LigatureValue.Expression e ->
+                match evalExpression combinators networks e with
+                | Ok(Some(value)) -> value
+                | _ -> LigatureValue.Network Set.empty
+            | value -> value)
+        arguments
 
 and evalElement
     (combinators: Combinators)
     (store: LigatureStore)
-    (element: Command)
+    (element: Element)
     : Result<LigatureValue option, LigatureError> =
     match element with
-    | Command.Network network -> evalNetwork store network
-    | Command.Expression expression -> evalExpression combinators store expression
+    | Element.Network(name, network) -> evalNetwork store name network
+    | Element.Expression expression -> evalExpression combinators store expression
 
 and evalElements
     (combinators: Combinators)
-    networks
-    (elements: Command list)
+    store
+    (elements: Element list)
     : Result<LigatureValue option, LigatureError> =
     match elements with
     | [] -> Ok(None)
-    | [ head ] -> evalElement combinators networks head
+    | [ head ] -> evalElement combinators store head
     | head :: tail ->
-        match evalElement combinators networks head with
-        | Ok(value) -> failwith "TODO" //evalElements combinators resName resNetworks tail
+        match evalElement combinators store head with
+        | Ok(value) -> evalElements combinators store tail
         | Error(err) -> Error(err)
 
 and evalExpression
