@@ -6,7 +6,6 @@ module Ligature.Wander.Serialization.Test
 
 open Expecto
 open Ligature.Main
-open Ligature.InMemoryNetwork
 
 // let ident id =
 //     match identifier id with

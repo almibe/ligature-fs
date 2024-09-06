@@ -6,7 +6,7 @@ module Ligature.Wander.InMemoryNetwork.Test
 
 open Expecto
 open Ligature.Main
-open Ligature.InMemoryNetwork
+open Ligature.LigatureStore
 
 [<Tests>]
 let tests =

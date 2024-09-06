@@ -9,7 +9,6 @@ open Ligature.Wander.Main
 open Ligature.Main
 open Ligature.Wander.Lexer
 open Ligature.Wander.Parser
-open Ligature.InMemoryNetwork
 open Ligature.LigatureStore.InMemoryStore
 
 [<Tests>]
