@@ -118,6 +118,7 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> 
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(LigatureValue.Symbol(value))
     | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
+    | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
