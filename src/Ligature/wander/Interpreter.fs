@@ -8,22 +8,22 @@ open Ligature.Main
 
 //let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<LigatureValue, LigatureError> = Ok(networks)
 
-let evalNetwork (store: LigatureStore) (name: Name) (network: Network) : Result<LigatureValue option, LigatureError> =
+let evalNetwork (store: LigatureStore) (name: Symbol) (network: Network) : Result<LigatureValue option, LigatureError> =
     store.Add name network |> ignore
     Ok None
 // let newNetwork = Set.union currentNetwork (network)
 // let newNetworks = Map.add name newNetwork networks
 // Ok None
 
-let rec evalName
+let rec evalSymbol
     (combinators: Combinators)
     networks
     (arguments: LigatureValue list)
-    (Name(name))
+    (Symbol(name))
     : Result<LigatureValue option, LigatureError> =
     let newArguments = processArguments combinators networks arguments
 
-    match combinators.TryFind(Name(name)) with
+    match combinators.TryFind(Symbol(name)) with
     | Some(combinator) -> combinator.Eval combinators networks newArguments
     | None -> error $"Could not find name {name}" None
 
@@ -67,6 +67,6 @@ and evalExpression
     : Result<LigatureValue option, LigatureError> =
     match expression with
     | [] -> Ok(None)
-    | [ LigatureValue.Name(name) ] -> evalName combinators store [] name
-    | LigatureValue.Name(name) :: tail -> evalName combinators store tail name
+    | [ LigatureValue.Symbol(name) ] -> evalSymbol combinators store [] name
+    | LigatureValue.Symbol(name) :: tail -> evalSymbol combinators store tail name
     | _ -> error "Invalid Quote." None

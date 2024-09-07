@@ -8,7 +8,7 @@ open Ligature.Main
 open Ligature.LigatureStore
 
 let chompCombinator =
-    { Name = Name("chomp")
+    { Name = Symbol("chomp")
       Doc = "Merge the passed Network into the current working Network."
       Signature = [ LigatureType.Network ], None
       Eval =
@@ -23,7 +23,7 @@ let chompCombinator =
             | _ -> error "Bad call to chomp." None }
 
 let unionCombinator =
-    { Name = Name("union")
+    { Name = Symbol("union")
       Doc = "Find the union of two Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
@@ -35,7 +35,7 @@ let unionCombinator =
             | _ -> failwith "TODO" }
 
 let minusCombinator =
-    { Name = Name("minus")
+    { Name = Symbol("minus")
       Doc = "Remove all Statements from the first Network that are in the second Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
@@ -53,28 +53,28 @@ let applyNetwork (template: Network) (data: Network) : Network =
         (fun ((e, a, v)) ->
             let entity =
                 match e with
-                | PatternName.Slot s ->
-                    match readBinding (PatternName.Slot s) data with
-                    | Some(LigatureValue.Name(i)) -> PatternName.Name i
-                    | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-                    | Some _ -> failwith "TODO - unexpected value - only Slots or Names are allowed"
-                    | None -> PatternName.Slot s
-                | PatternName.Name i -> PatternName.Name i
+                | Pattern.Slot s ->
+                    match readBinding (Pattern.Slot s) data with
+                    | Some(LigatureValue.Symbol(i)) -> Pattern.Symbol i
+                    | Some(LigatureValue.Slot(s)) -> Pattern.Slot s
+                    | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
+                    | None -> Pattern.Slot s
+                | Pattern.Symbol i -> Pattern.Symbol i
 
             let attribute =
                 match a with
-                | PatternName.Slot s ->
-                    match readBinding (PatternName.Slot s) data with
-                    | Some(LigatureValue.Name(i)) -> PatternName.Name i
-                    | Some(LigatureValue.Slot(s)) -> PatternName.Slot s
-                    | Some _ -> failwith "TODO - unexpected value - only Slots or Names are allowed"
-                    | None -> PatternName.Slot s
-                | PatternName.Name i -> PatternName.Name i
+                | Pattern.Slot s ->
+                    match readBinding (Pattern.Slot s) data with
+                    | Some(LigatureValue.Symbol(i)) -> Pattern.Symbol i
+                    | Some(LigatureValue.Slot(s)) -> Pattern.Slot s
+                    | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
+                    | None -> Pattern.Slot s
+                | Pattern.Symbol i -> Pattern.Symbol i
 
             let value =
                 match v with
                 | LigatureValue.Slot s ->
-                    match readBinding (PatternName.Slot s) data with
+                    match readBinding (Pattern.Slot s) data with
                     | Some value -> value
                     | None -> LigatureValue.Slot s
                 | v -> v
@@ -84,7 +84,7 @@ let applyNetwork (template: Network) (data: Network) : Network =
 
 
 let applyCombinator: Combinator =
-    { Name = Name("apply")
+    { Name = Symbol("apply")
       Doc = ""
       Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
       Eval =
@@ -102,7 +102,7 @@ let applyCombinator: Combinator =
             | _ -> failwith "TODO" }
 
 let matchCombinator =
-    { Name = Name("match")
+    { Name = Symbol("match")
       Doc = "args: pattern data, returns: quote of networks"
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
       Eval =
@@ -114,7 +114,7 @@ let matchCombinator =
             | _ -> error "" None }
 
 let queryCombinator =
-    { Name = Name("query")
+    { Name = Symbol("query")
       Doc = "arguments: pattern template data, returns network"
       Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =

@@ -4,9 +4,6 @@
 
 module Ligature.Main
 
-open System.Text.RegularExpressions
-open System
-
 type LigatureError =
     { UserMessage: string
       DebugMessage: string option }
@@ -17,73 +14,19 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-// type Name = private Name of string
-
-// let invalidName (id: string) = error $"Invalid Name, {id}" None
-
-// let identifier =
-//     let identifierPattern =
-//         Regex(@"^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$", RegexOptions.Compiled)
-
-//     fun (id: string) ->
-//         if identifierPattern.IsMatch(id) then
-//             Ok(Name id)
-//         else
-//             invalidName id
-
 type Slot = Slot of string option
 
-type Name = Name of string
-
-// type Slot = private Slot of string option
-//     member _.Named = name.IsSome
-
-//     member _.Name =
-//         match name with
-//         | Some name -> name
-//         | None -> ""
-
-//     static member New(name: string option) =
-//         let slotPattern = Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled)
-//         let invalidSlot (id: string) = error $"Invalid Slot, {id}" None
-
-//         match name with
-//         | Some name ->
-//             if slotPattern.IsMatch(name) then
-//                 Ok(Slot(Some name))
-//             else
-//                 invalidSlot name
-//         | None -> Ok(Slot(None))
-
-//     static member Empty = Slot(None)
-
-//     override this.Equals(other) =
-//         let other = other :?> Slot
-//         this.Name = other.Name
-
-//     override this.GetHashCode() = name.GetHashCode()
-
-//     interface System.IComparable with
-//         member this.CompareTo(other) =
-//             let other = other :?> Slot
-//             this.Name.CompareTo(other.Name)
-
-// let slot name = Slot.New name
-
-// let slotUnsafe name =
-//     match Slot.New name with
-//     | Ok(slot) -> slot
-//     | Error(_) -> failwith "Error"
+type Symbol = Symbol of string
 
 and [<RequireQualifiedAccessAttribute>] Element =
     | Expression of Expression
-    | Network of Name * Network
+    | Network of Symbol * Network
 
 and Quote = LigatureValue list
 
 and Expression = LigatureValue list
 
-and Combinators = Map<Name, Combinator>
+and Combinators = Map<Symbol, Combinator>
 
 and Arguments = LigatureValue list
 
@@ -91,7 +34,7 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | String
     | Int
     | Bytes
-    | Name
+    | Symbol
     | Slot
     | Network
     | Quote
@@ -99,54 +42,51 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Any
 
 and Combinator =
-    { Name: Name
+    { Name: Symbol
       Doc: string
       Signature: LigatureType list * LigatureType option
       Eval: Combinators -> LigatureStore -> Arguments -> Result<LigatureValue option, LigatureError> }
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] PatternName =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern =
     | Slot of Slot
-    | Name of Name
+    | Symbol of Symbol
 
 and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
     | Slot of Slot
-    | Name of Name
-    | String of string
-    | Int of bigint
-    | Bytes of byte array
+    | Symbol of Symbol
     | Quote of Quote
     | Expression of Expression
     | Network of Network
 
-and Statement = (PatternName * PatternName * LigatureValue)
+and Statement = (Pattern * Pattern * LigatureValue)
 
 and Network = Set<Statement>
 
 and LigatureStore =
-    abstract Networks: unit -> Name seq
-    abstract AddNetwork: Name -> unit
-    abstract RemoveNetwork: Name -> unit
-    abstract ClearNetwork: Name -> unit
-    abstract Add: Name -> Network -> Result<unit, LigatureError>
-    abstract Set: Name -> Network -> Result<unit, LigatureError>
-    abstract Remove: Name -> Network -> Result<unit, LigatureError>
-    abstract Query: Name -> Network -> Network
-    abstract Read: Name -> Network
+    abstract Networks: unit -> Symbol seq
+    abstract AddNetwork: Symbol -> unit
+    abstract RemoveNetwork: Symbol -> unit
+    abstract ClearNetwork: Symbol -> unit
+    abstract Add: Symbol -> Network -> Result<unit, LigatureError>
+    abstract Set: Symbol -> Network -> Result<unit, LigatureError>
+    abstract Remove: Symbol -> Network -> Result<unit, LigatureError>
+    abstract Query: Symbol -> Network -> Network
+    abstract Read: Symbol -> Network
 
-let defaultNetwork = Name("")
+let defaultNetwork = Symbol("")
 
 let currentNetwork name networks : Network = failwith "TODO"
 // match Map.tryFind name networks with
 // | Some res -> res
 // | None -> Set.empty
 
-let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
+let readBinding (name: Pattern) (network: Network) : Option<LigatureValue> =
     let res =
         Set.filter
             (fun (e, a, _) ->
                 match (name, e, a) with
-                | (PatternName.Name(name), PatternName.Name(entity), PatternName.Name(Name("="))) -> entity = name
-                | (PatternName.Slot(slot), PatternName.Slot(entity), PatternName.Name(Name("="))) -> entity = slot
+                | (Pattern.Symbol(name), Pattern.Symbol(entity), Pattern.Symbol(Symbol("="))) -> entity = name
+                | (Pattern.Slot(slot), Pattern.Slot(entity), Pattern.Symbol(Symbol("="))) -> entity = slot
                 | _ -> false)
             network
 
@@ -155,21 +95,21 @@ let readBinding (name: PatternName) (network: Network) : Option<LigatureValue> =
     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
-let getRoots (patternSet: Set<Statement>) : Set<PatternName> =
+let getRoots (patternSet: Set<Statement>) : Set<Pattern> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<PatternName> =
+let getLeaves (patternSet: Set<Statement>) : Set<Pattern> =
     patternSet
     |> Set.map (fun ((_, _, value): Statement) ->
         match value with
-        | LigatureValue.Name identifier -> Some(PatternName.Name identifier)
-        | LigatureValue.Slot slot -> Some(PatternName.Slot slot)
+        | LigatureValue.Symbol identifier -> Some(Pattern.Symbol identifier)
+        | LigatureValue.Slot slot -> Some(Pattern.Slot slot)
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
 
-let printPatternName (pattern: PatternName) : string =
+let printPatternName (pattern: Pattern) : string =
     match pattern with
-    | PatternName.Name(Name path) -> path
-    | PatternName.Slot(Slot(Some(name))) -> $"${name}"
-    | PatternName.Slot(Slot(None)) -> "$"
+    | Pattern.Symbol(Symbol path) -> path
+    | Pattern.Slot(Slot(Some(name))) -> $"${name}"
+    | Pattern.Slot(Slot(None)) -> "$"

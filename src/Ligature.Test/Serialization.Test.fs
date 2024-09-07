@@ -31,7 +31,7 @@ open Ligature.Main
 //           //       let result = Ligature.Serialization.readLigature "{`a` `b` `c`}" |> Result.toOption
 
 //           //       let expect: Set<Triple> =
-//           //           Set.ofList [ triple (PatternName.Id(ident "a")) (PatternName.Id(ident "b")) (vident "c") ]
+//           //           Set.ofList [ triple (Pattern.Id(ident "a")) (Pattern.Id(ident "b")) (vident "c") ]
 
 //           //       Expect.equal (result.Value.Write()) expect ""
 //           testCase "Write Empty Network"

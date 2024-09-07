@@ -18,12 +18,12 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run Map.empty emptyStore script
+              let result = run Map.empty emptyInMemoryStore script
               Expect.equal result (Ok None) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run Map.empty emptyStore script
+              let result = run Map.empty emptyInMemoryStore script
               Expect.equal result (Ok None) ""
 
           testCase "Parse Network"
@@ -38,9 +38,9 @@ let tests =
                           res
                           [ LigatureValue.Network(
                                 Set.ofList
-                                    [ (PatternName.Name(Name("a")),
-                                       PatternName.Name(Name("b")),
-                                       LigatureValue.Name(Name("c"))) ]
+                                    [ (Pattern.Symbol(Symbol("a")),
+                                       Pattern.Symbol(Symbol("b")),
+                                       LigatureValue.Symbol(Symbol("c"))) ]
                             ) ]
                           ""
                   | _ -> failwith "Error"
@@ -56,12 +56,12 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ LigatureValue.Name(Name("name"))
+                          [ LigatureValue.Symbol(Symbol("name"))
                             LigatureValue.Network(
                                 Set.ofList
-                                    [ PatternName.Name(Name("a")),
-                                      PatternName.Name(Name("b")),
-                                      LigatureValue.Name(Name("c")) ]
+                                    [ Pattern.Symbol(Symbol("a")),
+                                      Pattern.Symbol(Symbol("b")),
+                                      LigatureValue.Symbol(Symbol("c")) ]
                             ) ]
                           ""
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
@@ -78,7 +78,7 @@ let tests =
           //         Expect.equal
           //             res
           //             [ LigatureValue.Network
-          //                   [ (PatternName.Name(Name("id")),
+          //                   [ (Pattern.Name(Name("id")),
           //                      ParserElement.Name "=",
           //                      ParserElement.Quote [ ParserElement.Network [] ]) ] ]
           //             ""
@@ -160,14 +160,14 @@ let tests =
           //           (Ok(NetworkName(""),
           //               Map.ofList [
           //                 [ defaultNetwork, Set.ofSeq
-          //                   [ (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.Name(Name("c")))
-          //                     (PatternName.Name(Name("e")), PatternName.Name(Name("f")), LigatureValue.Int(89I))
-          //                     (PatternName.Name(Name("a")),
-          //                      PatternName.Name(Name("b")),
+          //                   [ (Pattern.Name(Name("a")), Pattern.Name(Name("b")), LigatureValue.Name(Name("c")))
+          //                     (Pattern.Name(Name("e")), Pattern.Name(Name("f")), LigatureValue.Int(89I))
+          //                     (Pattern.Name(Name("a")),
+          //                      Pattern.Name(Name("b")),
           //                      LigatureValue.Slot(Slot(Some("test"))))
-          //                     (PatternName.Name(Name("a")), PatternName.Name(Name("b")), LigatureValue.NetworkName(NetworkName("test")))
-          //                     (PatternName.Name(Name("a")),
-          //                      PatternName.Name(Name("b")),
+          //                     (Pattern.Name(Name("a")), Pattern.Name(Name("b")), LigatureValue.NetworkName(NetworkName("test")))
+          //                     (Pattern.Name(Name("a")),
+          //                      Pattern.Name(Name("b")),
           //                      LigatureValue.Name(Name("test.value"))) ]]
           //               ]
 
@@ -184,8 +184,8 @@ let tests =
           //           Expect.equal
           //               (currentNetwork (name, networks))
           //               (Set.ofSeq
-          //                   [ (PatternName.Name(Name("a")),
-          //                      PatternName.Name(Name("b")),
+          //                   [ (Pattern.Name(Name("a")),
+          //                      Pattern.Name(Name("b")),
           //                      LigatureValue.Name(Name("c"))) ])
           //               ""
           //       | Error _ -> failwith "Error"
@@ -210,11 +210,11 @@ let tests =
           //           Expect.equal
           //               (currentNetwork (name, networks))
           //               (Set.ofSeq
-          //                   [ (PatternName.Name(Name("a")),
-          //                      PatternName.Name(Name("b")),
+          //                   [ (Pattern.Name(Name("a")),
+          //                      Pattern.Name(Name("b")),
           //                      LigatureValue.Name(Name("c")))
-          //                     (PatternName.Name(Name("d")),
-          //                      PatternName.Name(Name("e")),
+          //                     (Pattern.Name(Name("d")),
+          //                      Pattern.Name(Name("e")),
           //                      LigatureValue.Name(Name("f"))) ])
           //               ""
           //       | Error _ -> failwith "Error"
@@ -231,8 +231,8 @@ let tests =
           //           Expect.equal
           //               state
           //               (Set.ofSeq
-          //                   [ (PatternName.Name(Name("a")),
-          //                      PatternName.Name(Name("b")),
+          //                   [ (Pattern.Name(Name("a")),
+          //                      Pattern.Name(Name("b")),
           //                      LigatureValue.Name(Name("c"))) ])
           //               ""
           //       | Error err -> failwith $"Error {err}"
@@ -246,9 +246,9 @@ let tests =
           //       result
           //       (Ok(
           //           networkOf (
-          //               [ (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c")))
-          //                 (PatternName.Name(Name("e")), PatternName.Name(Name("f")), Value.Int(89I))
-          //                 (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Slot(Slot(Some("test")))) ]
+          //               [ (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Value.Name(Name("c")))
+          //                 (Pattern.Name(Name("e")), Pattern.Name(Name("f")), Value.Int(89I))
+          //                 (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Value.Slot(Slot(Some("test")))) ]
           //           )
           //   ))
           //   ""
@@ -261,8 +261,8 @@ let tests =
           //           result
           //           (Ok(
           //               networkOf (
-          //                   [ (PatternName.Name(Name("empty")),
-          //                      PatternName.Name(Name("=")),
+          //                   [ (Pattern.Name(Name("empty")),
+          //                      Pattern.Name(Name("=")),
           //                      Value.Quote({ parameters = []; value = [] })) ]
           //               )
           //           ))
@@ -313,8 +313,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternName.Id(ident "a")
-          //                                 Attribute = PatternName.Id(ident "b")
+          //                             [ { Entity = Pattern.Id(ident "a")
+          //                                 Attribute = Pattern.Id(ident "b")
           //                                 Value = Value.Name(ident "c") } ]
 
           //                     )
@@ -332,8 +332,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternName.Id(ident "a")
-          //                                 Attribute = PatternName.Id(ident "b")
+          //                             [ { Entity = Pattern.Id(ident "a")
+          //                                 Attribute = Pattern.Id(ident "b")
           //                                 Value = Value.Int(5I) } ]
 
           //                     )
@@ -351,8 +351,8 @@ let tests =
           //               [ WanderValue.Network(
           //                     InMemoryNetwork(
           //                         Set.ofSeq
-          //                             [ { Entity = PatternName.Id(ident "a")
-          //                                 Attribute = PatternName.Id(ident "b")
+          //                             [ { Entity = Pattern.Id(ident "a")
+          //                                 Attribute = Pattern.Id(ident "b")
           //                                 Value = Value.String("Hi") } ]
           //                     )
           //                 )
@@ -371,8 +371,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternName.Id(ident "a")
-          //                               Attribute = PatternName.Id(ident "b")
+          //                           [ { Entity = Pattern.Id(ident "a")
+          //                               Attribute = Pattern.Id(ident "b")
           //                               Value = Value.Bytes([| 0uy |]) } ]
           //                   )
           //               )
@@ -389,8 +389,8 @@ let tests =
           //               WanderValue.Network(
           //                   InMemoryNetwork(
           //                       Set.ofSeq
-          //                           [ { Entity = PatternName.Id(ident "e")
-          //                               Attribute = PatternName.Id(ident "a")
+          //                           [ { Entity = Pattern.Id(ident "e")
+          //                               Attribute = Pattern.Id(ident "a")
           //                               Value = Value.Name(ident "v") } ]
           //                   )
           //               )

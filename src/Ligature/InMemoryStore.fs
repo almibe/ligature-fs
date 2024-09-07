@@ -8,7 +8,7 @@ open Ligature.Main
 open System.Collections.Generic
 
 module InMemoryStore =
-    type InMemoryStore(store: Dictionary<Name, Network>) =
+    type InMemoryStore(store: Dictionary<Symbol, Network>) =
         interface LigatureStore with
             member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 
@@ -35,21 +35,20 @@ module InMemoryStore =
             member _.Read name = store.Item(name)
 
             member _.Query name network = failwith "TODO"
-            member _.ClearNetwork(arg1: Name) : unit = failwith "Not Implemented"
+            member _.ClearNetwork(arg1: Symbol) : unit = failwith "Not Implemented"
 
             member _.Set name network : Result<unit, LigatureError> =
                 store.Add(name, network) |> ignore
                 Ok(())
     //                store.Item(name)
 
-    let emptyStore: LigatureStore =
-        InMemoryStore(new Dictionary<Name, Set<Statement>>())
+    let emptyInMemoryStore: LigatureStore =
+        InMemoryStore(new Dictionary<Symbol, Set<Statement>>())
 
-
-let patternNameToLigatureValue (patternName: PatternName) : LigatureValue =
+let patternNameToLigatureValue (patternName: Pattern) : LigatureValue =
     match patternName with
-    | PatternName.Name path -> LigatureValue.Name path
-    | PatternName.Slot slot -> LigatureValue.Slot slot
+    | Pattern.Symbol path -> LigatureValue.Symbol path
+    | Pattern.Slot slot -> LigatureValue.Slot slot
 
 let matchStatementStatement
     ((patternEntity, patternAttribute, patternLigatureValue): Statement)
@@ -59,19 +58,19 @@ let matchStatementStatement
     let mutable result: Map<string, LigatureValue> = Map.empty
 
     match patternEntity with
-    | PatternName.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToLigatureValue) result
-    | PatternName.Slot(Slot(None)) -> ignore ()
-    | PatternName.Name _ -> cont <- (patternEntity = entity)
+    | Pattern.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToLigatureValue) result
+    | Pattern.Slot(Slot(None)) -> ignore ()
+    | Pattern.Symbol _ -> cont <- (patternEntity = entity)
 
     if cont then
         match patternAttribute with
-        | PatternName.Slot(Slot(Some(name))) ->
+        | Pattern.Slot(Slot(Some(name))) ->
             if Map.containsKey name result then
                 cont <- (Map.find name result) = (patternNameToLigatureValue attribute)
             else
                 result <- Map.add name (attribute |> patternNameToLigatureValue) result
-        | PatternName.Slot(Slot(None)) -> ignore ()
-        | PatternName.Name _ -> cont <- (patternAttribute = attribute)
+        | Pattern.Slot(Slot(None)) -> ignore ()
+        | Pattern.Symbol _ -> cont <- (patternAttribute = attribute)
 
     if cont then
         match patternLigatureValue with
@@ -106,7 +105,7 @@ let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, 
 let mapToNetwork (input: Map<string, LigatureValue>) : Network =
     Map.toList input
     |> Set.ofList
-    |> Set.map (fun (name, value) -> (PatternName.Slot((Slot(Some(name)))), PatternName.Name(Name("=")), value))
+    |> Set.map (fun (name, value) -> (Pattern.Slot((Slot(Some(name)))), Pattern.Symbol(Symbol("=")), value))
 
 let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
     matchNetworkNetwork input pattern
@@ -144,14 +143,14 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 //                 Set.map
 //                     (fun ((entity, attribute, value): Statement) ->
 //                         match (entity, attribute, value) with
-//                         // | { Entity = PatternName.Name(_)
-//                         //     Attribute = PatternName.Name(_)
+//                         // | { Entity = Pattern.Name(_)
+//                         //     Attribute = Pattern.Name(_)
 //                         //     LigatureValue = LigatureValue(_) } -> failwith "TODO"
 //                         | _ ->
 //                             let entity =
 //                                 match entity with
-//                                 | PatternName.Name(identifier) -> identifier
-//                                 | PatternName.Slot(slot) ->
+//                                 | Pattern.Name(identifier) -> identifier
+//                                 | Pattern.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
@@ -164,8 +163,8 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 
 //                             let attribute =
 //                                 match attribute with
-//                                 | PatternName.Name(identifier) -> identifier
-//                                 | PatternName.Slot(slot) ->
+//                                 | Pattern.Name(identifier) -> identifier
+//                                 | Pattern.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
@@ -187,7 +186,7 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 //                                     | Slot(None) -> failwith "Error"
 //                                 | v -> v
 
-//                             (PatternName.Name(entity), PatternName.Name(attribute), value))
+//                             (Pattern.Name(entity), Pattern.Name(attribute), value))
 //                     network
 
 //             InMemoryNetwork(res)

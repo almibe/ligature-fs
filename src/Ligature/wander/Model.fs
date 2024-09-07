@@ -19,14 +19,11 @@ let encodeString string =
 
 let rec prettyPrint (value: LigatureValue) : string =
     match value with
-    | LigatureValue.Name(Name(value)) -> value
-    | LigatureValue.Int i -> i.ToString()
-    | LigatureValue.String s -> encodeString s
+    | LigatureValue.Symbol(Symbol(value)) -> value
     | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
     | LigatureValue.Slot(Slot(None)) -> "$"
     | LigatureValue.Quote values -> $"[{printQuote values}]" //TODO print names better
     | LigatureValue.Expression values -> $"[{printExpression values}]" //TODO print names better
-    | LigatureValue.Bytes(bytes) -> printBytes bytes
     | LigatureValue.Network n -> printNetwork n
 
 and printNetwork (network: Network) : string =

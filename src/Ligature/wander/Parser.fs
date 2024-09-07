@@ -34,7 +34,7 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Name(name)) -> Ok(LigatureValue.Name(Name(name)))
+            | Ok(Token.Symbol(name)) -> Ok(LigatureValue.Symbol(name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -54,21 +54,14 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
 //     | Ok(Token.Name(value)) -> Ok value
 //     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let readName (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
+let readSymbol (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
+    | Ok(Token.Symbol(value)) -> Ok(LigatureValue.Symbol(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let readInteger (gaze: Gaze.Gaze<Token>) =
-    Gaze.attempt
-        (fun gaze ->
-            match Gaze.next gaze with
-            | Ok(Token.Int(i)) -> Ok(LigatureValue.Int(i))
-            | _ -> Error(Gaze.GazeError.NoMatch))
-        gaze
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     result {
@@ -123,7 +116,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> 
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
+    | Ok(Token.Symbol(value)) -> Ok(LigatureValue.Symbol(value))
     | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -132,10 +125,9 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<LigatureValue, Gaze.GazeErr
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Int(value)) -> Ok(LigatureValue.Int value)
-    | Ok(Token.Name(value)) -> Ok(LigatureValue.Name(Name(value)))
+    | Ok(Token.Symbol(value)) -> Ok(LigatureValue.Symbol(value))
     | Ok(Token.Slot(value)) -> Ok(LigatureValue.Slot(value))
-    | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.String value)
+    | Ok(Token.StringLiteral(value)) -> Ok(LigatureValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
@@ -151,9 +143,8 @@ let rec readValueList
     else
         let elements =
             match next with
-            | Ok(Token.Name w) -> List.append elements [ (LigatureValue.Name(Name(w))) ]
-            | Ok(Token.StringLiteral s) -> List.append elements [ (LigatureValue.String s) ]
-            | Ok(Token.Int i) -> List.append elements [ (LigatureValue.Int i) ]
+            | Ok(Token.Symbol w) -> List.append elements [ (LigatureValue.Symbol(w)) ]
+            | Ok(Token.StringLiteral s) -> List.append elements [ (LigatureValue.Symbol(Symbol s)) ]
             | Ok(Token.Slot s) -> List.append elements [ (LigatureValue.Slot s) ]
 
         match Gaze.peek gaze with
@@ -236,17 +227,17 @@ let handleNetwork (network: (LigatureValue * LigatureValue * LigatureValue) list
 
 let elementTupleToStatement
     ((e, a, v): (LigatureValue * LigatureValue * LigatureValue))
-    : (PatternName * PatternName * LigatureValue) =
+    : (Pattern * Pattern * LigatureValue) =
     let entity =
         match e with
-        | LigatureValue.Name p -> PatternName.Name p
-        | LigatureValue.Slot s -> PatternName.Slot s
+        | LigatureValue.Symbol p -> Pattern.Symbol p
+        | LigatureValue.Slot s -> Pattern.Slot s
         | _ -> failwith "Error - unexpected Entity."
 
     let attribute =
         match a with
-        | LigatureValue.Name p -> PatternName.Name p
-        | LigatureValue.Slot s -> PatternName.Slot s
+        | LigatureValue.Symbol p -> Pattern.Symbol p
+        | LigatureValue.Slot s -> Pattern.Slot s
         | _ -> failwith "Error - unexpected Attribute."
 
     let value = v
@@ -262,7 +253,7 @@ let rec express (elements: LigatureValue list) (expressions: Element list) : Ele
     | [] -> expressions
     | LigatureValue.Network(network) :: tail ->
         express tail (List.append expressions [ Element.Network(defaultNetwork, network) ])
-    | LigatureValue.Name(name) :: LigatureValue.Network(network) :: tail ->
+    | LigatureValue.Symbol(name) :: LigatureValue.Network(network) :: tail ->
         express tail (List.append expressions [ Element.Network(name, network) ])
     | LigatureValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
     //| LigatureValue.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])

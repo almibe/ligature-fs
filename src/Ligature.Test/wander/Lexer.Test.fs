@@ -16,23 +16,23 @@ let tests =
     testList
         "Lexer Test"
         [ testCase "Allow empty input" <| fun _ -> Expect.equal (tokenize "") (Ok []) ""
-          testCase "Read Integer Token"
-          <| fun _ ->
-              Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
-              Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
-              Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) ""
+          //   testCase "Read Integer Token"
+          //   <| fun _ ->
+          //   Expect.equal (tokenize "123") (Ok([ Token.Int(123I) ])) ""
+          //   Expect.equal (tokenize "0") (Ok([ Token.Int(0I) ])) ""
+          //   Expect.equal (tokenize "-4123") (Ok([ Token.Int(-4123I) ])) ""
           //   testCase "Read Bytes Token"
           //   <| fun _ ->
           //       Expect.equal (tokenize "0x00") (Ok([ Token.Bytes([| 0x00uy |]) ])) ""
           //       Expect.equal (tokenize "0x01") (Ok([ Token.Bytes([| 0x01uy |]) ])) ""
           //       Expect.equal (tokenize "0xFF") (Ok([ Token.Bytes([| 0xffuy |]) ])) ""
-          testCase "Read Names"
+          testCase "Read Symbols"
           <| fun _ ->
-              Expect.equal (tokenize "a-x") (Ok([ Token.Name("a-x") ])) ""
-              Expect.equal (tokenize "x") (Ok([ Token.Name("x") ])) ""
-              Expect.equal (tokenize "hello") (Ok([ Token.Name("hello") ])) ""
-              Expect.equal (tokenize "x.y") (Ok([ Token.Name("x.y") ])) ""
-              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Name("hello.t.x.a") ])) ""
+              Expect.equal (tokenize "a-x") (Ok([ Token.Symbol(Symbol("a-x")) ])) ""
+              Expect.equal (tokenize "x") (Ok([ Token.Symbol(Symbol("x")) ])) ""
+              Expect.equal (tokenize "hello") (Ok([ Token.Symbol(Symbol "hello") ])) ""
+              Expect.equal (tokenize "x.y") (Ok([ Token.Symbol(Symbol "x.y") ])) ""
+              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Symbol(Symbol "hello.t.x.a") ])) ""
           //   testCase "Read Network Names"
           //   <| fun _ ->
           //       Expect.equal (tokenize "@") (Ok([ Token.NetworkName("") ])) ""
@@ -136,7 +136,7 @@ let tests =
           //       Expect.equal (tokenize "->->") (Ok([ Token.Arrow; Token.Arrow ])) ""
           //       Expect.equal (tokenize "->->->") (Ok([ Token.Arrow; Token.Arrow; Token.Arrow ])) ""
           testCase "read question mark"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Name "?" ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Symbol(Symbol "?") ])) ""
           //   testCase "read simple let expression"
           //   <| fun _ ->
           //       let ws = Token.WhiteSpace(" ")

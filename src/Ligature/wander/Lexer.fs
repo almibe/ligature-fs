@@ -94,9 +94,8 @@ type Token =
     | WhiteSpace of string
     | NewLine of string
     | Slot of Slot
-    | Name of string
+    | Symbol of Symbol
     | StringLiteral of string
-    | Int of bigint
     | OpenBrace
     | CloseBrace
     | OpenSquare
@@ -124,8 +123,6 @@ let bytesFromString (s: string) =
 #else
     Fable.Core.JsInterop.emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
 #endif
-
-let integerTokenNibbler = Gaze.map integerNibbler (fun int -> Token.Int(int))
 
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
@@ -163,7 +160,7 @@ let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Name)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Symbol |> Token.Symbol)
 
 let tokenNibbler =
     Nibblers.optional (
@@ -171,7 +168,6 @@ let tokenNibbler =
             Nibblers.takeFirst (
                 [ whiteSpaceNibbler
                   nameOrKeyidentifierTokenNibbler
-                  integerTokenNibbler
                   newLineTokenNibbler
                   slotTokenNibbler
                   stringLiteralTokenNibbler

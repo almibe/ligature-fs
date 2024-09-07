@@ -8,7 +8,7 @@ open Ligature.Main
 open Ligature.Wander.Interpreter
 
 let assertEqualCombinator: Combinator =
-    { Name = Name "assert-equal"
+    { Name = Symbol "assert-equal"
       Doc = "Check that two values are equal."
       Signature = [ LigatureType.Any; LigatureType.Any ], None
       Eval =
@@ -34,7 +34,7 @@ let assertEqualCombinator: Combinator =
                     | _ -> second
 
                 if first = second then
-                    Ok(Some(LigatureValue.String("Sucess!")))
+                    Ok(Some(LigatureValue.Symbol(Symbol("Sucess!"))))
                 else
                     error
                         $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"

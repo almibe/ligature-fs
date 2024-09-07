@@ -31,24 +31,24 @@ let tests =
           //   <| fun _ ->
           //       Expect.equal
           //           (matchTripleTriple
-          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c")))
-          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
+          //               (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Value.Name(Name("c")))
+          //               (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Value.Name(Name("c"))))
           //           (Some(Map.empty))
           //           ""
           //   testCase "calling match on non-matching triples"
           //   <| fun _ ->
           //       Expect.equal
           //           (matchTripleTriple
-          //               (PatternName.Name(Name("e")), PatternName.Name(Name("b")), Value.Name(Name("c")))
-          //               (PatternName.Name(Name("a")), PatternName.Name(Name("b")), Value.Name(Name("c"))))
+          //               (Pattern.Name(Name("e")), Pattern.Name(Name("b")), Value.Name(Name("c")))
+          //               (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Value.Name(Name("c"))))
           //           (None)
           //           ""
           //   testCase "calling match on simple matching triple"
           //   <| fun _ ->
           //       Expect.equal
           //           (matchTripleTriple
-          //               (PatternName.Name(Name("e")), PatternName.Name(Name("a")), Value.Name(Name("v")))
-          //               (PatternName.Slot(Slot(Some("test"))), PatternName.Name(Name("a")), Value.Name(Name("v"))))
+          //               (Pattern.Name(Name("e")), Pattern.Name(Name("a")), Value.Name(Name("v")))
+          //               (Pattern.Slot(Slot(Some("test"))), Pattern.Name(Name("a")), Value.Name(Name("v"))))
           //           (Some(Map [ ("test", Value.Name(Name("e"))) ]))
           //   "" ]
           ]

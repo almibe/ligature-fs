@@ -7,7 +7,7 @@ module Ligature.Wander.Lib.Core
 open Ligature.Main
 
 let idCombinator: Combinator =
-    { Name = Name("id")
+    { Name = Symbol("id")
       Doc = "Return the value passed."
       Signature = [ LigatureType.Any ], Some LigatureType.Any
       Eval =
@@ -17,25 +17,25 @@ let idCombinator: Combinator =
             | _ -> failwith "TODO" }
 
 let setCombinator: Combinator =
-    { Name = Name("set")
+    { Name = Symbol("set")
       Doc = "Set the value of a given Network."
-      Signature = [ LigatureType.Name; LigatureType.Network ], None
+      Signature = [ LigatureType.Symbol; LigatureType.Network ], None
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ LigatureValue.Name(name); LigatureValue.Network(value) ] ->
+            | [ LigatureValue.Symbol(name); LigatureValue.Network(value) ] ->
                 store.Set name value |> ignore
                 Ok(None)
             | _ -> failwith "TODO" }
 
 let readCombinator: Combinator =
-    { Name = Name("read")
+    { Name = Symbol("read")
       Doc = "Read the value of a given Network."
-      Signature = [ LigatureType.Name ], Some LigatureType.Network
+      Signature = [ LigatureType.Symbol ], Some LigatureType.Network
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ LigatureValue.Name(name) ] ->
+            | [ LigatureValue.Symbol(name) ] ->
                 let network = LigatureValue.Network(store.Read name)
                 Ok(Some(network))
             // match Map.tryFind name networks with
@@ -44,13 +44,13 @@ let readCombinator: Combinator =
             | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
-    { Name = Name("ignore")
+    { Name = Symbol("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
       Signature = [ LigatureType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
 let printSignature ((arguments, result): LigatureType list * LigatureType option) : LigatureValue =
-    LigatureValue.String($"{arguments} -> {result}")
+    LigatureValue.Symbol(Symbol($"{arguments} -> {result}"))
 // List.map
 //     (fun t ->
 //         match t with
@@ -67,7 +67,7 @@ let printSignature ((arguments, result): LigatureType list * LigatureType option
 //     signature
 
 let docsCombinator: Combinator =
-    { Name = Name("docs")
+    { Name = Symbol("docs")
       Doc = "Create a network that contains documentation for the available combinators."
       Signature = [], Some(LigatureType.Network)
       Eval =
@@ -80,12 +80,12 @@ let docsCombinator: Combinator =
 
                 docs <-
                     Set.add
-                        (PatternName.Name(name),
-                         PatternName.Name(Name("docString")),
-                         LigatureValue.String(combinator.Doc))
+                        (Pattern.Symbol(name),
+                         Pattern.Symbol(Symbol("docString")),
+                         LigatureValue.Symbol(Symbol(combinator.Doc)))
                         docs
 
-                docs <- Set.add (PatternName.Name(name), PatternName.Name(Name("signature")), signature) docs)
+                docs <- Set.add (Pattern.Symbol(name), Pattern.Symbol(Symbol("signature")), signature) docs)
 
             Ok(Some(LigatureValue.Network docs)) }
 

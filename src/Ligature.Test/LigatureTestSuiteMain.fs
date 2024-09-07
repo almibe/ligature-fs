@@ -8,9 +8,6 @@ open Expecto
 open Ligature
 open FSharpPlus
 open Ligature.Wander.Main
-//open Ligature.LigatureStore
-open Ligature.Main
-open Ligature.Wander.Model
 open Ligature.Wander.Combinators
 open LigatureStore.InMemoryStore
 
@@ -38,7 +35,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCombinators emptyStore script with
+                match run stdCombinators emptyInMemoryStore script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

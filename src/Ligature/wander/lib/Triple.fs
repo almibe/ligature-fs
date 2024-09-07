@@ -10,8 +10,8 @@ open FsToolkit.ErrorHandling
 
 let slotIdentiferToWanderValue si =
     match si with
-    | PatternName.Sl slot -> WanderValue.Slot(slot)
-    | PatternName.Id identifier -> WanderValue.Name identifier
+    | Pattern.Sl slot -> WanderValue.Slot(slot)
+    | Pattern.Id identifier -> WanderValue.Name identifier
 
 // let entityFunction =
 //     { Name = "entity"

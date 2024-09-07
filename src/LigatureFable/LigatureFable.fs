@@ -12,13 +12,13 @@ open System.Collections.Generic
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
-let patternNameToJS (p: PatternName) =
+let patternNameToJS (p: Pattern) =
     let res = createEmpty
 
     match p with
-    | PatternName.Name(Name(id)) -> res?identifier <- id
-    | PatternName.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
-    | PatternName.Slot(Slot(None)) -> res?slot <- ""
+    | Pattern.Name(Name(id)) -> res?identifier <- id
+    | Pattern.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
+    | Pattern.Slot(Slot(None)) -> res?slot <- ""
 
     res
 
@@ -39,7 +39,6 @@ let rec networkToJS (network: Network) =
 
 and quoteToJS (q: Quote) =
     List.map (fun value -> valueToJS (value)) q |> List.toArray
-
 
 and valueToJS (v: LigatureValue) =
     let value = createEmpty
@@ -79,8 +78,7 @@ let partialResultToJS (result: LigatureValue option) =
 // res?networks <- List.toArray resNetworks
 // res
 
-let newEngine () =
-    let wanderEngine: WanderEngine = new WanderEngine(stdCombinators, emptyStore)
+let newEngine (wanderEngine: WanderEngine) =
     let engine = createEmpty
 
     engine?run <-
@@ -94,3 +92,8 @@ let newEngine () =
                 res
 
     engine
+
+let newIndexeddbEngine () = failwith "TODO"
+
+let newInMemoryEngine () =
+    newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore))

@@ -8,16 +8,16 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let notFunction =
-    { Name = Name("not")
+    { Name = Symbol("not")
       Doc = "Boolean not"
-      Signature = [ LigatureType.Name ], Some(LigatureType.Name)
+      Signature = [ LigatureType.Symbol ], Some(LigatureType.Symbol)
       Eval =
         (fun _ _ args ->
             match args with
-            | [ LigatureValue.Name(value) ] ->
+            | [ LigatureValue.Symbol(value) ] ->
                 match value with
-                | Name("true") -> Ok(Some(LigatureValue.Name(Name("false"))))
-                | Name("false") -> Ok(Some(LigatureValue.Name(Name("true"))))
+                | Symbol("true") -> Ok(Some(LigatureValue.Symbol(Symbol("false"))))
+                | Symbol("false") -> Ok(Some(LigatureValue.Symbol(Symbol("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

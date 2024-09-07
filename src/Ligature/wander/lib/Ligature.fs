@@ -9,8 +9,8 @@ open Ligature.Main
 
 let patternTripleToTriple (pattern: Triple) : Triple option =
     match pattern with
-    | { Entity = PatternName.Name(entity)
-        Attribute = PatternName.Name(attribute) } -> failwith "TODO"
+    | { Entity = Pattern.Name(entity)
+        Attribute = Pattern.Name(attribute) } -> failwith "TODO"
     | _ -> failwith "TODO"
 
 let apply (network: Network) (pattern: Map<string, Value>) =
