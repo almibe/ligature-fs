@@ -1,55 +1,31 @@
-import { newEngine as newInMemoryEngine } from "../../output/LigatureFable.js"
+import { newInMemoryEngine } from "../../output/LigatureFable.js"
 import { Set, List, Record } from "immutable"
 
-export interface Int {
-    int: BigInt
-}
-
-export const Int = Record({
-    int: 0n
-})
-
-export interface String {
-    string: string
-}
-
-export const String = Record({
-    string: ""
-})
-
-export interface Bytes {
-    bytes: Uint8Array
-}
-
-export const Bytes = Record({
-    bytes: new Uint8Array()
-})
-
 export interface Slot {
-    slot: string
+    slot: string | null
 }
 
-export const Slot =  Record({
-    slot: ""
+export const Slot = Record<{slot: string | null}>({
+    slot: null
 })
 
-export interface Name {
-    name: string
+export interface Symbol {
+    symbol: string
 }
 
-export const Name = Record({
-    name: ""
+export const Symbol = Record({
+    symbol: ""
 })
 
-export type Value = Int | String | Bytes | Slot | Name | Quote | Expression
+export type Value = Slot | Symbol | Quote | Expression
 
 export type Quote = List<Value>
 
 export type Expression = List<Value>
 
 export type Statement = {
-    entity: Slot | Name,
-    attribute: Slot | Name,
+    entity: Slot | Symbol,
+    attribute: Slot | Symbol,
     value: Value
 }
 

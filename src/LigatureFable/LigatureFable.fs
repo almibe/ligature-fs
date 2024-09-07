@@ -12,11 +12,11 @@ open System.Collections.Generic
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
-let patternNameToJS (p: Pattern) =
+let patternToJS (p: Pattern) =
     let res = createEmpty
 
     match p with
-    | Pattern.Name(Name(id)) -> res?identifier <- id
+    | Pattern.Symbol(Symbol(id)) -> res?identifier <- id
     | Pattern.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
     | Pattern.Slot(Slot(None)) -> res?slot <- ""
 
@@ -28,8 +28,8 @@ let rec networkToJS (network: Network) =
 
     Set.iter
         (fun (e, a, v) ->
-            let entity = patternNameToJS e
-            let attribute = patternNameToJS a
+            let entity = patternToJS e
+            let attribute = patternToJS a
             let value = valueToJS v
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
@@ -44,13 +44,10 @@ and valueToJS (v: LigatureValue) =
     let value = createEmpty
 
     match v with
-    | LigatureValue.Bytes b -> failwith "TODO"
-    | LigatureValue.Int i -> value?int <- i
     | LigatureValue.Quote q -> value?quote <- quoteToJS (q)
     | LigatureValue.Slot(Slot(Some(s))) -> value?slot <- s
     | LigatureValue.Slot(Slot(None)) -> value?slot <- ""
-    | LigatureValue.String s -> value?string <- s
-    | LigatureValue.Name(Name(i)) -> value?identifier <- i
+    | LigatureValue.Symbol(Symbol(i)) -> value?identifier <- i
     | LigatureValue.Network n -> value?network <- networkToJS n
     | LigatureValue.Expression(_) -> failwith "TODO"
 
@@ -60,23 +57,6 @@ let partialResultToJS (result: LigatureValue option) =
     match result with
     | Some(value) -> valueToJS value
     | None -> createEmpty
-
-//let stateToJS ((NetworkName(name), networks, partialResult): State) = failwith "TODO"
-// let res = createEmpty
-// let mutable resNetworks = []
-// res?name <- name
-// res?partialResult <- partialResultToJS partialResult
-
-// Map.iter
-//     (fun (NetworkName(name)) value ->
-//         let networkRes = createEmpty
-//         networkRes?name <- name
-//         networkRes?network <- networkToJS value
-//         resNetworks <- List.append resNetworks [ networkRes ])
-//     networks
-
-// res?networks <- List.toArray resNetworks
-// res
 
 let newEngine (wanderEngine: WanderEngine) =
     let engine = createEmpty
