@@ -48,7 +48,7 @@ let minusCombinator =
 
 let lookupNetwork () = failwith "TODO"
 
-let applyNetwork (template: Network) (data: Network) : Network = failwith "TODO"
+// let applyNetwork (template: Network) (data: Network) : Network =
 // Set.map
 //     (fun ((e, a, v)) ->
 //         let entity =
@@ -82,24 +82,23 @@ let applyNetwork (template: Network) (data: Network) : Network = failwith "TODO"
 //         (entity, attribute, value))
 //     template
 
-
-let applyCombinator: Combinator =
-    { Name = Symbol("apply")
-      Doc = ""
-      Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
-      Eval =
-        fun combinators networks arguments ->
-            match arguments with
-            | [ WanderValue.Network(template); WanderValue.Quote(data) ] ->
-                List.map
-                    (fun dataset ->
-                        match dataset with
-                        | WanderValue.Network dataset -> applyNetwork template dataset |> WanderValue.Network
-                        | _ -> failwith "TODO")
-                    data
-                |> WanderValue.Quote
-                |> fun value -> Ok(Some(value))
-            | _ -> failwith "TODO" }
+// let applyCombinator: Combinator =
+//     { Name = Symbol("apply")
+//       Doc = ""
+//       Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
+//       Eval =
+//         fun combinators networks arguments ->
+//             match arguments with
+//             | [ WanderValue.Network(template); WanderValue.Quote(data) ] ->
+//                 List.map
+//                     (fun dataset ->
+//                         match dataset with
+//                         | WanderValue.Network dataset -> applyNetwork template dataset |> WanderValue.Network
+//                         | value -> failwith $"TODO -- {value}")
+//                     data
+//                 |> WanderValue.Quote
+//                 |> fun value -> Ok(Some(value))
+//             | _ -> failwith "TODO" }
 
 // let matchCombinator =
 //     { Name = Symbol("match")
@@ -133,9 +132,9 @@ let applyCombinator: Combinator =
 
 let networkCombinators =
     (Map.ofList
-        [ (applyCombinator.Name, applyCombinator)
+        [ //(applyCombinator.Name, applyCombinator)
           (chompCombinator.Name, chompCombinator)
-//          (matchCombinator.Name, matchCombinator)
+          //          (matchCombinator.Name, matchCombinator)
           (minusCombinator.Name, minusCombinator)
-//          (queryCombinator.Name, queryCombinator)
+          //          (queryCombinator.Name, queryCombinator)
           (unionCombinator.Name, unionCombinator) ])

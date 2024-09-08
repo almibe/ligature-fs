@@ -80,5 +80,5 @@ let newEngine (wanderEngine: WanderEngine) =
 
     engine
 
-let newInMemoryEngine (): WanderEngine =
+let newInMemoryEngine () : WanderEngine =
     newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore))

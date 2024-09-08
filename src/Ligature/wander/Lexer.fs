@@ -76,7 +76,14 @@ let stringLiteralTokenNibbler =
 let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN
-              (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('$', '$'); ('_', '_'); ('=', '='); (':', ':') ])
+              (Nibblers.takeInRange
+                  [ ('a', 'z')
+                    ('A', 'Z')
+                    ('?', '?')
+                    ('$', '$')
+                    ('_', '_')
+                    ('=', '=')
+                    (':', ':') ])
               1)
           Nibblers.optional (
               Nibblers.repeat (
@@ -116,7 +123,7 @@ let tokenNibbler =
                 [ whiteSpaceNibbler
                   nameOrKeyidentifierTokenNibbler
                   newLineTokenNibbler
-                //   slotTokenNibbler
+                  //   slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
                   takeAndMap "{" Token.OpenBrace
