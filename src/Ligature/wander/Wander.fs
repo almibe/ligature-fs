@@ -4,7 +4,6 @@
 
 module Ligature.Wander.Main
 
-open Ligature.Wander.Model
 open Parser
 open Lexer
 open Ligature.Main

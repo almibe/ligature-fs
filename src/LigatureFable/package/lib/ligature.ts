@@ -37,13 +37,6 @@ export const Statement = Record({
 
 export type Network = Set<Statement>
 
-export interface Engine {
-    eval: (quote: List<Identifier>) => (Identifier | Network | null)
-}
-
-export function newEngine(): Engine {
-    //return (newInMemoryEngine() as Engine)
-    return {
-        eval: (quote) => {return null;}
-    }
+export function newEngine() {
+    return newInMemoryEngine()
 }

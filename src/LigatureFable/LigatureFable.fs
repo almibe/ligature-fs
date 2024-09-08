@@ -12,51 +12,58 @@ open System.Collections.Generic
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
-let patternToJS (p: Pattern) =
+let symbolToJS (Symbol(symbol): Symbol) =
     let res = createEmpty
-
-    match p with
-    | Pattern.Symbol(Symbol(id)) -> res?identifier <- id
-    | Pattern.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
-    | Pattern.Slot(Slot(None)) -> res?slot <- ""
-
+    res?symbol <- symbol
     res
 
+let valueToJS (value: WanderValue) =
+    let res = createEmpty
+
+    match value with
+    | WanderValue.Symbol(Symbol(id)) -> res?identifier <- id
+    | WanderValue.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
+    | WanderValue.Slot(Slot(None)) -> res?slot <- ""
+    | WanderValue.Expression e -> failwith "TODO"
+    | WanderValue.Network n -> failwith "TODO"
+    | WanderValue.Quote q -> failwith "TODO"
+
+    res
 
 let rec networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
         (fun (e, a, v) ->
-            let entity = patternToJS e
-            let attribute = patternToJS a
-            let value = valueToJS v
+            let entity = symbolToJS e
+            let attribute = symbolToJS a
+            let value = symbolToJS v
 
             resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
         network
 
     resNetwork
 
-and quoteToJS (q: Quote) =
-    List.map (fun value -> valueToJS (value)) q |> List.toArray
+// and quoteToJS (q: Quote) =
+//     List.map (fun value -> valueToJS (value)) q |> List.toArray
 
-and valueToJS (v: Pattern) =
-    let value = createEmpty
+// and valueToJS (v: Pattern) =
+//     let value = createEmpty
 
-    match v with
-    | Identifier.Quote q -> value?quote <- quoteToJS (q)
-    | Pattern.Slot(Slot(Some(s))) -> value?slot <- s
-    | Pattern.Slot(Slot(None)) -> value?slot <- ""
-    | Pattern.Symbol(Symbol(i)) -> value?identifier <- i
-    | Identifier.Network n -> value?network <- networkToJS n
-    | Identifier.Expression(_) -> failwith "TODO"
+//     match v with
+//     | Identifier.Quote q -> value?quote <- quoteToJS (q)
+//     | Pattern.Slot(Slot(Some(s))) -> value?slot <- s
+//     | Pattern.Slot(Slot(None)) -> value?slot <- ""
+//     | Pattern.Symbol(Symbol(i)) -> value?identifier <- i
+//     | Identifier.Network n -> value?network <- networkToJS n
+//     | Identifier.Expression(_) -> failwith "TODO"
 
-    value
+//     value
 
-let partialResultToJS (result: Pattern option) =
-    match result with
-    | Some(value) -> valueToJS value
-    | None -> createEmpty
+// let partialResultToJS (result: Pattern option) =
+//     match result with
+//     | Some(value) -> valueToJS value
+//     | None -> createEmpty
 
 let newEngine (wanderEngine: WanderEngine) =
     let engine = createEmpty
@@ -73,7 +80,5 @@ let newEngine (wanderEngine: WanderEngine) =
 
     engine
 
-let newIndexeddbEngine () = failwith "TODO"
-
-let newInMemoryEngine () =
+let newInMemoryEngine (): WanderEngine =
     newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore))

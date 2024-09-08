@@ -117,7 +117,7 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
-    | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
+//    | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -127,39 +127,39 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
     match next with
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
-    | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
+    // | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
 
-let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
-    let next = Gaze.next gaze
+// let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
+//     let next = Gaze.next gaze
 
-    if next = Ok Token.CloseSquare then
-        Ok elements
-    else
-        let elements =
-            match next with
-            | Ok(Token.Symbol w) -> List.append elements [ (Pattern.Symbol(w)) ]
-            | Ok(Token.StringLiteral s) -> List.append elements [ (Pattern.Symbol(Symbol s)) ]
-            | Ok(Token.Slot s) -> List.append elements [ (Pattern.Slot s) ]
+//     if next = Ok Token.CloseSquare then
+//         Ok elements
+//     else
+//         let elements =
+//             match next with
+//             | Ok(Token.Symbol w) -> List.append elements [ (Pattern.Symbol(w)) ]
+//             | Ok(Token.StringLiteral s) -> List.append elements [ (Pattern.Symbol(Symbol s)) ]
+//             | Ok(Token.Slot s) -> List.append elements [ (Pattern.Slot s) ]
 
-        match Gaze.peek gaze with
-        | Ok Token.CloseSquare ->
-            (Gaze.next gaze |> ignore)
-            Ok elements
-        | Ok Token.Comma ->
-            (Gaze.next gaze |> ignore)
-            readValueList elements gaze
+//         match Gaze.peek gaze with
+//         | Ok Token.CloseSquare ->
+//             (Gaze.next gaze |> ignore)
+//             Ok elements
+//         | Ok Token.Comma ->
+//             (Gaze.next gaze |> ignore)
+//             readValueList elements gaze
 
-let readSlot (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
-    let next = Gaze.next gaze
+// let readSlot (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
+//     let next = Gaze.next gaze
 
-    match next with
-    | Error(err) -> Error err
-    | Ok(Token.Slot(value)) -> Ok(Pattern.Slot value)
-    | _ -> Error(Gaze.GazeError.NoMatch)
+//     match next with
+//     | Error(err) -> Error err
+//     | Ok(Token.Slot(value)) -> Ok(Pattern.Slot value)
+//     | _ -> Error(Gaze.GazeError.NoMatch)
 
 //let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; quoteNib ]
 
@@ -227,19 +227,19 @@ let elementTupleToStatement ((e, a, v): (WanderValue * WanderValue * WanderValue
     let entity =
         match e with
         | WanderValue.Symbol p -> p
-        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
+//        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Entity."
 
     let attribute =
         match a with
         | WanderValue.Symbol p -> p
-        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
+//        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Attribute."
 
     let value =
         match v with
         | WanderValue.Symbol p -> p
-        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
+ //       | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
     (entity, attribute, value)

@@ -20,8 +20,8 @@ let encodeString string =
 let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Symbol(Symbol(value)) -> value
-    | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
-    | WanderValue.Slot(Slot(None)) -> "$"
+    // | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
+    // | WanderValue.Slot(Slot(None)) -> "$"
     | WanderValue.Quote values -> $"[{printQuote values}]" //TODO print names better
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
@@ -55,4 +55,4 @@ and printQuote quote =
 and printExpression expression =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
-type Scope = Map<string, Pattern>
+//type Scope = Map<string, Pattern>

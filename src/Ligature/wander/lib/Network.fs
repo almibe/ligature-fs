@@ -101,41 +101,41 @@ let applyCombinator: Combinator =
                 |> fun value -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
-let matchCombinator =
-    { Name = Symbol("match")
-      Doc = "args: pattern data, returns: quote of networks"
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
-      Eval =
-        fun _ networks arguments ->
-            match arguments with
-            | [ WanderValue.Network(pattern); WanderValue.Network(data) ] ->
-                let res = matchNetwork pattern data
-                Ok(Some(res))
-            | _ -> error "" None }
+// let matchCombinator =
+//     { Name = Symbol("match")
+//       Doc = "args: pattern data, returns: quote of networks"
+//       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
+//       Eval =
+//         fun _ networks arguments ->
+//             match arguments with
+//             | [ WanderValue.Network(pattern); WanderValue.Network(data) ] ->
+//                 let res = matchNetwork pattern data
+//                 Ok(Some(res))
+//             | _ -> error "" None }
 
-let queryCombinator =
-    { Name = Symbol("query")
-      Doc = "arguments: pattern template data, returns network"
-      Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
-      Eval =
-        fun combinators networks arguments ->
-            let currentNetwork = currentNetwork networks
+// let queryCombinator =
+//     { Name = Symbol("query")
+//       Doc = "arguments: pattern template data, returns network"
+//       Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+//       Eval =
+//         fun combinators networks arguments ->
+//             let currentNetwork = currentNetwork networks
 
-            match arguments with
-            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network data ] ->
-                match
-                    matchCombinator.Eval combinators networks [ WanderValue.Network pattern; WanderValue.Network data ]
-                with
-                | Ok(Some(WanderValue.Quote(res))) ->
-                    applyCombinator.Eval combinators networks [ WanderValue.Network template; WanderValue.Quote res ]
-                | _ -> failwith "TODO"
-            | _ -> failwith "TODO" }
+//             match arguments with
+//             | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network data ] ->
+//                 match
+//                     matchCombinator.Eval combinators networks [ WanderValue.Network pattern; WanderValue.Network data ]
+//                 with
+//                 | Ok(Some(WanderValue.Quote(res))) ->
+//                     applyCombinator.Eval combinators networks [ WanderValue.Network template; WanderValue.Quote res ]
+//                 | _ -> failwith "TODO"
+//             | _ -> failwith "TODO" }
 
 let networkCombinators =
     (Map.ofList
         [ (applyCombinator.Name, applyCombinator)
           (chompCombinator.Name, chompCombinator)
-          (matchCombinator.Name, matchCombinator)
+//          (matchCombinator.Name, matchCombinator)
           (minusCombinator.Name, minusCombinator)
-          (queryCombinator.Name, queryCombinator)
+//          (queryCombinator.Name, queryCombinator)
           (unionCombinator.Name, unionCombinator) ])

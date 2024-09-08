@@ -11,31 +11,6 @@ open System.Text.RegularExpressions
 let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
 
-let identifierCharacterNibbler =
-    Nibblers.takeWhile (fun c -> identifierPattern.IsMatch(c.ToString()))
-
-let identifierNibbler = Nibblers.between '`' identifierCharacterNibbler '`'
-
-let networkNamePattern = Regex("^[a-zA-Z0-9_.]$", RegexOptions.Compiled)
-
-let slotPattern = Regex("^[a-zA-Z0-9_]$", RegexOptions.Compiled)
-
-let slotCharacterNibbler =
-    Nibblers.takeWhile (fun c -> slotPattern.IsMatch(c.ToString()))
-
-let slotNibbler =
-    Nibblers.takeAllFlatten
-        [ Nibblers.takeAll [ Nibblers.take '$' ]
-          Nibblers.optional slotCharacterNibbler ]
-
-let networkNameCharacterNibbler =
-    Nibblers.takeWhile (fun c -> networkNamePattern.IsMatch(c.ToString()))
-
-let networkNameNibbler =
-    Nibblers.takeAllFlatten
-        [ Nibblers.takeAll [ Nibblers.take '@' ]
-          Nibblers.optional networkNameCharacterNibbler ]
-
 let parseString (input: string) =
 #if !FABLE_COMPILER
     System.Text.Json.Nodes.JsonNode.Parse(input)
@@ -73,27 +48,12 @@ let charInRange char start stop = char >= start && char <= stop
 let charListToInt i =
     System.Numerics.BigInteger.Parse(System.String(List.concat i |> List.toArray))
 
-/// A Nibbler that consumes an integer as defined by lig.
-/// TODO: this doesn't handle all cases well like too small or large of a number
-let integerNibbler =
-    Gaze.map
-        (Nibblers.takeAll
-            [ (Nibblers.optional (Nibblers.takeString "-"))
-              Nibblers.takeWhile (fun c -> charInRange c '0' '9') ])
-        (fun i -> charListToInt i)
-
-let bytesNibbler =
-    Nibblers.takeAll
-        [ Nibblers.takeString "0x"
-          Nibblers.takeWhile (fun c -> charInRange c '0' '9' || charInRange c 'A' 'F') ]
-
 let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Slot of Slot
     | Symbol of Symbol
     | StringLiteral of string
     | OpenBrace
@@ -110,27 +70,13 @@ let implode (chars: char list) =
 let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
-let slotTokenNibbler =
-    Gaze.map slotNibbler (fun chars ->
-        if chars = [ '$' ] then
-            Token.Slot(Slot(None))
-        else
-            chars.[1..] |> implode |> Some |> Slot |> Token.Slot)
-
-let bytesFromString (s: string) =
-#if !FABLE_COMPILER
-    System.Convert.FromHexString(s)
-#else
-    Fable.Core.JsInterop.emitJsExpr s "Uint8Array.from($0.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));"
-#endif
-
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
 
 let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN
-              (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('_', '_'); ('=', '='); (':', ':') ])
+              (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('?', '?'); ('$', '$'); ('_', '_'); ('=', '='); (':', ':') ])
               1)
           Nibblers.optional (
               Nibblers.repeat (
@@ -139,6 +85,7 @@ let nameNibbler =
                         ('A', 'Z')
                         ('0', '9')
                         ('?', '?')
+                        ('$', '$')
                         ('_', '_')
                         ('-', '-')
                         ('=', '=')
@@ -169,7 +116,7 @@ let tokenNibbler =
                 [ whiteSpaceNibbler
                   nameOrKeyidentifierTokenNibbler
                   newLineTokenNibbler
-                  slotTokenNibbler
+                //   slotTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma
                   takeAndMap "{" Token.OpenBrace

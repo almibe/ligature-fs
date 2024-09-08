@@ -45,16 +45,16 @@ module InMemoryStore =
     let emptyInMemoryStore: LigatureStore =
         InMemoryStore(new Dictionary<Symbol, Set<Statement>>())
 
-let patternNameToIdentifier (patternName: Pattern) : Pattern =
-    match patternName with
-    | Pattern.Symbol path -> Pattern.Symbol path
-    | Pattern.Slot slot -> Pattern.Slot slot
+// let patternNameToIdentifier (patternName: Pattern) : Pattern =
+//     match patternName with
+//     | Pattern.Symbol path -> Pattern.Symbol path
+//     | Pattern.Slot slot -> Pattern.Slot slot
 
-let matchStatementStatement
-    ((patternEntity, patternAttribute, patternIdentifier): Statement)
-    ((entity, attribute, value): Statement)
-    : Option<Map<string, Pattern>> =
-    failwith "TODO"
+// let matchStatementStatement
+//     ((patternEntity, patternAttribute, patternIdentifier): Statement)
+//     ((entity, attribute, value): Statement)
+//     : Option<Map<string, Pattern>> =
+//     failwith "TODO"
 // let mutable cont = true
 // let mutable result: Map<string, Pattern> = Map.empty
 
@@ -85,35 +85,35 @@ let matchStatementStatement
 
 // if cont then Some(result) else None
 
-let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, Pattern>> =
-    Set.map (fun triple -> matchStatementStatement triple pattern) network
-    |> Set.fold
-        (fun state values ->
-            match values with
-            | Some(values) -> Set.add values state
-            | None -> state)
-        Set.empty
+// let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, Pattern>> =
+//     Set.map (fun triple -> matchStatementStatement triple pattern) network
+//     |> Set.fold
+//         (fun state values ->
+//             match values with
+//             | Some(values) -> Set.add values state
+//             | None -> state)
+//         Set.empty
 
-let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, Pattern>> =
-    if network.IsEmpty || pattern.IsEmpty then
-        Set.empty
-    else
-        Set.fold
-            (fun state patternStatement -> Set.union (matchNetworkStatement network patternStatement) state)
-            Set.empty
-            pattern
+// let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, Pattern>> =
+//     if network.IsEmpty || pattern.IsEmpty then
+//         Set.empty
+//     else
+//         Set.fold
+//             (fun state patternStatement -> Set.union (matchNetworkStatement network patternStatement) state)
+//             Set.empty
+//             pattern
 
-let mapToNetwork (input: Map<string, Pattern>) : Network = failwith "TODO"
+//let mapToNetwork (input: Map<string, Pattern>) : Network = failwith "TODO"
 // Map.toList input
 // |> Set.ofList
 // |> Set.map (fun (name, value) -> (Pattern.Slot((Slot(Some(name)))), Pattern.Symbol(Symbol("=")), value))
 
-let matchNetwork (input: Network) (pattern: Network) : WanderValue =
-    matchNetworkNetwork input pattern
-    |> Set.toList
-    |> List.map mapToNetwork
-    |> List.map WanderValue.Network
-    |> WanderValue.Quote
+// let matchNetwork (input: Network) (pattern: Network) : WanderValue =
+//     matchNetworkNetwork input pattern
+//     |> Set.toList
+//     |> List.map mapToNetwork
+//     |> List.map WanderValue.Network
+//     |> WanderValue.Quote
 
 // type InMemoryNetwork(network: Set<Statement>) =
 //     let processQueryResults (trans: Network) (values: Set<Map<string, Identifier>>) : Network =

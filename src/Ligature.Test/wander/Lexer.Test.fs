@@ -9,7 +9,6 @@ open Ligature.Wander.Lexer
 open Ligature.Wander.Model
 open Ligature.Main
 
-let slot (id: string) = Token.Slot(Slot(Some(id)))
 
 [<Tests>]
 let tests =
@@ -33,6 +32,10 @@ let tests =
               Expect.equal (tokenize "hello") (Ok([ Token.Symbol(Symbol "hello") ])) ""
               Expect.equal (tokenize "x.y") (Ok([ Token.Symbol(Symbol "x.y") ])) ""
               Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Symbol(Symbol "hello.t.x.a") ])) ""
+              Expect.equal (tokenize "$") (Ok([ Token.Symbol(Symbol("$")) ])) ""
+              Expect.equal (tokenize "$a") (Ok([ Token.Symbol(Symbol("$a")) ])) ""
+              Expect.equal (tokenize "$this_is_also234") (Ok([ Token.Symbol(Symbol("$this_is_also234")) ])) ""
+
           //   testCase "Read Network Names"
           //   <| fun _ ->
           //       Expect.equal (tokenize "@") (Ok([ Token.NetworkName("") ])) ""
@@ -58,11 +61,6 @@ let tests =
               Expect.equal (tokenize "\n") (Ok([ Token.NewLine("\n") ])) ""
               Expect.equal (tokenize "\r\n") (Ok([ Token.NewLine("\r\n") ])) ""
               Expect.equal (tokenize "\r\n\r\n\r\n\n") (Ok([ Token.NewLine("\r\n\r\n\r\n\n") ])) ""
-          testCase "Read Slots"
-          <| fun _ ->
-              Expect.equal (tokenize "$") (Ok([ Token.Slot(Slot(None)) ])) ""
-              Expect.equal (tokenize "$a") (Ok([ (slot "a") ])) ""
-              Expect.equal (tokenize "$this_is_also234") (Ok([ slot "this_is_also234" ])) ""
           //   testCase "Read comments"
           //   <| fun _ ->
           //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""

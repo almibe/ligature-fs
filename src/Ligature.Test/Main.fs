@@ -14,8 +14,8 @@ let tests =
         [ testCase "Check Triple Equality"
           <| fun _ ->
               Expect.equal
-                  ((Pattern.Symbol(Symbol("a"))), (Pattern.Symbol(Symbol("b"))), (Pattern.Symbol(Symbol("c"))))
-                  ((Pattern.Symbol(Symbol("a"))), (Pattern.Symbol(Symbol("b"))), (Pattern.Symbol(Symbol("c"))))
+                  (((Symbol("a"))), ((Symbol("b"))), ((Symbol("c"))))
+                  (((Symbol("a"))), ((Symbol("b"))), ((Symbol("c"))))
                   "" ]
 
 [<EntryPoint>]
