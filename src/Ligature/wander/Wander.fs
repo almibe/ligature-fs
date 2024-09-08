@@ -10,11 +10,7 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run
-    (combinators: Combinators)
-    (store: LigatureStore)
-    (input: string)
-    : Result<LigatureValue option, LigatureError> =
+let run (combinators: Combinators) (store: LigatureStore) (input: string) : Result<WanderValue option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->

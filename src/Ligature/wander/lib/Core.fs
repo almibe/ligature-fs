@@ -23,7 +23,7 @@ let setCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ LigatureValue.Symbol(name); LigatureValue.Network(value) ] ->
+            | [ WanderValue.Symbol(name); WanderValue.Network(value) ] ->
                 store.Set name value |> ignore
                 Ok(None)
             | _ -> failwith "TODO" }
@@ -35,11 +35,11 @@ let readCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ LigatureValue.Symbol(name) ] ->
-                let network = LigatureValue.Network(store.Read name)
+            | [ WanderValue.Symbol(name) ] ->
+                let network = WanderValue.Network(store.Read name)
                 Ok(Some(network))
             // match Map.tryFind name networks with
-            // | Some(network) -> Ok(selected, networks, Some(LigatureValue.Network network))
+            // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
             // | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
@@ -49,21 +49,21 @@ let ignoreCombinator: Combinator =
       Signature = [ LigatureType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
-let printSignature ((arguments, result): LigatureType list * LigatureType option) : LigatureValue =
-    LigatureValue.Symbol(Symbol($"{arguments} -> {result}"))
+let printSignature ((arguments, result): LigatureType list * LigatureType option) : Identifier =
+    Identifier.Symbol(Symbol($"{arguments} -> {result}"))
 // List.map
 //     (fun t ->
 //         match t with
-//         | LigatureType.Bytes -> LigatureValue.Name(Name("Bytes"))
-//         | LigatureType.Int -> LigatureValue.Name(Name("Int"))
-//         | LigatureType.Name -> LigatureValue.Name(Name("Name"))
-//         | LigatureType.Network -> LigatureValue.Name(Name("Network"))
-//         | LigatureType.NetworkName -> LigatureValue.Name(Name("NetworkName"))
-//         | LigatureType.Quote -> LigatureValue.Name(Name("Quote"))
-//         | LigatureType.Slot -> LigatureValue.Name(Name("Slot"))
-//         | LigatureType.String -> LigatureValue.Name(Name("String"))
-//         | LigatureType.Expression -> LigatureValue.Name(Name("Expression"))
-//         | LigatureType.Value -> LigatureValue.Name(Name("Value")))
+//         | LigatureType.Bytes -> Identifier.Name(Name("Bytes"))
+//         | LigatureType.Int -> Identifier.Name(Name("Int"))
+//         | LigatureType.Name -> Identifier.Name(Name("Name"))
+//         | LigatureType.Network -> Identifier.Name(Name("Network"))
+//         | LigatureType.NetworkName -> Identifier.Name(Name("NetworkName"))
+//         | LigatureType.Quote -> Identifier.Name(Name("Quote"))
+//         | LigatureType.Slot -> Identifier.Name(Name("Slot"))
+//         | LigatureType.String -> Identifier.Name(Name("String"))
+//         | LigatureType.Expression -> Identifier.Name(Name("Expression"))
+//         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
 let docsCombinator: Combinator =
@@ -80,14 +80,14 @@ let docsCombinator: Combinator =
 
                 docs <-
                     Set.add
-                        (Pattern.Symbol(name),
-                         Pattern.Symbol(Symbol("docString")),
-                         LigatureValue.Symbol(Symbol(combinator.Doc)))
+                        (Identifier.Symbol(name),
+                         Identifier.Symbol(Symbol("docString")),
+                         Identifier.Symbol(Symbol(combinator.Doc)))
                         docs
 
-                docs <- Set.add (Pattern.Symbol(name), Pattern.Symbol(Symbol("signature")), signature) docs)
+                docs <- Set.add (Identifier.Symbol(name), Identifier.Symbol(Symbol("signature")), signature) docs)
 
-            Ok(Some(LigatureValue.Network docs)) }
+            Ok(Some(WanderValue.Network docs)) }
 
 let coreCombinators =
     (Map.ofList

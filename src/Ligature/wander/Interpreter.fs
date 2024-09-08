@@ -6,9 +6,9 @@ module Ligature.Wander.Interpreter
 
 open Ligature.Main
 
-//let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<LigatureValue, LigatureError> = Ok(networks)
+//let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<Identifier, LigatureError> = Ok(networks)
 
-let evalNetwork (store: LigatureStore) (name: Symbol) (network: Network) : Result<LigatureValue option, LigatureError> =
+let evalNetwork (store: LigatureStore) (name: Symbol) (network: Network) : Result<WanderValue option, LigatureError> =
     store.Add name network |> ignore
     Ok None
 // let newNetwork = Set.union currentNetwork (network)
@@ -18,23 +18,23 @@ let evalNetwork (store: LigatureStore) (name: Symbol) (network: Network) : Resul
 let rec evalSymbol
     (combinators: Combinators)
     networks
-    (arguments: LigatureValue list)
+    (arguments: WanderValue list)
     (Symbol(name))
-    : Result<LigatureValue option, LigatureError> =
+    : Result<WanderValue option, LigatureError> =
     let newArguments = processArguments combinators networks arguments
 
     match combinators.TryFind(Symbol(name)) with
     | Some(combinator) -> combinator.Eval combinators networks newArguments
     | None -> error $"Could not find name {name}" None
 
-and processArguments combinators networks (arguments: LigatureValue list) : LigatureValue list =
+and processArguments combinators networks (arguments: WanderValue list) : WanderValue list =
     List.map
         (fun argument ->
             match argument with
-            | LigatureValue.Expression e ->
+            | WanderValue.Expression e ->
                 match evalExpression combinators networks e with
                 | Ok(Some(value)) -> value
-                | _ -> LigatureValue.Network Set.empty
+                | _ -> WanderValue.Network Set.empty
             | value -> value)
         arguments
 
@@ -42,16 +42,12 @@ and evalElement
     (combinators: Combinators)
     (store: LigatureStore)
     (element: Element)
-    : Result<LigatureValue option, LigatureError> =
+    : Result<WanderValue option, LigatureError> =
     match element with
     | Element.Network(name, network) -> evalNetwork store name network
     | Element.Expression expression -> evalExpression combinators store expression
 
-and evalElements
-    (combinators: Combinators)
-    store
-    (elements: Element list)
-    : Result<LigatureValue option, LigatureError> =
+and evalElements (combinators: Combinators) store (elements: Element list) : Result<WanderValue option, LigatureError> =
     match elements with
     | [] -> Ok(None)
     | [ head ] -> evalElement combinators store head
@@ -64,9 +60,9 @@ and evalExpression
     (combinators: Combinators)
     (store: LigatureStore)
     (expression: Expression)
-    : Result<LigatureValue option, LigatureError> =
+    : Result<WanderValue option, LigatureError> =
     match expression with
     | [] -> Ok(None)
-    | [ LigatureValue.Symbol(name) ] -> evalSymbol combinators store [] name
-    | LigatureValue.Symbol(name) :: tail -> evalSymbol combinators store tail name
+    | [ WanderValue.Symbol(name) ] -> evalSymbol combinators store [] name
+    | WanderValue.Symbol(name) :: tail -> evalSymbol combinators store tail name
     | _ -> error "Invalid Quote." None

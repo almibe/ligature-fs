@@ -14,7 +14,7 @@ let chompCombinator =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ LigatureValue.Network(input) ] ->
+            | [ WanderValue.Network(input) ] ->
                 // let currentNetwork = currentNetwork networks
                 // let newNetwork = Set.union input currentNetwork
                 // let newNetworks = Map.add selected newNetwork networks
@@ -29,8 +29,8 @@ let unionCombinator =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
-                let result = Set.union left right |> LigatureValue.Network
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
+                let result = Set.union left right |> WanderValue.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -41,8 +41,8 @@ let minusCombinator =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ LigatureValue.Network(left); LigatureValue.Network(right) ] ->
-                let result = Set.difference left right |> LigatureValue.Network
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
+                let result = Set.difference left right |> WanderValue.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -53,30 +53,30 @@ let applyNetwork (template: Network) (data: Network) : Network =
         (fun ((e, a, v)) ->
             let entity =
                 match e with
-                | Pattern.Slot s ->
-                    match readBinding (Pattern.Slot s) data with
-                    | Some(LigatureValue.Symbol(i)) -> Pattern.Symbol i
-                    | Some(LigatureValue.Slot(s)) -> Pattern.Slot s
+                | Identifier.Slot s ->
+                    match readBinding (Identifier.Slot s) data with
+                    | Some(Identifier.Symbol(i)) -> Identifier.Symbol i
+                    | Some(Identifier.Slot(s)) -> Identifier.Slot s
                     | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-                    | None -> Pattern.Slot s
-                | Pattern.Symbol i -> Pattern.Symbol i
+                    | None -> Identifier.Slot s
+                | Identifier.Symbol i -> Identifier.Symbol i
 
             let attribute =
                 match a with
-                | Pattern.Slot s ->
-                    match readBinding (Pattern.Slot s) data with
-                    | Some(LigatureValue.Symbol(i)) -> Pattern.Symbol i
-                    | Some(LigatureValue.Slot(s)) -> Pattern.Slot s
+                | Identifier.Slot s ->
+                    match readBinding (Identifier.Slot s) data with
+                    | Some(Identifier.Symbol(i)) -> Identifier.Symbol i
+                    | Some(Identifier.Slot(s)) -> Identifier.Slot s
                     | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-                    | None -> Pattern.Slot s
-                | Pattern.Symbol i -> Pattern.Symbol i
+                    | None -> Identifier.Slot s
+                | Identifier.Symbol i -> Identifier.Symbol i
 
             let value =
                 match v with
-                | LigatureValue.Slot s ->
-                    match readBinding (Pattern.Slot s) data with
+                | Identifier.Slot s ->
+                    match readBinding (Identifier.Slot s) data with
                     | Some value -> value
-                    | None -> LigatureValue.Slot s
+                    | None -> Identifier.Slot s
                 | v -> v
 
             (entity, attribute, value))
@@ -90,14 +90,14 @@ let applyCombinator: Combinator =
       Eval =
         fun combinators networks arguments ->
             match arguments with
-            | [ LigatureValue.Network(template); LigatureValue.Quote(data) ] ->
+            | [ WanderValue.Network(template); WanderValue.Quote(data) ] ->
                 List.map
                     (fun dataset ->
                         match dataset with
-                        | LigatureValue.Network dataset -> applyNetwork template dataset |> LigatureValue.Network
+                        | WanderValue.Network dataset -> applyNetwork template dataset |> WanderValue.Network
                         | _ -> failwith "TODO")
                     data
-                |> LigatureValue.Quote
+                |> WanderValue.Quote
                 |> fun value -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
@@ -108,7 +108,7 @@ let matchCombinator =
       Eval =
         fun _ networks arguments ->
             match arguments with
-            | [ LigatureValue.Network(pattern); LigatureValue.Network(data) ] ->
+            | [ WanderValue.Network(pattern); WanderValue.Network(data) ] ->
                 let res = matchNetwork pattern data
                 Ok(Some(res))
             | _ -> error "" None }
@@ -122,18 +122,12 @@ let queryCombinator =
             let currentNetwork = currentNetwork networks
 
             match arguments with
-            | [ LigatureValue.Network pattern; LigatureValue.Network template; LigatureValue.Network data ] ->
+            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network data ] ->
                 match
-                    matchCombinator.Eval
-                        combinators
-                        networks
-                        [ LigatureValue.Network pattern; LigatureValue.Network data ]
+                    matchCombinator.Eval combinators networks [ WanderValue.Network pattern; WanderValue.Network data ]
                 with
-                | Ok(Some(LigatureValue.Quote(res))) ->
-                    applyCombinator.Eval
-                        combinators
-                        networks
-                        [ LigatureValue.Network template; LigatureValue.Quote res ]
+                | Ok(Some(WanderValue.Quote(res))) ->
+                    applyCombinator.Eval combinators networks [ WanderValue.Network template; WanderValue.Quote res ]
                 | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 

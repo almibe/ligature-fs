@@ -17,14 +17,14 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-let rec prettyPrint (value: LigatureValue) : string =
+let rec prettyPrint (value: WanderValue) : string =
     match value with
-    | LigatureValue.Symbol(Symbol(value)) -> value
-    | LigatureValue.Slot(Slot(Some(name))) -> $"${(name)}"
-    | LigatureValue.Slot(Slot(None)) -> "$"
-    | LigatureValue.Quote values -> $"[{printQuote values}]" //TODO print names better
-    | LigatureValue.Expression values -> $"[{printExpression values}]" //TODO print names better
-    | LigatureValue.Network n -> printNetwork n
+    | WanderValue.Symbol(Symbol(value)) -> value
+    | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
+    | WanderValue.Slot(Slot(None)) -> "$"
+    | WanderValue.Quote values -> $"[{printQuote values}]" //TODO print names better
+    | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
+    | WanderValue.Network n -> printNetwork n
 
 and printNetwork (network: Network) : string =
     (Seq.fold (fun state triple -> state + " " + (printStatement triple) + ",\n") "{" (network))
@@ -42,10 +42,10 @@ and printAssocArray values =
     + "]"
 
 and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
+    $"{(printIdentifier entity)} {(printIdentifier attribute)} {(printIdentifier value)}"
 
 and printPattern ((entity, attribute, value): Statement) =
-    $"{(printPatternName entity)} {(printPatternName attribute)} {(prettyPrint value)}"
+    $"{(printIdentifier entity)} {(printIdentifier attribute)} {(printIdentifier value)}"
 
 //TODO might not be correct
 and printQuote quote =
@@ -55,4 +55,4 @@ and printQuote quote =
 and printExpression expression =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
-type Scope = Map<string, LigatureValue>
+type Scope = Map<string, Identifier>

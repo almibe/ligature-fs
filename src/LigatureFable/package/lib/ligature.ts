@@ -17,16 +17,16 @@ export const Symbol = Record({
     symbol: ""
 })
 
-export type Value = Slot | Symbol | Quote | Expression
+export type Identifier = Slot | Symbol
 
-export type Quote = List<Value>
+export type Quote = List<Identifier>
 
-export type Expression = List<Value>
+export type Expression = List<Identifier>
 
 export type Statement = {
-    entity: Slot | Symbol,
-    attribute: Slot | Symbol,
-    value: Value
+    entity: Identifier,
+    attribute: Identifier,
+    value: Identifier
 }
 
 export const Statement = Record({
@@ -38,9 +38,12 @@ export const Statement = Record({
 export type Network = Set<Statement>
 
 export interface Engine {
-    run: (string) => Value | Network
+    eval: (quote: List<Identifier>) => (Identifier | Network | null)
 }
 
 export function newEngine(): Engine {
-    return (newInMemoryEngine() as Engine)
+    //return (newInMemoryEngine() as Engine)
+    return {
+        eval: (quote) => {return null;}
+    }
 }

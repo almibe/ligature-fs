@@ -17,7 +17,7 @@ let assertEqualCombinator: Combinator =
             | [ first; second ] ->
                 let first =
                     match first with
-                    | LigatureValue.Expression e ->
+                    | WanderValue.Expression e ->
                         match evalExpression combinators networks e with
                         | Ok(Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
@@ -26,7 +26,7 @@ let assertEqualCombinator: Combinator =
 
                 let second =
                     match second with
-                    | LigatureValue.Expression e ->
+                    | WanderValue.Expression e ->
                         match evalExpression combinators networks e with
                         | Ok(Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
@@ -34,7 +34,7 @@ let assertEqualCombinator: Combinator =
                     | _ -> second
 
                 if first = second then
-                    Ok(Some(LigatureValue.Symbol(Symbol("Sucess!"))))
+                    Ok(Some(WanderValue.Symbol(Symbol("Sucess!"))))
                 else
                     error
                         $"assert-equal failed {Ligature.Wander.Model.prettyPrint first} != {Ligature.Wander.Model.prettyPrint second}"

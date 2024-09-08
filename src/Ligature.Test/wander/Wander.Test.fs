@@ -36,11 +36,11 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ LigatureValue.Network(
+                          [ WanderValue.Network(
                                 Set.ofList
-                                    [ (Pattern.Symbol(Symbol("a")),
-                                       Pattern.Symbol(Symbol("b")),
-                                       LigatureValue.Symbol(Symbol("c"))) ]
+                                    [ (Identifier.Symbol(Symbol("a")),
+                                       Identifier.Symbol(Symbol("b")),
+                                       Identifier.Symbol(Symbol("c"))) ]
                             ) ]
                           ""
                   | _ -> failwith "Error"
@@ -56,12 +56,12 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ LigatureValue.Symbol(Symbol("name"))
-                            LigatureValue.Network(
+                          [ WanderValue.Symbol(Symbol("name"))
+                            WanderValue.Network(
                                 Set.ofList
-                                    [ Pattern.Symbol(Symbol("a")),
-                                      Pattern.Symbol(Symbol("b")),
-                                      LigatureValue.Symbol(Symbol("c")) ]
+                                    [ Identifier.Symbol(Symbol("a")),
+                                      Identifier.Symbol(Symbol("b")),
+                                      Identifier.Symbol(Symbol("c")) ]
                             ) ]
                           ""
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
@@ -77,7 +77,7 @@ let tests =
           //     | Ok res ->
           //         Expect.equal
           //             res
-          //             [ LigatureValue.Network
+          //             [ Identifier.Network
           //                   [ (Pattern.Name(Name("id")),
           //                      ParserElement.Name "=",
           //                      ParserElement.Quote [ ParserElement.Network [] ]) ] ]
@@ -104,9 +104,9 @@ let tests =
           //               Expect.equal
           //                   element
           //                   [ Element.Expression
-          //                         [ LigatureValue.Name(Name("a"))
-          //                           LigatureValue.Name(Name("b"))
-          //                           LigatureValue.Name(Name("c")) ] ]
+          //                         [ Identifier.Name(Name("a"))
+          //                           Identifier.Name(Name("b"))
+          //                           Identifier.Name(Name("c")) ] ]
           //                   ""
           //           | _ -> failwith "Error"
           //       | _ -> failwith "Error"
@@ -133,10 +133,10 @@ let tests =
           //               Expect.equal
           //                   element
           //                   [ Element.Expression
-          //                         [ LigatureValue.Name(Name("a"))
-          //                           LigatureValue.Expression
-          //                               [ LigatureValue.Name(Name("b"))
-          //                                 LigatureValue.Expression [ LigatureValue.Name(Name("c")) ] ] ] ]
+          //                         [ Identifier.Name(Name("a"))
+          //                           Identifier.Expression
+          //                               [ Identifier.Name(Name("b"))
+          //                                 Identifier.Expression [ Identifier.Name(Name("c")) ] ] ] ]
           //                   ""
           //           | Error err -> failwith $"Error Parsing - {err.UserMessage}"
           //       | _ -> failwith "Error"
@@ -160,15 +160,15 @@ let tests =
           //           (Ok(NetworkName(""),
           //               Map.ofList [
           //                 [ defaultNetwork, Set.ofSeq
-          //                   [ (Pattern.Name(Name("a")), Pattern.Name(Name("b")), LigatureValue.Name(Name("c")))
-          //                     (Pattern.Name(Name("e")), Pattern.Name(Name("f")), LigatureValue.Int(89I))
+          //                   [ (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Identifier.Name(Name("c")))
+          //                     (Pattern.Name(Name("e")), Pattern.Name(Name("f")), Identifier.Int(89I))
           //                     (Pattern.Name(Name("a")),
           //                      Pattern.Name(Name("b")),
-          //                      LigatureValue.Slot(Slot(Some("test"))))
-          //                     (Pattern.Name(Name("a")), Pattern.Name(Name("b")), LigatureValue.NetworkName(NetworkName("test")))
+          //                      Identifier.Slot(Slot(Some("test"))))
+          //                     (Pattern.Name(Name("a")), Pattern.Name(Name("b")), Identifier.NetworkName(NetworkName("test")))
           //                     (Pattern.Name(Name("a")),
           //                      Pattern.Name(Name("b")),
-          //                      LigatureValue.Name(Name("test.value"))) ]]
+          //                      Identifier.Name(Name("test.value"))) ]]
           //               ]
 
           //           ))
@@ -186,7 +186,7 @@ let tests =
           //               (Set.ofSeq
           //                   [ (Pattern.Name(Name("a")),
           //                      Pattern.Name(Name("b")),
-          //                      LigatureValue.Name(Name("c"))) ])
+          //                      Identifier.Name(Name("c"))) ])
           //               ""
           //       | Error _ -> failwith "Error"
           //   testCase "Run Clear Combinator"
@@ -212,10 +212,10 @@ let tests =
           //               (Set.ofSeq
           //                   [ (Pattern.Name(Name("a")),
           //                      Pattern.Name(Name("b")),
-          //                      LigatureValue.Name(Name("c")))
+          //                      Identifier.Name(Name("c")))
           //                     (Pattern.Name(Name("d")),
           //                      Pattern.Name(Name("e")),
-          //                      LigatureValue.Name(Name("f"))) ])
+          //                      Identifier.Name(Name("f"))) ])
           //               ""
           //       | Error _ -> failwith "Error"
 
@@ -233,7 +233,7 @@ let tests =
           //               (Set.ofSeq
           //                   [ (Pattern.Name(Name("a")),
           //                      Pattern.Name(Name("b")),
-          //                      LigatureValue.Name(Name("c"))) ])
+          //                      Identifier.Name(Name("c"))) ])
           //               ""
           //       | Error err -> failwith $"Error {err}"
 

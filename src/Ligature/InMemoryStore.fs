@@ -45,46 +45,46 @@ module InMemoryStore =
     let emptyInMemoryStore: LigatureStore =
         InMemoryStore(new Dictionary<Symbol, Set<Statement>>())
 
-let patternNameToLigatureValue (patternName: Pattern) : LigatureValue =
+let patternNameToIdentifier (patternName: Identifier) : Identifier =
     match patternName with
-    | Pattern.Symbol path -> LigatureValue.Symbol path
-    | Pattern.Slot slot -> LigatureValue.Slot slot
+    | Identifier.Symbol path -> Identifier.Symbol path
+    | Identifier.Slot slot -> Identifier.Slot slot
 
 let matchStatementStatement
-    ((patternEntity, patternAttribute, patternLigatureValue): Statement)
+    ((patternEntity, patternAttribute, patternIdentifier): Statement)
     ((entity, attribute, value): Statement)
-    : Option<Map<string, LigatureValue>> =
+    : Option<Map<string, Identifier>> =
     let mutable cont = true
-    let mutable result: Map<string, LigatureValue> = Map.empty
+    let mutable result: Map<string, Identifier> = Map.empty
 
     match patternEntity with
-    | Pattern.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToLigatureValue) result
-    | Pattern.Slot(Slot(None)) -> ignore ()
-    | Pattern.Symbol _ -> cont <- (patternEntity = entity)
+    | Identifier.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToIdentifier) result
+    | Identifier.Slot(Slot(None)) -> ignore ()
+    | Identifier.Symbol _ -> cont <- (patternEntity = entity)
 
     if cont then
         match patternAttribute with
-        | Pattern.Slot(Slot(Some(name))) ->
+        | Identifier.Slot(Slot(Some(name))) ->
             if Map.containsKey name result then
-                cont <- (Map.find name result) = (patternNameToLigatureValue attribute)
+                cont <- (Map.find name result) = (patternNameToIdentifier attribute)
             else
-                result <- Map.add name (attribute |> patternNameToLigatureValue) result
-        | Pattern.Slot(Slot(None)) -> ignore ()
-        | Pattern.Symbol _ -> cont <- (patternAttribute = attribute)
+                result <- Map.add name (attribute |> patternNameToIdentifier) result
+        | Identifier.Slot(Slot(None)) -> ignore ()
+        | Identifier.Symbol _ -> cont <- (patternAttribute = attribute)
 
     if cont then
-        match patternLigatureValue with
-        | LigatureValue.Slot(Slot(Some(name))) ->
+        match patternIdentifier with
+        | Identifier.Slot(Slot(Some(name))) ->
             if Map.containsKey name result then
                 cont <- (Map.find name result) = (value)
             else
                 result <- Map.add name (value) result
-        | LigatureValue.Slot(Slot(None)) -> ignore ()
-        | _ -> cont <- patternLigatureValue = value
+        | Identifier.Slot(Slot(None)) -> ignore ()
+        | _ -> cont <- patternIdentifier = value
 
     if cont then Some(result) else None
 
-let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, LigatureValue>> =
+let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, Identifier>> =
     Set.map (fun triple -> matchStatementStatement triple pattern) network
     |> Set.fold
         (fun state values ->
@@ -93,7 +93,7 @@ let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<M
             | None -> state)
         Set.empty
 
-let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, LigatureValue>> =
+let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, Identifier>> =
     if network.IsEmpty || pattern.IsEmpty then
         Set.empty
     else
@@ -102,20 +102,20 @@ let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, 
             Set.empty
             pattern
 
-let mapToNetwork (input: Map<string, LigatureValue>) : Network =
+let mapToNetwork (input: Map<string, Identifier>) : Network =
     Map.toList input
     |> Set.ofList
-    |> Set.map (fun (name, value) -> (Pattern.Slot((Slot(Some(name)))), Pattern.Symbol(Symbol("=")), value))
+    |> Set.map (fun (name, value) -> (Identifier.Slot((Slot(Some(name)))), Identifier.Symbol(Symbol("=")), value))
 
-let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
+let matchNetwork (input: Network) (pattern: Network) : WanderValue =
     matchNetworkNetwork input pattern
     |> Set.toList
     |> List.map mapToNetwork
-    |> List.map LigatureValue.Network
-    |> LigatureValue.Quote
+    |> List.map WanderValue.Network
+    |> WanderValue.Quote
 
 // type InMemoryNetwork(network: Set<Statement>) =
-//     let processQueryResults (trans: Network) (values: Set<Map<string, LigatureValue>>) : Network =
+//     let processQueryResults (trans: Network) (values: Set<Map<string, Identifier>>) : Network =
 //         List.ofSeq values
 //         |> List.map (fun values -> trans.Apply values)
 //         |> List.fold (fun state network -> state.Union network) (InMemoryNetwork(Set.empty))
@@ -138,14 +138,14 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 //         member _.Minus other =
 //             InMemoryNetwork(Set.difference (other.Write()) network)
 
-//         member _.Apply(values: Map<string, LigatureValue>) =
+//         member _.Apply(values: Map<string, Identifier>) =
 //             let res: Set<Statement> =
 //                 Set.map
 //                     (fun ((entity, attribute, value): Statement) ->
 //                         match (entity, attribute, value) with
 //                         // | { Entity = Pattern.Name(_)
 //                         //     Attribute = Pattern.Name(_)
-//                         //     LigatureValue = LigatureValue(_) } -> failwith "TODO"
+//                         //     Identifier = Identifier(_) } -> failwith "TODO"
 //                         | _ ->
 //                             let entity =
 //                                 match entity with
@@ -156,7 +156,7 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | LigatureValue.Name identifier -> identifier
+//                                             | Identifier.Name identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
@@ -170,14 +170,14 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 //                                         match values.TryFind name with
 //                                         | Some value ->
 //                                             match value with
-//                                             | LigatureValue.Name identifier -> identifier
+//                                             | Identifier.Name identifier -> identifier
 //                                             | _ -> failwith "Error"
 //                                         | None -> failwith "Error"
 //                                     | Slot(None) -> failwith "Error"
 
 //                             let value =
 //                                 match value with
-//                                 | LigatureValue.Slot(slot) ->
+//                                 | Identifier.Slot(slot) ->
 //                                     match slot with
 //                                     | Slot(Some(name)) ->
 //                                         match values.TryFind name with
@@ -191,7 +191,7 @@ let matchNetwork (input: Network) (pattern: Network) : LigatureValue =
 
 //             InMemoryNetwork(res)
 
-//         member this.Educe pattern : Set<Map<string, LigatureValue>> =
+//         member this.Educe pattern : Set<Map<string, Identifier>> =
 //             matchNetworkNetwork network (pattern.Write())
 
 //         member this.Query pattern trans : Network =

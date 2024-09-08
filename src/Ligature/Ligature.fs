@@ -22,13 +22,13 @@ and [<RequireQualifiedAccessAttribute>] Element =
     | Expression of Expression
     | Network of Symbol * Network
 
-and Quote = LigatureValue list
+and Quote = WanderValue list
 
-and Expression = LigatureValue list
+and Expression = WanderValue list
 
 and Combinators = Map<Symbol, Combinator>
 
-and Arguments = LigatureValue list
+and Arguments = WanderValue list
 
 and [<RequireQualifiedAccessAttribute>] LigatureType =
     | String
@@ -45,20 +45,20 @@ and Combinator =
     { Name: Symbol
       Doc: string
       Signature: LigatureType list * LigatureType option
-      Eval: Combinators -> LigatureStore -> Arguments -> Result<LigatureValue option, LigatureError> }
+      Eval: Combinators -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Identifier =
     | Slot of Slot
     | Symbol of Symbol
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] LigatureValue =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderValue =
     | Slot of Slot
     | Symbol of Symbol
     | Quote of Quote
     | Expression of Expression
     | Network of Network
 
-and Statement = (Pattern * Pattern * LigatureValue)
+and Statement = (Identifier * Identifier * Identifier)
 
 and Network = Set<Statement>
 
@@ -80,13 +80,13 @@ let currentNetwork name networks : Network = failwith "TODO"
 // | Some res -> res
 // | None -> Set.empty
 
-let readBinding (name: Pattern) (network: Network) : Option<LigatureValue> =
+let readBinding (name: Identifier) (network: Network) : Option<Identifier> =
     let res =
         Set.filter
             (fun (e, a, _) ->
                 match (name, e, a) with
-                | (Pattern.Symbol(name), Pattern.Symbol(entity), Pattern.Symbol(Symbol("="))) -> entity = name
-                | (Pattern.Slot(slot), Pattern.Slot(entity), Pattern.Symbol(Symbol("="))) -> entity = slot
+                | (Identifier.Symbol(name), Identifier.Symbol(entity), Identifier.Symbol(Symbol("="))) -> entity = name
+                | (Identifier.Slot(slot), Identifier.Slot(entity), Identifier.Symbol(Symbol("="))) -> entity = slot
                 | _ -> false)
             network
 
@@ -95,21 +95,21 @@ let readBinding (name: Pattern) (network: Network) : Option<LigatureValue> =
     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
     | _ -> None
 
-let getRoots (patternSet: Set<Statement>) : Set<Pattern> =
+let getRoots (patternSet: Set<Statement>) : Set<Identifier> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<Pattern> =
+let getLeaves (patternSet: Set<Statement>) : Set<Identifier> =
     patternSet
     |> Set.map (fun ((_, _, value): Statement) ->
         match value with
-        | LigatureValue.Symbol identifier -> Some(Pattern.Symbol identifier)
-        | LigatureValue.Slot slot -> Some(Pattern.Slot slot)
+        | Identifier.Symbol identifier -> Some(Identifier.Symbol identifier)
+        | Identifier.Slot slot -> Some(Identifier.Slot slot)
         | _ -> None)
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
 
-let printPatternName (pattern: Pattern) : string =
+let printIdentifier (pattern: Identifier) : string =
     match pattern with
-    | Pattern.Symbol(Symbol path) -> path
-    | Pattern.Slot(Slot(Some(name))) -> $"${name}"
-    | Pattern.Slot(Slot(None)) -> "$"
+    | Identifier.Symbol(Symbol path) -> path
+    | Identifier.Slot(Slot(Some(name))) -> $"${name}"
+    | Identifier.Slot(Slot(None)) -> "$"

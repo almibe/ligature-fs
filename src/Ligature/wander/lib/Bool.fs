@@ -14,10 +14,10 @@ let notFunction =
       Eval =
         (fun _ _ args ->
             match args with
-            | [ LigatureValue.Symbol(value) ] ->
+            | [ WanderValue.Symbol(value) ] ->
                 match value with
-                | Symbol("true") -> Ok(Some(LigatureValue.Symbol(Symbol("false"))))
-                | Symbol("false") -> Ok(Some(LigatureValue.Symbol(Symbol("true"))))
+                | Symbol("true") -> Ok(Some(WanderValue.Symbol(Symbol("false"))))
+                | Symbol("false") -> Ok(Some(WanderValue.Symbol(Symbol("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 
