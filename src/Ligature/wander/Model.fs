@@ -42,10 +42,10 @@ and printAssocArray values =
     + "]"
 
 and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(printIdentifier entity)} {(printIdentifier attribute)} {(printIdentifier value)}"
+    $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
 
 and printPattern ((entity, attribute, value): Statement) =
-    $"{(printIdentifier entity)} {(printIdentifier attribute)} {(printIdentifier value)}"
+    $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
 
 //TODO might not be correct
 and printQuote quote =
@@ -55,4 +55,4 @@ and printQuote quote =
 and printExpression expression =
     (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
-type Scope = Map<string, Identifier>
+type Scope = Map<string, Pattern>

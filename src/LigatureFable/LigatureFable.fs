@@ -12,13 +12,13 @@ open System.Collections.Generic
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
-let patternToJS (p: Identifier) =
+let patternToJS (p: Pattern) =
     let res = createEmpty
 
     match p with
-    | Identifier.Symbol(Symbol(id)) -> res?identifier <- id
-    | Identifier.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
-    | Identifier.Slot(Slot(None)) -> res?slot <- ""
+    | Pattern.Symbol(Symbol(id)) -> res?identifier <- id
+    | Pattern.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
+    | Pattern.Slot(Slot(None)) -> res?slot <- ""
 
     res
 
@@ -40,20 +40,20 @@ let rec networkToJS (network: Network) =
 and quoteToJS (q: Quote) =
     List.map (fun value -> valueToJS (value)) q |> List.toArray
 
-and valueToJS (v: Identifier) =
+and valueToJS (v: Pattern) =
     let value = createEmpty
 
     match v with
     | Identifier.Quote q -> value?quote <- quoteToJS (q)
-    | Identifier.Slot(Slot(Some(s))) -> value?slot <- s
-    | Identifier.Slot(Slot(None)) -> value?slot <- ""
-    | Identifier.Symbol(Symbol(i)) -> value?identifier <- i
+    | Pattern.Slot(Slot(Some(s))) -> value?slot <- s
+    | Pattern.Slot(Slot(None)) -> value?slot <- ""
+    | Pattern.Symbol(Symbol(i)) -> value?identifier <- i
     | Identifier.Network n -> value?network <- networkToJS n
     | Identifier.Expression(_) -> failwith "TODO"
 
     value
 
-let partialResultToJS (result: Identifier option) =
+let partialResultToJS (result: Pattern option) =
     match result with
     | Some(value) -> valueToJS value
     | None -> createEmpty

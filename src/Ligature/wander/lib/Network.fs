@@ -48,39 +48,39 @@ let minusCombinator =
 
 let lookupNetwork () = failwith "TODO"
 
-let applyNetwork (template: Network) (data: Network) : Network =
-    Set.map
-        (fun ((e, a, v)) ->
-            let entity =
-                match e with
-                | Identifier.Slot s ->
-                    match readBinding (Identifier.Slot s) data with
-                    | Some(Identifier.Symbol(i)) -> Identifier.Symbol i
-                    | Some(Identifier.Slot(s)) -> Identifier.Slot s
-                    | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-                    | None -> Identifier.Slot s
-                | Identifier.Symbol i -> Identifier.Symbol i
+let applyNetwork (template: Network) (data: Network) : Network = failwith "TODO"
+// Set.map
+//     (fun ((e, a, v)) ->
+//         let entity =
+//             match e with
+//             | Pattern.Slot s ->
+//                 match readBinding (Pattern.Slot s) data with
+//                 | Some(Pattern.Symbol(i)) -> Pattern.Symbol i
+//                 | Some(Pattern.Slot(s)) -> Pattern.Slot s
+//                 | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
+//                 | None -> Pattern.Slot s
+//             | Pattern.Symbol i -> Pattern.Symbol i
 
-            let attribute =
-                match a with
-                | Identifier.Slot s ->
-                    match readBinding (Identifier.Slot s) data with
-                    | Some(Identifier.Symbol(i)) -> Identifier.Symbol i
-                    | Some(Identifier.Slot(s)) -> Identifier.Slot s
-                    | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-                    | None -> Identifier.Slot s
-                | Identifier.Symbol i -> Identifier.Symbol i
+//         let attribute =
+//             match a with
+//             | Pattern.Slot s ->
+//                 match readBinding (Pattern.Slot s) data with
+//                 | Some(Pattern.Symbol(i)) -> Pattern.Symbol i
+//                 | Some(Pattern.Slot(s)) -> Pattern.Slot s
+//                 | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
+//                 | None -> Pattern.Slot s
+//             | Pattern.Symbol i -> Pattern.Symbol i
 
-            let value =
-                match v with
-                | Identifier.Slot s ->
-                    match readBinding (Identifier.Slot s) data with
-                    | Some value -> value
-                    | None -> Identifier.Slot s
-                | v -> v
+//         let value =
+//             match v with
+//             | Pattern.Slot s ->
+//                 match readBinding (Pattern.Slot s) data with
+//                 | Some value -> value
+//                 | None -> Pattern.Slot s
+//             | v -> v
 
-            (entity, attribute, value))
-        template
+//         (entity, attribute, value))
+//     template
 
 
 let applyCombinator: Combinator =

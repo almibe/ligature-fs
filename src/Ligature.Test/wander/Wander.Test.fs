@@ -36,12 +36,7 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ WanderValue.Network(
-                                Set.ofList
-                                    [ (Identifier.Symbol(Symbol("a")),
-                                       Identifier.Symbol(Symbol("b")),
-                                       Identifier.Symbol(Symbol("c"))) ]
-                            ) ]
+                          [ WanderValue.Network(Set.ofList [ (Symbol("a"), Symbol("b"), Symbol("c")) ]) ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -57,12 +52,7 @@ let tests =
                       Expect.equal
                           res
                           [ WanderValue.Symbol(Symbol("name"))
-                            WanderValue.Network(
-                                Set.ofList
-                                    [ Identifier.Symbol(Symbol("a")),
-                                      Identifier.Symbol(Symbol("b")),
-                                      Identifier.Symbol(Symbol("c")) ]
-                            ) ]
+                            WanderValue.Network(Set.ofList [ Symbol("a"), Symbol("b"), Symbol("c") ]) ]
                           ""
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
               | _ -> failwith "Error Tokenizing"

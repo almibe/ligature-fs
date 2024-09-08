@@ -133,7 +133,7 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
 
 let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
 
-let rec readValueList (elements: Identifier list) (gaze: Gaze.Gaze<Token>) : Result<Identifier list, Gaze.GazeError> =
+let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     if next = Ok Token.CloseSquare then
@@ -141,9 +141,9 @@ let rec readValueList (elements: Identifier list) (gaze: Gaze.Gaze<Token>) : Res
     else
         let elements =
             match next with
-            | Ok(Token.Symbol w) -> List.append elements [ (Identifier.Symbol(w)) ]
-            | Ok(Token.StringLiteral s) -> List.append elements [ (Identifier.Symbol(Symbol s)) ]
-            | Ok(Token.Slot s) -> List.append elements [ (Identifier.Slot s) ]
+            | Ok(Token.Symbol w) -> List.append elements [ (Pattern.Symbol(w)) ]
+            | Ok(Token.StringLiteral s) -> List.append elements [ (Pattern.Symbol(Symbol s)) ]
+            | Ok(Token.Slot s) -> List.append elements [ (Pattern.Slot s) ]
 
         match Gaze.peek gaze with
         | Ok Token.CloseSquare ->
@@ -153,12 +153,12 @@ let rec readValueList (elements: Identifier list) (gaze: Gaze.Gaze<Token>) : Res
             (Gaze.next gaze |> ignore)
             readValueList elements gaze
 
-let readSlot (gaze: Gaze.Gaze<Token>) : Result<Identifier, Gaze.GazeError> =
+let readSlot (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Slot(value)) -> Ok(Identifier.Slot value)
+    | Ok(Token.Slot(value)) -> Ok(Pattern.Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 //let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; quoteNib ]
@@ -223,25 +223,23 @@ let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Ne
     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
     res
 
-let elementTupleToStatement
-    ((e, a, v): (WanderValue * WanderValue * WanderValue))
-    : (Identifier * Identifier * Identifier) =
+let elementTupleToStatement ((e, a, v): (WanderValue * WanderValue * WanderValue)) : (Symbol * Symbol * Symbol) =
     let entity =
         match e with
-        | WanderValue.Symbol p -> Identifier.Symbol p
-        | WanderValue.Slot s -> Identifier.Slot s
+        | WanderValue.Symbol p -> p
+        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Entity."
 
     let attribute =
         match a with
-        | WanderValue.Symbol p -> Identifier.Symbol p
-        | WanderValue.Slot s -> Identifier.Slot s
+        | WanderValue.Symbol p -> p
+        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Attribute."
 
     let value =
         match v with
-        | WanderValue.Symbol p -> Identifier.Symbol p
-        | WanderValue.Slot s -> Identifier.Slot s
+        | WanderValue.Symbol p -> p
+        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
     (entity, attribute, value)

@@ -45,46 +45,47 @@ module InMemoryStore =
     let emptyInMemoryStore: LigatureStore =
         InMemoryStore(new Dictionary<Symbol, Set<Statement>>())
 
-let patternNameToIdentifier (patternName: Identifier) : Identifier =
+let patternNameToIdentifier (patternName: Pattern) : Pattern =
     match patternName with
-    | Identifier.Symbol path -> Identifier.Symbol path
-    | Identifier.Slot slot -> Identifier.Slot slot
+    | Pattern.Symbol path -> Pattern.Symbol path
+    | Pattern.Slot slot -> Pattern.Slot slot
 
 let matchStatementStatement
     ((patternEntity, patternAttribute, patternIdentifier): Statement)
     ((entity, attribute, value): Statement)
-    : Option<Map<string, Identifier>> =
-    let mutable cont = true
-    let mutable result: Map<string, Identifier> = Map.empty
+    : Option<Map<string, Pattern>> =
+    failwith "TODO"
+// let mutable cont = true
+// let mutable result: Map<string, Pattern> = Map.empty
 
-    match patternEntity with
-    | Identifier.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToIdentifier) result
-    | Identifier.Slot(Slot(None)) -> ignore ()
-    | Identifier.Symbol _ -> cont <- (patternEntity = entity)
+// match patternEntity with
+// | Pattern.Slot(Slot(Some(name))) -> result <- Map.add name (entity |> patternNameToIdentifier) result
+// | Pattern.Slot(Slot(None)) -> ignore ()
+// | Pattern.Symbol _ -> cont <- (patternEntity = entity)
 
-    if cont then
-        match patternAttribute with
-        | Identifier.Slot(Slot(Some(name))) ->
-            if Map.containsKey name result then
-                cont <- (Map.find name result) = (patternNameToIdentifier attribute)
-            else
-                result <- Map.add name (attribute |> patternNameToIdentifier) result
-        | Identifier.Slot(Slot(None)) -> ignore ()
-        | Identifier.Symbol _ -> cont <- (patternAttribute = attribute)
+// if cont then
+//     match patternAttribute with
+//     | Pattern.Slot(Slot(Some(name))) ->
+//         if Map.containsKey name result then
+//             cont <- (Map.find name result) = (patternNameToIdentifier attribute)
+//         else
+//             result <- Map.add name (attribute |> patternNameToIdentifier) result
+//     | Pattern.Slot(Slot(None)) -> ignore ()
+//     | Pattern.Symbol _ -> cont <- (patternAttribute = attribute)
 
-    if cont then
-        match patternIdentifier with
-        | Identifier.Slot(Slot(Some(name))) ->
-            if Map.containsKey name result then
-                cont <- (Map.find name result) = (value)
-            else
-                result <- Map.add name (value) result
-        | Identifier.Slot(Slot(None)) -> ignore ()
-        | _ -> cont <- patternIdentifier = value
+// if cont then
+//     match patternIdentifier with
+//     | Pattern.Slot(Slot(Some(name))) ->
+//         if Map.containsKey name result then
+//             cont <- (Map.find name result) = (value)
+//         else
+//             result <- Map.add name (value) result
+//     | Pattern.Slot(Slot(None)) -> ignore ()
+//     | _ -> cont <- patternIdentifier = value
 
-    if cont then Some(result) else None
+// if cont then Some(result) else None
 
-let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, Identifier>> =
+let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<Map<string, Pattern>> =
     Set.map (fun triple -> matchStatementStatement triple pattern) network
     |> Set.fold
         (fun state values ->
@@ -93,7 +94,7 @@ let matchNetworkStatement (network: Set<Statement>) (pattern: Statement) : Set<M
             | None -> state)
         Set.empty
 
-let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, Identifier>> =
+let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, Pattern>> =
     if network.IsEmpty || pattern.IsEmpty then
         Set.empty
     else
@@ -102,10 +103,10 @@ let matchNetworkNetwork (network: Network) (pattern: Network) : Set<Map<string, 
             Set.empty
             pattern
 
-let mapToNetwork (input: Map<string, Identifier>) : Network =
-    Map.toList input
-    |> Set.ofList
-    |> Set.map (fun (name, value) -> (Identifier.Slot((Slot(Some(name)))), Identifier.Symbol(Symbol("=")), value))
+let mapToNetwork (input: Map<string, Pattern>) : Network = failwith "TODO"
+// Map.toList input
+// |> Set.ofList
+// |> Set.map (fun (name, value) -> (Pattern.Slot((Slot(Some(name)))), Pattern.Symbol(Symbol("=")), value))
 
 let matchNetwork (input: Network) (pattern: Network) : WanderValue =
     matchNetworkNetwork input pattern

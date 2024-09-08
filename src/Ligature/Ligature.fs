@@ -47,7 +47,7 @@ and Combinator =
       Signature: LigatureType list * LigatureType option
       Eval: Combinators -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Identifier =
+and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] Pattern =
     | Slot of Slot
     | Symbol of Symbol
 
@@ -58,7 +58,7 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderV
     | Expression of Expression
     | Network of Network
 
-and Statement = (Identifier * Identifier * Identifier)
+and Statement = (Symbol * Symbol * Symbol)
 
 and Network = Set<Statement>
 
@@ -80,36 +80,34 @@ let currentNetwork name networks : Network = failwith "TODO"
 // | Some res -> res
 // | None -> Set.empty
 
-let readBinding (name: Identifier) (network: Network) : Option<Identifier> =
-    let res =
-        Set.filter
-            (fun (e, a, _) ->
-                match (name, e, a) with
-                | (Identifier.Symbol(name), Identifier.Symbol(entity), Identifier.Symbol(Symbol("="))) -> entity = name
-                | (Identifier.Slot(slot), Identifier.Slot(entity), Identifier.Symbol(Symbol("="))) -> entity = slot
-                | _ -> false)
-            network
+// let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
+//     let res =
+//         Set.filter
+//             (fun (e, a, _) ->
+//                 match (name, e, a) with
+//                 | (Pattern.Symbol(name), Pattern.Symbol(entity), Pattern.Symbol(Symbol("="))) -> entity = name
+//                 | (Pattern.Slot(slot), Pattern.Slot(entity), Pattern.Symbol(Symbol("="))) -> entity = slot
+//                 | _ -> false)
+//             network
 
-    match List.ofSeq (res) with
-    | [] -> None
-    | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
-    | _ -> None
+//     match List.ofSeq (res) with
+//     | [] -> None
+//     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
+//     | _ -> None
 
-let getRoots (patternSet: Set<Statement>) : Set<Identifier> =
+let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-let getLeaves (patternSet: Set<Statement>) : Set<Identifier> =
+let getLeaves (patternSet: Set<Statement>) : Set<Pattern> =
     patternSet
-    |> Set.map (fun ((_, _, value): Statement) ->
-        match value with
-        | Identifier.Symbol identifier -> Some(Identifier.Symbol identifier)
-        | Identifier.Slot slot -> Some(Identifier.Slot slot)
-        | _ -> None)
+    |> Set.map (fun ((_, _, value): Statement) -> Some(Pattern.Symbol value))
     |> Set.filter (fun x -> x.IsSome)
     |> Set.map (fun x -> x.Value)
 
-let printIdentifier (pattern: Identifier) : string =
+let printSymbol (Symbol(symbol)) : string = symbol
+
+let printIdentifier (pattern: Pattern) : string =
     match pattern with
-    | Identifier.Symbol(Symbol path) -> path
-    | Identifier.Slot(Slot(Some(name))) -> $"${name}"
-    | Identifier.Slot(Slot(None)) -> "$"
+    | Pattern.Symbol(Symbol path) -> path
+    | Pattern.Slot(Slot(Some(name))) -> $"${name}"
+    | Pattern.Slot(Slot(None)) -> "$"

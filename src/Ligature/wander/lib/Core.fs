@@ -49,8 +49,8 @@ let ignoreCombinator: Combinator =
       Signature = [ LigatureType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
-let printSignature ((arguments, result): LigatureType list * LigatureType option) : Identifier =
-    Identifier.Symbol(Symbol($"{arguments} -> {result}"))
+let printSignature ((arguments, result): LigatureType list * LigatureType option) : Symbol =
+    Symbol($"{arguments} -> {result}")
 // List.map
 //     (fun t ->
 //         match t with
@@ -72,22 +72,23 @@ let docsCombinator: Combinator =
       Signature = [], Some(LigatureType.Network)
       Eval =
         fun combinators networks _ ->
-            let mutable docs = Set.empty
+            // let mutable docs = Set.empty
 
-            Map.toList combinators
-            |> List.iter (fun (name, combinator) ->
-                let signature = printSignature combinator.Signature
+            // Map.toList combinators
+            // |> List.iter (fun (name, combinator) ->
+            //     let signature = printSignature combinator.Signature
 
-                docs <-
-                    Set.add
-                        (Identifier.Symbol(name),
-                         Identifier.Symbol(Symbol("docString")),
-                         Identifier.Symbol(Symbol(combinator.Doc)))
-                        docs
+            //     docs <-
+            //         Set.add
+            //             name,
+            //             Symbol("docString"),
+            //             Symbol(combinator.Doc)) docs
 
-                docs <- Set.add (Identifier.Symbol(name), Identifier.Symbol(Symbol("signature")), signature) docs)
+            //     docs <- Set.add (Symbol(name), Symbol("signature"), signature) docs
 
-            Ok(Some(WanderValue.Network docs)) }
+
+            //Ok(Some(WanderValue.Network docs))) }
+            failwith "TODO" }
 
 let coreCombinators =
     (Map.ofList
