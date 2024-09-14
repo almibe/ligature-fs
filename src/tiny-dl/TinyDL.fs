@@ -8,7 +8,7 @@ type Symbol = string
 
 type AtomicConcept = Symbol
 
-type Concept = 
+type Concept =
     | AtomicConcept of AtomicConcept
     | Disjuction of Disjunction
     | Conjuction of Conjunction
@@ -16,29 +16,34 @@ type Concept =
     | Not of Not
     | Subsumption of Subsumption
 
-type Role = Symbol
+and Role = Symbol
 
-type Subsumption = {subsumee: Concept, subsumer: Concept}
+and Subsumption =
+    { subsumee: Concept; subsumer: Concept }
 
-type Equivalence = {left: Concept, right: Concept, relation: "equalivant"}
+and Equivalence = { left: Concept; right: Concept }
 
-type Not = { concept: Concept, relation: "not"}
+and Not = { concept: Concept }
 
-type Conjuction = { left: Concept, right: Concept, relation: "conjunction" }
+and Conjunction = { left: Concept; right: Concept }
 
-type Disjuction = { left: Concept, right: Concept, kind: "disjunction" }
+and Disjunction = { left: Concept; right: Concept }
 
-type ExistentialRestriction = { concept: Concept, role: Role, kind: "existentialRestriction" }
+and ExistentialRestriction = { concept: Concept; role: Role }
 
-type ValueRestriction = { concept: Concept, role: Role, kind: "valueRestriction" }
+and ValueRestriction = { concept: Concept; role: Role }
 
-type Individual = {individual: Symbol, concept: Concept } 
+and UnaryPredicate = { symbol: Symbol; concept: Concept }
 
-type RoleInstance = { role: Role, left: Concept, right: Concept }
+and BinaryConceptPredicate =
+    { role: Role
+      left: Concept
+      right: Concept }
 
-type ABox = Set<Individual | RoleInstance>
-
-type TBox = Set<Concept>
+and BinarySymbolPredicate =
+    { role: Role
+      left: Symbol
+      right: Symbol }
 
 // export function infer(tBox: TBox, aBox: ABox): ABox {
 //     let results = Set()
