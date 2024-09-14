@@ -14,18 +14,51 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
+    open Ligature.LigatureStore.InMemoryStore
+    open Ligature.Wander.Combinators
+    open Ligature.Wander.Main
     let view () =
         Component(fun ctx ->
-            let state = ctx.useState 0
+            let result = ctx.useState ""
+            let script = ctx.useState ""
 
             DockPanel.create [
                 DockPanel.children [
-                    TextBlock.create [
-                        TextBlock.dock Dock.Top
-                        TextBlock.fontSize 48.0
-                        TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        TextBlock.text (string state.Current)
+                    StackPanel.create [
+                        StackPanel.dock Dock.Top
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.children [
+                            Button.create [
+                                Button.content "Run"
+                                Button.onClick (fun _ ->
+                                    match run stdCombinators emptyInMemoryStore (script.Current) with
+                                    | Ok(Some(res)) -> result.Set $"{res}"
+                                    | Ok _ -> result.Set ("--nothing--")
+                                    | Error(err) -> result.Set (err.UserMessage))
+                            ]
+                        ]
+                    ]
+                    Grid.create [
+                        Grid.dock Dock.Bottom
+                        Grid.columnDefinitions "1*"
+                        Grid.rowDefinitions "1*, 1*"
+                        Grid.children [
+                            TextBox.create [
+                                TextBox.name "script"
+                                Grid.row 0
+                                Grid.column 0
+                                TextBox.acceptsReturn true
+                                TextBox.onTextChanged (fun e -> script.Set e)
+                            ]
+                            TextBox.create [
+                                TextBox.name "result"
+                                TextBox.text (result.Current)
+                                Grid.row 1
+                                Grid.column 0
+                                TextBox.acceptsReturn true
+                                TextBox.isEnabled false
+                            ]
+                        ]
                     ]
                 ]
             ]
