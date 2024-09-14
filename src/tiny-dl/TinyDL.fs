@@ -8,15 +8,19 @@ type Symbol = string
 
 type AtomicConcept = Symbol
 
+let top: AtomicConcept = "⊤"
+
+let bottom: AtomicConcept = "⊥"
+
+type Role = Symbol
+
 type Concept =
     | AtomicConcept of AtomicConcept
-    | Disjuction of Disjunction
-    | Conjuction of Conjunction
+    | Disjunction of Disjunction
+    | Conjunction of Conjunction
     | Equivalence of Equivalence
     | Not of Not
     | Subsumption of Subsumption
-
-and Role = Symbol
 
 and Subsumption =
     { subsumee: Concept; subsumer: Concept }
@@ -35,44 +39,19 @@ and ValueRestriction = { concept: Concept; role: Role }
 
 and UnaryPredicate = { symbol: Symbol; concept: Concept }
 
-and BinaryConceptPredicate =
-    { role: Role
-      left: Concept
-      right: Concept }
-
-and BinarySymbolPredicate =
+and BinaryPredicate =
     { role: Role
       left: Symbol
       right: Symbol }
 
-// export function infer(tBox: TBox, aBox: ABox): ABox {
-//     let results = Set()
-//     let lastResults: undefined | Set<Individual> = undefined
-//     let workingABox = aBox
-//     while (results != lastResults) {
-//         tBox.forEach((rule) => {
-//             if (rule.subsumee && rule.subsumer) {
-//                 const subConcept = rule.subsumee
-//                 const concept = rule.subsumer
-//                 workingABox.forEach(ind => {
-//                     if (ind.individual && ind.concept == subConcept) {
-//                         results = results.add(individual(ind.individual, concept))
-//                     }
-//                 })
-//             } else if (rule.relation == "equalivant") {
-//                 const left = rule.left
-//                 const right = rule.right
-//                 workingABox.forEach(ind => {
-//                     if (ind.concept == left) {
-//                         results = results.add(individual(ind.individual, right))
-//                     } else if (ind.concept == right) {
-//                         results = results.add(individual(ind.individual, left))
-//                     }
-//                 })
-//             }
-//             lastResults = results;
-//             workingABox = results.union(workingABox);
-//         })
-//     }
-//     return results.union(workingABox)
-// }
+and ABoxValues =
+    | UnaryPredicate of UnaryPredicate
+    | BinaryPredicate of BinaryPredicate
+
+and ABox = Set<ABoxValues>
+
+and TBox = Set<Concept>
+
+let check (tBox: TBox) (aBox: ABox) : bool = true
+
+let infer (tBox: TBox) (aBox: ABox) : ABox = Set.empty

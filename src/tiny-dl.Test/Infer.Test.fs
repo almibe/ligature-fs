@@ -5,15 +5,28 @@
 module TinyDL.Infer.Test
 
 open Expecto
-//open TinyDL.Main
+open TinyDL.Main
 
-// [<Tests>]
-// let tests =
-//     testList
-//         "Infer Tests"
-//         [ testCase "Check Infer on empty arguments"
-//           <| fun _ ->
-//               Expect.equal
-//                   ()
-//                   ()
-//                   "" ]
+[<Tests>]
+let tests =
+    testList
+        "Check Tests"
+        [ testCase "Call check on empty arguments"
+          <| fun _ -> Expect.isTrue (check Set.empty Set.empty) ""
+          testCase "Call check with empty TBox"
+          <| fun _ ->
+              Expect.isTrue
+                  (check
+                      Set.empty
+                      (Set.ofList
+                          [ UnaryPredicate
+                                { symbol = "betty"
+                                  concept = AtomicConcept "Cat" } ]))
+                  "" ]
+// "Infer Tests"
+// [ testCase "Check Infer on empty arguments"
+//   <| fun _ ->
+//       Expect.equal
+//           ()
+//           ()
+//           "" ]

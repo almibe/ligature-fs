@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TinyDL\TinyDL.fsproj" />
+    <ProjectReference Include="..\tiny-dl\TinyDL.fsproj" />
   </ItemGroup>
 
 </Project>
