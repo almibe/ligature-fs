@@ -17,19 +17,6 @@ let symbolToJS (Symbol(symbol): Symbol) =
     res?symbol <- symbol
     res
 
-let valueToJS (value: WanderValue) =
-    let res = createEmpty
-
-    match value with
-    | WanderValue.Symbol(Symbol(id)) -> res?identifier <- id
-    | WanderValue.Slot(Slot(Some(slot))) -> res?slot <- $"{slot}"
-    | WanderValue.Slot(Slot(None)) -> res?slot <- ""
-    | WanderValue.Expression e -> failwith "TODO"
-    | WanderValue.Network n -> failwith "TODO"
-    | WanderValue.Quote q -> failwith "TODO"
-
-    res
-
 let rec networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
@@ -43,6 +30,17 @@ let rec networkToJS (network: Network) =
         network
 
     resNetwork
+
+let valueToJS (value: WanderValue) =
+    let res = createEmpty
+
+    match value with
+    | WanderValue.Symbol(Symbol(id)) -> res?symbol <- id
+    | WanderValue.Expression e -> failwith "TODO"
+    | WanderValue.Network n -> res?network <- (networkToJS n)
+    | WanderValue.Quote q -> failwith "TODO"
+
+    res
 
 // and quoteToJS (q: Quote) =
 //     List.map (fun value -> valueToJS (value)) q |> List.toArray
