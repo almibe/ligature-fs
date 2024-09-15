@@ -67,11 +67,6 @@ and LigatureStore =
 
 let defaultNetwork = Symbol("")
 
-let currentNetwork name networks : Network = failwith "TODO"
-// match Map.tryFind name networks with
-// | Some res -> res
-// | None -> Set.empty
-
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =
 //         Set.filter
@@ -90,16 +85,5 @@ let currentNetwork name networks : Network = failwith "TODO"
 let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
-// let getLeaves (patternSet: Set<Statement>) : Set<Pattern> =
-//     patternSet
-//     |> Set.map (fun ((_, _, value): Statement) -> Some(Pattern.Symbol value))
-//     |> Set.filter (fun x -> x.IsSome)
-//     |> Set.map (fun x -> x.Value)
 
 let printSymbol (Symbol(symbol)) : string = symbol
-
-// let printIdentifier (pattern: Pattern) : string =
-//     match pattern with
-//     | Pattern.Symbol(Symbol path) -> path
-//     | Pattern.Slot(Slot(Some(name))) -> $"${name}"
-//     | Pattern.Slot(Slot(None)) -> "$"

@@ -8,7 +8,7 @@ open Ligature.Wander.Model
 open Ligature.Main
 
 let notFunction =
-    { Name = Symbol("not")
+    { Name = Symbol("Bool.not")
       Doc = "Boolean not"
       Signature = [ LigatureType.Symbol ], Some(LigatureType.Symbol)
       Eval =
