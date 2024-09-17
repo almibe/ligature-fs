@@ -4,6 +4,8 @@
 
 module TinyDL.Main
 
+type TinyDLError = string
+
 type Symbol = string
 
 type AtomicConcept = Symbol
@@ -60,20 +62,3 @@ let bottom: AtomicConcept = "⊥"
 let emptyABox: ABox = Set.empty
 let emptyTBox: TBox = Set.empty
 let emptyKB: KnowledgeBase = Set.empty, Set.empty
-
-let interpret ((tBox, aBox): KnowledgeBase) : Interpretation =
-    // Set.fold
-    //     (fun state entry ->
-    //         match entry with
-    //         | UnaryPredicate up ->
-    //             match up with
-    //             | { symbol = symbol
-    //                 concept = AtomicConcept(concept) } ->
-    //                 Map.add (InterpretationKey.Concept concept) (Set.ofList [ symbol ]) state
-    //             | _ -> failwith "TODO"
-    //         | BinaryPredicate bp -> failwith "TODO")
-    //     Map.empty
-    //     aBox
-    { Domain = Set.empty
-      Concepts = Map.empty
-      Roles = Map.empty }

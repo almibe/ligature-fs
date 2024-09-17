@@ -6,6 +6,7 @@ module TinyDL.Infer.Test
 
 open Expecto
 open TinyDL.Main
+open TinyDL.Interpreter
 
 [<Tests>]
 let tests =
@@ -15,9 +16,10 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (interpret emptyKB)
-                  { Domain = Set.empty
-                    Concepts = Map.empty
-                    Roles = Map.empty }
+                  (Ok
+                      { Domain = Set.empty
+                        Concepts = Map.empty
+                        Roles = Map.empty })
                   ""
           testCase "Call check with empty TBox"
           <| fun _ ->
@@ -29,10 +31,10 @@ let tests =
                                 { symbol = "betty"
                                   concept = AtomicConcept "Cat" } ])
                   ))
-                  { Domain = Set.empty
-                    Concepts = Map.empty
-                    Roles = Map.empty }
-                  //(Map.ofList [ (InterpretationKey.Concept(Symbol "Cat"), Set.ofList [ Symbol "betty" ]) ])
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat" ]
+                        Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty" ]) ]
+                        Roles = Map.empty })
                   ""
           testCase "Call check with empty ABox"
           <| fun _ ->
@@ -44,7 +46,8 @@ let tests =
                                   right = AtomicConcept "HouseCat" } ]),
                       emptyABox
                   ))
-                  { Domain = Set.empty
-                    Concepts = Map.empty
-                    Roles = Map.empty }
+                  (Ok
+                      { Domain = Set.empty
+                        Concepts = Map.ofList [ (Symbol "DomesticCat", Set.empty); (Symbol "HouseCat", Set.empty) ]
+                        Roles = Map.empty })
                   "" ]
