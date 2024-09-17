@@ -2,11 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module TinyDL.Lexer.Test
+module TinyDL.Tokenizer.Test
 
 open Expecto
-open TinyDL.Main
-open TinyDL.Lexer
+open TinyDL.Tokenizer
 
 [<Tests>]
 let tests =
@@ -20,9 +19,9 @@ let tests =
             Expect.equal 
                 (tokenize "name another-name") 
                 (Ok [
-                  Token.Symbol "name"
+                  Token.Name "name"
                   Token.WhiteSpace " "
-                  Token.Symbol "another-name"
+                  Token.Name "another-name"
                 ]) ""
           testCase "Tokenize symbols"
           <| fun _ -> 
@@ -48,7 +47,3 @@ let tests =
                     Token.OpenSquare
                     Token.CloseSquare
                 ]) "" ]
-
-
-
-                  

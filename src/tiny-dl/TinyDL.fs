@@ -8,11 +8,11 @@ type Symbol = string
 
 type AtomicConcept = Symbol
 
-let top: AtomicConcept = "⊤"
-
-let bottom: AtomicConcept = "⊥"
-
 type Role = Symbol
+
+type Name =
+    | AtomicConcept of AtomicConcept
+    | Role of Role
 
 type Concept =
     | AtomicConcept of AtomicConcept
@@ -44,14 +44,30 @@ and BinaryPredicate =
       left: Symbol
       right: Symbol }
 
-and ABoxValues =
+and ABoxValue =
     | UnaryPredicate of UnaryPredicate
     | BinaryPredicate of BinaryPredicate
 
-and ABox = Set<ABoxValues>
+and ABox = Set<ABoxValue>
 
 and TBox = Set<Concept>
 
-let check (tBox: TBox) (aBox: ABox) : bool = true
+and KnowledgeBase = TBox * ABox
 
-let infer (tBox: TBox) (aBox: ABox) : ABox = Set.empty
+and Interpretation = Map<Name, Set<Symbol>>
+
+let top: AtomicConcept = "⊤"
+let bottom: AtomicConcept = "⊥"
+let emptyABox: ABox = Set.empty
+let emptyTBox: TBox = Set.empty
+let emptyKB: KnowledgeBase = Set.empty, Set.empty
+
+let interpret ((tBox, aBox): KnowledgeBase) : Interpretation =
+    Set.fold (fun state entry -> 
+        match entry with
+        | UnaryPredicate up ->
+            match up with
+            | { symbol = symbol; concept = AtomicConcept(concept) } ->
+                Map.add (Name.AtomicConcept concept) (Set.ofList [symbol]) state
+            | _ -> failwith "TODO"
+        | BinaryPredicate bp -> failwith "TODO") Map.empty aBox

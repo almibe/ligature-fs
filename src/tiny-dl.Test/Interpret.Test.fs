@@ -12,17 +12,19 @@ let tests =
     testList
         "Check Tests"
         [ testCase "Call check on empty arguments"
-          <| fun _ -> Expect.isTrue (check Set.empty Set.empty) ""
+          <| fun _ -> Expect.equal (interpret emptyKB) Map.empty ""
           testCase "Call check with empty TBox"
           <| fun _ ->
-              Expect.isTrue
-                  (check
-                      Set.empty
+              Expect.equal
+                  (interpret
+                      (Set.empty,
                       (Set.ofList
                           [ UnaryPredicate
                                 { symbol = "betty"
-                                  concept = AtomicConcept "Cat" } ]))
-                  "" ]
+                                  concept = AtomicConcept "Cat" } ])))
+                  (Map.ofList [(Name.AtomicConcept (Symbol "Cat"), Set.ofList [Symbol "betty"])])
+                  "" 
+        ]
 // "Infer Tests"
 // [ testCase "Check Infer on empty arguments"
 //   <| fun _ ->

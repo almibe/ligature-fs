@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module TinyDL.Lexer
+module TinyDL.Tokenizer
 
 let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 
@@ -10,7 +10,7 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Symbol of string
+    | Name of string
     | OpenBrace
     | CloseBrace
     | OpenSquare
@@ -55,7 +55,7 @@ let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Symbol)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Name)
 
 let tokenNibbler =
     Nibblers.optional (
