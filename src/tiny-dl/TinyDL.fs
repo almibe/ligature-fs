@@ -10,10 +10,6 @@ type AtomicConcept = Symbol
 
 type Role = Symbol
 
-type Name =
-    | AtomicConcept of AtomicConcept
-    | Role of Role
-
 type Concept =
     | AtomicConcept of AtomicConcept
     | Disjunction of Disjunction
@@ -54,7 +50,10 @@ and TBox = Set<Concept>
 
 and KnowledgeBase = TBox * ABox
 
-and Interpretation = Map<Name, Set<Symbol>>
+and Interpretation =
+    { Domain: Set<Symbol>
+      Concepts: Map<Symbol, Set<Symbol>>
+      Roles: Map<Symbol, Set<Symbol * Symbol>> }
 
 let top: AtomicConcept = "⊤"
 let bottom: AtomicConcept = "⊥"
@@ -63,11 +62,18 @@ let emptyTBox: TBox = Set.empty
 let emptyKB: KnowledgeBase = Set.empty, Set.empty
 
 let interpret ((tBox, aBox): KnowledgeBase) : Interpretation =
-    Set.fold (fun state entry -> 
-        match entry with
-        | UnaryPredicate up ->
-            match up with
-            | { symbol = symbol; concept = AtomicConcept(concept) } ->
-                Map.add (Name.AtomicConcept concept) (Set.ofList [symbol]) state
-            | _ -> failwith "TODO"
-        | BinaryPredicate bp -> failwith "TODO") Map.empty aBox
+    // Set.fold
+    //     (fun state entry ->
+    //         match entry with
+    //         | UnaryPredicate up ->
+    //             match up with
+    //             | { symbol = symbol
+    //                 concept = AtomicConcept(concept) } ->
+    //                 Map.add (InterpretationKey.Concept concept) (Set.ofList [ symbol ]) state
+    //             | _ -> failwith "TODO"
+    //         | BinaryPredicate bp -> failwith "TODO")
+    //     Map.empty
+    //     aBox
+    { Domain = Set.empty
+      Concepts = Map.empty
+      Roles = Map.empty }

@@ -42,7 +42,7 @@ module InMemoryStore =
                 Ok(())
     //                store.Item(name)
 
-    let emptyInMemoryStore(): LigatureStore =
+    let emptyInMemoryStore () : LigatureStore =
         InMemoryStore(new Dictionary<Symbol, Set<Statement>>())
 
 // let patternNameToIdentifier (patternName: Pattern) : Pattern =

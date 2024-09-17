@@ -37,13 +37,7 @@ let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
 let nameNibbler =
-    Nibblers.takeAll
-        [ (Nibblers.repeat
-              (Nibblers.takeInRange
-                  [ ('a', 'z')
-                    ('A', 'Z')
-                    ('_', '_')
-                    ('-', '-') ])) ]
+    Nibblers.takeAll [ (Nibblers.repeat (Nibblers.takeInRange [ ('a', 'z'); ('A', 'Z'); ('_', '_'); ('-', '-') ])) ]
 
 let newLineNibbler =
     Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]

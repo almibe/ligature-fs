@@ -14,23 +14,40 @@ let tests =
     testList
         "Parser Tests"
         [ testCase "Parse empty script"
-          <| fun _ -> 
-            Expect.equal (parse []) (Ok (Set.empty, Set.empty)) "" 
+          <| fun _ -> Expect.equal (parse []) (Ok(Set.empty, Set.empty)) ""
           testCase "Parse single individual"
-          <| fun _ -> 
-            Expect.equal 
-              (parse [Token.Name("x"); Token.Colon; Token.Name("Y")]) 
-              (Ok (Set.empty, Set.ofList [ UnaryPredicate { symbol = "x"; concept = AtomicConcept "Y"} ]))
-              ""
+          <| fun _ ->
+              Expect.equal
+                  (parse [ Token.Name("x"); Token.Colon; Token.Name("Y") ])
+                  (Ok(
+                      Set.empty,
+                      Set.ofList
+                          [ UnaryPredicate
+                                { symbol = "x"
+                                  concept = AtomicConcept "Y" } ]
+                  ))
+                  ""
           testCase "Concept Equiv"
-          <| fun _ -> 
-            Expect.equal 
-              (parse [Token.Name("X"); Token.Equiv; Token.Name("Y")]) 
-              (Ok (Set.ofList [ Equivalence { left = AtomicConcept "X"; right = AtomicConcept "Y"} ] ,emptyABox))
-              ""
+          <| fun _ ->
+              Expect.equal
+                  (parse [ Token.Name("X"); Token.Equiv; Token.Name("Y") ])
+                  (Ok(
+                      Set.ofList
+                          [ Equivalence
+                                { left = AtomicConcept "X"
+                                  right = AtomicConcept "Y" } ],
+                      emptyABox
+                  ))
+                  ""
           testCase "Concept Inclusion"
-          <| fun _ -> 
-            Expect.equal 
-              (parse [Token.Name("X"); Token.ConceptInclusion; Token.Name("Y")]) 
-              (Ok (Set.ofList [ Subsumption { subsumee = AtomicConcept "X"; subsumer = AtomicConcept "Y"} ] ,emptyABox))
-              "" ]
+          <| fun _ ->
+              Expect.equal
+                  (parse [ Token.Name("X"); Token.ConceptInclusion; Token.Name("Y") ])
+                  (Ok(
+                      Set.ofList
+                          [ Subsumption
+                                { subsumee = AtomicConcept "X"
+                                  subsumer = AtomicConcept "Y" } ],
+                      emptyABox
+                  ))
+                  "" ]

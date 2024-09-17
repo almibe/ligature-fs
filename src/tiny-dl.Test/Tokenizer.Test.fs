@@ -12,38 +12,34 @@ let tests =
     testList
         "Lexer Tests"
         [ testCase "Tokenize empty script"
-          <| fun _ -> 
-            Expect.equal (tokenize "") (Ok []) ""
+          <| fun _ -> Expect.equal (tokenize "") (Ok []) ""
           testCase "Tokenize Names"
           <| fun _ ->
-            Expect.equal 
-                (tokenize "name another-name") 
-                (Ok [
-                  Token.Name "name"
-                  Token.WhiteSpace " "
-                  Token.Name "another-name"
-                ]) ""
+              Expect.equal
+                  (tokenize "name another-name")
+                  (Ok [ Token.Name "name"; Token.WhiteSpace " "; Token.Name "another-name" ])
+                  ""
           testCase "Tokenize symbols"
-          <| fun _ -> 
-            Expect.equal 
-                (tokenize ":,.∃∀⊑⊔≡⊤¬⊥⊓{}()[]") 
-                (Ok [
-                    Token.Colon
-                    Token.Comma
-                    Token.Dot
-                    Token.Exists
-                    Token.All
-                    Token.ConceptInclusion
-                    Token.ConceptDisjunction
-                    Token.Equiv
-                    Token.Top
-                    Token.Negation
-                    Token.Bottom
-                    Token.ConceptConjunction
-                    Token.OpenBrace
-                    Token.CloseBrace
-                    Token.OpenParen
-                    Token.CloseParen
-                    Token.OpenSquare
-                    Token.CloseSquare
-                ]) "" ]
+          <| fun _ ->
+              Expect.equal
+                  (tokenize ":,.∃∀⊑⊔≡⊤¬⊥⊓{}()[]")
+                  (Ok
+                      [ Token.Colon
+                        Token.Comma
+                        Token.Dot
+                        Token.Exists
+                        Token.All
+                        Token.ConceptInclusion
+                        Token.ConceptDisjunction
+                        Token.Equiv
+                        Token.Top
+                        Token.Negation
+                        Token.Bottom
+                        Token.ConceptConjunction
+                        Token.OpenBrace
+                        Token.CloseBrace
+                        Token.OpenParen
+                        Token.CloseParen
+                        Token.OpenSquare
+                        Token.CloseSquare ])
+                  "" ]

@@ -92,31 +92,49 @@ open Nibblers
 
 let unaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
-    | Ok(Token.Name individual), Ok(Token.Colon), Ok(Token.Name concept) -> 
-        Ok (emptyTBox, Set.ofList [UnaryPredicate { symbol = individual; concept = AtomicConcept concept }])        
+    | Ok(Token.Name individual), Ok(Token.Colon), Ok(Token.Name concept) ->
+        Ok(
+            emptyTBox,
+            Set.ofList
+                [ UnaryPredicate
+                      { symbol = individual
+                        concept = AtomicConcept concept } ]
+        )
     | _ -> Error Gaze.GazeError.NoMatch
 
 let atomicConceptNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze) with
-    | Ok(Token.Name individual) -> 
-        Ok (Set.ofList [AtomicConcept individual], emptyABox)        
+    | Ok(Token.Name individual) -> Ok(Set.ofList [ AtomicConcept individual ], emptyABox)
     | _ -> Error Gaze.GazeError.NoMatch
 
 let conceptEquivNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
-    | Ok(Token.Name left), Ok(Token.Equiv), Ok(Token.Name right) -> 
-        Ok (Set.ofList [Equivalence { left = AtomicConcept left; right = AtomicConcept right }], emptyABox)        
+    | Ok(Token.Name left), Ok(Token.Equiv), Ok(Token.Name right) ->
+        Ok(
+            Set.ofList
+                [ Equivalence
+                      { left = AtomicConcept left
+                        right = AtomicConcept right } ],
+            emptyABox
+        )
     | _ -> Error Gaze.GazeError.NoMatch
 
 let conceptInclusionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
-    | Ok(Token.Name left), Ok(Token.ConceptInclusion), Ok(Token.Name right) -> 
-        Ok (Set.ofList [Subsumption { subsumee = AtomicConcept left; subsumer = AtomicConcept right }], emptyABox)        
+    | Ok(Token.Name left), Ok(Token.ConceptInclusion), Ok(Token.Name right) ->
+        Ok(
+            Set.ofList
+                [ Subsumption
+                      { subsumee = AtomicConcept left
+                        subsumer = AtomicConcept right } ],
+            emptyABox
+        )
     | _ -> Error Gaze.GazeError.NoMatch
 
-let expressionNib = takeFirst [unaryPredicateNib; conceptEquivNib; conceptInclusionNib; atomicConceptNib ]//quoteNib; expressionNib; ; networkNib ]
+let expressionNib =
+    takeFirst [ unaryPredicateNib; conceptEquivNib; conceptInclusionNib; atomicConceptNib ] //quoteNib; expressionNib; ; networkNib ]
 
-let valueNib = takeFirst [atomicConceptNib ]//quoteNib; expressionNib; ; networkNib ]
+let valueNib = takeFirst [ atomicConceptNib ] //quoteNib; expressionNib; ; networkNib ]
 
 // // let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
 // //     let next = Gaze.next gaze
@@ -170,15 +188,20 @@ let parse (tokens: Token list) : Result<KnowledgeBase, ParserError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok (Set.empty, Set.empty)
+        Ok(Set.empty, Set.empty)
     else
         let gaze = Gaze.fromList tokens
 
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
-                Ok (List.fold (fun (stateTBox, stateABox) (tBox, aBox) ->
-                    ((Set.union stateTBox tBox), (Set.union stateABox aBox))) emptyKB res)
+                Ok(
+                    List.fold
+                        (fun (stateTBox, stateABox) (tBox, aBox) ->
+                            ((Set.union stateTBox tBox), (Set.union stateABox aBox)))
+                        emptyKB
+                        res
+                )
             else
                 Error $"Failed to parse completely. {Gaze.remaining gaze}"
         | Error err -> Error $"Failed to parse.\n{err.ToString()}"

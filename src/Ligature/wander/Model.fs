@@ -28,12 +28,17 @@ let rec prettyPrint (value: WanderValue) : string =
 
 and printNetwork (network: Network) : string =
     let mutable first = true
-    (Seq.fold (fun state triple ->
-        if first then
-            first <- false
-            state + " " + (printStatement triple) + ","
-        else
-            state + "\n  " + (printStatement triple) + ",") "{" (network)) + " }"
+
+    (Seq.fold
+        (fun state triple ->
+            if first then
+                first <- false
+                state + " " + (printStatement triple) + ","
+            else
+                state + "\n  " + (printStatement triple) + ",")
+        "{"
+        (network))
+    + " }"
 
 and printBytes bytes =
     bytes
