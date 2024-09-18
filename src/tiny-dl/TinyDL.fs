@@ -18,10 +18,9 @@ type Concept =
     | Conjunction of Conjunction
     | Definition of Definition
     | Not of Not
-    | Subsumption of Subsumption
+    | Inclusion of Inclusion
 
-and Subsumption =
-    { subsumee: Concept; subsumer: Concept }
+and Inclusion = { left: AtomicConcept; right: Concept }
 
 and Definition = { left: AtomicConcept; right: Concept }
 

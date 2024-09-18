@@ -35,13 +35,18 @@ let tests =
                   ""
           testCase "Concept Inclusion"
           <| fun _ ->
+              let tokens =
+                  match tokenize "X ⊑ Y" with
+                  | Ok res -> res
+                  | _ -> failwith "TODO"
+
               Expect.equal
-                  (parse [ Token.Name("X"); Token.ConceptInclusion; Token.Name("Y") ])
+                  (parse tokens)
                   (Ok(
                       Set.ofList
-                          [ Subsumption
-                                { subsumee = AtomicConcept "X"
-                                  subsumer = AtomicConcept "Y" } ],
+                          [ Inclusion
+                                { left = "X"
+                                  right = AtomicConcept "Y" } ],
                       emptyABox
                   ))
                   "" ]

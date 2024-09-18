@@ -102,12 +102,33 @@ let unaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.Gaze
         )
     | _ -> Error Gaze.GazeError.NoMatch
 
+let binaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
+    match
+        (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze, Gaze.next gaze, Gaze.next gaze, Gaze.next gaze, Gaze.next gaze)
+    with
+    | Ok(Token.OpenParen),
+      Ok(Token.Name left),
+      Ok(Token.Comma),
+      Ok(Token.Name right),
+      Ok(Token.CloseParen),
+      Ok(Token.Colon),
+      Ok(Token.Name role) ->
+        Ok(
+            emptyTBox,
+            Set.ofList
+                [ BinaryPredicate
+                      { left = left
+                        right = right
+                        role = role } ]
+        )
+    | _ -> Error Gaze.GazeError.NoMatch
+
 let atomicConceptNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze) with
     | Ok(Token.Name individual) -> Ok(Set.ofList [ AtomicConcept individual ], emptyABox)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let conceptEquivNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
+let conceptDefinitionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
     | Ok(Token.Name left), Ok(Token.Equiv), Ok(Token.Name right) ->
         Ok(
@@ -119,20 +140,38 @@ let conceptEquivNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeEr
         )
     | _ -> Error Gaze.GazeError.NoMatch
 
+let conceptConjunctionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
+    match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
+    | Ok(Token.Name left), Ok(Token.ConceptConjunction), Ok(Token.Name right) ->
+        Ok(
+            Set.ofList
+                [ Conjunction
+                      { left = AtomicConcept left
+                        right = AtomicConcept right } ],
+            emptyABox
+        )
+    | _ -> Error Gaze.GazeError.NoMatch
+
 let conceptInclusionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze, Gaze.next gaze) with
     | Ok(Token.Name left), Ok(Token.ConceptInclusion), Ok(Token.Name right) ->
         Ok(
             Set.ofList
-                [ Subsumption
-                      { subsumee = AtomicConcept left
-                        subsumer = AtomicConcept right } ],
+                [ Inclusion
+                      { left = left
+                        right = AtomicConcept right } ],
             emptyABox
         )
     | _ -> Error Gaze.GazeError.NoMatch
 
 let expressionNib =
-    takeFirst [ unaryPredicateNib; conceptEquivNib; conceptInclusionNib; atomicConceptNib ] //quoteNib; expressionNib; ; networkNib ]
+    takeFirst
+        [ unaryPredicateNib
+          binaryPredicateNib
+          conceptDefinitionNib
+          conceptInclusionNib
+          conceptConjunctionNib
+          atomicConceptNib ] //quoteNib; expressionNib; ; networkNib ]
 
 let valueNib = takeFirst [ atomicConceptNib ] //quoteNib; expressionNib; ; networkNib ]
 

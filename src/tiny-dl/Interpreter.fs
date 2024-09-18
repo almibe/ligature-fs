@@ -12,7 +12,8 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
     let mutable domain = Set.empty
     let mutable concepts = Map.empty
     let mutable roles = Map.empty
-    let mutable equivs = Map.empty
+    let mutable definitions = Map.empty
+    let mutable inclusions = Map.empty
 
     Set.iter
         (fun entry ->
@@ -30,19 +31,28 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
                 | None -> concepts <- Map.add (right) (Set.empty) concepts
                 | _ -> ()
 
-                domain <- Set.add (left) domain
-                domain <- Set.add (right) domain
-
-                match equivs.TryFind left with
-                | None -> equivs <- Map.add (left) (Set.ofList [ right ]) equivs
+                match definitions.TryFind left with
+                | None -> definitions <- Map.add (left) (Set.ofList [ right ]) definitions
                 | Some res -> failwith "TODO"
 
-                match equivs.TryFind right with
-                | None -> equivs <- Map.add (right) (Set.ofList [ left ]) equivs
+                match definitions.TryFind right with
+                | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
                 | Some res -> failwith "TODO"
 
             | Not n -> failwith "Not Implemented"
-            | Subsumption s -> failwith "Not Implemented"
+            | Inclusion { left = left
+                          right = AtomicConcept right } ->
+                match concepts.TryFind left with
+                | None -> concepts <- Map.add (left) (Set.empty) concepts
+                | _ -> ()
+
+                match concepts.TryFind right with
+                | None -> concepts <- Map.add (right) (Set.empty) concepts
+                | _ -> ()
+
+                match inclusions.TryFind left with
+                | None -> inclusions <- Map.add (left) (Set.ofList [ right ]) inclusions
+                | Some res -> failwith "TODO"
             | Definition(_) -> failwith "Not Implemented")
         tBox
 
@@ -57,9 +67,18 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
                     | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
 
                     domain <- Set.add (symbol) domain
-                    domain <- Set.add (concept) domain
 
-                    match equivs.TryFind concept with
+                    match definitions.TryFind concept with
+                    | Some res ->
+                        Set.iter
+                            (fun concept ->
+                                match concepts.TryFind concept with
+                                | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                                | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                            res
+                    | _ -> ()
+
+                    match inclusions.TryFind concept with
                     | Some res ->
                         Set.iter
                             (fun concept ->
@@ -70,7 +89,10 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
                     | _ -> ()
 
                 | _ -> failwith "TODO"
-            | BinaryPredicate bp -> failwith "TODO")
+            | BinaryPredicate bp ->
+                domain <- Set.add (bp.left) domain
+                domain <- Set.add (bp.right) domain
+                roles <- Map.add bp.role (Set.ofList [ bp.left, bp.right ]) roles)
         aBox
 
     Ok
@@ -83,5 +105,5 @@ let eval (script: string) : Result<Interpretation, TinyDLError> =
     | Ok res ->
         match parse res with
         | Ok res -> interpret res
-        | Error(errorValue) -> failwith "Not Implemented"
-    | Error(errorValue) -> Error(TinyDLError "Error tokenizing.")
+        | Error errorValue -> Error errorValue
+    | Error errorValue -> Error errorValue

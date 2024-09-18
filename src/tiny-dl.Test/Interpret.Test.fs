@@ -26,7 +26,7 @@ let tests =
               Expect.equal
                   (interpret (Set.empty, (Set.ofList [ UnaryPredicate { symbol = "betty"; concept = "Cat" } ])))
                   (Ok
-                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat" ]
+                      { Domain = Set.ofList [ Symbol "betty" ]
                         Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty" ]) ]
                         Roles = Map.empty })
                   ""
@@ -41,7 +41,7 @@ let tests =
                       emptyABox
                   ))
                   (Ok
-                      { Domain = Set.ofList [ Symbol "DomesticCat"; Symbol "HouseCat" ]
+                      { Domain = Set.ofList []
                         Concepts = Map.ofList [ (Symbol "DomesticCat", Set.empty); (Symbol "HouseCat", Set.empty) ]
                         Roles = Map.empty })
                   ""
@@ -50,7 +50,7 @@ let tests =
               Expect.equal
                   (eval "betty: Cat, betty: HouseCat")
                   (Ok
-                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "HouseCat" ]
+                      { Domain = Set.ofList [ Symbol "betty" ]
                         Concepts =
                           Map.ofList
                               [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
@@ -62,19 +62,52 @@ let tests =
               Expect.equal
                   (eval "betty: Cat, don: Cat")
                   (Ok
-                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "don" ]
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "don" ]
                         Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty"; Symbol "don" ]) ]
                         Roles = Map.empty })
                   ""
-          testCase "Basic Equiv"
+          testCase "Binary predicate"
+          <| fun _ ->
+              Expect.equal
+                  (eval "(betty, 11lbs): weight")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "11lbs" ]
+                        Concepts = Map.empty
+                        Roles = Map.ofList [ ("weight", Set.ofList [ ("betty", "11lbs") ]) ] })
+                  ""
+          testCase "Basic Definition"
           <| fun _ ->
               Expect.equal
                   (eval "Cat ≡ HouseCat, betty: Cat")
                   (Ok
-                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "HouseCat" ]
+                      { Domain = Set.ofList [ Symbol "betty" ]
                         Concepts =
                           Map.ofList
                               [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
                                 (Symbol "HouseCat", Set.ofList [ Symbol "betty" ]) ]
                         Roles = Map.empty })
+                  ""
+          testCase "Basic Inclusion"
+          <| fun _ ->
+              Expect.equal
+                  (eval "Cat ⊑ Animal, betty: Cat")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty" ]
+                        Concepts =
+                          Map.ofList
+                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+                                (Symbol "Animal", Set.ofList [ Symbol "betty" ]) ]
+                        Roles = Map.empty })
+                  ""
+          testCase "Basic Existential Restriction"
+          <| fun _ ->
+              Expect.equal
+                  (eval "Cat ⊑ ∃weight.Weight, (betty, 11lbs): weight")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "11lbs" ]
+                        Concepts =
+                          Map.ofList
+                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+                                (Symbol "Weight", Set.ofList [ Symbol "11lbs" ]) ]
+                        Roles = Map.ofList [ (Symbol "weight", Set.ofList [ (Symbol "betty", Symbol "11lbs") ]) ] })
                   "" ]
