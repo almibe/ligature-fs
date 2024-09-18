@@ -16,14 +16,14 @@ type Concept =
     | AtomicConcept of AtomicConcept
     | Disjunction of Disjunction
     | Conjunction of Conjunction
-    | Equivalence of Equivalence
+    | Definition of Definition
     | Not of Not
     | Subsumption of Subsumption
 
 and Subsumption =
     { subsumee: Concept; subsumer: Concept }
 
-and Equivalence = { left: Concept; right: Concept }
+and Definition = { left: AtomicConcept; right: Concept }
 
 and Not = { concept: Concept }
 

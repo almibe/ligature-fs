@@ -27,8 +27,8 @@ let tests =
                   (parse [ Token.Name("X"); Token.Equiv; Token.Name("Y") ])
                   (Ok(
                       Set.ofList
-                          [ Equivalence
-                                { left = AtomicConcept "X"
+                          [ Definition
+                                { left = "X"
                                   right = AtomicConcept "Y" } ],
                       emptyABox
                   ))

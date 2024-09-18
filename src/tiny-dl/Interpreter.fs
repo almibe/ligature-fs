@@ -20,8 +20,8 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
             | AtomicConcept c -> failwith "TODO"
             | Disjunction d -> failwith "Not Implemented"
             | Conjunction c -> failwith "Not Implemented"
-            | Equivalence { left = AtomicConcept left
-                            right = AtomicConcept right } ->
+            | Definition { left = left
+                           right = AtomicConcept right } ->
                 match concepts.TryFind left with
                 | None -> concepts <- Map.add (left) (Set.empty) concepts
                 | _ -> ()
@@ -43,7 +43,7 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
 
             | Not n -> failwith "Not Implemented"
             | Subsumption s -> failwith "Not Implemented"
-            | Equivalence(_) -> failwith "Not Implemented")
+            | Definition(_) -> failwith "Not Implemented")
         tBox
 
     Set.iter

@@ -112,8 +112,8 @@ let conceptEquivNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeEr
     | Ok(Token.Name left), Ok(Token.Equiv), Ok(Token.Name right) ->
         Ok(
             Set.ofList
-                [ Equivalence
-                      { left = AtomicConcept left
+                [ Definition
+                      { left = left
                         right = AtomicConcept right } ],
             emptyABox
         )

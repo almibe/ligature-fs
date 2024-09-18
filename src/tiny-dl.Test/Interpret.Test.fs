@@ -35,8 +35,8 @@ let tests =
               Expect.equal
                   (interpret (
                       (Set.ofList
-                          [ Equivalence
-                                { left = AtomicConcept "DomesticCat"
+                          [ Definition
+                                { left = "DomesticCat"
                                   right = AtomicConcept "HouseCat" } ]),
                       emptyABox
                   ))
