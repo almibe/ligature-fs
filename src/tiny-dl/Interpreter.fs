@@ -12,21 +12,7 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
     let mutable domain = Set.empty
     let mutable concepts = Map.empty
     let mutable roles = Map.empty
-
-    Set.iter
-        (fun entry ->
-            match entry with
-            | UnaryPredicate up ->
-                match up with
-                | { symbol = symbol
-                    concept = AtomicConcept(concept) } ->
-                    //TODO check if concept already exists
-                    concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
-                    domain <- Set.add (symbol) domain
-                    domain <- Set.add (concept) domain
-                | _ -> failwith "TODO"
-            | BinaryPredicate bp -> failwith "TODO")
-        aBox
+    let mutable equivs = Map.empty
 
     Set.iter
         (fun entry ->
@@ -36,13 +22,56 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
             | Conjunction c -> failwith "Not Implemented"
             | Equivalence { left = AtomicConcept left
                             right = AtomicConcept right } ->
-                //TODO check if concept already exists
-                concepts <- Map.add (left) (Set.empty) concepts
-                concepts <- Map.add (right) (Set.empty) concepts
+                match concepts.TryFind left with
+                | None -> concepts <- Map.add (left) (Set.empty) concepts
+                | _ -> ()
+
+                match concepts.TryFind right with
+                | None -> concepts <- Map.add (right) (Set.empty) concepts
+                | _ -> ()
+
+                domain <- Set.add (left) domain
+                domain <- Set.add (right) domain
+
+                match equivs.TryFind left with
+                | None -> equivs <- Map.add (left) (Set.ofList [ right ]) equivs
+                | Some res -> failwith "TODO"
+
+                match equivs.TryFind right with
+                | None -> equivs <- Map.add (right) (Set.ofList [ left ]) equivs
+                | Some res -> failwith "TODO"
+
             | Not n -> failwith "Not Implemented"
             | Subsumption s -> failwith "Not Implemented"
             | Equivalence(_) -> failwith "Not Implemented")
         tBox
+
+    Set.iter
+        (fun entry ->
+            match entry with
+            | UnaryPredicate up ->
+                match up with
+                | { symbol = symbol; concept = concept } ->
+                    match concepts.TryFind concept with
+                    | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                    | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
+
+                    domain <- Set.add (symbol) domain
+                    domain <- Set.add (concept) domain
+
+                    match equivs.TryFind concept with
+                    | Some res ->
+                        Set.iter
+                            (fun concept ->
+                                match concepts.TryFind concept with
+                                | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                                | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                            res
+                    | _ -> ()
+
+                | _ -> failwith "TODO"
+            | BinaryPredicate bp -> failwith "TODO")
+        aBox
 
     Ok
         { Domain = domain

@@ -24,13 +24,7 @@ let tests =
           testCase "Call check with empty TBox"
           <| fun _ ->
               Expect.equal
-                  (interpret (
-                      Set.empty,
-                      (Set.ofList
-                          [ UnaryPredicate
-                                { symbol = "betty"
-                                  concept = AtomicConcept "Cat" } ])
-                  ))
+                  (interpret (Set.empty, (Set.ofList [ UnaryPredicate { symbol = "betty"; concept = "Cat" } ])))
                   (Ok
                       { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat" ]
                         Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty" ]) ]
@@ -47,7 +41,40 @@ let tests =
                       emptyABox
                   ))
                   (Ok
-                      { Domain = Set.empty
+                      { Domain = Set.ofList [ Symbol "DomesticCat"; Symbol "HouseCat" ]
                         Concepts = Map.ofList [ (Symbol "DomesticCat", Set.empty); (Symbol "HouseCat", Set.empty) ]
+                        Roles = Map.empty })
+                  ""
+          testCase "Read multiple unary predicates with one individual"
+          <| fun _ ->
+              Expect.equal
+                  (eval "betty: Cat, betty: HouseCat")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "HouseCat" ]
+                        Concepts =
+                          Map.ofList
+                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+                                (Symbol "HouseCat", Set.ofList [ Symbol "betty" ]) ]
+                        Roles = Map.empty })
+                  ""
+          testCase "Read multiple unary predicates"
+          <| fun _ ->
+              Expect.equal
+                  (eval "betty: Cat, don: Cat")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "don" ]
+                        Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty"; Symbol "don" ]) ]
+                        Roles = Map.empty })
+                  ""
+          testCase "Basic Equiv"
+          <| fun _ ->
+              Expect.equal
+                  (eval "Cat ≡ HouseCat, betty: Cat")
+                  (Ok
+                      { Domain = Set.ofList [ Symbol "betty"; Symbol "Cat"; Symbol "HouseCat" ]
+                        Concepts =
+                          Map.ofList
+                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+                                (Symbol "HouseCat", Set.ofList [ Symbol "betty" ]) ]
                         Roles = Map.empty })
                   "" ]

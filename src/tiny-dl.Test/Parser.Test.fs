@@ -19,13 +19,7 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse [ Token.Name("x"); Token.Colon; Token.Name("Y") ])
-                  (Ok(
-                      Set.empty,
-                      Set.ofList
-                          [ UnaryPredicate
-                                { symbol = "x"
-                                  concept = AtomicConcept "Y" } ]
-                  ))
+                  (Ok(Set.empty, Set.ofList [ UnaryPredicate { symbol = "x"; concept = "Y" } ]))
                   ""
           testCase "Concept Equiv"
           <| fun _ ->

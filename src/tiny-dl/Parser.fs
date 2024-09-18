@@ -98,7 +98,7 @@ let unaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.Gaze
             Set.ofList
                 [ UnaryPredicate
                       { symbol = individual
-                        concept = AtomicConcept concept } ]
+                        concept = concept } ]
         )
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -170,7 +170,7 @@ let valueNib = takeFirst [ atomicConceptNib ] //quoteNib; expressionNib; ; netwo
 
 // let elementNib = takeFirst [ expressionNib; networkNib ]
 
-let scriptNib = repeat expressionNib //valueNib
+let scriptNib = repeatSep expressionNib Token.Comma //valueNib
 
 type ParserError = string
 

@@ -35,7 +35,9 @@ and ExistentialRestriction = { concept: Concept; role: Role }
 
 and ValueRestriction = { concept: Concept; role: Role }
 
-and UnaryPredicate = { symbol: Symbol; concept: Concept }
+and UnaryPredicate =
+    { symbol: Symbol
+      concept: AtomicConcept }
 
 and BinaryPredicate =
     { role: Role
