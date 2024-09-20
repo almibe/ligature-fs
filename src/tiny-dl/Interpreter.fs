@@ -11,8 +11,20 @@ open TinyDL.Parser
 let acyclic (tBox: TBox) : bool = failwith "TODO"
 
 let normalize (aBox: ABox) : Result<NormalABox, TinyDLError> =
-
-    failwith "TODO"
+    Set.fold (fun state value -> 
+        match value with
+        | BinaryPredicate bp -> failwith "TODO"
+        | UnaryPredicate { symbol = symbol; concept = concept } -> 
+            match concept with
+            | AtomicConcept ac ->
+                Set.add (NormalABoxValue.UnaryPredicate ({ symbol = symbol; concept = (NormalConceptExpression.AtomicConcept ac) })) state
+            | Disjunction dj -> 
+                failwith "Not Implemented"
+            | Conjunction cj -> 
+                failwith "Not Implemented"
+            | Not { concept = AtomicConcept ac } -> 
+                Set.add (NormalABoxValue.UnaryPredicate ({ symbol = symbol; concept = (NormalConceptExpression.Not ac) })) state
+        ) Set.empty aBox |> Ok
 
 let consistent (aBox: NormalABox) : Result<bool, TinyDLError> =
     let mutable individuals: Map<Symbol, Set<NormalConceptExpression>> = Map.empty
