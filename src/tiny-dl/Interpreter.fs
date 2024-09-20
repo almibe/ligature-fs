@@ -8,8 +8,49 @@ open TinyDL.Main
 open TinyDL.Tokenizer
 open TinyDL.Parser
 
-let consistent (aBox: ABox): Result<bool, TinyDLError> =
-    failwith "TODO"
+
+
+let consistent (aBox: ABox) : Result<bool, TinyDLError> =
+    let mutable individuals: Map<Symbol, Set<ConceptExpression>> = Map.empty
+
+    Set.fold
+        (fun state assertion ->
+            match state with
+            | Error error -> Error error
+            | Ok false -> Ok false
+            | Ok true ->
+                match assertion with
+                | UnaryPredicate { concept = AtomicConcept concept
+                                   symbol = symbol } ->
+                    match individuals.TryFind symbol with
+                    | None ->
+                        individuals <- Map.add symbol (Set.ofList [ AtomicConcept concept ]) individuals
+                        Ok(true)
+                    | Some res ->
+                        if res.Contains(Not { concept = AtomicConcept concept }) then
+                            Ok(false)
+                        else
+                            individuals <- Map.add symbol (Set.add (AtomicConcept concept) res) individuals
+                            Ok(true)
+                | UnaryPredicate { concept = Not { concept = AtomicConcept concept }
+                                   symbol = symbol } ->
+                    match individuals.TryFind symbol with
+                    | None ->
+                        individuals <-
+                            Map.add symbol (Set.ofList [ Not { concept = AtomicConcept concept } ]) individuals
+
+                        Ok(true)
+                    | Some res ->
+                        if res.Contains(AtomicConcept concept) then
+                            Ok(false)
+                        else
+                            individuals <-
+                                Map.add symbol (Set.add (Not { concept = AtomicConcept concept }) res) individuals
+
+                            Ok(true)
+                | BinaryPredicate bp -> Ok(true))
+        (Ok(true))
+        aBox
 
 let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError> =
     let mutable domain = Set.empty
@@ -21,8 +62,7 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
     Set.iter
         (fun entry ->
             match entry with
-            | Definition { left = left
-                           right = right } ->
+            | Definition { left = left; right = right } ->
                 match concepts.TryFind left with
                 | None -> concepts <- Map.add (left) (Set.empty) concepts
                 | _ -> ()
@@ -35,12 +75,11 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
                 | None -> definitions <- Map.add (left) (Set.ofList [ right ]) definitions
                 | Some res -> failwith "TODO"
 
-                // match definitions.TryFind right with
-                // | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
-                // | Some res -> failwith "TODO"
+            // match definitions.TryFind right with
+            // | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
+            // | Some res -> failwith "TODO"
 
-            | Inclusion { left = left
-                          right = right } ->
+            | Inclusion { left = left; right = right } ->
                 match concepts.TryFind left with
                 | None -> concepts <- Map.add (left) (Set.empty) concepts
                 | _ -> ()
@@ -51,8 +90,8 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
 
                 match inclusions.TryFind left with
                 | None -> inclusions <- Map.add (left) (Set.ofList [ right ]) inclusions
-                | Some res -> failwith "TODO"
-            ) tBox
+                | Some res -> failwith "TODO")
+        tBox
 
     Set.iter
         (fun entry ->
@@ -60,31 +99,31 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
             | UnaryPredicate up ->
                 match up with
                 | { symbol = symbol; concept = concept } ->
-                    match concepts.TryFind concept with
-                    | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-                    | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
+                    // match concepts.TryFind concept with
+                    // | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                    // | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
 
                     domain <- Set.add (symbol) domain
 
-                    match definitions.TryFind concept with
-                    | Some res -> failwith "TODO"
-                        // Set.iter
-                        //     (fun concept ->
-                        //         match concepts.TryFind concept with
-                        //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-                        //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-                        //     res
-                    | _ -> ()
+                // match definitions.TryFind concept with
+                // | Some res -> failwith "TODO"
+                //     // Set.iter
+                //     //     (fun concept ->
+                //     //         match concepts.TryFind concept with
+                //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                //     //     res
+                // | _ -> ()
 
-                    match inclusions.TryFind concept with
-                    | Some res -> failwith "TODO"
-                        // Set.iter
-                        //     (fun concept ->
-                        //         match concepts.TryFind concept with
-                        //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-                        //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-                        //     res
-                    | _ -> ()
+                // match inclusions.TryFind concept with
+                // | Some res -> failwith "TODO"
+                //     // Set.iter
+                //     //     (fun concept ->
+                //     //         match concepts.TryFind concept with
+                //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                //     //     res
+                // | _ -> ()
 
                 | _ -> failwith "TODO"
             | BinaryPredicate bp ->

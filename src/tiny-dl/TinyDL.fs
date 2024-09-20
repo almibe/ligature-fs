@@ -22,23 +22,35 @@ and ConceptExpression =
     | Conjunction of Conjunction
     | Not of Not
 
-and Inclusion = { left: AtomicConcept; right: ConceptExpression }
+and Inclusion =
+    { left: AtomicConcept
+      right: ConceptExpression }
 
-and Definition = { left: AtomicConcept; right: ConceptExpression }
+and Definition =
+    { left: AtomicConcept
+      right: ConceptExpression }
 
 and Not = { concept: ConceptExpression }
 
-and Conjunction = { left: ConceptExpression; right: ConceptExpression }
+and Conjunction =
+    { left: ConceptExpression
+      right: ConceptExpression }
 
-and Disjunction = { left: ConceptExpression; right: ConceptExpression }
+and Disjunction =
+    { left: ConceptExpression
+      right: ConceptExpression }
 
-and ExistentialRestriction = { concept: ConceptExpression; role: Role }
+and ExistentialRestriction =
+    { concept: ConceptExpression
+      role: Role }
 
-and ValueRestriction = { concept: ConceptExpression; role: Role }
+and ValueRestriction =
+    { concept: ConceptExpression
+      role: Role }
 
 and UnaryPredicate =
     { symbol: Symbol
-      concept: AtomicConcept }
+      concept: ConceptExpression }
 
 and BinaryPredicate =
     { role: Role
