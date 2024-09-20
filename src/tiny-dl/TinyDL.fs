@@ -22,6 +22,10 @@ and ConceptExpression =
     | Conjunction of Conjunction
     | Not of Not
 
+and [<RequireQualifiedAccess>] NormalConceptExpression =
+    | AtomicConcept of AtomicConcept
+    | Not of AtomicConcept
+
 and Inclusion =
     { left: AtomicConcept
       right: ConceptExpression }
@@ -52,6 +56,10 @@ and UnaryPredicate =
     { symbol: Symbol
       concept: ConceptExpression }
 
+and NormalUnaryPredicate =
+    { symbol: Symbol
+      concept: NormalConceptExpression }
+
 and BinaryPredicate =
     { role: Role
       left: Symbol
@@ -61,7 +69,13 @@ and ABoxValue =
     | UnaryPredicate of UnaryPredicate
     | BinaryPredicate of BinaryPredicate
 
+and [<RequireQualifiedAccess>] NormalABoxValue =
+    | UnaryPredicate of NormalUnaryPredicate
+    | BinaryPredicate of BinaryPredicate
+
 and ABox = Set<ABoxValue>
+
+and NormalABox = Set<NormalABoxValue>
 
 and TBox = Set<Term>
 

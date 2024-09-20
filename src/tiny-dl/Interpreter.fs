@@ -8,47 +8,58 @@ open TinyDL.Main
 open TinyDL.Tokenizer
 open TinyDL.Parser
 
+let acyclic (tBox: TBox) : bool = failwith "TODO"
 
+let normalize (aBox: ABox) : Result<NormalABox, TinyDLError> =
 
-let consistent (aBox: ABox) : Result<bool, TinyDLError> =
-    let mutable individuals: Map<Symbol, Set<ConceptExpression>> = Map.empty
+    failwith "TODO"
+
+let consistent (aBox: NormalABox) : Result<bool, TinyDLError> =
+    let mutable individuals: Map<Symbol, Set<NormalConceptExpression>> = Map.empty
 
     Set.fold
-        (fun state assertion ->
+        (fun state (assertion: NormalABoxValue) ->
             match state with
             | Error error -> Error error
             | Ok false -> Ok false
             | Ok true ->
                 match assertion with
-                | UnaryPredicate { concept = AtomicConcept concept
-                                   symbol = symbol } ->
-                    match individuals.TryFind symbol with
-                    | None ->
-                        individuals <- Map.add symbol (Set.ofList [ AtomicConcept concept ]) individuals
-                        Ok(true)
-                    | Some res ->
-                        if res.Contains(Not { concept = AtomicConcept concept }) then
-                            Ok(false)
-                        else
-                            individuals <- Map.add symbol (Set.add (AtomicConcept concept) res) individuals
-                            Ok(true)
-                | UnaryPredicate { concept = Not { concept = AtomicConcept concept }
-                                   symbol = symbol } ->
+                | NormalABoxValue.UnaryPredicate { concept = NormalConceptExpression.AtomicConcept concept
+                                                   symbol = symbol } ->
                     match individuals.TryFind symbol with
                     | None ->
                         individuals <-
-                            Map.add symbol (Set.ofList [ Not { concept = AtomicConcept concept } ]) individuals
+                            Map.add symbol (Set.ofList [ NormalConceptExpression.AtomicConcept concept ]) individuals
 
                         Ok(true)
                     | Some res ->
-                        if res.Contains(AtomicConcept concept) then
+                        if res.Contains(NormalConceptExpression.Not concept) then
                             Ok(false)
                         else
                             individuals <-
-                                Map.add symbol (Set.add (Not { concept = AtomicConcept concept }) res) individuals
+                                Map.add
+                                    symbol
+                                    (Set.add (NormalConceptExpression.AtomicConcept concept) res)
+                                    individuals
 
                             Ok(true)
-                | BinaryPredicate bp -> Ok(true))
+                | NormalABoxValue.UnaryPredicate { concept = NormalConceptExpression.Not concept
+                                                   symbol = symbol } ->
+                    match individuals.TryFind symbol with
+                    | None ->
+                        individuals <-
+                            Map.add symbol (Set.ofList [ NormalConceptExpression.AtomicConcept concept ]) individuals
+
+                        Ok(true)
+                    | Some res ->
+                        if res.Contains(NormalConceptExpression.AtomicConcept concept) then
+                            Ok(false)
+                        else
+                            individuals <-
+                                Map.add symbol (Set.add (NormalConceptExpression.Not concept) res) individuals
+
+                            Ok(true)
+                | NormalABoxValue.BinaryPredicate bp -> Ok(true))
         (Ok(true))
         aBox
 

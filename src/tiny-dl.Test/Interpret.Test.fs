@@ -9,9 +9,12 @@ open TinyDL.Main
 open TinyDL.Interpreter
 open TinyDL.Parser
 
-let unsafeRead (input: string) : ABox =
+let unsafeRead (input: string) : NormalABox =
     match read input with
-    | Ok(_, res) -> res
+    | Ok(_, res) ->
+        match normalize res with
+        | Ok res -> res
+        | Error err -> failwith err
     | Error err -> failwith err
 
 [<Tests>]
