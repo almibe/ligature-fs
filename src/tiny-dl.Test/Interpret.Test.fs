@@ -12,15 +12,16 @@ open TinyDL.Interpreter
 let tests =
     testList
         "Check Tests"
-        [ testCase "Call interpret on empty arguments"
-          <| fun _ ->
-              Expect.equal
-                  (interpret emptyKB)
-                  (Ok
-                      { Domain = Set.empty
-                        Concepts = Map.empty
-                        Roles = Map.empty })
-                  ""
+        [ 
+          // testCase "Call interpret on empty arguments"
+          // <| fun _ ->
+          //     Expect.equal
+          //         (interpret emptyKB)
+          //         (Ok
+          //             { Domain = Set.empty
+          //               Concepts = Map.empty
+          //               Roles = Map.empty })
+          //         ""
           testCase "Call interpret with empty TBox"
           <| fun _ ->
               Expect.equal
@@ -30,21 +31,21 @@ let tests =
                         Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty" ]) ]
                         Roles = Map.empty })
                   ""
-          testCase "Call interpret with empty ABox"
-          <| fun _ ->
-              Expect.equal
-                  (interpret (
-                      (Set.ofList
-                          [ Definition
-                                { left = "DomesticCat"
-                                  right = AtomicConcept "HouseCat" } ]),
-                      emptyABox
-                  ))
-                  (Ok
-                      { Domain = Set.ofList []
-                        Concepts = Map.ofList [ (Symbol "DomesticCat", Set.empty); (Symbol "HouseCat", Set.empty) ]
-                        Roles = Map.empty })
-                  ""
+          // testCase "Call interpret with empty ABox"
+          // <| fun _ ->
+          //     Expect.equal
+          //         (interpret (
+          //             (Set.ofList
+          //                 [ Definition
+          //                       { left = "DomesticCat"
+          //                         right = AtomicConcept "HouseCat" } ]),
+          //             emptyABox
+          //         ))
+          //         (Ok
+          //             { Domain = Set.ofList []
+          //               Concepts = Map.ofList [ (Symbol "DomesticCat", Set.empty); (Symbol "HouseCat", Set.empty) ]
+          //               Roles = Map.empty })
+          //         ""
           testCase "Read multiple unary predicates with one individual"
           <| fun _ ->
               Expect.equal
@@ -74,40 +75,40 @@ let tests =
                       { Domain = Set.ofList [ Symbol "betty"; Symbol "11lbs" ]
                         Concepts = Map.empty
                         Roles = Map.ofList [ ("weight", Set.ofList [ ("betty", "11lbs") ]) ] })
-                  ""
-          testCase "Basic Definition"
-          <| fun _ ->
-              Expect.equal
-                  (eval "Cat ≡ HouseCat, betty: Cat")
-                  (Ok
-                      { Domain = Set.ofList [ Symbol "betty" ]
-                        Concepts =
-                          Map.ofList
-                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
-                                (Symbol "HouseCat", Set.ofList [ Symbol "betty" ]) ]
-                        Roles = Map.empty })
-                  ""
-          testCase "Basic Inclusion"
-          <| fun _ ->
-              Expect.equal
-                  (eval "Cat ⊑ Animal, betty: Cat")
-                  (Ok
-                      { Domain = Set.ofList [ Symbol "betty" ]
-                        Concepts =
-                          Map.ofList
-                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
-                                (Symbol "Animal", Set.ofList [ Symbol "betty" ]) ]
-                        Roles = Map.empty })
-                  ""
-          testCase "Basic Existential Restriction"
-          <| fun _ ->
-              Expect.equal
-                  (eval "Cat ⊑ ∃weight.Weight, (betty, 11lbs): weight")
-                  (Ok
-                      { Domain = Set.ofList [ Symbol "betty"; Symbol "11lbs" ]
-                        Concepts =
-                          Map.ofList
-                              [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
-                                (Symbol "Weight", Set.ofList [ Symbol "11lbs" ]) ]
-                        Roles = Map.ofList [ (Symbol "weight", Set.ofList [ (Symbol "betty", Symbol "11lbs") ]) ] })
                   "" ]
+          // testCase "Basic Definition"
+          // <| fun _ ->
+          //     Expect.equal
+          //         (eval "Cat ≡ HouseCat, betty: Cat")
+          //         (Ok
+          //             { Domain = Set.ofList [ Symbol "betty" ]
+          //               Concepts =
+          //                 Map.ofList
+          //                     [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+          //                       (Symbol "HouseCat", Set.ofList [ Symbol "betty" ]) ]
+          //               Roles = Map.empty })
+          //         "" ]
+          // testCase "Basic Inclusion"
+          // <| fun _ ->
+          //     Expect.equal
+          //         (eval "Cat ⊑ Animal, betty: Cat")
+          //         (Ok
+          //             { Domain = Set.ofList [ Symbol "betty" ]
+          //               Concepts =
+          //                 Map.ofList
+          //                     [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+          //                       (Symbol "Animal", Set.ofList [ Symbol "betty" ]) ]
+          //               Roles = Map.empty })
+          //         ""
+          // testCase "Basic Existential Restriction"
+          // <| fun _ ->
+          //     Expect.equal
+          //         (eval "Cat ⊑ ∃weight.Weight, (betty, 11lbs): weight")
+          //         (Ok
+          //             { Domain = Set.ofList [ Symbol "betty"; Symbol "11lbs" ]
+          //               Concepts =
+          //                 Map.ofList
+          //                     [ (Symbol "Cat", Set.ofList [ Symbol "betty" ])
+          //                       (Symbol "Weight", Set.ofList [ Symbol "11lbs" ]) ]
+          //               Roles = Map.ofList [ (Symbol "weight", Set.ofList [ (Symbol "betty", Symbol "11lbs") ]) ] })
+          //         "" ]

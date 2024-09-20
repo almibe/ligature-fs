@@ -8,6 +8,9 @@ open TinyDL.Main
 open TinyDL.Tokenizer
 open TinyDL.Parser
 
+let consistent (aBox: ABox): Result<bool, TinyDLError> =
+    failwith "TODO"
+
 let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError> =
     let mutable domain = Set.empty
     let mutable concepts = Map.empty

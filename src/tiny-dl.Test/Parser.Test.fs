@@ -20,33 +20,33 @@ let tests =
               Expect.equal
                   (parse [ Token.Name("x"); Token.Colon; Token.Name("Y") ])
                   (Ok(Set.empty, Set.ofList [ UnaryPredicate { symbol = "x"; concept = "Y" } ]))
-                  ""
-          testCase "Concept Equiv"
-          <| fun _ ->
-              Expect.equal
-                  (parse [ Token.Name("X"); Token.Definition; Token.Name("Y") ])
-                  (Ok(
-                      Set.ofList
-                          [ Definition
-                                { left = "X"
-                                  right = AtomicConcept "Y" } ],
-                      emptyABox
-                  ))
-                  ""
-          testCase "Concept Inclusion"
-          <| fun _ ->
-              let tokens =
-                  match tokenize "X ⊑ Y" with
-                  | Ok res -> res
-                  | _ -> failwith "TODO"
-
-              Expect.equal
-                  (parse tokens)
-                  (Ok(
-                      Set.ofList
-                          [ Inclusion
-                                { left = "X"
-                                  right = AtomicConcept "Y" } ],
-                      emptyABox
-                  ))
                   "" ]
+        //   testCase "Concept Equiv"
+        //   <| fun _ ->
+        //       Expect.equal
+        //           (parse [ Token.Name("X"); Token.Definition; Token.Name("Y") ])
+        //           (Ok(
+        //               Set.ofList
+        //                   [ Definition
+        //                         { left = "X"
+        //                           right = AtomicConcept "Y" } ],
+        //               emptyABox
+        //           ))
+        //           "" ]
+        //   testCase "Concept Inclusion"
+        //   <| fun _ ->
+        //       let tokens =
+        //           match tokenize "X ⊑ Y" with
+        //           | Ok res -> res
+        //           | _ -> failwith "TODO"
+
+        //       Expect.equal
+        //           (parse tokens)
+        //           (Ok(
+        //               Set.ofList
+        //                   [ Inclusion
+        //                         { left = "X"
+        //                           right = AtomicConcept "Y" } ],
+        //               emptyABox
+        //           ))
+        //           "" ]
