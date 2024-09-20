@@ -31,7 +31,7 @@ let tests =
                         Token.All
                         Token.ConceptInclusion
                         Token.ConceptDisjunction
-                        Token.Equiv
+                        Token.Definition
                         Token.Top
                         Token.Negation
                         Token.Bottom

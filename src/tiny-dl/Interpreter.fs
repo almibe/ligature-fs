@@ -18,43 +18,38 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
     Set.iter
         (fun entry ->
             match entry with
-            | AtomicConcept c -> failwith "TODO"
-            | Disjunction d -> failwith "Not Implemented"
-            | Conjunction c -> failwith "Not Implemented"
             | Definition { left = left
-                           right = AtomicConcept right } ->
+                           right = right } ->
                 match concepts.TryFind left with
                 | None -> concepts <- Map.add (left) (Set.empty) concepts
                 | _ -> ()
 
-                match concepts.TryFind right with
-                | None -> concepts <- Map.add (right) (Set.empty) concepts
-                | _ -> ()
+                // match concepts.TryFind right with
+                // | None -> concepts <- Map.add (right) (Set.empty) concepts
+                // | _ -> ()
 
                 match definitions.TryFind left with
                 | None -> definitions <- Map.add (left) (Set.ofList [ right ]) definitions
                 | Some res -> failwith "TODO"
 
-                match definitions.TryFind right with
-                | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
-                | Some res -> failwith "TODO"
+                // match definitions.TryFind right with
+                // | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
+                // | Some res -> failwith "TODO"
 
-            | Not n -> failwith "Not Implemented"
             | Inclusion { left = left
-                          right = AtomicConcept right } ->
+                          right = right } ->
                 match concepts.TryFind left with
                 | None -> concepts <- Map.add (left) (Set.empty) concepts
                 | _ -> ()
 
-                match concepts.TryFind right with
-                | None -> concepts <- Map.add (right) (Set.empty) concepts
-                | _ -> ()
+                // match concepts.TryFind right with
+                // | None -> concepts <- Map.add (right) (Set.empty) concepts
+                // | _ -> ()
 
                 match inclusions.TryFind left with
                 | None -> inclusions <- Map.add (left) (Set.ofList [ right ]) inclusions
                 | Some res -> failwith "TODO"
-            | Definition(_) -> failwith "Not Implemented")
-        tBox
+            ) tBox
 
     Set.iter
         (fun entry ->
@@ -69,23 +64,23 @@ let interpret ((tBox, aBox): KnowledgeBase) : Result<Interpretation, TinyDLError
                     domain <- Set.add (symbol) domain
 
                     match definitions.TryFind concept with
-                    | Some res ->
-                        Set.iter
-                            (fun concept ->
-                                match concepts.TryFind concept with
-                                | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-                                | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-                            res
+                    | Some res -> failwith "TODO"
+                        // Set.iter
+                        //     (fun concept ->
+                        //         match concepts.TryFind concept with
+                        //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                        //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                        //     res
                     | _ -> ()
 
                     match inclusions.TryFind concept with
-                    | Some res ->
-                        Set.iter
-                            (fun concept ->
-                                match concepts.TryFind concept with
-                                | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-                                | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-                            res
+                    | Some res -> failwith "TODO"
+                        // Set.iter
+                        //     (fun concept ->
+                        //         match concepts.TryFind concept with
+                        //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+                        //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+                        //     res
                     | _ -> ()
 
                 | _ -> failwith "TODO"

@@ -24,7 +24,7 @@ let tests =
           testCase "Concept Equiv"
           <| fun _ ->
               Expect.equal
-                  (parse [ Token.Name("X"); Token.Equiv; Token.Name("Y") ])
+                  (parse [ Token.Name("X"); Token.Definition; Token.Name("Y") ])
                   (Ok(
                       Set.ofList
                           [ Definition

@@ -12,7 +12,7 @@ open TinyDL.Interpreter
 let tests =
     testList
         "Check Tests"
-        [ testCase "Call check on empty arguments"
+        [ testCase "Call interpret on empty arguments"
           <| fun _ ->
               Expect.equal
                   (interpret emptyKB)
@@ -21,7 +21,7 @@ let tests =
                         Concepts = Map.empty
                         Roles = Map.empty })
                   ""
-          testCase "Call check with empty TBox"
+          testCase "Call interpret with empty TBox"
           <| fun _ ->
               Expect.equal
                   (interpret (Set.empty, (Set.ofList [ UnaryPredicate { symbol = "betty"; concept = "Cat" } ])))
@@ -30,7 +30,7 @@ let tests =
                         Concepts = Map.ofList [ (Symbol "Cat", Set.ofList [ Symbol "betty" ]) ]
                         Roles = Map.empty })
                   ""
-          testCase "Call check with empty ABox"
+          testCase "Call interpret with empty ABox"
           <| fun _ ->
               Expect.equal
                   (interpret (

@@ -28,7 +28,7 @@ type Token =
     | Dot
     | Top
     | Bottom
-    | Equiv
+    | Definition
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -66,7 +66,7 @@ let tokenNibbler =
                   takeAndMap "∀" Token.All
                   takeAndMap "⊑" Token.ConceptInclusion
                   takeAndMap "⊔" Token.ConceptDisjunction
-                  takeAndMap "≡" Token.Equiv
+                  takeAndMap "≡" Token.Definition
                   takeAndMap "⊤" Token.Top
                   takeAndMap "¬" Token.Negation
                   takeAndMap "⊥" Token.Bottom

@@ -12,27 +12,29 @@ type AtomicConcept = Symbol
 
 type Role = Symbol
 
-type Concept =
+type Term =
+    | Definition of Definition
+    | Inclusion of Inclusion
+
+and ConceptExpression =
     | AtomicConcept of AtomicConcept
     | Disjunction of Disjunction
     | Conjunction of Conjunction
-    | Definition of Definition
     | Not of Not
-    | Inclusion of Inclusion
 
-and Inclusion = { left: AtomicConcept; right: Concept }
+and Inclusion = { left: AtomicConcept; right: ConceptExpression }
 
-and Definition = { left: AtomicConcept; right: Concept }
+and Definition = { left: AtomicConcept; right: ConceptExpression }
 
-and Not = { concept: Concept }
+and Not = { concept: ConceptExpression }
 
-and Conjunction = { left: Concept; right: Concept }
+and Conjunction = { left: ConceptExpression; right: ConceptExpression }
 
-and Disjunction = { left: Concept; right: Concept }
+and Disjunction = { left: ConceptExpression; right: ConceptExpression }
 
-and ExistentialRestriction = { concept: Concept; role: Role }
+and ExistentialRestriction = { concept: ConceptExpression; role: Role }
 
-and ValueRestriction = { concept: Concept; role: Role }
+and ValueRestriction = { concept: ConceptExpression; role: Role }
 
 and UnaryPredicate =
     { symbol: Symbol
@@ -49,7 +51,7 @@ and ABoxValue =
 
 and ABox = Set<ABoxValue>
 
-and TBox = Set<Concept>
+and TBox = Set<Term>
 
 and KnowledgeBase = TBox * ABox
 
