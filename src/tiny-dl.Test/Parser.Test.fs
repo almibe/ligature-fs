@@ -9,16 +9,21 @@ open TinyDL.Tokenizer
 open TinyDL.Parser
 open TinyDL.Main
 
+let parse (input: string) =
+    match tokenize input with
+    | Ok res -> parse res
+    | _ -> failwith "Error"
+
 [<Tests>]
 let tests =
     testList
         "Parser Tests"
         [ testCase "Parse empty script"
-          <| fun _ -> Expect.equal (parse []) (Ok(Set.empty, Set.empty)) ""
+          <| fun _ -> Expect.equal (parse "") (Ok(Set.empty, Set.empty)) ""
           testCase "Parse single individual"
           <| fun _ ->
               Expect.equal
-                  (parse [ Token.Name("x"); Token.Colon; Token.Name("Y") ])
+                  (parse "x:Y")
                   (Ok(
                       Set.empty,
                       Set.ofList
@@ -30,7 +35,7 @@ let tests =
           testCase "Parse single individual with Negatation"
           <| fun _ ->
               Expect.equal
-                  (parse [ Token.Name("x"); Token.Colon; Token.Negation; Token.Name("Y") ])
+                  (parse "x:¬Y")
                   (Ok(
                       Set.empty,
                       Set.ofList
@@ -38,7 +43,20 @@ let tests =
                                 { symbol = "x"
                                   concept = Not { concept = AtomicConcept "Y" } } ]
                   ))
+                  ""
+          testCase "Parse single individual with Conjunction"
+          <| fun _ ->
+              Expect.equal
+                  (parse "x:Y⊓Z")
+                  (Ok(
+                      Set.empty,
+                      Set.ofList
+                          [ UnaryPredicate
+                                { symbol = "x"
+                                  concept = Conjunction { left = AtomicConcept "Y"; right = AtomicConcept "Z" } } ]
+                  ))
                   "" ]
+
 //   testCase "Concept Equiv"
 //   <| fun _ ->
 //       Expect.equal

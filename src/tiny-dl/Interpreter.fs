@@ -21,7 +21,10 @@ let normalize (aBox: ABox) : Result<NormalABox, TinyDLError> =
             | Disjunction dj -> 
                 failwith "Not Implemented"
             | Conjunction cj -> 
-                failwith "Not Implemented"
+                match cj with
+                | { left = AtomicConcept left; right = AtomicConcept right } ->
+                    failwith "TODO"
+                | _ -> failwith "TODO"
             | Not { concept = AtomicConcept ac } -> 
                 Set.add (NormalABoxValue.UnaryPredicate ({ symbol = symbol; concept = (NormalConceptExpression.Not ac) })) state
         ) Set.empty aBox |> Ok

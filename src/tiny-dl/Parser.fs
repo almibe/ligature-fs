@@ -18,7 +18,19 @@ let unaryConceptExpressionNib (gaze: Gaze.Gaze<Token>) : Result<ConceptExpressio
     | (Ok Token.Negation, Ok(Token.Name individual)) -> Ok(Not { concept = AtomicConcept individual })
     | _ -> Error Gaze.GazeError.NoMatch
 
-let conceptExpressionNib = takeFirst [ atomicConceptNib; unaryConceptExpressionNib ]
+let binaryConceptExpressionNib (gaze: Gaze.Gaze<Token>) : Result<ConceptExpression, Gaze.GazeError> =
+    failwith "TODO"
+//    match Gaze.attempt conceptExpressionNib
+
+let conceptExpressionNib (gaze: Gaze.Gaze<Token>) =
+    match Gaze.next gaze with
+    | Ok(Token.Name concept) ->
+        match Gaze.next gaze with
+        | _ -> failwith "TODO"
+    | Ok(Token.Negation) -> 
+        match Gaze.next gaze with
+        | _ -> failwith "TODO"
+    | _ -> failwith "TODO"
 
 let unaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.GazeError> =
     match (Gaze.next gaze, Gaze.next gaze) with

@@ -27,6 +27,10 @@ let tests =
           <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, e: ¬F")) (Ok(true)) ""
           testCase "Check simple ABox for inconsistency"
           <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, a: ¬B")) (Ok(false)) ""
+        //   testCase "Check ABox for consistency with conjunctions"
+        //   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B ⊓ ¬D, c: D, a: ¬A ⊓ ¬B ⊓ ¬C")) (Ok(false)) ""
+
+
           // testCase "Call interpret on empty arguments"
           // <| fun _ ->
           //     Expect.equal
