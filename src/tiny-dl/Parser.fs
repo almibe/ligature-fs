@@ -35,7 +35,7 @@ let unaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.Gaze
     match (Gaze.next gaze, Gaze.next gaze) with
     | Ok(Token.Name individual), Ok(Token.Colon) ->
         match Gaze.attempt conceptExpressionNib gaze with
-        | Ok res -> Ok(emptyTBox, Set.ofList [ UnaryPredicate { symbol = individual; concept = res } ])
+        | Ok res -> Ok(Set.ofList [ UnaryPredicate { symbol = individual; concept = res } ])
         | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -51,7 +51,6 @@ let binaryPredicateNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.Gaz
       Ok(Token.Colon),
       Ok(Token.Name role) ->
         Ok(
-            emptyTBox,
             Set.ofList
                 [ BinaryPredicate
                       { left = left
@@ -67,8 +66,7 @@ let conceptDefinitionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.G
             Set.ofList
                 [ Definition
                       { left = left
-                        right = AtomicConcept right } ],
-            emptyABox
+                        right = AtomicConcept right } ]
         )
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -94,8 +92,7 @@ let conceptInclusionNib (gaze: Gaze.Gaze<Token>) : Result<KnowledgeBase, Gaze.Ga
                 Set.ofList
                     [ Inclusion
                           { left = concept
-                            right = AtomicConcept concept' } ],
-                emptyABox
+                            right = AtomicConcept concept' } ]
             )
         | _ ->
             // Ok(
@@ -137,20 +134,14 @@ let parse (tokens: Token list) : Result<KnowledgeBase, ParserError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok(Set.empty, Set.empty)
+        Ok(Set.empty)
     else
         let gaze = Gaze.fromList tokens
 
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
-                Ok(
-                    List.fold
-                        (fun (stateTBox, stateABox) (tBox, aBox) ->
-                            ((Set.union stateTBox tBox), (Set.union stateABox aBox)))
-                        emptyKB
-                        res
-                )
+                Ok(List.fold (fun (stateKB) (kb) -> (Set.union stateKB kb)) emptyKB res)
             else
                 Error $"Failed to parse completely. {Gaze.remaining gaze}"
         | Error err -> Error $"Failed to parse.\n{err.ToString()}"

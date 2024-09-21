@@ -9,22 +9,25 @@ open TinyDL.Main
 open TinyDL.Interpreter
 open TinyDL.NewParser
 
-// let unsafeRead (input: string) : NormalABox =
-//     match read input with
-//     | Ok(nodes) -> nodes
-//         // match normalize res with
-//         // | Ok res -> res
-//         // | Error err -> failwith err
-//     | Error err -> failwith err
+let unsafeRead (input: string) : NormalABox =
+    match read input with
+    | Ok(nodes) ->
+        match express nodes with
+        | Ok kb ->
+            match normalize kb with
+            | Ok res -> res
+            | Error err -> failwith err
+        | Error err -> failwith err
+    | Error err -> failwith err
 
 [<Tests>]
 let tests =
     testList
         "Check Tests"
         [ testCase "Check empty ABox for consistency"
-          <| fun _ -> Expect.equal (consistent (Set.empty)) (Ok(true)) "" ]
-//   testCase "Check simple ABox for consistency"
-//   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, e: ¬F")) (Ok(true)) ""
+          <| fun _ -> Expect.equal (consistent (Set.empty)) (Ok(true)) ""
+          testCase "Check simple ABox for consistency"
+          <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, e: ¬F")) (Ok(true)) "" ]
 //   testCase "Check simple ABox for inconsistency"
 //   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, a: ¬B")) (Ok(false)) "" ]
 //   testCase "Check ABox for consistency with conjunctions"

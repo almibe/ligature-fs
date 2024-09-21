@@ -12,10 +12,6 @@ type AtomicConcept = Symbol
 
 type Role = Symbol
 
-type Term =
-    | Definition of Definition
-    | Inclusion of Inclusion
-
 and ConceptExpression =
     | AtomicConcept of AtomicConcept
     | Disjunction of Disjunction
@@ -65,21 +61,19 @@ and BinaryPredicate =
       left: Symbol
       right: Symbol }
 
-and ABoxValue =
-    | UnaryPredicate of UnaryPredicate
-    | BinaryPredicate of BinaryPredicate
-
 and [<RequireQualifiedAccess>] NormalABoxValue =
     | UnaryPredicate of NormalUnaryPredicate
     | BinaryPredicate of BinaryPredicate
 
-and ABox = Set<ABoxValue>
-
 and NormalABox = Set<NormalABoxValue>
 
-and TBox = Set<Term>
+type Term =
+    | Definition of Definition
+    | Inclusion of Inclusion
+    | UnaryPredicate of UnaryPredicate
+    | BinaryPredicate of BinaryPredicate
 
-and KnowledgeBase = TBox * ABox
+and KnowledgeBase = Set<Term>
 
 and Interpretation =
     { Domain: Set<Symbol>
@@ -88,6 +82,4 @@ and Interpretation =
 
 let top: AtomicConcept = "⊤"
 let bottom: AtomicConcept = "⊥"
-let emptyABox: ABox = Set.empty
-let emptyTBox: TBox = Set.empty
-let emptyKB: KnowledgeBase = Set.empty, Set.empty
+let emptyKB: KnowledgeBase = Set.empty

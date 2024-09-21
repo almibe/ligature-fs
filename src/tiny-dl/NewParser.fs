@@ -84,7 +84,13 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
         | Ok(state, res) -> Ok [ res ]
         | Error err -> failwith "TODO"
 
-let express (node: Node list) : Result<KnowledgeBase, ParserError> = failwith "TODO"
+let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
+    List.fold
+        (fun state node ->
+
+            failwith "TODO")
+        (Ok emptyKB)
+        nodes
 
 let read (input: string) : Result<Node list, ParserError> =
     match tokenize input with
