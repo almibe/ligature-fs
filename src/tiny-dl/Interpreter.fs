@@ -179,6 +179,6 @@ let eval (script: string) : Result<Interpretation, TinyDLError> =
     match tokenize script with
     | Ok res ->
         match parse res with
-        | Ok res -> interpret res
+        | Ok res -> failwith "TODO" //interpret res
         | Error errorValue -> Error errorValue
     | Error errorValue -> Error errorValue

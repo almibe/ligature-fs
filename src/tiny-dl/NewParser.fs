@@ -8,49 +8,64 @@ open Tokenizer
 open TinyDL.Main
 open New
 
+type Operator = | Conjuntion
+
+[<RequireQualifiedAccess>]
+type Node =
+    | Name of string
+    | NotName of string
+    | BinaryOperator of Node * Operator * Node
+    | NotBinaryOperator of Node * Operator * Node
+    | UnaryPredicate of string * Node
+
+type AST = Node list
+
 type ParserError = string
 
-let readConceptExpression: Nibbler<Token, ConceptExpression> =
+let readConceptExpression: Nibbler<Token, Node> =
     fun state ->
         match read 3 state with
-        | [| Some(Token.Name concept); None; None |] ->
-            Ok({ state with offset = state.offset + 1 }, AtomicConcept concept)
+        | [| Some(Token.Name concept); None; None |] -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
         | [| Some(Token.Name concept); Some(Token.Comma); _ |] ->
-            Ok({ state with offset = state.offset + 2 }, AtomicConcept concept)
+            Ok({ state with offset = state.offset + 2 }, Node.Name concept)
         | [| Some(Token.Negation); Some(Token.Name concept); None |] ->
-            Ok({ state with offset = state.offset + 2 }, Not { concept = AtomicConcept concept })
+            Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
         | [| Some(Token.Negation); Some(Token.Name concept); Some(Token.Comma) |] ->
-            Ok({ state with offset = state.offset + 3 }, Not { concept = AtomicConcept concept })
+            Ok({ state with offset = state.offset + 3 }, Node.NotName concept)
         | _ -> failwith "TODO"
 
-let readUnaryPredicate (state: State<Token>) =
-    match read 2 state with
-    | [| Some(Token.Name individual); Some Token.Colon |] ->
-        match readOffset 2 state with
-        | Some(Token.Name concept) ->
-            Ok(
-                { state with offset = state.offset + 3 },
-                UnaryPredicate
-                    { symbol = individual
-                      concept = AtomicConcept concept }
-            )
-        | Some(Token.Negation) ->
-            match readOffset 3 state with
-            | Some(Token.Name concept) ->
-                Ok(
-                    { state with offset = state.offset + 3 },
-                    UnaryPredicate
-                        { symbol = individual
-                          concept = Not { concept = AtomicConcept concept } }
-                )
+let readUnaryPredicate: Nibbler<Token, Node> =
+    fun (state: State<Token>) ->
+        match read 2 state with
+        | [| Some(Token.Name individual); Some Token.Colon |] ->
+            match readConceptExpression { state with offset = state.offset + 2 } with
+            | Ok(state, (res)) -> Ok(state, Node.UnaryPredicate(individual, res))
             | _ -> failwith "TODO"
-        | _ -> failwith "TODO"
-    | _ -> Error(NoMatch)
+        // match readOffset 2 state with
+        // | Some(Token.Name concept) ->
+        //     Ok(
+        //         { state with offset = state.offset + 3 },
+        //         UnaryPredicate
+        //             { symbol = individual
+        //               concept = AtomicConcept concept }
+        //     )
+        // | Some(Token.Negation) ->
+        //     match readOffset 3 state with
+        //     | Some(Token.Name concept) ->
+        //         Ok(
+        //             { state with offset = state.offset + 3 },
+        //             UnaryPredicate
+        //                 { symbol = individual
+        //                   concept = Not { concept = AtomicConcept concept } }
+        //         )
+        //     | _ -> failwith "TODO"
+        // | _ -> failwith "TODO"
+        | _ -> Error(NoMatch)
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list) : Result<KnowledgeBase, ParserError> =
+let parse (tokens: Token list) : Result<Node list, ParserError> =
     let tokens =
         List.filter
             (fun token ->
@@ -61,15 +76,17 @@ let parse (tokens: Token list) : Result<KnowledgeBase, ParserError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok(Set.empty, Set.empty)
+        Ok []
     else
         let state = fromList tokens
 
         match readUnaryPredicate state with
-        | Ok(state, res) -> Ok((emptyTBox, Set.ofList [ res ]))
+        | Ok(state, res) -> Ok [ res ]
         | Error err -> failwith "TODO"
 
-let read (input: string) : Result<KnowledgeBase, ParserError> =
+let express (node: Node list) : Result<KnowledgeBase, ParserError> = failwith "TODO"
+
+let read (input: string) : Result<Node list, ParserError> =
     match tokenize input with
     | Ok res -> parse res
     | Error err -> Error err

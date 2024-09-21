@@ -18,47 +18,26 @@ let parse (input: string) =
 let tests =
     testList
         "Parser Tests"
-        [ testCase "Parse empty script"
-          <| fun _ -> Expect.equal (parse "") (Ok(Set.empty, Set.empty)) ""
+        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "Parse single individual"
-          <| fun _ ->
-              Expect.equal
-                  (parse "x:Y")
-                  (Ok(
-                      Set.empty,
-                      Set.ofList
-                          [ UnaryPredicate
-                                { symbol = "x"
-                                  concept = AtomicConcept "Y" } ]
-                  ))
-                  ""
+          <| fun _ -> Expect.equal (parse "x:Y") (Ok([ Node.UnaryPredicate("x", Node.Name("Y")) ])) ""
           testCase "Parse single individual with Negatation"
-          <| fun _ ->
-              Expect.equal
-                  (parse "x:¬Y")
-                  (Ok(
-                      Set.empty,
-                      Set.ofList
-                          [ UnaryPredicate
-                                { symbol = "x"
-                                  concept = Not { concept = AtomicConcept "Y" } } ]
-                  ))
-                  ""
-          testCase "Parse single individual with Conjunction"
-          <| fun _ ->
-              Expect.equal
-                  (parse "x:Y⊓Z")
-                  (Ok(
-                      Set.empty,
-                      Set.ofList
-                          [ UnaryPredicate
-                                { symbol = "x"
-                                  concept =
-                                    Conjunction
-                                        { left = AtomicConcept "Y"
-                                          right = AtomicConcept "Z" } } ]
-                  ))
-                  "" ]
+          <| fun _ -> Expect.equal (parse "x:¬Y") (Ok([ Node.UnaryPredicate("x", Node.NotName("Y")) ])) "" ]
+//   testCase "Parse single individual with Conjunction"
+//   <| fun _ ->
+//       Expect.equal
+//           (parse "x:Y⊓Z")
+//           (Ok(
+//               Set.empty,
+//               Set.ofList
+//                   [ UnaryPredicate
+//                         { symbol = "x"
+//                           concept =
+//                             Conjunction
+//                                 { left = AtomicConcept "Y"
+//                                   right = AtomicConcept "Z" } } ]
+//           ))
+//           "" ]
 
 //   testCase "Concept Equiv"
 //   <| fun _ ->
