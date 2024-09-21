@@ -6,7 +6,7 @@ module TinyDL.Parser.Test
 
 open Expecto
 open TinyDL.Tokenizer
-open TinyDL.Parser
+open TinyDL.NewParser
 open TinyDL.Main
 
 let parse (input: string) =
@@ -53,7 +53,10 @@ let tests =
                       Set.ofList
                           [ UnaryPredicate
                                 { symbol = "x"
-                                  concept = Conjunction { left = AtomicConcept "Y"; right = AtomicConcept "Z" } } ]
+                                  concept =
+                                    Conjunction
+                                        { left = AtomicConcept "Y"
+                                          right = AtomicConcept "Z" } } ]
                   ))
                   "" ]
 

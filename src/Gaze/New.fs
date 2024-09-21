@@ -4,19 +4,15 @@
 
 module New
 
-type State<'input> =
-    { input: 'input array
-      offset: int }
+type State<'input> = { input: 'input array; offset: int }
 
 type GazeError = | NoMatch
 
-type Nibbler<'input, 'output> = 
-    State<'input> -> Result<(State<'input> * 'output), GazeError>
+type Nibbler<'input, 'output> = State<'input> -> Result<(State<'input> * 'output), GazeError>
 
-type Gaze<'input, 'output> = 
-    State<'input> -> Result<'output, GazeError>
+type Gaze<'input, 'output> = State<'input> -> Result<'output, GazeError>
 
-// let chain<'input, 'output> 
+// let chain<'input, 'output>
 //     (result: Result<(Source<'input> * 'output), GazeError>)
 //     (nibbler: Nibbler<'input, 'output>): Result<(Source<'input> * 'output), GazeError> =
 //     match result with
@@ -28,8 +24,7 @@ let explode (s: string) = [| for c in s -> c |]
 
 /// Create an instance of Gaze that works with a String as input.
 let fromString string =
-    { input = explode (string)
-      offset = 0 }
+    { input = explode (string); offset = 0 }
 
 let fromArray array = { input = array; offset = 0 }
 
@@ -51,19 +46,22 @@ let next (gaze: State<_>) : Result<State<_> * _, GazeError> =
         Error(NoMatch)
     else
         let result = gaze.input[gaze.offset]
-        Ok({gaze with offset = gaze.offset + 1}, result)
+        Ok({ gaze with offset = gaze.offset + 1 }, result)
 
 let read<'i> (number: int) (state: State<'i>) =
     let mutable index = 0
-    let result = [| for i in 1 .. number -> None |]
+    let result = [| for i in 1..number -> None |]
+
     while index < number do
         if state.offset + index < state.input.Length then
             result[index] <- Some(state.input[state.offset + index])
+
         index <- index + 1
+
     result
 
 let readOffset<'i> (number: int) (state: State<'i>) =
     if state.offset + number < state.input.Length then
-        Some(state.input[state.offset+number])
+        Some(state.input[state.offset + number])
     else
         None

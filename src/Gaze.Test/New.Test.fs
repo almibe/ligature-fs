@@ -26,14 +26,14 @@ let tests =
               Expect.isTrue (New.isComplete gaze) ""
               Expect.equal (New.peek gaze) noMatch ""
               Expect.equal (New.peek gaze) noMatch ""
-              Expect.isTrue (New.isComplete gaze) "" 
-              
+              Expect.isTrue (New.isComplete gaze) ""
+
           testCase "test read"
           <| fun _ ->
-              let gaze = New.fromArray ([|1; 2; 3|])
+              let gaze = New.fromArray ([| 1; 2; 3 |])
               Expect.isFalse (New.isComplete gaze) ""
-              Expect.equal (New.read 2 gaze) ([|Some(1); Some(2)|]) ""
-              Expect.equal (New.read 2 { input = [|1; 2; 3; 4|]; offset = 2 }) ([|Some(3); Some(4)|]) ""
-              Expect.equal (New.read 4 { input = [|1; 2; 3; 4|]; offset = 2 }) ([|Some(3); Some(4); None; None|]) ""
+              Expect.equal (New.read 2 gaze) ([| Some(1); Some(2) |]) ""
+              Expect.equal (New.read 2 { input = [| 1; 2; 3; 4 |]; offset = 2 }) ([| Some(3); Some(4) |]) ""
+              Expect.equal (New.read 4 { input = [| 1; 2; 3; 4 |]; offset = 2 }) ([| Some(3); Some(4); None; None |]) ""
               Expect.equal (New.readOffset 2 gaze) (Some(3)) ""
               Expect.equal (New.readOffset 3 gaze) (None) "" ]

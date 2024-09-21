@@ -6,28 +6,40 @@ module TinyDL.Interpreter
 
 open TinyDL.Main
 open TinyDL.Tokenizer
-open TinyDL.Parser
+open TinyDL.NewParser
 
 let acyclic (tBox: TBox) : bool = failwith "TODO"
 
 let normalize (aBox: ABox) : Result<NormalABox, TinyDLError> =
-    Set.fold (fun state value -> 
-        match value with
-        | BinaryPredicate bp -> failwith "TODO"
-        | UnaryPredicate { symbol = symbol; concept = concept } -> 
-            match concept with
-            | AtomicConcept ac ->
-                Set.add (NormalABoxValue.UnaryPredicate ({ symbol = symbol; concept = (NormalConceptExpression.AtomicConcept ac) })) state
-            | Disjunction dj -> 
-                failwith "Not Implemented"
-            | Conjunction cj -> 
-                match cj with
-                | { left = AtomicConcept left; right = AtomicConcept right } ->
-                    failwith "TODO"
-                | _ -> failwith "TODO"
-            | Not { concept = AtomicConcept ac } -> 
-                Set.add (NormalABoxValue.UnaryPredicate ({ symbol = symbol; concept = (NormalConceptExpression.Not ac) })) state
-        ) Set.empty aBox |> Ok
+    Set.fold
+        (fun state value ->
+            match value with
+            | BinaryPredicate bp -> failwith "TODO"
+            | UnaryPredicate { symbol = symbol; concept = concept } ->
+                match concept with
+                | AtomicConcept ac ->
+                    Set.add
+                        (NormalABoxValue.UnaryPredicate(
+                            { symbol = symbol
+                              concept = (NormalConceptExpression.AtomicConcept ac) }
+                        ))
+                        state
+                | Disjunction dj -> failwith "Not Implemented"
+                | Conjunction cj ->
+                    match cj with
+                    | { left = AtomicConcept left
+                        right = AtomicConcept right } -> failwith "TODO"
+                    | _ -> failwith "TODO"
+                | Not { concept = AtomicConcept ac } ->
+                    Set.add
+                        (NormalABoxValue.UnaryPredicate(
+                            { symbol = symbol
+                              concept = (NormalConceptExpression.Not ac) }
+                        ))
+                        state)
+        Set.empty
+        aBox
+    |> Ok
 
 let consistent (aBox: NormalABox) : Result<bool, TinyDLError> =
     let mutable individuals: Map<Symbol, Set<NormalConceptExpression>> = Map.empty
