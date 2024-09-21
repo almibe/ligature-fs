@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="GazeSuite.fs" />
     <Compile Include="NibblersSuite.fs" />
+    <Compile Include="New.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

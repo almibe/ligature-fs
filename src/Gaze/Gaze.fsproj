@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Gaze.fs" />
     <Compile Include="Nibblers.fs" />
+    <Compile Include="New.fs" />
   </ItemGroup>
 
 </Project>
