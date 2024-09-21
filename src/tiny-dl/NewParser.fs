@@ -20,6 +20,12 @@ type Node =
 
 type ParserError = string
 
+let readEnd: Nibbler<Token, unit> =
+    fun state ->
+        match readOffset 0 state with
+        | None -> Ok(state, ())
+        | _ -> Error NoMatch
+
 let readComma: Nibbler<Token, unit> =
     fun state ->
         match readOffset 0 state with
@@ -41,8 +47,9 @@ let readConceptName: Nibbler<Token, Node> =
             Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
         | [| Some(Token.Name concept); Some(operator); _ |] ->
             match operator with
+            | Token.ConceptConjunction
             | Token.Comma -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
-            | _ -> Error NoMatch
+            | _ -> failwith "TODO"
         | [| Some(Token.Negation); Some(Token.Name concept); Some(operator) |] ->
             match operator with
             | Token.Comma -> Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
@@ -53,9 +60,14 @@ let readConceptExpression: Nibbler<Token, Node> =
     fun state ->
         match readConceptName state with
         | Ok(state, concept) ->
-            match (readComma state, readBinaryOperator state) with
-            | (Ok(state, _), Error _) -> Ok(state, concept)
-            | (_, _) -> Error NoMatch
+            match (readEnd state, readComma state, readBinaryOperator state) with
+            | (Ok(state, _), _, _) -> Ok(state, concept)
+            | (_, Ok(state, _), _) -> Ok(state, concept)
+            | (_, _, Ok(state, operator)) ->
+                match readConceptName state with
+                | Ok(state, right) -> Ok(state, Node.BinaryOperator(concept, operator, right))
+                | _ -> failwith "TODO"
+            | (_, _, _) -> Error NoMatch
         | Error err -> Error err
 
 let readUnaryPredicate: Nibbler<Token, Node> =
@@ -63,8 +75,8 @@ let readUnaryPredicate: Nibbler<Token, Node> =
         match read 2 state with
         | [| Some(Token.Name individual); Some Token.Colon |] ->
             match readConceptExpression { state with offset = state.offset + 2 } with
-            | Ok(state, (res)) -> Ok(state, Node.UnaryPredicate(individual, res))
-            | _ -> failwith "TODO"
+            | Ok(state, res) -> Ok(state, Node.UnaryPredicate(individual, res))
+            | Error err -> Error err
         // match readOffset 2 state with
         // | Some(Token.Name concept) ->
         //     Ok(
@@ -106,7 +118,7 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
 
         match readUnaryPredicate state with
         | Ok(state, res) -> Ok [ res ]
-        | Error err -> failwith "TODO"
+        | Error err -> Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
 
 let expressConcept (node: Node) : Result<ConceptExpression, ParserError> =
     match node with

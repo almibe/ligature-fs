@@ -27,14 +27,8 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse "x:Y⊓Z")
-                  (Ok(
-                      [ Node.UnaryPredicate(
-                            "x",
-                            Node.BinaryOperator(Node.Name("Y"), Operator.Conjuntion, Node.Name("Z"))
-                        ) ]
-                  ))
+                  (Ok([ Node.UnaryPredicate("x", Node.BinaryOperator(Node.Name("Y"), Conjuntion, Node.Name("Z"))) ]))
                   "" ]
-
 //   testCase "Concept Equiv"
 //   <| fun _ ->
 //       Expect.equal
