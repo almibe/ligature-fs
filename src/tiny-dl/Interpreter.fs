@@ -10,7 +10,7 @@ open TinyDL.NewParser
 
 let acyclic (kb: KnowledgeBase) : bool = failwith "TODO"
 
-let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> = failwith "TODO"
+let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> = Ok Set.empty
 // Set.fold
 //     (fun state value ->
 //         match value with

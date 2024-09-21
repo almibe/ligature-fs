@@ -22,22 +22,18 @@ let tests =
           testCase "Parse single individual"
           <| fun _ -> Expect.equal (parse "x:Y") (Ok([ Node.UnaryPredicate("x", Node.Name("Y")) ])) ""
           testCase "Parse single individual with Negatation"
-          <| fun _ -> Expect.equal (parse "x:¬Y") (Ok([ Node.UnaryPredicate("x", Node.NotName("Y")) ])) "" ]
-//   testCase "Parse single individual with Conjunction"
-//   <| fun _ ->
-//       Expect.equal
-//           (parse "x:Y⊓Z")
-//           (Ok(
-//               Set.empty,
-//               Set.ofList
-//                   [ UnaryPredicate
-//                         { symbol = "x"
-//                           concept =
-//                             Conjunction
-//                                 { left = AtomicConcept "Y"
-//                                   right = AtomicConcept "Z" } } ]
-//           ))
-//           "" ]
+          <| fun _ -> Expect.equal (parse "x:¬Y") (Ok([ Node.UnaryPredicate("x", Node.NotName("Y")) ])) ""
+          testCase "Parse single individual with Conjunction"
+          <| fun _ ->
+              Expect.equal
+                  (parse "x:Y⊓Z")
+                  (Ok(
+                      [ Node.UnaryPredicate(
+                            "x",
+                            Node.BinaryOperator(Node.Name("Y"), Operator.Conjuntion, Node.Name("Z"))
+                        ) ]
+                  ))
+                  "" ]
 
 //   testCase "Concept Equiv"
 //   <| fun _ ->
