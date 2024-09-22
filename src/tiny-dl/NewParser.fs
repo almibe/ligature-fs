@@ -11,12 +11,12 @@ open New
 type Operator = | Conjuntion
 
 [<RequireQualifiedAccess>]
-type Node =
+type ConceptExpressionNode =
     | Name of string
-    | NotName of string
-    | BinaryOperator of Node * Operator * Node
-    | NotBinaryOperator of Node * Operator * Node
-    | UnaryPredicate of string * Node
+    | Not
+
+[<RequireQualifiedAccess>]
+type Node = UnaryPredicate of string * ConceptExpressionNode list
 
 type ParserError = string
 
@@ -39,36 +39,71 @@ let readBinaryOperator: Nibbler<Token, Operator> =
         | Some _ -> Error NoMatch
         | None -> Error NoMatch
 
-let readConceptName: Nibbler<Token, Node> =
-    fun state ->
-        match read 3 state with
-        | [| Some(Token.Name concept); None; None |] -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
-        | [| Some(Token.Negation); Some(Token.Name concept); None |] ->
-            Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
-        | [| Some(Token.Name concept); Some(operator); _ |] ->
-            match operator with
-            | Token.ConceptConjunction
-            | Token.Comma -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
-            | _ -> failwith "TODO"
-        | [| Some(Token.Negation); Some(Token.Name concept); Some(operator) |] ->
-            match operator with
-            | Token.Comma -> Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
-            | _ -> Error NoMatch
-        | _ -> failwith "TODO"
+// let readConceptName: Nibbler<Token, Node> =
+//     fun state ->
+//         match read 3 state with
+//         | [| Some(Token.Name concept); None; None |] -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
+//         | [| Some(Token.Negation); Some(Token.Name concept); None |] ->
+//             Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
+//         | [| Some(Token.Name concept); Some(operator); _ |] ->
+//             match operator with
+//             | Token.ConceptConjunction
+//             | Token.Comma -> Ok({ state with offset = state.offset + 1 }, Node.Name concept)
+//             | _ -> failwith "TODO"
+//         | [| Some(Token.Negation); Some(Token.Name concept); Some(operator) |] ->
+//             match operator with
+//             | Token.Comma -> Ok({ state with offset = state.offset + 2 }, Node.NotName concept)
+//             | _ -> Error NoMatch
+//         | _ -> failwith "TODO"
 
-let readConceptExpression: Nibbler<Token, Node> =
+let rec readConceptExpression: Nibbler<Token, ConceptExpressionNode list> =
     fun state ->
-        match readConceptName state with
-        | Ok(state, concept) ->
-            match (readEnd state, readComma state, readBinaryOperator state) with
-            | (Ok(state, _), _, _) -> Ok(state, concept)
-            | (_, Ok(state, _), _) -> Ok(state, concept)
-            | (_, _, Ok(state, operator)) ->
-                match readConceptName state with
-                | Ok(state, right) -> Ok(state, Node.BinaryOperator(concept, operator, right))
-                | _ -> failwith "TODO"
-            | (_, _, _) -> Error NoMatch
-        | Error err -> Error err
+        let mutable cont = true
+        let mutable result: ConceptExpressionNode list = []
+        let mutable offset = 0
+        let mutable error = false
+
+        while cont do
+            match readOffset offset state with
+            | Some(token) ->
+                match token with
+                | Token.Comma ->
+                    offset <- offset + 1
+                    cont <- false
+                | Token.Name name ->
+                    offset <- offset + 1
+                    result <- List.append result [ ConceptExpressionNode.Name name ]
+                | Token.ConceptConjunction ->
+                    offset <- offset + 1
+                    failwith "TODO"
+                // offset <- offset + 1
+                // result <- List.append result [ Node.ConjunctionOperator ]
+                | Token.OpenParen -> failwith "Not Implemented"
+                | Token.CloseParen -> failwith "Not Implemented"
+                | Token.Exists -> failwith "Not Implemented"
+                | Token.All -> failwith "Not Implemented"
+                | Token.ConceptInclusion -> failwith "Not Implemented"
+                | Token.ConceptDisjunction -> failwith "Not Implemented"
+                | Token.Negation ->
+                    offset <- offset + 1
+                    result <- List.append result [ ConceptExpressionNode.Not ]
+                | Token.Dot -> failwith "Not Implemented"
+                | Token.Top -> failwith "Not Implemented"
+                | Token.Bottom -> failwith "Not Implemented"
+                | Token.Definition -> failwith "Not Implemented"
+                | _ ->
+                    cont <- false
+                    error <- true
+            | None -> cont <- false
+
+        if List.isEmpty result || error then
+            Error NoMatch
+        else
+            Ok(
+                { state with
+                    offset = state.offset + offset },
+                result
+            )
 
 let readUnaryPredicate: Nibbler<Token, Node> =
     fun (state: State<Token>) ->
@@ -119,19 +154,19 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
 
         while not (isComplete state) do
             match readUnaryPredicate state with
-            | Ok(state', res) -> 
-                result <-  List.append result [res]
+            | Ok(state', res) ->
+                result <- List.append result [ res ]
                 state <- state'
             | Error err -> failwith "TODO" //Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
+
         Ok result
 
-let expressConcept (node: Node) : Result<ConceptExpression, ParserError> =
-    match node with
-    | Node.Name name -> Ok(AtomicConcept name)
-    | Node.NotName name -> Ok(Not { concept = AtomicConcept name })
-    | Node.BinaryOperator(left, operator, right) -> failwith "Not Implemented"
-    | Node.NotBinaryOperator(left, operator, right) -> failwith "Not Implemented"
-    | Node.UnaryPredicate(_, _) -> Error "Unexpected Uniary Predicate when Parsing Concept."
+let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpression, ParserError> =
+    match nodes with
+    | [] -> Error "Unexpected Element when Parsing Concept."
+    | [ ConceptExpressionNode.Name name ] -> Ok(AtomicConcept name)
+    | [ ConceptExpressionNode.Not; ConceptExpressionNode.Name name ] -> Ok(Not { concept = AtomicConcept name })
+    | _ -> failwith "TODO"
 
 let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
     List.fold
@@ -150,10 +185,6 @@ let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
                                 kb
                         )
                     | Error _ -> failwith "TODO"
-                | Node.Name _ -> Error "Unexpected name element."
-                | Node.NotName _ -> Error "Unexpected not name element."
-                | Node.BinaryOperator(_, _, _) -> failwith "Not Implemented"
-                | Node.NotBinaryOperator(_, _, _) -> failwith "Not Implemented"
             | Error err -> Error err)
         (Ok emptyKB)
         nodes

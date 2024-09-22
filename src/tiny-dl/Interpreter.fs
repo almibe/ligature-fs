@@ -8,8 +8,7 @@ open TinyDL.Main
 open TinyDL.Tokenizer
 open TinyDL.NewParser
 
-let acyclic (kb: KnowledgeBase) : bool = 
-    failwith "TODO"
+let acyclic (kb: KnowledgeBase) : bool = failwith "TODO"
 
 let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
     Set.fold
@@ -22,7 +21,9 @@ let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
                     Set.add
                         (NormalABoxValue.UnaryPredicate(
                             { symbol = symbol
-                              concept = (NormalConceptExpression.AtomicConcept ac) })) state
+                              concept = (NormalConceptExpression.AtomicConcept ac) }
+                        ))
+                        state
                 | Disjunction dj -> failwith "Not Implemented"
                 | Conjunction cj ->
                     match cj with
@@ -33,7 +34,9 @@ let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
                     Set.add
                         (NormalABoxValue.UnaryPredicate(
                             { symbol = symbol
-                              concept = (NormalConceptExpression.Not ac) })) state
+                              concept = (NormalConceptExpression.Not ac) }
+                        ))
+                        state
                 | Not(_) -> failwith "Not Implemented"
             | Definition(_) -> failwith "Not Implemented"
             | Inclusion(_) -> failwith "Not Implemented")
