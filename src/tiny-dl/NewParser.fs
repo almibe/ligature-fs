@@ -114,11 +114,16 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
     if tokens.IsEmpty then
         Ok []
     else
-        let state = fromList tokens
+        let mutable state = fromList tokens
+        let mutable result = []
 
-        match readUnaryPredicate state with
-        | Ok(state, res) -> Ok [ res ]
-        | Error err -> Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
+        while not (isComplete state) do
+            match readUnaryPredicate state with
+            | Ok(state', res) -> 
+                result <-  List.append result [res]
+                state <- state'
+            | Error err -> failwith "TODO" //Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
+        Ok result
 
 let expressConcept (node: Node) : Result<ConceptExpression, ParserError> =
     match node with

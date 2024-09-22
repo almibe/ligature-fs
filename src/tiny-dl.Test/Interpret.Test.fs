@@ -21,15 +21,32 @@ let unsafeRead (input: string) : NormalABox =
     | Error err -> failwith err
 
 [<Tests>]
+let normalizationTests =
+    testList
+        "Normalization Tests"
+        [ testCase "Normalize empty KB"
+          <| fun _ -> Expect.equal (normalize (Set.empty)) (Ok(Set.empty)) ""
+          testCase "Normalize simple ABox"
+          <| fun _ -> 
+            Expect.equal 
+                (unsafeRead "a: B, c: D, e: ¬F") 
+                (Set.ofList [
+                    NormalABoxValue.UnaryPredicate({ symbol = "a"; concept = NormalConceptExpression.AtomicConcept "B" })
+                    NormalABoxValue.UnaryPredicate({ symbol = "c"; concept = NormalConceptExpression.AtomicConcept "D" })
+                    NormalABoxValue.UnaryPredicate({ symbol = "e"; concept = NormalConceptExpression.Not "F" })
+                ]) 
+                "" ]
+
+[<Tests>]
 let tests =
     testList
-        "Check Tests"
+        "Consistency Tests"
         [ testCase "Check empty ABox for consistency"
           <| fun _ -> Expect.equal (consistent (Set.empty)) (Ok(true)) ""
           testCase "Check simple ABox for consistency"
           <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, e: ¬F")) (Ok(true)) "" ]
-//   testCase "Check simple ABox for inconsistency"
-//   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, a: ¬B")) (Ok(false)) "" ]
+        //   testCase "Check simple ABox for inconsistency"
+        //   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, a: ¬B")) (Ok(false)) "" ]
 //   testCase "Check ABox for consistency with conjunctions"
 //   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B ⊓ ¬D, c: D, a: ¬A ⊓ ¬B ⊓ ¬C")) (Ok(false)) ""
 

@@ -8,37 +8,38 @@ open TinyDL.Main
 open TinyDL.Tokenizer
 open TinyDL.NewParser
 
-let acyclic (kb: KnowledgeBase) : bool = failwith "TODO"
+let acyclic (kb: KnowledgeBase) : bool = 
+    failwith "TODO"
 
-let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> = Ok Set.empty
-// Set.fold
-//     (fun state value ->
-//         match value with
-//         | BinaryPredicate bp -> failwith "TODO"
-//         | UnaryPredicate { symbol = symbol; concept = concept } ->
-//             match concept with
-//             | AtomicConcept ac ->
-//                 Set.add
-//                     (NormalABoxValue.UnaryPredicate(
-//                         { symbol = symbol
-//                           concept = (NormalConceptExpression.AtomicConcept ac) }
-//                     ))
-//                     state
-//             | Disjunction dj -> failwith "Not Implemented"
-//             | Conjunction cj ->
-//                 match cj with
-//                 | { left = AtomicConcept left
-//                     right = AtomicConcept right } -> failwith "TODO"
-//                 | _ -> failwith "TODO"
-//             | Not { concept = AtomicConcept ac } ->
-//                 Set.add
-//                     (NormalABoxValue.UnaryPredicate(
-//                         { symbol = symbol
-//                           concept = (NormalConceptExpression.Not ac) }
-//                     ))
-//                     state)
-//     Set.empty
-// |> Ok
+let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
+    Set.fold
+        (fun state value ->
+            match value with
+            | BinaryPredicate bp -> failwith "TODO"
+            | UnaryPredicate { symbol = symbol; concept = concept } ->
+                match concept with
+                | AtomicConcept ac ->
+                    Set.add
+                        (NormalABoxValue.UnaryPredicate(
+                            { symbol = symbol
+                              concept = (NormalConceptExpression.AtomicConcept ac) })) state
+                | Disjunction dj -> failwith "Not Implemented"
+                | Conjunction cj ->
+                    match cj with
+                    | { left = AtomicConcept left
+                        right = AtomicConcept right } -> failwith "TODO"
+                    | _ -> failwith "TODO"
+                | Not { concept = AtomicConcept ac } ->
+                    Set.add
+                        (NormalABoxValue.UnaryPredicate(
+                            { symbol = symbol
+                              concept = (NormalConceptExpression.Not ac) })) state
+                | Not(_) -> failwith "Not Implemented"
+            | Definition(_) -> failwith "Not Implemented"
+            | Inclusion(_) -> failwith "Not Implemented")
+        Set.empty
+        kb
+    |> Ok
 
 let consistent (aBox: NormalABox) : Result<bool, TinyDLError> =
     let mutable individuals: Map<Symbol, Set<NormalConceptExpression>> = Map.empty
