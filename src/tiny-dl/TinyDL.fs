@@ -14,7 +14,7 @@ type Role = Symbol
 
 and ConceptExpression =
     | AtomicConcept of AtomicConcept
-    | Disjunction of Disjunction
+    // | Disjunction of Disjunction
     | Conjunction of Conjunction
     | Not of Not
 
@@ -32,21 +32,19 @@ and Definition =
 
 and Not = { concept: ConceptExpression }
 
-and Conjunction =
-    { left: ConceptExpression
-      right: ConceptExpression }
+and Conjunction = { expressions: ConceptExpression }
 
-and Disjunction =
-    { left: ConceptExpression
-      right: ConceptExpression }
+// and Disjunction =
+//     { left: ConceptExpression
+//       right: ConceptExpression }
 
-and ExistentialRestriction =
-    { concept: ConceptExpression
-      role: Role }
+// and ExistentialRestriction =
+//     { concept: ConceptExpression
+//       role: Role }
 
-and ValueRestriction =
-    { concept: ConceptExpression
-      role: Role }
+// and ValueRestriction =
+//     { concept: ConceptExpression
+//       role: Role }
 
 and UnaryPredicate =
     { symbol: Symbol

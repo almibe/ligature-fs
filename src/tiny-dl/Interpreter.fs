@@ -24,12 +24,12 @@ let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
                               concept = (NormalConceptExpression.AtomicConcept ac) }
                         ))
                         state
-                | Disjunction dj -> failwith "Not Implemented"
-                | Conjunction cj ->
-                    match cj with
-                    | { left = AtomicConcept left
-                        right = AtomicConcept right } -> failwith "TODO"
-                    | _ -> failwith "TODO"
+                // | Disjunction dj -> failwith "Not Implemented"
+                | Conjunction cj -> failwith "TODO"
+                // match cj with
+                // | { left = AtomicConcept left
+                //     right = AtomicConcept right } -> failwith "TODO"
+                // | _ -> failwith "TODO"
                 | Not { concept = AtomicConcept ac } ->
                     Set.add
                         (NormalABoxValue.UnaryPredicate(

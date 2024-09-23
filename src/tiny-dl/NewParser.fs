@@ -8,12 +8,11 @@ open Tokenizer
 open TinyDL.Main
 open New
 
-type Operator = | Conjuntion
-
 [<RequireQualifiedAccess>]
 type ConceptExpressionNode =
     | Name of string
     | Not
+    | Conjunction
 
 [<RequireQualifiedAccess>]
 type Node = UnaryPredicate of string * ConceptExpressionNode list
@@ -32,12 +31,12 @@ let readComma: Nibbler<Token, unit> =
         | Some Token.Comma -> Ok({ state with offset = state.offset + 1 }, ())
         | _ -> Error NoMatch
 
-let readBinaryOperator: Nibbler<Token, Operator> =
-    fun state ->
-        match readOffset 0 state with
-        | Some Token.ConceptConjunction -> Ok({ state with offset = state.offset + 1 }, Conjuntion)
-        | Some _ -> Error NoMatch
-        | None -> Error NoMatch
+// let readBinaryOperator: Nibbler<Token, Operator> =
+//     fun state ->
+//         match readOffset 0 state with
+//         | Some Token.ConceptConjunction -> Ok({ state with offset = state.offset + 1 }, Conjuntion)
+//         | Some _ -> Error NoMatch
+//         | None -> Error NoMatch
 
 // let readConceptName: Nibbler<Token, Node> =
 //     fun state ->
@@ -75,9 +74,7 @@ let rec readConceptExpression: Nibbler<Token, ConceptExpressionNode list> =
                     result <- List.append result [ ConceptExpressionNode.Name name ]
                 | Token.ConceptConjunction ->
                     offset <- offset + 1
-                    failwith "TODO"
-                // offset <- offset + 1
-                // result <- List.append result [ Node.ConjunctionOperator ]
+                    result <- List.append result [ ConceptExpressionNode.Conjunction ]
                 | Token.OpenParen -> failwith "Not Implemented"
                 | Token.CloseParen -> failwith "Not Implemented"
                 | Token.Exists -> failwith "Not Implemented"
@@ -162,11 +159,32 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
         Ok result
 
 let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpression, ParserError> =
-    match nodes with
-    | [] -> Error "Unexpected Element when Parsing Concept."
-    | [ ConceptExpressionNode.Name name ] -> Ok(AtomicConcept name)
-    | [ ConceptExpressionNode.Not; ConceptExpressionNode.Name name ] -> Ok(Not { concept = AtomicConcept name })
-    | _ -> failwith "TODO"
+    let mutable state = fromList nodes
+    let mutable result = Error "Could not express concept."
+    let mutable cont = true
+
+    while (not (isComplete state)) && cont do
+        match readOffset 0 state with
+        | None -> result <- Error "Unexpected Element when Parsing Concept."
+        | Some(ConceptExpressionNode.Name name) ->
+            cont <- false
+            result <- Ok(AtomicConcept name)
+        | Some(ConceptExpressionNode.Not) ->
+            match readOffset 1 state with
+            | None ->
+                result <- Error "Error expressing concept."
+                cont <- false
+            | Some(ConceptExpressionNode.Name concept) ->
+                result <- Ok(Not { concept = AtomicConcept concept })
+                cont <- false
+            | Some _ ->
+                result <- Error "Error expressing concept."
+                cont <- false
+        // | [ ConceptExpressionNode.Name left; ConceptExpressionNode.Conjunction; ConceptExpressionNode.Name right ] ->
+        //     Ok(Conjunction { left = AtomicConcept left; right = AtomicConcept right })
+        | _ -> failwith "TODO"
+
+    result
 
 let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
     List.fold

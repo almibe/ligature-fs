@@ -21,15 +21,26 @@ let tests =
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "Parse single individual"
           <| fun _ ->
-              Expect.equal (parse "x:Y") (Ok([ Node.UnaryPredicate("x", [ ConceptExpressionNode.Name("Y") ]) ])) "" ]
-//   testCase "Parse single individual with Negatation"
-//   <| fun _ -> Expect.equal (parse "x:¬Y") (Ok([ Node.UnaryPredicate("x", Node.NotName("Y")) ])) "" ]
-//   testCase "Parse single individual with Conjunction"
-//   <| fun _ ->
-//       Expect.equal
-//           (parse "x:Y⊓Z")
-//           (Ok([ Node.UnaryPredicate("x", Node.BinaryOperator(Node.Name("Y"), Conjuntion, Node.Name("Z"))) ]))
-//           ""
+              Expect.equal (parse "x:Y") (Ok([ Node.UnaryPredicate("x", [ ConceptExpressionNode.Name("Y") ]) ])) ""
+          testCase "Parse single individual with Negatation"
+          <| fun _ ->
+              Expect.equal
+                  (parse "x:¬Y")
+                  (Ok([ Node.UnaryPredicate("x", [ ConceptExpressionNode.Not; ConceptExpressionNode.Name "Y" ]) ]))
+                  ""
+          testCase "Parse single individual with Conjunction"
+          <| fun _ ->
+              Expect.equal
+                  (parse "x:Y⊓Z")
+                  (Ok(
+                      [ Node.UnaryPredicate(
+                            "x",
+                            [ ConceptExpressionNode.Name "Y"
+                              ConceptExpressionNode.Conjunction
+                              ConceptExpressionNode.Name("Z") ]
+                        ) ]
+                  ))
+                  "" ]
 //   testCase "Parse single individual with multiple Conjunctions"
 //   <| fun _ ->
 //       Expect.equal
