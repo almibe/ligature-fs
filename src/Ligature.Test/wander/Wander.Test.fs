@@ -18,12 +18,12 @@ let tests =
         [ testCase "Empty script"
           <| fun _ ->
               let script = ""
-              let result = run Map.empty emptyInMemoryStore script
+              let result = run Map.empty (emptyInMemoryStore()) script
               Expect.equal result (Ok None) ""
           testCase "Run Empty Network"
           <| fun _ ->
               let script = "{}"
-              let result = run Map.empty emptyInMemoryStore script
+              let result = run Map.empty (emptyInMemoryStore()) script
               Expect.equal result (Ok None) ""
 
           testCase "Parse Network"
