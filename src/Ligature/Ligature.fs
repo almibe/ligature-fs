@@ -50,9 +50,18 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderV
     | Expression of Expression
     | Network of Network
 
-and Statement = (Symbol * Symbol * Symbol)
+and Concept = (Symbol * Symbol)
 
-and Network = Set<Statement>
+and NotConcept = (Symbol * Symbol)
+
+and Role = (Symbol * Symbol * Symbol)
+
+and Entry =
+    | Concept of Concept
+    | NotConcept of NotConcept
+    | Role of Role
+
+and Network = Set<Entry>
 
 and LigatureStore =
     abstract Networks: unit -> Symbol seq
@@ -82,8 +91,8 @@ let defaultNetwork = Symbol("")
 //     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
 //     | _ -> None
 
-let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
-    Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
+// let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
+//     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
 
 
 let printSymbol (Symbol(symbol)) : string = symbol

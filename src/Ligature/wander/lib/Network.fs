@@ -7,44 +7,44 @@ module Ligature.Wander.Lib.Network
 open Ligature.Main
 open Ligature.LigatureStore
 
-let chompCombinator =
-    { Name = Symbol("chomp")
-      Doc = "Merge the passed Network into the current working Network."
-      Signature = [ LigatureType.Network ], None
-      Eval =
-        fun _ networks (arguments: Arguments) ->
-            match arguments with
-            | [ WanderValue.Network(input) ] ->
-                // let currentNetwork = currentNetwork networks
-                // let newNetwork = Set.union input currentNetwork
-                // let newNetworks = Map.add selected newNetwork networks
-                // Ok(selected, newNetworks, None)
-                failwith "TODO"
-            | _ -> error "Bad call to chomp." None }
+// let chompCombinator =
+//     { Name = Symbol("chomp")
+//       Doc = "Merge the passed Network into the current working Network."
+//       Signature = [ LigatureType.Network ], None
+//       Eval =
+//         fun _ networks (arguments: Arguments) ->
+//             match arguments with
+//             | [ WanderValue.Network(input) ] ->
+//                 // let currentNetwork = currentNetwork networks
+//                 // let newNetwork = Set.union input currentNetwork
+//                 // let newNetworks = Map.add selected newNetwork networks
+//                 // Ok(selected, newNetworks, None)
+//                 failwith "TODO"
+//             | _ -> error "Bad call to chomp." None }
 
-let unionCombinator =
-    { Name = Symbol("union")
-      Doc = "Find the union of two Networks."
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
-      Eval =
-        fun _ networks (arguments: Arguments) ->
-            match arguments with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-                let result = Set.union left right |> WanderValue.Network
-                Ok(Some(result))
-            | _ -> failwith "TODO" }
+// let unionCombinator =
+//     { Name = Symbol("union")
+//       Doc = "Find the union of two Networks."
+//       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+//       Eval =
+//         fun _ networks (arguments: Arguments) ->
+//             match arguments with
+//             | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
+//                 let result = Set.union left right |> WanderValue.Network
+//                 Ok(Some(result))
+//             | _ -> failwith "TODO" }
 
-let minusCombinator =
-    { Name = Symbol("minus")
-      Doc = "Remove all Statements from the first Network that are in the second Networks."
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
-      Eval =
-        fun _ networks (arguments: Arguments) ->
-            match arguments with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-                let result = Set.difference left right |> WanderValue.Network
-                Ok(Some(result))
-            | _ -> failwith "TODO" }
+// let minusCombinator =
+//     { Name = Symbol("minus")
+//       Doc = "Remove all Statements from the first Network that are in the second Networks."
+//       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+//       Eval =
+//         fun _ networks (arguments: Arguments) ->
+//             match arguments with
+//             | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
+//                 let result = Set.difference left right |> WanderValue.Network
+//                 Ok(Some(result))
+//             | _ -> failwith "TODO" }
 
 let lookupNetwork () = failwith "TODO"
 
@@ -130,11 +130,12 @@ let lookupNetwork () = failwith "TODO"
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "TODO" }
 
-let networkCombinators =
+let networkCombinators: Map<Symbol, Combinator> =
     (Map.ofList
         [ //(applyCombinator.Name, applyCombinator)
-          (chompCombinator.Name, chompCombinator)
-          //          (matchCombinator.Name, matchCombinator)
-          (minusCombinator.Name, minusCombinator)
-          //          (queryCombinator.Name, queryCombinator)
-          (unionCombinator.Name, unionCombinator) ])
+        //(chompCombinator.Name, chompCombinator)
+        //          (matchCombinator.Name, matchCombinator)
+        //(minusCombinator.Name, minusCombinator)
+        //          (queryCombinator.Name, queryCombinator)
+        //(unionCombinator.Name, unionCombinator)
+        ])

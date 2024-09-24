@@ -70,8 +70,13 @@ type Term =
     | Inclusion of Inclusion
     | UnaryPredicate of UnaryPredicate
     | BinaryPredicate of BinaryPredicate
+    | Annotation of Annotation
 
 and KnowledgeBase = Set<Term>
+
+and AnnotationName = string
+
+and Annotation = AnnotationName * Term list
 
 and Interpretation =
     { Domain: Set<Symbol>

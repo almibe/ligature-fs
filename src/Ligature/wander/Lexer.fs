@@ -9,7 +9,7 @@ open Ligature.Main
 open System.Text.RegularExpressions
 
 let identifierPattern =
-    Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$", RegexOptions.Compiled)
+    Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$¬", RegexOptions.Compiled)
 
 let parseString (input: string) =
 #if !FABLE_COMPILER
@@ -97,7 +97,8 @@ let nameNibbler =
                         ('-', '-')
                         ('=', '=')
                         (':', ':')
-                        ('.', '.') ]
+                        ('.', '.')
+                        ('¬', '¬') ]
               )
           ) ]
 

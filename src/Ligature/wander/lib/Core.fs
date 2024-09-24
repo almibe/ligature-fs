@@ -16,32 +16,32 @@ let idCombinator: Combinator =
             | [ value ] -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
-let setCombinator: Combinator =
-    { Name = Symbol("set")
-      Doc = "Set the value of a given Network."
-      Signature = [ LigatureType.Symbol; LigatureType.Network ], None
-      Eval =
-        fun _ store arguments ->
-            match arguments with
-            | [ WanderValue.Symbol(name); WanderValue.Network(value) ] ->
-                store.Set name value |> ignore
-                Ok(None)
-            | _ -> failwith "TODO" }
+// let setCombinator: Combinator =
+//     { Name = Symbol("set")
+//       Doc = "Set the value of a given Network."
+//       Signature = [ LigatureType.Symbol; LigatureType.Network ], None
+//       Eval =
+//         fun _ store arguments ->
+//             match arguments with
+//             | [ WanderValue.Symbol(name); WanderValue.Network(value) ] ->
+//                 store.Set name value |> ignore
+//                 Ok(None)
+//             | _ -> failwith "TODO" }
 
-let readCombinator: Combinator =
-    { Name = Symbol("read")
-      Doc = "Read the value of a given Network."
-      Signature = [ LigatureType.Symbol ], Some LigatureType.Network
-      Eval =
-        fun _ store arguments ->
-            match arguments with
-            | [ WanderValue.Symbol(name) ] ->
-                let network = WanderValue.Network(store.Read name)
-                Ok(Some(network))
-            // match Map.tryFind name networks with
-            // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
-            // | _ -> failwith "TODO"
-            | _ -> failwith "TODO" }
+// let readCombinator: Combinator =
+//     { Name = Symbol("read")
+//       Doc = "Read the value of a given Network."
+//       Signature = [ LigatureType.Symbol ], Some LigatureType.Network
+//       Eval =
+//         fun _ store arguments ->
+//             match arguments with
+//             | [ WanderValue.Symbol(name) ] ->
+//                 let network = WanderValue.Network(store.Read name)
+//                 Ok(Some(network))
+//             // match Map.tryFind name networks with
+//             // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
+//             // | _ -> failwith "TODO"
+//             | _ -> failwith "TODO" }
 
 let ignoreCombinator: Combinator =
     { Name = Symbol("ignore")
@@ -66,26 +66,27 @@ let printSignature ((arguments, result): LigatureType list * LigatureType option
 //         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
-let docsCombinator: Combinator =
-    { Name = Symbol("docs")
-      Doc = "Create a network that contains documentation for the available combinators."
-      Signature = [], Some(LigatureType.Network)
-      Eval =
-        fun combinators networks _ ->
-            let mutable docs = Set.empty
+// let docsCombinator: Combinator =
+//     { Name = Symbol("docs")
+//       Doc = "Create a network that contains documentation for the available combinators."
+//       Signature = [], Some(LigatureType.Network)
+//       Eval =
+//         fun combinators networks _ ->
+//             let mutable docs = Set.empty
 
-            Map.toList combinators
-            |> List.iter (fun (name, combinator) ->
-                let signature = printSignature combinator.Signature
-                docs <- Set.add (name, Symbol("docString"), Symbol(combinator.Doc)) docs
-                docs <- Set.add (name, Symbol("signature"), signature) docs)
+//             Map.toList combinators
+//             |> List.iter (fun (name, combinator) ->
+//                 let signature = printSignature combinator.Signature
+//                 docs <- Set.add (name, Symbol("docString"), Symbol(combinator.Doc)) docs
+//                 docs <- Set.add (name, Symbol("signature"), signature) docs)
 
-            Ok(Some(WanderValue.Network docs)) }
+//             Ok(Some(WanderValue.Network docs)) }
 
 let coreCombinators =
     (Map.ofList
-        [ (docsCombinator.Name, docsCombinator)
+        [ //(docsCombinator.Name, docsCombinator)
           (idCombinator.Name, idCombinator)
           (ignoreCombinator.Name, ignoreCombinator)
-          (readCombinator.Name, readCombinator)
-          (setCombinator.Name, setCombinator) ])
+          //(readCombinator.Name, readCombinator)
+          //(setCombinator.Name, setCombinator)
+          ])

@@ -35,7 +35,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCombinators (emptyInMemoryStore()) script with
+                match run stdCombinators (emptyInMemoryStore ()) script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

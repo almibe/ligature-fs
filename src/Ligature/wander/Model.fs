@@ -26,19 +26,19 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
-and printNetwork (network: Network) : string =
-    let mutable first = true
+and printNetwork (network: Network) : string = failwith "TODO"
+// let mutable first = true
 
-    (Seq.fold
-        (fun state triple ->
-            if first then
-                first <- false
-                state + " " + (printStatement triple) + ","
-            else
-                state + "\n  " + (printStatement triple) + ",")
-        "{"
-        (network))
-    + " }"
+// (Seq.fold
+//     (fun state triple ->
+//         if first then
+//             first <- false
+//             state + " " + (printStatement triple) + ","
+//         else
+//             state + "\n  " + (printStatement triple) + ",")
+//     "{"
+//     (network))
+// + " }"
 
 and printBytes bytes =
     bytes
@@ -51,11 +51,11 @@ and printAssocArray values =
     + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
     + "]"
 
-and printStatement ((entity, attribute, value): Statement) : string =
-    $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
+// and printStatement ((entity, attribute, value): Statement) : string =
+//     $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
 
-and printPattern ((entity, attribute, value): Statement) =
-    $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
+// and printPattern ((entity, attribute, value): Statement) =
+//     $"{(printSymbol entity)} {(printSymbol attribute)} {(printSymbol value)}"
 
 //TODO might not be correct
 and printQuote quote =

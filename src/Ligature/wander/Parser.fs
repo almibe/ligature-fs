@@ -105,13 +105,13 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * 
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return WanderValue.Network(handleNetwork statements)
-    }
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> = failwith "TODO"
+// result {
+//     let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+//     let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
+//     let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+//     return WanderValue.Network(handleNetwork statements)
+// }
 
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     match Gaze.next gaze with
@@ -219,9 +219,9 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
-    let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
-    res
+// let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
+//     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
+//     res
 
 let elementTupleToStatement ((e, a, v): (WanderValue * WanderValue * WanderValue)) : (Symbol * Symbol * Symbol) =
     let entity =
