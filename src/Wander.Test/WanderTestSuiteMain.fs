@@ -7,8 +7,6 @@ module Ligature.TestSuite
 open Expecto
 open Ligature
 open FSharpPlus
-open Ligature.Wander.Main
-open Ligature.Wander.Combinators
 open LigatureStore.InMemoryStore
 
 let rec allFiles dirs =

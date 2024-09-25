@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,29 +6,11 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
-    <Compile Include="wander/Model.fs" />
     <Compile Include="InMemoryStore.fs" />
-    <Compile Include="wander/Lexer.fs" />
-    <Compile Include="wander/Parser.fs" />
-    <Compile Include="wander/Interpreter.fs" />
-    <Compile Include="wander/Wander.fs" />
-    <Compile Include="wander/lib/Bool.fs" />
-    <Compile Include="wander/lib/Core.fs" />
-    <Compile Include="wander/lib/Network.fs" />
-<!--    
-    <Compile Include="wander/lib/DateTime.fs" />
-    <Compile Include="wander/lib/Name.fs" />
-    <Compile Include="wander/lib/Ligature.fs" />
-    <Compile Include="wander/lib/Store.fs" />
-    <Compile Include="wander/lib/Ulid.fs" />
-    <Compile Include="wander/lib/Wander.fs" /> -->
-    <Compile Include="wander/lib/Assert.fs" />
-    <Compile Include="wander/Combinators.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
-    <ProjectReference Include="..\tiny-dl\tiny-dl.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

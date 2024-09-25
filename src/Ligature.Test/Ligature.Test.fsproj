@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,10 +8,7 @@
   <ItemGroup>
     <Compile Include="LigatureTestSuiteMain.fs" />
     <Compile Include="InMemoryNetwork.Test.fs" />
-    <Compile Include="wander/Wander.Test.fs" />
-    <Compile Include="wander/Encoding.Test.fs" />
     <Compile Include="Serialization.Test.fs" />
-    <Compile Include="wander/Lexer.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
@@ -29,5 +25,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
   </ItemGroup>
-
 </Project>
