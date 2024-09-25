@@ -9,6 +9,7 @@ open Ligature
 open FSharpPlus
 open LigatureStore.InMemoryStore
 open Wander.Main
+open Wander.Combinators
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -32,11 +33,10 @@ let wanderTestSuite =
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadLines file |> String.concat "\n"
 
-            testCase $"Test for {file}" <| fun _ -> failwith "TODO"
-        // match run stdCombinators (emptyInMemoryStore ()) script with
-        // | Ok _ -> ()
-        // | Error(err) -> failwithf "Test failed %A" err)
-        )
+            testCase $"Test for {file}" <| fun _ ->
+                match run stdCombinators (emptyInMemoryStore ()) script with
+                | Ok _ -> ()
+                | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"
     else
