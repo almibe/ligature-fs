@@ -4,184 +4,187 @@
 
 module TinyDL.Interpreter
 
-open TinyDL.Main
-open TinyDL.Tokenizer
-open TinyDL.NewParser
+//open TinyDL.Tokenizer
+//open TinyDL.NewParser
+open Ligature.Main
 
-let acyclic (kb: KnowledgeBase) : bool = failwith "TODO"
+let acyclic (kb: ABox) : bool = failwith "TODO"
 
-let normalize (kb: KnowledgeBase) : Result<NormalABox, TinyDLError> =
+// let normalize (: KnowledgeBase) : Result<ABox, TinyDLError> =
+//     Set.fold
+//         (fun state value ->
+//             match value with
+//             | Entry.Role bp -> failwith "TODO"
+//             | Entry.Concept { element = symbol; concept = concept } ->
+//                 match concept with
+//                 | Symbol ac ->
+//                     Set.add
+//                         (Term.UnaryPredicate(
+//                             { symbol = symbol
+//                               concept = (NormalConceptExpression.AtomicConcept ac) }
+//                         ))
+//                         state
+//                 // | Disjunction dj -> failwith "Not Implemented"
+//                 // | Conjunction cj -> failwith "TODO"
+//                 // match cj with
+//                 // | { left = AtomicConcept left
+//                 //     right = AtomicConcept right } -> failwith "TODO"
+//                 // | _ -> failwith "TODO"
+//                 // | Not { concept = AtomicConcept ac } ->
+//                 //     Set.add
+//                 //         (NormalABoxValue.UnaryPredicate(
+//                 //             { symbol = symbol
+//                 //               concept = (NormalConceptExpression.Not ac) }
+//                 //         ))
+//                 //         state
+//                 // | Not(_) -> failwith "Not Implemented"
+//             // | Definition(_) -> failwith "Not Implemented"
+//             // | Inclusion(_) -> failwith "Not Implemented")
+//         ) Set.empty
+//         kb
+//     |> Ok
+
+type TinyDLError = string
+
+let consistent (aBox: ABox) : Result<bool, TinyDLError> =
+    let mutable individuals: Map<Symbol, Set<Entry>> = Map.empty
+
     Set.fold
-        (fun state value ->
-            match value with
-            | BinaryPredicate bp -> failwith "TODO"
-            | UnaryPredicate { symbol = symbol; concept = concept } ->
-                match concept with
-                | AtomicConcept ac ->
-                    Set.add
-                        (NormalABoxValue.UnaryPredicate(
-                            { symbol = symbol
-                              concept = (NormalConceptExpression.AtomicConcept ac) }
-                        ))
-                        state
-                // | Disjunction dj -> failwith "Not Implemented"
-                | Conjunction cj -> failwith "TODO"
-                // match cj with
-                // | { left = AtomicConcept left
-                //     right = AtomicConcept right } -> failwith "TODO"
-                // | _ -> failwith "TODO"
-                | Not { concept = AtomicConcept ac } ->
-                    Set.add
-                        (NormalABoxValue.UnaryPredicate(
-                            { symbol = symbol
-                              concept = (NormalConceptExpression.Not ac) }
-                        ))
-                        state
-                | Not(_) -> failwith "Not Implemented"
-            | Definition(_) -> failwith "Not Implemented"
-            | Inclusion(_) -> failwith "Not Implemented")
-        Set.empty
-        kb
-    |> Ok
-
-let consistent (aBox: NormalABox) : Result<bool, TinyDLError> =
-    let mutable individuals: Map<Symbol, Set<NormalConceptExpression>> = Map.empty
-
-    Set.fold
-        (fun state (assertion: NormalABoxValue) ->
+        (fun state (assertion: Entry) ->
             match state with
             | Error error -> Error error
             | Ok false -> Ok false
             | Ok true ->
                 match assertion with
-                | NormalABoxValue.UnaryPredicate { concept = NormalConceptExpression.AtomicConcept concept
-                                                   symbol = symbol } ->
+                | Concept { concept = conceptName
+                            element = symbol } ->
+                    let concept =
+                        Concept
+                            { concept = conceptName
+                              element = symbol }
+
+                    let notVersion =
+                        NotConcept
+                            { concept = conceptName
+                              element = symbol }
+
                     match individuals.TryFind symbol with
                     | None ->
-                        individuals <-
-                            Map.add symbol (Set.ofList [ NormalConceptExpression.AtomicConcept concept ]) individuals
-
+                        individuals <- Map.add symbol (Set.ofList [ concept ]) individuals
                         Ok(true)
                     | Some res ->
-                        if res.Contains(NormalConceptExpression.Not concept) then
+                        if res.Contains(notVersion) then
                             Ok(false)
                         else
-                            individuals <-
-                                Map.add
-                                    symbol
-                                    (Set.add (NormalConceptExpression.AtomicConcept concept) res)
-                                    individuals
-
+                            individuals <- Map.add symbol (Set.add (concept) res) individuals
                             Ok(true)
-                | NormalABoxValue.UnaryPredicate { concept = NormalConceptExpression.Not concept
-                                                   symbol = symbol } ->
+                | NotConcept { concept = concept; element = symbol } ->
+                    let notConcept = NotConcept { concept = concept; element = symbol }
+                    let inverse = Concept { concept = concept; element = symbol }
+
                     match individuals.TryFind symbol with
                     | None ->
-                        individuals <-
-                            Map.add symbol (Set.ofList [ NormalConceptExpression.AtomicConcept concept ]) individuals
-
+                        individuals <- Map.add symbol (Set.ofList [ notConcept ]) individuals
                         Ok(true)
                     | Some res ->
-                        if res.Contains(NormalConceptExpression.AtomicConcept concept) then
+                        if res.Contains(inverse) then
                             Ok(false)
                         else
-                            individuals <-
-                                Map.add symbol (Set.add (NormalConceptExpression.Not concept) res) individuals
-
+                            individuals <- Map.add symbol (Set.add notConcept res) individuals
                             Ok(true)
-                | NormalABoxValue.BinaryPredicate bp -> Ok(true))
+                | _ -> failwith "TODO")
         (Ok(true))
         aBox
 
-let interpret (kb: KnowledgeBase) : Result<Interpretation, TinyDLError> =
-    let mutable domain = Set.empty
-    let mutable concepts = Map.empty
-    let mutable roles = Map.empty
-    let mutable definitions = Map.empty
-    let mutable inclusions = Map.empty
+// let interpret (kb: KnowledgeBase) : Result<Interpretation, TinyDLError> =
+//     let mutable domain = Set.empty
+//     let mutable concepts = Map.empty
+//     let mutable roles = Map.empty
+//     let mutable definitions = Map.empty
+//     let mutable inclusions = Map.empty
 
-    // Set.iter
-    //     (fun entry ->
-    //         match entry with
-    //         | Definition { left = left; right = right } ->
-    //             match concepts.TryFind left with
-    //             | None -> concepts <- Map.add (left) (Set.empty) concepts
-    //             | _ -> ()
+//     // Set.iter
+//     //     (fun entry ->
+//     //         match entry with
+//     //         | Definition { left = left; right = right } ->
+//     //             match concepts.TryFind left with
+//     //             | None -> concepts <- Map.add (left) (Set.empty) concepts
+//     //             | _ -> ()
 
-    //             // match concepts.TryFind right with
-    //             // | None -> concepts <- Map.add (right) (Set.empty) concepts
-    //             // | _ -> ()
+//     //             // match concepts.TryFind right with
+//     //             // | None -> concepts <- Map.add (right) (Set.empty) concepts
+//     //             // | _ -> ()
 
-    //             match definitions.TryFind left with
-    //             | None -> definitions <- Map.add (left) (Set.ofList [ right ]) definitions
-    //             | Some res -> failwith "TODO"
+//     //             match definitions.TryFind left with
+//     //             | None -> definitions <- Map.add (left) (Set.ofList [ right ]) definitions
+//     //             | Some res -> failwith "TODO"
 
-    //         // match definitions.TryFind right with
-    //         // | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
-    //         // | Some res -> failwith "TODO"
+//     //         // match definitions.TryFind right with
+//     //         // | None -> definitions <- Map.add (right) (Set.ofList [ left ]) definitions
+//     //         // | Some res -> failwith "TODO"
 
-    //         | Inclusion { left = left; right = right } ->
-    //             match concepts.TryFind left with
-    //             | None -> concepts <- Map.add (left) (Set.empty) concepts
-    //             | _ -> ()
+//     //         | Inclusion { left = left; right = right } ->
+//     //             match concepts.TryFind left with
+//     //             | None -> concepts <- Map.add (left) (Set.empty) concepts
+//     //             | _ -> ()
 
-    //             // match concepts.TryFind right with
-    //             // | None -> concepts <- Map.add (right) (Set.empty) concepts
-    //             // | _ -> ()
+//     //             // match concepts.TryFind right with
+//     //             // | None -> concepts <- Map.add (right) (Set.empty) concepts
+//     //             // | _ -> ()
 
-    //             match inclusions.TryFind left with
-    //             | None -> inclusions <- Map.add (left) (Set.ofList [ right ]) inclusions
-    //             | Some res -> failwith "TODO")
-    //     tBox
+//     //             match inclusions.TryFind left with
+//     //             | None -> inclusions <- Map.add (left) (Set.ofList [ right ]) inclusions
+//     //             | Some res -> failwith "TODO")
+//     //     tBox
 
-    // Set.iter
-    //     (fun entry ->
-    //         match entry with
-    //         | UnaryPredicate up ->
-    //             match up with
-    //             | { symbol = symbol; concept = concept } ->
-    //                 // match concepts.TryFind concept with
-    //                 // | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-    //                 // | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
+//     // Set.iter
+//     //     (fun entry ->
+//     //         match entry with
+//     //         | UnaryPredicate up ->
+//     //             match up with
+//     //             | { symbol = symbol; concept = concept } ->
+//     //                 // match concepts.TryFind concept with
+//     //                 // | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+//     //                 // | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts
 
-    //                 domain <- Set.add (symbol) domain
+//     //                 domain <- Set.add (symbol) domain
 
-    //             // match definitions.TryFind concept with
-    //             // | Some res -> failwith "TODO"
-    //             //     // Set.iter
-    //             //     //     (fun concept ->
-    //             //     //         match concepts.TryFind concept with
-    //             //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-    //             //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-    //             //     //     res
-    //             // | _ -> ()
+//     //             // match definitions.TryFind concept with
+//     //             // | Some res -> failwith "TODO"
+//     //             //     // Set.iter
+//     //             //     //     (fun concept ->
+//     //             //     //         match concepts.TryFind concept with
+//     //             //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+//     //             //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+//     //             //     //     res
+//     //             // | _ -> ()
 
-    //             // match inclusions.TryFind concept with
-    //             // | Some res -> failwith "TODO"
-    //             //     // Set.iter
-    //             //     //     (fun concept ->
-    //             //     //         match concepts.TryFind concept with
-    //             //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
-    //             //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
-    //             //     //     res
-    //             // | _ -> ()
+//     //             // match inclusions.TryFind concept with
+//     //             // | Some res -> failwith "TODO"
+//     //             //     // Set.iter
+//     //             //     //     (fun concept ->
+//     //             //     //         match concepts.TryFind concept with
+//     //             //     //         | Some(res) -> concepts <- Map.add (concept) (Set.add symbol res) concepts
+//     //             //     //         | None -> concepts <- Map.add (concept) (Set.ofList [ symbol ]) concepts)
+//     //             //     //     res
+//     //             // | _ -> ()
 
-    //             | _ -> failwith "TODO"
-    //         | BinaryPredicate bp ->
-    //             domain <- Set.add (bp.left) domain
-    //             domain <- Set.add (bp.right) domain
-    //             roles <- Map.add bp.role (Set.ofList [ bp.left, bp.right ]) roles)
-    //     aBox
+//     //             | _ -> failwith "TODO"
+//     //         | BinaryPredicate bp ->
+//     //             domain <- Set.add (bp.left) domain
+//     //             domain <- Set.add (bp.right) domain
+//     //             roles <- Map.add bp.role (Set.ofList [ bp.left, bp.right ]) roles)
+//     //     aBox
 
-    Ok
-        { Domain = domain
-          Concepts = concepts
-          Roles = roles }
+//     Ok
+//         { Domain = domain
+//           Concepts = concepts
+//           Roles = roles }
 
-let eval (script: string) : Result<Interpretation, TinyDLError> =
-    match tokenize script with
-    | Ok res ->
-        match parse res with
-        | Ok res -> failwith "TODO" //interpret res
-        | Error errorValue -> Error errorValue
-    | Error errorValue -> Error errorValue
+// let eval (script: string) : Result<Interpretation, TinyDLError> =
+//     match tokenize script with
+//     | Ok res ->
+//         match parse res with
+//         | Ok res -> failwith "TODO" //interpret res
+//         | Error errorValue -> Error errorValue
+//     | Error errorValue -> Error errorValue

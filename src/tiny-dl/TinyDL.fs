@@ -10,29 +10,29 @@ type Symbol = string
 
 type AtomicConcept = Symbol
 
-type Role = Symbol
+// type Role = Symbol
 
-and ConceptExpression =
-    | AtomicConcept of AtomicConcept
-    // | Disjunction of Disjunction
-    | Conjunction of Conjunction
-    | Not of Not
+// and ConceptExpression =
+//     | AtomicConcept of AtomicConcept
+//     // | Disjunction of Disjunction
+//     //| Conjunction of Conjunction
+//     | Not of Not
 
-and [<RequireQualifiedAccess>] NormalConceptExpression =
-    | AtomicConcept of AtomicConcept
-    | Not of AtomicConcept
+// and [<RequireQualifiedAccess>] NormalConceptExpression =
+//     | AtomicConcept of AtomicConcept
+//     | Not of AtomicConcept
 
-and Inclusion =
-    { left: AtomicConcept
-      right: ConceptExpression }
+// and Inclusion =
+//     { left: AtomicConcept
+//       right: ConceptExpression }
 
-and Definition =
-    { left: AtomicConcept
-      right: ConceptExpression }
+// and Definition =
+//     { left: AtomicConcept
+//       right: ConceptExpression }
 
-and Not = { concept: ConceptExpression }
+// and Not = { concept: ConceptExpression }
 
-and Conjunction = { expressions: ConceptExpression }
+// and Conjunction = { expressions: ConceptExpression }
 
 // and Disjunction =
 //     { left: ConceptExpression
@@ -46,43 +46,33 @@ and Conjunction = { expressions: ConceptExpression }
 //     { concept: ConceptExpression
 //       role: Role }
 
-and UnaryPredicate =
-    { symbol: Symbol
-      concept: ConceptExpression }
+// and UnaryPredicate =
+//     { symbol: Symbol
+//       concept: ConceptExpression }
 
-and NormalUnaryPredicate =
-    { symbol: Symbol
-      concept: NormalConceptExpression }
+// and BinaryPredicate =
+//     { role: Role
+//       left: Symbol
+//       right: Symbol }
 
-and BinaryPredicate =
-    { role: Role
-      left: Symbol
-      right: Symbol }
+// type [<RequireQualifiedAccess>] Term =
+//     | Definition of Definition
+//     | Inclusion of Inclusion
+//     | UnaryPredicate of UnaryPredicate
+//     | BinaryPredicate of BinaryPredicate
+//     | Annotation of Annotation
 
-and [<RequireQualifiedAccess>] NormalABoxValue =
-    | UnaryPredicate of NormalUnaryPredicate
-    | BinaryPredicate of BinaryPredicate
+// and KnowledgeBase = Set<Term>
 
-and NormalABox = Set<NormalABoxValue>
+// and AnnotationName = string
 
-type Term =
-    | Definition of Definition
-    | Inclusion of Inclusion
-    | UnaryPredicate of UnaryPredicate
-    | BinaryPredicate of BinaryPredicate
-    | Annotation of Annotation
+// and Annotation = AnnotationName * Term list
 
-and KnowledgeBase = Set<Term>
+// and Interpretation =
+//     { Domain: Set<Symbol>
+//       Concepts: Map<Symbol, Set<Symbol>>
+//       Roles: Map<Symbol, Set<Symbol * Symbol>> }
 
-and AnnotationName = string
-
-and Annotation = AnnotationName * Term list
-
-and Interpretation =
-    { Domain: Set<Symbol>
-      Concepts: Map<Symbol, Set<Symbol>>
-      Roles: Map<Symbol, Set<Symbol * Symbol>> }
-
-let top: AtomicConcept = "⊤"
-let bottom: AtomicConcept = "⊥"
-let emptyKB: KnowledgeBase = Set.empty
+// let top: AtomicConcept = "⊤"
+// let bottom: AtomicConcept = "⊥"
+// let emptyKB: KnowledgeBase = Set.empty

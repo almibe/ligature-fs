@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Tokenizer.Test.fs" />
-    <Compile Include="Parser.Test.fs" />
+<!--    <Compile Include="Tokenizer.Test.fs" />
+    <Compile Include="Parser.Test.fs" /> -->
     <Compile Include="Interpret.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tiny-dl\TinyDL.fsproj" />
+    <ProjectReference Include="..\tiny-dl\tiny-dl.fsproj" />
   </ItemGroup>
 
 </Project>
