@@ -7,12 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureTestSuiteMain.fs" />
-    <Compile Include="InMemoryNetwork.Test.fs" />
-    <Compile Include="wander/Wander.Test.fs" />
-    <Compile Include="wander/Encoding.Test.fs" />
-    <Compile Include="Serialization.Test.fs" />
-    <Compile Include="wander/Lexer.Test.fs" />
+    <Compile Include="WanderTestSuiteMain.fs" />
+    <Compile Include="Wander.Test.fs" />
+    <Compile Include="Encoding.Test.fs" />
+    <Compile Include="Lexer.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
@@ -27,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\Wander\Wander.fsproj" />
   </ItemGroup>
 
 </Project>

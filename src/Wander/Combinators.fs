@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Combinators
+module Wander.Combinators
 
 open FSharpPlus
 
 let stdCombinators =
-    Lib.Core.coreCombinators
-    |> Map.union Lib.Assert.assertCombinators
-    |> Map.union Lib.Bool.boolLib
-    |> Map.union Lib.Network.networkCombinators
+    Wander.Lib.Core.coreCombinators
+    |> Map.union Wander.Lib.Assert.assertCombinators
+    |> Map.union Wander.Lib.Bool.boolLib
+    |> Map.union Wander.Lib.Network.networkCombinators

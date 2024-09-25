@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.Lexer.Test
+module Wander.Lexer.Test
 
 open Expecto
-open Ligature.Wander.Lexer
-open Ligature.Wander.Model
-open Ligature.Main
+open Wander.Lexer
+open Wander.Model
+open Main
 
 
 [<Tests>]

@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureTestSuiteMain.fs" />
     <Compile Include="InMemoryNetwork.Test.fs" />
     <Compile Include="Serialization.Test.fs" />
     <Compile Include="Main.fs" />
