@@ -69,14 +69,13 @@ and TBox = Set<unit>
 and ABox = Set<Entry>
 
 and LigatureStore =
-    abstract Networks: unit -> Symbol seq
+    abstract Networks: unit -> Set<Symbol>
     abstract AddNetwork: Symbol -> unit
     abstract RemoveNetwork: Symbol -> unit
     abstract ClearNetwork: Symbol -> unit
     abstract Add: Symbol -> ABox -> Result<unit, LigatureError>
     abstract Set: Symbol -> ABox -> Result<unit, LigatureError>
     abstract Remove: Symbol -> ABox -> Result<unit, LigatureError>
-    abstract Query: Symbol -> ABox -> ABox
     abstract Read: Symbol -> ABox
 
 let defaultNetwork = Symbol("")

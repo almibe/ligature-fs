@@ -13,7 +13,7 @@ module InMemoryStore =
             member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 
             member _.RemoveNetwork networkName = store.Remove(networkName) |> ignore
-            member _.Networks() = store.Keys
+            member _.Networks() = store.Keys |> Set.ofSeq
 
             member _.Add name network =
                 match store.TryGetValue name with
@@ -34,13 +34,11 @@ module InMemoryStore =
 
             member _.Read name = store.Item(name)
 
-            member _.Query name network = failwith "TODO"
             member _.ClearNetwork(arg1: Symbol) : unit = failwith "Not Implemented"
 
             member _.Set name network : Result<unit, LigatureError> =
                 store.Add(name, network) |> ignore
                 Ok(())
-    //                store.Item(name)
 
     let emptyInMemoryStore () : LigatureStore =
         InMemoryStore(new Dictionary<Symbol, Set<Entry>>())
