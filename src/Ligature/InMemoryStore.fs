@@ -8,7 +8,7 @@ open Ligature.Main
 open System.Collections.Generic
 
 module InMemoryStore =
-    type InMemoryStore(store: Dictionary<Symbol, Network>) =
+    type InMemoryStore(store: Dictionary<Symbol, ABox>) =
         interface LigatureStore with
             member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 

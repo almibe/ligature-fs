@@ -7,16 +7,5 @@ module Ligature.Test
 open Expecto
 open Ligature.Main
 
-[<Tests>]
-let tests =
-    testList
-        "Tests"
-        [ testCase "Check Triple Equality"
-          <| fun _ ->
-              Expect.equal
-                  (((Symbol("a"))), ((Symbol("b"))), ((Symbol("c"))))
-                  (((Symbol("a"))), ((Symbol("b"))), ((Symbol("c"))))
-                  "" ]
-
 [<EntryPoint>]
 let main argv = runTestsInAssemblyWithCLIArgs [] argv

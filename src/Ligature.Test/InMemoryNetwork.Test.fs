@@ -14,7 +14,7 @@ let tests =
         "Network Suite"
         [ testCase "read empty Network"
           <| fun _ ->
-              let network: Network = Set.empty
+              let network: ABox = Set.empty
               Expect.equal (network) (Set.empty) ""
           //   testCase "count Network"
           //   <| fun _ ->

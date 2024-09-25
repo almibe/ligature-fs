@@ -18,7 +18,7 @@ type Symbol = Symbol of string
 
 and [<RequireQualifiedAccessAttribute>] Element =
     | Expression of Expression
-    | Network of Symbol * Network
+    | Network of Symbol * ABox
 
 and Quote = WanderValue list
 
@@ -48,44 +48,38 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderV
     | Symbol of Symbol
     | Quote of Quote
     | Expression of Expression
-    | Network of Network
+    | Network of ABox
 
-and Concept = {
-    element: Symbol
-    concept: Symbol}
+and Concept = { element: Symbol; concept: Symbol }
 
-and NotConcept = {
-    element: Symbol
-    concept: Symbol }
+and NotConcept = { element: Symbol; concept: Symbol }
 
-and Role = {
-    source: Symbol
-    destination: Symbol
-    role: Symbol }
+and Role =
+    { source: Symbol
+      destination: Symbol
+      role: Symbol }
 
 and Entry =
     | Concept of Concept
     | NotConcept of NotConcept
     | Role of Role
 
-and Network = Set<Entry>
+and TBox = Set<unit>
+
+and ABox = Set<Entry>
 
 and LigatureStore =
     abstract Networks: unit -> Symbol seq
     abstract AddNetwork: Symbol -> unit
     abstract RemoveNetwork: Symbol -> unit
     abstract ClearNetwork: Symbol -> unit
-    abstract Add: Symbol -> Network -> Result<unit, LigatureError>
-    abstract Set: Symbol -> Network -> Result<unit, LigatureError>
-    abstract Remove: Symbol -> Network -> Result<unit, LigatureError>
-    abstract Query: Symbol -> Network -> Network
-    abstract Read: Symbol -> Network
+    abstract Add: Symbol -> ABox -> Result<unit, LigatureError>
+    abstract Set: Symbol -> ABox -> Result<unit, LigatureError>
+    abstract Remove: Symbol -> ABox -> Result<unit, LigatureError>
+    abstract Query: Symbol -> ABox -> ABox
+    abstract Read: Symbol -> ABox
 
 let defaultNetwork = Symbol("")
-
-type TBox = Set<unit>
-
-type ABox = Set<Entry>
 
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =
