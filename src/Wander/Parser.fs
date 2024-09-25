@@ -105,13 +105,13 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * 
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> = failwith "TODO"
-// result {
-//     let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-//     let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
-//     let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-//     return WanderValue.Network(handleNetwork statements)
-// }
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return WanderValue.Network(handleNetwork statements)
+    }
 
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     match Gaze.next gaze with
@@ -219,11 +219,11 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-// let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
-//     let res: Set<Statement> = (List.map (elementTupleToStatement) network) |> Set.ofSeq
-//     res
+let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
+    let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
+    res
 
-let elementTupleToStatement ((e, a, v): (WanderValue * WanderValue * WanderValue)) : (Symbol * Symbol * Symbol) =
+let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) : Entry =
     let entity =
         match e with
         | WanderValue.Symbol p -> p
@@ -242,7 +242,7 @@ let elementTupleToStatement ((e, a, v): (WanderValue * WanderValue * WanderValue
         //       | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
-    (entity, attribute, value)
+    Role { source = entity; destination = value; role = attribute }
 
 let expressExpression (elements: WanderValue list) : Element =
     //    let res = List.map (fun element -> elementToValue element) elements

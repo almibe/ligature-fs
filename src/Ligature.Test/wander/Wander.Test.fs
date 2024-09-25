@@ -36,9 +36,13 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [
-                          //WanderValue.Network(Set.ofList [ (Symbol("a"), Symbol("b"), Symbol("c")) ])
-                          ]
+                          [ WanderValue.Network(
+                                Set.ofList
+                                    [ Role
+                                          { source = Symbol("a")
+                                            role = Symbol("b")
+                                            destination = Symbol("c") } ]
+                            ) ]
                           ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
@@ -54,8 +58,13 @@ let tests =
                       Expect.equal
                           res
                           [ WanderValue.Symbol(Symbol("name"))
-                            //WanderValue.Network(Set.ofList [ Symbol("a"), Symbol("b"), Symbol("c") ])
-                            ]
+                            WanderValue.Network(
+                                Set.ofList
+                                    [ Role
+                                          { source = Symbol "a"
+                                            destination = Symbol "c"
+                                            role = Symbol "b" } ]
+                            ) ]
                           ""
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
               | _ -> failwith "Error Tokenizing"

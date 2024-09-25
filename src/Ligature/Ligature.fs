@@ -50,11 +50,18 @@ and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderV
     | Expression of Expression
     | Network of Network
 
-and Concept = (Symbol * Symbol)
+and Concept = {
+    element: Symbol
+    concept: Symbol}
 
-and NotConcept = (Symbol * Symbol)
+and NotConcept = {
+    element: Symbol
+    concept: Symbol }
 
-and Role = (Symbol * Symbol * Symbol)
+and Role = {
+    source: Symbol
+    destination: Symbol
+    role: Symbol }
 
 and Entry =
     | Concept of Concept
@@ -75,6 +82,10 @@ and LigatureStore =
     abstract Read: Symbol -> Network
 
 let defaultNetwork = Symbol("")
+
+type TBox = Set<unit>
+
+type ABox = Set<Entry>
 
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =
