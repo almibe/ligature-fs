@@ -219,7 +219,7 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
+let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : ABox =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 

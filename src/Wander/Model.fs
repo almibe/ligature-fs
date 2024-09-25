@@ -26,7 +26,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
-and printNetwork (network: Network) : string = failwith "TODO"
+and printNetwork (network: ABox) : string = failwith "TODO"
 // let mutable first = true
 
 // (Seq.fold
