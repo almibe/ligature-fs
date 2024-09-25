@@ -5,8 +5,8 @@
 module Wander.Test.Encoding
 
 open Expecto
-open Ligature.Wander.Main
-open Ligature.Wander.Model
+open Wander.Main
+open Wander.Model
 
 let config =
     { FsCheckConfig.defaultConfig with

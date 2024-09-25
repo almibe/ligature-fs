@@ -7,8 +7,8 @@ module Wander.Lexer.Test
 open Expecto
 open Wander.Lexer
 open Wander.Model
-open Main
-
+open Wander.Main
+open Ligature.Main
 
 [<Tests>]
 let tests =

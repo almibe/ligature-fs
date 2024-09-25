@@ -5,10 +5,10 @@
 module Wander.NewMain.Test
 
 open Expecto
-open Ligature.Wander.Main
+open Wander.Main
 open Ligature.Main
-open Ligature.Wander.Lexer
-open Ligature.Wander.Parser
+open Wander.Lexer
+open Wander.Parser
 open Ligature.LigatureStore.InMemoryStore
 
 [<Tests>]

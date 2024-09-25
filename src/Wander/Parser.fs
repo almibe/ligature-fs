@@ -242,7 +242,10 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
         //       | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
-    Role { source = entity; destination = value; role = attribute }
+    Role
+        { source = entity
+          destination = value
+          role = attribute }
 
 let expressExpression (elements: WanderValue list) : Element =
     //    let res = List.map (fun element -> elementToValue element) elements
