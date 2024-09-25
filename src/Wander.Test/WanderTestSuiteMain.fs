@@ -33,7 +33,8 @@ let wanderTestSuite =
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadLines file |> String.concat "\n"
 
-            testCase $"Test for {file}" <| fun _ ->
+            testCase $"Test for {file}"
+            <| fun _ ->
                 match run stdCombinators (emptyInMemoryStore ()) script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
