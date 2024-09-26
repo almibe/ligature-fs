@@ -28,7 +28,10 @@ test suite for the other project.
 | build              | Fake build script.                                                 |
 | Gaze               | A parsing library.                                                 |
 | Ligature           | Main code base including the main logic and types.                 |
+| LigaturePad        | A simple desktop app for Ligature.                                 |
 | LigatureWebSockets | A backend of Ligature using Suave and WebSockets.                  |
+| tiny-dl            | An F# library supporting Description Logic.                        |
+| Wander             | The Wander scripting language.                                     |
 
 ## Setup
 

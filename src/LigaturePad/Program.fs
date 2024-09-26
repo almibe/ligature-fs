@@ -15,8 +15,8 @@ open Avalonia.Layout
 
 module Main =
     open Ligature.LigatureStore.InMemoryStore
-    open Ligature.Wander.Combinators
-    open Ligature.Wander.Main
+    open Wander.Combinators
+    open Wander.Main
 
     let view () =
         Component(fun ctx ->
@@ -33,8 +33,7 @@ module Main =
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
                                               match run stdCombinators (emptyInMemoryStore ()) (script.Current) with
-                                              | Ok(Some(res)) ->
-                                                  result.Set $"{(Ligature.Wander.Model.prettyPrint res)}"
+                                              | Ok(Some(res)) -> result.Set $"{(Wander.Model.prettyPrint res)}"
                                               | Ok _ -> result.Set("--nothing--")
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
