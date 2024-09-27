@@ -41,13 +41,17 @@ and processArguments combinators networks (arguments: WanderValue list) : Wander
 and evalElement
     (combinators: Combinators)
     (store: LigatureStore)
-    (element: Element)
+    (element: WanderElement)
     : Result<WanderValue option, LigatureError> =
     match element with
-    | Element.Network(name, network) -> evalNetwork store name network
-    | Element.Expression expression -> evalExpression combinators store expression
+    | WanderElement.Network(name, network) -> evalNetwork store name network
+    | WanderElement.Expression expression -> evalExpression combinators store expression
 
-and evalElements (combinators: Combinators) store (elements: Element list) : Result<WanderValue option, LigatureError> =
+and evalElements
+    (combinators: Combinators)
+    store
+    (elements: WanderElement list)
+    : Result<WanderValue option, LigatureError> =
     match elements with
     | [] -> Ok(None)
     | [ head ] -> evalElement combinators store head

@@ -92,7 +92,9 @@ let consistent (aBox: ABox) : Result<bool, TinyDLError> =
                         else
                             individuals <- Map.add symbol (Set.add notConcept res) individuals
                             Ok(true)
-                | _ -> failwith "TODO")
+                | Role { source = source
+                         destination = destination
+                         role = role } -> Ok(true))
         (Ok(true))
         aBox
 

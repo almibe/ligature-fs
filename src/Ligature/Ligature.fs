@@ -16,11 +16,15 @@ let error userMessage debugMessage =
 
 type Symbol = Symbol of string
 
-and [<RequireQualifiedAccessAttribute>] Element =
+and [<RequireQualifiedAccessAttribute>] WanderElement =
     | Expression of Expression
     | Network of Symbol * ABox
 
-and Quote = WanderValue list
+and Quote = Symbol list
+
+and [<RequireQualifiedAccess>] Individual =
+    | Symbol of Symbol
+    | Quote of Quote
 
 and Expression = WanderValue list
 

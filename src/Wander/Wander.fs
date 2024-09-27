@@ -22,8 +22,8 @@ let run (combinators: Combinators) (store: LigatureStore) (input: string) : Resu
 
 type Introspect =
     { tokens: Result<Token list, string>
-      elements: Result<Element list, string>
-      expressions: Result<Element list, string> }
+      elements: Result<WanderElement list, string>
+      expressions: Result<WanderElement list, string> }
 
 let introspect (input: string) =
     match tokenize input with

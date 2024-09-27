@@ -58,8 +58,8 @@ and printEntry (entry: Entry) : string =
     | Role role -> $"{role.source} {role.role} {role.destination}"
 
 //TODO might not be correct
-and printQuote quote =
-    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" quote)
+and printQuote (quote: Quote) : string =
+    (List.fold (fun state (Symbol(value)) -> state + " " + value) "" quote)
 
 //TODO might not be correct
 and printExpression expression =

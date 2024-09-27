@@ -145,7 +145,7 @@ let tests =
 
           testCase "Parse Expression Call"
           <| fun _ ->
-              let script = "(assert-equal (apply {$a b c} [{$a = b}]) [{b b c }] )"
+              let script = "(assert-equal (not false) true)"
 
               match tokenize script with
               | Ok(res) -> Expect.isOk (parse res) ""

@@ -62,11 +62,10 @@ let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
+        let! values = Gaze.attempt (optional (repeat symbolNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return WanderValue.Quote(values)
     }
@@ -110,7 +109,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return WanderValue.Network(handleNetwork statements)
+        return WanderValue.Network(expressNetwork statements)
     }
 
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
@@ -119,6 +118,16 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
     //    | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Symbol(value)) -> Ok(value)
+    // | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
+    | Ok(Token.StringLiteral(value)) -> Ok(Symbol value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
@@ -131,7 +140,8 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let valueNib = takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
+let valueNib: Gaze.Nibbler<Token, WanderValue> =
+    takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
 
 // let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
 //     let next = Gaze.next gaze
@@ -219,7 +229,7 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-let handleNetwork (network: (WanderValue * WanderValue * WanderValue) list) : ABox =
+let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : ABox =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
@@ -239,25 +249,31 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
     let value =
         match v with
         | WanderValue.Symbol p -> p
+        //| WanderValue.Quote q -> q
         //       | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
-    Role
-        { source = entity
-          destination = value
-          role = attribute }
+    if attribute = Symbol ":" then
+        Concept { element = entity; concept = value }
+    else if attribute = Symbol ":¬" then
+        NotConcept { element = entity; concept = value }
+    else
+        Role
+            { source = entity
+              destination = value
+              role = attribute }
 
-let expressExpression (elements: WanderValue list) : Element =
+let expressExpression (elements: WanderValue list) : WanderElement =
     //    let res = List.map (fun element -> elementToValue element) elements
-    Element.Expression elements
+    WanderElement.Expression elements
 
-let rec express (elements: WanderValue list) (expressions: Element list) : Element list =
+let rec express (elements: WanderValue list) (expressions: WanderElement list) : WanderElement list =
     match elements with
     | [] -> expressions
     | WanderValue.Network(network) :: tail ->
-        express tail (List.append expressions [ Element.Network(defaultNetwork, network) ])
+        express tail (List.append expressions [ WanderElement.Network(defaultNetwork, network) ])
     | WanderValue.Symbol(name) :: WanderValue.Network(network) :: tail ->
-        express tail (List.append expressions [ Element.Network(name, network) ])
+        express tail (List.append expressions [ WanderElement.Network(name, network) ])
     | WanderValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
     //| Identifier.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
     | _ -> failwith "Error - unexpected token."
