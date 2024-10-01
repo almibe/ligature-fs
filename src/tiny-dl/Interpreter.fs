@@ -8,7 +8,7 @@ module TinyDL.Interpreter
 //open TinyDL.NewParser
 open Ligature.Main
 
-let acyclic (kb: ABox) : bool = failwith "TODO"
+let acyclic (kb: Network) : bool = failwith "TODO"
 
 // let normalize (: KnowledgeBase) : Result<ABox, TinyDLError> =
 //     Set.fold
@@ -46,8 +46,8 @@ let acyclic (kb: ABox) : bool = failwith "TODO"
 
 type TinyDLError = string
 
-let consistent (aBox: ABox) : Result<bool, TinyDLError> =
-    let mutable individuals: Map<Symbol, Set<Entry>> = Map.empty
+let consistent (aBox: Network) : Result<bool, TinyDLError> =
+    let mutable individuals: Map<Element, Set<Entry>> = Map.empty
 
     Set.fold
         (fun state (assertion: Entry) ->
@@ -92,8 +92,8 @@ let consistent (aBox: ABox) : Result<bool, TinyDLError> =
                         else
                             individuals <- Map.add symbol (Set.add notConcept res) individuals
                             Ok(true)
-                | Role { source = source
-                         destination = destination
+                | Role { first = first
+                         second = second
                          role = role } -> Ok(true))
         (Ok(true))
         aBox

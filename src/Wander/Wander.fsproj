@@ -14,6 +14,7 @@
     <Compile Include="lib/Bool.fs" />
     <Compile Include="lib/Core.fs" />
     <Compile Include="lib/Network.fs" />
+    <Compile Include="lib/TinyDL.fs" />
 <!--    
     <Compile Include="lib/DateTime.fs" />
     <Compile Include="lib/Name.fs" />

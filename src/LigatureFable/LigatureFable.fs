@@ -12,7 +12,7 @@ open System.Collections.Generic
 let printNetwork (network: Network) : string =
     Ligature.Wander.Model.printNetwork network
 
-let symbolToJS (Symbol(symbol): Symbol) =
+let symbolToJS (Symbol(symbol): Element) =
     let res = createEmpty
     res?symbol <- symbol
     res

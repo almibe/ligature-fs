@@ -54,7 +54,7 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Symbol of Symbol
+    | Symbol of Element
     | StringLiteral of string
     | OpenBrace
     | CloseBrace

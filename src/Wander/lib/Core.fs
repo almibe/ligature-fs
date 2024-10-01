@@ -23,7 +23,7 @@ let setCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(name); WanderValue.Network(value) ] ->
+            | [ WanderValue.Symbol(Symbol(name)); WanderValue.Network(value) ] ->
                 store.Set name value |> ignore
                 Ok(None)
             | _ -> failwith "TODO" }
@@ -35,7 +35,7 @@ let readCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(name) ] ->
+            | [ WanderValue.Symbol(Symbol(name)) ] ->
                 let network = WanderValue.Network(store.Read name)
                 Ok(Some(network))
             // match Map.tryFind name networks with
@@ -49,7 +49,7 @@ let ignoreCombinator: Combinator =
       Signature = [ LigatureType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
-let printSignature ((arguments, result): LigatureType list * LigatureType option) : Symbol =
+let printSignature ((arguments, result): LigatureType list * LigatureType option) : Element =
     Symbol($"{arguments} -> {result}")
 // List.map
 //     (fun t ->
@@ -72,7 +72,7 @@ let docsCombinator: Combinator =
       Signature = [], Some(LigatureType.Network)
       Eval =
         fun combinators networks _ ->
-            let mutable docs: ABox = Set.empty
+            let mutable docs: Network = Set.empty
 
             Map.toList combinators
             |> List.iter (fun (name, combinator) ->
@@ -81,17 +81,17 @@ let docsCombinator: Combinator =
                 docs <-
                     Set.add
                         (Role
-                            { source = name
-                              role = Symbol("docString")
-                              destination = Symbol(combinator.Doc) })
+                            { first = name
+                              second = Symbol(combinator.Doc)
+                              role = Symbol("docString") })
                         docs
 
                 docs <-
                     Set.add
                         (Role
-                            { source = name
-                              role = Symbol("signature")
-                              destination = signature })
+                            { first = name
+                              second = signature
+                              role = Symbol("signature") })
                         docs
 
                 ())

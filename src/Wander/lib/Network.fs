@@ -30,7 +30,7 @@ let isConsistentCombinator =
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Symbol(networkName) ] ->
+            | [ WanderValue.Symbol(Symbol(networkName)) ] ->
                 match consistent (store.Read networkName) with
                 | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
                 | Error err -> error "Bad call to is-consistent." None
@@ -50,6 +50,19 @@ let unionCombinator =
             | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
                 let result = Set.union left right |> WanderValue.Network
                 Ok(Some(result))
+            | _ -> failwith "TODO" }
+
+let countCombinator =
+    { Name = Symbol("count")
+      Doc = "Count the number of assertions in a Network."
+      Signature = [ LigatureType.Symbol ], Some LigatureType.Symbol
+      Eval =
+        fun _ store (arguments: Arguments) ->
+            match arguments with
+            | [ WanderValue.Symbol(Symbol name) ] ->
+                match store.Read name with
+                | network -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
+            | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
 let minusCombinator =
@@ -148,10 +161,11 @@ let lookupNetwork () = failwith "TODO"
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "TODO" }
 
-let networkCombinators: Map<Symbol, Combinator> =
+let networkCombinators: Map<Element, Combinator> =
     (Map.ofList
         [ //(applyCombinator.Name, applyCombinator)
           (chompCombinator.Name, chompCombinator)
+          (countCombinator.Name, countCombinator)
           //          (matchCombinator.Name, matchCombinator)
           (minusCombinator.Name, minusCombinator)
           //          (queryCombinator.Name, queryCombinator)

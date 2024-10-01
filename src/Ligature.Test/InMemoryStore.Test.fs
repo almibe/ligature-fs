@@ -20,15 +20,15 @@ let tests =
           testCase "add Network"
           <| fun _ ->
               let store = emptyInMemoryStore ()
-              store.AddNetwork(Symbol "test")
-              Expect.equal (store.Networks()) (Set.ofList [ Symbol "test" ]) ""
+              store.AddNetwork(NetworkName "test")
+              Expect.equal (store.Networks()) (Set.ofList [ NetworkName "test" ]) ""
           testCase "add and remove Networks"
           <| fun _ ->
               let store = emptyInMemoryStore ()
-              store.AddNetwork(Symbol "test")
-              store.AddNetwork(Symbol "test2")
-              store.AddNetwork(Symbol "test3")
-              store.RemoveNetwork(Symbol "test2")
-              store.RemoveNetwork(Symbol "test")
-              store.RemoveNetwork(Symbol "test1")
-              Expect.equal (store.Networks()) (Set.ofList [ Symbol "test3" ]) "" ]
+              store.AddNetwork(NetworkName "test")
+              store.AddNetwork(NetworkName "test2")
+              store.AddNetwork(NetworkName "test3")
+              store.RemoveNetwork(NetworkName "test2")
+              store.RemoveNetwork(NetworkName "test")
+              store.RemoveNetwork(NetworkName "test1")
+              Expect.equal (store.Networks()) (Set.ofList [ NetworkName "test3" ]) "" ]

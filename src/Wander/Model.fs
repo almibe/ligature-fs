@@ -26,7 +26,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
-and printNetwork (network: ABox) : string =
+and printNetwork (network: Network) : string =
     let mutable first = true
 
     (Seq.fold
@@ -55,7 +55,7 @@ and printEntry (entry: Entry) : string =
     match entry with
     | Concept concept -> $"{concept.element} : {concept.concept}"
     | NotConcept nc -> $"{nc.element} :¬ {nc.concept}"
-    | Role role -> $"{role.source} {role.role} {role.destination}"
+    | Role role -> $"{role.first} {role.role} {role.second}"
 
 //TODO might not be correct
 and printQuote (quote: Quote) : string =

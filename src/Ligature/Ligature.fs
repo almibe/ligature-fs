@@ -14,28 +14,25 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Symbol = Symbol of string
+type Element = Symbol of string
 
 and [<RequireQualifiedAccessAttribute>] WanderElement =
     | Expression of Expression
-    | Network of Symbol * ABox
+    | Network of NetworkName * Network
 
-and Quote = Symbol list
+and Quote = Element list
 
-and [<RequireQualifiedAccess>] Individual =
-    | Symbol of Symbol
-    | Quote of Quote
+// and [<RequireQualifiedAccess>] Element =
+//     | Symbol of Symbol
+//     | Quote of Quote
 
 and Expression = WanderValue list
 
-and Combinators = Map<Symbol, Combinator>
+and Combinators = Map<Element, Combinator>
 
 and Arguments = WanderValue list
 
 and [<RequireQualifiedAccessAttribute>] LigatureType =
-    | String
-    | Int
-    | Bytes
     | Symbol
     | Network
     | Quote
@@ -43,46 +40,82 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Any
 
 and Combinator =
-    { Name: Symbol
+    { Name: Element
       Doc: string
       Signature: LigatureType list * LigatureType option
       Eval: Combinators -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
-and [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>] WanderValue =
-    | Symbol of Symbol
+and [<RequireQualifiedAccess>] WanderValue =
+    | Symbol of Element
     | Quote of Quote
     | Expression of Expression
-    | Network of ABox
+    | Network of Network
 
-and Concept = { element: Symbol; concept: Symbol }
+and ConceptName = Element
 
-and NotConcept = { element: Symbol; concept: Symbol }
+and RoleName = Element
+
+and Concept =
+    { element: Element
+      concept: ConceptName }
+
+and NotConcept =
+    { element: Element
+      concept: ConceptName }
 
 and Role =
-    { source: Symbol
-      destination: Symbol
-      role: Symbol }
+    { first: Element
+      second: Element
+      role: RoleName }
 
 and Entry =
     | Concept of Concept
     | NotConcept of NotConcept
     | Role of Role
 
-and TBox = Set<unit>
+and Network = Set<Entry>
 
-and ABox = Set<Entry>
+and NetworkName = string
 
 and LigatureStore =
-    abstract Networks: unit -> Set<Symbol>
-    abstract AddNetwork: Symbol -> unit
-    abstract RemoveNetwork: Symbol -> unit
-    abstract ClearNetwork: Symbol -> unit
-    abstract Add: Symbol -> ABox -> Result<unit, LigatureError>
-    abstract Set: Symbol -> ABox -> Result<unit, LigatureError>
-    abstract Remove: Symbol -> ABox -> Result<unit, LigatureError>
-    abstract Read: Symbol -> ABox
+    abstract Networks: unit -> Set<NetworkName>
+    abstract AddNetwork: NetworkName -> unit
+    abstract RemoveNetwork: NetworkName -> unit
+    abstract ClearNetwork: NetworkName -> unit
+    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Read: NetworkName -> Network
 
-let defaultNetwork = Symbol("")
+and NetworkStore =
+    abstract Count: unit -> int
+    abstract Consistent: unit -> bool
+    abstract Complete: unit -> bool
+    abstract AllConcepts: unit -> Set<ConceptName>
+    abstract AllRoles: unit -> Set<RoleName>
+    abstract AllExtentions: ConceptName -> Set<Element>
+    abstract AllRoleInstances: RoleName -> Set<Role>
+    abstract Find: Set<Term> -> Set<Map<Variable, Element>>
+
+and Term =
+    | ConceptTerm of Slot * ConceptNameSlot
+    | RoleTerm of Slot * Slot * RoleNameSlot
+
+and Variable = string
+
+and ConceptNameSlot =
+    | ConceptName of ConceptName
+    | Variable of Variable
+
+and RoleNameSlot =
+    | RoleName of RoleName
+    | Variable of string
+
+and Slot =
+    | Element of Element
+    | Variable of string
+
+let defaultNetwork = NetworkName("")
 
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =

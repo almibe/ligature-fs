@@ -8,7 +8,11 @@ open Ligature.Main
 
 //let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<Identifier, LigatureError> = Ok(networks)
 
-let evalNetwork (store: LigatureStore) (name: Symbol) (network: ABox) : Result<WanderValue option, LigatureError> =
+let evalNetwork
+    (store: LigatureStore)
+    (name: NetworkName)
+    (network: Network)
+    : Result<WanderValue option, LigatureError> =
     store.Add name network |> ignore
     Ok None
 // let newNetwork = Set.union currentNetwork (network)

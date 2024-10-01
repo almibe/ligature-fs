@@ -120,7 +120,7 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
+let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
@@ -229,7 +229,7 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : ABox =
+let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
@@ -259,8 +259,8 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
         NotConcept { element = entity; concept = value }
     else
         Role
-            { source = entity
-              destination = value
+            { first = entity
+              second = value
               role = attribute }
 
 let expressExpression (elements: WanderValue list) : WanderElement =
@@ -272,7 +272,7 @@ let rec express (elements: WanderValue list) (expressions: WanderElement list) :
     | [] -> expressions
     | WanderValue.Network(network) :: tail ->
         express tail (List.append expressions [ WanderElement.Network(defaultNetwork, network) ])
-    | WanderValue.Symbol(name) :: WanderValue.Network(network) :: tail ->
+    | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
         express tail (List.append expressions [ WanderElement.Network(name, network) ])
     | WanderValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
     //| Identifier.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])

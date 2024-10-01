@@ -8,7 +8,7 @@ open Ligature.Main
 open System.Collections.Generic
 
 module InMemoryStore =
-    type InMemoryStore(store: Dictionary<Symbol, ABox>) =
+    type InMemoryStore(store: Dictionary<NetworkName, Network>) =
         interface LigatureStore with
             member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 
@@ -34,14 +34,14 @@ module InMemoryStore =
 
             member _.Read name = store.Item(name)
 
-            member _.ClearNetwork(arg1: Symbol) : unit = failwith "Not Implemented"
+            member _.ClearNetwork networkName : unit = store.Remove networkName |> ignore
 
             member _.Set name network : Result<unit, LigatureError> =
                 store.Add(name, network) |> ignore
                 Ok(())
 
     let emptyInMemoryStore () : LigatureStore =
-        InMemoryStore(new Dictionary<Symbol, Set<Entry>>())
+        InMemoryStore(new Dictionary<NetworkName, Set<Entry>>())
 
 // let patternNameToIdentifier (patternName: Pattern) : Pattern =
 //     match patternName with
