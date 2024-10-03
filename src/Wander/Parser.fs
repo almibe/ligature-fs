@@ -230,8 +230,9 @@ let parseString (input: string) =
 //     |> Identifier.Expression
 
 let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
-    let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
-    res
+    failwith "TODO"
+    // let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
+    // res
 
 let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) : Entry =
     let entity =

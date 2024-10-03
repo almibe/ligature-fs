@@ -29,15 +29,16 @@ let rec evalSymbol
     | None -> error $"Could not find name {name}" None
 
 and processArguments combinators networks (arguments: WanderValue list) : WanderValue list =
-    List.map
-        (fun argument ->
-            match argument with
-            | WanderValue.Expression e ->
-                match evalExpression combinators networks e with
-                | Ok(Some(value)) -> value
-                | _ -> WanderValue.Network Set.empty
-            | value -> value)
-        arguments
+    failwith "TODO"
+    // List.map
+    //     (fun argument ->
+    //         match argument with
+    //         | WanderValue.Expression e ->
+    //             match evalExpression combinators networks e with
+    //             | Ok(Some(value)) -> value
+    //             | _ -> WanderValue.Network Set.empty
+    //         | value -> value)
+    //     arguments
 
 and evalElement
     (combinators: Combinators)

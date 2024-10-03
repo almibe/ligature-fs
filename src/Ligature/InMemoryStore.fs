@@ -8,7 +8,7 @@ open Ligature.Main
 open System.Collections.Generic
 
 module InMemoryStore =
-    type InMemoryStore(store: Dictionary<NetworkName, Network>) =
+    type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
         interface LigatureStore with
             member _.AddNetwork networkName = store.Add(networkName, Set.empty)
 
@@ -23,21 +23,24 @@ module InMemoryStore =
                     store.Add(name, (Set.union oldNetwork network))
                     Ok(())
                 | (false, _) ->
-                    store.Add(name, network)
+                    //store.Add(name, network)
+                    failwith "TODO"
                     Ok(())
 
             member _.Remove name network =
                 let oldNetwork = store.Item(name)
                 store.Remove(name) |> ignore
-                store.Add(name, (Set.difference oldNetwork network))
+                //store.Add(name, (Set.difference oldNetwork network))
+                failwith "TODO"
                 Ok(())
 
-            member _.Read name = store.Item(name)
+            member _.Read name = failwith "TODO" //store.Item(name)
 
             member _.ClearNetwork networkName : unit = store.Remove networkName |> ignore
 
             member _.Set name network : Result<unit, LigatureError> =
-                store.Add(name, network) |> ignore
+                //store.Add(name, network) |> ignore
+                failwith "TODO"
                 Ok(())
 
     let emptyInMemoryStore () : LigatureStore =

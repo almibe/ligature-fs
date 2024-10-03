@@ -73,8 +73,6 @@ and Entry =
     | NotConcept of NotConcept
     | Role of Role
 
-and Network = Set<Entry>
-
 and NetworkName = string
 
 and LigatureStore =
@@ -87,7 +85,7 @@ and LigatureStore =
     abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Read: NetworkName -> Network
 
-and NetworkStore =
+and Network =
     abstract Count: unit -> int
     abstract Consistent: unit -> bool
     abstract Complete: unit -> bool

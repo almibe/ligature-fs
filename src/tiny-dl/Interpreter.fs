@@ -48,55 +48,55 @@ type TinyDLError = string
 
 let consistent (aBox: Network) : Result<bool, TinyDLError> =
     let mutable individuals: Map<Element, Set<Entry>> = Map.empty
+    failwith "TODO"
+    // Set.fold
+    //     (fun state (assertion: Entry) ->
+    //         match state with
+    //         | Error error -> Error error
+    //         | Ok false -> Ok false
+    //         | Ok true ->
+    //             match assertion with
+    //             | Concept { concept = conceptName
+    //                         element = symbol } ->
+    //                 let concept =
+    //                     Concept
+    //                         { concept = conceptName
+    //                           element = symbol }
 
-    Set.fold
-        (fun state (assertion: Entry) ->
-            match state with
-            | Error error -> Error error
-            | Ok false -> Ok false
-            | Ok true ->
-                match assertion with
-                | Concept { concept = conceptName
-                            element = symbol } ->
-                    let concept =
-                        Concept
-                            { concept = conceptName
-                              element = symbol }
+    //                 let notVersion =
+    //                     NotConcept
+    //                         { concept = conceptName
+    //                           element = symbol }
 
-                    let notVersion =
-                        NotConcept
-                            { concept = conceptName
-                              element = symbol }
+    //                 match individuals.TryFind symbol with
+    //                 | None ->
+    //                     individuals <- Map.add symbol (Set.ofList [ concept ]) individuals
+    //                     Ok(true)
+    //                 | Some res ->
+    //                     if res.Contains(notVersion) then
+    //                         Ok(false)
+    //                     else
+    //                         individuals <- Map.add symbol (Set.add (concept) res) individuals
+    //                         Ok(true)
+    //             | NotConcept { concept = concept; element = symbol } ->
+    //                 let notConcept = NotConcept { concept = concept; element = symbol }
+    //                 let inverse = Concept { concept = concept; element = symbol }
 
-                    match individuals.TryFind symbol with
-                    | None ->
-                        individuals <- Map.add symbol (Set.ofList [ concept ]) individuals
-                        Ok(true)
-                    | Some res ->
-                        if res.Contains(notVersion) then
-                            Ok(false)
-                        else
-                            individuals <- Map.add symbol (Set.add (concept) res) individuals
-                            Ok(true)
-                | NotConcept { concept = concept; element = symbol } ->
-                    let notConcept = NotConcept { concept = concept; element = symbol }
-                    let inverse = Concept { concept = concept; element = symbol }
-
-                    match individuals.TryFind symbol with
-                    | None ->
-                        individuals <- Map.add symbol (Set.ofList [ notConcept ]) individuals
-                        Ok(true)
-                    | Some res ->
-                        if res.Contains(inverse) then
-                            Ok(false)
-                        else
-                            individuals <- Map.add symbol (Set.add notConcept res) individuals
-                            Ok(true)
-                | Role { first = first
-                         second = second
-                         role = role } -> Ok(true))
-        (Ok(true))
-        aBox
+    //                 match individuals.TryFind symbol with
+    //                 | None ->
+    //                     individuals <- Map.add symbol (Set.ofList [ notConcept ]) individuals
+    //                     Ok(true)
+    //                 | Some res ->
+    //                     if res.Contains(inverse) then
+    //                         Ok(false)
+    //                     else
+    //                         individuals <- Map.add symbol (Set.add notConcept res) individuals
+    //                         Ok(true)
+    //             | Role { first = first
+    //                      second = second
+    //                      role = role } -> Ok(true))
+    //     (Ok(true))
+    //     //aBox
 
 // let interpret (kb: KnowledgeBase) : Result<Interpretation, TinyDLError> =
 //     let mutable domain = Set.empty
