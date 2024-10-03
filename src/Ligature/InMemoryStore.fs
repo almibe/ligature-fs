@@ -7,6 +7,70 @@ module Ligature.InMemoryStore
 open Ligature.Main
 open System.Collections.Generic
 
+let isComplete (entries: Set<Entry>) : bool =
+    let concepts =
+        Set.fold (fun state value ->
+            match value with
+            | Extension { concept = concept } -> Set.add concept state
+            | _ -> state) Set.empty entries
+
+    Set.fold
+        (fun state (entry: Entry) ->
+            match entry with
+            | Role { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
+            | _ -> state)
+        true
+        entries
+
+let consistent (aBox: Set<Entry>) : bool =
+    let mutable individuals: Map<Element, Set<Entry>> = Map.empty
+
+    Set.fold
+        (fun state (entry: Entry) ->
+            match state with
+            | false -> false
+            | true ->
+                match entry with
+                | Extension { concept = conceptName
+                              element = symbol } ->
+                    let concept =
+                        Extension
+                            { concept = conceptName
+                              element = symbol }
+
+                    let notVersion =
+                        NonExtension
+                            { concept = conceptName
+                              element = symbol }
+
+                    match individuals.TryFind symbol with
+                    | None ->
+                        individuals <- Map.add symbol (Set.ofList [ concept ]) individuals
+                        true
+                    | Some res ->
+                        if res.Contains(notVersion) then
+                            false
+                        else
+                            individuals <- Map.add symbol (Set.add (concept) res) individuals
+                            true
+                | NonExtension { concept = concept; element = symbol } ->
+                    let notConcept = NonExtension { concept = concept; element = symbol }
+                    let inverse = Extension { concept = concept; element = symbol }
+
+                    match individuals.TryFind symbol with
+                    | None ->
+                        individuals <- Map.add symbol (Set.ofList [ notConcept ]) individuals
+                        true
+                    | Some res ->
+                        if res.Contains(inverse) then
+                            false
+                        else
+                            individuals <- Map.add symbol (Set.add notConcept res) individuals
+                            true
+                | Role _ -> true)
+        true
+        aBox
+
 type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
     interface LigatureStore with
         member _.AddNetwork networkName = store.Add(networkName, Set.empty)
@@ -22,25 +86,83 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
                 store.Add(name, (Set.union oldNetwork network))
                 Ok(())
             | (false, _) ->
-                //store.Add(name, network)
-                failwith "TODO"
+                store.Add(name, network)
                 Ok(())
 
         member _.Remove name network =
             let oldNetwork = store.Item(name)
             store.Remove(name) |> ignore
-            //store.Add(name, (Set.difference oldNetwork network))
-            failwith "TODO"
+            store.Add(name, (Set.difference oldNetwork network))
             Ok(())
-
-        member _.Read name = failwith "TODO" //store.Item(name)
 
         member _.ClearNetwork networkName : unit = store.Remove networkName |> ignore
 
+        member _.Read(networkName: NetworkName) : Set<Entry> =
+            match store.TryGetValue networkName with
+            | (true, network) -> network
+            | (false, _) -> failwith "TODO"
+
         member _.Set name network : Result<unit, LigatureError> =
-            //store.Add(name, network) |> ignore
-            failwith "TODO"
+            store.Add(name, network) |> ignore
             Ok(())
+
+        member _.AllConcepts(networkName: NetworkName) : Set<ConceptName> =
+            match store.TryGetValue(networkName) with
+            | true, entries -> Set.fold (fun state value -> state) Set.empty entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.AllExtentions (networkName: NetworkName) (conceptName: ConceptName) : Set<Element> =
+            match store.TryGetValue(networkName) with
+            | true, entries ->
+                Set.fold
+                    (fun state value ->
+                        match value with
+                        | Extension ex ->
+                            if ex.concept = conceptName then
+                                Set.add ex.element state
+                            else
+                                state
+                        | _ -> state)
+                    Set.empty
+                    entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.AllRoleInstances (networkName: NetworkName) (roleName: RoleName) : Set<Role> =
+            match store.TryGetValue(networkName) with
+            | true, entries ->
+                Set.fold
+                    (fun state value ->
+                        match value with
+                        | Role role -> if role.role = roleName then Set.add role state else state
+                        | _ -> state)
+                    Set.empty
+                    entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.AllRoles(networkName: NetworkName) : Set<RoleName> =
+            match store.TryGetValue(networkName) with
+            | true, entries ->
+                Set.fold
+                    (fun state value ->
+                        match value with
+                        | Role role -> Set.add role.role state
+                        | _ -> state)
+                    Set.empty
+                    entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.IsComplete(networkName: NetworkName) : bool =
+            match store.TryGetValue(networkName) with
+            | true, entries -> isComplete entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.IsConsistent(networkName: NetworkName) : bool =
+            match store.TryGetValue(networkName) with
+            | true, entries -> consistent entries
+            | false, _ -> failwith "Not Implemented"
+
+        member _.Find (networkName: NetworkName) (terms: Set<Term>) : Set<Map<Variable, Element>> =
+            failwith "Not Implemented"
 
 let emptyInMemoryStore () : LigatureStore =
     InMemoryStore(new Dictionary<NetworkName, Set<Entry>>())

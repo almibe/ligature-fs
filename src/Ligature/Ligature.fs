@@ -18,7 +18,7 @@ type Element = Symbol of string
 
 and [<RequireQualifiedAccessAttribute>] WanderElement =
     | Expression of Expression
-    | Network of NetworkName * Network
+    | Network of NetworkName * Set<Entry>
 
 and Quote = Element list
 
@@ -49,17 +49,17 @@ and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Element
     | Quote of Quote
     | Expression of Expression
-    | Network of Network
+    | Network of Set<Entry>
 
 and ConceptName = Element
 
 and RoleName = Element
 
-and Concept =
+and Extension =
     { element: Element
       concept: ConceptName }
 
-and NotConcept =
+and NonExtension =
     { element: Element
       concept: ConceptName }
 
@@ -69,8 +69,8 @@ and Role =
       role: RoleName }
 
 and Entry =
-    | Concept of Concept
-    | NotConcept of NotConcept
+    | Extension of Extension
+    | NonExtension of NonExtension
     | Role of Role
 
 and NetworkName = string
@@ -80,20 +80,17 @@ and LigatureStore =
     abstract AddNetwork: NetworkName -> unit
     abstract RemoveNetwork: NetworkName -> unit
     abstract ClearNetwork: NetworkName -> unit
-    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Read: NetworkName -> Network
-
-and Network =
-    abstract Count: unit -> int
-    abstract Consistent: unit -> bool
-    abstract Complete: unit -> bool
-    abstract AllConcepts: unit -> Set<ConceptName>
-    abstract AllRoles: unit -> Set<RoleName>
-    abstract AllExtentions: ConceptName -> Set<Element>
-    abstract AllRoleInstances: RoleName -> Set<Role>
-    abstract Find: Set<Term> -> Set<Map<Variable, Element>>
+    abstract Read: NetworkName -> Set<Entry>
+    abstract Add: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
+    abstract Set: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
+    abstract Remove: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
+    abstract IsConsistent: NetworkName -> bool
+    abstract IsComplete: NetworkName -> bool
+    abstract AllConcepts: NetworkName -> Set<ConceptName>
+    abstract AllRoles: NetworkName -> Set<RoleName>
+    abstract AllExtentions: NetworkName -> ConceptName -> Set<Element>
+    abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
+    abstract Find: NetworkName -> Set<Term> -> Set<Map<Variable, Element>>
 
 and Term =
     | ConceptTerm of Slot * ConceptNameSlot

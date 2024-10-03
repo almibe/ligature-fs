@@ -6,6 +6,8 @@ module Wander.Lib.Network
 
 open Ligature.Main
 open TinyDL.Interpreter
+open TinyDL.Interpreter
+open Ligature.InMemoryStore
 
 let chompCombinator =
     { Name = Symbol("chomp")
@@ -30,13 +32,12 @@ let isConsistentCombinator =
         fun _ store (arguments: Arguments) ->
             match arguments with
             | [ WanderValue.Symbol(Symbol(networkName)) ] ->
-                match consistent (store.Read networkName) with
-                | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-                | Error err -> error "Bad call to is-consistent." None
+                let value = store.IsConsistent networkName
+                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
             | [ WanderValue.Network(network) ] ->
                 match consistent network with
-                | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-                | Error err -> error "Bad call to is-consistent." None
+                | value -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+            //| Error err -> error "Bad call to is-consistent." None
             | _ -> error "Bad call to is-consistent." None }
 
 let isCompleteCombinator =
@@ -46,14 +47,12 @@ let isCompleteCombinator =
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
-            // | [ WanderValue.Symbol(Symbol(networkName)) ] ->
-            //     match (store.Read networkName) with
-            //     | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            //     | Error err -> error "Bad call to is-complete." None
-            // | [ WanderValue.Network(network) ] ->
-            //     match isComplete network with
-            //     | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            //     | Error err -> error "Bad call to is-complete." None
+            | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+                let value = store.IsComplete networkName
+                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+            | [ WanderValue.Network(network) ] ->
+                let value = isComplete network
+                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
             | _ -> error "Bad call to is-complete." None }
 
 let unionCombinator =
@@ -64,9 +63,8 @@ let unionCombinator =
         fun _ networks (arguments: Arguments) ->
             match arguments with
             | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-                //let result = Set.union left right |> WanderValue.Network
-                //Ok(Some(result))
-                failwith "TODO"
+                let result = Set.union left right |> WanderValue.Network
+                Ok(Some(result))
             | _ -> failwith "TODO" }
 
 let countCombinator =
@@ -83,17 +81,16 @@ let countCombinator =
             | _ -> failwith "TODO" }
 
 let minusCombinator =
-    failwith "TODO"
-    // { Name = Symbol("minus")
-    //   Doc = "Remove all Statements from the first Network that are in the second Networks."
-    //   Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
-    //   Eval =
-    //     fun _ networks (arguments: Arguments) ->
-    //         match arguments with
-    //         | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-    //             let result = Set.difference left right |> WanderValue.Network
-    //             Ok(Some(result))
-    //         | _ -> failwith "TODO" }
+    { Name = Symbol("minus")
+      Doc = "Remove all Statements from the first Network that are in the second Networks."
+      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+      Eval =
+        fun _ networks (arguments: Arguments) ->
+            match arguments with
+            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
+                let result = Set.difference left right |> WanderValue.Network
+                Ok(Some(result))
+            | _ -> failwith "TODO" }
 
 let lookupNetwork () = failwith "TODO"
 

@@ -2,12 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.Wander.InMemoryNetwork.Test
+module Ligature.InMemoryNetwork.Test
 
 open Expecto
 open Ligature.Main
-open Ligature.LigatureStore
-open Ligature.LigatureStore.InMemoryStore
+open Ligature.InMemoryStore
 
 [<Tests>]
 let tests =
@@ -31,4 +30,16 @@ let tests =
               store.RemoveNetwork(NetworkName "test2")
               store.RemoveNetwork(NetworkName "test")
               store.RemoveNetwork(NetworkName "test1")
-              Expect.equal (store.Networks()) (Set.ofList [ NetworkName "test3" ]) "" ]
+              Expect.equal (store.Networks()) (Set.ofList [ NetworkName "test3" ]) ""
+          //   testCase "add and remove Networks"
+          //   <| fun _ ->
+          //       let store = emptyInMemoryStore ()
+          //       store.AddNetwork(NetworkName "test")
+          //       store.AddNetwork(NetworkName "test2")
+          //       store.AddNetwork(NetworkName "test3")
+          //       store.RemoveNetwork(NetworkName "test2")
+          //       store.RemoveNetwork(NetworkName "test")
+          //       store.RemoveNetwork(NetworkName "test1")
+          //       Expect.equal (store.Networks()) (Set.ofList [ NetworkName "test3" ]) ""
+
+          ]

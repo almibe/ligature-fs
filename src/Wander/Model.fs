@@ -26,19 +26,19 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
-and printNetwork (network: Network) : string =
+and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
-    failwith "TODO"
-    // (Seq.fold
-    //     (fun state triple ->
-    //         if first then
-    //             first <- false
-    //             state + " " + (printEntry triple) + ","
-    //         else
-    //             state + "\n  " + (printEntry triple) + ",")
-    //     "{"
-    //     (network))
-    // + " }"
+
+    (Seq.fold
+        (fun state triple ->
+            if first then
+                first <- false
+                state + " " + (printEntry triple) + ","
+            else
+                state + "\n  " + (printEntry triple) + ",")
+        "{"
+        (network))
+    + " }"
 
 and printBytes bytes =
     bytes
@@ -53,8 +53,8 @@ and printAssocArray values =
 
 and printEntry (entry: Entry) : string =
     match entry with
-    | Concept concept -> $"{concept.element} : {concept.concept}"
-    | NotConcept nc -> $"{nc.element} :¬ {nc.concept}"
+    | Extension concept -> $"{concept.element} : {concept.concept}"
+    | NonExtension nc -> $"{nc.element} :¬ {nc.concept}"
     | Role role -> $"{role.first} {role.role} {role.second}"
 
 //TODO might not be correct

@@ -131,15 +131,15 @@ let inferFunction =
       Name = "infer"
       Description =
         "Search using the given pattern, and then transform the selected reselts with the transform Network and merge the results back into the original Network."
-      Parameters = [ ("network", WanderType.Network); ("pattern", WanderType.Network) ]
+      Parameters = [ ("TBox", WanderType.Network); ("ABox", WanderType.Network) ]
       Returns = WanderType.Array
       Eval =
         (fun args _ ->
             match args with
-            | [ WanderValue.Network(network); WanderValue.Network(pattern); WanderValue.Network(trans) ] ->
-                Ok(WanderValue.Network(network.Infer pattern trans))
+            | [ WanderValue.Network(tBox); WanderValue.Network(aBox) ] ->
+                
+                failwith "TODO"
             | value -> error $"Unexpected value passed to Pattern.extract - {value}." None) }
-
 
 // let matchFunction =
 //     { Module = "Ligature"

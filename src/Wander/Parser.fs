@@ -229,10 +229,9 @@ let parseString (input: string) =
 //     List.map (fun element -> elementToValue element) expression
 //     |> Identifier.Expression
 
-let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Network =
-    failwith "TODO"
-    // let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
-    // res
+let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Set<Entry> =
+    let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
+    res
 
 let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) : Entry =
     let entity =
@@ -255,9 +254,9 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
         | _ -> failwith "Error - unexpected Value."
 
     if attribute = Symbol ":" then
-        Concept { element = entity; concept = value }
+        Extension { element = entity; concept = value }
     else if attribute = Symbol ":¬" then
-        NotConcept { element = entity; concept = value }
+        NonExtension { element = entity; concept = value }
     else
         Role
             { first = entity

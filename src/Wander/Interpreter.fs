@@ -11,7 +11,7 @@ open Ligature.Main
 let evalNetwork
     (store: LigatureStore)
     (name: NetworkName)
-    (network: Network)
+    (network: Set<Entry>)
     : Result<WanderValue option, LigatureError> =
     store.Add name network |> ignore
     Ok None
@@ -29,16 +29,15 @@ let rec evalSymbol
     | None -> error $"Could not find name {name}" None
 
 and processArguments combinators networks (arguments: WanderValue list) : WanderValue list =
-    failwith "TODO"
-    // List.map
-    //     (fun argument ->
-    //         match argument with
-    //         | WanderValue.Expression e ->
-    //             match evalExpression combinators networks e with
-    //             | Ok(Some(value)) -> value
-    //             | _ -> WanderValue.Network Set.empty
-    //         | value -> value)
-    //     arguments
+    List.map
+        (fun argument ->
+            match argument with
+            | WanderValue.Expression e ->
+                match evalExpression combinators networks e with
+                | Ok(Some(value)) -> value
+                | _ -> WanderValue.Network Set.empty
+            | value -> value)
+        arguments
 
 and evalElement
     (combinators: Combinators)

@@ -34,17 +34,16 @@ let tests =
               | Ok(res) ->
                   match parse res with
                   | Ok(res) ->
-                    failwith "TODO"
-                    //   Expect.equal
-                    //       res
-                    //       [ WanderValue.Network(
-                    //             // Set.ofList
-                    //             //     [ Role
-                    //             //           { first = Symbol("a")
-                    //             //             second = Symbol("c")
-                    //             //             role = Symbol("b") } ]
-                    //         ) ]
-                    //       ""
+                      Expect.equal
+                          res
+                          [ WanderValue.Network(
+                                Set.ofList
+                                    [ Role
+                                          { first = Symbol("a")
+                                            second = Symbol("c")
+                                            role = Symbol("b") } ]
+                            ) ]
+                          ""
                   | _ -> failwith "Error"
               | _ -> failwith "Error"
 
@@ -56,18 +55,17 @@ let tests =
               | Ok(res) ->
                   match parse res with
                   | Ok(res) ->
-                    failwith "TODO"
-                    //   Expect.equal
-                    //       res
-                    //       [ WanderValue.Symbol(Symbol("name"))
-                    //         WanderValue.Network(
-                    //             Set.ofList
-                    //                 [ Role
-                    //                       { first = Symbol "a"
-                    //                         second = Symbol "c"
-                    //                         role = Symbol "b" } ]
-                    //         ) ]
-                    //       ""
+                      Expect.equal
+                          res
+                          [ WanderValue.Symbol(Symbol("name"))
+                            WanderValue.Network(
+                                Set.ofList
+                                    [ Role
+                                          { first = Symbol "a"
+                                            second = Symbol "c"
+                                            role = Symbol "b" } ]
+                            ) ]
+                          ""
                   | Error err -> failwith $"Error Parsing {err.UserMessage}"
               | _ -> failwith "Error Tokenizing"
 

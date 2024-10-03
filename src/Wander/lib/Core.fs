@@ -72,33 +72,31 @@ let docsCombinator: Combinator =
       Signature = [], Some(LigatureType.Network)
       Eval =
         fun combinators networks _ ->
-            // let mutable docs: Network = Set.empty
+            let mutable docs: Set<Entry> = Set.empty
 
-            // Map.toList combinators
-            // |> List.iter (fun (name, combinator) ->
-            //     let signature = printSignature combinator.Signature
+            Map.toList combinators
+            |> List.iter (fun (name, combinator) ->
+                let signature = printSignature combinator.Signature
 
-            //     docs <-
-            //         Set.add
-            //             (Role
-            //                 { first = name
-            //                   second = Symbol(combinator.Doc)
-            //                   role = Symbol("docString") })
-            //             docs
+                docs <-
+                    Set.add
+                        (Role
+                            { first = name
+                              second = Symbol(combinator.Doc)
+                              role = Symbol("docString") })
+                        docs
 
-            //     docs <-
-            //         Set.add
-            //             (Role
-            //                 { first = name
-            //                   second = signature
-            //                   role = Symbol("signature") })
-            //             docs
+                docs <-
+                    Set.add
+                        (Role
+                            { first = name
+                              second = signature
+                              role = Symbol("signature") })
+                        docs
 
-            //     ())
+                ())
 
-            //Ok(Some(WanderValue.Network docs)) 
-            failwith "TODO"
-            }
+            Ok(Some(WanderValue.Network docs)) }
 
 let coreCombinators =
     (Map.ofList
