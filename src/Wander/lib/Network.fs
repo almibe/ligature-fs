@@ -24,7 +24,7 @@ let chompCombinator =
             | _ -> error "Bad call to chomp." None }
 
 let isConsistentCombinator =
-    { Name = Symbol("is-consistent")
+    { Name = Symbol("is-consistent?")
       Doc = "Determine if a Network is consistent."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
       Eval =
@@ -39,6 +39,23 @@ let isConsistentCombinator =
                 | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
                 | Error err -> error "Bad call to is-consistent." None
             | _ -> error "Bad call to is-consistent." None }
+
+let isCompleteCombinator =
+    { Name = Symbol("is-complete?")
+      Doc = "Determine if a Network is complete."
+      Signature = [ LigatureType.Network ], Some LigatureType.Network
+      Eval =
+        fun _ store (arguments: Arguments) ->
+            match arguments with
+            | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+                match (store.Read networkName) with
+                | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+                | Error err -> error "Bad call to is-complete." None
+            | [ WanderValue.Network(network) ] ->
+                match isComplete network with
+                | Ok(value) -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+                | Error err -> error "Bad call to is-complete." None
+            | _ -> error "Bad call to is-complete." None }
 
 let unionCombinator =
     { Name = Symbol("union")
@@ -170,4 +187,5 @@ let networkCombinators: Map<Element, Combinator> =
           (minusCombinator.Name, minusCombinator)
           //          (queryCombinator.Name, queryCombinator)
           (unionCombinator.Name, unionCombinator)
+          (isCompleteCombinator.Name, isCompleteCombinator)
           (isConsistentCombinator.Name, isConsistentCombinator) ])

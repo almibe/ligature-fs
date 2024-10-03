@@ -39,9 +39,9 @@ let tests =
                           [ WanderValue.Network(
                                 Set.ofList
                                     [ Role
-                                          { source = Symbol("a")
-                                            role = Symbol("b")
-                                            destination = Symbol("c") } ]
+                                          { first = Symbol("a")
+                                            second = Symbol("c")
+                                            role = Symbol("b") } ]
                             ) ]
                           ""
                   | _ -> failwith "Error"
@@ -61,8 +61,8 @@ let tests =
                             WanderValue.Network(
                                 Set.ofList
                                     [ Role
-                                          { source = Symbol "a"
-                                            destination = Symbol "c"
+                                          { first = Symbol "a"
+                                            second = Symbol "c"
                                             role = Symbol "b" } ]
                             ) ]
                           ""

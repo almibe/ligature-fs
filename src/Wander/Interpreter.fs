@@ -15,9 +15,6 @@ let evalNetwork
     : Result<WanderValue option, LigatureError> =
     store.Add name network |> ignore
     Ok None
-// let newNetwork = Set.union currentNetwork (network)
-// let newNetworks = Map.add name newNetwork networks
-// Ok None
 
 let rec evalSymbol
     (combinators: Combinators)
