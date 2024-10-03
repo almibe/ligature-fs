@@ -9,7 +9,7 @@ open Wander.Main
 open Ligature.Main
 open Wander.Lexer
 open Wander.Parser
-open Ligature.LigatureStore.InMemoryStore
+open Ligature.InMemoryStore
 
 [<Tests>]
 let tests =

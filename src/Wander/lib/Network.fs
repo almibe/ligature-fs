@@ -5,7 +5,6 @@
 module Wander.Lib.Network
 
 open Ligature.Main
-open Ligature.LigatureStore
 open TinyDL.Interpreter
 
 let chompCombinator =

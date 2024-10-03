@@ -2,48 +2,32 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.InMemoryStore
+module Ligature.InMemoryNetwork
 
 open Ligature.Main
 open System.Collections.Generic
 
-type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
-    interface LigatureStore with
-        member _.AddNetwork networkName = store.Add(networkName, Set.empty)
+type InMemoryNetwork(network: Set<Entry>) =
+    interface Network with
+        member this.AllConcepts(): Set<ConceptName> = 
+            failwith "Not Implemented"
+        member this.AllExtentions(arg1: ConceptName): Set<Element> = 
+            failwith "Not Implemented"
+        member this.AllRoleInstances(arg1: RoleName): Set<Role> = 
+            failwith "Not Implemented"
+        member this.AllRoles(): Set<RoleName> = 
+            failwith "Not Implemented"
+        member this.Complete(): bool = 
+            failwith "Not Implemented"
+        member this.Consistent(): bool = 
+            failwith "Not Implemented"
+        member this.Count(): int = 
+            failwith "Not Implemented"
+        member this.Find(arg1: Set<Term>): Set<Map<Variable,Element>> = 
+            failwith "Not Implemented"
 
-        member _.RemoveNetwork networkName = store.Remove(networkName) |> ignore
-        member _.Networks() = store.Keys |> Set.ofSeq
-
-        member _.Add name network =
-            match store.TryGetValue name with
-            | (true, network) ->
-                let oldNetwork = store.Item(name)
-                store.Remove(name) |> ignore
-                store.Add(name, (Set.union oldNetwork network))
-                Ok(())
-            | (false, _) ->
-                //store.Add(name, network)
-                failwith "TODO"
-                Ok(())
-
-        member _.Remove name network =
-            let oldNetwork = store.Item(name)
-            store.Remove(name) |> ignore
-            //store.Add(name, (Set.difference oldNetwork network))
-            failwith "TODO"
-            Ok(())
-
-        member _.Read name = failwith "TODO" //store.Item(name)
-
-        member _.ClearNetwork networkName : unit = store.Remove networkName |> ignore
-
-        member _.Set name network : Result<unit, LigatureError> =
-            //store.Add(name, network) |> ignore
-            failwith "TODO"
-            Ok(())
-
-let emptyInMemoryStore () : LigatureStore =
-    InMemoryStore(new Dictionary<NetworkName, Set<Entry>>())
+let emptyInMemoryNetwork () : Network =
+    InMemoryNetwork(Set.empty)
 
 // let patternNameToIdentifier (patternName: Pattern) : Pattern =
 //     match patternName with
