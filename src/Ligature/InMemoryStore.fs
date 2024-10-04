@@ -9,10 +9,13 @@ open System.Collections.Generic
 
 let isComplete (entries: Set<Entry>) : bool =
     let concepts =
-        Set.fold (fun state value ->
-            match value with
-            | Extension { concept = concept } -> Set.add concept state
-            | _ -> state) Set.empty entries
+        Set.fold
+            (fun state value ->
+                match value with
+                | Extension { concept = concept } -> Set.add concept state
+                | _ -> state)
+            Set.empty
+            entries
 
     Set.fold
         (fun state (entry: Entry) ->

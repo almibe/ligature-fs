@@ -8,23 +8,23 @@ open Wander.Model
 open Ligature.Main
 open System
 
-let nextFunction =
-#if !FABLE_COMPILER
-    { Module = "Ulid"
-      Name = "ulid"
-      Description = "Generate a ULID with an optional prefix."
-      Parameters = []
-      Returns = WanderType.Name
-      Eval =
-        (fun args _ ->
-            match args with
-            | [ WanderValue.String(prefix) ] ->
-                match identifier (prefix + Ulid.NewUlid().ToString()) with
-                | Ok identifier -> Ok(WanderValue.Name(identifier))
-                | _ -> error $"Invalid prefix for Name {prefix}." None
-            | _ -> error "Invalid call to Ulid.next function." None) }
-#else
-    () //should never reach
-#endif
+// let nextFunction =
+// #if !FABLE_COMPILER
+//     { Module = "Ulid"
+//       Name = "ulid"
+//       Description = "Generate a ULID with an optional prefix."
+//       Parameters = []
+//       Returns = WanderType.Name
+//       Eval =
+//         (fun args _ ->
+//             match args with
+//             | [ WanderValue.String(prefix) ] ->
+//                 match identifier (prefix + Ulid.NewUlid().ToString()) with
+//                 | Ok identifier -> Ok(WanderValue.Name(identifier))
+//                 | _ -> error $"Invalid prefix for Name {prefix}." None
+//             | _ -> error "Invalid call to Ulid.next function." None) }
+// #else
+//     () //should never reach
+// #endif
 
-let ulidLib = [ nextFunction ]
+let ulidLib = [] //[ nextFunction ]

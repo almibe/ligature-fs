@@ -15,13 +15,11 @@
     <Compile Include="lib/Core.fs" />
     <Compile Include="lib/Network.fs" />
     <Compile Include="lib/TinyDL.fs" />
-<!--    
     <Compile Include="lib/DateTime.fs" />
-    <Compile Include="lib/Name.fs" />
     <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Store.fs" />
     <Compile Include="lib/Ulid.fs" />
-    <Compile Include="lib/Wander.fs" /> -->
+    <Compile Include="lib/Wander.fs" />
     <Compile Include="lib/Assert.fs" />
     <Compile Include="Combinators.fs" />
   </ItemGroup>
