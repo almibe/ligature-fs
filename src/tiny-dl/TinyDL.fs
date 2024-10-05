@@ -14,8 +14,10 @@ type Role = Element
 
 and ConceptExpression =
     | AtomicConcept of AtomicConcept
-    // | Disjunction of Disjunction
-    //| Conjunction of Conjunction
+    | Inclusion of Inclusion
+    | Defination of Definition
+    | Disjunction of Disjunction
+    | Conjunction of Conjunction
     | Not of Not
 
 and KnowledgeBase = Set<Entry> * Set<ConceptExpression>
@@ -48,34 +50,11 @@ and ValueRestriction =
     { concept: ConceptExpression
       role: Role }
 
+let entryToConceptExpression (input: Set<Entry>) : Set<ConceptExpression> = failwith "TODO"
 
-// type TermEntry =
-//     | AtomicConcept of Element
-//     | Equiv of Element * Element
-//     | SubConcept of Element * Element
+let conceptExpressionToEntry (input: Set<ConceptExpression>) : Set<Entry> = failwith "TODO"
 
-let entryToTermEntry (input: Set<Entry>): Set<ConceptExpression> = failwith "TODO"
-
-let termEntryToEntry (input: Set<ConceptExpression>): Set<Entry> = failwith "TODO"
-
-let infer (tBox: Set<ConceptExpression>) (aBox: Set<Entry>) : Result<Set<Entry>, TinyDLError> =
-    failwith "TODO"
-
-type Interpretation =
-    { Domain: Set<Element>
-      Concepts: Map<Element, Set<Element>>
-      Roles: Map<Element, Set<Element * Element>> }
+let infer (tBox: Set<ConceptExpression>) (aBox: Set<Entry>) : Result<Set<Entry>, TinyDLError> = failwith "TODO"
 
 let top = Symbol "⊤"
 let bottom = Symbol "⊥"
-
-let interpret tBox aBox : Result<Interpretation, TinyDLError> =
-    failwith "TODO"
-
-// let eval (script: string) : Result<Interpretation, TinyDLError> =
-//     match tokenize script with
-//     | Ok res ->
-//         match parse res with
-//         | Ok res -> failwith "TODO" //interpret res
-//         | Error errorValue -> Error errorValue
-//     | Error errorValue -> Error errorValue

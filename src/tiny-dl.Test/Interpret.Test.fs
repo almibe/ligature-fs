@@ -5,58 +5,56 @@
 module TinyDL.Infer.Test
 
 open Expecto
-// open TinyDL.Main
-open TinyDL.Interpreter
 open Ligature.Main
 open Ligature.InMemoryStore
-// open TinyDL.NewParser
+open TinyDL.NewParser
+open TinyDL.Interpreter
 
-// let unsafeRead (input: string) : NormalABox =
-//     match read input with
-//     | Ok(nodes) ->
-//         match express nodes with
-//         | Ok kb ->
-//             match normalize kb with
-//             | Ok res -> res
-//             | Error err -> failwith err
-//         | Error err -> failwith err
-//     | Error err -> failwith err
+let unsafeRead (input: string) =
+    match read input with
+    | Ok(nodes) ->
+        match express nodes with
+        | Ok kb -> failwith "TODO"
+        // match normalize kb with
+        // | Ok res -> res
+        // | Error err -> failwith err
+        | Error err -> failwith err
+    | Error err -> failwith err
 
-// [<Tests>]
-// let normalizationTests =
-//     testList
-//         "Normalization Tests"
-//         [ testCase "Normalize empty KB"
-//           <| fun _ -> Expect.equal (normalize (Set.empty)) (Ok(Set.empty)) ""
-//           testCase "Normalize simple ABox"
-//           <| fun _ ->
-//               Expect.equal
-//                   (unsafeRead "a: B, c: D, e: ¬F")
-//                   (Set.ofList
-//                       [ NormalABoxValue.UnaryPredicate(
-//                             { symbol = "a"
-//                               concept = NormalConceptExpression.AtomicConcept "B" }
-//                         )
-//                         NormalABoxValue.UnaryPredicate(
-//                             { symbol = "c"
-//                               concept = NormalConceptExpression.AtomicConcept "D" }
-//                         )
-//                         NormalABoxValue.UnaryPredicate(
-//                             { symbol = "e"
-//                               concept = NormalConceptExpression.Not "F" }
-//                         ) ])
-//                   "" ]
+[<Tests>]
+let evalTests =
+    testList
+        "Eval Tests"
+        [ testCase "Eval empty KB" <| fun _ -> Expect.equal (eval "") (Ok(Set.empty)) ""
+          testCase "Normalize simple ABox"
+          <| fun _ ->
+              Expect.equal
+                  (unsafeRead "a: B, c: D, e: ¬F")
+                  (Set.ofList
+                      [ Extension(
+                            { element = Symbol "a"
+                              concept = Symbol "B" }
+                        )
+                        Extension(
+                            { element = Symbol "c"
+                              concept = Symbol "D" }
+                        )
+                        NonExtension(
+                            { element = Symbol "e"
+                              concept = Symbol "F" }
+                        ) ])
+                  "" ]
 
 [<Tests>]
 let tests =
     testList
         "Consistency Tests"
         [ testCase "Check empty ABox for consistency"
-          <| fun _ -> Expect.equal (consistent (Set.empty)) true ""
+          <| fun _ -> Expect.equal (isConsistent (Set.empty)) true ""
           testCase "Check simple ABox for consistency"
           <| fun _ ->
               Expect.equal
-                  (consistent (
+                  (isConsistent (
                       Set.ofList
                           [ (Extension
                                 { element = Symbol "a"
@@ -68,7 +66,7 @@ let tests =
           testCase "Check simple ABox for inconsistency"
           <| fun _ ->
               Expect.equal
-                  (consistent (
+                  (isConsistent (
                       Set.ofList
                           [ (Extension
                                 { element = Symbol "a"

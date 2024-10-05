@@ -25,7 +25,7 @@ let isComplete (entries: Set<Entry>) : bool =
         true
         entries
 
-let consistent (aBox: Set<Entry>) : bool =
+let isConsistent (network: Network) : bool =
     let mutable individuals: Map<Element, Set<Entry>> = Map.empty
 
     Set.fold
@@ -72,7 +72,7 @@ let consistent (aBox: Set<Entry>) : bool =
                             true
                 | Role _ -> true)
         true
-        aBox
+        network
 
 type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
     interface LigatureStore with
@@ -161,7 +161,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
 
         member _.IsConsistent(networkName: NetworkName) : bool =
             match store.TryGetValue(networkName) with
-            | true, entries -> consistent entries
+            | true, entries -> isConsistent entries
             | false, _ -> failwith "Not Implemented"
 
         member _.Find (networkName: NetworkName) (terms: Set<QueryTerm>) : Set<Map<Variable, Element>> =

@@ -33,7 +33,7 @@ let isConsistentCombinator =
                 let value = store.IsConsistent networkName
                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
             | [ WanderValue.Network(network) ] ->
-                match consistent network with
+                match isConsistent network with
                 | value -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
             //| Error err -> error "Bad call to is-consistent." None
             | _ -> error "Bad call to is-consistent." None }

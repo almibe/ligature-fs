@@ -18,7 +18,7 @@ type Element = Symbol of string
 
 and [<RequireQualifiedAccessAttribute>] WanderElement =
     | Expression of Expression
-    | Network of NetworkName * Set<Entry>
+    | Network of NetworkName * Network
 
 and Quote = Element list
 
@@ -49,7 +49,7 @@ and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Element
     | Quote of Quote
     | Expression of Expression
-    | Network of Set<Entry>
+    | Network of Network
 
 and ConceptName = Element
 
@@ -73,17 +73,13 @@ and Entry =
     | NonExtension of NonExtension
     | Role of Role
 
+and Network = Set<Entry>
+
 and NetworkName = string
 
 and LigatureStore =
     abstract Networks: unit -> Set<NetworkName>
-    abstract AddNetwork: NetworkName -> unit
-    abstract RemoveNetwork: NetworkName -> unit
-    abstract ClearNetwork: NetworkName -> unit
-    abstract Read: NetworkName -> Set<Entry>
-    abstract Add: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
-    abstract Set: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
-    abstract Remove: NetworkName -> Set<Entry> -> Result<unit, LigatureError>
+    abstract Read: NetworkName -> Network
     abstract IsConsistent: NetworkName -> bool
     abstract IsComplete: NetworkName -> bool
     abstract AllConcepts: NetworkName -> Set<ConceptName>
@@ -91,6 +87,13 @@ and LigatureStore =
     abstract AllExtentions: NetworkName -> ConceptName -> Set<Element>
     abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
     abstract Find: NetworkName -> Set<QueryTerm> -> Set<Map<Variable, Element>>
+
+    abstract AddNetwork: NetworkName -> unit
+    abstract RemoveNetwork: NetworkName -> unit
+    abstract ClearNetwork: NetworkName -> unit
+    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
 
 and QueryTerm =
     | ConceptTerm of Slot * ConceptNameSlot

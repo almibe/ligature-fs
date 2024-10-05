@@ -186,27 +186,26 @@ let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpressio
 
     result
 
-let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
-    failwith "TODO"
-    // List.fold
-    //     (fun state node ->
-    //         match state with
-    //         | Ok kb ->
-    //             match node with
-    //             | Node.UnaryPredicate(individual, concept) ->
-    //                 match expressConcept concept with
-    //                 | Ok concept ->
-    //                     Ok(
-    //                         Set.add
-    //                             (UnaryPredicate
-    //                                 { symbol = individual
-    //                                   concept = concept })
-    //                             kb
-    //                     )
-    //                 | Error _ -> failwith "TODO"
-    //         | Error err -> Error err)
-    //     (Ok emptyKB)
-    //     nodes
+let express (nodes: Node list) : Result<KnowledgeBase, ParserError> = failwith "TODO"
+// List.fold
+//     (fun state node ->
+//         match state with
+//         | Ok kb ->
+//             match node with
+//             | Node.UnaryPredicate(individual, concept) ->
+//                 match expressConcept concept with
+//                 | Ok concept ->
+//                     Ok(
+//                         Set.add
+//                             (UnaryPredicate
+//                                 { symbol = individual
+//                                   concept = concept })
+//                             kb
+//                     )
+//                 | Error _ -> failwith "TODO"
+//         | Error err -> Error err)
+//     (Ok emptyKB)
+//     nodes
 
 let read (input: string) : Result<Node list, ParserError> =
     match tokenize input with

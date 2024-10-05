@@ -14,22 +14,19 @@ let inferCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Network(tBox); WanderValue.Network(aBox) ] ->
-                failwith "TODO"
-                //infer tBox aBox
+            | [ WanderValue.Network(tBox); WanderValue.Network(aBox) ] -> failwith "TODO"
+            //infer tBox aBox
             | _ -> error "Improper call to infer." None }
 
-let parseCombinator: Combinator = 
+let parseCombinator: Combinator =
     { Name = Symbol "tiny-dl.parse"
       Doc = "Parse tiny-dl script into a Network."
       Signature = [ LigatureType.Symbol ], None
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(input) ] -> 
-//                TinyDL.
+            | [ WanderValue.Symbol(input) ] ->
+                //                TinyDL.
                 failwith "TODO" }
 
-let tinyDLCombinators =
-    (Map.ofList
-        [ (inferCombinator.Name, inferCombinator) ])
+let tinyDLCombinators = (Map.ofList [ (inferCombinator.Name, inferCombinator) ])
