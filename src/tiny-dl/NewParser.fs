@@ -5,8 +5,8 @@
 module TinyDL.NewParser
 
 open Tokenizer
-open TinyDL.Main
 open New
+open Main
 
 [<RequireQualifiedAccess>]
 type ConceptExpressionNode =
@@ -168,14 +168,14 @@ let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpressio
         | None -> result <- Error "Unexpected Element when Parsing Concept."
         | Some(ConceptExpressionNode.Name name) ->
             cont <- false
-            result <- Ok(AtomicConcept name)
+            result <- failwith "TODO" //Ok(AtomicConcept (Symbol name))
         | Some(ConceptExpressionNode.Not) ->
             match readOffset 1 state with
             | None ->
                 result <- Error "Error expressing concept."
                 cont <- false
             | Some(ConceptExpressionNode.Name concept) ->
-                result <- Ok(Not { concept = AtomicConcept concept })
+                result <- failwith "TODO" //Ok(Not { concept = AtomicConcept concept })
                 cont <- false
             | Some _ ->
                 result <- Error "Error expressing concept."
@@ -187,25 +187,26 @@ let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpressio
     result
 
 let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
-    List.fold
-        (fun state node ->
-            match state with
-            | Ok kb ->
-                match node with
-                | Node.UnaryPredicate(individual, concept) ->
-                    match expressConcept concept with
-                    | Ok concept ->
-                        Ok(
-                            Set.add
-                                (UnaryPredicate
-                                    { symbol = individual
-                                      concept = concept })
-                                kb
-                        )
-                    | Error _ -> failwith "TODO"
-            | Error err -> Error err)
-        (Ok emptyKB)
-        nodes
+    failwith "TODO"
+    // List.fold
+    //     (fun state node ->
+    //         match state with
+    //         | Ok kb ->
+    //             match node with
+    //             | Node.UnaryPredicate(individual, concept) ->
+    //                 match expressConcept concept with
+    //                 | Ok concept ->
+    //                     Ok(
+    //                         Set.add
+    //                             (UnaryPredicate
+    //                                 { symbol = individual
+    //                                   concept = concept })
+    //                             kb
+    //                     )
+    //                 | Error _ -> failwith "TODO"
+    //         | Error err -> Error err)
+    //     (Ok emptyKB)
+    //     nodes
 
 let read (input: string) : Result<Node list, ParserError> =
     match tokenize input with

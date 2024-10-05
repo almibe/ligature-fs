@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="TinyDL.fs" />
     <Compile Include="Tokenizer.fs" />
-<!--    <Compile Include="NewParser.fs" /> -->
-    <Compile Include="Interpreter.fs" />
+    <Compile Include="NewParser.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,45 +6,30 @@ module Wander.Lib.TinyDL
 
 open Ligature.Main
 
-let idCombinator: Combinator =
-    { Name = Symbol("id")
-      Doc = "Return the value passed."
-      Signature = [ LigatureType.Any ], Some LigatureType.Any
-      Eval =
-        fun _ _ arguments ->
-            match arguments with
-            | [ value ] -> Ok(Some(value))
-            | _ -> failwith "TODO" }
 
-let setCombinator: Combinator =
-    { Name = Symbol("set")
-      Doc = "Set the value of a given Network."
-      Signature = [ LigatureType.Symbol; LigatureType.Network ], None
+let inferCombinator: Combinator =
+    { Name = Symbol("infer")
+      Doc = "Use the ."
+      Signature = [ LigatureType.Network; LigatureType.Network ], None
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(Symbol(name)); WanderValue.Network(value) ] ->
-                store.Set name value |> ignore
-                Ok(None)
-            | _ -> failwith "TODO" }
+            | [ WanderValue.Network(tBox); WanderValue.Network(aBox) ] ->
+                failwith "TODO"
+                //infer tBox aBox
+            | _ -> error "Improper call to infer." None }
 
-let readCombinator: Combinator =
-    { Name = Symbol("read")
-      Doc = "Read the value of a given Network."
-      Signature = [ LigatureType.Symbol ], Some LigatureType.Network
+let parseCombinator: Combinator = 
+    { Name = Symbol "tiny-dl.parse"
+      Doc = "Parse tiny-dl script into a Network."
+      Signature = [ LigatureType.Symbol ], None
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(Symbol(name)) ] ->
-                let network = WanderValue.Network(store.Read name)
-                Ok(Some(network))
-            // match Map.tryFind name networks with
-            // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
-            // | _ -> failwith "TODO"
-            | _ -> failwith "TODO" }
+            | [ WanderValue.Symbol(input) ] -> 
+//                TinyDL.
+                failwith "TODO" }
 
 let tinyDLCombinators =
     (Map.ofList
-        [ (idCombinator.Name, idCombinator)
-          (readCombinator.Name, readCombinator)
-          (setCombinator.Name, setCombinator) ])
+        [ (inferCombinator.Name, inferCombinator) ])

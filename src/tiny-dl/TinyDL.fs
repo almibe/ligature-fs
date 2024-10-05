@@ -4,75 +4,78 @@
 
 module TinyDL.Main
 
+open Ligature.Main
+
 type TinyDLError = string
 
-type Symbol = string
+type AtomicConcept = Element
 
-type AtomicConcept = Symbol
+type Role = Element
 
-// type Role = Symbol
+and ConceptExpression =
+    | AtomicConcept of AtomicConcept
+    // | Disjunction of Disjunction
+    //| Conjunction of Conjunction
+    | Not of Not
 
-// and ConceptExpression =
-//     | AtomicConcept of AtomicConcept
-//     // | Disjunction of Disjunction
-//     //| Conjunction of Conjunction
-//     | Not of Not
+and KnowledgeBase = Set<Entry> * Set<ConceptExpression>
 
-// and [<RequireQualifiedAccess>] NormalConceptExpression =
-//     | AtomicConcept of AtomicConcept
-//     | Not of AtomicConcept
+and [<RequireQualifiedAccess>] NormalConceptExpression =
+    | AtomicConcept of AtomicConcept
+    | Not of AtomicConcept
 
-// and Inclusion =
-//     { left: AtomicConcept
-//       right: ConceptExpression }
+and Inclusion =
+    { left: AtomicConcept
+      right: ConceptExpression }
 
-// and Definition =
-//     { left: AtomicConcept
-//       right: ConceptExpression }
+and Definition =
+    { left: AtomicConcept
+      right: ConceptExpression }
 
-// and Not = { concept: ConceptExpression }
+and Not = { concept: ConceptExpression }
 
-// and Conjunction = { expressions: ConceptExpression }
+and Conjunction = { expressions: ConceptExpression }
 
-// and Disjunction =
-//     { left: ConceptExpression
-//       right: ConceptExpression }
+and Disjunction =
+    { left: ConceptExpression
+      right: ConceptExpression }
 
-// and ExistentialRestriction =
-//     { concept: ConceptExpression
-//       role: Role }
+and ExistentialRestriction =
+    { concept: ConceptExpression
+      role: Role }
 
-// and ValueRestriction =
-//     { concept: ConceptExpression
-//       role: Role }
+and ValueRestriction =
+    { concept: ConceptExpression
+      role: Role }
 
-// and UnaryPredicate =
-//     { symbol: Symbol
-//       concept: ConceptExpression }
 
-// and BinaryPredicate =
-//     { role: Role
-//       left: Symbol
-//       right: Symbol }
+// type TermEntry =
+//     | AtomicConcept of Element
+//     | Equiv of Element * Element
+//     | SubConcept of Element * Element
 
-// type [<RequireQualifiedAccess>] Term =
-//     | Definition of Definition
-//     | Inclusion of Inclusion
-//     | UnaryPredicate of UnaryPredicate
-//     | BinaryPredicate of BinaryPredicate
-//     | Annotation of Annotation
+let entryToTermEntry (input: Set<Entry>): Set<ConceptExpression> = failwith "TODO"
 
-// and KnowledgeBase = Set<Term>
+let termEntryToEntry (input: Set<ConceptExpression>): Set<Entry> = failwith "TODO"
 
-// and AnnotationName = string
+let infer (tBox: Set<ConceptExpression>) (aBox: Set<Entry>) : Result<Set<Entry>, TinyDLError> =
+    failwith "TODO"
 
-// and Annotation = AnnotationName * Term list
+type Interpretation =
+    { Domain: Set<Element>
+      Concepts: Map<Element, Set<Element>>
+      Roles: Map<Element, Set<Element * Element>> }
 
-// and Interpretation =
-//     { Domain: Set<Symbol>
-//       Concepts: Map<Symbol, Set<Symbol>>
-//       Roles: Map<Symbol, Set<Symbol * Symbol>> }
+let top = Symbol "⊤"
+let bottom = Symbol "⊥"
 
-// let top: AtomicConcept = "⊤"
-// let bottom: AtomicConcept = "⊥"
-// let emptyKB: KnowledgeBase = Set.empty
+let interpret tBox aBox : Result<Interpretation, TinyDLError> =
+    failwith "TODO"
+
+// let eval (script: string) : Result<Interpretation, TinyDLError> =
+//     match tokenize script with
+//     | Ok res ->
+//         match parse res with
+//         | Ok res -> failwith "TODO" //interpret res
+//         | Error errorValue -> Error errorValue
+//     | Error errorValue -> Error errorValue

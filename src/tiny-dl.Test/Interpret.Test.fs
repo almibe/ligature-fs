@@ -8,6 +8,7 @@ open Expecto
 // open TinyDL.Main
 open TinyDL.Interpreter
 open Ligature.Main
+open Ligature.InMemoryStore
 // open TinyDL.NewParser
 
 // let unsafeRead (input: string) : NormalABox =
@@ -51,17 +52,17 @@ let tests =
     testList
         "Consistency Tests"
         [ testCase "Check empty ABox for consistency"
-          <| fun _ -> Expect.equal (consistent (Set.empty)) (Ok(true)) ""
+          <| fun _ -> Expect.equal (consistent (Set.empty)) true ""
           testCase "Check simple ABox for consistency"
           <| fun _ ->
               Expect.equal
                   (consistent (
                       Set.ofList
-                          [ (Concept
+                          [ (Extension
                                 { element = Symbol "a"
                                   concept = Symbol "B" }) ]
                   ))
-                  (Ok(true))
+                  true
                   ""
           //          <| fun _ -> Expect.equal (consistent (unsafeRead "a: B, c: D, e: ¬F")) (Ok(true)) ""
           testCase "Check simple ABox for inconsistency"
@@ -69,14 +70,14 @@ let tests =
               Expect.equal
                   (consistent (
                       Set.ofList
-                          [ (Concept
+                          [ (Extension
                                 { element = Symbol "a"
                                   concept = Symbol "B" })
-                            (NotConcept
+                            (NonExtension
                                 { element = Symbol "a"
                                   concept = Symbol "B" }) ]
                   ))
-                  (Ok(false))
+                  false
                   "" ]
 //   testCase "Check ABox for consistency with conjunctions"
 //   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B ⊓ ¬D, c: D, a: ¬A ⊓ ¬B ⊓ ¬C")) (Ok(false)) "" ]

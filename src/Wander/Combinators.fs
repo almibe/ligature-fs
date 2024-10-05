@@ -11,3 +11,4 @@ let stdCombinators =
     |> Map.union Wander.Lib.Assert.assertCombinators
     |> Map.union Wander.Lib.Bool.boolLib
     |> Map.union Wander.Lib.Network.networkCombinators
+    |> Map.union Wander.Lib.TinyDL.tinyDLCombinators

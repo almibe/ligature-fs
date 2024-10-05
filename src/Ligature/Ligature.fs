@@ -90,9 +90,9 @@ and LigatureStore =
     abstract AllRoles: NetworkName -> Set<RoleName>
     abstract AllExtentions: NetworkName -> ConceptName -> Set<Element>
     abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
-    abstract Find: NetworkName -> Set<Term> -> Set<Map<Variable, Element>>
+    abstract Find: NetworkName -> Set<QueryTerm> -> Set<Map<Variable, Element>>
 
-and Term =
+and QueryTerm =
     | ConceptTerm of Slot * ConceptNameSlot
     | RoleTerm of Slot * Slot * RoleNameSlot
 
