@@ -5,7 +5,7 @@
 module Wander.Lib.TinyDL
 
 open Ligature.Main
-
+open TinyDL.Main
 
 let inferCombinator: Combinator =
     { Name = Symbol("infer")
@@ -14,8 +14,11 @@ let inferCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Network(tBox); WanderValue.Network(aBox) ] -> failwith "TODO"
-            //infer tBox aBox
+            | [ WanderValue.Network(ontology); WanderValue.Network(network) ] ->
+                match infer (networkToOntology ontology) network with
+                | Ok res -> Ok(Some(WanderValue.Network res))
+                | Error err -> error $"Error calling infer: {err}" None
+                | _ -> error "Unexpected return value from infer." None
             | _ -> error "Improper call to infer." None }
 
 let parseCombinator: Combinator =
@@ -25,8 +28,6 @@ let parseCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(input) ] ->
-                //                TinyDL.
-                failwith "TODO" }
+            | [ WanderValue.Symbol(input) ] -> failwith "TODO" }
 
 let tinyDLCombinators = (Map.ofList [ (inferCombinator.Name, inferCombinator) ])

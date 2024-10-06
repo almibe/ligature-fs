@@ -20,7 +20,9 @@ and ConceptExpression =
     | Conjunction of Conjunction
     | Not of Not
 
-and KnowledgeBase = Set<Entry> * Set<ConceptExpression>
+and Ontology = Set<ConceptExpression>
+
+and KnowledgeBase = Network * Set<ConceptExpression>
 
 and [<RequireQualifiedAccess>] NormalConceptExpression =
     | AtomicConcept of AtomicConcept
@@ -50,11 +52,41 @@ and ValueRestriction =
     { concept: ConceptExpression
       role: Role }
 
-let entryToConceptExpression (input: Set<Entry>) : Set<ConceptExpression> = failwith "TODO"
+let networkToOntology (input: Network) : Ontology =
+    let entryToOntology (entry: Entry) : ConceptExpression =
+        match entry with
+        | Role { first = first
+                 second = second
+                 role = Symbol "subconcept" } ->
+            Inclusion
+                { left = first
+                  right = AtomicConcept second }
+        | _ -> failwith "TODO"
 
-let conceptExpressionToEntry (input: Set<ConceptExpression>) : Set<Entry> = failwith "TODO"
+    Set.map entryToOntology input
 
-let infer (tBox: Set<ConceptExpression>) (aBox: Set<Entry>) : Result<Set<Entry>, TinyDLError> = failwith "TODO"
+let ontologyToNetwork (input: Ontology) : Network = failwith "TODO"
+
+let infer (ontology: Ontology) (network: Network) : Result<Network, TinyDLError> =
+    let mutable result = network
+
+    Set.iter
+        (fun expression ->
+            match expression with
+            | Inclusion { left = left
+                          right = AtomicConcept right } ->
+                Set.iter
+                    (fun entry ->
+                        match entry with
+                        | Extension { element = element; concept = concept } ->
+                            if left = concept then
+                                result <- Set.add (Extension { element = element; concept = right }) result
+                        | _ -> ())
+                    network
+            | _ -> failwith "TODO")
+        ontology
+
+    Ok result
 
 let top = Symbol "⊤"
 let bottom = Symbol "⊥"
