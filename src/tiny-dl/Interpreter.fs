@@ -18,10 +18,10 @@ let infer tBox aBox : Result<Set<Entry>, TinyDLError> = failwith "TODO"
 
 let interpret aBox : Result<Interpretation, TinyDLError> = failwith "TODO"
 
-let eval (script: string) : Result<Network, TinyDLError> =
+let parse (script: string) : Result<KnowledgeBase, TinyDLError> =
     match tokenize script with
     | Ok res ->
         match parse res with
-        | Ok res -> failwith "TODO" //interpret res
+        | Ok res -> express res
         | Error errorValue -> Error errorValue
     | Error errorValue -> Error errorValue

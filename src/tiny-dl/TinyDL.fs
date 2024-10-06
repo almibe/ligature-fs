@@ -22,7 +22,7 @@ and ConceptExpression =
 
 and Description = Set<ConceptExpression>
 
-and KnowledgeBase = Network * Set<ConceptExpression>
+and KnowledgeBase = Description * Network
 
 and [<RequireQualifiedAccess>] NormalConceptExpression =
     | AtomicConcept of AtomicConcept
@@ -90,3 +90,5 @@ let infer (description: Description) (network: Network) : Result<Network, TinyDL
 
 let top = Symbol "⊤"
 let bottom = Symbol "⊥"
+
+let emptyKB = Set.empty, Set.empty

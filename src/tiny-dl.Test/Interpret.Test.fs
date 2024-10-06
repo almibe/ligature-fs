@@ -21,29 +21,29 @@ let unsafeRead (input: string) =
         | Error err -> failwith err
     | Error err -> failwith err
 
-[<Tests>]
-let evalTests =
-    testList
-        "Eval Tests"
-        [ testCase "Eval empty KB" <| fun _ -> Expect.equal (eval "") (Ok(Set.empty)) ""
-          testCase "Normalize simple ABox"
-          <| fun _ ->
-              Expect.equal
-                  (unsafeRead "a: B, c: D, e: ¬F")
-                  (Set.ofList
-                      [ Extension(
-                            { element = Symbol "a"
-                              concept = Symbol "B" }
-                        )
-                        Extension(
-                            { element = Symbol "c"
-                              concept = Symbol "D" }
-                        )
-                        NonExtension(
-                            { element = Symbol "e"
-                              concept = Symbol "F" }
-                        ) ])
-                  "" ]
+// [<Tests>]
+// let evalTests =
+//     testList
+//         "Eval Tests"
+//         [ testCase "Eval empty KB" <| fun _ -> Expect.equal (eval "") (Ok(Set.empty)) ""
+//           testCase "Normalize simple ABox"
+//           <| fun _ ->
+//               Expect.equal
+//                   (unsafeRead "a: B, c: D, e: ¬F")
+//                   (Set.ofList
+//                       [ Extension(
+//                             { element = Symbol "a"
+//                               concept = Symbol "B" }
+//                         )
+//                         Extension(
+//                             { element = Symbol "c"
+//                               concept = Symbol "D" }
+//                         )
+//                         NonExtension(
+//                             { element = Symbol "e"
+//                               concept = Symbol "F" }
+//                         ) ])
+//                   "" ]
 
 [<Tests>]
 let tests =
