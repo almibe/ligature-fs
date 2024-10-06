@@ -14,8 +14,8 @@ let inferCombinator: Combinator =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Network(ontology); WanderValue.Network(network) ] ->
-                match infer (networkToOntology ontology) network with
+            | [ WanderValue.Network(description); WanderValue.Network(network) ] ->
+                match infer (networkToDescription description) network with
                 | Ok res -> Ok(Some(WanderValue.Network res))
                 | Error err -> error $"Error calling infer: {err}" None
                 | _ -> error "Unexpected return value from infer." None

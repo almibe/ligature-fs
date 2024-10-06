@@ -20,7 +20,7 @@ and ConceptExpression =
     | Conjunction of Conjunction
     | Not of Not
 
-and Ontology = Set<ConceptExpression>
+and Description = Set<ConceptExpression>
 
 and KnowledgeBase = Network * Set<ConceptExpression>
 
@@ -52,8 +52,8 @@ and ValueRestriction =
     { concept: ConceptExpression
       role: Role }
 
-let networkToOntology (input: Network) : Ontology =
-    let entryToOntology (entry: Entry) : ConceptExpression =
+let networkToDescription (input: Network) : Description =
+    let entryToDescription (entry: Entry) : ConceptExpression =
         match entry with
         | Role { first = first
                  second = second
@@ -63,11 +63,11 @@ let networkToOntology (input: Network) : Ontology =
                   right = AtomicConcept second }
         | _ -> failwith "TODO"
 
-    Set.map entryToOntology input
+    Set.map entryToDescription input
 
-let ontologyToNetwork (input: Ontology) : Network = failwith "TODO"
+let descriptionToNetwork (input: Description) : Network = failwith "TODO"
 
-let infer (ontology: Ontology) (network: Network) : Result<Network, TinyDLError> =
+let infer (description: Description) (network: Network) : Result<Network, TinyDLError> =
     let mutable result = network
 
     Set.iter
@@ -84,7 +84,7 @@ let infer (ontology: Ontology) (network: Network) : Result<Network, TinyDLError>
                         | _ -> ())
                     network
             | _ -> failwith "TODO")
-        ontology
+        description
 
     Ok result
 
