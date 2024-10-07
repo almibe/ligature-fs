@@ -16,7 +16,6 @@
     <Compile Include="lib/Network.fs" />
     <Compile Include="lib/TinyDL.fs" />
     <Compile Include="lib/DateTime.fs" />
-    <Compile Include="lib/Ligature.fs" />
     <Compile Include="lib/Store.fs" />
     <Compile Include="lib/Ulid.fs" />
     <Compile Include="lib/Wander.fs" />

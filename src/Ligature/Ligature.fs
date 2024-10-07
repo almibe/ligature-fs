@@ -68,7 +68,7 @@ and Role =
       second: Element
       role: RoleName }
 
-and Entry =
+and [<RequireQualifiedAccess>] Entry =
     | Extension of Extension
     | NonExtension of NonExtension
     | Role of Role
@@ -95,21 +95,21 @@ and LigatureStore =
     abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
 
-and QueryTerm =
+and [<RequireQualifiedAccess>] QueryTerm =
     | ConceptTerm of Slot * ConceptNameSlot
     | RoleTerm of Slot * Slot * RoleNameSlot
 
 and Variable = string
 
-and ConceptNameSlot =
+and [<RequireQualifiedAccess>] ConceptNameSlot =
     | ConceptName of ConceptName
     | Variable of Variable
 
-and RoleNameSlot =
+and [<RequireQualifiedAccess>] RoleNameSlot =
     | RoleName of RoleName
     | Variable of string
 
-and Slot =
+and [<RequireQualifiedAccess>] Slot =
     | Element of Element
     | Variable of string
 

@@ -8,16 +8,16 @@ open Expecto
 open Ligature.Main
 open Ligature.InMemoryStore
 open TinyDL.NewParser
-open TinyDL.Interpreter
+open TinyDL.Main
 
 let unsafeRead (input: string) =
     match read input with
     | Ok(nodes) ->
         match express nodes with
-        | Ok kb -> failwith "TODO"
-        // match normalize kb with
-        // | Ok res -> res
-        // | Error err -> failwith err
+        | Ok(description, network) ->
+            match infer description network with
+            | Ok res -> res
+            | Error err -> failwith err
         | Error err -> failwith err
     | Error err -> failwith err
 
@@ -56,7 +56,7 @@ let tests =
               Expect.equal
                   (isConsistent (
                       Set.ofList
-                          [ (Extension
+                          [ (Entry.Extension
                                 { element = Symbol "a"
                                   concept = Symbol "B" }) ]
                   ))
@@ -68,17 +68,15 @@ let tests =
               Expect.equal
                   (isConsistent (
                       Set.ofList
-                          [ (Extension
+                          [ (Entry.Extension
                                 { element = Symbol "a"
                                   concept = Symbol "B" })
-                            (NonExtension
+                            (Entry.NonExtension
                                 { element = Symbol "a"
                                   concept = Symbol "B" }) ]
                   ))
                   false
                   "" ]
-//   testCase "Check ABox for consistency with conjunctions"
-//   <| fun _ -> Expect.equal (consistent (unsafeRead "a: B ⊓ ¬D, c: D, a: ¬A ⊓ ¬B ⊓ ¬C")) (Ok(false)) "" ]
 
 // testCase "Call interpret on empty arguments"
 // <| fun _ ->

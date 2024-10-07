@@ -55,9 +55,9 @@ and ValueRestriction =
 let networkToDescription (input: Network) : Description =
     let entryToDescription (entry: Entry) : ConceptExpression =
         match entry with
-        | Role { first = first
-                 second = second
-                 role = Symbol "subconcept" } ->
+        | Entry.Role { first = first
+                       second = second
+                       role = Symbol "subconcept" } ->
             Inclusion
                 { left = first
                   right = AtomicConcept second }
@@ -78,9 +78,9 @@ let infer (description: Description) (network: Network) : Result<Network, TinyDL
                 Set.iter
                     (fun entry ->
                         match entry with
-                        | Extension { element = element; concept = concept } ->
+                        | Entry.Extension { element = element; concept = concept } ->
                             if left = concept then
-                                result <- Set.add (Extension { element = element; concept = right }) result
+                                result <- Set.add (Entry.Extension { element = element; concept = right }) result
                         | _ -> ())
                     network
             | _ -> failwith "TODO")

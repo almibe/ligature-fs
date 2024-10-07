@@ -12,7 +12,7 @@ let isComplete (entries: Set<Entry>) : bool =
         Set.fold
             (fun state value ->
                 match value with
-                | Extension { concept = concept } -> Set.add concept state
+                | Entry.Extension { concept = concept } -> Set.add concept state
                 | _ -> state)
             Set.empty
             entries
@@ -20,7 +20,7 @@ let isComplete (entries: Set<Entry>) : bool =
     Set.fold
         (fun state (entry: Entry) ->
             match entry with
-            | Role { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
+            | Entry.Role { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
             | _ -> state)
         true
         entries
@@ -34,15 +34,15 @@ let isConsistent (network: Network) : bool =
             | false -> false
             | true ->
                 match entry with
-                | Extension { concept = conceptName
-                              element = symbol } ->
+                | Entry.Extension { concept = conceptName
+                                    element = symbol } ->
                     let concept =
-                        Extension
+                        Entry.Extension
                             { concept = conceptName
                               element = symbol }
 
                     let notVersion =
-                        NonExtension
+                        Entry.NonExtension
                             { concept = conceptName
                               element = symbol }
 
@@ -56,9 +56,9 @@ let isConsistent (network: Network) : bool =
                         else
                             individuals <- Map.add symbol (Set.add (concept) res) individuals
                             true
-                | NonExtension { concept = concept; element = symbol } ->
-                    let notConcept = NonExtension { concept = concept; element = symbol }
-                    let inverse = Extension { concept = concept; element = symbol }
+                | Entry.NonExtension { concept = concept; element = symbol } ->
+                    let notConcept = Entry.NonExtension { concept = concept; element = symbol }
+                    let inverse = Entry.Extension { concept = concept; element = symbol }
 
                     match individuals.TryFind symbol with
                     | None ->
@@ -70,7 +70,7 @@ let isConsistent (network: Network) : bool =
                         else
                             individuals <- Map.add symbol (Set.add notConcept res) individuals
                             true
-                | Role _ -> true)
+                | Entry.Role _ -> true)
         true
         network
 
@@ -120,7 +120,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
                 Set.fold
                     (fun state value ->
                         match value with
-                        | Extension ex ->
+                        | Entry.Extension ex ->
                             if ex.concept = conceptName then
                                 Set.add ex.element state
                             else
@@ -136,7 +136,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
                 Set.fold
                     (fun state value ->
                         match value with
-                        | Role role -> if role.role = roleName then Set.add role state else state
+                        | Entry.Role role -> if role.role = roleName then Set.add role state else state
                         | _ -> state)
                     Set.empty
                     entries
@@ -148,7 +148,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
                 Set.fold
                     (fun state value ->
                         match value with
-                        | Role role -> Set.add role.role state
+                        | Entry.Role role -> Set.add role.role state
                         | _ -> state)
                     Set.empty
                     entries

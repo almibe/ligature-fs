@@ -14,8 +14,6 @@ type Interpretation =
       Concepts: Map<Element, Set<Element>>
       Roles: Map<Element, Set<Element * Element>> }
 
-let infer tBox aBox : Result<Set<Entry>, TinyDLError> = failwith "TODO"
-
 let interpret aBox : Result<Interpretation, TinyDLError> = failwith "TODO"
 
 let parse (script: string) : Result<KnowledgeBase, TinyDLError> =

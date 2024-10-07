@@ -15,8 +15,17 @@ type ConceptExpressionNode =
     | Not
     | Conjunction
 
+type Individual = string
+
+type ConceptName = string
+
+type RoleName = string
+
 [<RequireQualifiedAccess>]
-type Node = UnaryPredicate of string * ConceptExpressionNode list
+type Node =
+    | Extension of Individual * ConceptName
+    | NonExtension of Individual * ConceptName
+    | BinaryPredicate of Individual * Individual * Role
 
 type ParserError = string
 
@@ -105,30 +114,11 @@ let rec readConceptExpression: Nibbler<Token, ConceptExpressionNode list> =
 
 let readUnaryPredicate: Nibbler<Token, Node> =
     fun (state: State<Token>) ->
-        match read 2 state with
-        | [| Some(Token.Name individual); Some Token.Colon |] ->
-            match readConceptExpression { state with offset = state.offset + 2 } with
-            | Ok(state, res) -> Ok(state, Node.UnaryPredicate(individual, res))
-            | Error err -> Error err
-        // match readOffset 2 state with
-        // | Some(Token.Name concept) ->
-        //     Ok(
-        //         { state with offset = state.offset + 3 },
-        //         UnaryPredicate
-        //             { symbol = individual
-        //               concept = AtomicConcept concept }
-        //     )
-        // | Some(Token.Negation) ->
-        //     match readOffset 3 state with
-        //     | Some(Token.Name concept) ->
-        //         Ok(
-        //             { state with offset = state.offset + 3 },
-        //             UnaryPredicate
-        //                 { symbol = individual
-        //                   concept = Not { concept = AtomicConcept concept } }
-        //         )
-        //     | _ -> failwith "TODO"
-        // | _ -> failwith "TODO"
+        match read 4 state with
+        | [| Some(Token.Name individual); Some Token.Colon; Some(Token.Name conceptName); _ |] ->
+            Ok({ state with offset = state.offset + 3 }, Node.Extension(individual, conceptName))
+        | [| Some(Token.Name individual); Some Token.Colon; Some Token.Negation; Some(Token.Name conceptName) |] ->
+            Ok({ state with offset = state.offset + 4 }, Node.NonExtension(individual, conceptName))
         | _ -> Error(NoMatch)
 
 /// <summary></summary>
@@ -149,15 +139,18 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
     else
         let mutable state = fromList tokens
         let mutable result = []
+        let mutable error = None
 
-        while not (isComplete state) do
+        while not (isComplete state) && error = None do
             match readUnaryPredicate state with
             | Ok(state', res) ->
                 result <- List.append result [ res ]
                 state <- state'
-            | Error err -> failwith "TODO" //Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
+            | Error _ -> error <- Some(Error $"Error parsing @ {state.offset} = {state.input[state.offset]}.")
 
-        Ok result
+        match error with
+        | None -> Ok result
+        | Some err -> err
 
 let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpression, ParserError> =
     let mutable state = fromList nodes
@@ -191,19 +184,17 @@ let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
     List.fold
         (fun state node ->
             match state with
-            | Ok kb ->
+            | Ok(description, network) ->
                 match node with
-                | Node.UnaryPredicate(individual, concept) ->
-                    match expressConcept concept with
-                    | Ok concept -> failwith "TODO"
-                    // Ok(
-                    //     Set.add
-                    //         (UnaryPredicate
-                    //             { symbol = individual
-                    //             concept = concept })
-                    //         kb
-                    // )
-                    | Error _ -> failwith "TODO"
+                | Node.Extension(individual, concept) ->
+                    Ok(
+                        description,
+                        Set.add
+                            (Entry.Extension
+                                { element = Symbol individual
+                                  concept = Symbol concept })
+                            network
+                    )
             | Error err -> Error err)
         (Ok emptyKB)
         nodes
