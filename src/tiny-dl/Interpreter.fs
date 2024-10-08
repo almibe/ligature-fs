@@ -7,7 +7,6 @@ module TinyDL.Interpreter
 open Main
 open Tokenizer
 open NewParser
-open Ligature.Main
 
 // type Interpretation =
 //     { Domain: Set<Element>

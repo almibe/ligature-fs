@@ -6,7 +6,6 @@ module rec Wander.Parser
 
 open Lexer
 open FsToolkit.ErrorHandling
-open Model
 open Nibblers
 open Ligature.Main
 
@@ -254,11 +253,11 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
         | _ -> failwith "Error - unexpected Value."
 
     if attribute = Symbol ":" then
-        Extension { element = entity; concept = value }
+        Entry.Extension { element = entity; concept = value }
     else if attribute = Symbol ":¬" then
-        NonExtension { element = entity; concept = value }
+        Entry.NonExtension { element = entity; concept = value }
     else
-        Role
+        Entry.Role
             { first = entity
               second = value
               role = attribute }

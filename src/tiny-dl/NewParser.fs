@@ -140,6 +140,33 @@ let readConceptInclusion: Nibbler<Token, Node> =
 let readStatement: Nibbler<Token, Node> =
     takeFirst [ readUnaryPredicate; readConceptDefinition; readConceptInclusion ]
 
+let readStatements =
+    fun state ->
+        let mutable state = state
+        let mutable result = []
+        let mutable error = None
+        let mutable cont = true
+
+        while (not (isComplete state)) && error = None && cont do
+            match readStatement state with
+            | Ok(state', res) ->
+                result <- List.append result [ res ]
+                state <- state'
+            | _ -> error <- Some(Error $"Error parsing @ {state.offset} = {state.input[state.offset]}.")
+
+            if error = None then
+                match readComma state with
+                | Ok(state', _) -> state <- state'
+                | _ -> cont <- false
+
+        match error with
+        | None ->
+            if isComplete state then
+                Ok(state, result)
+            else
+                Error $"Error parsing @ {state.offset} = {state.input[state.offset]}."
+        | Some err -> err
+
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
@@ -160,12 +187,11 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
         let mutable result = []
         let mutable error = None
 
-        while (not (isComplete state)) && error = None do
-            match readStatement state with
-            | Ok(state', res) ->
-                result <- List.append result [ res ]
-                state <- state'
-            | _ -> error <- Some(Error $"Error parsing @ {state.offset} = {state.input[state.offset]}.")
+        match readStatements state with
+        | Ok(state', results) ->
+            result <- results
+            state <- state'
+        | _ -> ()
 
         match error with
         | None -> Ok result

@@ -10,7 +10,7 @@ type GazeError = | NoMatch
 
 type Nibbler<'input, 'output> = State<'input> -> Result<(State<'input> * 'output), GazeError>
 
-type Gaze<'input, 'output> = State<'input> -> Result<'output, GazeError>
+//type Gaze<'input, 'output> = State<'input> -> Result<'output, GazeError>
 
 // let chain<'input, 'output>
 //     (result: Result<(Source<'input> * 'output), GazeError>)
@@ -70,17 +70,38 @@ let readOffset<'i> (number: int) (state: State<'i>) =
 /// If all fail the created Nibbler will fail as well.</summary>
 /// <param name="nibblers">A list of Nibblers to check.</param>
 /// <returns>The newly created Nibbler.</returns>
-let takeFirst nibblers gaze =
+let takeFirst nibblers state =
     let mutable result = Error(NoMatch)
     let mutable nibblerIndex = 0
 
     while nibblerIndex >= 0 && nibblerIndex < List.length (nibblers) do
         let nibbler = nibblers.Item(nibblerIndex)
 
-        match nibbler gaze with
+        match nibbler state with
         | Ok(res) ->
             result <- Ok(res)
             nibblerIndex <- -1
         | Error(_) -> nibblerIndex <- nibblerIndex + 1
 
     result
+
+let repeatSep (nibbler: Nibbler<'i, 'o>) (separator: 'i) (state: State<'i>) =
+    let mutable cont = true
+    let mutable results: 'o list = []
+    let mutable state = state
+
+    while cont do
+        match nibbler state with
+        | Ok((state', result)) ->
+            results <- results @ [ result ]
+            state <- state'
+
+            if isComplete state then
+                cont <- false
+            else if peek state = Ok(separator) then
+                state <- { state with offset = state.offset + 1 }
+            else
+                cont <- false
+        | Error(_) -> cont <- false
+
+    if results = [] then Error(NoMatch) else Ok(results)
