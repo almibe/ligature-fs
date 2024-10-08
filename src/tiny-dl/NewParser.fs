@@ -123,6 +123,23 @@ let readUnaryPredicate: Nibbler<Token, Node> =
             Ok({ state with offset = state.offset + 4 }, Node.NonExtension(individual, conceptName))
         | _ -> Error(NoMatch)
 
+let readConceptDefinition: Nibbler<Token, Node> =
+    fun (state: State<Token>) ->
+        match read 3 state with
+        | [| Some(Token.Name left); Some Token.Definition; Some(Token.Name right) |] ->
+            Ok({ state with offset = state.offset + 3 }, Node.ConceptDefinition(left, right))
+        | _ -> Error(NoMatch)
+
+let readConceptInclusion: Nibbler<Token, Node> =
+    fun (state: State<Token>) ->
+        match read 3 state with
+        | [| Some(Token.Name left); Some Token.ConceptInclusion; Some(Token.Name right) |] ->
+            Ok({ state with offset = state.offset + 3 }, Node.ConceptInclusion(left, right))
+        | _ -> Error(NoMatch)
+
+let readStatement: Nibbler<Token, Node> =
+    takeFirst [ readUnaryPredicate; readConceptDefinition; readConceptInclusion ]
+
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
@@ -143,12 +160,12 @@ let parse (tokens: Token list) : Result<Node list, ParserError> =
         let mutable result = []
         let mutable error = None
 
-        while not (isComplete state) && error = None do
-            match readUnaryPredicate state with
+        while (not (isComplete state)) && error = None do
+            match readStatement state with
             | Ok(state', res) ->
                 result <- List.append result [ res ]
                 state <- state'
-            | Error _ -> error <- Some(Error $"Error parsing @ {state.offset} = {state.input[state.offset]}.")
+            | _ -> error <- Some(Error $"Error parsing @ {state.offset} = {state.input[state.offset]}.")
 
         match error with
         | None -> Ok result

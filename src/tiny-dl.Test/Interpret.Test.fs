@@ -42,11 +42,12 @@ let scriptTestSuite =
         |> Seq.map (fun file ->
             let script = System.IO.File.ReadLines file |> String.concat "\n"
 
-            testCase $"Test for {file}" <| fun _ -> failwith "TODO")
-        // match run script with
-        // | Ok _ -> ()
-        // | Error(err) -> failwithf "Test failed %A" err)
+            testCase $"Test for {file}"
+            <| fun _ ->
+                match TinyDL.Interpreter.parse script with
+                | Ok _ -> ()
+                | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
-        |> testList "Wander tests"
+        |> testList "tiny-dl tests"
     else
         failwith "Please set LIGATURE_TEST_SUITE environment variable."

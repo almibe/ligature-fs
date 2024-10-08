@@ -65,3 +65,22 @@ let readOffset<'i> (number: int) (state: State<'i>) =
         Some(state.input[state.offset + number])
     else
         None
+
+/// <summary>Create a Nibbler that accepts a List of Nibblers and matches on the first that succeeds.
+/// If all fail the created Nibbler will fail as well.</summary>
+/// <param name="nibblers">A list of Nibblers to check.</param>
+/// <returns>The newly created Nibbler.</returns>
+let takeFirst nibblers gaze =
+    let mutable result = Error(NoMatch)
+    let mutable nibblerIndex = 0
+
+    while nibblerIndex >= 0 && nibblerIndex < List.length (nibblers) do
+        let nibbler = nibblers.Item(nibblerIndex)
+
+        match nibbler gaze with
+        | Ok(res) ->
+            result <- Ok(res)
+            nibblerIndex <- -1
+        | Error(_) -> nibblerIndex <- nibblerIndex + 1
+
+    result
