@@ -26,6 +26,8 @@ type Node =
     | Extension of Individual * ConceptName
     | NonExtension of Individual * ConceptName
     | BinaryPredicate of Individual * Individual * Role
+    | ConceptDefinition of ConceptName * ConceptName
+    | ConceptInclusion of ConceptName * ConceptName
 
 type ParserError = string
 

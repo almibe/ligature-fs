@@ -9,12 +9,12 @@ open Tokenizer
 open NewParser
 open Ligature.Main
 
-type Interpretation =
-    { Domain: Set<Element>
-      Concepts: Map<Element, Set<Element>>
-      Roles: Map<Element, Set<Element * Element>> }
+// type Interpretation =
+//     { Domain: Set<Element>
+//       Concepts: Map<Element, Set<Element>>
+//       Roles: Map<Element, Set<Element * Element>> }
 
-let interpret aBox : Result<Interpretation, TinyDLError> = failwith "TODO"
+// let interpret aBox : Result<Interpretation, TinyDLError> = failwith "TODO"
 
 let parse (script: string) : Result<KnowledgeBase, TinyDLError> =
     match tokenize script with
