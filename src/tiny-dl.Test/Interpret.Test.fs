@@ -34,7 +34,10 @@ let scriptTestSuite =
             testCase $"Test for {file}"
             <| fun _ ->
                 match read script with
-                | Ok _ -> ()
+                | Ok res ->
+                    match interpret res with
+                    | Ok _ -> ()
+                    | _ -> failwith "TODO"
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "tiny-dl tests"

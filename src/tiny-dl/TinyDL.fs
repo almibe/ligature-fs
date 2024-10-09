@@ -11,7 +11,18 @@ open Ligature.Main
 
 let interpret ((description, network, checks): Script) : Result<Network, TinyDLError> =
     match infer description network with
-    | Ok res -> Ok res
+    | Ok res ->
+        Set.fold
+            (fun state check ->
+                match state with
+                | Error err -> Error err
+                | Ok state ->
+                    if Set.contains check state then
+                        Ok state
+                    else
+                        Error "Error running checks.")
+            (Ok res)
+            checks
     | _ -> failwith "TODO"
 
 let read (script: string) : Result<Script, TinyDLError> =

@@ -29,6 +29,7 @@ type Token =
     | Top
     | Bottom
     | Definition
+    | QuestionMark
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -76,7 +77,8 @@ let tokenNibbler =
                   takeAndMap "(" Token.OpenParen
                   takeAndMap ")" Token.CloseParen
                   takeAndMap "[" Token.OpenSquare
-                  takeAndMap "]" Token.CloseSquare ]
+                  takeAndMap "]" Token.CloseSquare
+                  takeAndMap "?" Token.QuestionMark ]
             )
         )
     )

@@ -266,15 +266,58 @@ let express (nodes: Node list) : Result<Script, ParserError> =
                         checks
                     )
 
-                | Node.CheckExtension(_, _) ->
-                    failwith "Not Implemented"
-                | Node.CheckNonExtension(_, _) ->
-                    failwith "Not Implemented"
-                | Node.CheckBinaryPredicate(_, _, _) ->
-                    failwith "Not Implemented"
+                | Node.CheckExtension(individual, concept) ->
+                    Ok(
+                        description,
+                        network,
+                        Set.add
+                            (Entry.Extension
+                                { element = Symbol individual
+                                  concept = Symbol concept })
+                            checks
+                    )
+                | Node.CheckNonExtension(individual, concept) ->
+                    Ok(
+                        description,
+                        network,
+                        Set.add
+                            (Entry.NonExtension
+                                { element = Symbol individual
+                                  concept = Symbol concept })
+                            checks
+                    )
+                | Node.CheckBinaryPredicate(first, second, role) ->
+                    Ok(
+                        description,
+                        network,
+                        Set.add
+                            (Entry.Role
+                                { first = Symbol first
+                                  second = Symbol second
+                                  role = Symbol role })
+                            checks
+                    )
 
-                | Node.ConceptDefinition(left, right) -> failwith "Not Implemented"
-                | Node.ConceptInclusion(left, right) -> failwith "Not Implemented"
+                | Node.ConceptDefinition(left, right) ->
+                    Ok(
+                        Set.add
+                            (Defination
+                                { left = Symbol left
+                                  right = AtomicConcept(Symbol right) })
+                            description,
+                        network,
+                        checks
+                    )
+                | Node.ConceptInclusion(left, right) ->
+                    Ok(
+                        Set.add
+                            (Inclusion
+                                { left = Symbol left
+                                  right = AtomicConcept(Symbol right) })
+                            description,
+                        network,
+                        checks
+                    )
             | Error err -> Error err)
         (Ok emptyKB)
         nodes
