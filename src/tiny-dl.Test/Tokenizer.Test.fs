@@ -43,13 +43,13 @@ let tests =
                         Token.OpenSquare
                         Token.CloseSquare ])
                   ""
-          testCase "Tokenize Uniary Predicate with Conjunction"
+          testCase "Tokenize Concept Definition with Conjunction"
           <| fun _ ->
               Expect.equal
-                  (tokenize "x:Y⊓Z")
+                  (tokenize "X≡Y⊓Z")
                   (Ok
-                      [ Token.Name "x"
-                        Token.Colon
+                      [ Token.Name "X"
+                        Token.Definition
                         Token.Name "Y"
                         Token.ConceptConjunction
                         Token.Name "Z" ])

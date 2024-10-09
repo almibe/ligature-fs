@@ -11,17 +11,6 @@ open TinyDL.NewParser
 open TinyDL.Main
 open FSharpPlus
 
-let unsafeRead (input: string) =
-    match read input with
-    | Ok(nodes) ->
-        match express nodes with
-        | Ok(description, network) ->
-            match infer description network with
-            | Ok res -> res
-            | Error err -> failwith err
-        | Error err -> failwith err
-    | Error err -> failwith err
-
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
         Seq.empty
@@ -44,7 +33,7 @@ let scriptTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match TinyDL.Interpreter.parse script with
+                match read script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

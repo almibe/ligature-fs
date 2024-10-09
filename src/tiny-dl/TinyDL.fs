@@ -4,91 +4,20 @@
 
 module TinyDL.Main
 
+open Model
+open Tokenizer
+open NewParser
 open Ligature.Main
 
-type TinyDLError = string
+let interpret ((description, network, checks): Script) : Result<Network, TinyDLError> =
+    match infer description network with
+    | Ok res -> Ok res
+    | _ -> failwith "TODO"
 
-type AtomicConcept = Element
-
-type Role = Element
-
-and ConceptExpression =
-    | AtomicConcept of AtomicConcept
-    | Inclusion of Inclusion
-    | Defination of Definition
-    | Disjunction of Disjunction
-    | Conjunction of Conjunction
-    | Not of Not
-
-and Description = Set<ConceptExpression>
-
-and KnowledgeBase = Description * Network
-
-and [<RequireQualifiedAccess>] NormalConceptExpression =
-    | AtomicConcept of AtomicConcept
-    | Not of AtomicConcept
-
-and Inclusion =
-    { left: AtomicConcept
-      right: ConceptExpression }
-
-and Definition =
-    { left: AtomicConcept
-      right: ConceptExpression }
-
-and Not = { concept: ConceptExpression }
-
-and Conjunction = { expressions: ConceptExpression }
-
-and Disjunction =
-    { left: ConceptExpression
-      right: ConceptExpression }
-
-and ExistentialRestriction =
-    { concept: ConceptExpression
-      role: Role }
-
-and ValueRestriction =
-    { concept: ConceptExpression
-      role: Role }
-
-let networkToDescription (input: Network) : Description =
-    let entryToDescription (entry: Entry) : ConceptExpression =
-        match entry with
-        | Entry.Role { first = first
-                       second = second
-                       role = Symbol "subconcept" } ->
-            Inclusion
-                { left = first
-                  right = AtomicConcept second }
-        | _ -> failwith "TODO"
-
-    Set.map entryToDescription input
-
-let descriptionToNetwork (input: Description) : Network = failwith "TODO"
-
-let infer (description: Description) (network: Network) : Result<Network, TinyDLError> =
-    let mutable result = network
-
-    Set.iter
-        (fun expression ->
-            match expression with
-            | Inclusion { left = left
-                          right = AtomicConcept right } ->
-                Set.iter
-                    (fun entry ->
-                        match entry with
-                        | Entry.Extension { element = element; concept = concept } ->
-                            if left = concept then
-                                result <- Set.add (Entry.Extension { element = element; concept = right }) result
-                        | _ -> ())
-                    network
-            | _ -> failwith "TODO")
-        description
-
-    Ok result
-
-let top = Symbol "⊤"
-let bottom = Symbol "⊥"
-
-let emptyKB = Set.empty, Set.empty
+let read (script: string) : Result<Script, TinyDLError> =
+    match tokenize script with
+    | Ok res ->
+        match parse res with
+        | Ok res -> express res
+        | Error errorValue -> Error errorValue
+    | Error errorValue -> Error errorValue

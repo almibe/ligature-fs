@@ -6,7 +6,7 @@ module TinyDL.NewParser
 
 open Tokenizer
 open New
-open Main
+open Model
 open Ligature.Main
 
 [<RequireQualifiedAccess>]
@@ -25,7 +25,10 @@ type RoleName = string
 type Node =
     | Extension of Individual * ConceptName
     | NonExtension of Individual * ConceptName
-    | BinaryPredicate of Individual * Individual * Role
+    | BinaryPredicate of Individual * Individual * RoleName
+    | CheckExtension of Individual * ConceptName
+    | CheckNonExtension of Individual * ConceptName
+    | CheckBinaryPredicate of Individual * Individual * RoleName
     | ConceptDefinition of ConceptName * ConceptName
     | ConceptInclusion of ConceptName * ConceptName
 
@@ -225,11 +228,11 @@ let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpressio
 
     result
 
-let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
+let express (nodes: Node list) : Result<Script, ParserError> =
     List.fold
         (fun state node ->
             match state with
-            | Ok(description, network) ->
+            | Ok(description, network, checks) ->
                 match node with
                 | Node.Extension(individual, concept) ->
                     Ok(
@@ -238,8 +241,40 @@ let express (nodes: Node list) : Result<KnowledgeBase, ParserError> =
                             (Entry.Extension
                                 { element = Symbol individual
                                   concept = Symbol concept })
-                            network
+                            network,
+                        checks
                     )
+                | Node.NonExtension(individual, concept) ->
+                    Ok(
+                        description,
+                        Set.add
+                            (Entry.NonExtension
+                                { element = Symbol individual
+                                  concept = Symbol concept })
+                            network,
+                        checks
+                    )
+                | Node.BinaryPredicate(first, second, role) ->
+                    Ok(
+                        description,
+                        Set.add
+                            (Entry.Role
+                                { first = Symbol first
+                                  second = Symbol second
+                                  role = Symbol role })
+                            network,
+                        checks
+                    )
+
+                | Node.CheckExtension(_, _) ->
+                    failwith "Not Implemented"
+                | Node.CheckNonExtension(_, _) ->
+                    failwith "Not Implemented"
+                | Node.CheckBinaryPredicate(_, _, _) ->
+                    failwith "Not Implemented"
+
+                | Node.ConceptDefinition(left, right) -> failwith "Not Implemented"
+                | Node.ConceptInclusion(left, right) -> failwith "Not Implemented"
             | Error err -> Error err)
         (Ok emptyKB)
         nodes
