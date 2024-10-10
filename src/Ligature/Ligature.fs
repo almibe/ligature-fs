@@ -113,8 +113,6 @@ and [<RequireQualifiedAccess>] Slot =
     | Element of Element
     | Variable of string
 
-let defaultNetwork = NetworkName("")
-
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =
 //         Set.filter

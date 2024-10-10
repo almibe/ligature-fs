@@ -3,14 +3,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 open Ligature.Main
-open Ligature.Wander.Combinators
-open Ligature.Wander.Main
 open Fable.Core.JsInterop
-open Ligature.LigatureStore.InMemoryStore
-open System.Collections.Generic
+open Wander.Main
+open Wander.Combinators
+open Ligature.InMemoryStore
 
-let printNetwork (network: Network) : string =
-    Ligature.Wander.Model.printNetwork network
+let printNetwork (network: Network) : string = Wander.Model.printNetwork network
 
 let symbolToJS (Symbol(symbol): Element) =
     let res = createEmpty
@@ -21,12 +19,15 @@ let rec networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
-        (fun (e, a, v) ->
-            let entity = symbolToJS e
-            let attribute = symbolToJS a
-            let value = symbolToJS v
+        (fun (entry: Entry) ->
+            match entry with
+            | _ ->
+                // let entity = symbolToJS e
+                // let attribute = symbolToJS a
+                // let value = symbolToJS v
 
-            resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
+                // resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
+                failwith "TODO")
         network
 
     resNetwork
@@ -79,4 +80,4 @@ let newEngine (wanderEngine: WanderEngine) =
     engine
 
 let newInMemoryEngine () : WanderEngine =
-    newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore))
+    newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore ()))

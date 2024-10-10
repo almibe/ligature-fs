@@ -8,6 +8,7 @@ open Ligature.Main
 open System
 open System.Text.RegularExpressions
 open Ligature
+open Ligature.Main
 //open Ligature.LigatureStore.InMemoryStore
 
 let encodeString string =
@@ -53,9 +54,9 @@ and printAssocArray values =
 
 and printEntry (entry: Entry) : string =
     match entry with
-    | Extension concept -> $"{concept.element} : {concept.concept}"
-    | NonExtension nc -> $"{nc.element} :¬ {nc.concept}"
-    | Role role -> $"{role.first} {role.role} {role.second}"
+    | Entry.Extension concept -> $"{concept.element} : {concept.concept}"
+    | Entry.NonExtension nc -> $"{nc.element} :¬ {nc.concept}"
+    | Entry.Role role -> $"{role.first} {role.role} {role.second}"
 
 //TODO might not be correct
 and printQuote (quote: Quote) : string =

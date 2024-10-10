@@ -5,7 +5,7 @@
 module Wander.Lib.TinyDL
 
 open Ligature.Main
-open TinyDL.Main
+open TinyDL.Model
 
 let inferCombinator: Combinator =
     { Name = Symbol("infer")

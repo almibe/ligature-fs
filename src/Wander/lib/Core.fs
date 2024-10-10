@@ -80,7 +80,7 @@ let docsCombinator: Combinator =
 
                 docs <-
                     Set.add
-                        (Role
+                        (Entry.Role
                             { first = name
                               second = Symbol(combinator.Doc)
                               role = Symbol("docString") })
@@ -88,7 +88,7 @@ let docsCombinator: Combinator =
 
                 docs <-
                     Set.add
-                        (Role
+                        (Entry.Role
                             { first = name
                               second = signature
                               role = Symbol("signature") })

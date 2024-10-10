@@ -269,8 +269,6 @@ let expressExpression (elements: WanderValue list) : WanderElement =
 let rec express (elements: WanderValue list) (expressions: WanderElement list) : WanderElement list =
     match elements with
     | [] -> expressions
-    | WanderValue.Network(network) :: tail ->
-        express tail (List.append expressions [ WanderElement.Network(defaultNetwork, network) ])
     | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
         express tail (List.append expressions [ WanderElement.Network(name, network) ])
     | WanderValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])

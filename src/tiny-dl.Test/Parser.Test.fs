@@ -20,6 +20,8 @@ let tests =
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "Parse single individual"
           <| fun _ -> Expect.equal (parse "x:Y") (Ok([ Node.Extension("x", "Y") ])) ""
+          testCase "Parse two individuals"
+          <| fun _ -> Expect.equal (parse "x:Y, y:Z") (Ok([ Node.Extension("x", "Y"); Node.Extension("y", "Z") ])) ""
           testCase "Parse single individual with Negatation"
           <| fun _ -> Expect.equal (parse "x:¬Y") (Ok([ Node.NonExtension("x", "Y") ])) ""
           testCase "Don't allow anonymous concepts"
