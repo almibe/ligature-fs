@@ -18,7 +18,6 @@ type Token =
     | OpenParen
     | CloseParen
     | Comma
-    | Colon
     | Exists
     | All
     | ConceptInclusion
@@ -60,7 +59,6 @@ let tokenNibbler =
                 [ whiteSpaceNibbler
                   nameOrKeyidentifierTokenNibbler
                   newLineTokenNibbler
-                  takeAndMap ":" Token.Colon
                   takeAndMap "," Token.Comma
                   takeAndMap "." Token.Dot
                   takeAndMap "∃" Token.Exists
@@ -77,8 +75,7 @@ let tokenNibbler =
                   takeAndMap "(" Token.OpenParen
                   takeAndMap ")" Token.CloseParen
                   takeAndMap "[" Token.OpenSquare
-                  takeAndMap "]" Token.CloseSquare
-                  takeAndMap "?" Token.QuestionMark ]
+                  takeAndMap "]" Token.CloseSquare ]
             )
         )
     )

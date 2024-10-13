@@ -22,10 +22,9 @@ let tests =
           testCase "Tokenize symbols"
           <| fun _ ->
               Expect.equal
-                  (tokenize ":,.∃∀⊑⊔≡⊤¬⊥⊓{}()[]")
+                  (tokenize ",.∃∀⊑⊔≡⊤¬⊥⊓{}()[]")
                   (Ok
-                      [ Token.Colon
-                        Token.Comma
+                      [ Token.Comma
                         Token.Dot
                         Token.Exists
                         Token.All

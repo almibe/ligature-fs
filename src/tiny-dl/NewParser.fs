@@ -23,12 +23,6 @@ type RoleName = string
 
 [<RequireQualifiedAccess>]
 type Node =
-    | Extension of Individual * ConceptName
-    | NonExtension of Individual * ConceptName
-    | BinaryPredicate of Individual * Individual * RoleName
-    | CheckExtension of Individual * ConceptName
-    | CheckNonExtension of Individual * ConceptName
-    | CheckBinaryPredicate of Individual * Individual * RoleName
     | ConceptDefinition of ConceptName * ConceptName
     | ConceptInclusion of ConceptName * ConceptName
 
@@ -117,15 +111,6 @@ let rec readConceptExpression: Nibbler<Token, ConceptExpressionNode list> =
                 result
             )
 
-let readUnaryPredicate: Nibbler<Token, Node> =
-    fun (state: State<Token>) ->
-        match read 4 state with
-        | [| Some(Token.Name individual); Some Token.Colon; Some(Token.Name conceptName); _ |] ->
-            Ok({ state with offset = state.offset + 3 }, Node.Extension(individual, conceptName))
-        | [| Some(Token.Name individual); Some Token.Colon; Some Token.Negation; Some(Token.Name conceptName) |] ->
-            Ok({ state with offset = state.offset + 4 }, Node.NonExtension(individual, conceptName))
-        | _ -> Error(NoMatch)
-
 let readConceptDefinition: Nibbler<Token, Node> =
     fun (state: State<Token>) ->
         match read 3 state with
@@ -141,7 +126,7 @@ let readConceptInclusion: Nibbler<Token, Node> =
         | _ -> Error(NoMatch)
 
 let readStatement: Nibbler<Token, Node> =
-    takeFirst [ readUnaryPredicate; readConceptDefinition; readConceptInclusion ]
+    takeFirst [ readConceptDefinition; readConceptInclusion ]
 
 let readStatements =
     fun state ->
@@ -234,70 +219,6 @@ let express (nodes: Node list) : Result<Script, ParserError> =
             match state with
             | Ok(description, network, checks) ->
                 match node with
-                | Node.Extension(individual, concept) ->
-                    Ok(
-                        description,
-                        Set.add
-                            (Entry.Extension
-                                { element = Symbol individual
-                                  concept = Symbol concept })
-                            network,
-                        checks
-                    )
-                | Node.NonExtension(individual, concept) ->
-                    Ok(
-                        description,
-                        Set.add
-                            (Entry.NonExtension
-                                { element = Symbol individual
-                                  concept = Symbol concept })
-                            network,
-                        checks
-                    )
-                | Node.BinaryPredicate(first, second, role) ->
-                    Ok(
-                        description,
-                        Set.add
-                            (Entry.Role
-                                { first = Symbol first
-                                  second = Symbol second
-                                  role = Symbol role })
-                            network,
-                        checks
-                    )
-
-                | Node.CheckExtension(individual, concept) ->
-                    Ok(
-                        description,
-                        network,
-                        Set.add
-                            (Entry.Extension
-                                { element = Symbol individual
-                                  concept = Symbol concept })
-                            checks
-                    )
-                | Node.CheckNonExtension(individual, concept) ->
-                    Ok(
-                        description,
-                        network,
-                        Set.add
-                            (Entry.NonExtension
-                                { element = Symbol individual
-                                  concept = Symbol concept })
-                            checks
-                    )
-                | Node.CheckBinaryPredicate(first, second, role) ->
-                    Ok(
-                        description,
-                        network,
-                        Set.add
-                            (Entry.Role
-                                { first = Symbol first
-                                  second = Symbol second
-                                  role = Symbol role })
-                            checks
-                    )
-
                 | Node.ConceptDefinition(left, right) ->
                     Ok(
                         Set.add

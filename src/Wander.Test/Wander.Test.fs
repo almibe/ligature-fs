@@ -22,13 +22,13 @@ let tests =
               Expect.equal result (Ok None) ""
           testCase "Run Empty Network"
           <| fun _ ->
-              let script = "{}"
+              let script = "test {}"
               let result = run Map.empty (emptyInMemoryStore ()) script
               Expect.equal result (Ok None) ""
 
           testCase "Parse Network"
           <| fun _ ->
-              let script = "{a b c}"
+              let script = "test {a b c}"
 
               match tokenize script with
               | Ok(res) ->
@@ -36,9 +36,10 @@ let tests =
                   | Ok(res) ->
                       Expect.equal
                           res
-                          [ WanderValue.Network(
+                          [ WanderValue.Symbol(Symbol "test")
+                            WanderValue.Network(
                                 Set.ofList
-                                    [ Role
+                                    [ Entry.Role
                                           { first = Symbol("a")
                                             second = Symbol("c")
                                             role = Symbol("b") } ]
@@ -60,7 +61,7 @@ let tests =
                           [ WanderValue.Symbol(Symbol("name"))
                             WanderValue.Network(
                                 Set.ofList
-                                    [ Role
+                                    [ Entry.Role
                                           { first = Symbol "a"
                                             second = Symbol "c"
                                             role = Symbol "b" } ]

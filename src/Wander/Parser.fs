@@ -9,18 +9,6 @@ open FsToolkit.ErrorHandling
 open Nibblers
 open Ligature.Main
 
-// [<RequireQualifiedAccess>]
-// type Identifier =
-//     | Name of string
-//     | NetworkName of string
-//     | Quote of Identifier list
-//     | Expression of Identifier list
-//     | String of string
-//     | Int of bigint
-//     | Bytes of byte array
-//     | Slot of Slot
-//     | Network of (Identifier * Identifier * Identifier) list
-
 // let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 //     Gaze.attempt
 //         (fun gaze ->
@@ -272,5 +260,5 @@ let rec express (elements: WanderValue list) (expressions: WanderElement list) :
     | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
         express tail (List.append expressions [ WanderElement.Network(name, network) ])
     | WanderValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
-    //| Identifier.NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
+    //| WanderValue. .NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
     | _ -> failwith "Error - unexpected token."
