@@ -18,12 +18,12 @@ import { expect, test } from 'vitest'
 
 test("Empty Network", () => {
     let engine = newEngine()
-    expect(engine.run("{}")).toEqual({})
+    expect(engine.run("test {}")).toEqual({})
 })
 
 test("Eval Networks", () => {
     let engine = newEngine()
-    expect(engine.run("{a b c}")).toEqual({})
+    expect(engine.run("test {a b c}")).toEqual({})
 })
 
 test("Eval Named Network", () => {
@@ -31,7 +31,7 @@ test("Eval Named Network", () => {
     expect(engine.run("test {a b c} (read test)"))
         .toEqual({
             network: 
-                [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]})
+                [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
 })
 
 // test("Test match", () => {

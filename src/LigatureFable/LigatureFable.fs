@@ -21,13 +21,28 @@ let rec networkToJS (network: Network) =
     Set.iter
         (fun (entry: Entry) ->
             match entry with
-            | _ ->
-                // let entity = symbolToJS e
-                // let attribute = symbolToJS a
-                // let value = symbolToJS v
+            | Entry.Extension e ->
+                let res = createEmpty
+                res?element <- symbolToJS e.element
+                res?concept <- symbolToJS e.concept
+                res?``type`` <- "extension"
 
-                // resNetwork <- Array.append resNetwork [| [| entity; attribute; value |] |])
-                failwith "TODO")
+                resNetwork <- Array.append resNetwork [| [| res |] |]
+            | Entry.NonExtension ne ->
+                let res = createEmpty
+                res?element <- symbolToJS ne.element
+                res?concept <- symbolToJS ne.concept
+                res?``type`` <- "nonextension"
+
+                resNetwork <- Array.append resNetwork [| [| res |] |]
+            | Entry.Role role ->
+                let res = createEmpty
+                res?first <- symbolToJS role.first
+                res?second <- symbolToJS role.second
+                res?role <- symbolToJS role.role
+                res?``type`` <- "role"
+
+                resNetwork <- Array.append resNetwork [| res |])
         network
 
     resNetwork
@@ -42,27 +57,6 @@ let valueToJS (value: WanderValue) =
     | WanderValue.Quote q -> failwith "TODO"
 
     res
-
-// and quoteToJS (q: Quote) =
-//     List.map (fun value -> valueToJS (value)) q |> List.toArray
-
-// and valueToJS (v: Pattern) =
-//     let value = createEmpty
-
-//     match v with
-//     | Identifier.Quote q -> value?quote <- quoteToJS (q)
-//     | Pattern.Slot(Slot(Some(s))) -> value?slot <- s
-//     | Pattern.Slot(Slot(None)) -> value?slot <- ""
-//     | Pattern.Symbol(Symbol(i)) -> value?identifier <- i
-//     | Identifier.Network n -> value?network <- networkToJS n
-//     | Identifier.Expression(_) -> failwith "TODO"
-
-//     value
-
-// let partialResultToJS (result: Pattern option) =
-//     match result with
-//     | Some(value) -> valueToJS value
-//     | None -> createEmpty
 
 let newEngine (wanderEngine: WanderEngine) =
     let engine = createEmpty

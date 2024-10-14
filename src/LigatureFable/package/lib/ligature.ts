@@ -1,13 +1,5 @@
 import { newInMemoryEngine } from "../../output/LigatureFable.js"
-import { Set, List, Record } from "immutable"
-
-export interface Slot {
-    slot: string | null
-}
-
-export const Slot = Record<{slot: string | null}>({
-    slot: null
-})
+import { Set, Record } from "immutable"
 
 export interface Symbol {
     symbol: string
@@ -17,25 +9,42 @@ export const Symbol = Record({
     symbol: ""
 })
 
-export type Identifier = Slot | Symbol
-
-export type Quote = List<Identifier>
-
-export type Expression = List<Identifier>
-
-export type Statement = {
-    entity: Identifier,
-    attribute: Identifier,
-    value: Identifier
+export type Extension = {
+    type: "extension",
+    element: Symbol,
+    concept: Symbol
 }
 
-export const Statement = Record({
-    entity: Slot({slot: ""}),
-    attribute: Slot({slot: ""}),
-    value: Slot({slot: ""})
+export const Extension = Record({
+    element: Symbol({symbol: ""}),
+    concept: Symbol({symbol: ""}),
 })
 
-export type Network = Set<Statement>
+export type NonExtension = {
+    type: "nonextension",
+    element: Symbol,
+    concept: Symbol
+}
+
+export const NonExtension = Record({
+    element: Symbol({symbol: ""}),
+    concept: Symbol({symbol: ""}),
+})
+
+export type Role = {
+    type: "role",
+    first: Symbol,
+    second: Symbol,
+    role: Symbol
+}
+
+export const Role = Record({
+    first: Symbol({symbol: ""}),
+    second: Symbol({symbol: ""}),
+    role: Symbol({symbol: ""}),
+})
+
+export type Network = Set<Extension | NonExtension | Role>
 
 export function newEngine() {
     return newInMemoryEngine()
