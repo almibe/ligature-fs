@@ -75,3 +75,8 @@ let newEngine (wanderEngine: WanderEngine) =
 
 let newInMemoryEngine () : WanderEngine =
     newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore ()))
+
+let runScript (script: string) =
+    match run stdCombinators (emptyInMemoryStore ()) script with
+    | Ok(Some(WanderValue.Network n)) -> networkToJS n
+    | _ -> failwith "TODO"

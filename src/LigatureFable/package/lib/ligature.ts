@@ -1,4 +1,4 @@
-import { newInMemoryEngine } from "../../output/LigatureFable.js"
+import { newInMemoryEngine, runScript } from "../../output/LigatureFable.js"
 import { Set, Record } from "immutable"
 
 export interface Symbol {
@@ -44,8 +44,14 @@ export const Role = Record({
     role: Symbol({symbol: ""}),
 })
 
-export type Network = Set<Extension | NonExtension | Role>
+export type Entry = Extension | NonExtension | Role
+
+export type Network = Set<Entry>
 
 export function newEngine() {
     return newInMemoryEngine()
+}
+
+export function run(script: string): Entry[] {
+    return runScript(script)
 }
