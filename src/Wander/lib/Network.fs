@@ -14,7 +14,7 @@ let chompCombinator =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Network(input) ] ->
+            | [ WanderValue.Network(input); WanderValue.Symbol(name) ] ->
                 // let currentNetwork = currentNetwork networks
                 // let newNetwork = Set.union input currentNetwork
                 // let newNetworks = Map.add selected newNetwork networks
