@@ -26,12 +26,20 @@ test("Eval Networks", () => {
     expect(engine.run("test {a b c}")).toEqual({})
 })
 
-test("Eval Named Network", () => {
+test("Eval Named Network With Role", () => {
     let engine = newEngine()
     expect(engine.run("test {a b c} (read test)"))
         .toEqual({
             network: 
                 [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
+})
+
+test("Eval Named Network With Extension", () => {
+    let engine = newEngine()
+    expect(engine.run("test {betty : Cat} (read test)"))
+        .toEqual({
+            network: 
+                [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
 })
 
 // test("Test match", () => {

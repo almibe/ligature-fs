@@ -27,14 +27,14 @@ let rec networkToJS (network: Network) =
                 res?concept <- symbolToJS e.concept
                 res?``type`` <- "extension"
 
-                resNetwork <- Array.append resNetwork [| [| res |] |]
+                resNetwork <- Array.append resNetwork [| res |]
             | Entry.NonExtension ne ->
                 let res = createEmpty
                 res?element <- symbolToJS ne.element
                 res?concept <- symbolToJS ne.concept
                 res?``type`` <- "nonextension"
 
-                resNetwork <- Array.append resNetwork [| [| res |] |]
+                resNetwork <- Array.append resNetwork [| res |]
             | Entry.Role role ->
                 let res = createEmpty
                 res?first <- symbolToJS role.first
