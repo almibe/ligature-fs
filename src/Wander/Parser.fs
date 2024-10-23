@@ -49,14 +49,6 @@ let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeat symbolNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return WanderValue.Quote(values)
-    }
-
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
@@ -85,7 +77,7 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * 
     let value =
         match Gaze.check valueNib gaze with
         | Ok(_) -> valueNib gaze
-        | Error(_) -> quoteNib gaze
+        | Error(_) -> failwith "TODO"
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -128,7 +120,7 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib: Gaze.Nibbler<Token, WanderValue> =
-    takeFirst [ quoteNib; expressionNib; atomicValueNib; networkNib ]
+    takeFirst [ expressionNib; atomicValueNib; networkNib ]
 
 // let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
 //     let next = Gaze.next gaze

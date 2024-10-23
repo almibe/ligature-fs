@@ -23,7 +23,6 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Symbol(Symbol(value)) -> value
     // | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
     // | WanderValue.Slot(Slot(None)) -> "$"
-    | WanderValue.Quote values -> $"[{printQuote values}]" //TODO print names better
     | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
@@ -57,10 +56,6 @@ and printEntry (entry: Entry) : string =
     | Entry.Extension concept -> $"{concept.element} : {concept.concept}"
     | Entry.NonExtension nc -> $"{nc.element} :¬ {nc.concept}"
     | Entry.Role role -> $"{role.first} {role.role} {role.second}"
-
-//TODO might not be correct
-and printQuote (quote: Quote) : string =
-    (List.fold (fun state (Symbol(value)) -> state + " " + value) "" quote)
 
 //TODO might not be correct
 and printExpression expression =

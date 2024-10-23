@@ -20,12 +20,6 @@ and [<RequireQualifiedAccessAttribute>] WanderElement =
     | Expression of Expression
     | Network of NetworkName * Network
 
-and Quote = Element list
-
-// and [<RequireQualifiedAccess>] Element =
-//     | Symbol of Symbol
-//     | Quote of Quote
-
 and Expression = WanderValue list
 
 and Combinators = Map<Element, Combinator>
@@ -35,7 +29,6 @@ and Arguments = WanderValue list
 and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Symbol
     | Network
-    | Quote
     | Expression
     | Any
 
@@ -47,7 +40,6 @@ and Combinator =
 
 and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Element
-    | Quote of Quote
     | Expression of Expression
     | Network of Network
 

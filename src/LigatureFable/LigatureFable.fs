@@ -54,27 +54,8 @@ let valueToJS (value: WanderValue) =
     | WanderValue.Symbol(Symbol(id)) -> res?symbol <- id
     | WanderValue.Expression e -> failwith "TODO"
     | WanderValue.Network n -> res?network <- (networkToJS n)
-    | WanderValue.Quote q -> failwith "TODO"
 
     res
-
-let newEngine (wanderEngine: WanderEngine) =
-    let engine = createEmpty
-
-    engine?run <-
-        fun (script: string) ->
-            match wanderEngine.Run script with
-            | Ok(Some(res)) -> valueToJS res
-            | Ok _ -> createEmpty
-            | Error err ->
-                let res = createEmpty
-                res?error <- err.UserMessage
-                res
-
-    engine
-
-let newInMemoryEngine () : WanderEngine =
-    newEngine (new WanderEngine(stdCombinators, emptyInMemoryStore ()))
 
 let runScript (script: string) =
     match run stdCombinators (emptyInMemoryStore ()) script with
