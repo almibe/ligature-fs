@@ -17,57 +17,57 @@ let evalNetwork
     Ok None
 
 let rec evalSymbol
-    (combinators: Combinators)
+    (commands: Commands)
     networks
     (arguments: WanderValue list)
     (Symbol(name))
     : Result<WanderValue option, LigatureError> =
-    let newArguments = processArguments combinators networks arguments
+    let newArguments = processArguments commands networks arguments
 
-    match combinators.TryFind(Symbol(name)) with
-    | Some(combinator) -> combinator.Eval combinators networks newArguments
+    match commands.TryFind(Symbol(name)) with
+    | Some(command) -> command.Eval commands networks newArguments
     | None -> error $"Could not find name {name}" None
 
-and processArguments combinators networks (arguments: WanderValue list) : WanderValue list =
+and processArguments commands networks (arguments: WanderValue list) : WanderValue list =
     List.map
         (fun argument ->
             match argument with
             | WanderValue.Expression e ->
-                match evalExpression combinators networks e with
+                match evalExpression commands networks e with
                 | Ok(Some(value)) -> value
                 | _ -> WanderValue.Network Set.empty
             | value -> value)
         arguments
 
 and evalElement
-    (combinators: Combinators)
+    (commands: Commands)
     (store: LigatureStore)
     (element: WanderElement)
     : Result<WanderValue option, LigatureError> =
     match element with
     | WanderElement.Network(name, network) -> evalNetwork store name network
-    | WanderElement.Expression expression -> evalExpression combinators store expression
+    | WanderElement.Expression expression -> evalExpression commands store expression
 
 and evalElements
-    (combinators: Combinators)
+    (commands: Commands)
     store
     (elements: WanderElement list)
     : Result<WanderValue option, LigatureError> =
     match elements with
     | [] -> Ok(None)
-    | [ head ] -> evalElement combinators store head
+    | [ head ] -> evalElement commands store head
     | head :: tail ->
-        match evalElement combinators store head with
-        | Ok(value) -> evalElements combinators store tail
+        match evalElement commands store head with
+        | Ok(value) -> evalElements commands store tail
         | Error(err) -> Error(err)
 
 and evalExpression
-    (combinators: Combinators)
+    (commands: Commands)
     (store: LigatureStore)
     (expression: Expression)
     : Result<WanderValue option, LigatureError> =
     match expression with
     | [] -> Ok(None)
-    | [ WanderValue.Symbol(name) ] -> evalSymbol combinators store [] name
-    | WanderValue.Symbol(name) :: tail -> evalSymbol combinators store tail name
+    | [ WanderValue.Symbol(name) ] -> evalSymbol commands store [] name
+    | WanderValue.Symbol(name) :: tail -> evalSymbol commands store tail name
     | _ -> error "Invalid Quote." None

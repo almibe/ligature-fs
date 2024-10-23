@@ -20,13 +20,13 @@ open Ligature
 open Ligature.Wander.Main
 open Ligature.Wander.Interpreter
 open Ligature.Main
-open Ligature.Wander.Combinators
+open Ligature.Wander.Commands
 
 let ws (webSocket: WebSocket) (context: HttpContext) =
     socket {
         let mutable loop = true
         let mutable state = defaultState
-        let combinators = stdCombinators
+        let commands = stdCommands
 
         while loop do
             let! msg = webSocket.read ()
@@ -34,7 +34,7 @@ let ws (webSocket: WebSocket) (context: HttpContext) =
             match msg with
             | (Text, data, true) ->
                 let script = UTF8.toString data
-                let res = run combinators state script
+                let res = run commands state script
 
                 match res with
                 | Ok(newState) -> state <- newState

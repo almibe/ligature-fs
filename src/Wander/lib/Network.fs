@@ -7,7 +7,7 @@ module Wander.Lib.Network
 open Ligature.Main
 open Ligature.InMemoryStore
 
-let chompCombinator =
+let chompCommand =
     { Name = Symbol("chomp")
       Doc = "Merge the passed Network into named Network."
       Signature = [ LigatureType.Network; LigatureType.Symbol ], None
@@ -22,7 +22,7 @@ let chompCombinator =
                 failwith "TODO"
             | _ -> error "Bad call to chomp." None }
 
-let isConsistentCombinator =
+let isConsistentCommand =
     { Name = Symbol("is-consistent?")
       Doc = "Determine if a Network is consistent."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
@@ -38,7 +38,7 @@ let isConsistentCombinator =
             //| Error err -> error "Bad call to is-consistent." None
             | _ -> error "Bad call to is-consistent." None }
 
-let isCompleteCombinator =
+let isCompleteCommand =
     { Name = Symbol("is-complete?")
       Doc = "Determine if a Network is complete."
       Signature = [ LigatureType.Network ], Some LigatureType.Network
@@ -53,7 +53,7 @@ let isCompleteCombinator =
                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
             | _ -> error "Bad call to is-complete." None }
 
-let unionCombinator =
+let unionCommand =
     { Name = Symbol("union")
       Doc = "Find the union of two Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
@@ -65,7 +65,7 @@ let unionCombinator =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let countCombinator =
+let countCommand =
     { Name = Symbol("count")
       Doc = "Count the number of assertions in a Network."
       Signature = [ LigatureType.Symbol ], Some LigatureType.Symbol
@@ -78,7 +78,7 @@ let countCombinator =
             | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
-let minusCombinator =
+let minusCommand =
     { Name = Symbol("minus")
       Doc = "Remove all Statements from the first Network that are in the second Networks."
       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
@@ -131,12 +131,12 @@ let lookupNetwork () = failwith "TODO"
 //             )
 //         template
 
-// let applyCombinator: Combinator =
+// let applyCommand: Command =
 //     { Name = Symbol("apply")
 //       Doc = ""
 //       Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
 //       Eval =
-//         fun combinators networks arguments ->
+//         fun commands networks arguments ->
 //             match arguments with
 //             | [ WanderValue.Network(template); WanderValue.Quote(data) ] ->
 //                 List.map
@@ -149,7 +149,7 @@ let lookupNetwork () = failwith "TODO"
 //                 |> fun value -> Ok(Some(value))
 //             | _ -> failwith "TODO" }
 
-// let matchCombinator =
+// let matchCommand =
 //     { Name = Symbol("match")
 //       Doc = "args: pattern data, returns: quote of networks"
 //       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
@@ -161,32 +161,32 @@ let lookupNetwork () = failwith "TODO"
 //                 Ok(Some(res))
 //             | _ -> error "" None }
 
-// let queryCombinator =
+// let queryCommand =
 //     { Name = Symbol("query")
 //       Doc = "arguments: pattern template data, returns network"
 //       Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
 //       Eval =
-//         fun combinators networks arguments ->
+//         fun commands networks arguments ->
 //             let currentNetwork = currentNetwork networks
 
 //             match arguments with
 //             | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network data ] ->
 //                 match
-//                     matchCombinator.Eval combinators networks [ WanderValue.Network pattern; WanderValue.Network data ]
+//                     matchCommand.Eval commands networks [ WanderValue.Network pattern; WanderValue.Network data ]
 //                 with
 //                 | Ok(Some(WanderValue.Quote(res))) ->
-//                     applyCombinator.Eval combinators networks [ WanderValue.Network template; WanderValue.Quote res ]
+//                     applyCommand.Eval commands networks [ WanderValue.Network template; WanderValue.Quote res ]
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "TODO" }
 
-let networkCombinators: Map<Element, Command> =
+let networkCommands: Map<Element, Command> =
     (Map.ofList
-        [ //(applyCombinator.Name, applyCombinator)
-          (chompCombinator.Name, chompCombinator)
-          (countCombinator.Name, countCombinator)
-          //          (matchCombinator.Name, matchCombinator)
-          (minusCombinator.Name, minusCombinator)
-          //          (queryCombinator.Name, queryCombinator)
-          (unionCombinator.Name, unionCombinator)
-          (isCompleteCombinator.Name, isCompleteCombinator)
-          (isConsistentCombinator.Name, isConsistentCombinator) ])
+        [ //(applyCommand.Name, applyCommand)
+          (chompCommand.Name, chompCommand)
+          (countCommand.Name, countCommand)
+          //          (matchCommand.Name, matchCommand)
+          (minusCommand.Name, minusCommand)
+          //          (queryCommand.Name, queryCommand)
+          (unionCommand.Name, unionCommand)
+          (isCompleteCommand.Name, isCompleteCommand)
+          (isConsistentCommand.Name, isConsistentCommand) ])

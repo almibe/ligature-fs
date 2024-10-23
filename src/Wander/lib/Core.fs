@@ -6,7 +6,7 @@ module Wander.Lib.Core
 
 open Ligature.Main
 
-let idCombinator: Command =
+let idCommand: Command =
     { Name = Symbol("id")
       Doc = "Return the value passed."
       Signature = [ LigatureType.Any ], Some LigatureType.Any
@@ -16,7 +16,7 @@ let idCombinator: Command =
             | [ value ] -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
-let setCombinator: Command =
+let setCommand: Command =
     { Name = Symbol("set")
       Doc = "Set the value of a given Network."
       Signature = [ LigatureType.Symbol; LigatureType.Network ], None
@@ -28,7 +28,7 @@ let setCombinator: Command =
                 Ok(None)
             | _ -> failwith "TODO" }
 
-let readCombinator: Command =
+let readCommand: Command =
     { Name = Symbol("read")
       Doc = "Read the value of a given Network."
       Signature = [ LigatureType.Symbol ], Some LigatureType.Network
@@ -43,7 +43,7 @@ let readCombinator: Command =
             // | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
-let ignoreCombinator: Command =
+let ignoreCommand: Command =
     { Name = Symbol("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
       Signature = [ LigatureType.Any ], None
@@ -66,23 +66,23 @@ let printSignature ((arguments, result): LigatureType list * LigatureType option
 //         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
-let docsCombinator: Command =
+let docsCommand: Command =
     { Name = Symbol("docs")
-      Doc = "Create a network that contains documentation for the available combinators."
+      Doc = "Create a network that contains documentation for the available commands."
       Signature = [], Some(LigatureType.Network)
       Eval =
-        fun combinators networks _ ->
+        fun commands networks _ ->
             let mutable docs: Set<Entry> = Set.empty
 
-            Map.toList combinators
-            |> List.iter (fun (name, combinator) ->
-                let signature = printSignature combinator.Signature
+            Map.toList commands
+            |> List.iter (fun (name, command) ->
+                let signature = printSignature command.Signature
 
                 docs <-
                     Set.add
                         (Entry.Role
                             { first = name
-                              second = Symbol(combinator.Doc)
+                              second = Symbol(command.Doc)
                               role = Symbol("docString") })
                         docs
 
@@ -98,10 +98,10 @@ let docsCombinator: Command =
 
             Ok(Some(WanderValue.Network docs)) }
 
-let coreCombinators =
+let coreCommands =
     (Map.ofList
-        [ (docsCombinator.Name, docsCombinator)
-          (idCombinator.Name, idCombinator)
-          (ignoreCombinator.Name, ignoreCombinator)
-          (readCombinator.Name, readCombinator)
-          (setCombinator.Name, setCombinator) ])
+        [ (docsCommand.Name, docsCommand)
+          (idCommand.Name, idCommand)
+          (ignoreCommand.Name, ignoreCommand)
+          (readCommand.Name, readCommand)
+          (setCommand.Name, setCommand) ])

@@ -5,7 +5,7 @@
 open Ligature.Main
 open Fable.Core.JsInterop
 open Wander.Main
-open Wander.Combinators
+open Wander.Commands
 open Ligature.InMemoryStore
 
 let printNetwork (network: Network) : string = Wander.Model.printNetwork network
@@ -58,6 +58,6 @@ let valueToJS (value: WanderValue) =
     res
 
 let runScript (script: string) =
-    match run stdCombinators (emptyInMemoryStore ()) script with
+    match run stdCommands (emptyInMemoryStore ()) script with
     | Ok(Some(WanderValue.Network n)) -> networkToJS n
     | _ -> failwith "TODO"

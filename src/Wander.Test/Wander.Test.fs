@@ -177,7 +177,7 @@ let tests =
           //           ))
           //           ""
 
-          //   testCase "Run Id Combinator"
+          //   testCase "Run Id Command"
           //   <| fun _ ->
           //       let script = "{a b c} id"
           //       let result = run Set.empty script
@@ -192,7 +192,7 @@ let tests =
           //                      Identifier.Name(Name("c"))) ])
           //               ""
           //       | Error _ -> failwith "Error"
-          //   testCase "Run Clear Combinator"
+          //   testCase "Run Clear Command"
           //   <| fun _ ->
           //       let script = "{a b c} clear"
           //       let result = run stdState script
@@ -201,7 +201,7 @@ let tests =
           //       | Ok(name, networks) -> Expect.equal (currentNetwork (name, networks)) (Set.ofSeq []) ""
           //       | Error _ -> failwith "Error"
 
-          //   testCase "Run Union Combinator"
+          //   testCase "Run Union Command"
           //   <| fun _ ->
           //       let script =
           //           "@l { a b c } @r { d e f } @ { left = @l, right = @r, out = @result } union @result"
@@ -222,7 +222,7 @@ let tests =
           //               ""
           //       | Error _ -> failwith "Error"
 
-          //   testCase "Run Minus Combinator"
+          //   testCase "Run Minus Command"
           //   <| fun _ ->
           //       let script =
           //           "@l { a b c, d e f } @r { d e f, g h i } @ { left = @l, right = @r, out = @result } minus @result"
@@ -295,12 +295,12 @@ let tests =
           //       let script = "1 2 pop"
           //       let result = run script stdLib List.empty
           //       Expect.equal result (Ok([ WanderValue.Int(1I) ])) ""
-          //   testCase "Test apply combinator"
+          //   testCase "Test apply command"
           //   <| fun _ ->
           //       let script = "[1 2] apply"
           //       let result = run script stdLib List.empty
           //       Expect.equal result (Ok([ WanderValue.Int(2I); WanderValue.Int(1I) ])) ""
-          //   testCase "Test apply combinator with another combinator"
+          //   testCase "Test apply command with another command"
           //   <| fun _ ->
           //       let script = "[1 2 pop] apply"
           //       let result = run script stdLib List.empty

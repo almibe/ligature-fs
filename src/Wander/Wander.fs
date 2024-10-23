@@ -9,12 +9,12 @@ open Lexer
 open Ligature.Main
 open Interpreter
 
-let run (combinators: Combinators) (store: LigatureStore) (input: string) : Result<WanderValue option, LigatureError> =
+let run (commands: Commands) (store: LigatureStore) (input: string) : Result<WanderValue option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> express ast [] |> evalElements combinators store
+            | Ok ast -> express ast [] |> evalElements commands store
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
@@ -44,5 +44,5 @@ let introspect (input: string) =
           elements = Error(string err)
           expressions = Error(string err) }
 
-type WanderEngine(combinators: Combinators, store: LigatureStore) =
-    member _.Run(script) = run combinators store script
+type WanderEngine(commands: Commands, store: LigatureStore) =
+    member _.Run(script) = run commands store script

@@ -8,7 +8,7 @@ open Expecto
 open Ligature
 open FSharpPlus
 open Wander.Main
-open Wander.Combinators
+open Wander.Commands
 open Ligature.InMemoryStore
 
 let rec allFiles dirs =
@@ -35,7 +35,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCombinators (emptyInMemoryStore ()) script with
+                match run stdCommands (emptyInMemoryStore ()) script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

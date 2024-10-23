@@ -22,7 +22,7 @@ and [<RequireQualifiedAccessAttribute>] WanderElement =
 
 and Expression = WanderValue list
 
-and Combinators = Map<Element, Command>
+and Commands = Map<Element, Command>
 
 and Arguments = WanderValue list
 
@@ -36,7 +36,7 @@ and Command =
     { Name: Element
       Doc: string
       Signature: LigatureType list * LigatureType option
-      Eval: Combinators -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
+      Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
 and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Element
