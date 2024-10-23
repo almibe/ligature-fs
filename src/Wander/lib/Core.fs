@@ -5,6 +5,7 @@
 module Wander.Lib.Core
 
 open Ligature.Main
+open Wander.Model
 
 let idCommand: Command =
     { Name = Symbol("id")

@@ -11,6 +11,23 @@ open Ligature
 open Ligature.Main
 //open Ligature.LigatureStore.InMemoryStore
 
+type Command =
+    { Name: Element
+      Doc: string
+      Signature: LigatureType list * LigatureType option
+      Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
+
+and [<RequireQualifiedAccess>] WanderValue =
+    | Symbol of Element
+    | Call of WanderValue * WanderValue list
+    | Network of Network
+
+and Expression = Element * WanderValue list
+
+and Commands = Map<Element, Command>
+
+and Arguments = WanderValue list
+
 let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
@@ -23,7 +40,7 @@ let rec prettyPrint (value: WanderValue) : string =
     | WanderValue.Symbol(Symbol(value)) -> value
     // | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
     // | WanderValue.Slot(Slot(None)) -> "$"
-    | WanderValue.Expression values -> $"[{printExpression values}]" //TODO print names better
+    | WanderValue.Call(name, values) -> $"[{printExpression values}]" //TODO print names better
     | WanderValue.Network n -> printNetwork n
 
 and printNetwork (network: Set<Entry>) : string =
@@ -54,11 +71,10 @@ and printAssocArray values =
 and printEntry (entry: Entry) : string =
     match entry with
     | Entry.Extension concept -> $"{concept.element} : {concept.concept}"
-    | Entry.NonExtension nc -> $"{nc.element} :¬ {nc.concept}"
+    | Entry.NonExtension nc -> $"{nc.element} ¬: {nc.concept}"
     | Entry.Role role -> $"{role.first} {role.role} {role.second}"
 
-//TODO might not be correct
-and printExpression expression =
-    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
+and printExpression expression = failwith "TODO"
+//    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
 
 //type Scope = Map<string, Pattern>

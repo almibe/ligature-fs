@@ -6,6 +6,7 @@ module Wander.Lib.Assert
 
 open Ligature.Main
 open Wander.Interpreter
+open Wander.Model
 
 let assertEqualCommand: Command =
     { Name = Symbol "assert-equal"
@@ -17,8 +18,8 @@ let assertEqualCommand: Command =
             | [ first; second ] ->
                 let first =
                     match first with
-                    | WanderValue.Expression e ->
-                        match evalExpression commands networks e with
+                    | WanderValue.Call(WanderValue.Symbol(n), e) ->
+                        match evalExpression commands networks (n, e) with
                         | Ok(Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
@@ -26,8 +27,8 @@ let assertEqualCommand: Command =
 
                 let second =
                     match second with
-                    | WanderValue.Expression e ->
-                        match evalExpression commands networks e with
+                    | WanderValue.Call(WanderValue.Symbol(n), e) ->
+                        match evalExpression commands networks (n, e) with
                         | Ok(Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
@@ -41,5 +42,4 @@ let assertEqualCommand: Command =
                         None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
-let assertCommands =
-    Map.ofList [ (assertEqualCommand.Name, (assertEqualCommand)) ]
+let assertCommands = Map.ofList [ (assertEqualCommand.Name, (assertEqualCommand)) ]

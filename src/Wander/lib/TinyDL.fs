@@ -6,6 +6,7 @@ module Wander.Lib.TinyDL
 
 open Ligature.Main
 open TinyDL.Model
+open Wander.Model
 
 let inferCommand: Command =
     { Name = Symbol("infer")

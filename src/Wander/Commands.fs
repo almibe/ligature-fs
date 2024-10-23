@@ -8,7 +8,7 @@ open FSharpPlus
 
 let stdCommands =
     Wander.Lib.Core.coreCommands
-    |> Map.union Wander.Lib.Assert.assertCommands
-    |> Map.union Wander.Lib.Bool.boolLib
-    |> Map.union Wander.Lib.Network.networkCommands
-    |> Map.union Wander.Lib.TinyDL.tinyDLCommands
+    // |> Map.union Wander.Lib.Assert.assertCommands
+    // |> Map.union Wander.Lib.Bool.boolLib
+    // |> Map.union Wander.Lib.Network.networkCommands
+    // |> Map.union Wander.Lib.TinyDL.tinyDLCommands

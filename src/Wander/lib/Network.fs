@@ -6,6 +6,7 @@ module Wander.Lib.Network
 
 open Ligature.Main
 open Ligature.InMemoryStore
+open Wander.Model
 
 let chompCommand =
     { Name = Symbol("chomp")

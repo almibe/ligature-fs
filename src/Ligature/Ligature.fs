@@ -16,15 +16,6 @@ let error userMessage debugMessage =
 
 type Element = Symbol of string
 
-and [<RequireQualifiedAccessAttribute>] WanderElement =
-    | Expression of Expression
-    | Network of NetworkName * Network
-
-and Expression = WanderValue list
-
-and Commands = Map<Element, Command>
-
-and Arguments = WanderValue list
 
 and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Symbol
@@ -32,16 +23,6 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Expression
     | Any
 
-and Command =
-    { Name: Element
-      Doc: string
-      Signature: LigatureType list * LigatureType option
-      Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
-
-and [<RequireQualifiedAccess>] WanderValue =
-    | Symbol of Element
-    | Expression of Expression
-    | Network of Network
 
 and ConceptName = Element
 
@@ -122,6 +103,5 @@ and [<RequireQualifiedAccess>] Slot =
 
 // let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
 //     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
-
 
 let printSymbol (Symbol(symbol)) : string = symbol

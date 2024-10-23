@@ -52,7 +52,7 @@ let valueToJS (value: WanderValue) =
 
     match value with
     | WanderValue.Symbol(Symbol(id)) -> res?symbol <- id
-    | WanderValue.Expression e -> failwith "TODO"
+    | WanderValue.Call e -> failwith "TODO"
     | WanderValue.Network n -> res?network <- (networkToJS n)
 
     res

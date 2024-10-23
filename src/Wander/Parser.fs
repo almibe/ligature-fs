@@ -8,6 +8,7 @@ open Lexer
 open FsToolkit.ErrorHandling
 open Nibblers
 open Ligature.Main
+open Model
 
 // let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
 //     Gaze.attempt
@@ -52,9 +53,10 @@ let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! name = Gaze.attempt atomicValueNib gaze
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return WanderValue.Expression(values)
+        return WanderValue.Call(name, values)
     }
 
 // let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * Identifier), Gaze.GazeError> =
@@ -95,7 +97,6 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
-    //    | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -115,12 +116,19 @@ let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
     match next with
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
-    // | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib: Gaze.Nibbler<Token, WanderValue> =
     takeFirst [ expressionNib; atomicValueNib; networkNib ]
+
+let commandNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+    result {
+        let! name = Gaze.attempt atomicValueNib gaze
+        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
+        let! _ = Gaze.attempt (take Token.Comma) gaze
+        return WanderValue.Call(name, values)
+    }
 
 // let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
 //     let next = Gaze.next gaze
@@ -156,7 +164,7 @@ let valueNib: Gaze.Nibbler<Token, WanderValue> =
 
 let elementNib = takeFirst [ expressionNib; networkNib ]
 
-let scriptNib = repeat valueNib
+let scriptNib = repeat commandNib
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -242,15 +250,15 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
               second = value
               role = attribute }
 
-let expressExpression (elements: WanderValue list) : WanderElement =
-    //    let res = List.map (fun element -> elementToValue element) elements
-    WanderElement.Expression elements
+//let expressExpression (elements: WanderValue list) : WanderElement = failwith "TODO"
+//    let res = List.map (fun element -> elementToValue element) elements
+//WanderElement.Expression elements
 
-let rec express (elements: WanderValue list) (expressions: WanderElement list) : WanderElement list =
-    match elements with
-    | [] -> expressions
-    | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
-        express tail (List.append expressions [ WanderElement.Network(name, network) ])
-    | WanderValue.Expression e :: tail -> express tail (List.append expressions [ expressExpression e ])
-    //| WanderValue. .NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
-    | _ -> failwith "Error - unexpected token."
+// let rec express (elements: WanderValue list) (expressions: WanderElement list) : WanderElement list =
+//     match elements with
+//     | [] -> expressions
+//     | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
+//         express tail (List.append expressions [ WanderElement.Network(name, network) ])
+//     | WanderValue.Call(n, e) :: tail -> express tail (List.append expressions [ expressExpression e ])
+//     //| WanderValue. .NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
+//     | _ -> failwith "Error - unexpected token."
