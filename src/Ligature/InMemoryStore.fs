@@ -26,7 +26,7 @@ let isComplete (entries: Set<Entry>) : bool =
         entries
 
 let isConsistent (network: Network) : bool =
-    let mutable individuals: Map<Element, Set<Entry>> = Map.empty
+    let mutable individuals: Map<Symbol, Set<Entry>> = Map.empty
 
     Set.fold
         (fun state (entry: Entry) ->
@@ -114,7 +114,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
             | true, entries -> Set.fold (fun state value -> state) Set.empty entries
             | false, _ -> failwith "Not Implemented"
 
-        member _.AllExtentions (networkName: NetworkName) (conceptName: ConceptName) : Set<Element> =
+        member _.AllExtentions (networkName: NetworkName) (conceptName: ConceptName) : Set<Symbol> =
             match store.TryGetValue(networkName) with
             | true, entries ->
                 Set.fold
@@ -164,7 +164,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
             | true, entries -> isConsistent entries
             | false, _ -> failwith "Not Implemented"
 
-        member _.Find (networkName: NetworkName) (terms: Set<QueryTerm>) : Set<Map<Variable, Element>> =
+        member _.Find (networkName: NetworkName) (terms: Set<QueryTerm>) : Set<Map<Variable, Symbol>> =
             failwith "Not Implemented"
 
 let emptyInMemoryStore () : LigatureStore =

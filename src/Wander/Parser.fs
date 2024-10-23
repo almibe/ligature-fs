@@ -4,7 +4,7 @@
 
 module rec Wander.Parser
 
-open Lexer
+open Tokenizer
 open FsToolkit.ErrorHandling
 open Nibblers
 open Ligature.Main
@@ -53,7 +53,7 @@ let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! name = Gaze.attempt atomicValueNib gaze
+        let! name = Gaze.attempt symbolNib gaze
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
         return WanderValue.Call(name, values)
@@ -79,7 +79,7 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * 
     let value =
         match Gaze.check valueNib gaze with
         | Ok(_) -> valueNib gaze
-        | Error(_) -> failwith "TODO"
+        | Error(_) -> Error Gaze.GazeError.NoMatch
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -100,34 +100,32 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
     | Ok(Token.Symbol(value)) -> Ok(value)
-    // | Ok(Token.Slot(value)) -> Ok(WanderValue.Slot(value))
     | Ok(Token.StringLiteral(value)) -> Ok(Symbol value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let atomicValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
+    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol value)
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib: Gaze.Nibbler<Token, WanderValue> =
-    takeFirst [ expressionNib; atomicValueNib; networkNib ]
+    takeFirst [ expressionNib; symbolValueNib; networkNib ]
 
-let commandNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
     result {
-        let! name = Gaze.attempt atomicValueNib gaze
+        let! name = Gaze.attempt symbolNib gaze
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
-        let! _ = Gaze.attempt (take Token.Comma) gaze
-        return WanderValue.Call(name, values)
+        return Call(name, values)
     }
 
 // let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
@@ -164,12 +162,12 @@ let commandNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
 
 let elementNib = takeFirst [ expressionNib; networkNib ]
 
-let scriptNib = repeat commandNib
+let scriptNib = repeatSep callNib Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list) : Result<WanderValue list, LigatureError> =
+let parse (tokens: Token list) : Result<Call list, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -187,6 +185,7 @@ let parse (tokens: Token list) : Result<WanderValue list, LigatureError> =
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
+                //failwith "TODO"
                 Ok res
             else
                 error $"Failed to parse completely. {Gaze.remaining gaze}" None
@@ -197,24 +196,6 @@ let parseString (input: string) =
     match tokenize input with
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
-
-// let elementToValue (element: Identifier) : Identifier =
-//     match element with
-//     | Identifier.Int i -> Identifier.Int i
-//     | Identifier.Bytes b -> Identifier.Bytes b
-//     | Identifier.Network n -> Identifier.Network(handleNetwork n)
-//     | Identifier.Quote p -> handleQuote p
-//     | Identifier.Expression e -> handleExpression e
-//     | Identifier.Slot s -> Identifier.Slot s
-//     | Identifier.String s -> Identifier.String s
-//     | Identifier.Name n -> Identifier.Name(Name n)
-
-// let handleQuote (quote: Identifier list) : Identifier =
-//     List.map (fun element -> elementToValue element) quote |> Identifier.Quote
-
-// let handleExpression (expression: Identifier list) : Identifier =
-//     List.map (fun element -> elementToValue element) expression
-//     |> Identifier.Expression
 
 let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lib.TinyDL
+module Wander.Commands.TinyDL
 
 open Ligature.Main
 open TinyDL.Model
@@ -11,7 +11,7 @@ open Wander.Model
 let inferCommand: Command =
     { Name = Symbol("infer")
       Doc = "Use the ."
-      Signature = [ LigatureType.Network; LigatureType.Network ], None
+      Signature = [ WanderType.Network; WanderType.Network ], None
       Eval =
         fun _ store arguments ->
             match arguments with
@@ -25,7 +25,7 @@ let inferCommand: Command =
 let parseCommand: Command =
     { Name = Symbol "tiny-dl.parse"
       Doc = "Parse tiny-dl script into a Network."
-      Signature = [ LigatureType.Symbol ], None
+      Signature = [ WanderType.Symbol ], None
       Eval =
         fun _ store arguments ->
             match arguments with

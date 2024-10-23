@@ -7,19 +7,19 @@
 
   <ItemGroup>
     <Compile Include="Model.fs" />
-    <Compile Include="Lexer.fs" />
+    <Compile Include="Tokenizer.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="Wander.fs" />
-    <Compile Include="lib/Bool.fs" />
-    <Compile Include="lib/Core.fs" />
-    <Compile Include="lib/Network.fs" />
-    <Compile Include="lib/TinyDL.fs" />
-    <Compile Include="lib/DateTime.fs" />
-    <Compile Include="lib/Store.fs" />
-    <Compile Include="lib/Ulid.fs" />
-    <Compile Include="lib/Wander.fs" />
-    <Compile Include="lib/Assert.fs" />
+    <Compile Include="commands/Bool.fs" />
+    <Compile Include="commands/Core.fs" />
+    <Compile Include="commands/Network.fs" />
+    <Compile Include="commands/TinyDL.fs" />
+    <Compile Include="commands/DateTime.fs" />
+    <Compile Include="commands/Store.fs" />
+    <Compile Include="commands/Ulid.fs" />
+    <Compile Include="commands/Wander.fs" />
+    <Compile Include="commands/Assert.fs" />
     <Compile Include="Commands.fs" />
   </ItemGroup>
 

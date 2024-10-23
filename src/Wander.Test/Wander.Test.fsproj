@@ -10,7 +10,7 @@
     <Compile Include="WanderTestSuiteMain.fs" />
     <Compile Include="Wander.Test.fs" />
     <Compile Include="Encoding.Test.fs" />
-    <Compile Include="Lexer.Test.fs" />
+    <Compile Include="Tokenizer.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

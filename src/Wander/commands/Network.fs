@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lib.Network
+module Wander.Commands.Network
 
 open Ligature.Main
 open Ligature.InMemoryStore
@@ -11,7 +11,7 @@ open Wander.Model
 let chompCommand =
     { Name = Symbol("chomp")
       Doc = "Merge the passed Network into named Network."
-      Signature = [ LigatureType.Network; LigatureType.Symbol ], None
+      Signature = [ WanderType.Network; WanderType.Symbol ], None
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
@@ -26,7 +26,7 @@ let chompCommand =
 let isConsistentCommand =
     { Name = Symbol("is-consistent?")
       Doc = "Determine if a Network is consistent."
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+      Signature = [ WanderType.Network; WanderType.Network ], Some WanderType.Network
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
@@ -42,7 +42,7 @@ let isConsistentCommand =
 let isCompleteCommand =
     { Name = Symbol("is-complete?")
       Doc = "Determine if a Network is complete."
-      Signature = [ LigatureType.Network ], Some LigatureType.Network
+      Signature = [ WanderType.Network ], Some WanderType.Network
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
@@ -57,7 +57,7 @@ let isCompleteCommand =
 let unionCommand =
     { Name = Symbol("union")
       Doc = "Find the union of two Networks."
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+      Signature = [ WanderType.Network; WanderType.Network ], Some WanderType.Network
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
@@ -69,7 +69,7 @@ let unionCommand =
 let countCommand =
     { Name = Symbol("count")
       Doc = "Count the number of assertions in a Network."
-      Signature = [ LigatureType.Symbol ], Some LigatureType.Symbol
+      Signature = [ WanderType.Symbol ], Some WanderType.Symbol
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
@@ -82,7 +82,7 @@ let countCommand =
 let minusCommand =
     { Name = Symbol("minus")
       Doc = "Remove all Statements from the first Network that are in the second Networks."
-      Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
+      Signature = [ WanderType.Network; WanderType.Network ], Some WanderType.Network
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
@@ -180,7 +180,7 @@ let lookupNetwork () = failwith "TODO"
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "TODO" }
 
-let networkCommands: Map<Element, Command> =
+let networkCommands: Map<Symbol, Command> =
     (Map.ofList
         [ //(applyCommand.Name, applyCommand)
           (chompCommand.Name, chompCommand)

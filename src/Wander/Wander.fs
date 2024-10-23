@@ -5,7 +5,7 @@
 module Wander.Main
 
 open Parser
-open Lexer
+open Tokenizer
 open Ligature.Main
 open Interpreter
 open Wander.Model
@@ -15,7 +15,7 @@ let run (commands: Commands) (store: LigatureStore) (input: string) : Result<Wan
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok ast -> failwith "TODO" //express ast [] |> evalElements commands store
+            | Ok calls -> evalCalls commands store calls
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

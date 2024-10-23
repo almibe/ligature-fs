@@ -7,10 +7,12 @@ open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
 open Ligature.InMemoryStore
+open Wander.Model
+open Wander.Lib
 
 let printNetwork (network: Network) : string = Wander.Model.printNetwork network
 
-let symbolToJS (Symbol(symbol): Element) =
+let symbolToJS (Symbol(symbol): Symbol) =
     let res = createEmpty
     res?symbol <- symbol
     res

@@ -8,9 +8,9 @@ open Ligature.Main
 
 type TinyDLError = string
 
-type AtomicConcept = Element
+type AtomicConcept = Symbol
 
-type Role = Element
+type Role = Symbol
 
 and ConceptExpression =
     | AtomicConcept of AtomicConcept

@@ -12,19 +12,25 @@ open Ligature.Main
 //open Ligature.LigatureStore.InMemoryStore
 
 type Command =
-    { Name: Element
+    { Name: Symbol
       Doc: string
-      Signature: LigatureType list * LigatureType option
+      Signature: WanderType list * WanderType option
       Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
+and [<RequireQualifiedAccessAttribute>] WanderType =
+    | Symbol
+    | Call
+    | Network
+    | Any
+
 and [<RequireQualifiedAccess>] WanderValue =
-    | Symbol of Element
-    | Call of WanderValue * WanderValue list
+    | Symbol of Symbol
+    | Call of Call
     | Network of Network
 
-and Expression = Element * WanderValue list
+and Call = Symbol * WanderValue list
 
-and Commands = Map<Element, Command>
+and Commands = Map<Symbol, Command>
 
 and Arguments = WanderValue list
 

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lexer
+module Wander.Tokenizer
 
 open Ligature.Main
 
@@ -54,7 +54,7 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Symbol of Element
+    | Symbol of Symbol
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -63,6 +63,7 @@ type Token =
     | OpenParen
     | CloseParen
     | Comma
+    | Comment of string
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -79,7 +80,10 @@ let nameNibbler =
               (Nibblers.takeInRange
                   [ ('a', 'z')
                     ('A', 'Z')
+                    ('0', '9')
+                    ('-', '-')
                     ('?', '?')
+                    ('¬', '¬')
                     ('$', '$')
                     ('_', '_')
                     ('=', '=')

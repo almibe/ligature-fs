@@ -2,7 +2,7 @@
 // // License, v. 2.0. If a copy of the MPL was not distributed with this
 // // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lib.Bool
+module Wander.Commands.Bool
 
 open Wander.Model
 open Ligature.Main
@@ -10,7 +10,7 @@ open Ligature.Main
 let notFunction =
     { Name = Symbol("Bool.not")
       Doc = "Boolean not"
-      Signature = [ LigatureType.Symbol ], Some(LigatureType.Symbol)
+      Signature = [ WanderType.Symbol ], Some(WanderType.Symbol)
       Eval =
         (fun _ _ args ->
             match args with

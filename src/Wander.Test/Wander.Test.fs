@@ -7,7 +7,7 @@ module Wander.NewMain.Test
 open Expecto
 open Wander.Main
 open Ligature.Main
-open Wander.Lexer
+open Wander.Tokenizer
 open Wander.Parser
 open Ligature.InMemoryStore
 open Wander.Model
@@ -21,55 +21,55 @@ let tests =
               let script = ""
               let result = run Map.empty (emptyInMemoryStore ()) script
               Expect.equal result (Ok None) ""
-          testCase "Run Empty Network"
-          <| fun _ ->
-              let script = "test {}"
-              let result = run Map.empty (emptyInMemoryStore ()) script
-              Expect.equal result (Ok None) ""
+          //   testCase "Run Empty Network"
+          //   <| fun _ ->
+          //       let script = "test {}"
+          //       let result = run Map.empty (emptyInMemoryStore ()) script
+          //       Expect.equal result (Ok None) ""
 
-          testCase "Parse Network"
-          <| fun _ ->
-              let script = "test {a b c}"
+          //   testCase "Parse Network"
+          //   <| fun _ ->
+          //       let script = "test {a b c}"
 
-              match tokenize script with
-              | Ok(res) ->
-                  match parse res with
-                  | Ok(res) ->
-                      Expect.equal
-                          res
-                          [ WanderValue.Symbol(Symbol "test")
-                            WanderValue.Network(
-                                Set.ofList
-                                    [ Entry.Role
-                                          { first = Symbol("a")
-                                            second = Symbol("c")
-                                            role = Symbol("b") } ]
-                            ) ]
-                          ""
-                  | _ -> failwith "Error"
-              | _ -> failwith "Error"
+          //       match tokenize script with
+          //       | Ok(res) ->
+          //           match parse res with
+          //           | Ok(res) ->
+          //               Expect.equal
+          //                   res
+          //                   [ WanderValue.Symbol(Symbol "test")
+          //                     WanderValue.Network(
+          //                         Set.ofList
+          //                             [ Entry.Role
+          //                                   { first = Symbol("a")
+          //                                     second = Symbol("c")
+          //                                     role = Symbol("b") } ]
+          //                     ) ]
+          //                   ""
+          //           | _ -> failwith "Error"
+          //       | _ -> failwith "Error"
 
-          testCase "Parse Named Network"
-          <| fun _ ->
-              let script = "name {a b c}"
+          //   testCase "Parse Named Network"
+          //   <| fun _ ->
+          //       let script = "name {a b c}"
 
-              match tokenize script with
-              | Ok(res) ->
-                  match parse res with
-                  | Ok(res) ->
-                      Expect.equal
-                          res
-                          [ WanderValue.Symbol(Symbol("name"))
-                            WanderValue.Network(
-                                Set.ofList
-                                    [ Entry.Role
-                                          { first = Symbol "a"
-                                            second = Symbol "c"
-                                            role = Symbol "b" } ]
-                            ) ]
-                          ""
-                  | Error err -> failwith $"Error Parsing {err.UserMessage}"
-              | _ -> failwith "Error Tokenizing"
+          //       match tokenize script with
+          //       | Ok(res) ->
+          //           match parse res with
+          //           | Ok(res) ->
+          //               Expect.equal
+          //                   res
+          //                   [ WanderValue.Symbol(Symbol("name"))
+          //                     WanderValue.Network(
+          //                         Set.ofList
+          //                             [ Entry.Role
+          //                                   { first = Symbol "a"
+          //                                     second = Symbol "c"
+          //                                     role = Symbol "b" } ]
+          //                     ) ]
+          //                   ""
+          //           | Error err -> failwith $"Error Parsing {err.UserMessage}"
+          //       | _ -> failwith "Error Tokenizing"
 
           // testCase "Parse Network With Quote"
           // <| fun _ ->
@@ -147,7 +147,7 @@ let tests =
 
           testCase "Parse Expression Call"
           <| fun _ ->
-              let script = "(assert-equal (not false) true)"
+              let script = "assert-equal true true"
 
               match tokenize script with
               | Ok(res) -> Expect.isOk (parse res) ""

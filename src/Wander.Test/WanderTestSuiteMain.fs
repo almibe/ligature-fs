@@ -5,10 +5,9 @@
 module Wander.TestSuite
 
 open Expecto
-open Ligature
 open FSharpPlus
 open Wander.Main
-open Wander.Commands
+open Lib
 open Ligature.InMemoryStore
 
 let rec allFiles dirs =

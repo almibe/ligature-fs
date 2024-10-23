@@ -10,7 +10,7 @@ open TinyDL.Tokenizer
 [<Tests>]
 let tests =
     testList
-        "Lexer Tests"
+        "Tokenizer Tests"
         [ testCase "Tokenize empty script"
           <| fun _ -> Expect.equal (tokenize "") (Ok []) ""
           testCase "Tokenize Names"

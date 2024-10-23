@@ -14,31 +14,25 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Element = Symbol of string
+type Symbol = Symbol of string
 
+and Element = Symbol
 
-and [<RequireQualifiedAccessAttribute>] LigatureType =
-    | Symbol
-    | Network
-    | Expression
-    | Any
+and ConceptName = Symbol
 
-
-and ConceptName = Element
-
-and RoleName = Element
+and RoleName = Symbol
 
 and Extension =
-    { element: Element
+    { element: Symbol
       concept: ConceptName }
 
 and NonExtension =
-    { element: Element
+    { element: Symbol
       concept: ConceptName }
 
 and Role =
-    { first: Element
-      second: Element
+    { first: Symbol
+      second: Symbol
       role: RoleName }
 
 and [<RequireQualifiedAccess>] Entry =
@@ -57,9 +51,9 @@ and LigatureStore =
     abstract IsComplete: NetworkName -> bool
     abstract AllConcepts: NetworkName -> Set<ConceptName>
     abstract AllRoles: NetworkName -> Set<RoleName>
-    abstract AllExtentions: NetworkName -> ConceptName -> Set<Element>
+    abstract AllExtentions: NetworkName -> ConceptName -> Set<Symbol>
     abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
-    abstract Find: NetworkName -> Set<QueryTerm> -> Set<Map<Variable, Element>>
+    abstract Find: NetworkName -> Set<QueryTerm> -> Set<Map<Variable, Symbol>>
 
     abstract AddNetwork: NetworkName -> unit
     abstract RemoveNetwork: NetworkName -> unit
@@ -83,7 +77,7 @@ and [<RequireQualifiedAccess>] RoleNameSlot =
     | Variable of string
 
 and [<RequireQualifiedAccess>] Slot =
-    | Element of Element
+    | Element of Symbol
     | Variable of string
 
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Lib.Core
+module Wander.Commands.Core
 
 open Ligature.Main
 open Wander.Model
@@ -10,7 +10,7 @@ open Wander.Model
 let idCommand: Command =
     { Name = Symbol("id")
       Doc = "Return the value passed."
-      Signature = [ LigatureType.Any ], Some LigatureType.Any
+      Signature = [ WanderType.Any ], Some WanderType.Any
       Eval =
         fun _ _ arguments ->
             match arguments with
@@ -20,7 +20,7 @@ let idCommand: Command =
 let setCommand: Command =
     { Name = Symbol("set")
       Doc = "Set the value of a given Network."
-      Signature = [ LigatureType.Symbol; LigatureType.Network ], None
+      Signature = [ WanderType.Symbol; WanderType.Network ], None
       Eval =
         fun _ store arguments ->
             match arguments with
@@ -32,7 +32,7 @@ let setCommand: Command =
 let readCommand: Command =
     { Name = Symbol("read")
       Doc = "Read the value of a given Network."
-      Signature = [ LigatureType.Symbol ], Some LigatureType.Network
+      Signature = [ WanderType.Symbol ], Some WanderType.Network
       Eval =
         fun _ store arguments ->
             match arguments with
@@ -47,10 +47,10 @@ let readCommand: Command =
 let ignoreCommand: Command =
     { Name = Symbol("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
-      Signature = [ LigatureType.Any ], None
+      Signature = [ WanderType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
-let printSignature ((arguments, result): LigatureType list * LigatureType option) : Element =
+let printSignature ((arguments, result): WanderType list * WanderType option) : Symbol =
     Symbol($"{arguments} -> {result}")
 // List.map
 //     (fun t ->
@@ -70,7 +70,7 @@ let printSignature ((arguments, result): LigatureType list * LigatureType option
 let docsCommand: Command =
     { Name = Symbol("docs")
       Doc = "Create a network that contains documentation for the available commands."
-      Signature = [], Some(LigatureType.Network)
+      Signature = [], Some(WanderType.Network)
       Eval =
         fun commands networks _ ->
             let mutable docs: Set<Entry> = Set.empty
