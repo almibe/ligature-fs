@@ -6,7 +6,7 @@ module Wander.Lib.Core
 
 open Ligature.Main
 
-let idCombinator: Combinator =
+let idCombinator: Command =
     { Name = Symbol("id")
       Doc = "Return the value passed."
       Signature = [ LigatureType.Any ], Some LigatureType.Any
@@ -16,7 +16,7 @@ let idCombinator: Combinator =
             | [ value ] -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
-let setCombinator: Combinator =
+let setCombinator: Command =
     { Name = Symbol("set")
       Doc = "Set the value of a given Network."
       Signature = [ LigatureType.Symbol; LigatureType.Network ], None
@@ -28,7 +28,7 @@ let setCombinator: Combinator =
                 Ok(None)
             | _ -> failwith "TODO" }
 
-let readCombinator: Combinator =
+let readCombinator: Command =
     { Name = Symbol("read")
       Doc = "Read the value of a given Network."
       Signature = [ LigatureType.Symbol ], Some LigatureType.Network
@@ -43,7 +43,7 @@ let readCombinator: Combinator =
             // | _ -> failwith "TODO"
             | _ -> failwith "TODO" }
 
-let ignoreCombinator: Combinator =
+let ignoreCombinator: Command =
     { Name = Symbol("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
       Signature = [ LigatureType.Any ], None
@@ -66,7 +66,7 @@ let printSignature ((arguments, result): LigatureType list * LigatureType option
 //         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
-let docsCombinator: Combinator =
+let docsCombinator: Command =
     { Name = Symbol("docs")
       Doc = "Create a network that contains documentation for the available combinators."
       Signature = [], Some(LigatureType.Network)

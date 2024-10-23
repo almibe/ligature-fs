@@ -22,7 +22,7 @@ and [<RequireQualifiedAccessAttribute>] WanderElement =
 
 and Expression = WanderValue list
 
-and Combinators = Map<Element, Combinator>
+and Combinators = Map<Element, Command>
 
 and Arguments = WanderValue list
 
@@ -32,7 +32,7 @@ and [<RequireQualifiedAccessAttribute>] LigatureType =
     | Expression
     | Any
 
-and Combinator =
+and Command =
     { Name: Element
       Doc: string
       Signature: LigatureType list * LigatureType option

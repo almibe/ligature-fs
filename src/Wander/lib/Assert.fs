@@ -7,7 +7,7 @@ module Wander.Lib.Assert
 open Ligature.Main
 open Wander.Interpreter
 
-let assertEqualCombinator: Combinator =
+let assertEqualCombinator: Command =
     { Name = Symbol "assert-equal"
       Doc = "Check that two values are equal."
       Signature = [ LigatureType.Any; LigatureType.Any ], None

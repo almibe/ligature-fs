@@ -179,7 +179,7 @@ let lookupNetwork () = failwith "TODO"
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "TODO" }
 
-let networkCombinators: Map<Element, Combinator> =
+let networkCombinators: Map<Element, Command> =
     (Map.ofList
         [ //(applyCombinator.Name, applyCombinator)
           (chompCombinator.Name, chompCombinator)

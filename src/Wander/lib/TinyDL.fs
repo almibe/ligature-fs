@@ -7,7 +7,7 @@ module Wander.Lib.TinyDL
 open Ligature.Main
 open TinyDL.Model
 
-let inferCombinator: Combinator =
+let inferCombinator: Command =
     { Name = Symbol("infer")
       Doc = "Use the ."
       Signature = [ LigatureType.Network; LigatureType.Network ], None
@@ -21,7 +21,7 @@ let inferCombinator: Combinator =
                 | _ -> error "Unexpected return value from infer." None
             | _ -> error "Improper call to infer." None }
 
-let parseCombinator: Combinator =
+let parseCombinator: Command =
     { Name = Symbol "tiny-dl.parse"
       Doc = "Parse tiny-dl script into a Network."
       Signature = [ LigatureType.Symbol ], None
