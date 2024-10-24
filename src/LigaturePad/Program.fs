@@ -17,6 +17,7 @@ module Main =
     open Ligature.InMemoryStore
     open Wander.Commands
     open Wander.Main
+    open Wander.Lib
 
     let view () =
         Component(fun ctx ->
