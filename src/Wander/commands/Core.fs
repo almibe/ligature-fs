@@ -6,6 +6,7 @@ module Wander.Commands.Core
 
 open Ligature.Main
 open Wander.Model
+open Wander.Interpreter
 
 let idCommand: Command =
     { Name = Symbol("id")
@@ -22,8 +23,8 @@ let setCommand: Command =
       Doc = "Set the value of a given Network."
       Signature = [ WanderType.Symbol; WanderType.Network ], None
       Eval =
-        fun _ store arguments ->
-            match arguments with
+        fun commands store arguments ->
+            match processArguments commands store arguments with
             | [ WanderValue.Symbol(Symbol(name)); WanderValue.Network(value) ] ->
                 store.Set name value |> ignore
                 Ok(None)

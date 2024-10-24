@@ -23,11 +23,9 @@ let rec evalSymbol
     (arguments: WanderValue list)
     (Symbol(name))
     : Result<WanderValue option, LigatureError> =
-    let newArguments = processArguments commands networks arguments
-
-    match commands.TryFind(Symbol(name)) with
-    | Some(command) -> command.Eval commands networks newArguments
-    | None -> error $"Could not find name {name}" None
+        match commands.TryFind(Symbol(name)) with
+        | Some(command) -> command.Eval commands networks arguments
+        | None -> error $"Could not find name {name}" None
 
 and processArguments commands networks (arguments: WanderValue list) : WanderValue list =
     List.map
