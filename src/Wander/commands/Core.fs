@@ -18,9 +18,9 @@ let idCommand: Command =
             | [ value ] -> Ok(Some(value))
             | _ -> failwith "TODO" }
 
-let setCommand: Command =
-    { Name = Symbol("set")
-      Doc = "Set the value of a given Network."
+let letCommand: Command =
+    { Name = Symbol("let")
+      Doc = "Set the value of a given named network."
       Signature = [ WanderType.Symbol; WanderType.Network ], None
       Eval =
         fun commands store arguments ->
@@ -32,7 +32,7 @@ let setCommand: Command =
 
 let readCommand: Command =
     { Name = Symbol("read")
-      Doc = "Read the value of a given Network."
+      Doc = "Read the value of a given network."
       Signature = [ WanderType.Symbol ], Some WanderType.Network
       Eval =
         fun _ store arguments ->
@@ -106,4 +106,4 @@ let coreCommands =
           (idCommand.Name, idCommand)
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
-          (setCommand.Name, setCommand) ])
+          (letCommand.Name, letCommand) ])
