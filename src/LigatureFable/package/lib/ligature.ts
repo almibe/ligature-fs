@@ -1,4 +1,4 @@
-import { newInMemoryEngine, runScript } from "../../output/LigatureFable.js"
+import { runScript } from "../../output/LigatureFable.js"
 import { Set, Record } from "immutable"
 
 export interface Symbol {
@@ -48,10 +48,6 @@ export type Entry = Extension | NonExtension | Role
 
 export type Network = Set<Entry>
 
-export function newEngine() {
-    return newInMemoryEngine()
-}
-
-export function run(script: string): Entry[] {
+export function run(script: string): Map<string, Entry[]> {
     return runScript(script)
 }

@@ -60,6 +60,15 @@ let valueToJS (value: WanderValue) =
     res
 
 let runScript (script: string) =
-    match run stdCommands (emptyInMemoryStore ()) script with
-    | Ok(Some(WanderValue.Network n)) -> networkToJS n
+    let store = emptyInMemoryStore ()
+    match run stdCommands store script with
+    | Ok _ ->
+        let res = createEmpty
+        Set.iter
+            (fun network ->
+                let networkInJS = store.Read network |> networkToJS
+                res?(network) <- networkInJS)
+            (store.Networks ())
+        res
     | _ -> failwith "TODO"
+ 

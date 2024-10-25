@@ -1,4 +1,4 @@
-import { newEngine } from "./lib/ligature.js"
+import { run } from "./lib/ligature.js"
 // import { glob } from "glob"
 // import fs from 'node:fs'
 import { expect, test } from 'vitest'
@@ -16,45 +16,17 @@ import { expect, test } from 'vitest'
 //     })
 // }
 
-test("Empty Network", () => {
-    let engine = newEngine()
-    expect(engine.run("test {}")).toEqual({})
-})
-
-test("Eval Networks", () => {
-    let engine = newEngine()
-    expect(engine.run("test {a b c}")).toEqual({})
-})
-
 test("Eval Named Network With Role", () => {
-    let engine = newEngine()
-    expect(engine.run("test {a b c} (read test)"))
-        .toEqual({
-            network: 
-                [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
+    expect(run("set test {a b c}, read test"))
+        .toEqual(
+                {"test": [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
 })
 
 test("Eval Named Network With Extension", () => {
-    let engine = newEngine()
-    expect(engine.run("test {betty : Cat} (read test)"))
-        .toEqual({
-            network: 
-                [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
+    expect(run("set test {betty : Cat}, read test"))
+        .toEqual( 
+                {"test": [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
 })
-
-// test("Test match", () => {
-//     let engine = newEngine()
-//     expect(engine.run("[match {$a b c} {a b c}]"))
-//         .toEqual({name: "test", networks: [{name: "test", network: 
-//             [[{"identifier": "a"}, {"identifier": "b"}, {"identifier": "c"}]]}]})
-// })
-
-// test("Print Network", () => {
-//     let engine = newEngine()
-//     let resNetwork = engine.run("{a b c}")
-//     let resString = printNetwork(resNetwork)
-//     expect(resString).toEqual("{ a b c, }")
-// })
 
 // test("Call Function", () => {
 //     expect(run("count {`a` `b` `c`}")).toEqual(1n)

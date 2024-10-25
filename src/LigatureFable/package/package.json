@@ -5,8 +5,8 @@
     "name": "Alex Michael Berry",
     "url": "https://almibe.dev"
   },
+  "version": "0.10.0",
   "private": true,
-  "version": "0.9.0",
   "type": "module",
   "files": [
     "dist"
