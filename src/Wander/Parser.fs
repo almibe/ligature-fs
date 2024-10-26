@@ -10,14 +10,6 @@ open Nibblers
 open Ligature.Main
 open Model
 
-// let nameStrNibbler (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.Name(value)) -> Ok(value)
-//             | _ -> Error Gaze.GazeError.NoMatch)
-//         gaze
-
 let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
@@ -25,22 +17,6 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
             | Ok(Token.Symbol(name)) -> Ok(WanderValue.Symbol(Symbol name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
-
-// let networkNameNib (gaze: Gaze.Gaze<Token>) =
-//     Gaze.attempt
-//         (fun gaze ->
-//             match Gaze.next gaze with
-//             | Ok(Token.NetworkName(name)) -> failwith "TODO" //Ok(Command.NetworkName(NetworkName(name)))
-//             | _ -> Error(Gaze.GazeError.NoMatch))
-//         gaze
-
-// let readNameStr (gaze: Gaze.Gaze<Token>) : Result<string, Gaze.GazeError> =
-//     let next = Gaze.next gaze
-
-//     match next with
-//     | Error(err) -> Error err
-//     | Ok(Token.Name(value)) -> Ok value
-//     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -58,19 +34,6 @@ let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError>
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
         return WanderValue.Call(name, values)
     }
-
-// let argumentNib (gaze: Gaze.Gaze<Token>) : Result<(string * Identifier), Gaze.GazeError> =
-//     let entity = patternNib gaze
-//     let attribute = patternNib gaze
-
-//     let value =
-//         match Gaze.check valueNib gaze with
-//         | Ok(_) -> valueNib gaze
-//         | Error(_) -> quoteNib gaze
-
-//     match (entity, attribute, value) with
-//     | (Ok(Identifier.Name(name)), Ok(a), Ok(v)) -> Ok(name, v)
-//     | _ -> Error(Gaze.NoMatch)
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * WanderValue), Gaze.GazeError> =
     let entity = patternNib gaze
@@ -127,38 +90,6 @@ let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         return Call(name, values)
     }
-
-// let rec readValueList (elements: Pattern list) (gaze: Gaze.Gaze<Token>) : Result<Pattern list, Gaze.GazeError> =
-//     let next = Gaze.next gaze
-
-//     if next = Ok Token.CloseSquare then
-//         Ok elements
-//     else
-//         let elements =
-//             match next with
-//             | Ok(Token.Symbol w) -> List.append elements [ (Pattern.Symbol(w)) ]
-//             | Ok(Token.StringLiteral s) -> List.append elements [ (Pattern.Symbol(Symbol s)) ]
-//             | Ok(Token.Slot s) -> List.append elements [ (Pattern.Slot s) ]
-
-//         match Gaze.peek gaze with
-//         | Ok Token.CloseSquare ->
-//             (Gaze.next gaze |> ignore)
-//             Ok elements
-//         | Ok Token.Comma ->
-//             (Gaze.next gaze |> ignore)
-//             readValueList elements gaze
-
-// let readSlot (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
-//     let next = Gaze.next gaze
-
-//     match next with
-//     | Error(err) -> Error err
-//     | Ok(Token.Slot(value)) -> Ok(Pattern.Slot value)
-//     | _ -> Error(Gaze.GazeError.NoMatch)
-
-//let patternMatchBodyNib = takeFirst [ networkNib; identifierNib; quoteNib ]
-
-//let patternNib = takeFirst [ networkNib ]
 
 let elementNib = takeFirst [ expressionNib; networkNib ]
 
@@ -228,16 +159,3 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
             { first = entity
               second = value
               role = attribute }
-
-//let expressExpression (elements: WanderValue list) : WanderElement = failwith "TODO"
-//    let res = List.map (fun element -> elementToValue element) elements
-//WanderElement.Expression elements
-
-// let rec express (elements: WanderValue list) (expressions: WanderElement list) : WanderElement list =
-//     match elements with
-//     | [] -> expressions
-//     | WanderValue.Symbol(Symbol(name)) :: WanderValue.Network(network) :: tail ->
-//         express tail (List.append expressions [ WanderElement.Network(name, network) ])
-//     | WanderValue.Call(n, e) :: tail -> express tail (List.append expressions [ expressExpression e ])
-//     //| WanderValue. .NetworkName n -> express tail (List.append expressions [ Command.NetworkName n ])
-//     | _ -> failwith "Error - unexpected token."

@@ -27,6 +27,7 @@ and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Symbol
     | Call of Call
     | Network of Network
+    | Pattern of Pattern
 
 and Call = Symbol * WanderValue list
 

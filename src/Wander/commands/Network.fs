@@ -137,10 +137,10 @@ let queryCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
+            | [ WanderValue.Pattern pattern; WanderValue.Pattern template; WanderValue.Network source ] ->
 
                 failwith "TODO"
-            | _ -> failwith "TODO" }
+            | _ -> error "Invalid call to query" None }
 
 let networkCommands: Map<Symbol, Command> =
     (Map.ofList

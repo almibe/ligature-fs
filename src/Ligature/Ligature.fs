@@ -53,7 +53,7 @@ and LigatureStore =
     abstract AllRoles: NetworkName -> Set<RoleName>
     abstract AllExtentions: NetworkName -> ConceptName -> Set<Symbol>
     abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
-    abstract Find: NetworkName -> Set<QueryTerm> -> Set<Map<Variable, Symbol>>
+    abstract Find: NetworkName -> Pattern -> Set<Map<Variable, Symbol>>
 
     abstract AddNetwork: NetworkName -> unit
     abstract RemoveNetwork: NetworkName -> unit
@@ -65,6 +65,8 @@ and LigatureStore =
 and [<RequireQualifiedAccess>] QueryTerm =
     | ConceptTerm of Slot * ConceptNameSlot
     | RoleTerm of Slot * Slot * RoleNameSlot
+
+and Pattern = Set<QueryTerm>
 
 and Variable = string
 
