@@ -35,14 +35,10 @@ let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError>
         return WanderValue.Call(name, values)
     }
 
-let statementNib (gaze: Gaze.Gaze<Token>) : Result<(WanderValue * WanderValue * WanderValue), Gaze.GazeError> =
-    let entity = patternNib gaze
-    let attribute = patternNib gaze
-
-    let value =
-        match Gaze.check valueNib gaze with
-        | Ok(_) -> valueNib gaze
-        | Error(_) -> Error Gaze.GazeError.NoMatch
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Symbol * Symbol * Symbol), Gaze.GazeError> =
+    let entity = symbolNib gaze
+    let attribute = symbolNib gaze
+    let value = symbolNib gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -55,13 +51,6 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return WanderValue.Network(expressNetwork statements)
     }
-
-let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
-    | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
-    | _ -> Error(Gaze.GazeError.NoMatch)
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -128,27 +117,11 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressNetwork (network: (WanderValue * WanderValue * WanderValue) list) : Set<Entry> =
+let expressNetwork (network: (Symbol * Symbol * Symbol) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
-let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) : Entry =
-    let entity =
-        match e with
-        | WanderValue.Symbol p -> p
-        //        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
-        | _ -> failwith "Error - unexpected Entity."
-
-    let attribute =
-        match a with
-        | WanderValue.Symbol p -> p
-        //        | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
-        | _ -> failwith "Error - unexpected Attribute."
-
-    let value =
-        match v with
-        | WanderValue.Symbol p -> p
-        | _ -> failwith "Error - unexpected Value."
+let elementTupleToEntry ((entity, attribute, value): (Symbol * Symbol * Symbol)) : Entry =
 
     if attribute = Symbol ":" then
         Entry.Extension { element = entity; concept = value }
