@@ -22,7 +22,7 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Symbol(name)) -> Ok(WanderValue.Symbol(name))
+            | Ok(Token.Symbol(name)) -> Ok(WanderValue.Symbol(Symbol name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
@@ -47,7 +47,7 @@ let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
+    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
@@ -96,7 +96,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
 let patternNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(value))
+    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol(value)))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -105,7 +105,7 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(value)
+    | Ok(Token.Symbol(value)) -> Ok(Symbol value)
     | Ok(Token.StringLiteral(value)) -> Ok(Symbol value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -114,7 +114,7 @@ let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol value)
+    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -217,8 +217,6 @@ let elementTupleToEntry ((e, a, v): (WanderValue * WanderValue * WanderValue)) :
     let value =
         match v with
         | WanderValue.Symbol p -> p
-        //| WanderValue.Quote q -> q
-        //       | WanderValue.Slot s -> failwith "TODO" //Pattern.Slot s
         | _ -> failwith "Error - unexpected Value."
 
     if attribute = Symbol ":" then

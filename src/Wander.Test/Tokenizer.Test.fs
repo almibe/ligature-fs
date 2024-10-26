@@ -17,16 +17,16 @@ let tests =
         [ testCase "Allow empty input" <| fun _ -> Expect.equal (tokenize "") (Ok []) ""
           testCase "Read Symbols"
           <| fun _ ->
-              Expect.equal (tokenize "a-x") (Ok([ Token.Symbol(Symbol("a-x")) ])) ""
-              Expect.equal (tokenize "x") (Ok([ Token.Symbol(Symbol("x")) ])) ""
-              Expect.equal (tokenize "hello") (Ok([ Token.Symbol(Symbol "hello") ])) ""
-              Expect.equal (tokenize "x.y") (Ok([ Token.Symbol(Symbol "x.y") ])) ""
-              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Symbol(Symbol "hello.t.x.a") ])) ""
-              Expect.equal (tokenize "$") (Ok([ Token.Symbol(Symbol("$")) ])) ""
-              Expect.equal (tokenize "$a") (Ok([ Token.Symbol(Symbol("$a")) ])) ""
-              Expect.equal (tokenize "$this_is_also234") (Ok([ Token.Symbol(Symbol("$this_is_also234")) ])) ""
-              Expect.equal (tokenize "0") (Ok([ Token.Symbol(Symbol("0")) ])) ""
-              Expect.equal (tokenize "-100") (Ok([ Token.Symbol(Symbol("-100")) ])) ""
+              Expect.equal (tokenize "a-x") (Ok([ Token.Symbol("a-x") ])) ""
+              Expect.equal (tokenize "x") (Ok([ Token.Symbol("x") ])) ""
+              Expect.equal (tokenize "hello") (Ok([ Token.Symbol("hello") ])) ""
+              Expect.equal (tokenize "x.y") (Ok([ Token.Symbol("x.y") ])) ""
+              Expect.equal (tokenize "hello.t.x.a") (Ok([ Token.Symbol("hello.t.x.a") ])) ""
+              Expect.equal (tokenize "$") (Ok([ Token.Symbol("$") ])) ""
+              Expect.equal (tokenize "$a") (Ok([ Token.Symbol("$a") ])) ""
+              Expect.equal (tokenize "$this_is_also234") (Ok([ Token.Symbol("$this_is_also234") ])) ""
+              Expect.equal (tokenize "0") (Ok([ Token.Symbol("0") ])) ""
+              Expect.equal (tokenize "-100") (Ok([ Token.Symbol("-100") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
               Expect.equal (tokenize " ") (Ok([ Token.WhiteSpace(" ") ])) ""
@@ -99,7 +99,9 @@ let tests =
                         Token.CloseSquare ]
                   ))
                   ""
-          testCase "read question mark"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Symbol(Symbol "?") ])) ""
+          testCase "read variable"
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Variable("?") ])) ""
+          testCase "read named variable"
+          <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Variable("?test") ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") "" ]

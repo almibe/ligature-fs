@@ -54,7 +54,8 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Symbol of Symbol
+    | Symbol of string
+    | Variable of string
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -74,6 +75,26 @@ let takeAndMap toTake toMap =
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
 
+let variableNibbler =
+    Nibblers.takeAll
+        [ (Nibblers.repeatN (Nibblers.takeInRange [ ('?', '?') ]) 1)
+          Nibblers.optional (
+              Nibblers.repeat (
+                  Nibblers.takeInRange
+                      [ ('a', 'z')
+                        ('A', 'Z')
+                        ('0', '9')
+                        ('?', '?')
+                        ('$', '$')
+                        ('_', '_')
+                        ('-', '-')
+                        ('=', '=')
+                        (':', ':')
+                        ('.', '.')
+                        ('¬', '¬') ]
+              )
+          ) ]
+
 let nameNibbler =
     Nibblers.takeAll
         [ (Nibblers.repeatN
@@ -82,7 +103,6 @@ let nameNibbler =
                     ('A', 'Z')
                     ('0', '9')
                     ('-', '-')
-                    ('?', '?')
                     ('¬', '¬')
                     ('$', '$')
                     ('_', '_')
@@ -118,14 +138,18 @@ let commentNibbler =
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
+let variableTokenNibbler =
+    Gaze.map variableNibbler (fun chars -> chars |> List.concat |> implode |> Token.Variable)
+
 let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Symbol |> Token.Symbol)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Symbol)
 
 let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
             Nibblers.takeFirst (
                 [ whiteSpaceNibbler
+                  variableTokenNibbler
                   nameOrKeyidentifierTokenNibbler
                   newLineTokenNibbler
                   //   slotTokenNibbler

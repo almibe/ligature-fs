@@ -91,8 +91,6 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let lookupNetwork () = failwith "TODO"
-
 // let applyNetwork (template: Network) (data: Network) : Network =
 //     Set.map
 //         (fun entry ->
@@ -132,62 +130,24 @@ let lookupNetwork () = failwith "TODO"
 //             )
 //         template
 
-// let applyCommand: Command =
-//     { Name = Symbol("apply")
-//       Doc = ""
-//       Signature = [ LigatureType.Network; LigatureType.Quote ], Some LigatureType.Network
-//       Eval =
-//         fun commands networks arguments ->
-//             match arguments with
-//             | [ WanderValue.Network(template); WanderValue.Quote(data) ] ->
-//                 List.map
-//                     (fun dataset ->
-//                         match dataset with
-//                         | WanderValue.Network dataset -> applyNetwork template dataset |> WanderValue.Network
-//                         | value -> failwith $"TODO -- {value}")
-//                     data
-//                 |> WanderValue.Quote
-//                 |> fun value -> Ok(Some(value))
-//             | _ -> failwith "TODO" }
+let queryCommand =
+    { Name = Symbol("query")
+      Doc = "arguments: pattern template data, returns network"
+      Signature = [ WanderType.Network; WanderType.Network; WanderType.Network ], Some WanderType.Network
+      Eval =
+        fun commands networks arguments ->
+            match arguments with
+            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
 
-// let matchCommand =
-//     { Name = Symbol("match")
-//       Doc = "args: pattern data, returns: quote of networks"
-//       Signature = [ LigatureType.Network; LigatureType.Network ], Some LigatureType.Quote
-//       Eval =
-//         fun _ networks arguments ->
-//             match arguments with
-//             | [ WanderValue.Network(pattern); WanderValue.Network(data) ] ->
-//                 let res = matchNetwork pattern data
-//                 Ok(Some(res))
-//             | _ -> error "" None }
-
-// let queryCommand =
-//     { Name = Symbol("query")
-//       Doc = "arguments: pattern template data, returns network"
-//       Signature = [ LigatureType.Network; LigatureType.Network; LigatureType.Network ], Some LigatureType.Network
-//       Eval =
-//         fun commands networks arguments ->
-//             let currentNetwork = currentNetwork networks
-
-//             match arguments with
-//             | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network data ] ->
-//                 match
-//                     matchCommand.Eval commands networks [ WanderValue.Network pattern; WanderValue.Network data ]
-//                 with
-//                 | Ok(Some(WanderValue.Quote(res))) ->
-//                     applyCommand.Eval commands networks [ WanderValue.Network template; WanderValue.Quote res ]
-//                 | _ -> failwith "TODO"
-//             | _ -> failwith "TODO" }
+                failwith "TODO"
+            | _ -> failwith "TODO" }
 
 let networkCommands: Map<Symbol, Command> =
     (Map.ofList
-        [ //(applyCommand.Name, applyCommand)
-          (chompCommand.Name, chompCommand)
+        [ (chompCommand.Name, chompCommand)
           (countCommand.Name, countCommand)
-          //          (matchCommand.Name, matchCommand)
           (minusCommand.Name, minusCommand)
-          //          (queryCommand.Name, queryCommand)
+          (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
           (isCompleteCommand.Name, isCompleteCommand)
           (isConsistentCommand.Name, isConsistentCommand) ])
