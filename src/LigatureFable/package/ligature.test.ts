@@ -17,13 +17,13 @@ import { expect, test } from 'vitest'
 // }
 
 test("Eval Named Network With Role", () => {
-    expect(run("set test {a b c}, read test"))
+    expect(run("let test {a b c}, read test"))
         .toEqual(
                 {"test": [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
 })
 
 test("Eval Named Network With Extension", () => {
-    expect(run("set test {betty : Cat}, read test"))
+    expect(run("let test {betty : Cat}, read test"))
         .toEqual( 
                 {"test": [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
 })
