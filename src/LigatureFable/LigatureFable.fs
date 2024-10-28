@@ -17,7 +17,18 @@ let symbolToJS (Symbol(symbol): Symbol) =
     res?symbol <- symbol
     res
 
-let rec networkToJS (network: Network) =
+let rec storeToJS (store: LigatureStore) =
+    let res = createEmpty
+
+    Set.iter
+        (fun network ->
+            let networkInJS = store.Read network |> networkToJS
+            res?(network) <- networkInJS)
+        (store.Networks())
+
+    res
+
+and networkToJS (network: Network) =
     let mutable resNetwork = [||]
 
     Set.iter
@@ -63,17 +74,12 @@ let runScript (script: string) =
     let store = emptyInMemoryStore ()
 
     match run stdCommands store script with
-    | Ok _ ->
-        let res = createEmpty
-
-        Set.iter
-            (fun network ->
-                let networkInJS = store.Read network |> networkToJS
-                res?(network) <- networkInJS)
-            (store.Networks())
-
-        res
+    | Ok _ -> storeToJS store
     | _ -> failwith "TODO"
+
+type WanderEngine(commands: Commands, store: LigatureStore) =
+    member _.Run(script) = run commands store script
+    member _.ReadStore() = store
 
 let newEngine (wanderEngine: WanderEngine) =
     let engine = createEmpty
@@ -87,6 +93,10 @@ let newEngine (wanderEngine: WanderEngine) =
                 let res = createEmpty
                 res?error <- err.UserMessage
                 res
+
+    engine?readStore <-
+        fun () ->
+            wanderEngine.ReadStore () |> storeToJS
 
     engine
 

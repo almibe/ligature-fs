@@ -44,6 +44,3 @@ let run (commands: Commands) (store: LigatureStore) (input: string) : Result<Wan
 //         { tokens = Error(string err)
 //           elements = Error(string err)
 //           expressions = Error(string err) }
-
-type WanderEngine(commands: Commands, store: LigatureStore) =
-    member _.Run(script) = run commands store script
