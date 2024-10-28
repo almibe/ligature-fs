@@ -1,4 +1,4 @@
-import { run } from "./lib/ligature.js"
+import { newEngine, run } from "./lib/ligature.js"
 // import { glob } from "glob"
 // import fs from 'node:fs'
 import { expect, test } from 'vitest'
@@ -28,32 +28,20 @@ test("Eval Named Network With Extension", () => {
                 {"test": [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
 })
 
-// test("Call Function", () => {
-//     expect(run("count {`a` `b` `c`}")).toEqual(1n)
-// })
+test("Empty Network", () => {
+    let engine = newEngine()
+    expect(engine.run("let test {}")).toEqual({})
+})
 
-// test("Add Basic HostFunction from JS", () => {
-//     const testFunction: WanderFunction = {
-//         module: "test",
-//         name: "test",
-//         description: "test",
-//         eval: (args) => "test",
-//     }
+test("Eval Networks", () => {
+    let engine = newEngine()
+    expect(engine.run("let test {a b c}")).toEqual({})
+})
 
-//     const newBindings = bindFunction(testFunction, coreBindings)
-//     expect(run("test ()", newBindings)).toEqual("test")
-// })
-
-// test("Add Basic HostFunction from JS That Uses Args", () => {
-//     const testFunction: WanderFunction = {
-//         module: "test",
-//         name: "add",
-//         description: "test",
-//         eval: (args) => {
-//             return args[0] + args[1]
-//         },
-//     }
-
-//     const newBindings = bindFunction(testFunction, coreBindings)
-//     expect(run("add 1 2", newBindings)).toEqual(3n)
-// })
+test("Eval Named Network", () => {
+    let engine = newEngine()
+    expect(engine.run("let test {a b c}, read test"))
+        .toEqual({
+            network: 
+                [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
+})
