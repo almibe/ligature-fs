@@ -137,8 +137,7 @@ let queryCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ WanderValue.Pattern pattern; WanderValue.Pattern template; WanderValue.Network source ] ->
-
+            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
                 failwith "TODO"
             | _ -> error "Invalid call to query" None }
 

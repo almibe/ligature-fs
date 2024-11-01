@@ -100,8 +100,8 @@ let tests =
                   ))
                   ""
           testCase "read variable"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Variable("?") ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Symbol("?") ])) ""
           testCase "read named variable"
-          <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Variable("?test") ])) ""
+          <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Symbol("?test") ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") "" ]

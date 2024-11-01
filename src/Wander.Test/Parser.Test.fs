@@ -40,13 +40,12 @@ let tests =
                   (parse "a {?a b c}")
                   (Ok(
                       [ (Symbol "a",
-                         [ WanderValue.Pattern(
+                         [ WanderValue.Network(
                                Set.ofList
-                                   [ QueryTerm.RoleTerm(
-                                         Slot.Element(Symbol "a"),
-                                         Slot.Element(Symbol "c"),
-                                         RoleNameSlot.RoleName(Symbol "b")
-                                     ) ]
+                                   [ Entry.Role
+                                         { first = Symbol "?a"
+                                           second = Symbol "c"
+                                           role = Symbol "b" } ]
                            ) ]) ]
                   ))
                   "" ]

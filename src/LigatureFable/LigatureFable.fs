@@ -94,9 +94,7 @@ let newEngine (wanderEngine: WanderEngine) =
                 res?error <- err.UserMessage
                 res
 
-    engine?readStore <-
-        fun () ->
-            wanderEngine.ReadStore () |> storeToJS
+    engine?readStore <- fun () -> wanderEngine.ReadStore() |> storeToJS
 
     engine
 

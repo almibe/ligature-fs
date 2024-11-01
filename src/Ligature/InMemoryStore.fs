@@ -164,7 +164,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
             | true, entries -> isConsistent entries
             | false, _ -> failwith "Not Implemented"
 
-        member _.Find (networkName: NetworkName) (terms: Set<QueryTerm>) : Set<Map<Variable, Symbol>> =
+        member _.Find (networkName: NetworkName) (terms: Set<Entry>) : Set<Map<Element, Symbol>> =
             failwith "Not Implemented"
 
 let emptyInMemoryStore () : LigatureStore =

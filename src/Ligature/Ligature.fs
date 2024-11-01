@@ -53,7 +53,7 @@ and LigatureStore =
     abstract AllRoles: NetworkName -> Set<RoleName>
     abstract AllExtentions: NetworkName -> ConceptName -> Set<Symbol>
     abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
-    abstract Find: NetworkName -> Pattern -> Set<Map<Variable, Symbol>>
+    abstract Find: NetworkName -> Network -> Set<Map<Element, Symbol>>
 
     abstract AddNetwork: NetworkName -> unit
     abstract RemoveNetwork: NetworkName -> unit
@@ -61,26 +61,6 @@ and LigatureStore =
     abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
-
-and [<RequireQualifiedAccess>] QueryTerm =
-    | ConceptTerm of Slot * ConceptNameSlot
-    | RoleTerm of Slot * Slot * RoleNameSlot
-
-and Pattern = Set<QueryTerm>
-
-and Variable = string
-
-and [<RequireQualifiedAccess>] ConceptNameSlot =
-    | ConceptName of ConceptName
-    | Variable of Variable
-
-and [<RequireQualifiedAccess>] RoleNameSlot =
-    | RoleName of RoleName
-    | Variable of string
-
-and [<RequireQualifiedAccess>] Slot =
-    | Element of Symbol
-    | Variable of string
 
 // let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
 //     let res =
