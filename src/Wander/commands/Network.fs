@@ -91,44 +91,78 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-// let applyNetwork (template: Network) (data: Network) : Network =
-//     Set.map
-//         (fun entry ->
-//             match entry with
-//             | Extension extension -> failwith "TODO"
-//             | NonExtension nonExtension -> failwith "TODO"
-//             | Role role -> failwith "TODO"
-//             // let entity =
-//             //     match e with
-//             //     | Pattern.Slot s ->
-//             //         match readBinding (Pattern.Slot s) data with
-//             //         | Some(Pattern.Symbol(i)) -> Pattern.Symbol i
-//             //         | Some(Pattern.Slot(s)) -> Pattern.Slot s
-//             //         | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-//             //         | None -> Pattern.Slot s
-//             //     | Pattern.Symbol i -> Pattern.Symbol i
+let applySingle (template: Network) (data: Map<Symbol, Symbol>): Network =
+    Set.map (fun entry ->
+        match entry with
+        | Entry.Role { first = Symbol first; second = second; role = role } ->
+            let resFirst =
+                if first.StartsWith "?" then
+                    failwith "TODO"
+                else
+                    Symbol first
 
-//             // let attribute =
-//             //     match a with
-//             //     | Pattern.Slot s ->
-//             //         match readBinding (Pattern.Slot s) data with
-//             //         | Some(Pattern.Symbol(i)) -> Pattern.Symbol i
-//             //         | Some(Pattern.Slot(s)) -> Pattern.Slot s
-//             //         | Some _ -> failwith "TODO - unexpected value - only Slots or Symbols are allowed"
-//             //         | None -> Pattern.Slot s
-//             //     | Pattern.Symbol i -> Pattern.Symbol i
+            Entry.Role { first = resFirst; second = second; role = role }
+        | Entry.Extension _ -> failwith "TODO"
+        | Entry.NonExtension _ -> failwith "TODO") template
 
-//             // let value =
-//             //     match v with
-//             //     | Pattern.Slot s ->
-//             //         match readBinding (Pattern.Slot s) data with
-//             //         | Some value -> value
-//             //         | None -> Pattern.Slot s
-//             //     | v -> v
+let apply (template: Network) (data: Set<Map<Symbol, Symbol>>): Network =
+    Set.fold (fun state value ->
+        Set.union state (applySingle template value)) Set.empty data
 
-//             // (entity, attribute, value))
-//             )
-//         template
+let compareRole
+    ({ first = Symbol pFirst
+       second = Symbol pSecond
+       role = Symbol pRole }: Role)
+    ({ first = Symbol sFirst
+       second = Symbol sSecond
+       role = Symbol sRole }: Role)
+    : Set<Map<Symbol, Symbol>> =
+    let mutable fail = false
+    let mutable result = Map.empty
+    if pFirst.StartsWith "?" then
+        if pFirst.Length > 1 then
+            result <- Map.add (Symbol pFirst) (Symbol sFirst) result
+    else
+        fail <- pFirst <> sFirst
+    
+    if (not fail) && pSecond.StartsWith "?" then
+        if pSecond.Length > 1 then
+            result <- Map.add (Symbol pSecond) (Symbol sSecond) result
+    else
+        fail <- pSecond <> sSecond
+
+    if (not fail) && pRole.StartsWith "?" then
+        if pRole.Length > 1 then
+            result <- Map.add (Symbol pRole) (Symbol sRole) result
+    else
+        fail <- pRole <> sRole
+    
+    if fail || result = Map.empty then
+        Set.empty
+    else
+        Set.ofList [ result ]
+
+let compareExtension (pattern: Extension) (source: Extension) =
+    failwith "TODO"
+
+let compareNonExtension (pattern: NonExtension) (source: NonExtension) =
+    failwith "TODO"
+
+let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Symbol, Symbol>> =
+    match pattern, source with
+    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
+    | Entry.Extension pattern, Entry.Extension source -> compareExtension pattern source
+    | Entry.NonExtension pattern, Entry.NonExtension source -> compareNonExtension pattern source
+    | _ -> Set.empty
+
+let findEntry (pattern: Entry) (source: Network) : Set<Map<Symbol, Symbol>> =
+    match Set.toList source with
+    | [ entry ] -> findSingleEntry pattern entry
+    | _ -> failwith "TODO"
+
+let find (pattern: Network) (source: Network) : Set<Map<Symbol, Symbol>> =
+    Set.fold
+        (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
 let queryCommand =
     { Name = Symbol("query")
@@ -138,7 +172,8 @@ let queryCommand =
         fun commands networks arguments ->
             match arguments with
             | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
-                failwith "TODO"
+                let results = find pattern source
+                Ok (Some(WanderValue.Network (apply template results)))
             | _ -> error "Invalid call to query" None }
 
 let networkCommands: Map<Symbol, Command> =
