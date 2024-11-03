@@ -91,23 +91,47 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let applySingle (template: Network) (data: Map<Symbol, Symbol>): Network =
-    Set.map (fun entry ->
-        match entry with
-        | Entry.Role { first = Symbol first; second = second; role = role } ->
-            let resFirst =
-                if first.StartsWith "?" then
-                    failwith "TODO"
-                else
-                    Symbol first
+let applySingle (template: Network) (data: Map<Symbol, Symbol>) : Network =
+    Set.map
+        (fun entry ->
+            match entry with
+            | Entry.Role { first = Symbol first
+                           second = Symbol second
+                           role = Symbol role } ->
+                let resFirst =
+                    if first.StartsWith "?" then
+                        match Map.tryFind (Symbol first) data with
+                        | Some res -> res
+                        | _ -> Symbol first
+                    else
+                        Symbol first
 
-            Entry.Role { first = resFirst; second = second; role = role }
-        | Entry.Extension _ -> failwith "TODO"
-        | Entry.NonExtension _ -> failwith "TODO") template
+                let resSecond =
+                    if second.StartsWith "?" then
+                        match Map.tryFind (Symbol second) data with
+                        | Some res -> res
+                        | _ -> Symbol second
+                    else
+                        Symbol second
 
-let apply (template: Network) (data: Set<Map<Symbol, Symbol>>): Network =
-    Set.fold (fun state value ->
-        Set.union state (applySingle template value)) Set.empty data
+                let resRole =
+                    if role.StartsWith "?" then
+                        match Map.tryFind (Symbol role) data with
+                        | Some res -> res
+                        | _ -> Symbol role
+                    else
+                        Symbol role
+
+                Entry.Role
+                    { first = resFirst
+                      second = resSecond
+                      role = resRole }
+            | Entry.Extension _ -> failwith "TODO"
+            | Entry.NonExtension _ -> failwith "TODO")
+        template
+
+let apply (template: Network) (data: Set<Map<Symbol, Symbol>>) : Network =
+    Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
 
 let compareRole
     ({ first = Symbol pFirst
@@ -119,12 +143,13 @@ let compareRole
     : Set<Map<Symbol, Symbol>> =
     let mutable fail = false
     let mutable result = Map.empty
+
     if pFirst.StartsWith "?" then
         if pFirst.Length > 1 then
             result <- Map.add (Symbol pFirst) (Symbol sFirst) result
     else
         fail <- pFirst <> sFirst
-    
+
     if (not fail) && pSecond.StartsWith "?" then
         if pSecond.Length > 1 then
             result <- Map.add (Symbol pSecond) (Symbol sSecond) result
@@ -136,17 +161,15 @@ let compareRole
             result <- Map.add (Symbol pRole) (Symbol sRole) result
     else
         fail <- pRole <> sRole
-    
+
     if fail || result = Map.empty then
         Set.empty
     else
         Set.ofList [ result ]
 
-let compareExtension (pattern: Extension) (source: Extension) =
-    failwith "TODO"
+let compareExtension (pattern: Extension) (source: Extension) = failwith "TODO"
 
-let compareNonExtension (pattern: NonExtension) (source: NonExtension) =
-    failwith "TODO"
+let compareNonExtension (pattern: NonExtension) (source: NonExtension) = failwith "TODO"
 
 let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Symbol, Symbol>> =
     match pattern, source with
@@ -156,13 +179,10 @@ let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Symbol, Symbol>> 
     | _ -> Set.empty
 
 let findEntry (pattern: Entry) (source: Network) : Set<Map<Symbol, Symbol>> =
-    match Set.toList source with
-    | [ entry ] -> findSingleEntry pattern entry
-    | _ -> failwith "TODO"
+    Set.fold (fun state entry -> Set.union state (findSingleEntry pattern entry)) Set.empty source
 
 let find (pattern: Network) (source: Network) : Set<Map<Symbol, Symbol>> =
-    Set.fold
-        (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
+    Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
 let queryCommand =
     { Name = Symbol("query")
@@ -173,7 +193,7 @@ let queryCommand =
             match arguments with
             | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
                 let results = find pattern source
-                Ok (Some(WanderValue.Network (apply template results)))
+                Ok(Some(WanderValue.Network(apply template results)))
             | _ -> error "Invalid call to query" None }
 
 let networkCommands: Map<Symbol, Command> =
