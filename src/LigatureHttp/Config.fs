@@ -4,7 +4,6 @@
 
 module Ligature.WebSockets.Config
 
-open Argu
 open System
 
 type Config = { url: string }

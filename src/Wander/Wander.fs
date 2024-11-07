@@ -9,6 +9,7 @@ open Tokenizer
 open Ligature.Main
 open Interpreter
 open Wander.Model
+open Ligature.InMemoryStore
 
 let run (commands: Commands) (store: LigatureStore) (input: string) : Result<WanderValue option, LigatureError> =
     try
@@ -21,26 +22,21 @@ let run (commands: Commands) (store: LigatureStore) (input: string) : Result<Wan
     with x ->
         error $"Error running script. {x}" None
 
-// type Introspect =
-//     { tokens: Result<Token list, string>
-//       elements: Result<WanderElement list, string>
-//       expressions: Result<WanderElement list, string> }
+type WanderEngine =
+    abstract member Run: script: string -> Result<WanderValue option, LigatureError>
+    abstract member AddCommand: Symbol -> Command -> unit
+    abstract member Store: unit -> LigatureStore
 
-// let introspect (input: string) =
-//     match tokenize input with
-//     | Ok tokens ->
-//         match parse tokens with
-//         | Ok elements ->
-//             let expressions = failwith "TODO" //express elements []
+type DefaultEngine (commands: Commands, store: LigatureStore) =
+    let mutable commands: Commands = commands
+    let mutable store: LigatureStore = store
 
-//             { tokens = Ok tokens
-//               elements = failwith "TODO" //Ok elements
-//               expressions = Ok expressions }
-//         | Error err ->
-//             { tokens = Ok tokens
-//               elements = Error(string err)
-//               expressions = Error(string err) }
-//     | Error err ->
-//         { tokens = Error(string err)
-//           elements = Error(string err)
-//           expressions = Error(string err) }
+    interface WanderEngine with
+        member _.Run(script) = 
+            run commands store script
+        member _.AddCommand(name: Symbol) (command: Command): unit = 
+            commands <- Map.add name command commands
+        member _.Store(): LigatureStore =
+            store
+
+let defaultEngine = new DefaultEngine(Map.empty, emptyInMemoryStore())
