@@ -14,92 +14,58 @@ open Microsoft.AspNetCore.Http
 open Giraffe
 open Wander.Lib
 open Wander.Main
-open Wander.Model
 open Ligature.InMemoryStore
+open Ligature.Main
 
-let handler next (ctx: HttpContext) = 
+let networkToJson (network: Network) =
+    Set.map
+        (fun entry ->
+            match entry with
+            | Entry.Role { first = Symbol first
+                           second = Symbol second
+                           role = Symbol role } ->
+                Map.ofList [ "type", "role"; "first", first; "second", second; "role", role ]
+            | Entry.Extension { element = Symbol element
+                                concept = Symbol concept } ->
+                Map.ofList [ "type", "extension"; "element", element; "concept", concept ]
+            | Entry.NonExtension { element = Symbol element
+                                   concept = Symbol concept } ->
+                Map.ofList [ "type", "nonextension"; "element", element; "concept", concept ])
+        network
+
+let toJson (store: LigatureStore) =
+    let mutable result = Map.empty
+    Set.iter (fun network -> result <- Map.add network (networkToJson (store.Read network)) result) (store.Networks())
+    result
+
+let handler next (ctx: HttpContext) =
     task {
         let! script = ctx.ReadBodyFromRequestAsync()
         let store = emptyInMemoryStore ()
+
         match run stdCommands store script with
-        | Ok _ -> return! json store next ctx
+        | Ok _ -> return! json (toJson store) next ctx
         | _ -> return! failwith "TODO"
     }
 
-let webApp =
-    POST >=> route "/" >=> handler
+let webApp = POST >=> route "/" >=> handler
 
 type Startup() =
-    member __.ConfigureServices (services : IServiceCollection) =
+    member __.ConfigureServices(services: IServiceCollection) =
         // Register default Giraffe dependencies
         //services.AddSingleton<Json.ISerializer>(Json.FsharpFriendlySerializer)
         services.AddGiraffe() |> ignore
 
-    member __.Configure (app : IApplicationBuilder)
-                        (env : IHostEnvironment)
-                        (loggerFactory : ILoggerFactory) =
+    member __.Configure (app: IApplicationBuilder) (env: IHostEnvironment) (loggerFactory: ILoggerFactory) =
         // Add Giraffe to the ASP.NET Core pipeline
         app.UseGiraffe webApp
 
 [<EntryPoint>]
 let main _ =
-    Host.CreateDefaultBuilder()
-        .ConfigureWebHostDefaults(
-            fun webHostBuilder ->
-                webHostBuilder
-                    .UseStartup<Startup>()
-                    |> ignore)
+    Host
+        .CreateDefaultBuilder()
+        .ConfigureWebHostDefaults(fun webHostBuilder -> webHostBuilder.UseStartup<Startup>() |> ignore)
         .Build()
         .Run()
+
     0
-
-// open System
-// open System.Threading
-
-// open Ligature
-// open Wander.Main
-// open Wander.Interpreter
-// open Ligature.Main
-// open Wander.Commands
-// open Ligature.InMemoryStore
-// open Wander.Lib
-// open Wander.Model
-
-// // let handler =
-// //     request (fun req ctx -> 
-// //         req.form
-// //         failwith "TODO")
-//     // context (fun ctx -> 
-//     //     ctx.request.
-//     //     Successful.OK "test")
-//     // socket {
-//     //     let mutable loop = true
-//     //     let mutable store = emptyInMemoryStore ()
-
-//     //     while loop do
-//     //         let! msg = webSocket.read ()
-
-//     //         match msg with
-//     //         | (Text, data, true) ->
-//     //             let script = UTF8.toString data
-//     //             let res = run stdCommands store script
-
-//     //             let res: string = 
-//     //                 match res with
-//     //                 | Ok(Some(res)) -> prettyPrint res
-//     //                 | _ -> failwith "TODO"
-
-//     //             let byteResponse = res |> System.Text.Encoding.ASCII.GetBytes |> ByteSegment
-//     //             do! webSocket.send Text byteResponse true
-
-//     //         | (Close, _, _) ->
-//     //             let emptyResponse = [||] |> ByteSegment
-//     //             do! webSocket.send Close emptyResponse true
-//     //             loop <- false
-
-//     //         | _ -> ()
-//     // }
-
-// [<EntryPoint>]
-// let main argv =
-//     failwith "TODO"
