@@ -10,7 +10,6 @@ open Ligature.Main
 let notFunction =
     { Name = Symbol("Bool.not")
       Doc = "Boolean not"
-      Signature = [ WanderType.Symbol ], Some(WanderType.Symbol)
       Eval =
         (fun _ _ args ->
             match args with

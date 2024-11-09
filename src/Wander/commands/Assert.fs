@@ -11,7 +11,6 @@ open Wander.Model
 let assertEqualCommand: Command =
     { Name = Symbol "assert-equal"
       Doc = "Check that two values are equal."
-      Signature = [ WanderType.Any; WanderType.Any ], None
       Eval =
         fun (commands: Commands) networks (arguments: Arguments) ->
             match arguments with

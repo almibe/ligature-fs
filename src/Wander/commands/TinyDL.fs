@@ -11,7 +11,6 @@ open Wander.Model
 let inferCommand: Command =
     { Name = Symbol("infer")
       Doc = "Use the ."
-      Signature = [ WanderType.Network; WanderType.Network ], None
       Eval =
         fun _ store arguments ->
             match arguments with
@@ -25,7 +24,6 @@ let inferCommand: Command =
 let parseCommand: Command =
     { Name = Symbol "tiny-dl.parse"
       Doc = "Parse tiny-dl script into a Network."
-      Signature = [ WanderType.Symbol ], None
       Eval =
         fun _ store arguments ->
             match arguments with

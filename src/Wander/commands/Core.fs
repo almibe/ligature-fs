@@ -11,7 +11,6 @@ open Wander.Interpreter
 let idCommand: Command =
     { Name = Symbol("id")
       Doc = "Return the value passed."
-      Signature = [ WanderType.Any ], Some WanderType.Any
       Eval =
         fun _ _ arguments ->
             match arguments with
@@ -21,7 +20,6 @@ let idCommand: Command =
 let letCommand: Command =
     { Name = Symbol("let")
       Doc = "Set the value of a given named network."
-      Signature = [ WanderType.Symbol; WanderType.Network ], None
       Eval =
         fun commands store arguments ->
             match processArguments commands store arguments with
@@ -33,7 +31,6 @@ let letCommand: Command =
 let readCommand: Command =
     { Name = Symbol("read")
       Doc = "Read the value of a given network."
-      Signature = [ WanderType.Symbol ], Some WanderType.Network
       Eval =
         fun _ store arguments ->
             match arguments with
@@ -48,11 +45,10 @@ let readCommand: Command =
 let ignoreCommand: Command =
     { Name = Symbol("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
-      Signature = [ WanderType.Any ], None
       Eval = fun _ networks _ -> Ok(None) }
 
-let printSignature ((arguments, result): WanderType list * WanderType option) : Symbol =
-    Symbol($"{arguments} -> {result}")
+// let printSignature ((arguments, result): WanderType list * WanderType option) : Symbol =
+//     Symbol($"{arguments} -> {result}")
 // List.map
 //     (fun t ->
 //         match t with
@@ -71,29 +67,18 @@ let printSignature ((arguments, result): WanderType list * WanderType option) : 
 let docsCommand: Command =
     { Name = Symbol("docs")
       Doc = "Create a network that contains documentation for the available commands."
-      Signature = [], Some(WanderType.Network)
       Eval =
         fun commands networks _ ->
             let mutable docs: Set<Entry> = Set.empty
 
             Map.toList commands
             |> List.iter (fun (name, command) ->
-                let signature = printSignature command.Signature
-
                 docs <-
                     Set.add
                         (Entry.Role
                             { first = name
                               second = Symbol(command.Doc)
                               role = Symbol("docString") })
-                        docs
-
-                docs <-
-                    Set.add
-                        (Entry.Role
-                            { first = name
-                              second = signature
-                              role = Symbol("signature") })
                         docs
 
                 ())

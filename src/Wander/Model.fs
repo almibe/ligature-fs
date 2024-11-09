@@ -14,14 +14,7 @@ open Ligature.Main
 type Command =
     { Name: Symbol
       Doc: string
-      Signature: WanderType list * WanderType option
       Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
-
-and [<RequireQualifiedAccessAttribute>] WanderType =
-    | Symbol
-    | Call
-    | Network
-    | Any
 
 and [<RequireQualifiedAccess>] WanderValue =
     | Symbol of Symbol
