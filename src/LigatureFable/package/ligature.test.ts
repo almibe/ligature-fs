@@ -19,13 +19,13 @@ import { expect, test } from 'vitest'
 test("Eval Named Network With Role", () => {
     expect(run("let test {a b c}, read test"))
         .toEqual(
-                {"test": [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
+                {"test": [{type: "role", first: "a", second: "c", role: "b"}]})
 })
 
 test("Eval Named Network With Extension", () => {
     expect(run("let test {betty : Cat}, read test"))
         .toEqual( 
-                {"test": [{type: "extension", element: {symbol: "betty"}, concept: { symbol: "Cat"}}]})
+                {"test": [{type: "extension", element: "betty", concept: "Cat"}]})
 })
 
 test("Empty Network", () => {
@@ -43,15 +43,15 @@ test("Eval Named Network", () => {
     expect(engine.run("let test {a b c}, read test"))
         .toEqual({
             network: 
-                [{type: "role", first: {symbol: "a"}, second: { symbol: "c"}, role: {symbol: "b"}}]})
+                [{type: "role", first: "a", second: "c", role: "b"}]})
 })
 
 test("Graph support", () => {
     let network = [
-        {type: "extension", element: {symbol: "a"}, concept: {symbol: "A"}},
-        {type: "nonextension", element: {symbol: "a"}, concept: {symbol: "A"}},
-        {type: "nonextension", element: {symbol: "b"}, concept: {symbol: "B"}},
-        {type: "role", first: {symbol: "a"}, second: {symbol: "c"}, role: {symbol: "d"}},
+        {type: "extension", element: "a", concept: "A"},
+        {type: "nonextension", element: "a", concept: "A"},
+        {type: "nonextension", element: "b", concept: "B"},
+        {type: "role", first: "a", second: "c", role: "d"},
     ]
     let graph = toGraph(network)
     expect(graph.hasNode("a")).toBeTruthy()

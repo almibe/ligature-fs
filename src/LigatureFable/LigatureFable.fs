@@ -12,11 +12,6 @@ open Wander.Lib
 
 let printNetwork (network: Network) : string = Wander.Model.printNetwork network
 
-let symbolToJS (Symbol(symbol): Symbol) =
-    let res = createEmpty
-    res?symbol <- symbol
-    res
-
 let rec storeToJS (store: LigatureStore) =
     let res = createEmpty
 
@@ -34,27 +29,24 @@ and networkToJS (network: Network) =
     Set.iter
         (fun (entry: Entry) ->
             match entry with
-            | Entry.Extension e ->
+            | Entry.Extension {element = Symbol element; concept = Symbol concept} ->
                 let res = createEmpty
-                res?element <- symbolToJS e.element
-                res?concept <- symbolToJS e.concept
+                res?element <- element
+                res?concept <- concept
                 res?``type`` <- "extension"
-
                 resNetwork <- Array.append resNetwork [| res |]
-            | Entry.NonExtension ne ->
+            | Entry.NonExtension {element = Symbol element; concept = Symbol concept } ->
                 let res = createEmpty
-                res?element <- symbolToJS ne.element
-                res?concept <- symbolToJS ne.concept
+                res?element <- element
+                res?concept <- concept
                 res?``type`` <- "nonextension"
-
                 resNetwork <- Array.append resNetwork [| res |]
-            | Entry.Role role ->
+            | Entry.Role { first = Symbol first; second = Symbol second; role = Symbol role } ->
                 let res = createEmpty
-                res?first <- symbolToJS role.first
-                res?second <- symbolToJS role.second
-                res?role <- symbolToJS role.role
+                res?first <- first
+                res?second <- second
+                res?role <- role
                 res?``type`` <- "role"
-
                 resNetwork <- Array.append resNetwork [| res |])
         network
 

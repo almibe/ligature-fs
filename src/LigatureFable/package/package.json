@@ -36,7 +36,6 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "graphology": "^0.25.4",
-    "immutable": "^4.3.7"
+    "graphology": "^0.25.4"
   }
 }
