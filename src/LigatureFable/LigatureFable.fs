@@ -10,56 +10,64 @@ open Ligature.InMemoryStore
 open Wander.Model
 open Wander.Lib
 
-let printNetwork (network: Network) : string = Wander.Model.printNetwork network
+// let printNetwork (network: Network) : string = Wander.Model.printNetwork network
 
 let rec storeToJS (store: LigatureStore) =
     let res = createEmpty
-
     Set.iter
         (fun network ->
-            let networkInJS = store.Read network |> networkToJS
+            let networkInJS = store.Read network |> networkToGraphology
             res?(network) <- networkInJS)
         (store.Networks())
-
     res
 
-and networkToJS (network: Network) =
-    let mutable resNetwork = [||]
+and networkToGraphology (network: Network) =
+    let res = createEmpty
+    let mutable nodes = Set.empty
+    let mutable edges = Set.empty
 
     Set.iter
         (fun (entry: Entry) ->
             match entry with
             | Entry.Extension {element = Symbol element; concept = Symbol concept} ->
-                let res = createEmpty
-                res?element <- element
-                res?concept <- concept
-                res?``type`` <- "extension"
-                resNetwork <- Array.append resNetwork [| res |]
+                let elementJs = createEmpty
+                elementJs?key <- element
+                let conceptJs = createEmpty
+                conceptJs?key <- concept
+                nodes <- Set.add elementJs nodes
+                nodes <- Set.add conceptJs nodes
+                let edgeJs = createEmpty
+                edgeJs?key <- ":"
+                edgeJs?source <- element
+                edgeJs?target <- concept
+                edges <- Set.add edgeJs edges
             | Entry.NonExtension {element = Symbol element; concept = Symbol concept } ->
-                let res = createEmpty
-                res?element <- element
-                res?concept <- concept
-                res?``type`` <- "nonextension"
-                resNetwork <- Array.append resNetwork [| res |]
+                let elementJs = createEmpty
+                elementJs?key <- element
+                let conceptJs = createEmpty
+                conceptJs?key <- concept
+                nodes <- Set.add elementJs nodes
+                nodes <- Set.add conceptJs nodes
+                let edgeJs = createEmpty
+                edgeJs?key <- "¬:"
+                edgeJs?source <- element
+                edgeJs?target <- concept
+                edges <- Set.add edgeJs edges
             | Entry.Role { first = Symbol first; second = Symbol second; role = Symbol role } ->
-                let res = createEmpty
-                res?first <- first
-                res?second <- second
-                res?role <- role
-                res?``type`` <- "role"
-                resNetwork <- Array.append resNetwork [| res |])
+                let firstJs = createEmpty
+                firstJs?key <- first
+                let secondJs = createEmpty
+                secondJs?key <- second
+                nodes <- Set.add firstJs nodes
+                nodes <- Set.add secondJs nodes
+                let edgeJs = createEmpty
+                edgeJs?key <- role
+                edgeJs?source <- first
+                edgeJs?target <- second
+                edges <- Set.add edgeJs edges)
         network
-
-    resNetwork
-
-let valueToJS (value: WanderValue) =
-    let res = createEmpty
-
-    match value with
-    | WanderValue.Symbol(Symbol(id)) -> res?symbol <- id
-    | WanderValue.Call e -> failwith "TODO"
-    | WanderValue.Network n -> res?network <- (networkToJS n)
-
+    res?nodes <- Set.toArray nodes
+    res?edges <- Set.toArray edges
     res
 
 let runScript (script: string) =
@@ -68,27 +76,3 @@ let runScript (script: string) =
     match run stdCommands store script with
     | Ok _ -> storeToJS store
     | _ -> failwith "TODO"
-
-type WanderEngine(commands: Commands, store: LigatureStore) =
-    member _.Run(script) = run commands store script
-    member _.ReadStore() = store
-
-let newEngine (wanderEngine: WanderEngine) =
-    let engine = createEmpty
-
-    engine?run <-
-        fun (script: string) ->
-            match wanderEngine.Run script with
-            | Ok(Some(res)) -> valueToJS res
-            | Ok _ -> createEmpty
-            | Error err ->
-                let res = createEmpty
-                res?error <- err.UserMessage
-                res
-
-    engine?readStore <- fun () -> wanderEngine.ReadStore() |> storeToJS
-
-    engine
-
-let newInMemoryEngine () : WanderEngine =
-    newEngine (new WanderEngine(stdCommands, emptyInMemoryStore ()))

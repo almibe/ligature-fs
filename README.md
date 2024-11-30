@@ -28,6 +28,7 @@ test suite for the other project.
 | build              | Fake build script.                                                 |
 | Gaze               | A parsing library.                                                 |
 | Ligature           | Main code base including the main logic and types.                 |
+| LigatureFable      | A project for compiling Ligature to JavaScript using Fable.        |
 | LigaturePad        | A simple desktop app for Ligature.                                 |
 | LigatureWebSockets | A backend of Ligature using Suave and WebSockets.                  |
 | tiny-dl            | An F# library supporting Description Logic.                        |
