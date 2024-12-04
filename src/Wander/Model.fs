@@ -69,8 +69,8 @@ and printAssocArray values =
 
 and printEntry (entry: Entry) : string =
     match entry with
-    | Entry.Extension concept -> $"{concept.element} : {concept.concept}"
-    | Entry.NonExtension nc -> $"{nc.element} ¬: {nc.concept}"
+    | Entry.Extends concept -> $"{concept.element} : {concept.concept}"
+    | Entry.NotExtends nc -> $"{nc.element} ¬: {nc.concept}"
     | Entry.Role role -> $"{role.first} {role.role} {role.second}"
 
 and printExpression expression = failwith "TODO"

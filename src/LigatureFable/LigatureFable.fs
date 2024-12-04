@@ -14,11 +14,13 @@ open Wander.Lib
 
 let rec storeToJS (store: LigatureStore) =
     let res = createEmpty
+
     Set.iter
         (fun network ->
             let networkInJS = store.Read network |> networkToGraphology
             res?(network) <- networkInJS)
         (store.Networks())
+
     res
 
 and networkToGraphology (network: Network) =
@@ -29,7 +31,8 @@ and networkToGraphology (network: Network) =
     Set.iter
         (fun (entry: Entry) ->
             match entry with
-            | Entry.Extension {element = Symbol element; concept = Symbol concept} ->
+            | Entry.Extends { element = Symbol element
+                              concept = Symbol concept } ->
                 let elementJs = createEmpty
                 elementJs?key <- element
                 let conceptJs = createEmpty
@@ -41,7 +44,8 @@ and networkToGraphology (network: Network) =
                 edgeJs?source <- element
                 edgeJs?target <- concept
                 edges <- Set.add edgeJs edges
-            | Entry.NonExtension {element = Symbol element; concept = Symbol concept } ->
+            | Entry.NotExtends { element = Symbol element
+                                 concept = Symbol concept } ->
                 let elementJs = createEmpty
                 elementJs?key <- element
                 let conceptJs = createEmpty
@@ -53,7 +57,9 @@ and networkToGraphology (network: Network) =
                 edgeJs?source <- element
                 edgeJs?target <- concept
                 edges <- Set.add edgeJs edges
-            | Entry.Role { first = Symbol first; second = Symbol second; role = Symbol role } ->
+            | Entry.Role { first = Symbol first
+                           second = Symbol second
+                           role = Symbol role } ->
                 let firstJs = createEmpty
                 firstJs?key <- first
                 let secondJs = createEmpty
@@ -66,6 +72,7 @@ and networkToGraphology (network: Network) =
                 edgeJs?target <- second
                 edges <- Set.add edgeJs edges)
         network
+
     res?nodes <- Set.toArray nodes
     res?edges <- Set.toArray edges
     res

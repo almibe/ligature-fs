@@ -78,9 +78,9 @@ let infer (description: Description) (network: Network) : Result<Network, TinyDL
                 Set.iter
                     (fun entry ->
                         match entry with
-                        | Entry.Extension { element = element; concept = concept } ->
+                        | Entry.Extends { element = element; concept = concept } ->
                             if left = concept then
-                                result <- Set.add (Entry.Extension { element = element; concept = right }) result
+                                result <- Set.add (Entry.Extends { element = element; concept = right }) result
                         | _ -> ())
                     network
             | _ -> failwith "TODO")

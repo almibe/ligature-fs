@@ -124,9 +124,9 @@ let expressNetwork (network: (Symbol * Symbol * Symbol) list) : Set<Entry> =
 let elementTupleToEntry ((entity, attribute, value): (Symbol * Symbol * Symbol)) : Entry =
 
     if attribute = Symbol ":" then
-        Entry.Extension { element = entity; concept = value }
+        Entry.Extends { element = entity; concept = value }
     else if attribute = Symbol ":¬" then
-        Entry.NonExtension { element = entity; concept = value }
+        Entry.NotExtends { element = entity; concept = value }
     else
         Entry.Role
             { first = entity

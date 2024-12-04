@@ -16,68 +16,44 @@ let error userMessage debugMessage =
 
 type Symbol = Symbol of string
 
-and Element = Symbol
+type Element = Symbol
 
-and ConceptName = Symbol
+type ConceptName = Symbol
 
-and RoleName = Symbol
+type RoleName = Symbol
 
-and Extension =
-    { element: Symbol
+type Extends =
+    { element: Element
       concept: ConceptName }
 
-and NonExtension =
-    { element: Symbol
+type NotExtends =
+    { element: Element
       concept: ConceptName }
 
-and Role =
-    { first: Symbol
-      second: Symbol
+type Role =
+    { first: Element
+      second: Element
       role: RoleName }
 
-and [<RequireQualifiedAccess>] Entry =
-    | Extension of Extension
-    | NonExtension of NonExtension
+[<RequireQualifiedAccess>]
+type Entry =
+    | Extends of Extends
+    | NotExtends of NotExtends
     | Role of Role
 
-and Network = Set<Entry>
+type Network = Set<Entry>
 
-and NetworkName = string
+type NetworkName = string
 
-and LigatureStore =
-    abstract Networks: unit -> Set<NetworkName>
-    abstract Read: NetworkName -> Network
-    abstract IsConsistent: NetworkName -> bool
-    abstract IsComplete: NetworkName -> bool
-    abstract AllConcepts: NetworkName -> Set<ConceptName>
-    abstract AllRoles: NetworkName -> Set<RoleName>
-    abstract AllExtentions: NetworkName -> ConceptName -> Set<Symbol>
-    abstract AllRoleInstances: NetworkName -> RoleName -> Set<Role>
-    abstract Find: NetworkName -> Network -> Set<Map<Element, Symbol>>
-
-    abstract AddNetwork: NetworkName -> unit
-    abstract RemoveNetwork: NetworkName -> unit
-    abstract ClearNetwork: NetworkName -> unit
+type LigatureStore =
+    abstract Networks: unit -> Result<Set<NetworkName>, LigatureError>
+    abstract Read: NetworkName -> Result<Network, LigatureError>
+    abstract AddNetwork: NetworkName -> Result<unit, LigatureError>
+    abstract RemoveNetwork: NetworkName -> Result<unit, LigatureError>
+    abstract ClearNetwork: NetworkName -> Result<unit, LigatureError>
     abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
     abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
-
-// let readBinding (name: Pattern) (network: Network) : Option<Pattern> =
-//     let res =
-//         Set.filter
-//             (fun (e, a, _) ->
-//                 match (name, e, a) with
-//                 | (Pattern.Symbol(name), Pattern.Symbol(entity), Pattern.Symbol(Symbol("="))) -> entity = name
-//                 | (Pattern.Slot(slot), Pattern.Slot(entity), Pattern.Symbol(Symbol("="))) -> entity = slot
-//                 | _ -> false)
-//             network
-
-//     match List.ofSeq (res) with
-//     | [] -> None
-//     | [ (_, _, value) ] -> Some(value) //evalQuote hostFunctions runtimeNetwork quote
-//     | _ -> None
-
-// let getRoots (patternSet: Set<Statement>) : Set<Symbol> =
-//     Set.map (fun ((entity, _, _): Statement) -> entity) patternSet
+    abstract Filter: NetworkName -> Network -> Result<Network, LigatureError>
 
 let printSymbol (Symbol(symbol)) : string = symbol

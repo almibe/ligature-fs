@@ -22,34 +22,34 @@ let chompCommand =
                 failwith "TODO"
             | _ -> error "Bad call to chomp." None }
 
-let isConsistentCommand =
-    { Name = Symbol("is-consistent?")
-      Doc = "Determine if a Network is consistent."
-      Eval =
-        fun _ store (arguments: Arguments) ->
-            match arguments with
-            | [ WanderValue.Symbol(Symbol(networkName)) ] ->
-                let value = store.IsConsistent networkName
-                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            | [ WanderValue.Network(network) ] ->
-                match isConsistent network with
-                | value -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            //| Error err -> error "Bad call to is-consistent." None
-            | _ -> error "Bad call to is-consistent." None }
+// let isConsistentCommand =
+//     { Name = Symbol("is-consistent?")
+//       Doc = "Determine if a Network is consistent."
+//       Eval =
+//         fun _ store (arguments: Arguments) ->
+//             match arguments with
+//             | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+//                 let value = store.IsConsistent networkName
+//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//             | [ WanderValue.Network(network) ] ->
+//                 match isConsistent network with
+//                 | value -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//             //| Error err -> error "Bad call to is-consistent." None
+//             | _ -> error "Bad call to is-consistent." None }
 
-let isCompleteCommand =
-    { Name = Symbol("is-complete?")
-      Doc = "Determine if a Network is complete."
-      Eval =
-        fun _ store (arguments: Arguments) ->
-            match arguments with
-            | [ WanderValue.Symbol(Symbol(networkName)) ] ->
-                let value = store.IsComplete networkName
-                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            | [ WanderValue.Network(network) ] ->
-                let value = isComplete network
-                Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
-            | _ -> error "Bad call to is-complete." None }
+// let isCompleteCommand =
+//     { Name = Symbol("is-complete?")
+//       Doc = "Determine if a Network is complete."
+//       Eval =
+//         fun _ store (arguments: Arguments) ->
+//             match arguments with
+//             | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+//                 let value = store.IsComplete networkName
+//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//             | [ WanderValue.Network(network) ] ->
+//                 let value = isComplete network
+//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//             | _ -> error "Bad call to is-complete." None }
 
 let unionCommand =
     { Name = Symbol("union")
@@ -70,7 +70,8 @@ let countCommand =
             match arguments with
             | [ WanderValue.Symbol(Symbol name) ] ->
                 match store.Read name with
-                | network -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
+                | Ok network -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
+                | _ -> failwith "TODO"
             | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
@@ -120,8 +121,8 @@ let applySingle (template: Network) (data: Map<Symbol, Symbol>) : Network =
                     { first = resFirst
                       second = resSecond
                       role = resRole }
-            | Entry.Extension _ -> failwith "TODO"
-            | Entry.NonExtension _ -> failwith "TODO")
+            | Entry.Extends _ -> failwith "TODO"
+            | Entry.NotExtends _ -> failwith "TODO")
         template
 
 let apply (template: Network) (data: Set<Map<Symbol, Symbol>>) : Network =
@@ -161,15 +162,15 @@ let compareRole
     else
         Set.ofList [ result ]
 
-let compareExtension (pattern: Extension) (source: Extension) = failwith "TODO"
+let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
 
-let compareNonExtension (pattern: NonExtension) (source: NonExtension) = failwith "TODO"
+let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "TODO"
 
 let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Symbol, Symbol>> =
     match pattern, source with
     | Entry.Role pattern, Entry.Role source -> compareRole pattern source
-    | Entry.Extension pattern, Entry.Extension source -> compareExtension pattern source
-    | Entry.NonExtension pattern, Entry.NonExtension source -> compareNonExtension pattern source
+    | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
+    | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
     | _ -> Set.empty
 
 let findEntry (pattern: Entry) (source: Network) : Set<Map<Symbol, Symbol>> =
@@ -196,5 +197,6 @@ let networkCommands: Map<Symbol, Command> =
           (minusCommand.Name, minusCommand)
           (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
-          (isCompleteCommand.Name, isCompleteCommand)
-          (isConsistentCommand.Name, isConsistentCommand) ])
+          //(isCompleteCommand.Name, isCompleteCommand)
+          //(isConsistentCommand.Name, isConsistentCommand)
+          ])

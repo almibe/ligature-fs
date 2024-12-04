@@ -100,4 +100,4 @@ type LigatureDuckDB() =
             failwith "Not Implemented"
 
 let inMemoryStore () : LigatureStore =
-    InMemoryStore(new Dictionary<NetworkName, Set<Entry>>())
+    using var duckDBConnection = new DuckDBConnection("DataSource=:memory:")

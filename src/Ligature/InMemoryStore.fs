@@ -12,7 +12,7 @@ let isComplete (entries: Set<Entry>) : bool =
         Set.fold
             (fun state value ->
                 match value with
-                | Entry.Extension { concept = concept } -> Set.add concept state
+                | Entry.Extends { concept = concept } -> Set.add concept state
                 | _ -> state)
             Set.empty
             entries
@@ -34,15 +34,15 @@ let isConsistent (network: Network) : bool =
             | false -> false
             | true ->
                 match entry with
-                | Entry.Extension { concept = conceptName
-                                    element = symbol } ->
+                | Entry.Extends { concept = conceptName
+                                  element = symbol } ->
                     let concept =
-                        Entry.Extension
+                        Entry.Extends
                             { concept = conceptName
                               element = symbol }
 
                     let notVersion =
-                        Entry.NonExtension
+                        Entry.NotExtends
                             { concept = conceptName
                               element = symbol }
 
@@ -56,9 +56,9 @@ let isConsistent (network: Network) : bool =
                         else
                             individuals <- Map.add symbol (Set.add (concept) res) individuals
                             true
-                | Entry.NonExtension { concept = concept; element = symbol } ->
-                    let notConcept = Entry.NonExtension { concept = concept; element = symbol }
-                    let inverse = Entry.Extension { concept = concept; element = symbol }
+                | Entry.NotExtends { concept = concept; element = symbol } ->
+                    let notConcept = Entry.NotExtends { concept = concept; element = symbol }
+                    let inverse = Entry.Extends { concept = concept; element = symbol }
 
                     match individuals.TryFind symbol with
                     | None ->
@@ -76,10 +76,13 @@ let isConsistent (network: Network) : bool =
 
 type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
     interface LigatureStore with
-        member _.AddNetwork networkName = store.Add(networkName, Set.empty)
+        member _.AddNetwork networkName = Ok(store.Add(networkName, Set.empty))
 
-        member _.RemoveNetwork networkName = store.Remove(networkName) |> ignore
-        member _.Networks() = store.Keys |> Set.ofSeq
+        member _.RemoveNetwork networkName =
+            store.Remove(networkName) |> ignore
+            Ok()
+
+        member _.Networks() = store.Keys |> Set.ofSeq |> Ok
 
         member _.Add name network =
             match store.TryGetValue name with
@@ -98,73 +101,75 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
             store.Add(name, (Set.difference oldNetwork network))
             Ok(())
 
-        member _.ClearNetwork networkName : unit = store.Remove networkName |> ignore
+        member _.ClearNetwork networkName : Result<unit, LigatureError> =
+            store.Remove networkName |> ignore
+            Ok()
 
-        member _.Read(networkName: NetworkName) : Set<Entry> =
+        member _.Read(networkName: NetworkName) : Result<Set<Entry>, LigatureError> =
             match store.TryGetValue networkName with
-            | (true, network) -> network
-            | (false, _) -> Set.empty
+            | (true, network) -> Ok network
+            | (false, _) -> Ok Set.empty
 
         member _.Set name network : Result<unit, LigatureError> =
             store.Add(name, network) |> ignore
             Ok(())
 
-        member _.AllConcepts(networkName: NetworkName) : Set<ConceptName> =
-            match store.TryGetValue(networkName) with
-            | true, entries -> Set.fold (fun state value -> state) Set.empty entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.AllConcepts(networkName: NetworkName) : Set<ConceptName> =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries -> Set.fold (fun state value -> state) Set.empty entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.AllExtentions (networkName: NetworkName) (conceptName: ConceptName) : Set<Symbol> =
-            match store.TryGetValue(networkName) with
-            | true, entries ->
-                Set.fold
-                    (fun state value ->
-                        match value with
-                        | Entry.Extension ex ->
-                            if ex.concept = conceptName then
-                                Set.add ex.element state
-                            else
-                                state
-                        | _ -> state)
-                    Set.empty
-                    entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.AllExtentions (networkName: NetworkName) (conceptName: ConceptName) : Set<Symbol> =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries ->
+        //         Set.fold
+        //             (fun state value ->
+        //                 match value with
+        //                 | Entry.Extends ex ->
+        //                     if ex.concept = conceptName then
+        //                         Set.add ex.element state
+        //                     else
+        //                         state
+        //                 | _ -> state)
+        //             Set.empty
+        //             entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.AllRoleInstances (networkName: NetworkName) (roleName: RoleName) : Set<Role> =
-            match store.TryGetValue(networkName) with
-            | true, entries ->
-                Set.fold
-                    (fun state value ->
-                        match value with
-                        | Entry.Role role -> if role.role = roleName then Set.add role state else state
-                        | _ -> state)
-                    Set.empty
-                    entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.AllRoleInstances (networkName: NetworkName) (roleName: RoleName) : Set<Role> =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries ->
+        //         Set.fold
+        //             (fun state value ->
+        //                 match value with
+        //                 | Entry.Role role -> if role.role = roleName then Set.add role state else state
+        //                 | _ -> state)
+        //             Set.empty
+        //             entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.AllRoles(networkName: NetworkName) : Set<RoleName> =
-            match store.TryGetValue(networkName) with
-            | true, entries ->
-                Set.fold
-                    (fun state value ->
-                        match value with
-                        | Entry.Role role -> Set.add role.role state
-                        | _ -> state)
-                    Set.empty
-                    entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.AllRoles(networkName: NetworkName) : Set<RoleName> =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries ->
+        //         Set.fold
+        //             (fun state value ->
+        //                 match value with
+        //                 | Entry.Role role -> Set.add role.role state
+        //                 | _ -> state)
+        //             Set.empty
+        //             entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.IsComplete(networkName: NetworkName) : bool =
-            match store.TryGetValue(networkName) with
-            | true, entries -> isComplete entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.IsComplete(networkName: NetworkName) : bool =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries -> isComplete entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.IsConsistent(networkName: NetworkName) : bool =
-            match store.TryGetValue(networkName) with
-            | true, entries -> isConsistent entries
-            | false, _ -> failwith "Not Implemented"
+        // member _.IsConsistent(networkName: NetworkName) : bool =
+        //     match store.TryGetValue(networkName) with
+        //     | true, entries -> isConsistent entries
+        //     | false, _ -> failwith "Not Implemented"
 
-        member _.Find (networkName: NetworkName) (terms: Set<Entry>) : Set<Map<Element, Symbol>> =
+        member _.Filter (networkName: NetworkName) (terms: Set<Entry>) : Result<Network, LigatureError> =
             failwith "Not Implemented"
 
 let emptyInMemoryStore () : LigatureStore =

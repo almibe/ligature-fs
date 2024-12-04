@@ -35,8 +35,11 @@ let readCommand: Command =
         fun _ store arguments ->
             match arguments with
             | [ WanderValue.Symbol(Symbol(name)) ] ->
-                let network = WanderValue.Network(store.Read name)
-                Ok(Some(network))
+                match store.Read name with
+                | Ok res ->
+                    let network = WanderValue.Network(res)
+                    Ok(Some(network))
+                | _ -> failwith "TODO"
             // match Map.tryFind name networks with
             // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
             // | _ -> failwith "TODO"
