@@ -6,15 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Config.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Argu" Version="6.1.1" />
     <PackageReference Include="NetMQ" Version="4.0.1.13" />
-    <PackageReference Include="Donald" Version="10.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
   </ItemGroup>
 
   <ItemGroup>
