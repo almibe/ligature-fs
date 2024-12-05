@@ -108,7 +108,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
         member _.Read(networkName: NetworkName) : Result<Set<Entry>, LigatureError> =
             match store.TryGetValue networkName with
             | (true, network) -> Ok network
-            | (false, _) -> Ok Set.empty
+            | (false, _) -> error "Network not found." None
 
         member _.Set name network : Result<unit, LigatureError> =
             store.Add(name, network) |> ignore

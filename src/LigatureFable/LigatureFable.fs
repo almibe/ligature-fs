@@ -17,9 +17,15 @@ let rec storeToJS (store: LigatureStore) =
 
     Set.iter
         (fun network ->
-            let networkInJS = store.Read network |> networkToGraphology
+            let networkInJS =
+                match store.Read network with
+                | Ok res -> networkToGraphology res
+                | _ -> failwith "TODO"
+
             res?(network) <- networkInJS)
-        (store.Networks())
+        (match store.Networks() with
+         | Ok res -> res
+         | Error _ -> failwith "TODO")
 
     res
 

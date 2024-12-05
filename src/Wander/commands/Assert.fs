@@ -39,4 +39,19 @@ let assertEqualCommand: Command =
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
-let assertCommands = Map.ofList [ (assertEqualCommand.Name, (assertEqualCommand)) ]
+let assertFailCommand: Command =
+    { Name = Symbol "assert-fail"
+      Doc = "Check that a call results in an error."
+      Eval =
+        fun (commands: Commands) networks (arguments: Arguments) ->
+            match arguments with
+            | [ WanderValue.Call(call) ] ->
+                match evalCall commands networks call with
+                | Ok(_) -> error "assert-fail call didn't result in error." None
+                | Error _ -> Ok(Some(WanderValue.Network Set.empty))
+            | args -> error $"assert-equal passed illegal arguments - {args}" None }
+
+let assertCommands =
+    Map.ofList
+        [ (assertEqualCommand.Name, (assertEqualCommand))
+          (assertFailCommand.Name, (assertFailCommand)) ]

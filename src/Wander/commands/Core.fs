@@ -39,10 +39,7 @@ let readCommand: Command =
                 | Ok res ->
                     let network = WanderValue.Network(res)
                     Ok(Some(network))
-                | _ -> failwith "TODO"
-            // match Map.tryFind name networks with
-            // | Some(network) -> Ok(selected, networks, Some(Identifier.Network network))
-            // | _ -> failwith "TODO"
+                | _ -> error "Could not read network" None
             | _ -> failwith "TODO" }
 
 let ignoreCommand: Command =
