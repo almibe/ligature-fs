@@ -8,6 +8,16 @@ open Ligature.Main
 open DuckDB.NET.Data
 
 type LigatureDuckDB(conn: DuckDBConnection) =
+    member _.FetchOrCreateNetwork networkName = 
+        use query = conn.CreateCommand ()
+        query.CommandText <- "select id from network where name = $name"
+        query.Parameters.Add(new DuckDBParameter("name", networkName)) |> ignore
+        use reader = query.ExecuteReader ()
+        while reader.Read() do
+            failwith "TODO"
+        
+        failwith "TODO"
+
     interface LigatureStore with
         member _.AddNetwork networkName = failwith "TODO"
 
@@ -29,9 +39,28 @@ type LigatureDuckDB(conn: DuckDBConnection) =
 
         member _.ClearNetwork networkName : Result<unit, LigatureError> = failwith "TODO"
 
-        member _.Read(networkName: NetworkName) : Result<Set<Entry>, LigatureError> = failwith "TODO"
+        member _.Read(networkName: NetworkName) : Result<Set<Entry>, LigatureError> = 
+            let query = conn.CreateCommand()
+            query.CommandText <- "SELECT e1.element, e2.element, e3.element from entry
+                left join network n on n.id = entry.network
+                left join element e1 on e1.id = entry.first
+                left join element e2 on e2.id = entry.second
+                left join element e3 on e3.id = entry.third
+                where n.name = $name;"
+            query.Parameters.Add(new DuckDBParameter("name", networkName)) |> ignore
+            use reader = query.ExecuteReader()
 
-        member _.Set name network : Result<unit, LigatureError> = failwith "TODO"
+            while reader.Read() do
+                failwith "TODO"
+
+            Ok(Set.empty)
+
+        member this.Set name network : Result<unit, LigatureError> = 
+            use tx = conn.BeginTransaction ()
+            //make sure that network exists
+            use query = conn.CreateCommand ()
+            this.FetchOrCreateNetwork name
+            failwith "TODO"
 
         member _.Filter (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             failwith "TODO"

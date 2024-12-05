@@ -19,6 +19,11 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
         }
 
+let createStore () =
+//    emptyInMemoryStore ()
+    Ligature.DuckDB.inMemoryDuckDBStore ()
+
+
 [<Tests>]
 let wanderTestSuite =
     //    let createBindings () = coreBindings //(Ligature.LigatureStore.InMemoryStore.empty ())
@@ -34,7 +39,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCommands (emptyInMemoryStore ()) script with
+                match run stdCommands (createStore ()) script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
