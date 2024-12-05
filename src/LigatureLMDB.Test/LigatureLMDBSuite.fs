@@ -6,7 +6,21 @@ module Ligature.LMDB.Test.Suite
 
 open Expecto
 open Ligature.Main
-open Ligature.DuckDB
+open Ligature.LMDB
+open System.IO
+
+let testLocation = 
+    Path.GetTempPath() + 
+    Path.DirectorySeparatorChar.ToString() + 
+    "ligatureLMDB" +
+    Path.DirectorySeparatorChar.ToString()
+
+let newInstance (): LigatureStore =
+    let directory = DirectoryInfo(testLocation)
+    if directory.Exists then
+        directory.Delete (true)
+    directory.Create ()
+    openStore testLocation
 
 [<Tests>]
 let tests =
@@ -14,5 +28,5 @@ let tests =
         "LMDB Store"
         [ testCase "Start with no networks."
           <| fun _ ->
-              let store = inMemoryDuckDBStore ()
+              let store = newInstance ()
               Expect.equal (store.Networks()) (Ok(Set.empty)) "" ]

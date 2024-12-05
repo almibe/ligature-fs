@@ -22,6 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\LigatureDuckDB\LigatureDuckDB.fsproj" />
+    <ProjectReference Include="..\LigatureLMDB\LigatureLMDB.fsproj" />
   </ItemGroup>
 </Project>

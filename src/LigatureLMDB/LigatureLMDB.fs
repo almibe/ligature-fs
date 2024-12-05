@@ -5,8 +5,13 @@
 module Ligature.LMDB
 
 open Ligature.Main
+open LightningDB
 
-type LigatureLMDB() =
+type LigatureLMDB(env: LightningEnvironment) =
+    do
+        //set up env
+        ()
+
     interface LigatureStore with
         member _.AddNetwork networkName = failwith "TODO"
 
@@ -24,11 +29,13 @@ type LigatureLMDB() =
         member _.Read(networkName: NetworkName) : Result<Set<Entry>, LigatureError> = 
             failwith "TODO"
 
-        member this.Set name network : Result<unit, LigatureError> = 
+        member _.Set name network : Result<unit, LigatureError> = 
             failwith "TODO"
 
         member _.Filter (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             failwith "TODO"
 
 let openStore (path: string) : LigatureStore =
-    failwith "TODO"
+    let env = new LightningEnvironment(path)
+    env.Open()
+    LigatureLMDB(env)
