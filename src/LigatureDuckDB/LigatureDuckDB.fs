@@ -7,13 +7,21 @@ module Ligature.DuckDB
 open Ligature.Main
 open DuckDB.NET.Data
 
-type LigatureDuckDB() =
+type LigatureDuckDB(conn: DuckDBConnection) =
     interface LigatureStore with
         member _.AddNetwork networkName = failwith "TODO"
 
         member _.RemoveNetwork networkName = failwith "TODO"
 
-        member _.Networks() = failwith "TODO"
+        member _.Networks() =
+            let query = conn.CreateCommand()
+            query.CommandText <- "select * from network;"
+            use reader = query.ExecuteReader()
+
+            while reader.Read() do
+                failwith "TODO"
+
+            Ok(Set.empty)
 
         member _.Add name network = failwith "TODO"
 
@@ -28,6 +36,28 @@ type LigatureDuckDB() =
         member _.Filter (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             failwith "TODO"
 
-let inMemoryStore () : LigatureStore =
-    use duckDBConnection = new DuckDBConnection("DataSource=:memory:")
-    failwith "TODO"
+let inMemoryDuckDBStore () : LigatureStore =
+    let conn = new DuckDBConnection("DataSource=:memory:")
+    conn.Open()
+    let command = conn.CreateCommand()
+
+    command.CommandText <-
+        "CREATE SEQUENCE seq;
+              CREATE TABLE element (
+                      id              UBIGINT PRIMARY KEY DEFAULT NEXTVAL('seq'),
+                      element         TEXT NOT NULL UNIQUE,
+                      );
+              CREATE TABLE network (
+                      id              UBIGINT PRIMARY KEY DEFAULT NEXTVAL('seq'),
+                      name            TEXT NOT NULL UNIQUE,
+                      );
+              CREATE TABLE entry (
+                      id              UBIGINT PRIMARY KEY DEFAULT NEXTVAL('seq'),
+                      network         UBIGINT REFERENCES network(id),
+                      first           UBIGINT REFERENCES element(id),
+                      second          UBIGINT REFERENCES element(id),
+                      third           UBIGINT REFERENCES element(id),
+                      );"
+
+    command.ExecuteNonQuery()
+    LigatureDuckDB(conn)

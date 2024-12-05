@@ -1,29 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Main.fs" />
     <Compile Include="LigatureDuckDBSuite.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\LigatureDuckDB\LigatureDuckDB.fsproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="DuckDB.NET.Data.Full" Version="1.1.3" />
-    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
-    <PackageReference Include="Ulid" Version="1.3.3" />
-    <PackageReference Include="FSharpPlus" Version="1.6.1" />
     <PackageReference Include="Expecto" Version="10.*" />
+    <PackageReference Include="FSharpPlus" Version="1.6.1" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Update="FSharp.Core" Version="8.*" />
     <PackageReference Include="Expecto.FsCheck" Version="10.2.1" />
     <PackageReference Include="FsCheck" Version="2.16.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\LigatureDuckDB\LigatureDuckDB.fsproj" />
   </ItemGroup>
 </Project>
