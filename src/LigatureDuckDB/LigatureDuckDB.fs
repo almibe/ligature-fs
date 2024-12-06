@@ -10,13 +10,19 @@ open DuckDB.NET.Data
 type LigatureDuckDB(conn: DuckDBConnection) =
     member _.FetchOrCreateNetwork networkName = 
         use query = conn.CreateCommand ()
-        query.CommandText <- "select id from network where name = $name"
+        query.CommandText <- "select id from network where name = $name;"
         query.Parameters.Add(new DuckDBParameter("name", networkName)) |> ignore
         use reader = query.ExecuteReader ()
+        let mutable id = None
         while reader.Read() do
-            failwith "TODO"
-        
-        failwith "TODO"
+            id <- Some(reader.GetInt64(0))
+        match id with
+        | Some id -> id
+        | _ ->
+            use command = conn.CreateCommand ()
+            command.CommandText <- "insert into network (name) ($name);"
+            query.Parameters.Add(new DuckDBParameter("name", networkName)) |> ignore
+            failwith "TODO - create network"
 
     interface LigatureStore with
         member _.AddNetwork networkName = failwith "TODO"

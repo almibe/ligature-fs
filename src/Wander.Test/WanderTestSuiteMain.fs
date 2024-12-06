@@ -20,9 +20,9 @@ let rec allFiles dirs =
         }
 
 let createStore () =
-//    emptyInMemoryStore ()
-    Ligature.DuckDB.inMemoryDuckDBStore ()
-
+    // emptyInMemoryStore ()
+    // Ligature.DuckDB.inMemoryDuckDBStore ()
+    Ligature.LMDB.Test.Suite.newTestInstance ()
 
 [<Tests>]
 let wanderTestSuite =

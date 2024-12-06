@@ -15,7 +15,7 @@ let testLocation =
     "ligatureLMDB" +
     Path.DirectorySeparatorChar.ToString()
 
-let newInstance (): LigatureStore =
+let newTestInstance (): LigatureStore =
     let directory = DirectoryInfo(testLocation)
     if directory.Exists then
         directory.Delete (true)
@@ -28,5 +28,5 @@ let tests =
         "LMDB Store"
         [ testCase "Start with no networks."
           <| fun _ ->
-              let store = newInstance ()
+              let store = newTestInstance ()
               Expect.equal (store.Networks()) (Ok(Set.empty)) "" ]
