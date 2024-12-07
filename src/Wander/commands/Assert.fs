@@ -9,7 +9,7 @@ open Wander.Interpreter
 open Wander.Model
 
 let assertEqualCommand: Command =
-    { Name = Symbol "assert-equal"
+    { Name = Element "assert-equal"
       Doc = "Check that two values are equal."
       Eval =
         fun (commands: Commands) networks (arguments: Arguments) ->
@@ -34,13 +34,13 @@ let assertEqualCommand: Command =
                     | _ -> second
 
                 if first = second then
-                    Ok(Some(WanderValue.Symbol(Symbol("Sucess!"))))
+                    Ok(Some(WanderValue.Element(Element("Sucess!"))))
                 else
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 let assertFailCommand: Command =
-    { Name = Symbol "assert-fail"
+    { Name = Element "assert-fail"
       Doc = "Check that a call results in an error."
       Eval =
         fun (commands: Commands) networks (arguments: Arguments) ->

@@ -14,13 +14,13 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Symbol = Symbol of string
+type Element = Element of string
 
-type Element = Symbol
+type ConceptName = Element
 
-type ConceptName = Symbol
+type RoleName = Element
 
-type RoleName = Symbol
+type Value = Value of string
 
 type Extends =
     { element: Element
@@ -35,11 +35,17 @@ type Role =
       second: Element
       role: RoleName }
 
+type Attribute =
+    { element: Element
+      attribute: Element
+      value: Value}
+
 [<RequireQualifiedAccess>]
 type Entry =
     | Extends of Extends
     | NotExtends of NotExtends
     | Role of Role
+    | Attribute of Attribute
 
 type Network = Set<Entry>
 

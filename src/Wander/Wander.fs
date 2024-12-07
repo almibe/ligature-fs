@@ -24,7 +24,7 @@ let run (commands: Commands) (store: LigatureStore) (input: string) : Result<Wan
 
 type WanderEngine =
     abstract member Run: script: string -> Result<WanderValue option, LigatureError>
-    abstract member AddCommand: Symbol -> Command -> unit
+    abstract member AddCommand: Element -> Command -> unit
     abstract member Store: unit -> LigatureStore
 
 type DefaultEngine(commands: Commands, store: LigatureStore) =
@@ -34,7 +34,7 @@ type DefaultEngine(commands: Commands, store: LigatureStore) =
     interface WanderEngine with
         member _.Run(script) = run commands store script
 
-        member _.AddCommand (name: Symbol) (command: Command) : unit =
+        member _.AddCommand (name: Element) (command: Command) : unit =
             commands <- Map.add name command commands
 
         member _.Store() : LigatureStore = store

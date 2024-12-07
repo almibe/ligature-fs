@@ -37,8 +37,8 @@ and networkToGraphology (network: Network) =
     Set.iter
         (fun (entry: Entry) ->
             match entry with
-            | Entry.Extends { element = Symbol element
-                              concept = Symbol concept } ->
+            | Entry.Extends { element = Element element
+                              concept = Element concept } ->
                 let elementJs = createEmpty
                 elementJs?key <- element
                 let conceptJs = createEmpty
@@ -50,8 +50,8 @@ and networkToGraphology (network: Network) =
                 edgeJs?source <- element
                 edgeJs?target <- concept
                 edges <- Set.add edgeJs edges
-            | Entry.NotExtends { element = Symbol element
-                                 concept = Symbol concept } ->
+            | Entry.NotExtends { element = Element element
+                                 concept = Element concept } ->
                 let elementJs = createEmpty
                 elementJs?key <- element
                 let conceptJs = createEmpty
@@ -63,9 +63,9 @@ and networkToGraphology (network: Network) =
                 edgeJs?source <- element
                 edgeJs?target <- concept
                 edges <- Set.add edgeJs edges
-            | Entry.Role { first = Symbol first
-                           second = Symbol second
-                           role = Symbol role } ->
+            | Entry.Role { first = Element first
+                           second = Element second
+                           role = Element role } ->
                 let firstJs = createEmpty
                 firstJs?key <- first
                 let secondJs = createEmpty

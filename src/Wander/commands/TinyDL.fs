@@ -5,28 +5,30 @@
 module Wander.Commands.TinyDL
 
 open Ligature.Main
-open TinyDL.Model
+//open TinyDL.Model
 open Wander.Model
 
-let inferCommand: Command =
-    { Name = Symbol("infer")
-      Doc = "Use the ."
-      Eval =
-        fun _ store arguments ->
-            match arguments with
-            | [ WanderValue.Network(description); WanderValue.Network(network) ] ->
-                match infer (networkToDescription description) network with
-                | Ok res -> Ok(Some(WanderValue.Network res))
-                | Error err -> error $"Error calling infer: {err}" None
-                | _ -> error "Unexpected return value from infer." None
-            | _ -> error "Improper call to infer." None }
+// let inferCommand: Command =
+//     { Name = Element("infer")
+//       Doc = "Use the ."
+//       Eval =
+//         fun _ store arguments ->
+//             match arguments with
+//             | [ WanderValue.Network(description); WanderValue.Network(network) ] ->
+//                 match infer (networkToDescription description) network with
+//                 | Ok res -> Ok(Some(WanderValue.Network res))
+//                 | Error err -> error $"Error calling infer: {err}" None
+//                 | _ -> error "Unexpected return value from infer." None
+//             | _ -> error "Improper call to infer." None }
 
 let parseCommand: Command =
-    { Name = Symbol "tiny-dl.parse"
+    { Name = Element "tiny-dl.parse"
       Doc = "Parse tiny-dl script into a Network."
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(input) ] -> failwith "TODO" }
+            | [ WanderValue.Element(input) ] -> failwith "TODO" }
 
-let tinyDLCommands = (Map.ofList [ (inferCommand.Name, inferCommand) ])
+// let tinyDLCommands = (Map.ofList [ 
+//   // (inferCommand.Name, inferCommand) 
+//   ])

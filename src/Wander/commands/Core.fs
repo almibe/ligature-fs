@@ -9,7 +9,7 @@ open Wander.Model
 open Wander.Interpreter
 
 let idCommand: Command =
-    { Name = Symbol("id")
+    { Name = Element("id")
       Doc = "Return the value passed."
       Eval =
         fun _ _ arguments ->
@@ -18,23 +18,23 @@ let idCommand: Command =
             | _ -> failwith "TODO" }
 
 let letCommand: Command =
-    { Name = Symbol("let")
+    { Name = Element("let")
       Doc = "Set the value of a given named network."
       Eval =
         fun commands store arguments ->
             match processArguments commands store arguments with
-            | [ WanderValue.Symbol(Symbol(name)); WanderValue.Network(value) ] ->
+            | [ WanderValue.Element(Element(name)); WanderValue.Network(value) ] ->
                 store.SetNetwork name value |> ignore
                 Ok(None)
             | _ -> failwith "TODO" }
 
 let readCommand: Command =
-    { Name = Symbol("read")
+    { Name = Element("read")
       Doc = "Read the value of a given network."
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Symbol(Symbol(name)) ] ->
+            | [ WanderValue.Element(Element(name)) ] ->
                 match store.ReadNetwork name with
                 | Ok res ->
                     let network = WanderValue.Network(res)
@@ -43,12 +43,12 @@ let readCommand: Command =
             | _ -> failwith "TODO" }
 
 let ignoreCommand: Command =
-    { Name = Symbol("ignore")
+    { Name = Element("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
       Eval = fun _ networks _ -> Ok(None) }
 
-// let printSignature ((arguments, result): WanderType list * WanderType option) : Symbol =
-//     Symbol($"{arguments} -> {result}")
+// let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
+//     Element($"{arguments} -> {result}")
 // List.map
 //     (fun t ->
 //         match t with
@@ -65,7 +65,7 @@ let ignoreCommand: Command =
 //     signature
 
 let docsCommand: Command =
-    { Name = Symbol("docs")
+    { Name = Element("docs")
       Doc = "Create a network that contains documentation for the available commands."
       Eval =
         fun commands networks _ ->
@@ -77,8 +77,8 @@ let docsCommand: Command =
                     Set.add
                         (Entry.Role
                             { first = name
-                              second = Symbol(command.Doc)
-                              role = Symbol("docString") })
+                              second = Element(command.Doc)
+                              role = Element("docString") })
                         docs
 
                 ())

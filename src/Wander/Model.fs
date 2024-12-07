@@ -12,18 +12,18 @@ open Ligature.Main
 //open Ligature.LigatureStore.InMemoryStore
 
 type Command =
-    { Name: Symbol
+    { Name: Element
       Doc: string
       Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
 
 and [<RequireQualifiedAccess>] WanderValue =
-    | Symbol of Symbol
+    | Element of Element
     | Call of Call
     | Network of Network
 
-and Call = Symbol * WanderValue list
+and Call = Element * WanderValue list
 
-and Commands = Map<Symbol, Command>
+and Commands = Map<Element, Command>
 
 and Arguments = WanderValue list
 
@@ -36,7 +36,7 @@ let encodeString string =
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
-    | WanderValue.Symbol(Symbol(value)) -> value
+    | WanderValue.Element(Element(value)) -> value
     // | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
     // | WanderValue.Slot(Slot(None)) -> "$"
     | WanderValue.Call(name, values) -> $"[{printExpression values}]" //TODO print names better

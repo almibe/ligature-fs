@@ -14,16 +14,16 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Symbol(name)) -> Ok(WanderValue.Symbol(Symbol name))
+            | Ok(Token.Element(name)) -> Ok(WanderValue.Element(Element name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let readSymbol (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let readElement (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
+    | Ok(Token.Element(value)) -> Ok(WanderValue.Element(Element value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
@@ -35,7 +35,7 @@ let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError>
         return WanderValue.Call(name, values)
     }
 
-let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Symbol * Symbol * Symbol), Gaze.GazeError> =
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
     let entity = symbolNib gaze
     let attribute = symbolNib gaze
     let value = symbolNib gaze
@@ -52,13 +52,13 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
         return WanderValue.Network(expressNetwork statements)
     }
 
-let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Symbol, Gaze.GazeError> =
+let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(Symbol value)
-    | Ok(Token.StringLiteral(value)) -> Ok(Symbol value)
+    | Ok(Token.Element(value)) -> Ok(Element value)
+    | Ok(Token.StringLiteral(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
@@ -66,8 +66,8 @@ let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Symbol(value)) -> Ok(WanderValue.Symbol(Symbol value))
-    | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Symbol(Symbol value))
+    | Ok(Token.Element(value)) -> Ok(WanderValue.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Element(Element value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib: Gaze.Nibbler<Token, WanderValue> =
@@ -117,15 +117,15 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressNetwork (network: (Symbol * Symbol * Symbol) list) : Set<Entry> =
+let expressNetwork (network: (Element * Element * Element) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
-let elementTupleToEntry ((entity, attribute, value): (Symbol * Symbol * Symbol)) : Entry =
+let elementTupleToEntry ((entity, attribute, value): (Element * Element * Element)) : Entry =
 
-    if attribute = Symbol ":" then
+    if attribute = Element ":" then
         Entry.Extends { element = entity; concept = value }
-    else if attribute = Symbol ":¬" then
+    else if attribute = Element ":¬" then
         Entry.NotExtends { element = entity; concept = value }
     else
         Entry.Role

@@ -17,13 +17,13 @@ let evalNetwork
     store.AddEntries name network |> ignore
     Ok None
 
-let rec evalSymbol
+let rec evalElement
     (commands: Commands)
     networks
     (arguments: WanderValue list)
-    (Symbol(name))
+    (Element(name))
     : Result<WanderValue option, LigatureError> =
-    match commands.TryFind(Symbol(name)) with
+    match commands.TryFind(Element(name)) with
     | Some(command) -> command.Eval commands networks arguments
     | None -> error $"Could not find name {name}" None
 
@@ -52,4 +52,4 @@ and evalCall
     (store: LigatureStore)
     ((name, args): Call)
     : Result<WanderValue option, LigatureError> =
-    evalSymbol commands store args name
+    evalElement commands store args name

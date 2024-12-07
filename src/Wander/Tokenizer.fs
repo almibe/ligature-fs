@@ -54,7 +54,7 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Symbol of string
+    | Element of string
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -120,7 +120,7 @@ let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Symbol)
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Element)
 
 let tokenNibbler =
     Nibblers.optional (

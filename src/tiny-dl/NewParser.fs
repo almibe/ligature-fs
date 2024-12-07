@@ -195,14 +195,14 @@ let expressConcept (nodes: ConceptExpressionNode list) : Result<ConceptExpressio
         | None -> result <- Error "Unexpected Element when Parsing Concept."
         | Some(ConceptExpressionNode.Name name) ->
             cont <- false
-            result <- Ok(AtomicConcept(Symbol name))
+            result <- Ok(AtomicConcept(Element name))
         | Some(ConceptExpressionNode.Not) ->
             match readOffset 1 state with
             | None ->
                 result <- Error "Error expressing concept."
                 cont <- false
             | Some(ConceptExpressionNode.Name concept) ->
-                result <- Ok(Not { concept = AtomicConcept(Symbol concept) })
+                result <- Ok(Not { concept = AtomicConcept(Element concept) })
                 cont <- false
             | Some _ ->
                 result <- Error "Error expressing concept."
@@ -223,8 +223,8 @@ let express (nodes: Node list) : Result<Script, ParserError> =
                     Ok(
                         Set.add
                             (Defination
-                                { left = Symbol left
-                                  right = AtomicConcept(Symbol right) })
+                                { left = Element left
+                                  right = AtomicConcept(Element right) })
                             description,
                         network,
                         checks
@@ -233,8 +233,8 @@ let express (nodes: Node list) : Result<Script, ParserError> =
                     Ok(
                         Set.add
                             (Inclusion
-                                { left = Symbol left
-                                  right = AtomicConcept(Symbol right) })
+                                { left = Element left
+                                  right = AtomicConcept(Element right) })
                             description,
                         network,
                         checks

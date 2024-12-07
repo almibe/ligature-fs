@@ -26,7 +26,7 @@ let isComplete (entries: Set<Entry>) : bool =
         entries
 
 let isConsistent (network: Network) : bool =
-    let mutable individuals: Map<Symbol, Set<Entry>> = Map.empty
+    let mutable individuals: Map<Element, Set<Entry>> = Map.empty
 
     Set.fold
         (fun state (entry: Entry) ->
@@ -110,6 +110,7 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
             | (false, _) -> error "Network not found." None
 
         member _.SetNetwork name network : Result<unit, LigatureError> =
+            store.Remove(name) |> ignore
             store.Add(name, network) |> ignore
             Ok(())
 

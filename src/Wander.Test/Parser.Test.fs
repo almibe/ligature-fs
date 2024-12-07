@@ -24,13 +24,13 @@ let tests =
               Expect.equal
                   (parse "a {a b c}")
                   (Ok(
-                      [ (Symbol "a",
+                      [ (Element "a",
                          [ WanderValue.Network(
                                Set.ofList
                                    [ Entry.Role
-                                         { first = Symbol "a"
-                                           second = Symbol "c"
-                                           role = Symbol "b" } ]
+                                         { first = Element "a"
+                                           second = Element "c"
+                                           role = Element "b" } ]
                            ) ]) ]
                   ))
                   ""
@@ -39,13 +39,13 @@ let tests =
               Expect.equal
                   (parse "a {?a b c}")
                   (Ok(
-                      [ (Symbol "a",
+                      [ (Element "a",
                          [ WanderValue.Network(
                                Set.ofList
                                    [ Entry.Role
-                                         { first = Symbol "?a"
-                                           second = Symbol "c"
-                                           role = Symbol "b" } ]
+                                         { first = Element "?a"
+                                           second = Element "c"
+                                           role = Element "b" } ]
                            ) ]) ]
                   ))
                   "" ]

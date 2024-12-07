@@ -8,12 +8,8 @@ open Ligature.Main
 
 type TinyDLError = string
 
-type AtomicConcept = Symbol
-
-type Role = Symbol
-
 and ConceptExpression =
-    | AtomicConcept of AtomicConcept
+    | AtomicConcept of ConceptName
     | Inclusion of Inclusion
     | Defination of Definition
     | Disjunction of Disjunction
@@ -25,7 +21,7 @@ and Description = Set<ConceptExpression>
 and Script = Description * Network * Network
 
 and [<RequireQualifiedAccess>] NormalConceptExpression =
-    | AtomicConcept of AtomicConcept
+    | AtomicConcept of Element
     | Not of AtomicConcept
 
 and Inclusion =
@@ -57,7 +53,7 @@ let networkToDescription (input: Network) : Description =
         match entry with
         | Entry.Role { first = first
                        second = second
-                       role = Symbol "subconcept" } ->
+                       role = Element "subconcept" } ->
             Inclusion
                 { left = first
                   right = AtomicConcept second }
@@ -88,7 +84,7 @@ let infer (description: Description) (network: Network) : Result<Network, TinyDL
 
     Ok result
 
-let top = Symbol "⊤"
-let bottom = Symbol "⊥"
+let top = Element "⊤"
+let bottom = Element "⊥"
 
 let emptyKB = Set.empty, Set.empty, Set.empty

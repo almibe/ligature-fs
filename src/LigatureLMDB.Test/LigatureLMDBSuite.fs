@@ -46,4 +46,17 @@ let tests =
               store.AddNetwork(NetworkName "test3")
               store.RemoveNetwork(NetworkName "test2")
 
-              Expect.equal (store.Networks()) (Ok(Set.ofList [ NetworkName "test"; NetworkName "test3" ])) "" ]
+              Expect.equal (store.Networks()) (Ok(Set.ofList [ NetworkName "test"; NetworkName "test3" ])) "" 
+          testCase "Set network."
+          <| fun _ ->
+              use store = newTestInstance ()
+              store.AddNetwork(NetworkName "test")
+
+              store.SetNetwork (NetworkName "test") (Set.ofList [
+                Entry.Role { first = Element "a"; second = Element "c"; role = Element "b" }
+              ])
+
+              Expect.equal (store.ReadNetwork(NetworkName "test")) (Ok(Set.ofList [
+                Entry.Role { first = Element "a"; second = Element "c"; role = Element "b" }
+               ])) ""
+              ]

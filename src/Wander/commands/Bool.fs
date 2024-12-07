@@ -8,15 +8,15 @@ open Wander.Model
 open Ligature.Main
 
 let notFunction =
-    { Name = Symbol("Bool.not")
+    { Name = Element("Bool.not")
       Doc = "Boolean not"
       Eval =
         (fun _ _ args ->
             match args with
-            | [ WanderValue.Symbol(value) ] ->
+            | [ WanderValue.Element(value) ] ->
                 match value with
-                | Symbol("true") -> Ok(Some(WanderValue.Symbol(Symbol("false"))))
-                | Symbol("false") -> Ok(Some(WanderValue.Symbol(Symbol("true"))))
+                | Element("true") -> Ok(Some(WanderValue.Element(Element("false"))))
+                | Element("false") -> Ok(Some(WanderValue.Element(Element("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

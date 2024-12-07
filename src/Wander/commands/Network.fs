@@ -9,12 +9,12 @@ open Ligature.InMemoryStore
 open Wander.Model
 
 let chompCommand =
-    { Name = Symbol("chomp")
+    { Name = Element("chomp")
       Doc = "Merge the passed Network into named Network."
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Network(input); WanderValue.Symbol(name) ] ->
+            | [ WanderValue.Network(input); WanderValue.Element(name) ] ->
                 // let currentNetwork = currentNetwork networks
                 // let newNetwork = Set.union input currentNetwork
                 // let newNetworks = Map.add selected newNetwork networks
@@ -23,36 +23,36 @@ let chompCommand =
             | _ -> error "Bad call to chomp." None }
 
 // let isConsistentCommand =
-//     { Name = Symbol("is-consistent?")
+//     { Name = Element("is-consistent?")
 //       Doc = "Determine if a Network is consistent."
 //       Eval =
 //         fun _ store (arguments: Arguments) ->
 //             match arguments with
-//             | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+//             | [ WanderValue.Element(Element(networkName)) ] ->
 //                 let value = store.IsConsistent networkName
-//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
 //             | [ WanderValue.Network(network) ] ->
 //                 match isConsistent network with
-//                 | value -> Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//                 | value -> Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
 //             //| Error err -> error "Bad call to is-consistent." None
 //             | _ -> error "Bad call to is-consistent." None }
 
 // let isCompleteCommand =
-//     { Name = Symbol("is-complete?")
+//     { Name = Element("is-complete?")
 //       Doc = "Determine if a Network is complete."
 //       Eval =
 //         fun _ store (arguments: Arguments) ->
 //             match arguments with
-//             | [ WanderValue.Symbol(Symbol(networkName)) ] ->
+//             | [ WanderValue.Element(Element(networkName)) ] ->
 //                 let value = store.IsComplete networkName
-//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
 //             | [ WanderValue.Network(network) ] ->
 //                 let value = isComplete network
-//                 Ok(Some(WanderValue.Symbol(value.ToString().ToLower() |> Symbol)))
+//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
 //             | _ -> error "Bad call to is-complete." None }
 
 let unionCommand =
-    { Name = Symbol("union")
+    { Name = Element("union")
       Doc = "Find the union of two Networks."
       Eval =
         fun _ networks (arguments: Arguments) ->
@@ -63,20 +63,20 @@ let unionCommand =
             | _ -> failwith "TODO" }
 
 let countCommand =
-    { Name = Symbol("count")
+    { Name = Element("count")
       Doc = "Count the number of assertions in a Network."
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Symbol(Symbol name) ] ->
+            | [ WanderValue.Element(Element name) ] ->
                 match store.ReadNetwork name with
-                | Ok network -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
+                | Ok network -> Ok(Some(WanderValue.Element(Element(network.Count.ToString()))))
                 | _ -> failwith "TODO"
-            | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
+            | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Element(Element(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
 let minusCommand =
-    { Name = Symbol("minus")
+    { Name = Element("minus")
       Doc = "Remove all Statements from the first Network that are in the second Networks."
       Eval =
         fun _ networks (arguments: Arguments) ->
@@ -86,36 +86,36 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let applySingle (template: Network) (data: Map<Symbol, Symbol>) : Network =
+let applySingle (template: Network) (data: Map<Element, Element>) : Network =
     Set.map
         (fun entry ->
             match entry with
-            | Entry.Role { first = Symbol first
-                           second = Symbol second
-                           role = Symbol role } ->
+            | Entry.Role { first = Element first
+                           second = Element second
+                           role = Element role } ->
                 let resFirst =
                     if first.StartsWith "?" then
-                        match Map.tryFind (Symbol first) data with
+                        match Map.tryFind (Element first) data with
                         | Some res -> res
-                        | _ -> Symbol first
+                        | _ -> Element first
                     else
-                        Symbol first
+                        Element first
 
                 let resSecond =
                     if second.StartsWith "?" then
-                        match Map.tryFind (Symbol second) data with
+                        match Map.tryFind (Element second) data with
                         | Some res -> res
-                        | _ -> Symbol second
+                        | _ -> Element second
                     else
-                        Symbol second
+                        Element second
 
                 let resRole =
                     if role.StartsWith "?" then
-                        match Map.tryFind (Symbol role) data with
+                        match Map.tryFind (Element role) data with
                         | Some res -> res
-                        | _ -> Symbol role
+                        | _ -> Element role
                     else
-                        Symbol role
+                        Element role
 
                 Entry.Role
                     { first = resFirst
@@ -125,35 +125,35 @@ let applySingle (template: Network) (data: Map<Symbol, Symbol>) : Network =
             | Entry.NotExtends _ -> failwith "TODO")
         template
 
-let apply (template: Network) (data: Set<Map<Symbol, Symbol>>) : Network =
+let apply (template: Network) (data: Set<Map<Element, Element>>) : Network =
     Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
 
 let compareRole
-    ({ first = Symbol pFirst
-       second = Symbol pSecond
-       role = Symbol pRole }: Role)
-    ({ first = Symbol sFirst
-       second = Symbol sSecond
-       role = Symbol sRole }: Role)
-    : Set<Map<Symbol, Symbol>> =
+    ({ first = Element pFirst
+       second = Element pSecond
+       role = Element pRole }: Role)
+    ({ first = Element sFirst
+       second = Element sSecond
+       role = Element sRole }: Role)
+    : Set<Map<Element, Element>> =
     let mutable fail = false
     let mutable result = Map.empty
 
     if pFirst.StartsWith "?" then
         if pFirst.Length > 1 then
-            result <- Map.add (Symbol pFirst) (Symbol sFirst) result
+            result <- Map.add (Element pFirst) (Element sFirst) result
     else
         fail <- pFirst <> sFirst
 
     if (not fail) && pSecond.StartsWith "?" then
         if pSecond.Length > 1 then
-            result <- Map.add (Symbol pSecond) (Symbol sSecond) result
+            result <- Map.add (Element pSecond) (Element sSecond) result
     else
         fail <- pSecond <> sSecond
 
     if (not fail) && pRole.StartsWith "?" then
         if pRole.Length > 1 then
-            result <- Map.add (Symbol pRole) (Symbol sRole) result
+            result <- Map.add (Element pRole) (Element sRole) result
     else
         fail <- pRole <> sRole
 
@@ -166,21 +166,25 @@ let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
 
 let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "TODO"
 
-let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Symbol, Symbol>> =
+let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
     match pattern, source with
     | Entry.Role pattern, Entry.Role source -> compareRole pattern source
     | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
     | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
     | _ -> Set.empty
 
-let findEntry (pattern: Entry) (source: Network) : Set<Map<Symbol, Symbol>> =
+let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
     Set.fold (fun state entry -> Set.union state (findSingleEntry pattern entry)) Set.empty source
 
-let find (pattern: Network) (source: Network) : Set<Map<Symbol, Symbol>> =
+let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
+let filter (pattern: Network) (source: Network) : Network =
+    
+    failwith "TODO"
+
 let queryCommand =
-    { Name = Symbol("query")
+    { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"
       Eval =
         fun commands networks arguments ->
@@ -190,7 +194,18 @@ let queryCommand =
                 Ok(Some(WanderValue.Network(apply template results)))
             | _ -> error "Invalid call to query" None }
 
-let networkCommands: Map<Symbol, Command> =
+let filterCommand =
+    { Name = Element("filter")
+      Doc = "arguments: pattern data, returns network"
+      Eval =
+        fun commands networks arguments ->
+            match arguments with
+            | [ WanderValue.Network pattern; WanderValue.Network source ] ->
+                let results = filter pattern source
+                failwith "TODO"
+            | _ -> error "Invalid call to query" None }
+
+let networkCommands: Map<Element, Command> =
     (Map.ofList
         [ (chompCommand.Name, chompCommand)
           (countCommand.Name, countCommand)
