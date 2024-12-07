@@ -15,7 +15,7 @@ type LigatureLMDB(env: LightningEnvironment) =
     let elementToIdDB = "elementToId"
     let idToElementDB = "idToElement"
     let entryDB = "entry"
-    let store = emptyInMemoryStore()
+    let store = emptyInMemoryStore ()
 
     let dbConfig =
         let config = DatabaseConfiguration()
@@ -59,12 +59,28 @@ type LigatureLMDB(env: LightningEnvironment) =
         let struct (result, key, value) = cursor.GetCurrent()
 
         if result = MDBResultCode.Success then
-            failwith "TODO"
+            if key.CopyToNewArray()[0 .. networkId.Length] = networkId then
+                // if it exists then delete all matching entries
+                failwith "TODO"
+            else
+                ()
         else
             ()
 
-    let clearNetwork tx (networkId: byte[]) =
-        clearNetworkDB tx networkId entryDB
+    let removeNetwork (tx: LightningTransaction) (networkName: NetworkName) =
+        use networkToId = tx.OpenDatabase(networkToIdDB, dbConfig)
+        let networkName = System.Text.Encoding.UTF8.GetBytes networkName
+        let struct (resultCode, key, value) = tx.Get(networkToId, networkName)
+
+        if resultCode = MDBResultCode.Success then
+            tx.Delete(networkToId, networkName)
+            use idToNetwork = tx.OpenDatabase(idToNetworkDB, dbConfig)
+            tx.Delete(idToNetwork, value.CopyToNewArray())
+            clearNetworkDB tx networkName entryDB
+        else
+            ()
+
+    let clearNetwork tx (networkId: byte[]) = clearNetworkDB tx networkId entryDB
 
     let setNetwork (tx: LightningTransaction) (networkId: byte[]) (network: Network) =
         Set.iter
@@ -78,24 +94,28 @@ type LigatureLMDB(env: LightningEnvironment) =
             network
 
     interface System.IDisposable with
-        member _.Dispose (): unit = 
-                    env.Dispose()
+        member _.Dispose() : unit = env.Dispose()
+
     interface LigatureStore with
-        member _.AddNetwork networkName = 
+        member _.AddNetwork networkName =
             store.AddNetwork networkName
-            failwith "TODO"
+            use tx = env.BeginTransaction()
+            checkOrCreateNetwork tx networkName
+            Ok()
 
-        member _.RemoveNetwork networkName = 
+        member _.RemoveNetwork networkName =
             store.RemoveNetwork networkName
-            failwith "TODO"
+            use tx = env.BeginTransaction()
+            removeNetwork tx networkName
+            Ok()
 
-        member _.Networks() =
-            store.Networks()
-        member _.AddEntries name network = 
+        member _.Networks() = store.Networks()
+
+        member _.AddEntries name network =
             store.AddEntries name network
             failwith "TODO"
 
-        member _.RemoveEntries name network = 
+        member _.RemoveEntries name network =
             store.RemoveEntries name network
             failwith "TODO"
 

@@ -76,7 +76,8 @@ let isConsistent (network: Network) : bool =
 
 type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
     interface System.IDisposable with
-        member _.Dispose (): unit = ()
+        member _.Dispose() : unit = ()
+
     interface LigatureStore with
         member _.AddNetwork networkName = Ok(store.Add(networkName, Set.empty))
 
