@@ -24,7 +24,7 @@ let letCommand: Command =
         fun commands store arguments ->
             match processArguments commands store arguments with
             | [ WanderValue.Symbol(Symbol(name)); WanderValue.Network(value) ] ->
-                store.Set name value |> ignore
+                store.SetNetwork name value |> ignore
                 Ok(None)
             | _ -> failwith "TODO" }
 
@@ -35,7 +35,7 @@ let readCommand: Command =
         fun _ store arguments ->
             match arguments with
             | [ WanderValue.Symbol(Symbol(name)) ] ->
-                match store.Read name with
+                match store.ReadNetwork name with
                 | Ok res ->
                     let network = WanderValue.Network(res)
                     Ok(Some(network))

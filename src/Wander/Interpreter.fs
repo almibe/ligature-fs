@@ -14,7 +14,7 @@ let evalNetwork
     (name: NetworkName)
     (network: Set<Entry>)
     : Result<WanderValue option, LigatureError> =
-    store.Add name network |> ignore
+    store.AddEntries name network |> ignore
     Ok None
 
 let rec evalSymbol

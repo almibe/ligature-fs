@@ -46,14 +46,12 @@ type Network = Set<Entry>
 type NetworkName = string
 
 type LigatureStore =
+    inherit System.IDisposable
     abstract Networks: unit -> Result<Set<NetworkName>, LigatureError>
-    abstract Read: NetworkName -> Result<Network, LigatureError>
+    abstract ReadNetwork: NetworkName -> Result<Network, LigatureError>
     abstract AddNetwork: NetworkName -> Result<unit, LigatureError>
     abstract RemoveNetwork: NetworkName -> Result<unit, LigatureError>
-    abstract ClearNetwork: NetworkName -> Result<unit, LigatureError>
-    abstract Add: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Set: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Remove: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract Filter: NetworkName -> Network -> Result<Network, LigatureError>
-
-let printSymbol (Symbol(symbol)) : string = symbol
+    abstract AddEntries: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract SetNetwork: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract RemoveEntries: NetworkName -> Network -> Result<unit, LigatureError>
+    abstract FilterEntries: NetworkName -> Network -> Result<Network, LigatureError>

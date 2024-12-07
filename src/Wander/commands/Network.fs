@@ -69,7 +69,7 @@ let countCommand =
         fun _ store (arguments: Arguments) ->
             match arguments with
             | [ WanderValue.Symbol(Symbol name) ] ->
-                match store.Read name with
+                match store.ReadNetwork name with
                 | Ok network -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))
                 | _ -> failwith "TODO"
             | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Symbol(Symbol(network.Count.ToString()))))

@@ -9,17 +9,19 @@ open Ligature.Main
 open Ligature.LMDB
 open System.IO
 
-let testLocation = 
-    Path.GetTempPath() + 
-    Path.DirectorySeparatorChar.ToString() + 
-    "ligatureLMDB" +
-    Path.DirectorySeparatorChar.ToString()
+let testLocation =
+    Path.GetTempPath()
+    + Path.DirectorySeparatorChar.ToString()
+    + "ligatureLMDB"
+    + Path.DirectorySeparatorChar.ToString()
 
-let newTestInstance (): LigatureStore =
+let newTestInstance () : LigatureStore =
     let directory = DirectoryInfo(testLocation)
+
     if directory.Exists then
-        directory.Delete (true)
-    directory.Create ()
+        directory.Delete(true)
+
+    directory.Create()
     openStore testLocation
 
 [<Tests>]
@@ -27,6 +29,12 @@ let tests =
     testList
         "LMDB Store"
         [ testCase "Start with no networks."
+          <| fun _ -> ()
+            //   use store = newTestInstance ()
+            //   Expect.equal (store.Networks()) (Ok(Set.empty)) "" 
+          testCase "A network."
           <| fun _ ->
-              let store = newTestInstance ()
-              Expect.equal (store.Networks()) (Ok(Set.empty)) "" ]
+              use store = newTestInstance ()
+              store.AddNetwork (NetworkName "test")
+              Expect.equal (store.Networks()) (Ok(Set.ofList [NetworkName "test"])) ""
+              ]
