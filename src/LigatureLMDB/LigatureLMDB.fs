@@ -84,6 +84,7 @@ type LigatureLMDB(env: LightningEnvironment) =
 
     let setNetwork (tx: LightningTransaction) (networkId: byte[]) (network: Network) =
         use entryDB = tx.OpenDatabase(entryDB, dbConfig)
+
         Set.iter
             (fun entry ->
                 match entry with
@@ -91,9 +92,9 @@ type LigatureLMDB(env: LightningEnvironment) =
                 | Entry.NotExtends { element = element; concept = concept } -> failwith "Not Implemented"
                 | Entry.Role { first = first
                                second = second
-                               role = role } -> 
-                                let value = Array.concat [ networkId ]
-                                tx.Put(entryDB, value, [||]) |> ignore)
+                               role = role } ->
+                    let value = Array.concat [ networkId ]
+                    tx.Put(entryDB, value, [||]) |> ignore)
             network
 
     interface System.IDisposable with

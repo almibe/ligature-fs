@@ -5,7 +5,6 @@
 module Wander.Test.Main
 
 open Expecto
-open Ligature.Main
 
 [<EntryPoint>]
 let main argv = runTestsInAssemblyWithCLIArgs [] argv

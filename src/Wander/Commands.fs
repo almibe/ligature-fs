@@ -11,4 +11,4 @@ let stdCommands =
     |> Map.union Commands.Assert.assertCommands
     |> Map.union Commands.Bool.boolLib
     |> Map.union Commands.Network.networkCommands
-    // |> Map.union Commands.TinyDL.tinyDLCommands
+// |> Map.union Commands.TinyDL.tinyDLCommands

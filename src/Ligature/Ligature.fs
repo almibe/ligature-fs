@@ -38,7 +38,7 @@ type Role =
 type Attribute =
     { element: Element
       attribute: Element
-      value: Value}
+      value: Value }
 
 [<RequireQualifiedAccess>]
 type Entry =

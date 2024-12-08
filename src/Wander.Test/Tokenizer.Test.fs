@@ -6,9 +6,6 @@ module Wander.Tokenizer.Test
 
 open Expecto
 open Wander.Tokenizer
-open Wander.Model
-open Wander.Main
-open Ligature.Main
 
 [<Tests>]
 let tests =

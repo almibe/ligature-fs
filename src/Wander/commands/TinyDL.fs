@@ -29,6 +29,6 @@ let parseCommand: Command =
             match arguments with
             | [ WanderValue.Element(input) ] -> failwith "TODO" }
 
-// let tinyDLCommands = (Map.ofList [ 
-//   // (inferCommand.Name, inferCommand) 
+// let tinyDLCommands = (Map.ofList [
+//   // (inferCommand.Name, inferCommand)
 //   ])

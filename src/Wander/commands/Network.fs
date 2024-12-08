@@ -180,7 +180,7 @@ let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
 let filter (pattern: Network) (source: Network) : Network =
-    
+
     failwith "TODO"
 
 let queryCommand =

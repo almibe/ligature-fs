@@ -34,6 +34,21 @@ let tests =
                            ) ]) ]
                   ))
                   ""
+          testCase "read network with attribute"
+          <| fun _ ->
+              Expect.equal
+                  (parse "a {a b \"c\"}")
+                  (Ok(
+                      [ (Element "a",
+                         [ WanderValue.Network(
+                               Set.ofList
+                                   [ Entry.Attribute
+                                         { element = Element "a"
+                                           attribute = Element "b"
+                                           value = Value "c" } ]
+                           ) ]) ]
+                  ))
+                  ""
           testCase "read call with pattern passed"
           <| fun _ ->
               Expect.equal

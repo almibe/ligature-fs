@@ -5,11 +5,6 @@
 module Wander.Model
 
 open Ligature.Main
-open System
-open System.Text.RegularExpressions
-open Ligature
-open Ligature.Main
-//open Ligature.LigatureStore.InMemoryStore
 
 type Command =
     { Name: Element
@@ -37,9 +32,7 @@ let encodeString string =
 let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Element(Element(value)) -> value
-    // | WanderValue.Slot(Slot(Some(name))) -> $"${(name)}"
-    // | WanderValue.Slot(Slot(None)) -> "$"
-    | WanderValue.Call(name, values) -> $"[{printExpression values}]" //TODO print names better
+    | WanderValue.Call(name, values) -> failwith "TODO"
     | WanderValue.Network n -> printNetwork n
 
 and printNetwork (network: Set<Entry>) : string =
@@ -56,24 +49,9 @@ and printNetwork (network: Set<Entry>) : string =
         (network))
     + " }"
 
-and printBytes bytes =
-    bytes
-    |> Array.map (fun value -> System.String.Format("{0:X2}", value))
-    |> Array.insertAt 0 "0x"
-    |> String.concat String.Empty
-
-and printAssocArray values =
-    "[ "
-    + Map.fold (fun state key value -> state + $"{key} = {prettyPrint value}, ") "" values
-    + "]"
-
 and printEntry (entry: Entry) : string =
     match entry with
     | Entry.Extends concept -> $"{concept.element} : {concept.concept}"
     | Entry.NotExtends nc -> $"{nc.element} ¬: {nc.concept}"
     | Entry.Role role -> $"{role.first} {role.role} {role.second}"
-
-and printExpression expression = failwith "TODO"
-//    (List.fold (fun state value -> state + " " + (prettyPrint value)) "" expression)
-
-//type Scope = Map<string, Pattern>
+    | Entry.Attribute attribute -> $"{attribute.element} {attribute.attribute} {attribute.value}"

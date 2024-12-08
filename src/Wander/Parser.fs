@@ -35,10 +35,10 @@ let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError>
         return WanderValue.Call(name, values)
     }
 
-let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Element), Gaze.GazeError> =
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Token), Gaze.GazeError> =
     let entity = symbolNib gaze
     let attribute = symbolNib gaze
-    let value = symbolNib gaze
+    let value = Gaze.next gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -117,18 +117,28 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressNetwork (network: (Element * Element * Element) list) : Set<Entry> =
+let expressNetwork (network: (Element * Element * Token) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
-let elementTupleToEntry ((entity, attribute, value): (Element * Element * Element)) : Entry =
-
-    if attribute = Element ":" then
-        Entry.Extends { element = entity; concept = value }
-    else if attribute = Element ":¬" then
-        Entry.NotExtends { element = entity; concept = value }
-    else
+let elementTupleToEntry (tuple: (Element * Element * Token)) : Entry =
+    match tuple with
+    | (element, Element ":", Token.Element concept) ->
+        Entry.Extends
+            { element = element
+              concept = Element concept }
+    | (element, Element "¬:", Token.Element concept) ->
+        Entry.NotExtends
+            { element = element
+              concept = Element concept }
+    | (first, role, Token.Element second) ->
         Entry.Role
-            { first = entity
-              second = value
-              role = attribute }
+            { first = first
+              role = role
+              second = Element second }
+    | (element, attribute, Token.StringLiteral value) ->
+        Entry.Attribute
+            { element = element
+              attribute = attribute
+              value = Value value }
+    | _ -> failwith "TODO"
