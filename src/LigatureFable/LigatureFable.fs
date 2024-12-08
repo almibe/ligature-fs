@@ -7,10 +7,7 @@ open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
 open Ligature.InMemoryStore
-open Wander.Model
 open Wander.Lib
-
-// let printNetwork (network: Network) : string = Wander.Model.printNetwork network
 
 let rec storeToJS (store: LigatureStore) =
     let res = createEmpty
@@ -18,7 +15,7 @@ let rec storeToJS (store: LigatureStore) =
     Set.iter
         (fun network ->
             let networkInJS =
-                match store.Read network with
+                match store.ReadNetwork network with
                 | Ok res -> networkToGraphology res
                 | _ -> failwith "TODO"
 
@@ -76,7 +73,21 @@ and networkToGraphology (network: Network) =
                 edgeJs?key <- role
                 edgeJs?source <- first
                 edgeJs?target <- second
-                edges <- Set.add edgeJs edges)
+                edges <- Set.add edgeJs edges
+            | Entry.Attribute { element = Element element
+                                attribute = Element attribute
+                                value = Value value } ->
+                let elementJs = createEmpty
+                elementJs?key <- element
+                let valueJs = createEmpty
+                valueJs?key <- value
+                nodes <- Set.add elementJs nodes
+                nodes <- Set.add valueJs nodes
+                let attributeJs = createEmpty
+                attributeJs?key <- attribute
+                attributeJs?source <- element
+                attributeJs?target <- value
+                edges <- Set.add attributeJs edges)
         network
 
     res?nodes <- Set.toArray nodes
