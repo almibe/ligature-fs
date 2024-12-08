@@ -15,7 +15,7 @@ let idCommand: Command =
         fun _ _ arguments ->
             match arguments with
             | [ value ] -> Ok(Some(value))
-            | _ -> failwith "TODO" }
+            | _ -> failwith "id requires 1 argument." }
 
 let letCommand: Command =
     { Name = Element("let")
@@ -26,7 +26,12 @@ let letCommand: Command =
             | [ WanderValue.Element(Element(name)); WanderValue.Network(value) ] ->
                 store.SetNetwork name value |> ignore
                 Ok(None)
-            | _ -> failwith "TODO" }
+            | [ WanderValue.Element(Element(name)); WanderValue.Call(call) ] ->
+                match evalCall commands store call with
+                | Ok(Some(WanderValue.Network(value))) -> store.SetNetwork name value |> ignore
+                | _ -> failwith "TODO"
+                Ok(None)
+            | _ -> error "Illegal call to let." None }
 
 let readCommand: Command =
     { Name = Element("read")
