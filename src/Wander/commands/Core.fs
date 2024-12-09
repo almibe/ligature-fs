@@ -30,6 +30,7 @@ let letCommand: Command =
                 match evalCall commands store call with
                 | Ok(Some(WanderValue.Network(value))) -> store.SetNetwork name value |> ignore
                 | _ -> failwith "TODO"
+
                 Ok(None)
             | _ -> error "Illegal call to let." None }
 

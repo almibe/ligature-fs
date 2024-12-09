@@ -29,10 +29,12 @@ test suite for the other project.
 | Gaze               | A parsing library.                                                 |
 | Ligature           | Main code base including the main logic and types.                 |
 | LigatureFable      | A project for compiling Ligature to JavaScript using Fable.        |
-| LigaturePad        | A simple desktop app for Ligature.                                 |
-| LigatureWebSockets | A backend of Ligature using Suave and WebSockets.                  |
+| LigaturePad        | A simple desktop app for Ligature for testing¹.                    |
+| LigatureZeroMQ     | A backend of Ligature using ZeroMQ.                                |
 | tiny-dl            | An F# library supporting Description Logic.                        |
 | Wander             | The Wander scripting language.                                     |
+
+¹ See (https://github.com/almibe/ligature-desktop) for a more robust desktop application.
 
 ## Setup
 
@@ -56,12 +58,10 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
-## LigatureWebSockets
+## Running LigatureZeroMQ
 
-LigatureWebSockets is a project that allows running Wander code against an instance of Ligature via WebSockets.
+LigatureZeroMQ starts up a request response ZeroMQ server.
 
-### Running LigatureWebSockets
-
-`dotnet run --project src/LigatureWebSockets`
+`dotnet run --project src/LigatureZeroMQ`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.

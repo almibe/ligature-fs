@@ -29,6 +29,35 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
+let writeStore (store: LigatureStore) =
+    let mutable result = ""
+
+    match store.Networks() with
+    | Ok networks ->
+        Set.iter
+            (fun network ->
+                match store.ReadNetwork network with
+                | Ok entries ->
+                    result <- result + "let " + network + " {"
+
+                    Set.iter
+                        (fun entry ->
+                            match entry with
+                            | Entry.Extends { element = Element element
+                                              concept = Element concept } ->
+                                result <- result + " " + element + " : " + concept + ","
+                            | Entry.NotExtends(_) -> failwith "Not Implemented"
+                            | Entry.Role(_) -> failwith "Not Implemented"
+                            | Entry.Attribute(_) -> failwith "Not Implemented")
+                        entries
+
+                    result <- result + "}\n"
+                | _ -> failwith "TODO")
+            networks
+    | _ -> failwith "TODO"
+
+    result
+
 let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Element(Element(value)) -> value

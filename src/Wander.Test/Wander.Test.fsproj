@@ -10,6 +10,7 @@
     <Compile Include="WanderTestSuiteMain.fs" />
     <Compile Include="Tokenizer.Test.fs" />
     <Compile Include="Parser.Test.fs" />
+    <Compile Include="NetworkWriter.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
@@ -25,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wander\Wander.fsproj" />
-    <ProjectReference Include="..\LigatureDuckDB\LigatureDuckDB.fsproj" />
     <ProjectReference Include="..\LigatureLMDB\LigatureLMDB.fsproj" />
     <ProjectReference Include="..\LigatureLMDB.Test\LigatureLMDB.Test.fsproj" />
   </ItemGroup>
