@@ -10,7 +10,7 @@ open Model
 //let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<Identifier, LigatureError> = Ok(networks)
 
 let evalNetwork
-    (store: LigatureStore)
+    (store: LigatureEngine)
     (name: NetworkName)
     (network: Set<Entry>)
     : Result<WanderValue option, LigatureError> =
@@ -49,7 +49,7 @@ and evalCalls (commands: Commands) store (calls: Call list) : Result<WanderValue
 
 and evalCall
     (commands: Commands)
-    (store: LigatureStore)
+    (store: LigatureEngine)
     ((name, args): Call)
     : Result<WanderValue option, LigatureError> =
     evalElement commands store args name

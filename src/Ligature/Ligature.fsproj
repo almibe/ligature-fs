@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <Compile Include="Ligature.fs" />
-    <Compile Include="InMemoryStore.fs" />
+    <Compile Include="InMemoryEngine.fs" />
   </ItemGroup>
 
   <ItemGroup>

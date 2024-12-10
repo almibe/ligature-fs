@@ -111,6 +111,33 @@ let parse (tokens: Token list) : Result<Call list, LigatureError> =
                 error $"Failed to parse completely. {Gaze.remaining gaze}" None
         | Error err -> error $"Failed to parse.\n{err.ToString()}" None
 
+/// <summary></summary>
+/// <param name="tokens">The list of Tokens to be parsered.</param>
+/// <returns>The AST created from the token list of an Error.</returns>
+let read (tokens: Token list) : Result<WanderValue, LigatureError> =
+    let tokens =
+        List.filter
+            (fun token ->
+                match token with
+                | Token.WhiteSpace(_)
+                | Token.NewLine(_) -> false
+                | _ -> true)
+            tokens
+
+    if tokens.IsEmpty then
+        error "Illegal call to read." None
+    else
+        let gaze = Gaze.fromList tokens
+
+        match Gaze.attempt valueNib gaze with
+        | Ok res ->
+            if Gaze.isComplete gaze then
+                //failwith "TODO"
+                Ok res
+            else
+                error $"Failed to read completely. {Gaze.remaining gaze}" None
+        | Error err -> error $"Failed to parse.\n{err.ToString()}" None
+
 /// Helper function that handles tokienization for you.
 let parseString (input: string) =
     match tokenize input with

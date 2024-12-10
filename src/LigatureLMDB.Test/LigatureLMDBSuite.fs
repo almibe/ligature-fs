@@ -16,7 +16,7 @@ let testLocation =
     + System.Guid.NewGuid().ToString()
     + Path.DirectorySeparatorChar.ToString()
 
-let newTestInstance () : LigatureStore =
+let newTestInstance () : LigatureEngine =
     let directory = DirectoryInfo(testLocation)
 
     if directory.Exists then

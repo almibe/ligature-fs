@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.InMemoryStore
+module Ligature.InMemoryEngine
 
 open Ligature.Main
 open System.Collections.Generic
@@ -74,11 +74,11 @@ let isConsistent (network: Network) : bool =
         true
         network
 
-type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
+type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>, scripts: Dictionary<ScriptName, string>) =
     interface System.IDisposable with
         member _.Dispose() : unit = ()
 
-    interface LigatureStore with
+    interface LigatureEngine with
         member _.AddNetwork networkName = Ok(store.Add(networkName, Set.empty))
 
         member _.RemoveNetwork networkName =
@@ -117,5 +117,8 @@ type InMemoryStore(store: Dictionary<NetworkName, Set<Entry>>) =
         member _.FilterEntries (networkName: NetworkName) (terms: Set<Entry>) : Result<Network, LigatureError> =
             failwith "Not Implemented"
 
-let emptyInMemoryStore () : LigatureStore =
-    new InMemoryStore(new Dictionary<NetworkName, Set<Entry>>())
+        member this.Dispose() : unit = failwith "Not Implemented"
+        member this.Scripts() : Result<Set<ScriptName>, LigatureError> = failwith "Not Implemented"
+
+let newInMemoryEngine () : LigatureEngine =
+    new InMemoryEngine(new Dictionary<NetworkName, Set<Entry>>(), new Dictionary<ScriptName, string>())

@@ -9,7 +9,7 @@ open Ligature.Main
 type Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> LigatureStore -> Arguments -> Result<WanderValue option, LigatureError> }
+      Eval: Commands -> LigatureEngine -> Arguments -> Result<WanderValue option, LigatureError> }
 
 and [<RequireQualifiedAccess>] WanderValue =
     | Element of Element
@@ -29,7 +29,7 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-let writeStore (store: LigatureStore) =
+let writeStore (store: LigatureEngine) =
     let mutable result = ""
 
     match store.Networks() with
@@ -61,7 +61,7 @@ let writeStore (store: LigatureStore) =
 let rec prettyPrint (value: WanderValue) : string =
     match value with
     | WanderValue.Element(Element(value)) -> value
-    | WanderValue.Call(name, values) -> failwith "TODO"
+    | WanderValue.Call(name, values) -> "(" + name.ToString() + (values.ToString()) + ")" //TODO print values correctly
     | WanderValue.Network n -> printNetwork n
 
 and printNetwork (network: Set<Entry>) : string =
@@ -80,7 +80,13 @@ and printNetwork (network: Set<Entry>) : string =
 
 and printEntry (entry: Entry) : string =
     match entry with
-    | Entry.Extends concept -> $"{concept.element} : {concept.concept}"
-    | Entry.NotExtends nc -> $"{nc.element} ¬: {nc.concept}"
-    | Entry.Role role -> $"{role.first} {role.role} {role.second}"
-    | Entry.Attribute attribute -> $"{attribute.element} {attribute.attribute} {attribute.value}"
+    | Entry.Extends { element = Element element
+                      concept = Element concept } -> $"{element} : {concept}"
+    | Entry.NotExtends { element = Element element
+                         concept = Element concept } -> $"{element} ¬: {concept}"
+    | Entry.Role { first = Element first
+                   second = Element second
+                   role = Element role } -> $"{first} {role} {second}"
+    | Entry.Attribute { element = Element element
+                        attribute = Element attribute
+                        value = Value value } -> $"{element} {attribute} {value}"

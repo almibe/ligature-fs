@@ -6,10 +6,10 @@ open Ligature.Main
 open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
-open Ligature.InMemoryStore
+open Ligature.InMemoryEgine
 open Wander.Lib
 
-let rec storeToJS (store: LigatureStore) =
+let rec storeToJS (store: LigatureEngine) =
     let res = createEmpty
 
     Set.iter

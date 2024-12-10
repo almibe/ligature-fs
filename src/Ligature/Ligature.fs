@@ -51,7 +51,9 @@ type Network = Set<Entry>
 
 type NetworkName = string
 
-type LigatureStore =
+type ScriptName = string
+
+type LigatureEngine =
     inherit System.IDisposable
     abstract Networks: unit -> Result<Set<NetworkName>, LigatureError>
     abstract ReadNetwork: NetworkName -> Result<Network, LigatureError>
@@ -61,3 +63,9 @@ type LigatureStore =
     abstract SetNetwork: NetworkName -> Network -> Result<unit, LigatureError>
     abstract RemoveEntries: NetworkName -> Network -> Result<unit, LigatureError>
     abstract FilterEntries: NetworkName -> Network -> Result<Network, LigatureError>
+
+    abstract Scripts: unit -> Result<Set<ScriptName>, LigatureError>
+// abstract AddScript: ScriptName string -> Result<unit, LigatureError>
+// abstract ReadScript: ScriptName -> Result<string, LigatureError>
+// abstract RemoveScript: ScriptName -> Resu/lt<unit, LigatureError>
+// abstract RunScript: ScriptName -> Result<

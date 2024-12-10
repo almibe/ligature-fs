@@ -9,9 +9,8 @@ open Tokenizer
 open Ligature.Main
 open Interpreter
 open Wander.Model
-open Ligature.InMemoryStore
 
-let run (commands: Commands) (store: LigatureStore) (input: string) : Result<WanderValue option, LigatureError> =
+let run (commands: Commands) (store: LigatureEngine) (input: string) : Result<WanderValue option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
@@ -22,21 +21,10 @@ let run (commands: Commands) (store: LigatureStore) (input: string) : Result<Wan
     with x ->
         error $"Error running script. {x}" None
 
-type WanderEngine =
-    abstract member Run: script: string -> Result<WanderValue option, LigatureError>
-    abstract member AddCommand: Element -> Command -> unit
-    abstract member Store: unit -> LigatureStore
-
-type DefaultEngine(commands: Commands, store: LigatureStore) =
-    let mutable commands: Commands = commands
-    let mutable store: LigatureStore = store
-
-    interface WanderEngine with
-        member _.Run(script) = run commands store script
-
-        member _.AddCommand (name: Element) (command: Command) : unit =
-            commands <- Map.add name command commands
-
-        member _.Store() : LigatureStore = store
-
-let defaultEngine = new DefaultEngine(Map.empty, emptyInMemoryStore ())
+let read (input: string) : Result<WanderValue, LigatureError> =
+    try
+        match tokenize input with
+        | Ok tokens -> read tokens
+        | Error _ -> error "Error tokenizing." None
+    with x ->
+        error $"Error reading {x}" None

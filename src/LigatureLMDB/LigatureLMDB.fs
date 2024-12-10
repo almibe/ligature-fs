@@ -100,7 +100,7 @@ type LigatureLMDB(env: LightningEnvironment) =
     interface System.IDisposable with
         member _.Dispose() : unit = env.Dispose()
 
-    interface LigatureStore with
+    interface LigatureEngine with
         member _.AddNetwork networkName =
             store.AddNetwork networkName
             use tx = env.BeginTransaction()
@@ -140,7 +140,7 @@ type LigatureLMDB(env: LightningEnvironment) =
         member _.FilterEntries (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             store.FilterEntries networkName query
 
-let openStore (path: string) : LigatureStore =
+let openStore (path: string) : LigatureEngine =
     let envConfig = new EnvironmentConfiguration()
     envConfig.MaxDatabases <- 6
     let env = new LightningEnvironment(path, envConfig)

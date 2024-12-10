@@ -4,12 +4,10 @@
 
 module Ligature.ZMQ.Main
 
-open Ligature
 open Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Wander.Interpreter
 open Ligature.Main
 open Wander.Commands
 open Wander.Lib
@@ -21,7 +19,8 @@ let rec serve (server: ResponseSocket) =
     let store = emptyInMemoryStore ()
 
     match run stdCommands store script with
-    | Ok(_) -> server.SendFrame(writeStore store)
+    | Ok(Some(res)) -> server.SendFrame(prettyPrint res)
+    | Ok(None) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)
 
     serve server
@@ -30,7 +29,7 @@ let rec serve (server: ResponseSocket) =
 let main args =
     Console.WriteLine("Starting Ligature ZeroMQ.")
     use server = new ResponseSocket()
-    server.Bind("tcp://localhost:4201")
-    Console.WriteLine("Started on port 4201.")
+    server.Bind("tcp://localhost:4200")
+    Console.WriteLine("Started on port 4200.")
     serve server
     0
