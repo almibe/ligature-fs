@@ -31,38 +31,35 @@ type ConceptName = Element
 
 type RoleName = Element
 
-type Value = Value of string
+type Quote = Value list
 
-type Extends =
+and [<RequireQualifiedAccess>] Value = 
+  | Value of string
+  | Quote of Quote
+  | Element of Element
+  | Network of Network
+
+and Extends =
     { element: Element
       concept: ConceptName }
 
-type NotExtends =
+and NotExtends =
     { element: Element
       concept: ConceptName }
 
-type Role =
-    { first: Element
-      second: Element
-      role: RoleName }
-
-type Attribute =
+and Attribute =
     { element: Element
       attribute: Element
       value: Value }
 
-[<RequireQualifiedAccess>]
-type Entry =
+and [<RequireQualifiedAccess>] Entry =
     | Extends of Extends
     | NotExtends of NotExtends
-    | Role of Role
     | Attribute of Attribute
 
-type Network = Set<Entry>
+and Network = Set<Entry>
 
-type NetworkName = string
-
-type ScriptName = string
+and NetworkName = string
 
 type LigatureEngine =
     inherit System.IDisposable
@@ -74,9 +71,3 @@ type LigatureEngine =
     abstract SetNetwork: NetworkName -> Network -> Result<unit, LigatureError>
     abstract RemoveEntries: NetworkName -> Network -> Result<unit, LigatureError>
     abstract FilterEntries: NetworkName -> Network -> Result<Network, LigatureError>
-
-    abstract Scripts: unit -> Result<Set<ScriptName>, LigatureError>
-// abstract AddScript: ScriptName string -> Result<unit, LigatureError>
-// abstract ReadScript: ScriptName -> Result<string, LigatureError>
-// abstract RemoveScript: ScriptName -> Resu/lt<unit, LigatureError>
-// abstract RunScript: ScriptName -> Result<

@@ -25,12 +25,12 @@ let tests =
                   (parse "a {a b c}")
                   (Ok(
                       [ (Element "a",
-                         [ WanderValue.Network(
+                         [ Value.Network(
                                Set.ofList
-                                   [ Entry.Role
-                                         { first = Element "a"
-                                           second = Element "c"
-                                           role = Element "b" } ]
+                                   [ Entry.Attribute
+                                         { element = Element "a"
+                                           value = Value.Element(Element "c")
+                                           attribute = Element "b" } ]
                            ) ]) ]
                   ))
                   ""
@@ -40,12 +40,12 @@ let tests =
                   (parse "a {a b \"c\"}")
                   (Ok(
                       [ (Element "a",
-                         [ WanderValue.Network(
+                         [ Value.Network(
                                Set.ofList
                                    [ Entry.Attribute
                                          { element = Element "a"
                                            attribute = Element "b"
-                                           value = Value "c" } ]
+                                           value = Value.Value "c" } ]
                            ) ]) ]
                   ))
                   ""
@@ -55,12 +55,12 @@ let tests =
                   (parse "a {?a b c}")
                   (Ok(
                       [ (Element "a",
-                         [ WanderValue.Network(
+                         [ Value.Network(
                                Set.ofList
-                                   [ Entry.Role
-                                         { first = Element "?a"
-                                           second = Element "c"
-                                           role = Element "b" } ]
+                                   [ Entry.Attribute
+                                         { element = Element "?a"
+                                           value = Value.Element(Element "c")
+                                           attribute = Element "b" } ]
                            ) ]) ]
                   ))
                   "" ]

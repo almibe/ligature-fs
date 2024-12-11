@@ -9,18 +9,13 @@ open Ligature.Main
 type Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> LigatureEngine -> Arguments -> Result<WanderValue option, LigatureError> }
-
-and [<RequireQualifiedAccess>] WanderValue =
-    | Element of Element
-    | Call of Call
-    | Network of Network
-
-and Call = Element * WanderValue list
+      Eval: Commands -> LigatureEngine -> Arguments -> Result<Value option, LigatureError> }
 
 and Commands = Map<Element, Command>
 
-and Arguments = WanderValue list
+and Call = Element * Arguments
+
+and Arguments = Value list
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -29,40 +24,41 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-let writeStore (store: LigatureEngine) =
-    let mutable result = ""
+// let writeStore (store: LigatureEngine) =
+//     let mutable result = ""
 
-    match store.Networks() with
-    | Ok networks ->
-        Set.iter
-            (fun network ->
-                match store.ReadNetwork network with
-                | Ok entries ->
-                    result <- result + "let " + network + " {"
+//     match store.Networks() with
+//     | Ok networks ->
+//         Set.iter
+//             (fun network ->
+//                 match store.ReadNetwork network with
+//                 | Ok entries ->
+//                     result <- result + "let " + network + " {"
 
-                    Set.iter
-                        (fun entry ->
-                            match entry with
-                            | Entry.Extends { element = Element element
-                                              concept = Element concept } ->
-                                result <- result + " " + element + " : " + concept + ","
-                            | Entry.NotExtends(_) -> failwith "Not Implemented"
-                            | Entry.Role(_) -> failwith "Not Implemented"
-                            | Entry.Attribute(_) -> failwith "Not Implemented")
-                        entries
+//                     Set.iter
+//                         (fun entry ->
+//                             match entry with
+//                             | Entry.Extends { element = Element element
+//                                               concept = Element concept } ->
+//                                 result <- result + " " + element + " : " + concept + ","
+//                             | Entry.NotExtends(_) -> failwith "Not Implemented"
+//                             //| Entry.Role(_) -> failwith "Not Implemented"
+//                             | Entry.Attribute(_) -> failwith "Not Implemented")
+//                         entries
 
-                    result <- result + "}\n"
-                | _ -> failwith "TODO")
-            networks
-    | _ -> failwith "TODO"
+//                     result <- result + "}\n"
+//                 | _ -> failwith "TODO")
+//             networks
+//     | _ -> failwith "TODO"
 
-    result
+//     result
 
-let rec prettyPrint (value: WanderValue) : string =
+let rec prettyPrint (value: Value) : string =
     match value with
-    | WanderValue.Element(Element(value)) -> encodeString value
-    | WanderValue.Call(name, values) -> "(" + name.ToString() + (values.ToString()) + ")" //TODO print values correctly
-    | WanderValue.Network n -> printNetwork n
+    | Value.Element(Element(value)) -> value
+    | Value.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
+    | Value.Network n -> printNetwork n
+    | Value.Value(value) -> encodeString value
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
@@ -78,15 +74,18 @@ and printNetwork (network: Set<Entry>) : string =
         (network))
     + " }"
 
+and writeValue (value: Value): string =
+    match value with
+    | Value.Element (Element element) -> element
+    | Value.Value value -> encodeString value
+    | Value.Quote(_) -> failwith "Not Implemented"
+
 and printEntry (entry: Entry) : string =
     match entry with
     | Entry.Extends { element = Element element
                       concept = Element concept } -> $"{element} : {concept}"
     | Entry.NotExtends { element = Element element
                          concept = Element concept } -> $"{element} ¬: {concept}"
-    | Entry.Role { first = Element first
-                   second = Element second
-                   role = Element role } -> $"{first} {role} {second}"
     | Entry.Attribute { element = Element element
                         attribute = Element attribute
-                        value = Value value } -> $"{element} {attribute} {encodeString value}"
+                        value = value } -> $"{element} {attribute} {writeValue value}"

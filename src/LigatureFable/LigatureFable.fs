@@ -80,7 +80,7 @@ let readValue (input: string) =
     match read input with
     | Ok result ->
         match result with
-        | WanderValue.Element(Element e) -> e
-        | WanderValue.Call _ -> failwith "TODO - support writing calls"
-        | WanderValue.Network network -> networkToJs network
+        | Value.Element(Element e) -> e
+        | Value.Quote _ -> failwith "TODO - support writing calls"
+        | Value.Network network -> networkToJs network
     | _ -> failwith "Error reading value."

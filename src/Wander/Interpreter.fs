@@ -13,32 +13,32 @@ let evalNetwork
     (store: LigatureEngine)
     (name: NetworkName)
     (network: Set<Entry>)
-    : Result<WanderValue option, LigatureError> =
+    : Result<Value option, LigatureError> =
     store.AddEntries name network |> ignore
     Ok None
 
 let rec evalElement
     (commands: Commands)
     networks
-    (arguments: WanderValue list)
+    (arguments: Value list)
     (Element(name))
-    : Result<WanderValue option, LigatureError> =
+    : Result<Value option, LigatureError> =
     match commands.TryFind(Element(name)) with
     | Some(command) -> command.Eval commands networks arguments
     | None -> error $"Could not find name {name}" None
 
-and processArguments commands networks (arguments: WanderValue list) : WanderValue list =
+and processArguments commands networks (arguments: Value list) : Value list =
     List.map
         (fun argument ->
             match argument with
-            | WanderValue.Call(n, e) ->
-                match evalCall commands networks (n, e) with
+            | Value.Quote quote ->
+                match evalQuote commands networks quote with
                 | Ok(Some(value)) -> value
-                | _ -> WanderValue.Network Set.empty
+                | _ -> Value.Network Set.empty
             | value -> value)
         arguments
 
-and evalCalls (commands: Commands) store (calls: Call list) : Result<WanderValue option, LigatureError> =
+and evalCalls (commands: Commands) store (calls: Call list) : Result<Value option, LigatureError> =
     match calls with
     | [] -> Ok(None)
     | [ head ] -> evalCall commands store head
@@ -51,5 +51,18 @@ and evalCall
     (commands: Commands)
     (store: LigatureEngine)
     ((name, args): Call)
-    : Result<WanderValue option, LigatureError> =
-    evalElement commands store args name
+    : Result<Value option, LigatureError> =
+       evalElement commands store args name
+
+and evalQuote
+    (commands: Commands)
+    (store: LigatureEngine)
+    (quote: Quote)
+    : Result<Value option, LigatureError> =
+        match quote with
+        | [] -> failwith "TODO"
+        | [Value.Element name] -> evalElement commands store [] name
+        | _ -> 
+            match quote.Head with
+            | Value.Element name -> evalElement commands store quote.Tail name
+            | _ -> failwith "TODO"

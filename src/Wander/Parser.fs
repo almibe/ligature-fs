@@ -14,25 +14,26 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
     Gaze.attempt
         (fun gaze ->
             match Gaze.next gaze with
-            | Ok(Token.Element(name)) -> Ok(WanderValue.Element(Element name))
+            | Ok(Token.Element(name)) -> Ok(Value.Element(Element name))
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-let readElement (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+//let elementNib = takeFirst [ quoteNib; networkNib ]
+
+let elementNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(WanderValue.Element(Element value))
+    | Ok(Token.Element(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let expressionNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! name = Gaze.attempt symbolNib gaze
         let! values = Gaze.attempt (optional (repeat valueNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return WanderValue.Call(name, values)
+        return Value.Quote values
     }
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Token), Gaze.GazeError> =
@@ -44,12 +45,12 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Token), 
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return WanderValue.Network(expressNetwork statements)
+        return Value.Network(expressNetwork statements)
     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -61,26 +62,24 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<WanderValue, Gaze.GazeError> =
+let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(WanderValue.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(WanderValue.Element(Element value))
+    | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(Value.Element(Element value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let valueNib: Gaze.Nibbler<Token, WanderValue> =
-    takeFirst [ expressionNib; symbolValueNib; networkNib ]
+let valueNib: Gaze.Nibbler<Token, Value> =
+    takeFirst [ quoteNib; symbolValueNib; networkNib ]
 
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
     result {
-        let! name = Gaze.attempt symbolNib gaze
-        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
-        return Call(name, values)
+        let! name = Gaze.attempt elementNib gaze
+        let! arguments = Gaze.attempt (optional (repeat valueNib)) gaze
+        return name, arguments
     }
-
-let elementNib = takeFirst [ expressionNib; networkNib ]
 
 let scriptNib = repeatSep callNib Token.Comma
 
@@ -114,7 +113,7 @@ let parse (tokens: Token list) : Result<Call list, LigatureError> =
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let read (tokens: Token list) : Result<WanderValue, LigatureError> =
+let read (tokens: Token list) : Result<Value, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -158,14 +157,19 @@ let elementTupleToEntry (tuple: (Element * Element * Token)) : Entry =
         Entry.NotExtends
             { element = element
               concept = Element concept }
-    | (first, role, Token.Element second) ->
-        Entry.Role
-            { first = first
-              role = role
-              second = Element second }
+    // | (first, role, Token.Element second) ->
+    //     Entry.Role
+    //         { first = first
+    //           role = role
+    //           second = Element second }
     | (element, attribute, Token.StringLiteral value) ->
         Entry.Attribute
             { element = element
               attribute = attribute
-              value = Value value }
+              value = Value.Value value }
+    | (element, attribute, Token.Element value) ->
+        Entry.Attribute
+            { element = element
+              attribute = attribute
+              value = Value.Element (Element value) }
     | _ -> failwith "TODO"

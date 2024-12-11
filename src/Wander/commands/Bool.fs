@@ -13,10 +13,10 @@ let notFunction =
       Eval =
         (fun _ _ args ->
             match args with
-            | [ WanderValue.Element(value) ] ->
+            | [ Value.Element(value) ] ->
                 match value with
-                | Element("true") -> Ok(Some(WanderValue.Element(Element("false"))))
-                | Element("false") -> Ok(Some(WanderValue.Element(Element("true"))))
+                | Element("true") -> Ok(Some(Value.Element(Element("false"))))
+                | Element("false") -> Ok(Some(Value.Element(Element("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 
@@ -26,7 +26,7 @@ let notFunction =
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.Bool(left); WanderValue.Bool(right) ] -> Ok(WanderValue.Bool(left && right))
+//             | [ Value.Bool(left); Value.Bool(right) ] -> Ok(Value.Bool(left && right))
 //             | _ -> error "Invalid call to and function." None) }
 
 let boolLib = Map.ofList [ (notFunction.Name, notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]

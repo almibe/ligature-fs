@@ -20,7 +20,7 @@ let isComplete (entries: Set<Entry>) : bool =
     Set.fold
         (fun state (entry: Entry) ->
             match entry with
-            | Entry.Role { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
+//            | Entry.Attribute { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
             | _ -> state)
         true
         entries
@@ -70,11 +70,11 @@ let isConsistent (network: Network) : bool =
                         else
                             individuals <- Map.add symbol (Set.add notConcept res) individuals
                             true
-                | Entry.Role _ -> true)
+                | Entry.Attribute _ -> true)
         true
         network
 
-type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>, scripts: Dictionary<ScriptName, string>) =
+type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>) =
     interface System.IDisposable with
         member _.Dispose() : unit = ()
 
@@ -117,7 +117,5 @@ type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>, scripts: Diction
         member _.FilterEntries (networkName: NetworkName) (terms: Set<Entry>) : Result<Network, LigatureError> =
             failwith "Not Implemented"
 
-        member this.Scripts() : Result<Set<ScriptName>, LigatureError> = failwith "Not Implemented"
-
 let newInMemoryEngine () : LigatureEngine =
-    new InMemoryEngine(new Dictionary<NetworkName, Set<Entry>>(), new Dictionary<ScriptName, string>())
+    new InMemoryEngine(new Dictionary<NetworkName, Set<Entry>>())

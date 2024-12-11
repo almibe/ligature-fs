@@ -9,6 +9,28 @@ open Ligature.Main
 open System
 open System.Collections.Generic
 
+let scriptsCommand: Command =
+    { Name = Element("scripts")
+      Doc = "Get all scripts."
+      Eval =
+        fun commands networks _ ->
+            let mutable docs: Set<Entry> = Set.empty
+
+            Map.toList commands
+            |> List.iter (fun (name, command) ->
+                docs <-
+                    Set.add
+                        (Entry.Attribute
+                            { element = name
+                              attribute = Element("docString")
+                              value = Value.Value(command.Doc) })
+                        docs
+
+                ())
+
+            Ok(Some(Value.Network docs)) }
+
+
 // let networksFunction (store: LigatureStore) =
 //     { Module = "Store"
 //       Name = "networks"
@@ -20,9 +42,9 @@ open System.Collections.Generic
 //             match args with
 //             | [ _ ] ->
 //                 store.networks ()
-//                 |> Seq.map WanderValue.String
+//                 |> Seq.map Value.String
 //                 |> Seq.toList
-//                 |> WanderValue.Quote
+//                 |> Value.Quote
 //                 |> Ok
 //             | _ -> error "Invalid call to map function." None) }
 
@@ -35,9 +57,9 @@ open System.Collections.Generic
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(name) ] ->
+//             | [ Value.String(name) ] ->
 //                 store.addNetwork name
-//                 Ok(WanderValue.Nothing)
+//                 Ok(Value.Nothing)
 //             | _ -> error "Invalid call to map function." None) }
 
 // let removeNetworkFunction (store: LigatureStore) =
@@ -49,9 +71,9 @@ open System.Collections.Generic
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(name) ] ->
+//             | [ Value.String(name) ] ->
 //                 store.removeNetwork name
-//                 Ok(WanderValue.Nothing)
+//                 Ok(Value.Nothing)
 //             | _ -> error "Invalid call to map function." None) }
 
 // let addFunction (store: LigatureStore) =
@@ -63,9 +85,9 @@ open System.Collections.Generic
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(name); WanderValue.Network(network) ] ->
+//             | [ Value.String(name); Value.Network(network) ] ->
 //                 store.add name network |> ignore
-//                 Ok(WanderValue.Nothing)
+//                 Ok(Value.Nothing)
 //             | _ -> error "Invalid call to map function." None) }
 
 // let removeFunction (store: LigatureStore) =
@@ -77,9 +99,9 @@ open System.Collections.Generic
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(name); WanderValue.Network(network) ] ->
+//             | [ Value.String(name); Value.Network(network) ] ->
 //                 store.remove name network |> ignore
-//                 Ok(WanderValue.Nothing)
+//                 Ok(Value.Nothing)
 //             | _ -> error "Invalid call to map function." None)
 
 //     }
@@ -93,7 +115,7 @@ open System.Collections.Generic
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(name) ] -> Ok(WanderValue.Network(store.read name))
+//             | [ Value.String(name) ] -> Ok(Value.Network(store.read name))
 //             | _ -> error "Invalid call to map function." None) }
 
 let storeLib store = []

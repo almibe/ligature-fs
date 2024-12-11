@@ -23,13 +23,13 @@ let letCommand: Command =
       Eval =
         fun commands store arguments ->
             match processArguments commands store arguments with
-            | [ WanderValue.Element(Element(name)); WanderValue.Network(value) ] ->
+            | [ Value.Element(Element(name)); Value.Network(value) ] ->
                 store.SetNetwork name value |> ignore
                 Ok(None)
-            | [ WanderValue.Element(Element(name)); WanderValue.Call(call) ] ->
-                match evalCall commands store call with
-                | Ok(Some(WanderValue.Network(value))) -> store.SetNetwork name value |> ignore
-                | _ -> failwith "TODO"
+            // | [ Value.Element(Element(name)); Value.Quote(call) ] ->
+            //     match evalCall commands store call with
+            //     | Ok(Some(Value.Network(value))) -> store.SetNetwork name value |> ignore
+            //     | _ -> failwith "TODO"
 
                 Ok(None)
             | _ -> error "Illegal call to let." None }
@@ -40,10 +40,10 @@ let readCommand: Command =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Element(Element(name)) ] ->
+            | [ Value.Element(Element(name)) ] ->
                 match store.ReadNetwork name with
                 | Ok res ->
-                    let network = WanderValue.Network(res)
+                    let network = Value.Network(res)
                     Ok(Some(network))
                 | _ -> error "Could not read network" None
             | _ -> failwith "TODO" }
@@ -84,12 +84,12 @@ let docsCommand: Command =
                         (Entry.Attribute
                             { element = name
                               attribute = Element("docString")
-                              value = Value(command.Doc) })
+                              value = Value.Value(command.Doc) })
                         docs
 
                 ())
 
-            Ok(Some(WanderValue.Network docs)) }
+            Ok(Some(Value.Network docs)) }
 
 let coreCommands =
     (Map.ofList

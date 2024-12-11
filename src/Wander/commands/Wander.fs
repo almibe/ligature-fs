@@ -14,7 +14,7 @@ open Wander.Main
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ value ] -> Ok(WanderValue.String(prettyPrint value))
+//             | [ value ] -> Ok(Value.String(prettyPrint value))
 //             | value -> error $"Unexpected value - {value}." None) }
 
 // let readValueFunction =
@@ -23,7 +23,7 @@ open Wander.Main
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(input) ] -> run input (newBindings ())
+//             | [ Value.String(input) ] -> run input (newBindings ())
 //             | value -> error $"Unexpected value - {value}." None) }
 
 let wanderLib = [] // writeValueFunction; readValueFunction ]

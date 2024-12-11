@@ -55,18 +55,18 @@ let tests =
               store.SetNetwork
                   (NetworkName "test")
                   (Set.ofList
-                      [ Entry.Role
-                            { first = Element "a"
-                              second = Element "c"
-                              role = Element "b" } ])
+                      [ Entry.Attribute
+                            { element = Element "a"
+                              value = Value.Element (Element "c")
+                              attribute = Element "b" } ])
 
               Expect.equal
                   (store.ReadNetwork(NetworkName "test"))
                   (Ok(
                       Set.ofList
-                          [ Entry.Role
-                                { first = Element "a"
-                                  second = Element "c"
-                                  role = Element "b" } ]
+                          [ Entry.Attribute
+                                { element = Element "a"
+                                  value = Value.Element(Element "c")
+                                  attribute = Element "b" } ]
                   ))
                   "" ]

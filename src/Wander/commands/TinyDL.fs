@@ -14,9 +14,9 @@ open Wander.Model
 //       Eval =
 //         fun _ store arguments ->
 //             match arguments with
-//             | [ WanderValue.Network(description); WanderValue.Network(network) ] ->
+//             | [ Value.Network(description); Value.Network(network) ] ->
 //                 match infer (networkToDescription description) network with
-//                 | Ok res -> Ok(Some(WanderValue.Network res))
+//                 | Ok res -> Ok(Some(Value.Network res))
 //                 | Error err -> error $"Error calling infer: {err}" None
 //                 | _ -> error "Unexpected return value from infer." None
 //             | _ -> error "Improper call to infer." None }
@@ -27,7 +27,7 @@ let parseCommand: Command =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ WanderValue.Element(input) ] -> failwith "TODO" }
+            | [ Value.Value(input) ] -> failwith "TODO" }
 
 // let tinyDLCommands = (Map.ofList [
 //   // (inferCommand.Name, inferCommand)

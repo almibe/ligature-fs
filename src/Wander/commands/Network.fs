@@ -14,7 +14,7 @@ let chompCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Network(input); WanderValue.Element(name) ] ->
+            | [ Value.Network(input); Value.Element(name) ] ->
                 // let currentNetwork = currentNetwork networks
                 // let newNetwork = Set.union input currentNetwork
                 // let newNetworks = Map.add selected newNetwork networks
@@ -28,12 +28,12 @@ let chompCommand =
 //       Eval =
 //         fun _ store (arguments: Arguments) ->
 //             match arguments with
-//             | [ WanderValue.Element(Element(networkName)) ] ->
+//             | [ Value.Element(Element(networkName)) ] ->
 //                 let value = store.IsConsistent networkName
-//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
-//             | [ WanderValue.Network(network) ] ->
+//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+//             | [ Value.Network(network) ] ->
 //                 match isConsistent network with
-//                 | value -> Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
+//                 | value -> Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
 //             //| Error err -> error "Bad call to is-consistent." None
 //             | _ -> error "Bad call to is-consistent." None }
 
@@ -43,12 +43,12 @@ let chompCommand =
 //       Eval =
 //         fun _ store (arguments: Arguments) ->
 //             match arguments with
-//             | [ WanderValue.Element(Element(networkName)) ] ->
+//             | [ Value.Element(Element(networkName)) ] ->
 //                 let value = store.IsComplete networkName
-//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
-//             | [ WanderValue.Network(network) ] ->
+//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+//             | [ Value.Network(network) ] ->
 //                 let value = isComplete network
-//                 Ok(Some(WanderValue.Element(value.ToString().ToLower() |> Element)))
+//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
 //             | _ -> error "Bad call to is-complete." None }
 
 let unionCommand =
@@ -57,8 +57,8 @@ let unionCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-                let result = Set.union left right |> WanderValue.Network
+            | [ Value.Network(left); Value.Network(right) ] ->
+                let result = Set.union left right |> Value.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -68,11 +68,11 @@ let countCommand =
       Eval =
         fun _ store (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Element(Element name) ] ->
+            | [ Value.Element(Element name) ] ->
                 match store.ReadNetwork name with
-                | Ok network -> Ok(Some(WanderValue.Element(Element(network.Count.ToString()))))
+                | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
                 | _ -> failwith "TODO"
-            | [ WanderValue.Network network ] -> Ok(Some(WanderValue.Element(Element(network.Count.ToString()))))
+            | [ Value.Network network ] -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
 let minusCommand =
@@ -81,8 +81,8 @@ let minusCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ WanderValue.Network(left); WanderValue.Network(right) ] ->
-                let result = Set.difference left right |> WanderValue.Network
+            | [ Value.Network(left); Value.Network(right) ] ->
+                let result = Set.difference left right |> Value.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -90,37 +90,37 @@ let applySingle (template: Network) (data: Map<Element, Element>) : Network =
     Set.map
         (fun entry ->
             match entry with
-            | Entry.Role { first = Element first
-                           second = Element second
-                           role = Element role } ->
-                let resFirst =
-                    if first.StartsWith "?" then
-                        match Map.tryFind (Element first) data with
-                        | Some res -> res
-                        | _ -> Element first
-                    else
-                        Element first
+            // | Entry.Role { first = Element first
+            //                second = Element second
+            //                role = Element role } ->
+            //     let resFirst =
+            //         if first.StartsWith "?" then
+            //             match Map.tryFind (Element first) data with
+            //             | Some res -> res
+            //             | _ -> Element first
+            //         else
+            //             Element first
 
-                let resSecond =
-                    if second.StartsWith "?" then
-                        match Map.tryFind (Element second) data with
-                        | Some res -> res
-                        | _ -> Element second
-                    else
-                        Element second
+            //     let resSecond =
+            //         if second.StartsWith "?" then
+            //             match Map.tryFind (Element second) data with
+            //             | Some res -> res
+            //             | _ -> Element second
+            //         else
+            //             Element second
 
-                let resRole =
-                    if role.StartsWith "?" then
-                        match Map.tryFind (Element role) data with
-                        | Some res -> res
-                        | _ -> Element role
-                    else
-                        Element role
+            //     let resRole =
+            //         if role.StartsWith "?" then
+            //             match Map.tryFind (Element role) data with
+            //             | Some res -> res
+            //             | _ -> Element role
+            //         else
+            //             Element role
 
-                Entry.Role
-                    { first = resFirst
-                      second = resSecond
-                      role = resRole }
+            //     Entry.Role
+            //         { first = resFirst
+            //           second = resSecond
+            //           role = resRole }
             | Entry.Extends _ -> failwith "TODO"
             | Entry.NotExtends _ -> failwith "TODO")
         template
@@ -128,39 +128,39 @@ let applySingle (template: Network) (data: Map<Element, Element>) : Network =
 let apply (template: Network) (data: Set<Map<Element, Element>>) : Network =
     Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
 
-let compareRole
-    ({ first = Element pFirst
-       second = Element pSecond
-       role = Element pRole }: Role)
-    ({ first = Element sFirst
-       second = Element sSecond
-       role = Element sRole }: Role)
-    : Set<Map<Element, Element>> =
-    let mutable fail = false
-    let mutable result = Map.empty
+// let compareRole
+//     ({ first = Element pFirst
+//        second = Element pSecond
+//        role = Element pRole }: Role)
+//     ({ first = Element sFirst
+//        second = Element sSecond
+//        role = Element sRole }: Role)
+//     : Set<Map<Element, Element>> =
+//     let mutable fail = false
+//     let mutable result = Map.empty
 
-    if pFirst.StartsWith "?" then
-        if pFirst.Length > 1 then
-            result <- Map.add (Element pFirst) (Element sFirst) result
-    else
-        fail <- pFirst <> sFirst
+//     if pFirst.StartsWith "?" then
+//         if pFirst.Length > 1 then
+//             result <- Map.add (Element pFirst) (Element sFirst) result
+//     else
+//         fail <- pFirst <> sFirst
 
-    if (not fail) && pSecond.StartsWith "?" then
-        if pSecond.Length > 1 then
-            result <- Map.add (Element pSecond) (Element sSecond) result
-    else
-        fail <- pSecond <> sSecond
+//     if (not fail) && pSecond.StartsWith "?" then
+//         if pSecond.Length > 1 then
+//             result <- Map.add (Element pSecond) (Element sSecond) result
+//     else
+//         fail <- pSecond <> sSecond
 
-    if (not fail) && pRole.StartsWith "?" then
-        if pRole.Length > 1 then
-            result <- Map.add (Element pRole) (Element sRole) result
-    else
-        fail <- pRole <> sRole
+//     if (not fail) && pRole.StartsWith "?" then
+//         if pRole.Length > 1 then
+//             result <- Map.add (Element pRole) (Element sRole) result
+//     else
+//         fail <- pRole <> sRole
 
-    if fail || result = Map.empty then
-        Set.empty
-    else
-        Set.ofList [ result ]
+//     if fail || result = Map.empty then
+//         Set.empty
+//     else
+//         Set.ofList [ result ]
 
 let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
 
@@ -168,7 +168,7 @@ let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "T
 
 let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
     match pattern, source with
-    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
+//    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
     | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
     | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
     | _ -> Set.empty
@@ -189,9 +189,9 @@ let queryCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ WanderValue.Network pattern; WanderValue.Network template; WanderValue.Network source ] ->
+            | [ Value.Network pattern; Value.Network template; Value.Network source ] ->
                 let results = find pattern source
-                Ok(Some(WanderValue.Network(apply template results)))
+                Ok(Some(Value.Network(apply template results)))
             | _ -> error "Invalid call to query" None }
 
 let filterCommand =
@@ -200,7 +200,7 @@ let filterCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ WanderValue.Network pattern; WanderValue.Network source ] ->
+            | [ Value.Network pattern; Value.Network source ] ->
                 let results = filter pattern source
                 failwith "TODO"
             | _ -> error "Invalid call to query" None }

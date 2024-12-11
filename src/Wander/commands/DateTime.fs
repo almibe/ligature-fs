@@ -14,7 +14,7 @@ open System
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ _ ] -> Ok(WanderValue.Int(bigint DateTime.Now.Ticks))
+//             | [ _ ] -> Ok(Value.Int(bigint DateTime.Now.Ticks))
 //             | _ -> error "Invalid call to map function." None) }
 
 let dateTimeLib = [] //[(ticksFunction.Name, ticksFunction)]

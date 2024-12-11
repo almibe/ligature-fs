@@ -18,9 +18,9 @@ open System
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ WanderValue.String(prefix) ] ->
+//             | [ Value.String(prefix) ] ->
 //                 match identifier (prefix + Ulid.NewUlid().ToString()) with
-//                 | Ok identifier -> Ok(WanderValue.Name(identifier))
+//                 | Ok identifier -> Ok(Value.Name(identifier))
 //                 | _ -> error $"Invalid prefix for Name {prefix}." None
 //             | _ -> error "Invalid call to Ulid.next function." None) }
 // #else
