@@ -90,12 +90,12 @@ type LigatureLMDB(env: LightningEnvironment) =
                 match entry with
                 | Entry.Extends { element = element; concept = concept } -> failwith "TODO"
                 | Entry.NotExtends { element = element; concept = concept } -> failwith "Not Implemented"
-                // | Entry.Role { first = first
-                //                second = second
-                //                role = role } ->
-                //     let value = Array.concat [ networkId ]
-                //     tx.Put(entryDB, value, [||]) |> ignore
-                )
+            // | Entry.Role { first = first
+            //                second = second
+            //                role = role } ->
+            //     let value = Array.concat [ networkId ]
+            //     tx.Put(entryDB, value, [||]) |> ignore
+            )
             network
 
     interface System.IDisposable with

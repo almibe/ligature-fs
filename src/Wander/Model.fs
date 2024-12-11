@@ -74,9 +74,9 @@ and printNetwork (network: Set<Entry>) : string =
         (network))
     + " }"
 
-and writeValue (value: Value): string =
+and writeValue (value: Value) : string =
     match value with
-    | Value.Element (Element element) -> element
+    | Value.Element(Element element) -> element
     | Value.Value value -> encodeString value
     | Value.Quote(_) -> failwith "Not Implemented"
 

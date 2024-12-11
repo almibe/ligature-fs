@@ -47,22 +47,14 @@ and evalCalls (commands: Commands) store (calls: Call list) : Result<Value optio
         | Ok(value) -> evalCalls commands store tail
         | Error(err) -> Error(err)
 
-and evalCall
-    (commands: Commands)
-    (store: LigatureEngine)
-    ((name, args): Call)
-    : Result<Value option, LigatureError> =
-       evalElement commands store args name
+and evalCall (commands: Commands) (store: LigatureEngine) ((name, args): Call) : Result<Value option, LigatureError> =
+    evalElement commands store args name
 
-and evalQuote
-    (commands: Commands)
-    (store: LigatureEngine)
-    (quote: Quote)
-    : Result<Value option, LigatureError> =
-        match quote with
-        | [] -> failwith "TODO"
-        | [Value.Element name] -> evalElement commands store [] name
-        | _ -> 
-            match quote.Head with
-            | Value.Element name -> evalElement commands store quote.Tail name
-            | _ -> failwith "TODO"
+and evalQuote (commands: Commands) (store: LigatureEngine) (quote: Quote) : Result<Value option, LigatureError> =
+    match quote with
+    | [] -> failwith "TODO"
+    | [ Value.Element name ] -> evalElement commands store [] name
+    | _ ->
+        match quote.Head with
+        | Value.Element name -> evalElement commands store quote.Tail name
+        | _ -> failwith "TODO"

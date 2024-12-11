@@ -171,5 +171,5 @@ let elementTupleToEntry (tuple: (Element * Element * Token)) : Entry =
         Entry.Attribute
             { element = element
               attribute = attribute
-              value = Value.Element (Element value) }
+              value = Value.Element(Element value) }
     | _ -> failwith "TODO"

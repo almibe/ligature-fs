@@ -57,7 +57,7 @@ let tests =
                   (Set.ofList
                       [ Entry.Attribute
                             { element = Element "a"
-                              value = Value.Element (Element "c")
+                              value = Value.Element(Element "c")
                               attribute = Element "b" } ])
 
               Expect.equal

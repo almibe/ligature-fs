@@ -33,11 +33,11 @@ type RoleName = Element
 
 type Quote = Value list
 
-and [<RequireQualifiedAccess>] Value = 
-  | Value of string
-  | Quote of Quote
-  | Element of Element
-  | Network of Network
+and [<RequireQualifiedAccess>] Value =
+    | Value of string
+    | Quote of Quote
+    | Element of Element
+    | Network of Network
 
 and Extends =
     { element: Element

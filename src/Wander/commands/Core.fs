@@ -26,10 +26,10 @@ let letCommand: Command =
             | [ Value.Element(Element(name)); Value.Network(value) ] ->
                 store.SetNetwork name value |> ignore
                 Ok(None)
-            // | [ Value.Element(Element(name)); Value.Quote(call) ] ->
-            //     match evalCall commands store call with
-            //     | Ok(Some(Value.Network(value))) -> store.SetNetwork name value |> ignore
-            //     | _ -> failwith "TODO"
+                // | [ Value.Element(Element(name)); Value.Quote(call) ] ->
+                //     match evalCall commands store call with
+                //     | Ok(Some(Value.Network(value))) -> store.SetNetwork name value |> ignore
+                //     | _ -> failwith "TODO"
 
                 Ok(None)
             | _ -> error "Illegal call to let." None }

@@ -168,7 +168,7 @@ let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "T
 
 let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
     match pattern, source with
-//    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
+    //    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
     | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
     | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
     | _ -> Set.empty

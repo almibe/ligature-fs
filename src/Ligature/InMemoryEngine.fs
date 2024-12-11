@@ -20,7 +20,7 @@ let isComplete (entries: Set<Entry>) : bool =
     Set.fold
         (fun state (entry: Entry) ->
             match entry with
-//            | Entry.Attribute { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
+            //            | Entry.Attribute { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
             | _ -> state)
         true
         entries
