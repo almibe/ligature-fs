@@ -29,12 +29,10 @@ type Element = Element of string
 
 type ConceptName = Element
 
-type RoleName = Element
-
 type Quote = Value list
 
 and [<RequireQualifiedAccess>] Value =
-    | Value of string
+    | Literal of string
     | Quote of Quote
     | Element of Element
     | Network of Network

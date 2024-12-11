@@ -58,7 +58,7 @@ let rec prettyPrint (value: Value) : string =
     | Value.Element(Element(value)) -> value
     | Value.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Value.Network n -> printNetwork n
-    | Value.Value(value) -> encodeString value
+    | Value.Literal(value) -> encodeString value
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
@@ -77,7 +77,7 @@ and printNetwork (network: Set<Entry>) : string =
 and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
-    | Value.Value value -> encodeString value
+    | Value.Literal value -> encodeString value
     | Value.Quote(_) -> failwith "Not Implemented"
 
 and printEntry (entry: Entry) : string =

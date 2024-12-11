@@ -166,7 +166,7 @@ let elementTupleToEntry (tuple: (Element * Element * Token)) : Entry =
         Entry.Attribute
             { element = element
               attribute = attribute
-              value = Value.Value value }
+              value = Value.Literal value }
     | (element, attribute, Token.Element value) ->
         Entry.Attribute
             { element = element

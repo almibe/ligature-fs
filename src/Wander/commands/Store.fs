@@ -23,7 +23,7 @@ let scriptsCommand: Command =
                         (Entry.Attribute
                             { element = name
                               attribute = Element("docString")
-                              value = Value.Value(command.Doc) })
+                              value = Value.Literal(command.Doc) })
                         docs
 
                 ())

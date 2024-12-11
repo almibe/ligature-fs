@@ -27,7 +27,7 @@ let parseCommand: Command =
       Eval =
         fun _ store arguments ->
             match arguments with
-            | [ Value.Value(input) ] -> failwith "TODO" }
+            | [ Value.Literal(input) ] -> failwith "TODO" }
 
 // let tinyDLCommands = (Map.ofList [
 //   // (inferCommand.Name, inferCommand)

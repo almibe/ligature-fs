@@ -45,7 +45,7 @@ let tests =
                                    [ Entry.Attribute
                                          { element = Element "a"
                                            attribute = Element "b"
-                                           value = Value.Value "c" } ]
+                                           value = Value.Literal "c" } ]
                            ) ]) ]
                   ))
                   ""
