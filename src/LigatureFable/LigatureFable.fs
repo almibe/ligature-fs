@@ -17,7 +17,7 @@ let rec storeToJS (store: LigatureEngine) =
         (fun network ->
             let networkInJS =
                 match store.ReadNetwork network with
-                | Ok res -> networkToGraphology res
+                | Ok res -> networkToJs res
                 | _ -> failwith "TODO"
 
             res?(network) <- networkInJS)
@@ -27,10 +27,9 @@ let rec storeToJS (store: LigatureEngine) =
 
     res
 
-and networkToGraphology (network: Network) =
+and networkToJs (network: Network) =
     let res = createEmpty
-    let mutable nodes = Set.empty
-    let mutable edges = Set.empty
+    let mutable entries = Set.empty
 
     Set.iter
         (fun (entry: Entry) ->
@@ -38,61 +37,36 @@ and networkToGraphology (network: Network) =
             | Entry.Extends { element = Element element
                               concept = Element concept } ->
                 let elementJs = createEmpty
-                elementJs?key <- element
-                let conceptJs = createEmpty
-                conceptJs?key <- concept
-                nodes <- Set.add elementJs nodes
-                nodes <- Set.add conceptJs nodes
-                let edgeJs = createEmpty
-                edgeJs?key <- ":"
-                edgeJs?source <- element
-                edgeJs?target <- concept
-                edges <- Set.add edgeJs edges
+                elementJs?first <- element
+                elementJs?second <- ":"
+                elementJs?third <- concept
+                entries <- Set.add elementJs entries
             | Entry.NotExtends { element = Element element
                                  concept = Element concept } ->
                 let elementJs = createEmpty
-                elementJs?key <- element
-                let conceptJs = createEmpty
-                conceptJs?key <- concept
-                nodes <- Set.add elementJs nodes
-                nodes <- Set.add conceptJs nodes
-                let edgeJs = createEmpty
-                edgeJs?key <- "¬:"
-                edgeJs?source <- element
-                edgeJs?target <- concept
-                edges <- Set.add edgeJs edges
+                elementJs?first <- element
+                elementJs?second <- "¬:"
+                elementJs?third <- concept
+                entries <- Set.add elementJs entries
             | Entry.Role { first = Element first
                            second = Element second
                            role = Element role } ->
-                let firstJs = createEmpty
-                firstJs?key <- first
-                let secondJs = createEmpty
-                secondJs?key <- second
-                nodes <- Set.add firstJs nodes
-                nodes <- Set.add secondJs nodes
-                let edgeJs = createEmpty
-                edgeJs?key <- role
-                edgeJs?source <- first
-                edgeJs?target <- second
-                edges <- Set.add edgeJs edges
+                let elementJs = createEmpty
+                elementJs?first <- first
+                elementJs?second <- role
+                elementJs?third <- second
+                entries <- Set.add elementJs entries
             | Entry.Attribute { element = Element element
                                 attribute = Element attribute
                                 value = Value value } ->
                 let elementJs = createEmpty
-                elementJs?key <- element
-                let valueJs = createEmpty
-                valueJs?key <- value
-                nodes <- Set.add elementJs nodes
-                nodes <- Set.add valueJs nodes
-                let attributeJs = createEmpty
-                attributeJs?key <- attribute
-                attributeJs?source <- element
-                attributeJs?target <- value
-                edges <- Set.add attributeJs edges)
+                elementJs?first <- element
+                elementJs?second <- attribute
+                elementJs?third <- encodeString value
+                entries <- Set.add elementJs entries)
         network
 
-    res?nodes <- Set.toArray nodes
-    res?edges <- Set.toArray edges
+    res?entries <- Set.toArray entries
     res
 
 let runScript (script: string) =
@@ -103,12 +77,10 @@ let runScript (script: string) =
     | _ -> failwith "TODO"
 
 let readValue (input: string) =
-    printfn $"In readValue: {input}"
-
     match read input with
     | Ok result ->
         match result with
         | WanderValue.Element(Element e) -> e
         | WanderValue.Call _ -> failwith "TODO - support writing calls"
-        | WanderValue.Network network -> networkToGraphology network
+        | WanderValue.Network network -> networkToJs network
     | _ -> failwith "Error reading value."

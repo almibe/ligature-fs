@@ -16,6 +16,17 @@ let error userMessage debugMessage =
 
 type Element = Element of string
 
+// module Element =
+//   let isValid e = failwith "TODO"
+
+//   let create (e: string) =
+//     if isValid e then
+//       Some (Element e)
+//     else
+//       None
+
+//   let value (Element e) = e
+
 type ConceptName = Element
 
 type RoleName = Element

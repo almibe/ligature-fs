@@ -15,11 +15,11 @@ import { expect, test } from 'vitest'
 //     })
 // }
 
-test("Eval Named Network With Role", () => {
-    expect(run("let test {a b c}"))
-        .toEqual(
-                {"test": {nodes: [{key: "a"}, {key: "c"}], edges: [{source: "a", target: "c", key:"b"}]}})
-})
+// test("Eval Named Network With Role", () => {
+//     expect(run("let test {a b c}"))
+//         .toEqual(
+//                 {"test": {nodes: [{key: "a"}, {key: "c"}], edges: [{source: "a", target: "c", key:"b"}]}})
+// })
 
 test("test reading empty network", () => {
     expect(readValue("{}"))

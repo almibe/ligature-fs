@@ -81,10 +81,10 @@ let docsCommand: Command =
             |> List.iter (fun (name, command) ->
                 docs <-
                     Set.add
-                        (Entry.Role
-                            { first = name
-                              second = Element(command.Doc)
-                              role = Element("docString") })
+                        (Entry.Attribute
+                            { element = name
+                              attribute = Element("docString")
+                              value = Value(command.Doc) })
                         docs
 
                 ())

@@ -19,8 +19,7 @@ let rec serve (server: ResponseSocket) =
     let store = newInMemoryEngine ()
 
     match run stdCommands store script with
-    | Ok(Some(res)) ->
-        server.SendFrame(prettyPrint res)
+    | Ok(Some(res)) -> server.SendFrame(prettyPrint res)
     | Ok(None) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)
 
