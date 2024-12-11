@@ -60,7 +60,7 @@ let writeStore (store: LigatureEngine) =
 
 let rec prettyPrint (value: WanderValue) : string =
     match value with
-    | WanderValue.Element(Element(value)) -> value
+    | WanderValue.Element(Element(value)) -> encodeString value
     | WanderValue.Call(name, values) -> "(" + name.ToString() + (values.ToString()) + ")" //TODO print values correctly
     | WanderValue.Network n -> printNetwork n
 
@@ -89,4 +89,4 @@ and printEntry (entry: Entry) : string =
                    role = Element role } -> $"{first} {role} {second}"
     | Entry.Attribute { element = Element element
                         attribute = Element attribute
-                        value = Value value } -> $"{element} {attribute} {value}"
+                        value = Value value } -> $"{element} {attribute} {encodeString value}"

@@ -5,7 +5,7 @@
 module Wander.Commands.Network
 
 open Ligature.Main
-open Ligature.InMemoryStore
+open Ligature.InMemoryEngine
 open Wander.Model
 
 let chompCommand =

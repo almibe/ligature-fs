@@ -14,7 +14,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
-    open Ligature.InMemoryStore
+    open Ligature.InMemoryEngine
     open Wander.Commands
     open Wander.Main
     open Wander.Lib
@@ -33,7 +33,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdCommands (emptyInMemoryStore ()) (script.Current) with
+                                              match run stdCommands (newInMemoryEngine ()) (script.Current) with
                                               | Ok(Some(res)) -> result.Set $"{(Wander.Model.prettyPrint res)}"
                                               | Ok _ -> result.Set("--nothing--")
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]

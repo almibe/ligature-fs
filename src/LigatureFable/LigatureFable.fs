@@ -6,8 +6,9 @@ open Ligature.Main
 open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
-open Ligature.InMemoryEgine
+open Ligature.InMemoryEngine
 open Wander.Lib
+open Wander.Model
 
 let rec storeToJS (store: LigatureEngine) =
     let res = createEmpty
@@ -95,8 +96,19 @@ and networkToGraphology (network: Network) =
     res
 
 let runScript (script: string) =
-    let store = emptyInMemoryStore ()
+    let store = newInMemoryEngine ()
 
     match run stdCommands store script with
     | Ok _ -> storeToJS store
     | _ -> failwith "TODO"
+
+let readValue (input: string) =
+    printfn $"In readValue: {input}"
+
+    match read input with
+    | Ok result ->
+        match result with
+        | WanderValue.Element(Element e) -> e
+        | WanderValue.Call _ -> failwith "TODO - support writing calls"
+        | WanderValue.Network network -> networkToGraphology network
+    | _ -> failwith "Error reading value."

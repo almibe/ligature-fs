@@ -117,7 +117,6 @@ type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>, scripts: Diction
         member _.FilterEntries (networkName: NetworkName) (terms: Set<Entry>) : Result<Network, LigatureError> =
             failwith "Not Implemented"
 
-        member this.Dispose() : unit = failwith "Not Implemented"
         member this.Scripts() : Result<Set<ScriptName>, LigatureError> = failwith "Not Implemented"
 
 let newInMemoryEngine () : LigatureEngine =

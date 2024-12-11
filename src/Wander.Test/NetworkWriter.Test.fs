@@ -7,7 +7,7 @@ module Wander.NetworkWriter.Test
 open Expecto
 open Wander.Tokenizer
 open Wander.Model
-open Ligature.InMemoryStore
+open Ligature.InMemoryEngine
 open Ligature.Main
 
 [<Tests>]
@@ -15,15 +15,15 @@ let tests =
     testList
         "Network Writer Tests"
         [ testCase "Write empty store"
-          <| fun _ -> Expect.equal (writeStore (emptyInMemoryStore ())) "" ""
+          <| fun _ -> Expect.equal (writeStore (newInMemoryEngine ())) "" ""
           testCase "Write store with single empty network"
           <| fun _ ->
-              let store = emptyInMemoryStore ()
+              let store = newInMemoryEngine ()
               ignore <| store.AddNetwork(NetworkName "test")
               Expect.equal (writeStore store) "let test {}\n" ""
           testCase "Write store with single network"
           <| fun _ ->
-              let store = emptyInMemoryStore ()
+              let store = newInMemoryEngine ()
 
               ignore
               <| store.AddEntries

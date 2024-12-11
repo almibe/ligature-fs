@@ -6,7 +6,7 @@ module Ligature.LMDB
 
 open Ligature.Main
 open LightningDB
-open InMemoryStore
+open InMemoryEngine
 
 type LigatureLMDB(env: LightningEnvironment) =
     let idsDB = "ids"
@@ -15,7 +15,7 @@ type LigatureLMDB(env: LightningEnvironment) =
     let elementToIdDB = "elementToId"
     let idToElementDB = "idToElement"
     let entryDB = "entry"
-    let store = emptyInMemoryStore ()
+    let store = newInMemoryEngine ()
 
     let dbConfig =
         let config = DatabaseConfiguration()
@@ -139,6 +139,9 @@ type LigatureLMDB(env: LightningEnvironment) =
 
         member _.FilterEntries (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             store.FilterEntries networkName query
+
+        member _.Scripts() : Result<Set<ScriptName>, LigatureError> =
+            raise (System.NotImplementedException())
 
 let openStore (path: string) : LigatureEngine =
     let envConfig = new EnvironmentConfiguration()

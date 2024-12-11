@@ -8,7 +8,7 @@ open Expecto
 open FSharpPlus
 open Wander.Main
 open Lib
-open Ligature.InMemoryStore
+open Ligature.InMemoryEngine
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -19,7 +19,7 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
         }
 
-let createStore () = emptyInMemoryStore ()
+let createStore () = newInMemoryEngine ()
 // Ligature.LMDB.Test.Suite.newTestInstance ()
 
 [<Tests>]
