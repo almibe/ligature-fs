@@ -78,7 +78,15 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
-    | Value.Quote(_) -> failwith "Not Implemented"
+    | Value.Quote quote ->
+        let mutable result = "("
+
+        for value in quote do
+            result <- result + (writeValue value) + " "
+
+        result <- result + ")"
+        result
+    | Value.Network network -> printNetwork network
 
 and printEntry (entry: Entry) : string =
     match entry with

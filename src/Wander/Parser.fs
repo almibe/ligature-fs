@@ -36,10 +36,10 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
         return Value.Quote values
     }
 
-let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Token), Gaze.GazeError> =
+let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Value), Gaze.GazeError> =
     let entity = symbolNib gaze
     let attribute = symbolNib gaze
-    let value = Gaze.next gaze
+    let value = Gaze.attempt valueNib gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -62,17 +62,16 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let symbolValueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
+let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
-    | Error(err) -> Error err
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(Value.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valueNib: Gaze.Nibbler<Token, Value> =
-    takeFirst [ quoteNib; symbolValueNib; networkNib ]
+    takeFirst [ quoteNib; elementOrLiteralNib; networkNib ]
 
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
     result {
@@ -143,33 +142,16 @@ let parseString (input: string) =
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
 
-let expressNetwork (network: (Element * Element * Token) list) : Set<Entry> =
+let expressNetwork (network: (Element * Element * Value) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
-let elementTupleToEntry (tuple: (Element * Element * Token)) : Entry =
+let elementTupleToEntry (tuple: (Element * Element * Value)) : Entry =
     match tuple with
-    | (element, Element ":", Token.Element concept) ->
-        Entry.Extends
-            { element = element
-              concept = Element concept }
-    | (element, Element "¬:", Token.Element concept) ->
-        Entry.NotExtends
-            { element = element
-              concept = Element concept }
-    // | (first, role, Token.Element second) ->
-    //     Entry.Role
-    //         { first = first
-    //           role = role
-    //           second = Element second }
-    | (element, attribute, Token.StringLiteral value) ->
+    | (element, Element ":", Value.Element concept) -> Entry.Extends { element = element; concept = concept }
+    | (element, Element "¬:", Value.Element concept) -> Entry.NotExtends { element = element; concept = concept }
+    | (element, attribute, value) ->
         Entry.Attribute
             { element = element
               attribute = attribute
-              value = Value.Literal value }
-    | (element, attribute, Token.Element value) ->
-        Entry.Attribute
-            { element = element
-              attribute = attribute
-              value = Value.Element(Element value) }
-    | _ -> failwith "TODO"
+              value = value }
