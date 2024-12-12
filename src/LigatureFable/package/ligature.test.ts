@@ -24,5 +24,5 @@ import { expect, test } from 'vitest'
 test("test reading empty network", () => {
     expect(readValue("{}"))
         .toEqual(
-                {nodes: [], edges: []})
+                {entries: []})
 })

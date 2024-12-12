@@ -48,21 +48,18 @@ and networkToJs (network: Network) =
                 elementJs?second <- "¬:"
                 elementJs?third <- concept
                 entries <- Set.add elementJs entries
-            | Entry.Role { first = Element first
-                           second = Element second
-                           role = Element role } ->
-                let elementJs = createEmpty
-                elementJs?first <- first
-                elementJs?second <- role
-                elementJs?third <- second
-                entries <- Set.add elementJs entries
             | Entry.Attribute { element = Element element
                                 attribute = Element attribute
-                                value = Value value } ->
+                                value = value } ->
                 let elementJs = createEmpty
                 elementJs?first <- element
                 elementJs?second <- attribute
-                elementJs?third <- encodeString value
+                elementJs?third <-
+                    match value with
+                    | Value.Element (Element element) -> element
+                    | Value.Literal literal -> encodeString literal
+                    | Value.Network network -> failwith "TODO"
+                    | Value.Quote quote -> failwith "TODO"
                 entries <- Set.add elementJs entries)
         network
 
