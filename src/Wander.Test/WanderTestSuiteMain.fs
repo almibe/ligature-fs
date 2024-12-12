@@ -19,7 +19,7 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
         }
 
-let createStore () = 
+let createStore () =
     //newInMemoryEngine ()
     Ligature.LMDB.Test.Suite.newTestInstance ()
 

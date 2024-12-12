@@ -54,12 +54,14 @@ and networkToJs (network: Network) =
                 let elementJs = createEmpty
                 elementJs?first <- element
                 elementJs?second <- attribute
+
                 elementJs?third <-
                     match value with
-                    | Value.Element (Element element) -> element
+                    | Value.Element(Element element) -> element
                     | Value.Literal literal -> encodeString literal
                     | Value.Network network -> failwith "TODO"
                     | Value.Quote quote -> failwith "TODO"
+
                 entries <- Set.add elementJs entries)
         network
 
