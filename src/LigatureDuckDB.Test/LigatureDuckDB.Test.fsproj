@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureLMDBSuite.fs" />
+    <Compile Include="LigatureDuckDBSuite.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
@@ -22,6 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\LigatureLMDB\LigatureLMDB.fsproj" />
+    <ProjectReference Include="..\LigatureDuckDB\LigatureDuckDB.fsproj" />
   </ItemGroup>
 </Project>
