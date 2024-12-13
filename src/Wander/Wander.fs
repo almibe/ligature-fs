@@ -10,12 +10,12 @@ open Ligature.Main
 open Interpreter
 open Wander.Model
 
-let run (commands: Commands) (store: LigatureEngine) (input: string) : Result<Value option, LigatureError> =
+let run (commands: Commands) (variables: Variables) (input: string) : Result<Value option, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok calls -> evalCalls commands store calls
+            | Ok calls -> evalCalls commands variables calls
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

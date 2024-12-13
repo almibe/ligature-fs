@@ -66,7 +66,11 @@ let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError>
     let next = Gaze.next gaze
 
     match next with
-    | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
+    | Ok(Token.Element(value)) -> 
+        if value.StartsWith "?" then
+            Ok(Value.Variable(Variable value))
+        else
+            Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 

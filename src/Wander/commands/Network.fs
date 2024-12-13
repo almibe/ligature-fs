@@ -62,18 +62,18 @@ let unionCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let countCommand =
-    { Name = Element("count")
-      Doc = "Count the number of assertions in a Network."
-      Eval =
-        fun _ store (arguments: Arguments) ->
-            match arguments with
-            | [ Value.Element(Element name) ] ->
-                match store.ReadNetwork name with
-                | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
-                | _ -> failwith "TODO"
-            | [ Value.Network network ] -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
-            | _ -> failwith "TODO" }
+// let countCommand =
+//     { Name = Element("count")
+//       Doc = "Count the number of assertions in a Network."
+//       Eval =
+//         fun _ store (arguments: Arguments) ->
+//             match arguments with
+//             | [ Value.Element(Element name) ] ->
+//                 match store.ReadNetwork name with
+//                 | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
+//                 | _ -> failwith "TODO"
+//             | [ Value.Network network ] -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
+//             | _ -> failwith "TODO" }
 
 let minusCommand =
     { Name = Element("minus")
@@ -208,7 +208,7 @@ let filterCommand =
 let networkCommands: Map<Element, Command> =
     (Map.ofList
         [ (chompCommand.Name, chompCommand)
-          (countCommand.Name, countCommand)
+        //   (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
           (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)

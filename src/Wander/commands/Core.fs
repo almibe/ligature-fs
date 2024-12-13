@@ -17,36 +17,28 @@ let idCommand: Command =
             | [ value ] -> Ok(Some(value))
             | _ -> failwith "id requires 1 argument." }
 
-let letCommand: Command =
-    { Name = Element("let")
-      Doc = "Set the value of a given named network."
-      Eval =
-        fun commands store arguments ->
-            match processArguments commands store arguments with
-            | [ Value.Element(Element(name)); Value.Network(value) ] ->
-                store.SetNetwork name value |> ignore
-                Ok(None)
-                // | [ Value.Element(Element(name)); Value.Quote(call) ] ->
-                //     match evalCall commands store call with
-                //     | Ok(Some(Value.Network(value))) -> store.SetNetwork name value |> ignore
-                //     | _ -> failwith "TODO"
-
-                Ok(None)
-            | _ -> error "Illegal call to let." None }
-
 let readCommand: Command =
     { Name = Element("read")
-      Doc = "Read the value of a given network."
+      Doc = "Read the value of a given variable."
       Eval =
-        fun _ store arguments ->
+        fun _ variables arguments ->
             match arguments with
-            | [ Value.Element(Element(name)) ] ->
-                match store.ReadNetwork name with
-                | Ok res ->
-                    let network = Value.Network(res)
-                    Ok(Some(network))
-                | _ -> error "Could not read network" None
-            | _ -> failwith "TODO" }
+            | [ Value.Variable(name) ] ->
+                if variables.ContainsKey name then
+                    Ok (Some variables[name])
+                else
+                    error "Could not read variable" None
+            | _ -> error "Illegal call to read." None }
+
+let evalCommand: Command =
+    { Name = Element("eval")
+      Doc = "Eval a quote."
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ Value.Quote(quote) ] ->
+                evalQuote commands variables quote
+            | _ -> error "Illegal call to read." None }
 
 let ignoreCommand: Command =
     { Name = Element("ignore")
@@ -97,4 +89,4 @@ let coreCommands =
           (idCommand.Name, idCommand)
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
-          (letCommand.Name, letCommand) ])
+          (evalCommand.Name, evalCommand)  ])

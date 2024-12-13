@@ -9,13 +9,17 @@ open Ligature.Main
 type Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> LigatureEngine -> Arguments -> Result<Value option, LigatureError> }
+      Eval: Commands -> Variables -> Arguments -> Result<Value option, LigatureError> }
 
 and Commands = Map<Element, Command>
 
 and Call = Element * Arguments
 
 and Arguments = Value list
+
+and Variables = Map<Variable, Value>
+
+let emptyVariables (): Variables = Map.empty
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -59,6 +63,7 @@ let rec prettyPrint (value: Value) : string =
     | Value.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Value.Network n -> printNetwork n
     | Value.Literal(value) -> encodeString value
+    | Value.Variable(_) -> failwith "Not Implemented"
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
@@ -87,6 +92,7 @@ and writeValue (value: Value) : string =
         result <- result + ")"
         result
     | Value.Network network -> printNetwork network
+    | Value.Variable variable -> failwith "TODO"
 
 and printEntry (entry: Entry) : string =
     match entry with

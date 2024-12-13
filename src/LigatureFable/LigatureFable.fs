@@ -10,24 +10,24 @@ open Ligature.InMemoryEngine
 open Wander.Lib
 open Wander.Model
 
-let rec storeToJS (store: LigatureEngine) =
-    let res = createEmpty
+// let rec storeToJS (store: LigatureEngine) =
+//     let res = createEmpty
 
-    Set.iter
-        (fun network ->
-            let networkInJS =
-                match store.ReadNetwork network with
-                | Ok res -> networkToJs res
-                | _ -> failwith "TODO"
+//     Set.iter
+//         (fun network ->
+//             let networkInJS =
+//                 match store.ReadNetwork network with
+//                 | Ok res -> networkToJs res
+//                 | _ -> failwith "TODO"
 
-            res?(network) <- networkInJS)
-        (match store.Networks() with
-         | Ok res -> res
-         | Error _ -> failwith "TODO")
+//             res?(network) <- networkInJS)
+//         (match store.Networks() with
+//          | Ok res -> res
+//          | Error _ -> failwith "TODO")
 
-    res
+//     res
 
-and networkToJs (network: Network) =
+let networkToJs (network: Network) =
     let res = createEmpty
     let mutable entries = Set.empty
 
@@ -61,6 +61,7 @@ and networkToJs (network: Network) =
                     | Value.Literal literal -> encodeString literal
                     | Value.Network network -> failwith "TODO"
                     | Value.Quote quote -> failwith "TODO"
+                    | Value.Variable variable -> failwith "TODO"
 
                 entries <- Set.add elementJs entries)
         network
@@ -68,12 +69,10 @@ and networkToJs (network: Network) =
     res?entries <- Set.toArray entries
     res
 
-let runScript (script: string) =
-    let store = newInMemoryEngine ()
-
-    match run stdCommands store script with
-    | Ok _ -> storeToJS store
-    | _ -> failwith "TODO"
+// let runScript (script: string) =
+//     match run stdCommands (emptyVariables()) script with
+//     | Ok _ -> storeToJS store
+//     | _ -> failwith "TODO"
 
 let readValue (input: string) =
     match read input with
@@ -82,4 +81,6 @@ let readValue (input: string) =
         | Value.Element(Element e) -> e
         | Value.Quote _ -> failwith "TODO - support writing calls"
         | Value.Network network -> networkToJs network
+        | Value.Literal(_) -> failwith "Not Implemented"
+        | Value.Variable(_) -> failwith "Not Implemented"
     | _ -> failwith "Error reading value."

@@ -5,7 +5,6 @@
 module Ligature.InMemoryEngine
 
 open Ligature.Main
-open System.Collections.Generic
 
 let isComplete (entries: Set<Entry>) : bool =
     let concepts =
@@ -73,49 +72,3 @@ let isConsistent (network: Network) : bool =
                 | Entry.Attribute _ -> true)
         true
         network
-
-type InMemoryEngine(store: Dictionary<NetworkName, Set<Entry>>) =
-    interface System.IDisposable with
-        member _.Dispose() : unit = ()
-
-    interface LigatureEngine with
-        member _.AddNetwork networkName = Ok(store.Add(networkName, Set.empty))
-
-        member _.RemoveNetwork networkName =
-            store.Remove(networkName) |> ignore
-            Ok()
-
-        member _.Networks() = store.Keys |> Set.ofSeq |> Ok
-
-        member _.AddEntries name network =
-            match store.TryGetValue name with
-            | (true, network) ->
-                let oldNetwork = store.Item(name)
-                store.Remove(name) |> ignore
-                store.Add(name, (Set.union oldNetwork network))
-                Ok(())
-            | (false, _) ->
-                store.Add(name, network)
-                Ok(())
-
-        member _.RemoveEntries name network =
-            let oldNetwork = store.Item(name)
-            store.Remove(name) |> ignore
-            store.Add(name, (Set.difference oldNetwork network))
-            Ok(())
-
-        member _.ReadNetwork(networkName: NetworkName) : Result<Set<Entry>, LigatureError> =
-            match store.TryGetValue networkName with
-            | (true, network) -> Ok network
-            | (false, _) -> error "Network not found." None
-
-        member _.SetNetwork name network : Result<unit, LigatureError> =
-            store.Remove(name) |> ignore
-            store.Add(name, network) |> ignore
-            Ok(())
-
-        member _.FilterEntries (networkName: NetworkName) (terms: Set<Entry>) : Result<Network, LigatureError> =
-            failwith "Not Implemented"
-
-let newInMemoryEngine () : LigatureEngine =
-    new InMemoryEngine(new Dictionary<NetworkName, Set<Entry>>())

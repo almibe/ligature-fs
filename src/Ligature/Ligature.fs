@@ -29,10 +29,13 @@ type Element = Element of string
 
 type ConceptName = Element
 
+type Variable = Variable of string
+
 type Quote = Value list
 
 and [<RequireQualifiedAccess>] Value =
     | Literal of string
+    | Variable of Variable
     | Quote of Quote
     | Element of Element
     | Network of Network
@@ -58,14 +61,3 @@ and [<RequireQualifiedAccess>] Entry =
 and Network = Set<Entry>
 
 and NetworkName = string
-
-type LigatureEngine =
-    inherit System.IDisposable
-    abstract Networks: unit -> Result<Set<NetworkName>, LigatureError>
-    abstract ReadNetwork: NetworkName -> Result<Network, LigatureError>
-    abstract AddNetwork: NetworkName -> Result<unit, LigatureError>
-    abstract RemoveNetwork: NetworkName -> Result<unit, LigatureError>
-    abstract AddEntries: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract SetNetwork: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract RemoveEntries: NetworkName -> Network -> Result<unit, LigatureError>
-    abstract FilterEntries: NetworkName -> Network -> Result<Network, LigatureError>

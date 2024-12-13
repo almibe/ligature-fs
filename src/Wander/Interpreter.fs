@@ -7,24 +7,14 @@ module Wander.Interpreter
 open Ligature.Main
 open Model
 
-//let evalNetworkName (networks: LigatureStore) (name: NetworkName) : Result<Identifier, LigatureError> = Ok(networks)
-
-let evalNetwork
-    (store: LigatureEngine)
-    (name: NetworkName)
-    (network: Set<Entry>)
-    : Result<Value option, LigatureError> =
-    store.AddEntries name network |> ignore
-    Ok None
-
 let rec evalElement
     (commands: Commands)
-    networks
+    (variables: Variables)
     (arguments: Value list)
     (Element(name))
     : Result<Value option, LigatureError> =
     match commands.TryFind(Element(name)) with
-    | Some(command) -> command.Eval commands networks arguments
+    | Some(command) -> command.Eval commands variables arguments
     | None -> error $"Could not find name {name}" None
 
 and processArguments commands networks (arguments: Value list) : Value list =
@@ -38,23 +28,23 @@ and processArguments commands networks (arguments: Value list) : Value list =
             | value -> value)
         arguments
 
-and evalCalls (commands: Commands) store (calls: Call list) : Result<Value option, LigatureError> =
+and evalCalls (commands: Commands) (variables: Variables) (calls: Call list) : Result<Value option, LigatureError> =
     match calls with
     | [] -> Ok(None)
-    | [ head ] -> evalCall commands store head
+    | [ head ] -> evalCall commands variables head
     | head :: tail ->
-        match evalCall commands store head with
-        | Ok(value) -> evalCalls commands store tail
+        match evalCall commands variables head with
+        | Ok(value) -> evalCalls commands variables tail
         | Error(err) -> Error(err)
 
-and evalCall (commands: Commands) (store: LigatureEngine) ((name, args): Call) : Result<Value option, LigatureError> =
-    evalElement commands store args name
+and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<Value option, LigatureError> =
+    evalElement commands variables args name
 
-and evalQuote (commands: Commands) (store: LigatureEngine) (quote: Quote) : Result<Value option, LigatureError> =
+and evalQuote (commands: Commands) (variables: Variables) (quote: Quote) : Result<Value option, LigatureError> =
     match quote with
     | [] -> failwith "TODO"
-    | [ Value.Element name ] -> evalElement commands store [] name
+    | [ Value.Element name ] -> evalElement commands variables [] name
     | _ ->
         match quote.Head with
-        | Value.Element name -> evalElement commands store quote.Tail name
+        | Value.Element name -> evalElement commands variables quote.Tail name
         | _ -> failwith "TODO"

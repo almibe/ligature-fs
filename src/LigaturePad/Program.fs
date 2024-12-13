@@ -18,6 +18,7 @@ module Main =
     open Wander.Commands
     open Wander.Main
     open Wander.Lib
+    open Wander.Model
 
     let view () =
         Component(fun ctx ->
@@ -33,7 +34,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdCommands (newInMemoryEngine ()) (script.Current) with
+                                              match run stdCommands (emptyVariables ()) (script.Current) with
                                               | Ok(Some(res)) -> result.Set $"{(Wander.Model.prettyPrint res)}"
                                               | Ok _ -> result.Set("--nothing--")
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]

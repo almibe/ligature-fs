@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      immutable:
+        specifier: ^5.0.3
+        version: 5.0.3
     devDependencies:
       '@vitest/ui':
         specifier: ^1.6.0
@@ -607,6 +611,9 @@ packages:
   human-signals@5.0.0:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
+
+  immutable@5.0.3:
+    resolution: {integrity: sha512-P8IdPQHq3lA1xVeBRi5VPqUm5HDgKnx0Ru51wZz5mjxHr5n3RWhjIpOFU7ybkUxfB+5IToy+OLaHYDBIWsv+uw==}
 
   import-lazy@4.0.0:
     resolution: {integrity: sha512-rKtvo6a868b5Hu3heneU+L4yEQ4jYKLtjpnPeUdK7h0yzXGmyBTypknlkCvHFBqfX9YlorEiMM6Dnq/5atfHkw==}
@@ -1595,6 +1602,8 @@ snapshots:
   he@1.2.0: {}
 
   human-signals@5.0.0: {}
+
+  immutable@5.0.3: {}
 
   import-lazy@4.0.0: {}
 

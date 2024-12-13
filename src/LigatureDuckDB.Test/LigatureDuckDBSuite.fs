@@ -14,5 +14,5 @@ let tests =
         "DuckDB Store"
         [ testCase "Start with no networks."
           <| fun _ ->
-              let store = inMemoryDuckDBStore ()
+              let store = openDefault ()
               Expect.equal (store.Networks()) (Ok(Set.empty)) "" ]
