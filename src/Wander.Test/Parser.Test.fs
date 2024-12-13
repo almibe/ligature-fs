@@ -55,12 +55,11 @@ let tests =
                   (parse "a {?a b c}")
                   (Ok(
                       [ (Element "a",
-                         [ Any.Network(
+                         [ Any.Pattern(
                                Set.ofList
-                                   [ Entry.Attribute
-                                         { element = Element "?a"
-                                           value = Value.Element(Element "c")
-                                           attribute = Element "b" } ]
+                                   [ { element = ElementPattern.Variable(Variable "?a")
+                                       value = ValuePattern.Element(Element "c")
+                                       attribute = ElementPattern.Element(Element "b") } ]
                            ) ]) ]
                   ))
                   "" ]

@@ -88,6 +88,7 @@ let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.Gaz
     | Error(err) -> Error err
     | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
+    | Ok(Token.Variable(value)) -> Ok(ElementPattern.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -117,12 +118,9 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     let next = Gaze.next gaze
 
     match next with
-    | Ok(Token.Element(value)) ->
-        if value.StartsWith "?" then
-            Ok(ValuePattern.Variable(Variable value))
-        else
-            Ok(ValuePattern.Element(Element value))
+    | Ok(Token.Element(value)) -> Ok(ValuePattern.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(ValuePattern.Literal value)
+    | Ok(Token.Variable(value)) -> Ok(ValuePattern.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
@@ -217,4 +215,7 @@ let elementTupleToEntry (tuple: (Element * Element * Value)) : Entry =
 
 let elementTupleToEntryPattern (tuple: (ElementPattern * ElementPattern * ValuePattern)) : EntryPattern =
     match tuple with
-    | (element, attribute, value) -> failwith "TODO" //EntryPattern { element = element; attribute = attribute; value = value }
+    | (element, attribute, value) ->
+        { element = element
+          attribute = attribute
+          value = value }
