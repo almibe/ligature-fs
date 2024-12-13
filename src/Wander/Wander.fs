@@ -15,7 +15,7 @@ let run (commands: Commands) (variables: Variables) (input: string) : Result<Any
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok calls -> evalCalls commands variables calls
+            | Ok script -> evalScript commands variables script
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

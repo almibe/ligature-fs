@@ -28,14 +28,20 @@ and processArguments commands networks (arguments: Any list) : Any list =
             | value -> value)
         arguments
 
-and evalCalls (commands: Commands) (variables: Variables) (calls: Call list) : Result<Any option, LigatureError> =
-    match calls with
-    | [] -> Ok(None)
-    | [ head ] -> evalCall commands variables head
-    | head :: tail ->
+and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<Any option, LigatureError> =
+    match script with
+    | [] -> Ok None
+    | [ Expression.Call head ] -> evalCall commands variables head
+    | [ _ ] -> Ok None
+    | Expression.Call head :: tail ->
         match evalCall commands variables head with
-        | Ok(value) -> evalCalls commands variables tail
-        | Error(err) -> Error(err)
+        | Ok _ -> evalScript commands variables tail
+        | Error err -> Error err
+    | Expression.AnyAssignment(variable, value) :: tail -> evalScript commands (Map.add variable value variables) tail
+    | Expression.CallAssignment(variable, call) :: tail ->
+        match evalCall commands variables call with
+        | Ok(Some value) -> evalScript commands (Map.add variable value variables) tail
+        | _ -> failwith "TODO"
 
 and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<Any option, LigatureError> =
     evalElement commands variables args name

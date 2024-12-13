@@ -17,6 +17,17 @@ and Call = Element * Arguments
 
 and Arguments = Any list
 
+and AnyAssignment = Variable * Any
+
+and CallAssignment = Variable * Call
+
+and [<RequireQualifiedAccess>] Expression =
+    | Call of Call
+    | AnyAssignment of AnyAssignment
+    | CallAssignment of CallAssignment
+
+and Script = Expression list
+
 and Variables = Map<Variable, Any>
 
 let emptyVariables () : Variables = Map.empty
@@ -28,42 +39,14 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-// let writeStore (store: LigatureEngine) =
-//     let mutable result = ""
-
-//     match store.Networks() with
-//     | Ok networks ->
-//         Set.iter
-//             (fun network ->
-//                 match store.ReadNetwork network with
-//                 | Ok entries ->
-//                     result <- result + "let " + network + " {"
-
-//                     Set.iter
-//                         (fun entry ->
-//                             match entry with
-//                             | Entry.Extends { element = Element element
-//                                               concept = Element concept } ->
-//                                 result <- result + " " + element + " : " + concept + ","
-//                             | Entry.NotExtends(_) -> failwith "Not Implemented"
-//                             //| Entry.Role(_) -> failwith "Not Implemented"
-//                             | Entry.Attribute(_) -> failwith "Not Implemented")
-//                         entries
-
-//                     result <- result + "}\n"
-//                 | _ -> failwith "TODO")
-//             networks
-//     | _ -> failwith "TODO"
-
-//     result
-
 let rec prettyPrint (value: Any) : string =
     match value with
     | Any.Element(Element(value)) -> value
     | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Any.Network n -> printNetwork n
+    | Any.Pattern p -> printPattern p
     | Any.Literal(value) -> encodeString value
-    | Any.Variable(_) -> failwith "Not Implemented"
+    | Any.Variable(Variable variable) -> variable
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
@@ -79,6 +62,21 @@ and printNetwork (network: Set<Entry>) : string =
         (network))
     + " }"
 
+and printPattern (pattern: Pattern) : string =
+    let mutable first = true
+
+    (Seq.fold
+        (fun state triple ->
+            if first then
+                first <- false
+                state + " " + (printEntryPattern triple) + ","
+            else
+                state + "\n  " + (printEntryPattern triple) + ",")
+        "{"
+        (pattern))
+    + " }"
+
+
 and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
@@ -93,3 +91,6 @@ and printEntry (entry: Entry) : string =
     | Entry.Attribute { element = Element element
                         attribute = Element attribute
                         value = value } -> $"{element} {attribute} {writeValue value}"
+
+and printEntryPattern (entry: EntryPattern) : string =
+    $"{entry.element} {entry.attribute} {entry.value}" //TODO print values correctly

@@ -24,14 +24,16 @@ let tests =
               Expect.equal
                   (parse "a {a b c}")
                   (Ok(
-                      [ (Element "a",
-                         [ Any.Network(
-                               Set.ofList
-                                   [ Entry.Attribute
-                                         { element = Element "a"
-                                           value = Value.Element(Element "c")
-                                           attribute = Element "b" } ]
-                           ) ]) ]
+                      [ Expression.Call(
+                            Element "a",
+                            [ Any.Network(
+                                  Set.ofList
+                                      [ Entry.Attribute
+                                            { element = Element "a"
+                                              value = Value.Element(Element "c")
+                                              attribute = Element "b" } ]
+                              ) ]
+                        ) ]
                   ))
                   ""
           testCase "read network with attribute"
@@ -39,14 +41,16 @@ let tests =
               Expect.equal
                   (parse "a {a b \"c\"}")
                   (Ok(
-                      [ (Element "a",
-                         [ Any.Network(
-                               Set.ofList
-                                   [ Entry.Attribute
-                                         { element = Element "a"
-                                           attribute = Element "b"
-                                           value = Value.Literal "c" } ]
-                           ) ]) ]
+                      [ Expression.Call(
+                            Element "a",
+                            [ Any.Network(
+                                  Set.ofList
+                                      [ Entry.Attribute
+                                            { element = Element "a"
+                                              attribute = Element "b"
+                                              value = Value.Literal "c" } ]
+                              ) ]
+                        ) ]
                   ))
                   ""
           testCase "read call with pattern passed"
@@ -54,19 +58,14 @@ let tests =
               Expect.equal
                   (parse "a {?a b c}")
                   (Ok(
-                      [ (Element "a",
-                         [ Any.Pattern(
-                               Set.ofList
-                                   [ { element = ElementPattern.Variable(Variable "?a")
-                                       value = ValuePattern.Element(Element "c")
-                                       attribute = ElementPattern.Element(Element "b") } ]
-                           ) ]) ]
+                      [ Expression.Call(
+                            Element "a",
+                            [ Any.Pattern(
+                                  Set.ofList
+                                      [ { element = ElementPattern.Variable(Variable "?a")
+                                          value = ValuePattern.Element(Element "c")
+                                          attribute = ElementPattern.Element(Element "b") } ]
+                              ) ]
+                        ) ]
                   ))
                   "" ]
-
-//   testCase "read pattern"
-//   <| fun _ -> Expect.equal (parse [Token.Variable("?")]) (Ok([ Token.Variable("?") ])) ""
-//   testCase "read named variable"
-//   <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Variable("?test") ])) ""
-//   testCase "return error on invalid input"
-//   <| fun _ -> Expect.isError (tokenize "\"") "" ]

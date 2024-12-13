@@ -18,14 +18,22 @@ let identifierNib (gaze: Gaze.Gaze<Token>) =
             | _ -> Error(Gaze.GazeError.NoMatch))
         gaze
 
-//let elementNib = takeFirst [ quoteNib; networkNib ]
-
 let elementNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
+    match Gaze.next gaze with
     | Error(err) -> Error err
     | Ok(Token.Element(value)) -> Ok(Element value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let equalNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Error(err) -> Error err
+    | Ok(Token.Element("=")) -> Ok(Element "=")
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Error(err) -> Error err
+    | Ok(Token.Variable(value)) -> Ok(Variable value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -91,33 +99,24 @@ let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.Gaz
     | Ok(Token.Variable(value)) -> Ok(ElementPattern.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Ok(Token.Element(value)) ->
-        if value.StartsWith "?" then
-            Ok(Any.Variable(Variable value))
-        else
-            Ok(Any.Element(Element value))
+let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Ok(Token.Element(value)) -> Ok(Any.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal value)
+    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteNib; elementOrLiteralNib; networkNib; patternNib ]
+    takeFirst [ quoteNib; elementLiteralVariableNib; networkNib; patternNib ]
 
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
+    match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
+    match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(ValuePattern.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(ValuePattern.Literal value)
     | Ok(Token.Variable(value)) -> Ok(ValuePattern.Variable(Variable value))
@@ -130,12 +129,36 @@ let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
         return name, arguments
     }
 
-let scriptNib = repeatSep callNib Token.Comma
+let callExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! name = Gaze.attempt elementNib gaze
+        let! arguments = Gaze.attempt (optional (repeat anyNib)) gaze
+        return Expression.Call(name, arguments)
+    }
+
+let anyAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! variable = Gaze.attempt variableNib gaze
+        let! _ = Gaze.attempt equalNib gaze
+        let! value = Gaze.attempt anyNib gaze
+        return Expression.AnyAssignment(variable, value)
+    }
+
+let callAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! variable = Gaze.attempt variableNib gaze
+        let! _ = Gaze.attempt equalNib gaze
+        let! call = Gaze.attempt callNib gaze
+        return Expression.CallAssignment(variable, call)
+    }
+
+let scriptNib =
+    repeatSep (takeFirst [ callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let parse (tokens: Token list) : Result<Call list, LigatureError> =
+let parse (tokens: Token list) : Result<Script, LigatureError> =
     let tokens =
         List.filter
             (fun token ->

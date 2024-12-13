@@ -12,25 +12,33 @@ let assertEqualCommand: Command =
     { Name = Element "assert-equal"
       Doc = "Check that two values are equal."
       Eval =
-        fun (commands: Commands) networks (arguments: Arguments) ->
+        fun (commands: Commands) variables (arguments: Arguments) ->
             match arguments with
             | [ first; second ] ->
                 let first =
                     match first with
                     | Any.Quote quote ->
-                        match evalQuote commands networks quote with
+                        match evalQuote commands variables quote with
                         | Ok(Some(res)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                    | Any.Variable variable ->
+                        match Map.tryFind variable variables with
+                        | Some(res) -> res
+                        | None -> failwith "Invalid first expression passed to assert-equal."
                     | _ -> first
 
                 let second =
                     match second with
                     | Any.Quote quote ->
-                        match evalQuote commands networks quote with
+                        match evalQuote commands variables quote with
                         | Ok(Some(res)) -> res
-                        | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+                        | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                    | Any.Variable variable ->
+                        match Map.tryFind variable variables with
+                        | Some(res) -> res
+                        | None -> failwith "Invalid second expression passed to assert-equal."
                     | _ -> second
 
                 if first = second then
