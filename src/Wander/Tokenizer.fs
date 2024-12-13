@@ -121,11 +121,15 @@ let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
 let elementTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> (fun x -> 
-        if x.StartsWith "?" then
-            Token.Variable x
-        else
-            Token.Element x))
+    Gaze.map nameNibbler (fun chars ->
+        chars
+        |> List.concat
+        |> implode
+        |> (fun x ->
+            if x.StartsWith "?" then
+                Token.Variable x
+            else
+                Token.Element x))
 
 let tokenNibbler =
     Nibblers.optional (

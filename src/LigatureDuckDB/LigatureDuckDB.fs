@@ -36,29 +36,29 @@ type LigatureDuckDB(conn: DuckDBConnection) =
         member _.AddNetwork networkName =
             store.AddNetwork networkName
             addEvent $"add-network {networkName}"
-            Ok ()
+            Ok()
 
         member _.SetNetwork networkName network =
             store.SetNetwork networkName network
             addEvent $"set-network {networkName} {printNetwork network}"
-            Ok ()
+            Ok()
 
         member _.RemoveNetwork networkName =
             store.RemoveNetwork networkName
             addEvent $"remove-network {networkName}"
-            Ok ()
+            Ok()
 
         member _.Networks() = store.Networks()
 
         member _.AddEntries networkName network =
             store.AddEntries networkName network
             addEvent $"add-entries {networkName} {printNetwork network}"
-            Ok ()
+            Ok()
 
         member _.RemoveEntries networkName network =
             store.RemoveEntries networkName network
             addEvent $"remove-entries {networkName} {printNetwork network}"
-            Ok ()
+            Ok()
 
         member _.ReadNetwork(networkName: NetworkName) : Result<Set<Entry>, LigatureError> =
             store.ReadNetwork networkName
@@ -66,8 +66,12 @@ type LigatureDuckDB(conn: DuckDBConnection) =
         member _.FilterEntries (networkName: NetworkName) (query: Network) : Result<Set<Entry>, LigatureError> =
             store.FilterEntries networkName query
 
-let openDefault () : LigatureEngine = 
-    let home = System.Environment.GetEnvironmentVariable("LIGATURE_HOME") + System.IO.Path.DirectorySeparatorChar.ToString() + "ligature.duckdb"
+let openDefault () : LigatureEngine =
+    let home =
+        System.Environment.GetEnvironmentVariable("LIGATURE_HOME")
+        + System.IO.Path.DirectorySeparatorChar.ToString()
+        + "ligature.duckdb"
+
     let conn = new DuckDBConnection($"DataSource={home}")
     conn.Open()
     let command = conn.CreateCommand()

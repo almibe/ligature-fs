@@ -53,6 +53,25 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Network(expressNetwork statements)
     }
 
+let patternStatementNib
+    (gaze: Gaze.Gaze<Token>)
+    : Result<(ElementPattern * ElementPattern * ValuePattern), Gaze.GazeError> =
+    let entity = elementPatternNib gaze
+    let attribute = elementPatternNib gaze
+    let value = Gaze.attempt valuePatternNib gaze
+
+    match (entity, attribute, value) with
+    | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
+    | _ -> Error(Gaze.NoMatch)
+
+let patternNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Any.Pattern(expressPattern statements)
+    }
+
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     let next = Gaze.next gaze
 
@@ -62,11 +81,20 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Error(err) -> Error err
+    | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
 let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
-    | Ok(Token.Element(value)) -> 
+    | Ok(Token.Element(value)) ->
         if value.StartsWith "?" then
             Ok(Any.Variable(Variable value))
         else
@@ -75,18 +103,26 @@ let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteNib; elementOrLiteralNib; networkNib ]
+    takeFirst [ quoteNib; elementOrLiteralNib; networkNib; patternNib ]
 
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
-    | Ok(Token.Element(value)) -> 
-        // if value.StartsWith "?" then
-        //     Ok(Value.Variable(Variable value))
-        // else
-            Ok(Value.Element(Element value))
+    | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Ok(Token.Element(value)) ->
+        if value.StartsWith "?" then
+            Ok(ValuePattern.Variable(Variable value))
+        else
+            Ok(ValuePattern.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(ValuePattern.Literal value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
@@ -162,6 +198,13 @@ let expressNetwork (network: (Element * Element * Value) list) : Set<Entry> =
     let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
     res
 
+let expressPattern (network: (ElementPattern * ElementPattern * ValuePattern) list) : Set<EntryPattern> =
+    let res: Set<EntryPattern> =
+        (List.map (elementTupleToEntryPattern) network) |> Set.ofSeq
+
+    res
+
+
 let elementTupleToEntry (tuple: (Element * Element * Value)) : Entry =
     match tuple with
     | (element, Element ":", Value.Element concept) -> Entry.Extends { element = element; concept = concept }
@@ -171,3 +214,7 @@ let elementTupleToEntry (tuple: (Element * Element * Value)) : Entry =
             { element = element
               attribute = attribute
               value = value }
+
+let elementTupleToEntryPattern (tuple: (ElementPattern * ElementPattern * ValuePattern)) : EntryPattern =
+    match tuple with
+    | (element, attribute, value) -> failwith "TODO" //EntryPattern { element = element; attribute = attribute; value = value }

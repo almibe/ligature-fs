@@ -23,7 +23,7 @@ let tests =
               Expect.equal (tokenize "$a") (Ok([ Token.Element("$a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ Token.Element("$this_is_also234") ])) ""
               Expect.equal (tokenize "0") (Ok([ Token.Element("0") ])) ""
-              Expect.equal (tokenize "?test") (Ok([Token.Variable "?test"])) ""
+              Expect.equal (tokenize "?test") (Ok([ Token.Variable "?test" ])) ""
               Expect.equal (tokenize "-100") (Ok([ Token.Element("-100") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->

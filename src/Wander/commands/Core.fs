@@ -25,7 +25,7 @@ let readCommand: Command =
             match arguments with
             | [ Any.Variable(name) ] ->
                 if variables.ContainsKey name then
-                    Ok (Some variables[name])
+                    Ok(Some variables[name])
                 else
                     error "Could not read variable" None
             | _ -> error "Illegal call to read." None }
@@ -36,8 +36,7 @@ let evalCommand: Command =
       Eval =
         fun commands variables arguments ->
             match arguments with
-            | [ Any.Quote(quote) ] ->
-                evalQuote commands variables quote
+            | [ Any.Quote(quote) ] -> evalQuote commands variables quote
             | _ -> error "Illegal call to read." None }
 
 let ignoreCommand: Command =
@@ -89,4 +88,4 @@ let coreCommands =
           (idCommand.Name, idCommand)
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
-          (evalCommand.Name, evalCommand)  ])
+          (evalCommand.Name, evalCommand) ])

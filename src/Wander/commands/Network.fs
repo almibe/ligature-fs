@@ -208,7 +208,7 @@ let filterCommand =
 let networkCommands: Map<Element, Command> =
     (Map.ofList
         [ (chompCommand.Name, chompCommand)
-        //   (countCommand.Name, countCommand)
+          //   (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
           (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)

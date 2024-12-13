@@ -39,6 +39,7 @@ and [<RequireQualifiedAccess>] Any =
     | Quote of Quote
     | Element of Element
     | Network of Network
+    | Pattern of Pattern
 
 and [<RequireQualifiedAccess>] Value =
     | Literal of string
