@@ -9,15 +9,15 @@ open Ligature.Main
 type Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> Variables -> Arguments -> Result<Value option, LigatureError> }
+      Eval: Commands -> Variables -> Arguments -> Result<Any option, LigatureError> }
 
 and Commands = Map<Element, Command>
 
 and Call = Element * Arguments
 
-and Arguments = Value list
+and Arguments = Any list
 
-and Variables = Map<Variable, Value>
+and Variables = Map<Variable, Any>
 
 let emptyVariables (): Variables = Map.empty
 
@@ -57,13 +57,13 @@ let encodeString string =
 
 //     result
 
-let rec prettyPrint (value: Value) : string =
+let rec prettyPrint (value: Any) : string =
     match value with
-    | Value.Element(Element(value)) -> value
-    | Value.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
-    | Value.Network n -> printNetwork n
-    | Value.Literal(value) -> encodeString value
-    | Value.Variable(_) -> failwith "Not Implemented"
+    | Any.Element(Element(value)) -> value
+    | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
+    | Any.Network n -> printNetwork n
+    | Any.Literal(value) -> encodeString value
+    | Any.Variable(_) -> failwith "Not Implemented"
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true
@@ -83,16 +83,6 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
-    | Value.Quote quote ->
-        let mutable result = "("
-
-        for value in quote do
-            result <- result + (writeValue value) + " "
-
-        result <- result + ")"
-        result
-    | Value.Network network -> printNetwork network
-    | Value.Variable variable -> failwith "TODO"
 
 and printEntry (entry: Entry) : string =
     match entry with

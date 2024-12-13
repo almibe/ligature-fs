@@ -55,6 +55,7 @@ type Token =
     | WhiteSpace of string
     | NewLine of string
     | Element of string
+    | Variable of string
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -119,15 +120,19 @@ let commentNibbler =
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
 
-let nameOrKeyidentifierTokenNibbler =
-    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> Token.Element)
+let elementTokenNibbler =
+    Gaze.map nameNibbler (fun chars -> chars |> List.concat |> implode |> (fun x -> 
+        if x.StartsWith "?" then
+            Token.Variable x
+        else
+            Token.Element x))
 
 let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
             Nibblers.takeFirst (
                 [ whiteSpaceNibbler
-                  nameOrKeyidentifierTokenNibbler
+                  elementTokenNibbler
                   newLineTokenNibbler
                   stringLiteralTokenNibbler
                   takeAndMap "," Token.Comma

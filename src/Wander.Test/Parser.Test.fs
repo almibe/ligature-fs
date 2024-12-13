@@ -25,7 +25,7 @@ let tests =
                   (parse "a {a b c}")
                   (Ok(
                       [ (Element "a",
-                         [ Value.Network(
+                         [ Any.Network(
                                Set.ofList
                                    [ Entry.Attribute
                                          { element = Element "a"
@@ -40,7 +40,7 @@ let tests =
                   (parse "a {a b \"c\"}")
                   (Ok(
                       [ (Element "a",
-                         [ Value.Network(
+                         [ Any.Network(
                                Set.ofList
                                    [ Entry.Attribute
                                          { element = Element "a"
@@ -55,7 +55,7 @@ let tests =
                   (parse "a {?a b c}")
                   (Ok(
                       [ (Element "a",
-                         [ Value.Network(
+                         [ Any.Network(
                                Set.ofList
                                    [ Entry.Attribute
                                          { element = Element "?a"

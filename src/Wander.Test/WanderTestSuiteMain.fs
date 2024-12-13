@@ -9,6 +9,7 @@ open FSharpPlus
 open Wander.Main
 open Lib
 open Ligature.InMemoryEngine
+open Model
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -18,10 +19,6 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateFiles
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
         }
-
-let createStore () =
-    //newInMemoryEngine ()
-    Ligature.LMDB.Test.Suite.newTestInstance ()
 
 [<Tests>]
 let wanderTestSuite =
@@ -38,7 +35,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCommands (createStore ()) script with
+                match run stdCommands (emptyVariables ()) script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

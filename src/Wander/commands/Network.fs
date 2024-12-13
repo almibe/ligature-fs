@@ -14,7 +14,7 @@ let chompCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ Value.Network(input); Value.Element(name) ] ->
+            | [ Any.Network(input); Any.Element(name) ] ->
                 // let currentNetwork = currentNetwork networks
                 // let newNetwork = Set.union input currentNetwork
                 // let newNetworks = Map.add selected newNetwork networks
@@ -57,8 +57,8 @@ let unionCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ Value.Network(left); Value.Network(right) ] ->
-                let result = Set.union left right |> Value.Network
+            | [ Any.Network(left); Any.Network(right) ] ->
+                let result = Set.union left right |> Any.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -81,8 +81,8 @@ let minusCommand =
       Eval =
         fun _ networks (arguments: Arguments) ->
             match arguments with
-            | [ Value.Network(left); Value.Network(right) ] ->
-                let result = Set.difference left right |> Value.Network
+            | [ Any.Network(left); Any.Network(right) ] ->
+                let result = Set.difference left right |> Any.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
@@ -189,9 +189,9 @@ let queryCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ Value.Network pattern; Value.Network template; Value.Network source ] ->
+            | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
                 let results = find pattern source
-                Ok(Some(Value.Network(apply template results)))
+                Ok(Some(Any.Network(apply template results)))
             | _ -> error "Invalid call to query" None }
 
 let filterCommand =
@@ -200,7 +200,7 @@ let filterCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ Value.Network pattern; Value.Network source ] ->
+            | [ Any.Network pattern; Any.Network source ] ->
                 let results = filter pattern source
                 failwith "TODO"
             | _ -> error "Invalid call to query" None }

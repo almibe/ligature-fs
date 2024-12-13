@@ -28,7 +28,7 @@ let scriptsCommand: Command =
 
                 ())
 
-            Ok(Some(Value.Network docs)) }
+            Ok(Some(Any.Network docs)) }
 
 
 // let networksFunction (store: LigatureStore) =

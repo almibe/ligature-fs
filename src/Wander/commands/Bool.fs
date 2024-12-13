@@ -13,10 +13,10 @@ let notFunction =
       Eval =
         (fun _ _ args ->
             match args with
-            | [ Value.Element(value) ] ->
+            | [ Any.Element(value) ] ->
                 match value with
-                | Element("true") -> Ok(Some(Value.Element(Element("false"))))
-                | Element("false") -> Ok(Some(Value.Element(Element("true"))))
+                | Element("true") -> Ok(Some(Any.Element(Element("false"))))
+                | Element("false") -> Ok(Some(Any.Element(Element("true"))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

@@ -23,7 +23,7 @@ let readCommand: Command =
       Eval =
         fun _ variables arguments ->
             match arguments with
-            | [ Value.Variable(name) ] ->
+            | [ Any.Variable(name) ] ->
                 if variables.ContainsKey name then
                     Ok (Some variables[name])
                 else
@@ -36,7 +36,7 @@ let evalCommand: Command =
       Eval =
         fun commands variables arguments ->
             match arguments with
-            | [ Value.Quote(quote) ] ->
+            | [ Any.Quote(quote) ] ->
                 evalQuote commands variables quote
             | _ -> error "Illegal call to read." None }
 
@@ -81,7 +81,7 @@ let docsCommand: Command =
 
                 ())
 
-            Ok(Some(Value.Network docs)) }
+            Ok(Some(Any.Network docs)) }
 
 let coreCommands =
     (Map.ofList

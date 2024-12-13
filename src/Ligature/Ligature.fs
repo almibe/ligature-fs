@@ -31,14 +31,18 @@ type ConceptName = Element
 
 type Variable = Variable of string
 
-type Quote = Value list
+type Quote = Any list
 
-and [<RequireQualifiedAccess>] Value =
+and [<RequireQualifiedAccess>] Any =
     | Literal of string
     | Variable of Variable
     | Quote of Quote
     | Element of Element
     | Network of Network
+
+and [<RequireQualifiedAccess>] Value =
+    | Literal of string
+    | Element of Element
 
 and Extends =
     { element: Element
@@ -53,6 +57,20 @@ and Attribute =
       attribute: Element
       value: Value }
 
+and [<RequireQualifiedAccess>] ElementPattern =
+    | Element of Element
+    | Variable of Variable
+
+and [<RequireQualifiedAccess>] ValuePattern =
+    | Element of Element
+    | Literal of string
+    | Variable of Variable
+
+and EntryPattern =
+    { element: ElementPattern
+      attribute: ElementPattern
+      value: ValuePattern }
+
 and [<RequireQualifiedAccess>] Entry =
     | Extends of Extends
     | NotExtends of NotExtends
@@ -60,4 +78,4 @@ and [<RequireQualifiedAccess>] Entry =
 
 and Network = Set<Entry>
 
-and NetworkName = string
+and Pattern = Set<EntryPattern>

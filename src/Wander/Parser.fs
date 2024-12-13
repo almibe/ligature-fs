@@ -28,12 +28,12 @@ let elementNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Element(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! values = Gaze.attempt (optional (repeat valueNib)) gaze
+        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Value.Quote values
+        return Any.Quote values
     }
 
 let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Value), Gaze.GazeError> =
@@ -45,12 +45,12 @@ let statementNib (gaze: Gaze.Gaze<Token>) : Result<(Element * Element * Value), 
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
+let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Value.Network(expressNetwork statements)
+        return Any.Network(expressNetwork statements)
     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -62,25 +62,37 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Element value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
+let elementOrLiteralNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Ok(Token.Element(value)) -> 
         if value.StartsWith "?" then
-            Ok(Value.Variable(Variable value))
+            Ok(Any.Variable(Variable value))
         else
+            Ok(Any.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal value)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
+let anyNib: Gaze.Nibbler<Token, Any> =
+    takeFirst [ quoteNib; elementOrLiteralNib; networkNib ]
+
+let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
+    let next = Gaze.next gaze
+
+    match next with
+    | Ok(Token.Element(value)) -> 
+        // if value.StartsWith "?" then
+        //     Ok(Value.Variable(Variable value))
+        // else
             Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let valueNib: Gaze.Nibbler<Token, Value> =
-    takeFirst [ quoteNib; elementOrLiteralNib; networkNib ]
-
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
     result {
         let! name = Gaze.attempt elementNib gaze
-        let! arguments = Gaze.attempt (optional (repeat valueNib)) gaze
+        let! arguments = Gaze.attempt (optional (repeat anyNib)) gaze
         return name, arguments
     }
 
@@ -116,7 +128,7 @@ let parse (tokens: Token list) : Result<Call list, LigatureError> =
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let read (tokens: Token list) : Result<Value, LigatureError> =
+let read (tokens: Token list) : Result<Any, LigatureError> =
     let tokens =
         List.filter
             (fun token ->
@@ -131,7 +143,7 @@ let read (tokens: Token list) : Result<Value, LigatureError> =
     else
         let gaze = Gaze.fromList tokens
 
-        match Gaze.attempt valueNib gaze with
+        match Gaze.attempt anyNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
                 //failwith "TODO"

@@ -23,6 +23,7 @@ let tests =
               Expect.equal (tokenize "$a") (Ok([ Token.Element("$a") ])) ""
               Expect.equal (tokenize "$this_is_also234") (Ok([ Token.Element("$this_is_also234") ])) ""
               Expect.equal (tokenize "0") (Ok([ Token.Element("0") ])) ""
+              Expect.equal (tokenize "?test") (Ok([Token.Variable "?test"])) ""
               Expect.equal (tokenize "-100") (Ok([ Token.Element("-100") ])) ""
           testCase "tokenize whitespace"
           <| fun _ ->
@@ -97,8 +98,8 @@ let tests =
                   ))
                   ""
           testCase "read variable"
-          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Element("?") ])) ""
+          <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Variable("?") ])) ""
           testCase "read named variable"
-          <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Element("?test") ])) ""
+          <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Variable("?test") ])) ""
           testCase "return error on invalid input"
           <| fun _ -> Expect.isError (tokenize "\"") "" ]
