@@ -45,15 +45,7 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Element of Element
 
-and Extends =
-    { element: Element
-      concept: ConceptName }
-
-and NotExtends =
-    { element: Element
-      concept: ConceptName }
-
-and Attribute =
+and Entry =
     { element: Element
       attribute: Element
       value: Value }
@@ -71,11 +63,6 @@ and EntryPattern =
     { element: ElementPattern
       attribute: ElementPattern
       value: ValuePattern }
-
-and [<RequireQualifiedAccess>] Entry =
-    | Extends of Extends
-    | NotExtends of NotExtends
-    | Attribute of Attribute
 
 and Network = Set<Entry>
 

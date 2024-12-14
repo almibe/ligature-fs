@@ -28,10 +28,9 @@ let tests =
                             Element "a",
                             [ Any.Network(
                                   Set.ofList
-                                      [ Entry.Attribute
-                                            { element = Element "a"
-                                              value = Value.Element(Element "c")
-                                              attribute = Element "b" } ]
+                                      [ { element = Element "a"
+                                          value = Value.Element(Element "c")
+                                          attribute = Element "b" } ]
                               ) ]
                         ) ]
                   ))
@@ -45,10 +44,9 @@ let tests =
                             Element "a",
                             [ Any.Network(
                                   Set.ofList
-                                      [ Entry.Attribute
-                                            { element = Element "a"
-                                              attribute = Element "b"
-                                              value = Value.Literal "c" } ]
+                                      [ { element = Element "a"
+                                          attribute = Element "b"
+                                          value = Value.Literal "c" } ]
                               ) ]
                         ) ]
                   ))

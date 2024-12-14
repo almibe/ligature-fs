@@ -18,17 +18,65 @@ let tests =
               Expect.equal result Set.empty ""
           testCase "empty pattern"
           <| fun _ ->
-              let result = filter Set.empty (Set.ofList [Entry.Extends { element = Element "e"; concept = Element "c" }])
+              let result =
+                  filter
+                      Set.empty
+                      (Set.ofList
+                          [ { element = Element "e"
+                              attribute = Element "a"
+                              value = Value.Element(Element "v") } ])
+
               Expect.equal result Set.empty ""
           testCase "empty network"
           <| fun _ ->
-              let result = filter (Set.ofList [{ element = ElementPattern.Element (Element "e"); attribute = ElementPattern.Element (Element "c"); value = ValuePattern.Element (Element "e") }]) Set.empty
+              let result =
+                  filter
+                      (Set.ofList
+                          [ { element = ElementPattern.Element(Element "e")
+                              attribute = ElementPattern.Element(Element "c")
+                              value = ValuePattern.Element(Element "e") } ])
+                      Set.empty
+
               Expect.equal result Set.empty ""
           testCase "wildcard pattern"
           <| fun _ ->
-              let result = 
-                filter
-                    (Set.ofList [{ element = ElementPattern.Variable (Variable "e"); attribute = ElementPattern.Variable (Variable "a"); value = ValuePattern.Variable (Variable "v") }])
-                    (Set.ofList [Entry.Extends { element = Element "e"; concept = Element "c" }])
-              Expect.equal result (Set.ofList [Entry.Extends { element = Element "e"; concept = Element "c" }]) ""
+              let result =
+                  filter
+                      (Set.ofList
+                          [ { element = ElementPattern.Variable(Variable "e")
+                              attribute = ElementPattern.Variable(Variable "a")
+                              value = ValuePattern.Variable(Variable "v") } ])
+                      (Set.ofList
+                          [ { element = Element "e"
+                              attribute = Element "a"
+                              value = Value.Element(Element "v") } ])
+
+              Expect.equal
+                  result
+                  (Set.ofList
+                      [ { element = Element "e"
+                          attribute = Element "a"
+                          value = Value.Element(Element "v") } ])
+                  ""
+          testCase "not matching pattern"
+          <| fun _ ->
+              let result =
+                  filter
+                      (Set.ofList
+                          [ { element = ElementPattern.Variable(Variable "e")
+                              attribute = ElementPattern.Variable(Variable "a")
+                              value = ValuePattern.Variable(Variable "v") } ])
+                      (Set.ofList
+                          [ { element = Element "e"
+                              attribute = Element "a"
+                              value = Value.Element(Element "v") } ])
+
+              Expect.equal
+                  result
+                  (Set.ofList
+                      [ { element = Element "e"
+                          attribute = Element "a"
+                          value = Value.Element(Element "v") } ])
+                  ""
+
           ]

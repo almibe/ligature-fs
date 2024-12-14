@@ -82,15 +82,7 @@ and writeValue (value: Value) : string =
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
 
-and printEntry (entry: Entry) : string =
-    match entry with
-    | Entry.Extends { element = Element element
-                      concept = Element concept } -> $"{element} : {concept}"
-    | Entry.NotExtends { element = Element element
-                         concept = Element concept } -> $"{element} ¬: {concept}"
-    | Entry.Attribute { element = Element element
-                        attribute = Element attribute
-                        value = value } -> $"{element} {attribute} {writeValue value}"
+and printEntry (entry: Entry) : string = failwith "TODO"
 
 and printEntryPattern (entry: EntryPattern) : string =
     $"{entry.element} {entry.attribute} {entry.value}" //TODO print values correctly

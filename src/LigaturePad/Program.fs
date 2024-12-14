@@ -14,7 +14,6 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
-    open Ligature.InMemoryEngine
     open Wander.Commands
     open Wander.Main
     open Wander.Lib

@@ -6,6 +6,7 @@ module Wander.Commands.Network
 
 open Ligature.Model
 open Wander.Model
+open Ligature.Core
 
 let chompCommand =
     { Name = Element("chomp")
@@ -85,109 +86,110 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-let applySingle (template: Network) (data: Map<Element, Element>) : Network =
-    Set.map
-        (fun entry ->
-            match entry with
-            // | Entry.Role { first = Element first
-            //                second = Element second
-            //                role = Element role } ->
-            //     let resFirst =
-            //         if first.StartsWith "?" then
-            //             match Map.tryFind (Element first) data with
-            //             | Some res -> res
-            //             | _ -> Element first
-            //         else
-            //             Element first
+// let applySingle (template: Network) (data: Map<Element, Element>) : Network =
+//     Set.map
+//         (fun entry ->
+//             match entry with
+//             | _ -> failwith "TODO"
+//             // | Entry.Role { first = Element first
+//             //                second = Element second
+//             //                role = Element role } ->
+//             //     let resFirst =
+//             //         if first.StartsWith "?" then
+//             //             match Map.tryFind (Element first) data with
+//             //             | Some res -> res
+//             //             | _ -> Element first
+//             //         else
+//             //             Element first
 
-            //     let resSecond =
-            //         if second.StartsWith "?" then
-            //             match Map.tryFind (Element second) data with
-            //             | Some res -> res
-            //             | _ -> Element second
-            //         else
-            //             Element second
+//             //     let resSecond =
+//             //         if second.StartsWith "?" then
+//             //             match Map.tryFind (Element second) data with
+//             //             | Some res -> res
+//             //             | _ -> Element second
+//             //         else
+//             //             Element second
 
-            //     let resRole =
-            //         if role.StartsWith "?" then
-            //             match Map.tryFind (Element role) data with
-            //             | Some res -> res
-            //             | _ -> Element role
-            //         else
-            //             Element role
+//             //     let resRole =
+//             //         if role.StartsWith "?" then
+//             //             match Map.tryFind (Element role) data with
+//             //             | Some res -> res
+//             //             | _ -> Element role
+//             //         else
+//             //             Element role
 
-            //     Entry.Role
-            //         { first = resFirst
-            //           second = resSecond
-            //           role = resRole }
-            | Entry.Extends _ -> failwith "TODO"
-            | Entry.NotExtends _ -> failwith "TODO")
-        template
+//             //     Entry.Role
+//             //         { first = resFirst
+//             //           second = resSecond
+//             //           role = resRole }
+//             // | Entry.Extends _ -> failwith "TODO"
+//             // | Entry.NotExtends _ -> failwith "TODO")
+//         template
 
-let apply (template: Network) (data: Set<Map<Element, Element>>) : Network =
-    Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
+// let apply (template: Network) (data: Set<Map<Element, Element>>) : Network =
+//     Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
 
-// let compareRole
-//     ({ first = Element pFirst
-//        second = Element pSecond
-//        role = Element pRole }: Role)
-//     ({ first = Element sFirst
-//        second = Element sSecond
-//        role = Element sRole }: Role)
-//     : Set<Map<Element, Element>> =
-//     let mutable fail = false
-//     let mutable result = Map.empty
+// // let compareRole
+// //     ({ first = Element pFirst
+// //        second = Element pSecond
+// //        role = Element pRole }: Role)
+// //     ({ first = Element sFirst
+// //        second = Element sSecond
+// //        role = Element sRole }: Role)
+// //     : Set<Map<Element, Element>> =
+// //     let mutable fail = false
+// //     let mutable result = Map.empty
 
-//     if pFirst.StartsWith "?" then
-//         if pFirst.Length > 1 then
-//             result <- Map.add (Element pFirst) (Element sFirst) result
-//     else
-//         fail <- pFirst <> sFirst
+// //     if pFirst.StartsWith "?" then
+// //         if pFirst.Length > 1 then
+// //             result <- Map.add (Element pFirst) (Element sFirst) result
+// //     else
+// //         fail <- pFirst <> sFirst
 
-//     if (not fail) && pSecond.StartsWith "?" then
-//         if pSecond.Length > 1 then
-//             result <- Map.add (Element pSecond) (Element sSecond) result
-//     else
-//         fail <- pSecond <> sSecond
+// //     if (not fail) && pSecond.StartsWith "?" then
+// //         if pSecond.Length > 1 then
+// //             result <- Map.add (Element pSecond) (Element sSecond) result
+// //     else
+// //         fail <- pSecond <> sSecond
 
-//     if (not fail) && pRole.StartsWith "?" then
-//         if pRole.Length > 1 then
-//             result <- Map.add (Element pRole) (Element sRole) result
-//     else
-//         fail <- pRole <> sRole
+// //     if (not fail) && pRole.StartsWith "?" then
+// //         if pRole.Length > 1 then
+// //             result <- Map.add (Element pRole) (Element sRole) result
+// //     else
+// //         fail <- pRole <> sRole
 
-//     if fail || result = Map.empty then
-//         Set.empty
-//     else
-//         Set.ofList [ result ]
+// //     if fail || result = Map.empty then
+// //         Set.empty
+// //     else
+// //         Set.ofList [ result ]
 
-let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
+// let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
 
-let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "TODO"
+// let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "TODO"
 
-let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
-    match pattern, source with
-    //    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
-    | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
-    | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
-    | _ -> Set.empty
+// let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
+//     match pattern, source with
+//     //    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
+//     | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
+//     | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
+//     | _ -> Set.empty
 
-let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
-    Set.fold (fun state entry -> Set.union state (findSingleEntry pattern entry)) Set.empty source
+// let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
+//     Set.fold (fun state entry -> Set.union state (findSingleEntry pattern entry)) Set.empty source
 
-let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
-    Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
+// let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
+//     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
-let queryCommand =
-    { Name = Element("query")
-      Doc = "arguments: pattern template data, returns network"
-      Eval =
-        fun commands variables arguments ->
-            match arguments with
-            | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
-                let results = find pattern source
-                Ok(Some(Any.Network(apply template results)))
-            | _ -> error "Invalid call to query" None }
+// let queryCommand =
+//     { Name = Element("query")
+//       Doc = "arguments: pattern template data, returns network"
+//       Eval =
+//         fun commands variables arguments ->
+//             match arguments with
+//             | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
+//                 let results = find pattern source
+//                 Ok(Some(Any.Network(apply template results)))
+//             | _ -> error "Invalid call to query" None }
 
 let filterCommand =
     { Name = Element("filter")
@@ -205,7 +207,7 @@ let networkCommands: Map<Element, Command> =
         [ (chompCommand.Name, chompCommand)
           //   (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
-          (queryCommand.Name, queryCommand)
+          //   (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
           //(isCompleteCommand.Name, isCompleteCommand)
           //(isConsistentCommand.Name, isConsistentCommand)

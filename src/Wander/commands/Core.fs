@@ -72,10 +72,9 @@ let docsCommand: Command =
             |> List.iter (fun (name, command) ->
                 docs <-
                     Set.add
-                        (Entry.Attribute
-                            { element = name
-                              attribute = Element("docString")
-                              value = Value.Literal(command.Doc) })
+                        ({ element = name
+                           attribute = Element("docString")
+                           value = Value.Literal(command.Doc) })
                         docs
 
                 ())
