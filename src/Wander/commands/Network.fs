@@ -178,8 +178,6 @@ let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
 let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
-let filter (pattern: Pattern) (source: Network) : Network = source
-
 let queryCommand =
     { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"

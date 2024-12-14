@@ -72,3 +72,9 @@ let isConsistent (network: Network) : bool =
                 | Entry.Attribute _ -> true)
         true
         network
+
+let filter (pattern: Pattern) (source: Network) : Network = 
+    if pattern.IsEmpty then
+        Set.empty
+    else
+        source

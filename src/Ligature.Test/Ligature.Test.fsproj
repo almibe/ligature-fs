@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="InMemoryStore.Test.fs" />
+    <Compile Include="Core.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
