@@ -85,4 +85,4 @@ and writeValue (value: Value) : string =
 and printEntry (entry: Entry) : string = failwith "TODO"
 
 and printEntryPattern (entry: EntryPattern) : string =
-    $"{entry.element} {entry.attribute} {entry.value}" //TODO print values correctly
+    $"{entry.elementP} {entry.attributeP} {entry.valueP}" //TODO print values correctly

@@ -60,9 +60,9 @@ and [<RequireQualifiedAccess>] ValuePattern =
     | Variable of Variable
 
 and EntryPattern =
-    { element: ElementPattern
-      attribute: ElementPattern
-      value: ValuePattern }
+    { elementP: ElementPattern
+      attributeP: ElementPattern
+      valueP: ValuePattern }
 
 and Network = Set<Entry>
 

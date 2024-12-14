@@ -226,19 +226,14 @@ let expressPattern (network: (ElementPattern * ElementPattern * ValuePattern) li
     res
 
 
-let elementTupleToEntry (tuple: (Element * Element * Value)) : Entry = failwith "TODO"
-// match tuple with
-// | (element, Element ":", Value.Element concept) -> Entry.Extends { element = element; concept = concept }
-// | (element, Element "¬:", Value.Element concept) -> Entry.NotExtends { element = element; concept = concept }
-// | (element, attribute, value) ->
-//     Entry.Attribute
-//         { element = element
-//           attribute = attribute
-//           value = value }
+let elementTupleToEntry ((element, attribute, value): (Element * Element * Value)) : Entry =
+    { element = element
+      attribute = attribute
+      value = value }
 
-let elementTupleToEntryPattern (tuple: (ElementPattern * ElementPattern * ValuePattern)) : EntryPattern =
-    match tuple with
-    | (element, attribute, value) ->
-        { element = element
-          attribute = attribute
-          value = value }
+let elementTupleToEntryPattern
+    ((element, attribute, value): (ElementPattern * ElementPattern * ValuePattern))
+    : EntryPattern =
+    { elementP = element
+      attributeP = attribute
+      valueP = value }

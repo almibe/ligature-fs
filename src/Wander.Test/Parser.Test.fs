@@ -60,9 +60,9 @@ let tests =
                             Element "a",
                             [ Any.Pattern(
                                   Set.ofList
-                                      [ { element = ElementPattern.Variable(Variable "?a")
-                                          value = ValuePattern.Element(Element "c")
-                                          attribute = ElementPattern.Element(Element "b") } ]
+                                      [ { elementP = ElementPattern.Variable(Variable "?a")
+                                          attributeP = ElementPattern.Element(Element "b")
+                                          valueP = ValuePattern.Element(Element "c") } ]
                               ) ]
                         ) ]
                   ))
