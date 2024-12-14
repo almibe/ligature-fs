@@ -58,7 +58,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep statementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Any.Network(expressNetwork statements)
+        return Any.Network(Set.ofList statements)
     }
 
 let patternStatementNib
@@ -77,7 +77,7 @@ let patternNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Any.Pattern(expressPattern statements)
+        return Any.Pattern(Set.ofList statements)
     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
@@ -214,26 +214,3 @@ let parseString (input: string) =
     match tokenize input with
     | Ok tokens -> parse tokens
     | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
-
-let expressNetwork (network: (Element * Element * Value) list) : Set<Entry> =
-    let res: Set<Entry> = (List.map (elementTupleToEntry) network) |> Set.ofSeq
-    res
-
-let expressPattern (network: (ElementPattern * ElementPattern * ValuePattern) list) : Set<EntryPattern> =
-    let res: Set<EntryPattern> =
-        (List.map (elementTupleToEntryPattern) network) |> Set.ofSeq
-
-    res
-
-
-let elementTupleToEntry ((element, attribute, value): (Element * Element * Value)) : Entry =
-    { element = element
-      attribute = attribute
-      value = value }
-
-let elementTupleToEntryPattern
-    ((element, attribute, value): (ElementPattern * ElementPattern * ValuePattern))
-    : EntryPattern =
-    { elementP = element
-      attributeP = attribute
-      valueP = value }

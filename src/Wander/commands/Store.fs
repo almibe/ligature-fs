@@ -18,13 +18,7 @@ let scriptsCommand: Command =
 
             Map.toList commands
             |> List.iter (fun (name, command) ->
-                docs <-
-                    Set.add
-                        ({ element = name
-                           attribute = Element("docString")
-                           value = Value.Literal(command.Doc) })
-                        docs
-
+                docs <- Set.add (name, Element("docString"), Value.Literal(command.Doc)) docs
                 ())
 
             Ok(Some(Any.Network docs)) }

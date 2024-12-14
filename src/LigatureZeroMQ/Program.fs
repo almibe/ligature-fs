@@ -11,14 +11,12 @@ open System
 open Ligature.Model
 open Wander.Commands
 open Wander.Lib
-open Ligature.InMemoryEngine
 open Wander.Model
 
 let rec serve (server: ResponseSocket) =
     let script = server.ReceiveFrameString()
-    let store = newInMemoryEngine ()
 
-    match run stdCommands store script with
+    match run stdCommands (emptyVariables ()) script with
     | Ok(Some(res)) -> server.SendFrame(prettyPrint res)
     | Ok(None) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)

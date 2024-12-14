@@ -26,12 +26,7 @@ let tests =
                   (Ok(
                       [ Expression.Call(
                             Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ { element = Element "a"
-                                          value = Value.Element(Element "c")
-                                          attribute = Element "b" } ]
-                              ) ]
+                            [ Any.Network(Set.ofList [ (Element "a", Element "b", Value.Element(Element "c")) ]) ]
                         ) ]
                   ))
                   ""
@@ -42,12 +37,7 @@ let tests =
                   (Ok(
                       [ Expression.Call(
                             Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ { element = Element "a"
-                                          attribute = Element "b"
-                                          value = Value.Literal "c" } ]
-                              ) ]
+                            [ Any.Network(Set.ofList [ Element "a", Element "b", Value.Literal "c" ]) ]
                         ) ]
                   ))
                   ""
@@ -60,9 +50,9 @@ let tests =
                             Element "a",
                             [ Any.Pattern(
                                   Set.ofList
-                                      [ { elementP = ElementPattern.Variable(Variable "?a")
-                                          attributeP = ElementPattern.Element(Element "b")
-                                          valueP = ValuePattern.Element(Element "c") } ]
+                                      [ ElementPattern.Variable(Variable "?a"),
+                                        ElementPattern.Element(Element "b"),
+                                        ValuePattern.Element(Element "c") ]
                               ) ]
                         ) ]
                   ))

@@ -45,10 +45,7 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Element of Element
 
-and Entry =
-    { element: Element
-      attribute: Element
-      value: Value }
+and Entry = Element * Element * Value
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element
@@ -59,10 +56,7 @@ and [<RequireQualifiedAccess>] ValuePattern =
     | Literal of string
     | Variable of Variable
 
-and EntryPattern =
-    { elementP: ElementPattern
-      attributeP: ElementPattern
-      valueP: ValuePattern }
+and EntryPattern = ElementPattern * ElementPattern * ValuePattern
 
 and Network = Set<Entry>
 
