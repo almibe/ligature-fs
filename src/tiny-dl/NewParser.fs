@@ -7,7 +7,7 @@ module TinyDL.NewParser
 open Tokenizer
 open New
 open Model
-open Ligature.Main
+open Ligature.Model
 
 [<RequireQualifiedAccess>]
 type ConceptExpressionNode =

@@ -4,7 +4,7 @@
 
 module TinyDL.Model
 
-open Ligature.Main
+open Ligature.Model
 
 type TinyDLError = string
 

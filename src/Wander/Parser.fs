@@ -7,7 +7,7 @@ module rec Wander.Parser
 open Tokenizer
 open FsToolkit.ErrorHandling
 open Nibblers
-open Ligature.Main
+open Ligature.Model
 open Model
 
 let identifierNib (gaze: Gaze.Gaze<Token>) =

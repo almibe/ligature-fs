@@ -8,7 +8,7 @@ open Wander.Main
 open NetMQ.Sockets
 open NetMQ
 open System
-open Ligature.Main
+open Ligature.Model
 open Wander.Commands
 open Wander.Lib
 open Ligature.InMemoryEngine

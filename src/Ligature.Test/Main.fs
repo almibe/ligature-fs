@@ -5,7 +5,7 @@
 module Ligature.Test
 
 open Expecto
-open Ligature.Main
+open Ligature.Model
 
 [<EntryPoint>]
 let main argv = runTestsInAssemblyWithCLIArgs [] argv

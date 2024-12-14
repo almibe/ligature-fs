@@ -4,7 +4,7 @@
 
 module Wander.Model
 
-open Ligature.Main
+open Ligature.Model
 
 type Command =
     { Name: Element

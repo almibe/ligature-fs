@@ -6,7 +6,7 @@ module Wander.Main
 
 open Parser
 open Tokenizer
-open Ligature.Main
+open Ligature.Model
 open Interpreter
 open Wander.Model
 

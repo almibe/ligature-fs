@@ -4,7 +4,7 @@
 
 module Wander.Commands.TinyDL
 
-open Ligature.Main
+open Ligature.Model
 //open TinyDL.Model
 open Wander.Model
 

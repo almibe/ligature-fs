@@ -4,8 +4,7 @@
 
 module Wander.Commands.Network
 
-open Ligature.Main
-open Ligature.InMemoryEngine
+open Ligature.Model
 open Wander.Model
 
 let chompCommand =
@@ -179,15 +178,13 @@ let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
 let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
-let filter (pattern: Network) (source: Network) : Network =
-
-    failwith "TODO"
+let filter (pattern: Pattern) (source: Network) : Network = source
 
 let queryCommand =
     { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"
       Eval =
-        fun commands networks arguments ->
+        fun commands variables arguments ->
             match arguments with
             | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
                 let results = find pattern source
@@ -200,9 +197,9 @@ let filterCommand =
       Eval =
         fun commands networks arguments ->
             match arguments with
-            | [ Any.Network pattern; Any.Network source ] ->
+            | [ Any.Pattern pattern; Any.Network source ] ->
                 let results = filter pattern source
-                failwith "TODO"
+                Ok(Some(Any.Network results))
             | _ -> error "Invalid call to query" None }
 
 let networkCommands: Map<Element, Command> =

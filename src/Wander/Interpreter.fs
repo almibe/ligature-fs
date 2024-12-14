@@ -4,7 +4,7 @@
 
 module Wander.Interpreter
 
-open Ligature.Main
+open Ligature.Model
 open Model
 
 let rec evalElement

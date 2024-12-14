@@ -7,7 +7,7 @@ module TinyDL.Main
 open Model
 open Tokenizer
 open NewParser
-open Ligature.Main
+open Ligature.Model
 
 let interpret ((description, network, checks): Script) : Result<Network, TinyDLError> =
     match infer description network with

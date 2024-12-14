@@ -4,7 +4,7 @@
 
 module Wander.Commands.Core
 
-open Ligature.Main
+open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 

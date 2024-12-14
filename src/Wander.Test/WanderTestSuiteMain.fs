@@ -8,7 +8,6 @@ open Expecto
 open FSharpPlus
 open Wander.Main
 open Lib
-open Ligature.InMemoryEngine
 open Model
 
 let rec allFiles dirs =

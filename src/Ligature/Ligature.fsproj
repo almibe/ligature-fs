@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Ligature.fs" />
-    <Compile Include="InMemoryEngine.fs" />
+    <Compile Include="Model.fs" />
+    <Compile Include="Core.fs" />
   </ItemGroup>
 
   <ItemGroup>

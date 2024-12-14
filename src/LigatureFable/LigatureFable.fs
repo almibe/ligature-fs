@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-open Ligature.Main
+open Ligature.Model
 open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
@@ -49,8 +49,8 @@ let networkToJs (network: Network) =
     res
 
 let runScript (script: string) =
-    match run stdCommands (emptyVariables()) script with
-    | Ok (Some res) -> prettyPrint res
+    match run stdCommands (emptyVariables ()) script with
+    | Ok(Some res) -> prettyPrint res
     | Ok _ -> "{}"
     | _ -> failwith "TODO"
 
@@ -62,6 +62,6 @@ let readValue (input: string) =
         | Any.Quote _ -> failwith "TODO"
         | Any.Network network -> networkToJs network
         | Any.Literal literal -> encodeString literal
-        | Any.Variable (Variable variable) -> variable
+        | Any.Variable(Variable variable) -> variable
         | Any.Pattern pattern -> failwith "TODO"
     | _ -> failwith "Error reading value."

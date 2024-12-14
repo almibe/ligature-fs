@@ -5,7 +5,7 @@
 module Wander.Commands.Ulid
 
 open Wander.Model
-open Ligature.Main
+open Ligature.Model
 open System
 
 // let nextFunction =

@@ -5,7 +5,7 @@
 module Wander.Commands.Bool
 
 open Wander.Model
-open Ligature.Main
+open Ligature.Model
 
 let notFunction =
     { Name = Element("Bool.not")

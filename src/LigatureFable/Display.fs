@@ -4,7 +4,7 @@
 
 module Ligature.Display
 
-open Ligature.Main
+open Ligature.Model
 open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
@@ -12,10 +12,12 @@ open Wander.Model
 open Wander.Lib
 
 let displayText (script: string) (htmlElementId: string) =
-    let text = 
-        match run stdCommands (emptyVariables()) script with
+    let text =
+        match run stdCommands (emptyVariables ()) script with
         | Ok(Some(value)) -> prettyPrint value
-        | _ -> "{}"
+        | Error err -> err.UserMessage
+        | _ -> failwith "TODO"
+
     let element = emitJsExpr () $"document.querySelector(htmlElementId)"
     element?replaceChildren ()
     let pre = emitJsExpr () "document.createElement('pre')"

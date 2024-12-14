@@ -4,7 +4,7 @@
 
 module Ligature.DuckDB
 
-open Ligature.Main
+open Ligature.Model
 open Wander.Model
 open Ligature.InMemoryEngine
 open DuckDB.NET.Data

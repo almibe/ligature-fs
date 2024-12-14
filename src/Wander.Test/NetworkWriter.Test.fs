@@ -7,8 +7,8 @@ module Wander.NetworkWriter.Test
 open Expecto
 open Wander.Tokenizer
 open Wander.Model
-open Ligature.InMemoryEngine
-open Ligature.Main
+open Ligature.Core
+open Ligature.Model
 
 [<Tests>]
 let tests = testList "Network Writer Tests" []

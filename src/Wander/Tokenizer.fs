@@ -4,7 +4,7 @@
 
 module Wander.Tokenizer
 
-open Ligature.Main
+open Ligature.Model
 
 open System.Text.RegularExpressions
 

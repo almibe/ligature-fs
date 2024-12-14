@@ -5,7 +5,7 @@
 module Ligature.DuckDB.Test.Suite
 
 open Expecto
-open Ligature.Main
+open Ligature.Model
 open Ligature.DuckDB
 
 [<Tests>]

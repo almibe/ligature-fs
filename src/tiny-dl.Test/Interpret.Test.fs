@@ -5,7 +5,7 @@
 module TinyDL.Infer.Test
 
 open Expecto
-open Ligature.Main
+open Ligature.Model
 open Ligature.InMemoryStore
 open TinyDL.NewParser
 open TinyDL.Main

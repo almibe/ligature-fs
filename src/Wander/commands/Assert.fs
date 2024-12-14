@@ -4,7 +4,7 @@
 
 module Wander.Commands.Assert
 
-open Ligature.Main
+open Ligature.Model
 open Wander.Interpreter
 open Wander.Model
 

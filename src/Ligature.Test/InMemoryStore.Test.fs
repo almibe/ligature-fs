@@ -5,7 +5,7 @@
 module Ligature.InMemoryNetwork.Test
 
 open Expecto
-open Ligature.Main
+open Ligature.Model
 open Ligature.InMemoryStore
 
 [<Tests>]

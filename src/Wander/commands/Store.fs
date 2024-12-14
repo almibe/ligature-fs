@@ -5,7 +5,7 @@
 module Wander.Commands.Store
 
 open Wander.Model
-open Ligature.Main
+open Ligature.Model
 open System
 open System.Collections.Generic
 

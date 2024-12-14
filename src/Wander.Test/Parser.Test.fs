@@ -6,7 +6,7 @@ module Wander.Parser.Test
 
 open Expecto
 open Wander.Tokenizer
-open Ligature.Main
+open Ligature.Model
 open Wander.Model
 
 let parse input =
