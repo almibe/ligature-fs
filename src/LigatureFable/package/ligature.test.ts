@@ -26,3 +26,11 @@ test("test reading empty network", () => {
         .toEqual(
                 {entries: []})
 })
+
+test("test reading simple network", () => {
+    expect(readValue("{a b c}"))
+        .toEqual(
+                {entries: [
+                    { first: "a", second: "b", third: "c" }
+                ]})
+})

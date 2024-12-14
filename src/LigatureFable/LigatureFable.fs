@@ -6,26 +6,8 @@ open Ligature.Main
 open Fable.Core.JsInterop
 open Wander.Main
 open Wander.Commands
-open Ligature.InMemoryEngine
-open Wander.Lib
 open Wander.Model
-
-// let rec storeToJS (store: LigatureEngine) =
-//     let res = createEmpty
-
-//     Set.iter
-//         (fun network ->
-//             let networkInJS =
-//                 match store.ReadNetwork network with
-//                 | Ok res -> networkToJs res
-//                 | _ -> failwith "TODO"
-
-//             res?(network) <- networkInJS)
-//         (match store.Networks() with
-//          | Ok res -> res
-//          | Error _ -> failwith "TODO")
-
-//     res
+open Wander.Lib
 
 let networkToJs (network: Network) =
     let res = createEmpty
@@ -59,9 +41,6 @@ let networkToJs (network: Network) =
                     match value with
                     | Value.Element(Element element) -> element
                     | Value.Literal literal -> encodeString literal
-                    | Value.Network network -> failwith "TODO"
-                    | Value.Quote quote -> failwith "TODO"
-                    | Value.Variable variable -> failwith "TODO"
 
                 entries <- Set.add elementJs entries)
         network
@@ -69,18 +48,20 @@ let networkToJs (network: Network) =
     res?entries <- Set.toArray entries
     res
 
-// let runScript (script: string) =
-//     match run stdCommands (emptyVariables()) script with
-//     | Ok _ -> storeToJS store
-//     | _ -> failwith "TODO"
+let runScript (script: string) =
+    match run stdCommands (emptyVariables()) script with
+    | Ok (Some res) -> prettyPrint res
+    | Ok _ -> "{}"
+    | _ -> failwith "TODO"
 
 let readValue (input: string) =
     match read input with
     | Ok result ->
         match result with
-        | Value.Element(Element e) -> e
-        | Value.Quote _ -> failwith "TODO - support writing calls"
-        | Value.Network network -> networkToJs network
-        | Value.Literal(_) -> failwith "Not Implemented"
-        | Value.Variable(_) -> failwith "Not Implemented"
+        | Any.Element(Element e) -> e
+        | Any.Quote _ -> failwith "TODO"
+        | Any.Network network -> networkToJs network
+        | Any.Literal literal -> encodeString literal
+        | Any.Variable (Variable variable) -> variable
+        | Any.Pattern pattern -> failwith "TODO"
     | _ -> failwith "Error reading value."
