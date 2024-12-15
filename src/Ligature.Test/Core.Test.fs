@@ -8,52 +8,82 @@ open Expecto
 open Ligature.Model
 open Ligature.Core
 
+let elementPattern e = ElementPattern.Element(Element e)
+
 [<Tests>]
 let tests =
     testList
         "Core Test Suite"
-        [ testCase "empty filter"
-          <| fun _ ->
-              let result = filter Set.empty Set.empty
-              Expect.equal result Set.empty ""
-          testCase "empty pattern"
-          <| fun _ ->
-              let result =
-                  filter Set.empty (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+        [
+          // testCase "contains"
+          // <| fun _ ->
+          //     let testCases = [
+          //       (Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))],
+          //       Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))]
+          //       , true)
+          //     ]
 
-              Expect.equal result Set.empty ""
-          testCase "empty network"
+          //     List.iter (fun (testNetwork, source, res) ->
+          //       Expect.equal (contains testNetwork source) res  "")
+          //       testCases
+
+          testCase "matches"
           <| fun _ ->
-              let result =
-                  filter
-                      (Set.ofList
-                          [ (ElementPattern.Element(Element "e"),
-                             ElementPattern.Element(Element "c"),
-                             ValuePattern.Element(Element "e")) ])
-                      Set.empty
+              let testCases =
+                  [ ((elementPattern "e", elementPattern "a", ValuePattern.Element(Element "v")),
+                     Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ],
+                     Set.ofList [ Map.empty ])
 
-              Expect.equal result Set.empty ""
-          testCase "wildcard pattern"
-          <| fun _ ->
-              let result =
-                  filter
-                      (Set.ofList
-                          [ (ElementPattern.Variable(Variable "e"),
-                             ElementPattern.Variable(Variable "a"),
-                             ValuePattern.Variable(Variable "v")) ])
-                      (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+                    // (Set.ofList [(elementPattern "e", elementPattern "a", ValuePattern.Element(Element "v"))],
+                    // Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))]
+                    // , true)
+                    ]
 
-              Expect.equal result (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ]) ""
-          testCase "not matching pattern"
-          <| fun _ ->
-              let result =
-                  filter
-                      (Set.ofList
-                          [ (ElementPattern.Variable(Variable "e"),
-                             ElementPattern.Variable(Variable "a"),
-                             ValuePattern.Variable(Variable "v")) ])
-                      (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+              List.iter
+                  (fun (testNetwork, source, res) -> Expect.equal (networkMatch testNetwork source) res "")
+                  testCases
 
-              Expect.equal result (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ]) ""
+          // testCase "empty filter"
+          //   <| fun _ ->
+          //       let result = filter Set.empty Set.empty
+          //       Expect.equal result Set.empty ""
+          //   testCase "empty pattern"
+          //   <| fun _ ->
+          //       let result =
+          //           filter Set.empty (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
 
+          //       Expect.equal result Set.empty ""
+          //   testCase "empty network"
+          //   <| fun _ ->
+          //       let result =
+          //           filter
+          //               (Set.ofList
+          //                   [ (ElementPattern.Element(Element "e"),
+          //                      ElementPattern.Element(Element "c"),
+          //                      ValuePattern.Element(Element "e")) ])
+          //               Set.empty
+
+          //       Expect.equal result Set.empty ""
+          //   testCase "wildcard pattern"
+          //   <| fun _ ->
+          //       let result =
+          //           filter
+          //               (Set.ofList
+          //                   [ (ElementPattern.Variable(Variable "e"),
+          //                      ElementPattern.Variable(Variable "a"),
+          //                      ValuePattern.Variable(Variable "v")) ])
+          //               (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+
+          //       Expect.equal result (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ]) ""
+          //   testCase "not matching pattern"
+          //   <| fun _ ->
+          //       let result =
+          //           filter
+          //               (Set.ofList
+          //                   [ (ElementPattern.Variable(Variable "e"),
+          //                      ElementPattern.Variable(Variable "a"),
+          //                      ValuePattern.Element(Element "v2")) ])
+          //               (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+
+          //       Expect.equal result Set.empty ""
           ]

@@ -82,6 +82,7 @@ and writeValue (value: Value) : string =
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
 
-and printEntry (entry: Entry) : string = failwith "TODO"
+and printEntry ((Element element, Element attribute, value): Entry) : string =
+    $"{element} {attribute} {writeValue value}"
 
 and printEntryPattern (entry: EntryPattern) : string = failwith "TODO"

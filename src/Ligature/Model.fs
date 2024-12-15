@@ -33,6 +33,9 @@ type Variable = Variable of string
 
 type Quote = Any list
 
+and ResultSet = Set<Map<Variable, Value>>
+
+//TODO move this to Wander?
 and [<RequireQualifiedAccess>] Any =
     | Literal of string
     | Variable of Variable
@@ -40,6 +43,7 @@ and [<RequireQualifiedAccess>] Any =
     | Element of Element
     | Network of Network
     | Pattern of Pattern
+    | ResultSet of ResultSet
 
 and [<RequireQualifiedAccess>] Value =
     | Literal of string

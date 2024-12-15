@@ -75,10 +75,24 @@ let docsCommand: Command =
 
             Ok(Some(Any.Network docs)) }
 
+let containsCommand: Command =
+    { Name = Element "contains"
+      Doc = "Test if one network contains another."
+      Eval =
+        fun _ _ arguments ->
+            match arguments with
+            | [ Any.Network test; Any.Network data ] ->
+                if contains test data then
+                    Ok(Some(Any.Element(Element "true")))
+                else
+                    Ok(Some(Any.Element(Element "false")))
+            | _ -> error "Illegal call to contains" None }
+
 let coreCommands =
     (Map.ofList
         [ (docsCommand.Name, docsCommand)
           (idCommand.Name, idCommand)
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
+          (containsCommand.Name, containsCommand)
           (evalCommand.Name, evalCommand) ])

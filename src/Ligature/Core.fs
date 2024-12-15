@@ -73,9 +73,64 @@ open Ligature.Model
 //         true
 //         network
 
-let contains (test: Network) (source: Network) : bool = failwith "TODO"
+let testPattern
+    ((elementPattern, attributePattern, valuePattern): EntryPattern)
+    ((element, attribute, value): Entry)
+    : Map<Variable, Value> option =
+    let mutable result = Map.empty
+    let mutable isMatch = true
 
-let matches (pattern: Pattern) (source: Network) : bool = failwith "TODO"
+    match elementPattern with
+    | ElementPattern.Variable variable -> result <- Map.add variable (Value.Element element) result
+    | ElementPattern.Element elementP -> isMatch <- elementP = element
 
-let filter (pattern: Pattern) (source: Network) : Network =
-    if pattern.IsEmpty then Set.empty else source
+    if isMatch then
+        match attributePattern with
+        | ElementPattern.Variable variable -> result <- Map.add variable (Value.Element attribute) result
+        | ElementPattern.Element elementP -> isMatch <- attribute = elementP
+
+    if isMatch then
+        match (valuePattern, value) with
+        | (ValuePattern.Variable variable, _) -> result <- Map.add variable value result
+        | (ValuePattern.Element elementP, Value.Element value) -> isMatch <- elementP = value
+        | (ValuePattern.Literal literal, Value.Literal value) -> isMatch <- literal = value
+        | _ -> isMatch <- false
+
+    if isMatch then Some result else None
+
+let networkMatch (pattern: ElementPattern * ElementPattern * ValuePattern) (network: Network) : ResultSet =
+    Set.fold
+        (fun state entry ->
+            match testPattern pattern entry with
+            | Some res -> Set.add res state
+            | None -> state)
+        Set.empty
+        network
+
+// let contains (test: Network) (source: Network) : bool =
+//     Set.isSubset test source
+
+// let matches (pattern: Pattern) (source: Network) : bool =
+//     if pattern.IsEmpty then
+//         true
+//     else
+//         // let matches = matchEach pattern source
+
+//         failwith "TODO"
+
+// let find (pattern: Pattern) (source: Network) : Set<Network> = failwith "TODO"
+
+// let filter (pattern: Pattern) (source: Network) : Network =
+//     failwith "TODO"
+//     // if pattern.IsEmpty then
+//     //     Set.empty
+//     // else
+//     //     let mutable results = Set.empty
+//     //     Set.iter
+//     //         (fun root ->
+//     //             Set.iter (fun pattern ->
+//     //                 failwith "TODO")
+//     //                 pattern
+//     //             failwith "TODO")
+//     //         source
+//     //     results
