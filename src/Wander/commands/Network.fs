@@ -191,22 +191,52 @@ let minusCommand =
 //                 Ok(Some(Any.Network(apply template results)))
 //             | _ -> error "Invalid call to query" None }
 
-let filterCommand =
-    { Name = Element("filter")
-      Doc = "arguments: pattern data, returns network"
+let matchCommand =
+    { Name = Element "match"
+      Doc = "Match a pattern against a network."
       Eval =
-        fun commands networks arguments ->
+        fun commands variables arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Network source ] ->
-                let results = filter pattern source
-                Ok(Some(Any.Network results))
-            | _ -> error "Invalid call to query" None }
+            | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
+                let element =
+                    match e with
+                    | Any.Element e -> ElementPattern.Element e
+                    | Any.Variable v -> ElementPattern.Variable v
+                    | _ -> failwith "TODO"
+
+                let attribute =
+                    match a with
+                    | Any.Element e -> ElementPattern.Element e
+                    | Any.Variable v -> ElementPattern.Variable v
+                    | _ -> failwith "TODO"
+
+                let value =
+                    match v with
+                    | Any.Element e -> ValuePattern.Element e
+                    | Any.Variable v -> ValuePattern.Variable v
+                    | Any.Literal l -> ValuePattern.Literal l
+                    | _ -> failwith "TODO"
+
+                Ok(Some(Any.ResultSet(networkMatch (element, attribute, value) network)))
+            | _ -> failwith "TODO" }
+
+// let filterCommand =
+//     { Name = Element("filter")
+//       Doc = "arguments: pattern data, returns network"
+//       Eval =
+//         fun commands networks arguments ->
+//             match arguments with
+//             | [ Any.Pattern pattern; Any.Network source ] ->
+//                 let results = filter pattern source
+//                 Ok(Some(Any.Network results))
+//             | _ -> error "Invalid call to query" None }
 
 let networkCommands: Map<Element, Command> =
     (Map.ofList
         [ (chompCommand.Name, chompCommand)
           //   (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
+          (matchCommand.Name, matchCommand)
           //   (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
           //(isCompleteCommand.Name, isCompleteCommand)

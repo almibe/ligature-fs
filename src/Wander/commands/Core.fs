@@ -75,18 +75,47 @@ let docsCommand: Command =
 
             Ok(Some(Any.Network docs)) }
 
-let containsCommand: Command =
-    { Name = Element "contains"
-      Doc = "Test if one network contains another."
+// let containsCommand: Command =
+//     { Name = Element "contains"
+//       Doc = "Test if one network contains another."
+//       Eval =
+//         fun _ _ arguments ->
+//             match arguments with
+//             | [ Any.Network test; Any.Network data ] ->
+//                 if contains test data then
+//                     Ok(Some(Any.Element(Element "true")))
+//                 else
+//                     Ok(Some(Any.Element(Element "false")))
+//             | _ -> error "Illegal call to contains" None }
+
+let resultSetCommand: Command =
+    { Name = Element "result-set"
+      Doc = "Construct a result set value."
       Eval =
         fun _ _ arguments ->
-            match arguments with
-            | [ Any.Network test; Any.Network data ] ->
-                if contains test data then
-                    Ok(Some(Any.Element(Element "true")))
-                else
-                    Ok(Some(Any.Element(Element "false")))
-            | _ -> error "Illegal call to contains" None }
+            let mutable resultSet = Set.empty
+
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Any.Quote q ->
+                        let mutable variables = Map.empty
+
+                        List.iter
+                            (fun chunk ->
+                                match chunk with
+                                | [ Any.Variable v; Any.Element e ] ->
+                                    variables <- Map.add v (Value.Element e) variables
+                                | [ Any.Variable v; Any.Literal l ] ->
+                                    variables <- Map.add v (Value.Literal l) variables
+                                | _ -> failwith "TODO")
+                            (q |> List.chunkBySize 2)
+
+                        resultSet <- Set.add variables resultSet
+                    | _ -> failwith "TODO")
+                arguments
+
+            Ok(Some(Any.ResultSet resultSet)) }
 
 let coreCommands =
     (Map.ofList
@@ -94,5 +123,6 @@ let coreCommands =
           (idCommand.Name, idCommand)
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
-          (containsCommand.Name, containsCommand)
+          (resultSetCommand.Name, resultSetCommand)
+          // (containsCommand.Name, containsCommand)
           (evalCommand.Name, evalCommand) ])

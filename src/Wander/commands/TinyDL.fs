@@ -5,21 +5,20 @@
 module Wander.Commands.TinyDL
 
 open Ligature.Model
-open TinyDL.Model
 open Wander.Model
 
-let inferCommand: Command =
-    { Name = Element("infer")
-      Doc = "Use the ."
-      Eval =
-        fun _ store arguments ->
-            match arguments with
-            | [ Any.Network(description); Any.Network(network) ] ->
-                match infer (networkToDescription description) network with
-                | Ok res -> Ok(Some(Value.Network res))
-                | Error err -> error $"Error calling infer: {err}" None
-                | _ -> error "Unexpected return value from infer." None
-            | _ -> error "Improper call to infer." None }
+// let inferCommand: Command =
+//     { Name = Element("infer")
+//       Doc = "Use the ."
+//       Eval =
+//         fun _ store arguments ->
+//             match arguments with
+//             | [ Any.Network(description); Any.Network(network) ] ->
+//                 match infer (networkToDescription description) network with
+//                 | Ok res -> Ok(Some(Value.Network res))
+//                 | Error err -> error $"Error calling infer: {err}" None
+//                 | _ -> error "Unexpected return value from infer." None
+//             | _ -> error "Improper call to infer." None }
 
 let parseCommand: Command =
     { Name = Element "tiny-dl.parse"
