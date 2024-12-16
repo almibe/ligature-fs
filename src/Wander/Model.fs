@@ -44,7 +44,6 @@ let rec prettyPrint (value: Any) : string =
     | Any.Element(Element(value)) -> value
     | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Any.Network n -> printNetwork n
-    | Any.Pattern p -> printPattern p
     | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
@@ -62,32 +61,32 @@ and printResultSet (rs: ResultSet) =
     res <- res + ")"
     res
 
-and printNetwork (network: Set<Entry>) : string =
+// and printNetwork (network: Network) : string =
+//     let mutable first = true
+
+//     (Seq.fold
+//         (fun state triple ->
+//             if first then
+//                 first <- false
+//                 state + " " + (printEntry triple) + ","
+//             else
+//                 state + "\n  " + (printEntry triple) + ",")
+//         "{"
+//         (network))
+//     + " }"
+
+and printNetwork (network: Network) : string =
     let mutable first = true
 
     (Seq.fold
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + (printEntry triple) + ","
+                state + " " + (printTriple triple) + ","
             else
-                state + "\n  " + (printEntry triple) + ",")
+                state + "\n  " + (printTriple triple) + ",")
         "{"
         (network))
-    + " }"
-
-and printPattern (pattern: Pattern) : string =
-    let mutable first = true
-
-    (Seq.fold
-        (fun state triple ->
-            if first then
-                first <- false
-                state + " " + (printEntryPattern triple) + ","
-            else
-                state + "\n  " + (printEntryPattern triple) + ",")
-        "{"
-        (pattern))
     + " }"
 
 
@@ -95,8 +94,7 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
+    | Value.Variable _ -> failwith "Not Implemented"
 
-and printEntry ((Element element, Element attribute, value): Entry) : string =
+and printTriple ((element, attribute, value): Triple) : string =
     $"{element} {attribute} {writeValue value}"
-
-and printEntryPattern (entry: EntryPattern) : string = failwith "TODO"

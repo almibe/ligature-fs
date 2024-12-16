@@ -66,11 +66,11 @@ let docsCommand: Command =
       Doc = "Create a network that contains documentation for the available commands."
       Eval =
         fun commands networks _ ->
-            let mutable docs: Set<Entry> = Set.empty
+            let mutable docs: Network = Set.empty
 
             Map.toList commands
             |> List.iter (fun (name, command) ->
-                docs <- Set.add (name, Element("docString"), Value.Literal(command.Doc)) docs
+                docs <- Set.add (ElementPattern.Element name, ElementPattern.Element (Element("docString")), Value.Literal(command.Doc)) docs
                 ())
 
             Ok(Some(Any.Network docs)) }

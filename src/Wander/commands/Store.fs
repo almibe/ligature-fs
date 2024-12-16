@@ -9,21 +9,6 @@ open Ligature.Model
 open System
 open System.Collections.Generic
 
-let scriptsCommand: Command =
-    { Name = Element("scripts")
-      Doc = "Get all scripts."
-      Eval =
-        fun commands networks _ ->
-            let mutable docs: Set<Entry> = Set.empty
-
-            Map.toList commands
-            |> List.iter (fun (name, command) ->
-                docs <- Set.add (name, Element("docString"), Value.Literal(command.Doc)) docs
-                ())
-
-            Ok(Some(Any.Network docs)) }
-
-
 // let networksFunction (store: LigatureStore) =
 //     { Module = "Store"
 //       Name = "networks"

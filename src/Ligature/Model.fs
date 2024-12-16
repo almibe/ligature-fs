@@ -42,26 +42,17 @@ and [<RequireQualifiedAccess>] Any =
     | Quote of Quote
     | Element of Element
     | Network of Network
-    | Pattern of Pattern
     | ResultSet of ResultSet
-
-and [<RequireQualifiedAccess>] Value =
-    | Literal of string
-    | Element of Element
-
-and Entry = Element * Element * Value
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element
     | Variable of Variable
 
-and [<RequireQualifiedAccess>] ValuePattern =
+and [<RequireQualifiedAccess>] Value =
     | Element of Element
     | Literal of string
     | Variable of Variable
 
-and EntryPattern = ElementPattern * ElementPattern * ValuePattern
+and Triple = ElementPattern * ElementPattern * Value
 
-and Network = Set<Entry>
-
-and Pattern = Set<EntryPattern>
+and Network = Set<Triple>

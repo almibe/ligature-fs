@@ -30,8 +30,8 @@ let tests =
           testCase "matches"
           <| fun _ ->
               let testCases =
-                  [ ((elementPattern "e", elementPattern "a", ValuePattern.Element(Element "v")),
-                     Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ],
+                  [ ((elementPattern "e", elementPattern "a", Value.Element(Element "v")),
+                     Set.ofList [ (elementPattern "e", elementPattern "a", Value.Element(Element "v")) ],
                      Set.ofList [ Map.empty ])
 
                     // (Set.ofList [(elementPattern "e", elementPattern "a", ValuePattern.Element(Element "v"))],

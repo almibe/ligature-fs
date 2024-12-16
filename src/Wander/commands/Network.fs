@@ -213,9 +213,9 @@ let matchCommand =
 
                 let value =
                     match v with
-                    | Any.Element e -> ValuePattern.Element e
-                    | Any.Variable v -> ValuePattern.Variable v
-                    | Any.Literal l -> ValuePattern.Literal l
+                    | Any.Element e -> Value.Element e
+                    | Any.Variable v -> Value.Variable v
+                    | Any.Literal l -> Value.Literal l
                     | _ -> failwith "TODO"
 
                 Ok(Some(Any.ResultSet(networkMatch (element, attribute, value) network)))
@@ -223,28 +223,18 @@ let matchCommand =
 
 let applyCommand =
     { Name = Element "apply"
-      Doc = "Fill in Variables in a Pattern with values from a Result Set."
+      Doc = "Fill in Variables in a Network with values from a Result Set."
       Eval =
         fun commands variables arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Quote q ] ->
-                let resultSet =
-                    match evalQuote commands variables q with
-                    | Ok(Some(Any.ResultSet res)) -> res
-                    | Ok _ -> failwith "TODO"
-                    | Error err -> failwith "TODO"
-
-                let res = apply pattern resultSet
-                Ok(Some(Any.Pattern res))
             | [ Any.Network network; Any.Quote q ] ->
                 let resultSet =
                     match evalQuote commands variables q with
                     | Ok(Some(Any.ResultSet res)) -> res
                     | Ok _ -> failwith "TODO"
                     | Error err -> failwith "TODO"
-
-                let res = apply (networkToPattern network) resultSet
-                Ok(Some(Any.Pattern res))
+                let res = apply network resultSet
+                Ok(Some(Any.Network res))
             | _ -> failwith "TODO" }
 
 // let filterCommand =

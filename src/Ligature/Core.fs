@@ -73,22 +73,20 @@ open Ligature.Model
 //         true
 //         network
 
-let networkToPattern (network: Network) : Pattern =
-    Set.map
-        (fun (e, a, v) ->
-            match v with
-            | Value.Element e -> (ElementPattern.Element e, ElementPattern.Element a, ValuePattern.Element e)
-            | Value.Literal l -> (ElementPattern.Element e, ElementPattern.Element a, ValuePattern.Literal l))
-        network
 
 let namedVariable (v: Variable) : bool =
     match v with
     | Variable "?" -> false
     | _ -> true
 
+let elementPatternToValue (ep: ElementPattern): Value =
+    match ep with
+    | ElementPattern.Element e -> Value.Element e
+    | ElementPattern.Variable v -> Value.Variable v
+
 let testPattern
-    ((elementPattern, attributePattern, valuePattern): EntryPattern)
-    ((element, attribute, value): Entry)
+    ((elementPattern, attributePattern, valuePattern): Triple)
+    ((element, attribute, value): Triple)
     : Map<Variable, Value> option =
     let mutable result = Map.empty
     let mutable isMatch = true
@@ -96,8 +94,8 @@ let testPattern
     match elementPattern with
     | ElementPattern.Variable variable ->
         if namedVariable variable then
-            result <- Map.add variable (Value.Element element) result
-    | ElementPattern.Element elementP -> isMatch <- elementP = element
+            result <- Map.add variable (elementPatternToValue element) result
+    | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
 
     if isMatch then
         match attributePattern with
@@ -105,15 +103,15 @@ let testPattern
             if namedVariable variable then
                 if result.ContainsKey variable then
                     match result[variable] with
-                    | Value.Element e -> isMatch <- e = attribute
+                    | Value.Element e -> isMatch <- ElementPattern.Element e = attribute
                     | _ -> failwith "TODO"
                 else
-                    result <- Map.add variable (Value.Element attribute) result
-        | ElementPattern.Element elementP -> isMatch <- attribute = elementP
+                    result <- Map.add variable (elementPatternToValue attribute) result
+        | ElementPattern.Element elementP -> isMatch <- attribute = ElementPattern.Element elementP
 
     if isMatch then
         match (valuePattern, value) with
-        | (ValuePattern.Variable variable, value) ->
+        | (Value.Variable variable, value) ->
             if namedVariable variable then
                 if result.ContainsKey variable then
                     match result[variable], value with
@@ -122,13 +120,13 @@ let testPattern
                     | _, _ -> isMatch <- false
                 else
                     result <- Map.add variable value result
-        | (ValuePattern.Element elementP, Value.Element value) -> isMatch <- elementP = value
-        | (ValuePattern.Literal literal, Value.Literal value) -> isMatch <- literal = value
+        | (Value.Element elementP, Value.Element value) -> isMatch <- elementP = value
+        | (Value.Literal literal, Value.Literal value) -> isMatch <- literal = value
         | _ -> isMatch <- false
 
     if isMatch then Some result else None
 
-let networkMatch (pattern: ElementPattern * ElementPattern * ValuePattern) (network: Network) : ResultSet =
+let networkMatch (pattern: ElementPattern * ElementPattern * Value) (network: Network) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -137,7 +135,7 @@ let networkMatch (pattern: ElementPattern * ElementPattern * ValuePattern) (netw
         Set.empty
         network
 
-let apply (pattern: Pattern) (resultSet: ResultSet) : Pattern =
+let apply (pattern: Network) (resultSet: ResultSet) : Network =
     Set.map
         (fun (e, a, v) ->
             let element =
@@ -152,9 +150,9 @@ let apply (pattern: Pattern) (resultSet: ResultSet) : Pattern =
 
             let value =
                 match v with
-                | ValuePattern.Element _ -> v
-                | ValuePattern.Literal _ -> v
-                | ValuePattern.Variable variable -> failwith "TODO"
+                | Value.Element _ -> v
+                | Value.Literal _ -> v
+                | Value.Variable variable -> failwith "TODO"
 
             (element, attribute, value))
         pattern
