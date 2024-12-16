@@ -73,6 +73,19 @@ open Ligature.Model
 //         true
 //         network
 
+let networkToPattern (network: Network) : Pattern =
+    Set.map
+        (fun (e, a, v) ->
+            match v with
+            | Value.Element e -> (ElementPattern.Element e, ElementPattern.Element a, ValuePattern.Element e)
+            | Value.Literal l -> (ElementPattern.Element e, ElementPattern.Element a, ValuePattern.Literal l))
+        network
+
+let namedVariable (v: Variable) : bool =
+    match v with
+    | Variable "?" -> false
+    | _ -> true
+
 let testPattern
     ((elementPattern, attributePattern, valuePattern): EntryPattern)
     ((element, attribute, value): Entry)
@@ -81,17 +94,34 @@ let testPattern
     let mutable isMatch = true
 
     match elementPattern with
-    | ElementPattern.Variable variable -> result <- Map.add variable (Value.Element element) result
+    | ElementPattern.Variable variable ->
+        if namedVariable variable then
+            result <- Map.add variable (Value.Element element) result
     | ElementPattern.Element elementP -> isMatch <- elementP = element
 
     if isMatch then
         match attributePattern with
-        | ElementPattern.Variable variable -> result <- Map.add variable (Value.Element attribute) result
+        | ElementPattern.Variable variable ->
+            if namedVariable variable then
+                if result.ContainsKey variable then
+                    match result[variable] with
+                    | Value.Element e -> isMatch <- e = attribute
+                    | _ -> failwith "TODO"
+                else
+                    result <- Map.add variable (Value.Element attribute) result
         | ElementPattern.Element elementP -> isMatch <- attribute = elementP
 
     if isMatch then
         match (valuePattern, value) with
-        | (ValuePattern.Variable variable, _) -> result <- Map.add variable value result
+        | (ValuePattern.Variable variable, value) ->
+            if namedVariable variable then
+                if result.ContainsKey variable then
+                    match result[variable], value with
+                    | Value.Element e, Value.Element v -> isMatch <- e = v
+                    | Value.Literal l, Value.Literal v -> isMatch <- l = v
+                    | _, _ -> isMatch <- false
+                else
+                    result <- Map.add variable value result
         | (ValuePattern.Element elementP, Value.Element value) -> isMatch <- elementP = value
         | (ValuePattern.Literal literal, Value.Literal value) -> isMatch <- literal = value
         | _ -> isMatch <- false
@@ -106,6 +136,28 @@ let networkMatch (pattern: ElementPattern * ElementPattern * ValuePattern) (netw
             | None -> state)
         Set.empty
         network
+
+let apply (pattern: Pattern) (resultSet: ResultSet) : Pattern =
+    Set.map
+        (fun (e, a, v) ->
+            let element =
+                match e with
+                | ElementPattern.Element _ -> e
+                | ElementPattern.Variable v -> failwith "TODO"
+
+            let attribute =
+                match a with
+                | ElementPattern.Element _ -> a
+                | ElementPattern.Variable v -> failwith "TODO"
+
+            let value =
+                match v with
+                | ValuePattern.Element _ -> v
+                | ValuePattern.Literal _ -> v
+                | ValuePattern.Variable variable -> failwith "TODO"
+
+            (element, attribute, value))
+        pattern
 
 // let contains (test: Network) (source: Network) : bool =
 //     Set.isSubset test source

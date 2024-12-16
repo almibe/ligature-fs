@@ -47,6 +47,20 @@ let rec prettyPrint (value: Any) : string =
     | Any.Pattern p -> printPattern p
     | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
+    | Any.ResultSet rs -> printResultSet rs
+
+and printResultSet (rs: ResultSet) =
+    let mutable res = "ResultSet("
+
+    Set.iter
+        (fun variables ->
+            res <- res + "("
+            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
+            res <- res + ")")
+        rs
+
+    res <- res + ")"
+    res
 
 and printNetwork (network: Set<Entry>) : string =
     let mutable first = true

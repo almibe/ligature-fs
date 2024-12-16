@@ -7,6 +7,7 @@ module Wander.Commands.Network
 open Ligature.Model
 open Wander.Model
 open Ligature.Core
+open Wander.Interpreter
 
 let chompCommand =
     { Name = Element("chomp")
@@ -220,6 +221,32 @@ let matchCommand =
                 Ok(Some(Any.ResultSet(networkMatch (element, attribute, value) network)))
             | _ -> failwith "TODO" }
 
+let applyCommand =
+    { Name = Element "apply"
+      Doc = "Fill in Variables in a Pattern with values from a Result Set."
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ Any.Pattern pattern; Any.Quote q ] ->
+                let resultSet =
+                    match evalQuote commands variables q with
+                    | Ok(Some(Any.ResultSet res)) -> res
+                    | Ok _ -> failwith "TODO"
+                    | Error err -> failwith "TODO"
+
+                let res = apply pattern resultSet
+                Ok(Some(Any.Pattern res))
+            | [ Any.Network network; Any.Quote q ] ->
+                let resultSet =
+                    match evalQuote commands variables q with
+                    | Ok(Some(Any.ResultSet res)) -> res
+                    | Ok _ -> failwith "TODO"
+                    | Error err -> failwith "TODO"
+
+                let res = apply (networkToPattern network) resultSet
+                Ok(Some(Any.Pattern res))
+            | _ -> failwith "TODO" }
+
 // let filterCommand =
 //     { Name = Element("filter")
 //       Doc = "arguments: pattern data, returns network"
@@ -233,7 +260,8 @@ let matchCommand =
 
 let networkCommands: Map<Element, Command> =
     (Map.ofList
-        [ (chompCommand.Name, chompCommand)
+        [ (applyCommand.Name, applyCommand)
+          (chompCommand.Name, chompCommand)
           //   (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
           (matchCommand.Name, matchCommand)
