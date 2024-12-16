@@ -94,7 +94,7 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
-    | Value.Variable _ -> failwith "Not Implemented"
+    | Value.Variable(Variable variable) -> variable
 
 and printTriple ((element, attribute, value): Triple) : string =
     $"{element} {attribute} {writeValue value}"

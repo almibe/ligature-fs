@@ -40,7 +40,7 @@ let tests =
                     ]
 
               List.iter
-                  (fun (testNetwork, source, res) -> Expect.equal (networkMatch testNetwork source) res "")
+                  (fun (testNetwork, source, res) -> Expect.equal (singleMatch testNetwork source) res "")
                   testCases
 
           // testCase "empty filter"

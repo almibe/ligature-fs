@@ -26,7 +26,12 @@ let tests =
                   (Ok(
                       [ Expression.Call(
                             Element "a",
-                            [ Any.Network(Set.ofList [ (ElementPattern.Element (Element "a"), ElementPattern.Element (Element "b"), Value.Element(Element "c")) ]) ]
+                            [ Any.Network(
+                                  Set.ofList
+                                      [ (ElementPattern.Element(Element "a"),
+                                         ElementPattern.Element(Element "b"),
+                                         Value.Element(Element "c")) ]
+                              ) ]
                         ) ]
                   ))
                   ""
@@ -37,7 +42,12 @@ let tests =
                   (Ok(
                       [ Expression.Call(
                             Element "a",
-                            [ Any.Network(Set.ofList [ ElementPattern.Element (Element "a"), ElementPattern.Element (Element "b"), Value.Literal "c" ]) ]
+                            [ Any.Network(
+                                  Set.ofList
+                                      [ ElementPattern.Element(Element "a"),
+                                        ElementPattern.Element(Element "b"),
+                                        Value.Literal "c" ]
+                              ) ]
                         ) ]
                   ))
                   ""

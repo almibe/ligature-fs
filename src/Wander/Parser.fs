@@ -44,9 +44,7 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Quote values
     }
 
-let patternStatementNib
-    (gaze: Gaze.Gaze<Token>)
-    : Result<(ElementPattern * ElementPattern * Value), Gaze.GazeError> =
+let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(ElementPattern * ElementPattern * Value), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
     let value = Gaze.attempt valuePatternNib gaze
@@ -68,8 +66,8 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> 
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(ElementPattern.Element (Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element (Element value))
+    | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
+    | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =

@@ -181,16 +181,15 @@ let minusCommand =
 // let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
 //     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
 
-// let queryCommand =
-//     { Name = Element("query")
-//       Doc = "arguments: pattern template data, returns network"
-//       Eval =
-//         fun commands variables arguments ->
-//             match arguments with
-//             | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
-//                 let results = find pattern source
-//                 Ok(Some(Any.Network(apply template results)))
-//             | _ -> error "Invalid call to query" None }
+let queryCommand =
+    { Name = Element("query")
+      Doc = "arguments: pattern template data, returns network"
+      Eval = fun commands variables arguments -> failwith "TODO" }
+// match arguments with
+// | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
+//     let results = find pattern source
+//     Ok(Some(Any.Network(apply template results)))
+// | _ -> error "Invalid call to query" None }
 
 let matchCommand =
     { Name = Element "match"
@@ -198,6 +197,8 @@ let matchCommand =
       Eval =
         fun commands variables arguments ->
             match arguments with
+            | [ Any.Network pattern; Any.Network network ] ->
+                networkMatch pattern network |> Any.ResultSet |> Some |> Ok
             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
                 let element =
                     match e with
@@ -218,7 +219,7 @@ let matchCommand =
                     | Any.Literal l -> Value.Literal l
                     | _ -> failwith "TODO"
 
-                Ok(Some(Any.ResultSet(networkMatch (element, attribute, value) network)))
+                Ok(Some(Any.ResultSet(singleMatch (element, attribute, value) network)))
             | _ -> failwith "TODO" }
 
 let applyCommand =
@@ -233,6 +234,7 @@ let applyCommand =
                     | Ok(Some(Any.ResultSet res)) -> res
                     | Ok _ -> failwith "TODO"
                     | Error err -> failwith "TODO"
+
                 let res = apply network resultSet
                 Ok(Some(Any.Network res))
             | _ -> failwith "TODO" }

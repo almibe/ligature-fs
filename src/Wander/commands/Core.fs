@@ -70,7 +70,13 @@ let docsCommand: Command =
 
             Map.toList commands
             |> List.iter (fun (name, command) ->
-                docs <- Set.add (ElementPattern.Element name, ElementPattern.Element (Element("docString")), Value.Literal(command.Doc)) docs
+                docs <-
+                    Set.add
+                        (ElementPattern.Element name,
+                         ElementPattern.Element(Element("docString")),
+                         Value.Literal(command.Doc))
+                        docs
+
                 ())
 
             Ok(Some(Any.Network docs)) }
