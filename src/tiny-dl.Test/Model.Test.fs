@@ -2,16 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module TinyDL.Read.Test
+module TinyDL.Model.Test
 
 open Expecto
-open TinyDL.Tokenizer
-open TinyDL.NewParser
-
-let parse (input: string) =
-    match tokenize input with
-    | Ok res -> parse res
-    | _ -> failwith "Error"
 
 [<Tests>]
 let tests = testList "Parser Tests" []

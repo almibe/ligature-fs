@@ -23,34 +23,34 @@ let chompCommand =
                 failwith "TODO"
             | _ -> error "Bad call to chomp." None }
 
-// let isConsistentCommand =
-//     { Name = Element("is-consistent?")
-//       Doc = "Determine if a Network is consistent."
-//       Eval =
-//         fun _ store (arguments: Arguments) ->
-//             match arguments with
-//             | [ Value.Element(Element(networkName)) ] ->
-//                 let value = store.IsConsistent networkName
-//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             | [ Value.Network(network) ] ->
-//                 match isConsistent network with
-//                 | value -> Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             //| Error err -> error "Bad call to is-consistent." None
-//             | _ -> error "Bad call to is-consistent." None }
+let isConsistentCommand =
+    { Name = Element("is-consistent")
+      Doc = "Determine if a Network is consistent."
+      Eval =
+        fun _ store (arguments: Arguments) ->
+            match arguments with
+            // | [ Value.Element(Element(networkName)) ] ->
+            //     let value = store.IsConsistent networkName
+            //     Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+            // | [ Value.Network(network) ] ->
+            //     match isConsistent network with
+            //     | value -> Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+            //| Error err -> error "Bad call to is-consistent." None
+            | _ -> error "Bad call to is-consistent." None }
 
-// let isCompleteCommand =
-//     { Name = Element("is-complete?")
-//       Doc = "Determine if a Network is complete."
-//       Eval =
-//         fun _ store (arguments: Arguments) ->
-//             match arguments with
-//             | [ Value.Element(Element(networkName)) ] ->
-//                 let value = store.IsComplete networkName
-//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             | [ Value.Network(network) ] ->
-//                 let value = isComplete network
-//                 Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             | _ -> error "Bad call to is-complete." None }
+let isCompleteCommand =
+    { Name = Element("is-complete")
+      Doc = "Determine if a Network is complete."
+      Eval =
+        fun _ store (arguments: Arguments) ->
+            match arguments with
+            // | [ Value.Element(Element(networkName)) ] ->
+            //     let value = store.IsComplete networkName
+            //     Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+            // | [ Value.Network(network) ] ->
+            //     let value = isComplete network
+            //     Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
+            | _ -> error "Bad call to is-complete." None }
 
 let unionCommand =
     { Name = Element("union")
@@ -87,10 +87,10 @@ let countCommand =
       Eval =
         fun _ variables (arguments: Arguments) ->
             match arguments with
-            // | [ Any.Element(Element name) ] ->
-            //     match store.ReadNetwork name with
-            //     | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
-            //     | _ -> failwith "TODO"
+            | [ Any.Variable variable ] ->
+                match variables.TryFind variable with
+                | Some (Any.Network network) -> Ok(Some(Any.Element(Element((Set.count network).ToString()))))
+                | _ -> failwith "TODO"
             | [ Any.Network network ] -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
             | _ -> failwith "TODO" }
 
@@ -105,105 +105,11 @@ let minusCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-// let applySingle (template: Network) (data: Map<Element, Element>) : Network =
-//     Set.map
-//         (fun entry ->
-//             match entry with
-//             | _ -> failwith "TODO"
-//             // | Entry.Role { first = Element first
-//             //                second = Element second
-//             //                role = Element role } ->
-//             //     let resFirst =
-//             //         if first.StartsWith "?" then
-//             //             match Map.tryFind (Element first) data with
-//             //             | Some res -> res
-//             //             | _ -> Element first
-//             //         else
-//             //             Element first
-
-//             //     let resSecond =
-//             //         if second.StartsWith "?" then
-//             //             match Map.tryFind (Element second) data with
-//             //             | Some res -> res
-//             //             | _ -> Element second
-//             //         else
-//             //             Element second
-
-//             //     let resRole =
-//             //         if role.StartsWith "?" then
-//             //             match Map.tryFind (Element role) data with
-//             //             | Some res -> res
-//             //             | _ -> Element role
-//             //         else
-//             //             Element role
-
-//             //     Entry.Role
-//             //         { first = resFirst
-//             //           second = resSecond
-//             //           role = resRole }
-//             // | Entry.Extends _ -> failwith "TODO"
-//             // | Entry.NotExtends _ -> failwith "TODO")
-//         template
-
-// let apply (template: Network) (data: Set<Map<Element, Element>>) : Network =
-//     Set.fold (fun state value -> Set.union state (applySingle template value)) Set.empty data
-
-// // let compareRole
-// //     ({ first = Element pFirst
-// //        second = Element pSecond
-// //        role = Element pRole }: Role)
-// //     ({ first = Element sFirst
-// //        second = Element sSecond
-// //        role = Element sRole }: Role)
-// //     : Set<Map<Element, Element>> =
-// //     let mutable fail = false
-// //     let mutable result = Map.empty
-
-// //     if pFirst.StartsWith "?" then
-// //         if pFirst.Length > 1 then
-// //             result <- Map.add (Element pFirst) (Element sFirst) result
-// //     else
-// //         fail <- pFirst <> sFirst
-
-// //     if (not fail) && pSecond.StartsWith "?" then
-// //         if pSecond.Length > 1 then
-// //             result <- Map.add (Element pSecond) (Element sSecond) result
-// //     else
-// //         fail <- pSecond <> sSecond
-
-// //     if (not fail) && pRole.StartsWith "?" then
-// //         if pRole.Length > 1 then
-// //             result <- Map.add (Element pRole) (Element sRole) result
-// //     else
-// //         fail <- pRole <> sRole
-
-// //     if fail || result = Map.empty then
-// //         Set.empty
-// //     else
-// //         Set.ofList [ result ]
-
-// let compareExtension (pattern: Extends) (source: Extends) = failwith "TODO"
-
-// let compareNonExtension (pattern: NotExtends) (source: NotExtends) = failwith "TODO"
-
-// let findSingleEntry (pattern: Entry) (source: Entry) : Set<Map<Element, Element>> =
-//     match pattern, source with
-//     //    | Entry.Role pattern, Entry.Role source -> compareRole pattern source
-//     | Entry.Extends pattern, Entry.Extends source -> compareExtension pattern source
-//     | Entry.NotExtends pattern, Entry.NotExtends source -> compareNonExtension pattern source
-//     | _ -> Set.empty
-
-// let findEntry (pattern: Entry) (source: Network) : Set<Map<Element, Element>> =
-//     Set.fold (fun state entry -> Set.union state (findSingleEntry pattern entry)) Set.empty source
-
-// let find (pattern: Network) (source: Network) : Set<Map<Element, Element>> =
-//     Set.fold (fun state part -> Set.union state (findEntry part source)) Set.empty pattern
-
 let queryCommand =
     { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"
       Eval =
-        fun commands variables arguments ->
+        fun _ variables arguments ->
             match arguments with
             | [ pattern; template; source ] ->
                 let pattern =
