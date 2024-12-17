@@ -97,4 +97,14 @@ and writeValue (value: Value) : string =
     | Value.Variable(Variable variable) -> variable
 
 and printTriple ((element, attribute, value): Triple) : string =
+    let element =
+        match element with
+        | ElementPattern.Element(Element e) -> e
+        | ElementPattern.Variable(Variable v) -> v
+
+    let attribute =
+        match attribute with
+        | ElementPattern.Element(Element e) -> e
+        | ElementPattern.Variable(Variable v) -> v
+
     $"{element} {attribute} {writeValue value}"

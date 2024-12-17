@@ -63,18 +63,18 @@ let unionCommand =
                 Ok(Some(result))
             | _ -> failwith "TODO" }
 
-// let countCommand =
-//     { Name = Element("count")
-//       Doc = "Count the number of assertions in a Network."
-//       Eval =
-//         fun _ store (arguments: Arguments) ->
-//             match arguments with
-//             | [ Value.Element(Element name) ] ->
-//                 match store.ReadNetwork name with
-//                 | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
-//                 | _ -> failwith "TODO"
-//             | [ Value.Network network ] -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
-//             | _ -> failwith "TODO" }
+let countCommand =
+    { Name = Element("count")
+      Doc = "Count the number of assertions in a Network."
+      Eval =
+        fun _ variables (arguments: Arguments) ->
+            match arguments with
+            // | [ Any.Element(Element name) ] ->
+            //     match store.ReadNetwork name with
+            //     | Ok network -> Ok(Some(Value.Element(Element(network.Count.ToString()))))
+            //     | _ -> failwith "TODO"
+            | [ Any.Network network ] -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
+            | _ -> failwith "TODO" }
 
 let minusCommand =
     { Name = Element("minus")
@@ -184,12 +184,13 @@ let minusCommand =
 let queryCommand =
     { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"
-      Eval = fun commands variables arguments -> failwith "TODO" }
-// match arguments with
-// | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
-//     let results = find pattern source
-//     Ok(Some(Any.Network(apply template results)))
-// | _ -> error "Invalid call to query" None }
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
+                let results = query pattern template source
+                Ok(Some(Any.Network results))
+            | _ -> error "Invalid call to query" None }
 
 let matchCommand =
     { Name = Element "match"
@@ -254,10 +255,10 @@ let networkCommands: Map<Element, Command> =
     (Map.ofList
         [ (applyCommand.Name, applyCommand)
           (chompCommand.Name, chompCommand)
-          //   (countCommand.Name, countCommand)
+          (countCommand.Name, countCommand)
           (minusCommand.Name, minusCommand)
           (matchCommand.Name, matchCommand)
-          //   (queryCommand.Name, queryCommand)
+          (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
           //(isCompleteCommand.Name, isCompleteCommand)
           //(isConsistentCommand.Name, isConsistentCommand)

@@ -214,6 +214,10 @@ let applySingleResult (pattern: Network) (result: Map<Variable, Value>) : Networ
 let apply (pattern: Network) (resultSet: ResultSet) : Network =
     Set.fold (fun state result -> Set.union (applySingleResult pattern result) state) Set.empty resultSet
 
+let query (pattern: Network) (template: Network) (source: Network) : Network =
+    let rs = networkMatch pattern source
+    apply template rs
+
 // let contains (test: Network) (source: Network) : bool =
 //     Set.isSubset test source
 
