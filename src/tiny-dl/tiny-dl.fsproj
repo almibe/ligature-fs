@@ -7,9 +7,6 @@
 
   <ItemGroup>
     <Compile Include="Model.fs" />
-    <Compile Include="Tokenizer.fs" />
-    <Compile Include="NewParser.fs" />
-    <Compile Include="TinyDL.fs" />
   </ItemGroup>
 
   <ItemGroup>
