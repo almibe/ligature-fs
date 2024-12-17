@@ -56,9 +56,27 @@ let unionCommand =
     { Name = Element("union")
       Doc = "Find the union of two Networks."
       Eval =
-        fun _ networks (arguments: Arguments) ->
+        fun _ variables (arguments: Arguments) ->
             match arguments with
-            | [ Any.Network(left); Any.Network(right) ] ->
+            | [ left; right ] ->
+                let left =
+                    match left with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        match Map.tryFind v variables with
+                        | Some(Any.Network res) -> res
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let right =
+                    match right with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        match Map.tryFind v variables with
+                        | Some(Any.Network res) -> res
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
                 let result = Set.union left right |> Any.Network
                 Ok(Some(result))
             | _ -> failwith "TODO" }
@@ -187,7 +205,43 @@ let queryCommand =
       Eval =
         fun commands variables arguments ->
             match arguments with
-            | [ Any.Network pattern; Any.Network template; Any.Network source ] ->
+            | [ pattern; template; source ] ->
+                let pattern =
+                    match pattern with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        if variables.ContainsKey v then
+                            match variables[v] with
+                            | Any.Network n -> n
+                            | _ -> failwith "TODO"
+                        else
+                            failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let template =
+                    match template with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        if variables.ContainsKey v then
+                            match variables[v] with
+                            | Any.Network n -> n
+                            | _ -> failwith "TODO"
+                        else
+                            failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let source =
+                    match source with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        if variables.ContainsKey v then
+                            match variables[v] with
+                            | Any.Network n -> n
+                            | _ -> failwith "TODO"
+                        else
+                            failwith "TODO"
+                    | _ -> failwith "TODO"
+
                 let results = query pattern template source
                 Ok(Some(Any.Network results))
             | _ -> error "Invalid call to query" None }

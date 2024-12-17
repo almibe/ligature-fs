@@ -64,6 +64,7 @@ type Token =
     | OpenParen
     | CloseParen
     | Comma
+    | Pipe
     | Comment of string
 
 let implode (chars: char list) =
@@ -139,6 +140,7 @@ let tokenNibbler =
                   elementTokenNibbler
                   newLineTokenNibbler
                   stringLiteralTokenNibbler
+                  takeAndMap "|" Token.Pipe
                   takeAndMap "," Token.Comma
                   takeAndMap "{" Token.OpenBrace
                   takeAndMap "}" Token.CloseBrace
