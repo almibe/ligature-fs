@@ -39,7 +39,7 @@ let networkToDescription (input: Network) : Description =
 
 let descriptionToNetwork (input: Description) : Network = failwith "TODO"
 
-let infer (description: Description) (network: Network) : Result<Network, TinyDLError> =
+let rec infer (description: Description) (network: Network) : Result<Network, TinyDLError> =
     let mutable result = network
 
     Set.iter
@@ -61,10 +61,15 @@ let infer (description: Description) (network: Network) : Result<Network, TinyDL
                             | _ -> failwith "TODO"
                         | _ -> ())
                     network
-            | _ -> failwith "TODO")
+            | Equivalent(left, right) ->
+
+                failwith "Not Implemented")
         description
 
-    Ok result
+    if result = network then
+        Ok result
+    else
+        infer description result
 
 let top = Element "⊤"
 let bottom = Element "⊥"

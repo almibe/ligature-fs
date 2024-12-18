@@ -47,10 +47,39 @@ and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : 
     evalElement commands variables args name
 
 and evalQuote (commands: Commands) (variables: Variables) (quote: Quote) : Result<Any option, LigatureError> =
-    match quote with
-    | [] -> failwith "TODO"
-    | [ Any.Element name ] -> evalElement commands variables [] name
+    match rewriteQuote quote with
+    | Ok quote ->
+        match quote with
+        | [] -> failwith "TODO"
+        | [ Any.Element name ] -> evalElement commands variables [] name
+        | _ ->
+            match quote.Head with
+            | Any.Element name -> evalElement commands variables quote.Tail name
+            | _ -> failwith "TODO"
+    | _ -> failwith "TODO"
+
+and rewriteQuote (quote: Quote) : Result<Quote, LigatureError> =
+    let mutable quotes: List<List<Any>> = List.empty
+    let mutable current: List<Any> = List.empty
+
+    //chunk
+    List.iter
+        (fun item ->
+            match item with
+            | Any.Pipe ->
+                quotes <- List.append quotes [ current ]
+                current <- List.empty
+            | value -> current <- List.append current [ value ])
+        quote
+
+    quotes <- List.append quotes [ current ]
+
+    //process
+    match quotes with
+    | [] -> Ok []
+    | [ single ] -> Ok single
     | _ ->
-        match quote.Head with
-        | Any.Element name -> evalElement commands variables quote.Tail name
-        | _ -> failwith "TODO"
+        let res =
+            List.reduce (fun state item -> List.append item [ Any.Quote state ]) quotes
+
+        Ok res

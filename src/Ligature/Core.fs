@@ -218,30 +218,6 @@ let query (pattern: Network) (template: Network) (source: Network) : Network =
     let rs = networkMatch pattern source
     apply template rs
 
-// let contains (test: Network) (source: Network) : bool =
-//     Set.isSubset test source
+let contains (test: Network) (source: Network) : bool = Set.isSubset test source
 
-// let matches (pattern: Pattern) (source: Network) : bool =
-//     if pattern.IsEmpty then
-//         true
-//     else
-//         // let matches = matchEach pattern source
-
-//         failwith "TODO"
-
-// let find (pattern: Pattern) (source: Network) : Set<Network> = failwith "TODO"
-
-// let filter (pattern: Pattern) (source: Network) : Network =
-//     failwith "TODO"
-//     // if pattern.IsEmpty then
-//     //     Set.empty
-//     // else
-//     //     let mutable results = Set.empty
-//     //     Set.iter
-//     //         (fun root ->
-//     //             Set.iter (fun pattern ->
-//     //                 failwith "TODO")
-//     //                 pattern
-//     //             failwith "TODO")
-//     //         source
-//     //     results
+let filter (pattern: Network) (source: Network) : Network = query pattern pattern source

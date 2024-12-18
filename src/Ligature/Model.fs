@@ -31,18 +31,7 @@ type ConceptName = Element
 
 type Variable = Variable of string
 
-type Quote = Any list
-
-and ResultSet = Set<Map<Variable, Value>>
-
-//TODO move this to Wander?
-and [<RequireQualifiedAccess>] Any =
-    | Literal of string
-    | Variable of Variable
-    | Quote of Quote
-    | Element of Element
-    | Network of Network
-    | ResultSet of ResultSet
+type ResultSet = Set<Map<Variable, Value>>
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element

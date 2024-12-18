@@ -87,7 +87,15 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
     | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Ok(Token.Pipe) -> Ok(Any.Pipe)
+    | _ -> Error(Gaze.GazeError.NoMatch)
+
 let anyNib: Gaze.Nibbler<Token, Any> =
+    takeFirst [ quoteNib; elementLiteralVariableNib; networkNib; networkNib; pipeNib ]
+
+let anyNibIgnorePipe: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteNib; elementLiteralVariableNib; networkNib; networkNib ]
 
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
@@ -103,25 +111,61 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
+let callToQuote ((name, args): Call) : Quote = List.append [ Any.Element name ] args
+
 let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
-    result {
-        let! name = Gaze.attempt elementNib gaze
-        let! arguments = Gaze.attempt (optional (repeat anyNib)) gaze
-        return name, arguments
-    }
+    let mutable cont = true
+    let mutable currentCommandName: Element = Element ""
+    let mutable call = None
+
+    while cont do
+        match Gaze.peek gaze with
+        | Ok Token.Comma -> cont <- false
+        | Ok Token.Pipe ->
+            if call = None then
+                cont <- false
+            else
+                Gaze.next gaze |> ignore
+
+                match Gaze.next gaze with
+                | Ok(Token.Element name) -> currentCommandName <- Element name
+                | _ -> failwith "TODO"
+        | Error _ -> cont <- false
+        | Ok(Token.Element e) ->
+            currentCommandName <- Element e
+            Gaze.next gaze |> ignore
+        | Ok _ ->
+            call <- None
+            cont <- false
+
+        if cont then
+            let arguments = Gaze.attempt (optional (repeat anyNibIgnorePipe)) gaze
+
+            match arguments with
+            | Ok arguments ->
+                match call with
+                | None -> call <- Some(Call(currentCommandName, arguments))
+                | Some prevCall ->
+                    let quote = callToQuote prevCall
+                    let newArgs = List.append arguments [ Any.Quote quote ]
+                    call <- Some(Call(currentCommandName, newArgs))
+            | Error _ -> failwith "TODO"
+
+    match call with
+    | Some call -> Ok call
+    | _ -> Error Gaze.NoMatch
 
 let callExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
-        let! name = Gaze.attempt elementNib gaze
-        let! arguments = Gaze.attempt (optional (repeat anyNib)) gaze
-        return Expression.Call(name, arguments)
+        let! call = Gaze.attempt callNib gaze
+        return Expression.Call(call)
     }
 
 let anyAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
         let! variable = Gaze.attempt variableNib gaze
         let! _ = Gaze.attempt equalNib gaze
-        let! value = Gaze.attempt anyNib gaze
+        let! value = Gaze.attempt anyNibIgnorePipe gaze
         return Expression.AnyAssignment(variable, value)
     }
 
@@ -181,7 +225,7 @@ let read (tokens: Token list) : Result<Any, LigatureError> =
     else
         let gaze = Gaze.fromList tokens
 
-        match Gaze.attempt anyNib gaze with
+        match Gaze.attempt anyNibIgnorePipe gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
                 //failwith "TODO"

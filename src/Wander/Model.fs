@@ -6,6 +6,18 @@ module Wander.Model
 
 open Ligature.Model
 
+type Quote = Any list
+
+//TODO move this to Wander?
+and [<RequireQualifiedAccess>] Any =
+    | Literal of string
+    | Variable of Variable
+    | Quote of Quote
+    | Element of Element
+    | Network of Network
+    | ResultSet of ResultSet
+    | Pipe
+
 type Command =
     { Name: Element
       Doc: string

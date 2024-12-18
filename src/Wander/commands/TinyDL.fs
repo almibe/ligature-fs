@@ -10,11 +10,29 @@ open TinyDL.Model
 
 let inferCommand: Command =
     { Name = Element("infer")
-      Doc = "Use the ."
+      Doc = "Infer all supported tiny-dl relations."
       Eval =
-        fun _ store arguments ->
+        fun _ variables arguments ->
             match arguments with
-            | [ Any.Network(description); Any.Network(network) ] ->
+            | [ description; network ] ->
+                let description =
+                    match description with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        match variables.TryFind v with
+                        | Some(Any.Network n) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        match variables.TryFind v with
+                        | Some(Any.Network n) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
                 match infer (networkToDescription description) network with
                 | Ok res -> Ok(Some(Any.Network res))
                 | Error err -> error $"Error calling infer: {err}" None

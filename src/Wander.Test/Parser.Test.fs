@@ -66,4 +66,23 @@ let tests =
                               ) ]
                         ) ]
                   ))
+                  ""
+          testCase "read call with pipe"
+          <| fun _ ->
+              Expect.equal
+                  (parse "id {a b c} | count")
+                  (Ok(
+                      [ Expression.Call(
+                            Element "count",
+                            [ Any.Quote(
+                                  [ Any.Element(Element "id")
+                                    Any.Network(
+                                        Set.ofList
+                                            [ ElementPattern.Element(Element "a"),
+                                              ElementPattern.Element(Element "b"),
+                                              Value.Element(Element "c") ]
+                                    ) ]
+                              ) ]
+                        ) ]
+                  ))
                   "" ]

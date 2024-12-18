@@ -56,7 +56,7 @@ let unionCommand =
     { Name = Element("union")
       Doc = "Find the union of two Networks."
       Eval =
-        fun _ variables (arguments: Arguments) ->
+        fun commands variables (arguments: Arguments) ->
             match arguments with
             | [ left; right ] ->
                 let left =
@@ -75,24 +75,32 @@ let unionCommand =
                         match Map.tryFind v variables with
                         | Some(Any.Network res) -> res
                         | _ -> failwith "TODO"
+                    | Any.Quote quote ->
+                        match evalQuote commands variables quote with
+                        | Ok(Some(Any.Network network)) -> network
+                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let result = Set.union left right |> Any.Network
                 Ok(Some(result))
-            | _ -> failwith "TODO" }
+            | args -> failwith $"TODO - {args}" }
 
 let countCommand =
     { Name = Element("count")
       Doc = "Count the number of assertions in a Network."
       Eval =
-        fun _ variables (arguments: Arguments) ->
+        fun commands variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Variable variable ] ->
                 match variables.TryFind variable with
-                | Some (Any.Network network) -> Ok(Some(Any.Element(Element((Set.count network).ToString()))))
+                | Some(Any.Network network) -> Ok(Some(Any.Element(Element((Set.count network).ToString()))))
                 | _ -> failwith "TODO"
             | [ Any.Network network ] -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
-            | _ -> failwith "TODO" }
+            | [ Any.Quote quote ] ->
+                match evalQuote commands variables quote with
+                | Ok(Some(Any.Network network)) -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
+                | _ -> failwith "TODO"
+            | args -> failwith $"TODO - {args}" }
 
 let minusCommand =
     { Name = Element("minus")
@@ -109,7 +117,7 @@ let queryCommand =
     { Name = Element("query")
       Doc = "arguments: pattern template data, returns network"
       Eval =
-        fun _ variables arguments ->
+        fun commands variables arguments ->
             match arguments with
             | [ pattern; template; source ] ->
                 let pattern =
@@ -146,6 +154,10 @@ let queryCommand =
                             | _ -> failwith "TODO"
                         else
                             failwith "TODO"
+                    | Any.Quote quote ->
+                        match evalQuote commands variables quote with
+                        | Ok(Some(Any.Network n)) -> n
+                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let results = query pattern template source
@@ -200,16 +212,49 @@ let applyCommand =
                 Ok(Some(Any.Network res))
             | _ -> failwith "TODO" }
 
-// let filterCommand =
-//     { Name = Element("filter")
-//       Doc = "arguments: pattern data, returns network"
-//       Eval =
-//         fun commands networks arguments ->
-//             match arguments with
-//             | [ Any.Pattern pattern; Any.Network source ] ->
-//                 let results = filter pattern source
-//                 Ok(Some(Any.Network results))
-//             | _ -> error "Invalid call to query" None }
+let filterCommand =
+    { Name = Element("filter")
+      Doc = "arguments: pattern data, returns network"
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ pattern; source ] ->
+                let pattern =
+                    match pattern with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        if variables.ContainsKey v then
+                            match variables[v] with
+                            | Any.Network n -> n
+                            | _ -> failwith "TODO"
+                        else
+                            failwith "TODO"
+                    | Any.Quote quote ->
+                        match evalQuote commands variables quote with
+                        | Ok(Some(Any.Network n)) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+
+                let source =
+                    match source with
+                    | Any.Network n -> n
+                    | Any.Variable v ->
+                        if variables.ContainsKey v then
+                            match variables[v] with
+                            | Any.Network n -> n
+                            | _ -> failwith "TODO"
+                        else
+                            failwith "TODO"
+                    | Any.Quote quote ->
+                        match evalQuote commands variables quote with
+                        | Ok(Some(Any.Network n)) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let results = filter pattern source
+                Ok(Some(Any.Network results))
+            | _ -> error "Invalid call to filter" None }
 
 let networkCommands: Map<Element, Command> =
     (Map.ofList
@@ -220,6 +265,7 @@ let networkCommands: Map<Element, Command> =
           (matchCommand.Name, matchCommand)
           (queryCommand.Name, queryCommand)
           (unionCommand.Name, unionCommand)
+          (filterCommand.Name, filterCommand)
           //(isCompleteCommand.Name, isCompleteCommand)
           //(isConsistentCommand.Name, isConsistentCommand)
           ])
