@@ -59,6 +59,7 @@ let rec prettyPrint (value: Any) : string =
     | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
+    | Any.Pipe -> "|"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
