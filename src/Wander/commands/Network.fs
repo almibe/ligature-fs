@@ -170,8 +170,6 @@ let matchCommand =
       Eval =
         fun commands variables arguments ->
             match arguments with
-            | [ Any.Network pattern; Any.Network network ] ->
-                networkMatch pattern network |> Any.ResultSet |> Some |> Ok
             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
                 let element =
                     match e with
@@ -193,6 +191,27 @@ let matchCommand =
                     | _ -> failwith "TODO"
 
                 Ok(Some(Any.ResultSet(singleMatch (element, attribute, value) network)))
+            | [ pattern; network ] ->
+                let pattern =
+                    match pattern with
+                    | Any.Network n -> n
+                    | Any.Quote q ->
+                        match evalQuote commands variables q with
+                        | Ok(Some(Any.Network n )) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+                
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | Any.Quote q ->
+                        match evalQuote commands variables q with
+                        | Ok(Some(Any.Network n )) -> n
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                networkMatch pattern network |> Any.ResultSet |> Some |> Ok
+
             | _ -> failwith "TODO" }
 
 let applyCommand =
