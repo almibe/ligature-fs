@@ -5,7 +5,6 @@
 module Wander.Tokenizer
 
 open Ligature.Model
-
 open System.Text.RegularExpressions
 
 let identifierPattern =
@@ -13,9 +12,9 @@ let identifierPattern =
 
 let parseString (input: string) =
 #if !FABLE_COMPILER
-    System.Text.Json.Nodes.JsonNode.Parse(input)
+    System.Text.Json.Nodes.JsonNode.Parse(input.Replace("\n", "\\n"))
 #else
-    Fable.Core.JsInterop.emitJsExpr (input) "JSON.parse($0)"
+    Fable.Core.JsInterop.emitJsExpr (input.Replace("\n", "\\n")) "JSON.parse($0)"
 #endif
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
@@ -40,8 +39,6 @@ let stringNibbler =
         [ Nibblers.between '"' stringContentNibbler '"'
           Gaze.map (Nibblers.takeList [ '"'; '"' ]) (fun _ -> "") ]
     )
-
-//let stringTokenNibbler = Gaze.map stringNibbler (fun s -> Token.StringLiteral(s))
 
 let charInRange char start stop = char >= start && char <= stop
 
@@ -75,6 +72,9 @@ let takeAndMap toTake toMap =
 
 let stringLiteralTokenNibbler =
     Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
+
+// let multiLineStringLiteralTokenNibbler =
+//     Gaze.map multiLineStringNibbler (fun string -> Token.StringLiteral(string))
 
 let nameNibbler =
     Nibblers.takeAll
@@ -152,8 +152,9 @@ let tokenNibbler =
         )
     )
 
-let tokenize script =
-    let gaze = Gaze.fromString (script)
+let tokenize (script: string) =
+    
+    let gaze = Gaze.fromString (script.ReplaceLineEndings("\n"))
 
     match Gaze.attempt tokenNibbler gaze with
     | Ok res ->

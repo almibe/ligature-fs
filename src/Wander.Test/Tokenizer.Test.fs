@@ -38,8 +38,8 @@ let tests =
           testCase "tokenize new lines"
           <| fun _ ->
               Expect.equal (tokenize "\n") (Ok([ Token.NewLine("\n") ])) ""
-              Expect.equal (tokenize "\r\n") (Ok([ Token.NewLine("\r\n") ])) ""
-              Expect.equal (tokenize "\r\n\r\n\r\n\n") (Ok([ Token.NewLine("\r\n\r\n\r\n\n") ])) ""
+              Expect.equal (tokenize "\r\n") (Ok([ Token.NewLine("\n") ])) ""
+              Expect.equal (tokenize "\r\n\r\n\r\n\n") (Ok([ Token.NewLine("\n\n\n\n") ])) ""
           //   testCase "Read comments"
           //   <| fun _ ->
           //       Expect.equal (tokenize "--") (Ok([ Token.Comment("--") ])) ""
