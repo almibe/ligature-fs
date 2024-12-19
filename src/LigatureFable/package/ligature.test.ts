@@ -1,4 +1,4 @@
-import { run, readValue } from "./lib/ligature"
+import { run, } from "./lib/ligature"
 // import { glob } from "glob"
 // import fs from 'node:fs'
 import { expect, test } from 'vitest'
@@ -21,16 +21,16 @@ import { expect, test } from 'vitest'
 //                 {"test": {nodes: [{key: "a"}, {key: "c"}], edges: [{source: "a", target: "c", key:"b"}]}})
 // })
 
-test("test reading empty network", () => {
-    expect(readValue("{}"))
-        .toEqual(
-                {entries: []})
-})
+// test("test reading empty network", () => {
+//     expect(readValue("{}"))
+//         .toEqual(
+//                 {entries: []})
+// })
 
-test("test reading simple network", () => {
-    expect(readValue("{a b c}"))
-        .toEqual(
-                {entries: [
-                    { first: "a", second: "b", third: "c" }
-                ]})
-})
+// test("test reading simple network", () => {
+//     expect(readValue("{a b c}"))
+//         .toEqual(
+//                 {entries: [
+//                     { first: "a", second: "b", third: "c" }
+//                 ]})
+// })

@@ -30,16 +30,3 @@ let runScriptResult (script: string) =
             result <- Array.append result [|dict|]) resultSet
         result
     | _ -> failwith "Script must return a ResultSet when you call runScriptResult."
-
-let readValue (input: string) =
-    match read input with
-    | Ok result ->
-        match result with
-        | Any.Element(Element e) -> e
-        | Any.Quote _ -> failwith "TODO"
-        | Any.Network network -> failwith "TODO" //networkToJs network
-        | Any.Literal literal -> encodeString literal
-        | Any.Variable(Variable variable) -> variable
-        | Any.Pipe -> failwith "TODO"
-        | Any.ResultSet rs -> failwith "TODO"
-    | _ -> failwith "Error reading value."

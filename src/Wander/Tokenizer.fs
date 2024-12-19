@@ -152,9 +152,15 @@ let tokenNibbler =
         )
     )
 
-let tokenize (script: string) =
-    
-    let gaze = Gaze.fromString (script.ReplaceLineEndings("\n"))
+let replaceLineEndings (script: string) =
+    #if !FABLE_COMPILER
+        (script.ReplaceLineEndings("\n"))
+    #else
+        script.Replace("\r\n", "\n")
+    #endif
+
+let tokenize (script: string) =    
+    let gaze = Gaze.fromString (replaceLineEndings script)
 
     match Gaze.attempt tokenNibbler gaze with
     | Ok res ->
