@@ -7,17 +7,22 @@ module Wander.Commands.TinyDL
 open Ligature.Model
 open Wander.Model
 open TinyDL.Model
+open Wander.Interpreter
 
 let inferCommand: Command =
     { Name = Element("infer")
       Doc = "Infer all supported tiny-dl relations."
       Eval =
-        fun _ variables arguments ->
+        fun commands variables arguments ->
             match arguments with
             | [ description; network ] ->
                 let description =
                     match description with
                     | Any.Network n -> n
+                    | Any.Quote q ->
+                        match evalQuote commands variables q with
+                        | Ok(Some(Any.Network n)) -> n
+                        | _ -> failwith "TODO"
                     | Any.Variable v ->
                         match variables.TryFind v with
                         | Some(Any.Network n) -> n
@@ -30,6 +35,10 @@ let inferCommand: Command =
                     | Any.Variable v ->
                         match variables.TryFind v with
                         | Some(Any.Network n) -> n
+                        | _ -> failwith "TODO"
+                    | Any.Quote q ->
+                        match evalQuote commands variables q with
+                        | Ok(Some(Any.Network n)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
