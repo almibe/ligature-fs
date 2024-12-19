@@ -36,7 +36,15 @@ let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
     | Ok(Token.Variable(value)) -> Ok(Variable value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return values
+    }
+
+let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
@@ -93,10 +101,10 @@ let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteNib; elementLiteralVariableNib; networkNib; networkNib; pipeNib ]
+    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib; pipeNib ]
 
 let anyNibIgnorePipe: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteNib; elementLiteralVariableNib; networkNib; networkNib ]
+    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib ]
 
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
@@ -161,6 +169,19 @@ let callExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeErr
         return Expression.Call(call)
     }
 
+let closureDefNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take (Token.Element ("fn"))) gaze
+        let! name = Gaze.attempt elementNib gaze
+        let! args = Gaze.attempt (repeat variableNib) gaze
+        let! body = Gaze.attempt quoteNib gaze
+        return Expression.ClosureDefinition {
+            name = name
+            args = args
+            body = body
+        }
+    }
+
 let anyAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
         let! variable = Gaze.attempt variableNib gaze
@@ -178,7 +199,7 @@ let callAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeErr
     }
 
 let scriptNib =
-    repeatSep (takeFirst [ callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
+    repeatSep (takeFirst [ closureDefNib; callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

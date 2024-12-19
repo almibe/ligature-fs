@@ -28,6 +28,24 @@ and processArguments commands networks (arguments: Any list) : Any list =
             | value -> value)
         arguments
 
+and addClosure (closureDefinition: ClosureDefinition) (commands: Commands): Commands =
+    Map.add 
+        closureDefinition.name
+        {
+            Name = closureDefinition.name
+            Doc = "local closure"
+            Eval =
+                fun commands variables arguments ->
+                    if arguments.Length = closureDefinition.args.Length then
+                        let newVariables = 
+                            List.fold (fun state (name, value) -> 
+                                Map.add name value state) variables (List.allPairs closureDefinition.args arguments)
+                        evalQuote commands newVariables closureDefinition.body
+                    else
+                        failwith "TODO"
+        }
+        commands
+
 and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<Any option, LigatureError> =
     match script with
     | [] -> Ok None
@@ -42,6 +60,8 @@ and evalScript (commands: Commands) (variables: Variables) (script: Script) : Re
         match evalCall commands variables call with
         | Ok(Some value) -> evalScript commands (Map.add variable value variables) tail
         | _ -> failwith "TODO"
+    | Expression.ClosureDefinition closureDefinition :: tail ->
+        evalScript (addClosure closureDefinition commands) variables tail
 
 and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<Any option, LigatureError> =
     evalElement commands variables args name
