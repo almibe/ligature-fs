@@ -5,8 +5,8 @@ export function run(script: string): string {
     return runScript(script)
 }
 
-export function runResult(script: string): Array<Map<string, string>> {
-    return runScriptResult(script)
+export function runResult(script: string, commands): Array<Map<string, string>> {
+    return runScriptResult(script, commands)
 }
 
 export function displayText(script: string, elementId: string) {

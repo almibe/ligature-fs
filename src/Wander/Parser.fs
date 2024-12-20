@@ -171,15 +171,16 @@ let callExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeErr
 
 let closureDefNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
-        let! _ = Gaze.attempt (take (Token.Element ("fn"))) gaze
+        let! _ = Gaze.attempt (take (Token.Element("fn"))) gaze
         let! name = Gaze.attempt elementNib gaze
         let! args = Gaze.attempt (repeat variableNib) gaze
         let! body = Gaze.attempt quoteNib gaze
-        return Expression.ClosureDefinition {
-            name = name
-            args = args
-            body = body
-        }
+
+        return
+            Expression.ClosureDefinition
+                { name = name
+                  args = args
+                  body = body }
     }
 
 let anyAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =

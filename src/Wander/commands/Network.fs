@@ -197,16 +197,16 @@ let matchCommand =
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n )) -> n
+                        | Ok(Some(Any.Network n)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
-                
+
                 let network =
                     match network with
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n )) -> n
+                        | Ok(Some(Any.Network n)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 

@@ -33,11 +33,10 @@ and AnyAssignment = Variable * Any
 
 and CallAssignment = Variable * Call
 
-and ClosureDefinition = {
-    name: Element
-    args: List<Variable>
-    body: Quote
-}
+and ClosureDefinition =
+    { name: Element
+      args: List<Variable>
+      body: Quote }
 
 and [<RequireQualifiedAccess>] Expression =
     | Call of Call

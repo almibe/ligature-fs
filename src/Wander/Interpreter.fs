@@ -28,22 +28,23 @@ and processArguments commands networks (arguments: Any list) : Any list =
             | value -> value)
         arguments
 
-and addClosure (closureDefinition: ClosureDefinition) (commands: Commands): Commands =
-    Map.add 
+and addClosure (closureDefinition: ClosureDefinition) (commands: Commands) : Commands =
+    Map.add
         closureDefinition.name
-        {
-            Name = closureDefinition.name
-            Doc = "local closure"
-            Eval =
-                fun commands variables arguments ->
-                    if arguments.Length = closureDefinition.args.Length then
-                        let newVariables = 
-                            List.fold (fun state (name, value) -> 
-                                Map.add name value state) variables (List.allPairs closureDefinition.args arguments)
-                        evalQuote commands newVariables closureDefinition.body
-                    else
-                        failwith "TODO"
-        }
+        { Name = closureDefinition.name
+          Doc = "local closure"
+          Eval =
+            fun commands variables arguments ->
+                if arguments.Length = closureDefinition.args.Length then
+                    let newVariables =
+                        List.fold
+                            (fun state (name, value) -> Map.add name value state)
+                            variables
+                            (List.allPairs closureDefinition.args arguments)
+
+                    evalQuote commands newVariables closureDefinition.body
+                else
+                    failwith "TODO" }
         commands
 
 and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<Any option, LigatureError> =
