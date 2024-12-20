@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+open Browser
 open Ligature.Model
 open Fable.Core.JsInterop
 open Wander.Main
@@ -101,19 +102,46 @@ let createCommand obj : Command =
     { Name = Element obj?name
       Doc = obj?doc
       Eval =
-        fun commands variables arguments ->
+        fun _ _ arguments ->
             obj?action (processArguments arguments)
             Ok(Some(Any.ResultSet Set.empty)) }
 
-let runScript (script: string) =
+let appendValue (any: Any) el =
+    let p = document.createElement "pre"
+    p?textContent <- prettyPrint any
+    el?appendChild (p)
+
+let printCommand el =
+    { Name = Element "print"
+      Doc = ""
+      Eval =
+        fun commands variables arguments ->
+            List.iter (fun arg -> appendValue arg el) arguments
+            Ok(None) }
+
+let runScript (script: string) commands resultsEl =
+    let mutable stdCommands =
+        Map.add (Element "print") (printCommand resultsEl) stdCommands
+
+    Array.iter
+        (fun command ->
+            let command = createCommand command
+            stdCommands <- Map.add command.Name command stdCommands)
+        commands
+
     match run stdCommands (emptyVariables ()) script with
     | Ok(Some res) -> prettyPrint res
     | Ok _ -> "{}"
-    | _ -> failwith "TODO"
+    | Error err -> err.UserMessage
 
-let runScriptResult (script: string) (commands: Command array) =
+let runScriptResult (script: string) commands =
     let mutable stdCommands = stdCommands
-    Array.iter (fun command -> stdCommands <- Map.add command.Name command stdCommands) commands
+
+    Array.iter
+        (fun command ->
+            let command = createCommand command
+            stdCommands <- Map.add command.Name command stdCommands)
+        commands
 
     match run stdCommands (emptyVariables ()) script with
     | Ok(Some(Any.ResultSet resultSet)) ->

@@ -38,14 +38,14 @@ import { expect, test } from 'vitest'
 
 test("test adding commands from js", () => {
     let x =0;
-    let command = createCommand({
+    let command = {
         name: "test",
         "doc": "doc",
         "action": (args) => {
             expect(args.length).toEqual(1)
             x=1 
         }
-    })
+    }
     runResult("test {a b c}, match {} {}", [command])
     expect(x).toEqual(1)
 })
