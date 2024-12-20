@@ -48,7 +48,7 @@ and Script = Expression list
 
 and Variables = Map<Variable, Any>
 
-let emptyVariables () : Variables = Map.empty
+let emptyVariables: Variables = Map.empty
 
 let encodeString string =
 #if !FABLE_COMPILER

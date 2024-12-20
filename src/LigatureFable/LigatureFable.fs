@@ -10,8 +10,29 @@ open Wander.Commands
 open Wander.Model
 open Wander.Lib
 open System.Collections.Generic
+open Wander.Interpreter
 
-let encodeQuote (quote: Quote) = failwith "TODO"
+let encodeQuote (quote: Quote) = failwith "TODO - in encodeQuote"
+
+let encodeResultSet (resultSet: ResultSet) =
+    let mutable result = [||]
+
+    Set.iter
+        (fun res ->
+            let dict = new Dictionary<string, string>()
+
+            Map.iter
+                (fun k v ->
+                    match k, v with
+                    | Variable v, Value.Element(Element e) -> dict.Add(v, e)
+                    | Variable v, Value.Literal l -> dict.Add(v, l)
+                    | Variable v, Value.Variable(Variable variable) -> dict.Add(v, variable))
+                res
+
+            result <- Array.append result [| dict |])
+        resultSet
+
+    result
 
 let encodeNetwork (network: Network) =
     Set.map
@@ -64,37 +85,55 @@ let encodeNetwork (network: Network) =
         network
     |> Array.ofSeq
 
-let processArguments (args: Arguments) =
+let encodeAny (any: Any) =
+    match any with
+    | Any.Network n ->
+        let res = createEmpty
+        res?``type`` <- "network"
+        res?value <- encodeNetwork n
+        res
+    | Any.Quote q ->
+        let res = createEmpty
+        res?``type`` <- "quote"
+        res?value <- encodeQuote q
+        res
+    | Any.Literal l ->
+        let res = createEmpty
+        res?``type`` <- "literal"
+        res?value <- l
+        res
+    | Any.Variable v ->
+        let res = createEmpty
+        res?``type`` <- "variable"
+        res?value <- v
+        res
+    | Any.Element(Element e) ->
+        let res = createEmpty
+        res?``type`` <- "element"
+        res?value <- e
+        res
+    | Any.ResultSet rs -> encodeResultSet rs
+    | Any.Pipe -> failwith "Not Implemented"
+
+let encodeResult (result: Result<Any option, LigatureError>) =
+    match result with
+    | Ok(Some res) -> encodeAny res
+    | Ok None -> createEmpty
+    | Error error ->
+        let res = createEmpty
+        res?``type`` <- "error"
+        res?value <- error.UserMessage
+        res
+
+let processArguments commands variables (args: Arguments) =
     List.map
         (fun arg ->
             match arg with
-            | Any.Element(Element e) ->
-                let obj = createEmpty
-                obj?``type`` <- "element"
-                obj?value <- e
-                obj
-            | Any.Literal l ->
-                let obj = createEmpty
-                obj?``type`` <- "literal"
-                obj?value <- l
-                obj
-            | Any.Variable(Variable v) ->
-                let obj = createEmpty
-                obj?``type`` <- "variable"
-                obj?value <- v
-                obj
             | Any.Quote q ->
-                let obj = createEmpty
-                obj?``quote`` <- "quote"
-                obj?value <- encodeQuote q
-                obj
-            | Any.Network n ->
-                let obj = createEmpty
-                obj?``type`` <- "network"
-                obj?value <- encodeNetwork n
-                obj
-            | Any.ResultSet(_) -> failwith "Not Implemented"
-            | Any.Pipe -> failwith "Not Implemented")
+                match evalQuote commands variables q with
+                | Ok(Some res) -> encodeAny res
+                | _ -> failwith "TODO"
+            | _ -> encodeAny arg)
         args
     |> Array.ofList
 
@@ -102,39 +141,11 @@ let createCommand obj : Command =
     { Name = Element obj?name
       Doc = obj?doc
       Eval =
-        fun _ _ arguments ->
-            obj?action (processArguments arguments)
+        fun commands variables arguments ->
+            obj?action (processArguments commands variables arguments)
             Ok(Some(Any.ResultSet Set.empty)) }
 
-let appendValue (any: Any) el =
-    let p = document.createElement "pre"
-    p?textContent <- prettyPrint any
-    el?appendChild (p)
-
-let printCommand el =
-    { Name = Element "print"
-      Doc = ""
-      Eval =
-        fun commands variables arguments ->
-            List.iter (fun arg -> appendValue arg el) arguments
-            Ok(None) }
-
-let runScript (script: string) commands resultsEl =
-    let mutable stdCommands =
-        Map.add (Element "print") (printCommand resultsEl) stdCommands
-
-    Array.iter
-        (fun command ->
-            let command = createCommand command
-            stdCommands <- Map.add command.Name command stdCommands)
-        commands
-
-    match run stdCommands (emptyVariables ()) script with
-    | Ok(Some res) -> prettyPrint res
-    | Ok _ -> "{}"
-    | Error err -> err.UserMessage
-
-let runScriptResult (script: string) commands =
+let runScript (script: string) commands =
     let mutable stdCommands = stdCommands
 
     Array.iter
@@ -143,24 +154,4 @@ let runScriptResult (script: string) commands =
             stdCommands <- Map.add command.Name command stdCommands)
         commands
 
-    match run stdCommands (emptyVariables ()) script with
-    | Ok(Some(Any.ResultSet resultSet)) ->
-        let mutable result = [||]
-
-        Set.iter
-            (fun res ->
-                let dict = new Dictionary<string, string>()
-
-                Map.iter
-                    (fun k v ->
-                        match k, v with
-                        | Variable v, Value.Element(Element e) -> dict.Add(v, e)
-                        | Variable v, Value.Literal l -> dict.Add(v, l)
-                        | Variable v, Value.Variable(Variable variable) -> dict.Add(v, variable))
-                    res
-
-                result <- Array.append result [| dict |])
-            resultSet
-
-        result
-    | res -> failwith $"Script must return a ResultSet when you call runScriptResult.\nRecieved {res}"
+    run stdCommands emptyVariables script |> encodeResult
