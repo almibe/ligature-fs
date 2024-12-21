@@ -34,7 +34,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdCommands (emptyVariables ()) script with
+                match run stdCommands emptyVariables script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

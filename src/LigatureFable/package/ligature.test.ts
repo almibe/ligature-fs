@@ -46,6 +46,15 @@ test("test adding commands from js", () => {
             x=1 
         }
     }
-    runResult("test {a b c}, match {} {}", [command])
+    run("test {a b c}, match {} {}", [command])
     expect(x).toEqual(1)
+})
+
+test("test command with error", () => {
+    let res = run("match {?a b ?c} {a b c}", [])
+    expect(res.type).toEqual("resultset")
+    let expected = new Map<string, string>();
+    expected.set('?a', 'a')
+    expected.set('?c', 'c')
+    expect(res.value).toEqual([expected])
 })

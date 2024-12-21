@@ -112,7 +112,11 @@ let encodeAny (any: Any) =
         res?``type`` <- "element"
         res?value <- e
         res
-    | Any.ResultSet rs -> encodeResultSet rs
+    | Any.ResultSet rs ->
+        let res = createEmpty
+        res?``type`` <- "resultset"
+        res?value <- encodeResultSet rs
+        res
     | Any.Pipe -> failwith "Not Implemented"
 
 let encodeResult (result: Result<Any option, LigatureError>) =
