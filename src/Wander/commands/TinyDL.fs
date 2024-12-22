@@ -6,8 +6,53 @@ module Wander.Commands.TinyDL
 
 open Ligature.Model
 open Wander.Model
-open TinyDL.Model
 open Wander.Interpreter
+
+let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
+    let mutable res = aBox
+
+    Set.iter
+        (fun tStatement ->
+            Set.iter
+                (fun aStatement ->
+                    match (tStatement, aStatement) with
+                    | (ElementPattern.Element subconcept,
+                       ElementPattern.Element(Element "subconcept-of"),
+                       Value.Element superconcept),
+                      (ElementPattern.Element element, ElementPattern.Element(Element ":"), Value.Element concept) when
+                        subconcept = concept
+                        ->
+                        res <-
+                            Set.add
+                                (ElementPattern.Element element,
+                                 ElementPattern.Element(Element ":"),
+                                 Value.Element superconcept)
+                                res
+                    | (ElementPattern.Element firstRole,
+                       ElementPattern.Element(Element "tdl.inverse-of"),
+                       Value.Element secondRole),
+                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                        role = firstRole
+                        ->
+                        res <-
+                            Set.add
+                                (ElementPattern.Element second, ElementPattern.Element secondRole, Value.Element first)
+                                res
+                    | (ElementPattern.Element firstRole,
+                       ElementPattern.Element(Element "tdl.inverse-of"),
+                       Value.Element secondRole),
+                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                        role = secondRole
+                        ->
+                        res <-
+                            Set.add
+                                (ElementPattern.Element second, ElementPattern.Element firstRole, Value.Element first)
+                                res
+                    | _ -> ())
+                aBox)
+        tBox
+
+    if aBox = res then Ok res else infer tBox res
 
 let inferCommand: Command =
     { Name = Element("infer")
@@ -42,10 +87,9 @@ let inferCommand: Command =
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
-                match infer (networkToDescription description) network with
+                match infer description network with
                 | Ok res -> Ok(Some(Any.Network res))
                 | Error err -> error $"Error calling infer: {err}" None
-                | _ -> error "Unexpected return value from infer." None
             | _ -> error "Improper call to infer." None }
 
 let tinyDLCommands = (Map.ofList [ (inferCommand.Name, inferCommand) ])
