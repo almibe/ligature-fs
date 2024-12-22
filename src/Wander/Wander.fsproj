@@ -11,6 +11,7 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="Wander.fs" />
+    <Compile Include="commands/IO.fs" />
     <Compile Include="commands/Bool.fs" />
     <Compile Include="commands/Core.fs" />
     <Compile Include="commands/Network.fs" />
@@ -26,7 +27,6 @@
   <ItemGroup>  
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\tiny-dl\tiny-dl.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,7 +31,6 @@ test suite for the other project.
 | LigatureFable      | A project for compiling Ligature to JavaScript using Fable.        |
 | LigaturePad        | A simple desktop app for Ligature for testing¹.                    |
 | LigatureZeroMQ     | A backend of Ligature using ZeroMQ.                                |
-| tiny-dl            | An F# library supporting Description Logic.                        |
 | Wander             | The Wander scripting language.                                     |
 
 ¹ See (https://github.com/almibe/ligature-desktop) for a more robust desktop application.
