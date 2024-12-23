@@ -8,33 +8,34 @@ open Ligature.Model
 open Model
 
 let rec evalElement
-    (commands: Commands)
+    (local: Module)
+    (modules: Modules)
     (variables: Variables)
     (arguments: Any list)
     (Element(name))
     : Result<CommandResult, LigatureError> =
-    match commands.TryFind(Element(name)) with
-    | Some(command) -> command.Eval commands variables arguments
-    | None -> error $"Could not find name {name}" None
+        match local.TryFind(Element(name)) with
+        | Some(command) -> command.Eval local modules variables arguments
+        | None -> error $"Could not find name {name}" None
 
-and processArguments commands networks (arguments: Any list) : Any list =
+and processArguments local commands networks (arguments: Any list) : Any list =
     List.map
         (fun argument ->
             match argument with
             | Any.Quote quote ->
-                match evalQuote commands networks quote with
-                | Ok((Some(value), _, _)) -> value
+                match evalQuote local commands networks quote with
+                | Ok((Some(value), _, _, _)) -> value
                 | _ -> Any.Network Set.empty
             | value -> value)
         arguments
 
-and addClosure (closureDefinition: ClosureDefinition) (commands: Commands) : Commands =
+and addClosure (closureDefinition: ClosureDefinition) (commands: Module) : Module =
     Map.add
         closureDefinition.name
         { Name = closureDefinition.name
           Doc = "local closure"
           Eval =
-            fun commands variables arguments ->
+            fun local modules variables arguments ->
                 if arguments.Length = closureDefinition.args.Length then
                     let newVariables =
                         List.fold
@@ -42,39 +43,40 @@ and addClosure (closureDefinition: ClosureDefinition) (commands: Commands) : Com
                             variables
                             (List.allPairs closureDefinition.args arguments)
 
-                    evalQuote commands newVariables closureDefinition.body
+                    evalQuote local modules newVariables closureDefinition.body
                 else
                     failwith "TODO" }
         commands
 
-and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<CommandResult, LigatureError> =
+and evalScript (local: Module) (modules: Modules) (variables: Variables) (script: Script) : Result<CommandResult, LigatureError> =
     match script with
-    | [] -> Ok(None, commands, variables)
-    | [ Expression.Call head ] -> evalCall commands variables head
+    | [] -> Ok(None, local, modules, variables)
+    | [ Expression.Call head ] -> evalCall local modules variables head
     | Expression.Call head :: tail ->
-        match evalCall commands variables head with
-        | Ok(_, commands, variables) -> evalScript commands variables tail
+        match evalCall local modules variables head with
+        | Ok(_, local, modules, variables) -> evalScript local modules variables tail
         | Error err -> Error err
-    | Expression.AnyAssignment(variable, value) :: tail -> evalScript commands (Map.add variable value variables) tail
+    | Expression.AnyAssignment(variable, value) :: tail -> evalScript local modules (Map.add variable value variables) tail
     | Expression.CallAssignment(variable, call) :: tail ->
-        match evalCall commands variables call with
-        | Ok((Some value, commands, variables)) -> evalScript commands (Map.add variable value variables) tail
+        match evalCall local modules variables call with
+        | Ok((Some value, local, modules, variables)) -> evalScript local modules (Map.add variable value variables) tail
         | _ -> failwith "TODO"
     | Expression.ClosureDefinition closureDefinition :: tail ->
-        evalScript (addClosure closureDefinition commands) variables tail
+        failwith "TODO"
+//        evalScript (addClosure closureDefinition modules) variables tail
 
-and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<CommandResult, LigatureError> =
-    evalElement commands variables args name
+and evalCall (local: Module) (modules: Modules) (variables: Variables) ((name, args): Call) : Result<CommandResult, LigatureError> =
+    evalElement local modules variables args name
 
-and evalQuote (commands: Commands) (variables: Variables) (quote: Quote) : Result<CommandResult, LigatureError> =
+and evalQuote (local: Module) (modules: Modules) (variables: Variables) (quote: Quote) : Result<CommandResult, LigatureError> =
     match rewriteQuote quote with
     | Ok quote ->
         match quote with
         | [] -> failwith "TODO"
-        | [ Any.Element name ] -> evalElement commands variables [] name
+        | [ Any.Element name ] -> evalElement local modules variables [] name
         | _ ->
             match quote.Head with
-            | Any.Element name -> evalElement commands variables quote.Tail name
+            | Any.Element name -> evalElement local modules variables quote.Tail name
             | _ -> failwith "TODO"
     | _ -> failwith "TODO"
 

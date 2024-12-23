@@ -5,11 +5,14 @@
 module Wander.Lib
 
 open FSharpPlus
+open Ligature.Model
 
 let stdCommands =
-    Commands.Core.coreCommands
-    |> Map.union Commands.Assert.assertCommands
-    |> Map.union Commands.Bool.boolLib
-    |> Map.union Commands.Network.networkCommands
-    |> Map.union Commands.TinyDL.tinyDLCommands
-    |> Map.union Commands.IO.ioCommands
+    Map.ofList [
+        (Element "core", Commands.Core.coreCommands)
+        (Element "assert", Commands.Assert.assertCommands)
+        (Element "bool", Commands.Bool.boolLib)
+        (Element "network", Commands.Network.networkCommands)
+        (Element "tinydl", Commands.TinyDL.tinyDLCommands)
+        (Element "io", Commands.IO.ioCommands)
+    ]

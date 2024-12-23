@@ -12,14 +12,14 @@ let assertEqualCommand: Command =
     { Name = Element "assert-equal"
       Doc = "Check that two values are equal."
       Eval =
-        fun (commands: Commands) variables (arguments: Arguments) ->
+        fun local (modules: Modules) variables (arguments: Arguments) ->
             match arguments with
             | [ first; second ] ->
                 let first =
                     match first with
                     | Any.Quote quote ->
-                        match evalQuote commands variables quote with
-                        | Ok((Some(res), _, _)) -> res
+                        match evalQuote local modules variables quote with
+                        | Ok((Some(res), _, _, _)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -31,8 +31,8 @@ let assertEqualCommand: Command =
                 let second =
                     match second with
                     | Any.Quote quote ->
-                        match evalQuote commands variables quote with
-                        | Ok((Some(res), _, _)) -> res
+                        match evalQuote local modules variables quote with
+                        | Ok((Some(res), _, _, _)) -> res
                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -42,7 +42,7 @@ let assertEqualCommand: Command =
                     | _ -> second
 
                 if first = second then
-                    Ok((Some(Any.Element(Element "Sucess!")), commands, variables))
+                    Ok((Some(Any.Element(Element "Sucess!")), local, modules, variables))
                 else
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
@@ -51,12 +51,12 @@ let assertFailCommand: Command =
     { Name = Element "assert-fail"
       Doc = "Check that a call results in an error."
       Eval =
-        fun (commands: Commands) variables (arguments: Arguments) ->
+        fun local (modules: Modules) variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Quote quote ] ->
-                match evalQuote commands variables quote with
+                match evalQuote local modules variables quote with
                 | Ok(_) -> error "assert-fail call didn't result in error." None
-                | Error _ -> Ok((Some(Any.Network Set.empty), commands, variables))
+                | Error _ -> Ok((Some(Any.Network Set.empty), local, modules, variables))
             | args -> error $"assert-fail passed illegal arguments - {args}" None }
 
 let assertCommands =

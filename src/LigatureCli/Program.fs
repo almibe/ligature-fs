@@ -11,12 +11,12 @@ open Wander.Model
 [<EntryPoint>]
 let main (args: string[]) =
     let dir = System.IO.Directory.GetCurrentDirectory()
-    let file = $"{dir}\\{args[0]}"
+    let file = $"{dir}/{args[0]}"
     let script = System.IO.File.ReadAllText(file)
 
-    match run stdCommands (emptyVariables ()) script with
-    | Ok(Some(res)) -> printfn $"{(prettyPrint res)}"
-    | Ok(None) -> printfn "--no result--"
+    match run stdCommands emptyVariables script with
+    | Ok(Some(res), _, _) -> printfn $"{(prettyPrint res)}"
+    | Ok(None, _, _) -> printfn "--no result--"
     | Error err -> printfn $"{err.UserMessage}"
 
     0

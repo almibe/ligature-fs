@@ -8,7 +8,6 @@ open Ligature.Model
 
 type Quote = Any list
 
-//TODO move this to Wander?
 and [<RequireQualifiedAccess>] Any =
     | Literal of string
     | Variable of Variable
@@ -17,16 +16,19 @@ and [<RequireQualifiedAccess>] Any =
     | Network of Network
     | ValueSet of ValueSet
     | ResultSet of ResultSet
+    //| Module of Module
     | Pipe
 
-type CommandResult = (Any option * Commands * Variables)
+and CommandResult = (Any option * Module * Modules * Variables)
+
+and Module = Map<Element, Command>
+
+and Modules = Map<Element, Module>
 
 and Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
-
-and Commands = Map<Element, Command>
+      Eval: Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
 
 and Call = Element * Arguments
 

@@ -68,15 +68,15 @@ let inferCommand: Command =
     { Name = Element("infer")
       Doc = "Infer all supported tiny-dl relations."
       Eval =
-        fun commands variables arguments ->
+        fun local modules variables arguments ->
             match arguments with
             | [ description; network ] ->
                 let description =
                     match description with
                     | Any.Network n -> n
                     | Any.Quote q ->
-                        match evalQuote commands variables q with
-                        | Ok((Some(Any.Network n), commands, variables)) -> n
+                        match evalQuote local modules variables q with
+                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | Any.Variable v ->
                         match variables.TryFind v with
@@ -92,13 +92,13 @@ let inferCommand: Command =
                         | Some(Any.Network n) -> n
                         | _ -> failwith "TODO"
                     | Any.Quote q ->
-                        match evalQuote commands variables q with
-                        | Ok((Some(Any.Network n)), commands, variables) -> n
+                        match evalQuote local modules variables q with
+                        | Ok((Some(Any.Network n)), local, modules, variables) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok((Some(Any.Network res), commands, variables))
+                | Ok res -> Ok((Some(Any.Network res), local, modules, variables))
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None }
 
