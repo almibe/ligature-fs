@@ -14,7 +14,7 @@ let idCommand: Command =
       Eval =
         fun _ _ arguments ->
             match arguments with
-            | [ value ] -> Ok(Some(value))
+            | [ value ] -> Ok(SimpleResult(Some(value)))
             | _ -> failwith "id requires 1 argument." }
 
 let readCommand: Command =
@@ -25,7 +25,7 @@ let readCommand: Command =
             match arguments with
             | [ Any.Variable(name) ] ->
                 if variables.ContainsKey name then
-                    Ok(Some variables[name])
+                    Ok(SimpleResult(Some variables[name]))
                 else
                     error "Could not read variable" None
             | _ -> error "Illegal call to read." None }
@@ -42,7 +42,7 @@ let evalCommand: Command =
 let ignoreCommand: Command =
     { Name = Element("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
-      Eval = fun _ networks _ -> Ok(None) }
+      Eval = fun _ networks _ -> Ok(SimpleResult(None)) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
 //     Element($"{arguments} -> {result}")
@@ -79,7 +79,7 @@ let docsCommand: Command =
 
                 ())
 
-            Ok(Some(Any.Network docs)) }
+            Ok(SimpleResult(Some(Any.Network docs))) }
 
 // let containsCommand: Command =
 //     { Name = Element "contains"
@@ -121,7 +121,7 @@ let resultSetCommand: Command =
                     | _ -> failwith "TODO")
                 arguments
 
-            Ok(Some(Any.ResultSet resultSet)) }
+            Ok(SimpleResult(Some(Any.ResultSet resultSet))) }
 
 let coreCommands =
     (Map.ofList

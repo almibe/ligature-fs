@@ -19,7 +19,8 @@ let assertEqualCommand: Command =
                     match first with
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(res)) -> res
+                        | Ok(SimpleResult(Some(res))) -> res
+                        | Ok(FullResult(Some(res), _, _)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -32,7 +33,8 @@ let assertEqualCommand: Command =
                     match second with
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(res)) -> res
+                        | Ok(SimpleResult(Some(res))) -> res
+                        | Ok(FullResult(Some(res), _, _)) -> res
                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -42,7 +44,7 @@ let assertEqualCommand: Command =
                     | _ -> second
 
                 if first = second then
-                    Ok(Some(Any.Element(Element "Sucess!")))
+                    Ok(SimpleResult(Some(Any.Element(Element "Sucess!"))))
                 else
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
@@ -56,7 +58,7 @@ let assertFailCommand: Command =
             | [ Any.Quote quote ] ->
                 match evalQuote commands networks quote with
                 | Ok(_) -> error "assert-fail call didn't result in error." None
-                | Error _ -> Ok(Some(Any.Network Set.empty))
+                | Error _ -> Ok(SimpleResult(Some(Any.Network Set.empty)))
             | args -> error $"assert-fail passed illegal arguments - {args}" None }
 
 let assertCommands =

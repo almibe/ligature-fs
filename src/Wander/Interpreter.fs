@@ -12,7 +12,7 @@ let rec evalElement
     (variables: Variables)
     (arguments: Any list)
     (Element(name))
-    : Result<Any option, LigatureError> =
+    : Result<CommandResult, LigatureError> =
     match commands.TryFind(Element(name)) with
     | Some(command) -> command.Eval commands variables arguments
     | None -> error $"Could not find name {name}" None
@@ -23,7 +23,8 @@ and processArguments commands networks (arguments: Any list) : Any list =
             match argument with
             | Any.Quote quote ->
                 match evalQuote commands networks quote with
-                | Ok(Some(value)) -> value
+                | Ok(SimpleResult (Some(value))) -> value
+                | Ok(FullResult (Some(value), _, _)) -> value
                 | _ -> Any.Network Set.empty
             | value -> value)
         arguments
@@ -47,11 +48,11 @@ and addClosure (closureDefinition: ClosureDefinition) (commands: Commands) : Com
                     failwith "TODO" }
         commands
 
-and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<Any option, LigatureError> =
+and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<CommandResult, LigatureError> =
     match script with
-    | [] -> Ok None
+    | [] -> Ok(SimpleResult None)
     | [ Expression.Call head ] -> evalCall commands variables head
-    | [ _ ] -> Ok None
+    | [ _ ] -> Ok (SimpleResult None)
     | Expression.Call head :: tail ->
         match evalCall commands variables head with
         | Ok _ -> evalScript commands variables tail
@@ -59,15 +60,15 @@ and evalScript (commands: Commands) (variables: Variables) (script: Script) : Re
     | Expression.AnyAssignment(variable, value) :: tail -> evalScript commands (Map.add variable value variables) tail
     | Expression.CallAssignment(variable, call) :: tail ->
         match evalCall commands variables call with
-        | Ok(Some value) -> evalScript commands (Map.add variable value variables) tail
+        | Ok(SimpleResult (Some value)) -> evalScript commands (Map.add variable value variables) tail
         | _ -> failwith "TODO"
     | Expression.ClosureDefinition closureDefinition :: tail ->
         evalScript (addClosure closureDefinition commands) variables tail
 
-and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<Any option, LigatureError> =
+and evalCall (commands: Commands) (variables: Variables) ((name, args): Call) : Result<CommandResult, LigatureError> =
     evalElement commands variables args name
 
-and evalQuote (commands: Commands) (variables: Variables) (quote: Quote) : Result<Any option, LigatureError> =
+and evalQuote (commands: Commands) (variables: Variables) (quote: Quote) : Result<CommandResult, LigatureError> =
     match rewriteQuote quote with
     | Ok quote ->
         match quote with

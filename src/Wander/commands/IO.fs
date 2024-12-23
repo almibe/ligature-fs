@@ -12,13 +12,14 @@ let openLocalDependencyCommand: Command =
     { Name = Element("open-local-dependency")
       Doc = "Open a local dependency."
       Eval =
-        fun _ _ arguments ->
+        fun commands variables arguments ->
             match arguments with
-            | [ Any.Literal value ] -> 
+            | [ Any.Literal filePath ] ->
+                let script = System.IO.File.ReadAllText(filePath)
+                
                 failwith "TODO"
-                //Ok(Some(value))
+            //Ok(Some(value))
             | _ -> failwith "id requires 1 argument." }
 
 let ioCommands =
-    (Map.ofList
-        [ (openLocalDependencyCommand.Name, openLocalDependencyCommand) ])
+    (Map.ofList [ (openLocalDependencyCommand.Name, openLocalDependencyCommand) ])

@@ -10,7 +10,7 @@ open Ligature.Model
 open Interpreter
 open Wander.Model
 
-let run (commands: Commands) (variables: Variables) (input: string) : Result<Any option, LigatureError> =
+let run (commands: Commands) (variables: Variables) (input: string) : Result<CommandResult, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->

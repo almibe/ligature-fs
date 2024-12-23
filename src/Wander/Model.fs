@@ -18,10 +18,14 @@ and [<RequireQualifiedAccess>] Any =
     | ResultSet of ResultSet
     | Pipe
 
-type Command =
+type CommandResult =
+    | SimpleResult of Any option
+    | FullResult of (Any option * Commands * Variables)
+
+and Command =
     { Name: Element
       Doc: string
-      Eval: Commands -> Variables -> Arguments -> Result<Any option, LigatureError> }
+      Eval: Commands -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
 
 and Commands = Map<Element, Command>
 

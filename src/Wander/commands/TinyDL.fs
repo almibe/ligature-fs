@@ -48,6 +48,16 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                             Set.add
                                 (ElementPattern.Element second, ElementPattern.Element firstRole, Value.Element first)
                                 res
+                    | (ElementPattern.Element roleName,
+                       ElementPattern.Element(Element ":"),
+                       Value.Element(Element "tdl.Is-Symmetrical")),
+                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                        role = roleName
+                        ->
+                        res <-
+                            Set.add
+                                (ElementPattern.Element second, ElementPattern.Element role, Value.Element first)
+                                res
                     | _ -> ())
                 aBox)
         tBox
@@ -66,7 +76,7 @@ let inferCommand: Command =
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | Any.Variable v ->
                         match variables.TryFind v with
@@ -83,12 +93,12 @@ let inferCommand: Command =
                         | _ -> failwith "TODO"
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok(Some(Any.Network res))
+                | Ok res -> Ok(SimpleResult(Some(Any.Network res)))
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None }
 

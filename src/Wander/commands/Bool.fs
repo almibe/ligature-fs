@@ -15,8 +15,8 @@ let notFunction =
             match args with
             | [ Any.Element(value) ] ->
                 match value with
-                | Element("true") -> Ok(Some(Any.Element(Element("false"))))
-                | Element("false") -> Ok(Some(Any.Element(Element("true"))))
+                | Element("true") -> Ok(SimpleResult(Some(Any.Element(Element("false")))))
+                | Element("false") -> Ok(SimpleResult(Some(Any.Element(Element("true")))))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

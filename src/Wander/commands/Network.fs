@@ -77,12 +77,12 @@ let unionCommand =
                         | _ -> failwith "TODO"
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(Any.Network network)) -> network
+                        | Ok(SimpleResult(Some(Any.Network network))) -> network
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let result = Set.union left right |> Any.Network
-                Ok(Some(result))
+                Ok(SimpleResult(Some(result)))
             | args -> failwith $"TODO - {args}" }
 
 let countCommand =
@@ -93,12 +93,13 @@ let countCommand =
             match arguments with
             | [ Any.Variable variable ] ->
                 match variables.TryFind variable with
-                | Some(Any.Network network) -> Ok(Some(Any.Element(Element((Set.count network).ToString()))))
+                | Some(Any.Network network) -> Ok(SimpleResult(Some(Any.Element(Element((Set.count network).ToString())))))
                 | _ -> failwith "TODO"
-            | [ Any.Network network ] -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
+            | [ Any.Network network ] -> Ok(SimpleResult(Some(Any.Element(Element(network.Count.ToString())))))
             | [ Any.Quote quote ] ->
                 match evalQuote commands variables quote with
-                | Ok(Some(Any.Network network)) -> Ok(Some(Any.Element(Element(network.Count.ToString()))))
+                | Ok(SimpleResult(Some(Any.Network network))) -> Ok(SimpleResult(Some(Any.Element(Element(network.Count.ToString())))))
+                | Ok(FullResult((Some(Any.Network network)), _, _)) -> Ok(SimpleResult(Some(Any.Element(Element(network.Count.ToString())))))
                 | _ -> failwith "TODO"
             | args -> failwith $"TODO - {args}" }
 
@@ -110,7 +111,7 @@ let minusCommand =
             match arguments with
             | [ Any.Network(left); Any.Network(right) ] ->
                 let result = Set.difference left right |> Any.Network
-                Ok(Some(result))
+                Ok(SimpleResult(Some(result)))
             | _ -> failwith "TODO" }
 
 let queryCommand =
@@ -156,12 +157,12 @@ let queryCommand =
                             failwith "TODO"
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let results = query pattern template source
-                Ok(Some(Any.Network results))
+                Ok(SimpleResult(Some(Any.Network results)))
             | _ -> error "Invalid call to query" None }
 
 let matchCommand =
@@ -190,14 +191,14 @@ let matchCommand =
                     | Any.Literal l -> Value.Literal l
                     | _ -> failwith "TODO"
 
-                Ok(Some(Any.ResultSet(singleMatch (element, attribute, value) network)))
+                Ok(SimpleResult(Some(Any.ResultSet(singleMatch (element, attribute, value) network))))
             | [ pattern; network ] ->
                 let pattern =
                     match pattern with
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
@@ -206,11 +207,11 @@ let matchCommand =
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
-                networkMatch pattern network |> Any.ResultSet |> Some |> Ok
+                networkMatch pattern network |> Any.ResultSet |> Some |> SimpleResult |> Ok
 
             | _ -> failwith "TODO" }
 
@@ -223,12 +224,12 @@ let applyCommand =
             | [ Any.Network network; Any.Quote q ] ->
                 let resultSet =
                     match evalQuote commands variables q with
-                    | Ok(Some(Any.ResultSet res)) -> res
+                    | Ok(SimpleResult(Some(Any.ResultSet res))) -> res
                     | Ok _ -> failwith "TODO"
                     | Error err -> failwith "TODO"
 
                 let res = apply network resultSet
-                Ok(Some(Any.Network res))
+                Ok(SimpleResult(Some(Any.Network res)))
             | _ -> failwith "TODO" }
 
 let filterCommand =
@@ -250,7 +251,7 @@ let filterCommand =
                             failwith "TODO"
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
@@ -267,12 +268,12 @@ let filterCommand =
                             failwith "TODO"
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(Some(Any.Network n)) -> n
+                        | Ok(SimpleResult(Some(Any.Network n))) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok(Some(Any.Network results))
+                Ok(SimpleResult(Some(Any.Network results)))
             | _ -> error "Invalid call to filter" None }
 
 let networkCommands: Map<Element, Command> =
