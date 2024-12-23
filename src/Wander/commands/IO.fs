@@ -7,6 +7,7 @@ module Wander.Commands.IO
 open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
+open Wander.Main
 
 let openLocalDependencyCommand: Command =
     { Name = Element("open-local-dependency")
@@ -16,8 +17,10 @@ let openLocalDependencyCommand: Command =
             match arguments with
             | [ Any.Literal filePath ] ->
                 let script = System.IO.File.ReadAllText(filePath)
-                
-                failwith "TODO"
+
+                match run commands variables script with
+                | Ok((_, commands, variables)) -> Ok((None, commands, variables))
+                | _ -> failwith "TODO"
             //Ok(Some(value))
             | _ -> failwith "id requires 1 argument." }
 

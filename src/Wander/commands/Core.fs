@@ -12,20 +12,20 @@ let idCommand: Command =
     { Name = Element("id")
       Doc = "Return the value passed."
       Eval =
-        fun _ _ arguments ->
+        fun commands variables arguments ->
             match arguments with
-            | [ value ] -> Ok(SimpleResult(Some(value)))
+            | [ value ] -> Ok((Some(value), commands, variables))
             | _ -> failwith "id requires 1 argument." }
 
 let readCommand: Command =
     { Name = Element("read")
       Doc = "Read the value of a given variable."
       Eval =
-        fun _ variables arguments ->
+        fun commands variables arguments ->
             match arguments with
             | [ Any.Variable(name) ] ->
                 if variables.ContainsKey name then
-                    Ok(SimpleResult(Some variables[name]))
+                    Ok((Some variables[name], commands, variables))
                 else
                     error "Could not read variable" None
             | _ -> error "Illegal call to read." None }
@@ -42,7 +42,7 @@ let evalCommand: Command =
 let ignoreCommand: Command =
     { Name = Element("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
-      Eval = fun _ networks _ -> Ok(SimpleResult(None)) }
+      Eval = fun commands variables _ -> Ok(None, commands, variables) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
 //     Element($"{arguments} -> {result}")
@@ -65,7 +65,7 @@ let docsCommand: Command =
     { Name = Element("docs")
       Doc = "Create a network that contains documentation for the available commands."
       Eval =
-        fun commands networks _ ->
+        fun commands variables _ ->
             let mutable docs: Network = Set.empty
 
             Map.toList commands
@@ -79,7 +79,7 @@ let docsCommand: Command =
 
                 ())
 
-            Ok(SimpleResult(Some(Any.Network docs))) }
+            Ok((Some(Any.Network docs), commands, variables)) }
 
 // let containsCommand: Command =
 //     { Name = Element "contains"
@@ -98,7 +98,7 @@ let resultSetCommand: Command =
     { Name = Element "result-set"
       Doc = "Construct a result set value."
       Eval =
-        fun _ _ arguments ->
+        fun commands variables arguments ->
             let mutable resultSet = Set.empty
 
             List.iter
@@ -121,7 +121,7 @@ let resultSetCommand: Command =
                     | _ -> failwith "TODO")
                 arguments
 
-            Ok(SimpleResult(Some(Any.ResultSet resultSet))) }
+            Ok((Some(Any.ResultSet resultSet), commands, variables)) }
 
 let coreCommands =
     (Map.ofList

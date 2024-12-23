@@ -11,12 +11,12 @@ let notFunction =
     { Name = Element("Bool.not")
       Doc = "Boolean not"
       Eval =
-        (fun _ _ args ->
+        (fun commands variables args ->
             match args with
             | [ Any.Element(value) ] ->
                 match value with
-                | Element("true") -> Ok(SimpleResult(Some(Any.Element(Element("false")))))
-                | Element("false") -> Ok(SimpleResult(Some(Any.Element(Element("true")))))
+                | Element("true") -> Ok((Some(Any.Element(Element("false"))), commands, variables))
+                | Element("false") -> Ok((Some(Any.Element(Element("true"))), commands, variables))
                 | _ -> error "Invalid argument passed to not." None
             | _ -> error "Invalid call to not function." None) }
 

@@ -76,7 +76,7 @@ let inferCommand: Command =
                     | Any.Network n -> n
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(SimpleResult(Some(Any.Network n))) -> n
+                        | Ok((Some(Any.Network n), commands, variables)) -> n
                         | _ -> failwith "TODO"
                     | Any.Variable v ->
                         match variables.TryFind v with
@@ -93,12 +93,12 @@ let inferCommand: Command =
                         | _ -> failwith "TODO"
                     | Any.Quote q ->
                         match evalQuote commands variables q with
-                        | Ok(SimpleResult(Some(Any.Network n))) -> n
+                        | Ok((Some(Any.Network n)), commands, variables) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok(SimpleResult(Some(Any.Network res)))
+                | Ok res -> Ok((Some(Any.Network res), commands, variables))
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None }
 

@@ -23,8 +23,7 @@ and processArguments commands networks (arguments: Any list) : Any list =
             match argument with
             | Any.Quote quote ->
                 match evalQuote commands networks quote with
-                | Ok(SimpleResult (Some(value))) -> value
-                | Ok(FullResult (Some(value), _, _)) -> value
+                | Ok((Some(value), _, _)) -> value
                 | _ -> Any.Network Set.empty
             | value -> value)
         arguments
@@ -50,17 +49,16 @@ and addClosure (closureDefinition: ClosureDefinition) (commands: Commands) : Com
 
 and evalScript (commands: Commands) (variables: Variables) (script: Script) : Result<CommandResult, LigatureError> =
     match script with
-    | [] -> Ok(SimpleResult None)
+    | [] -> Ok(None, commands, variables)
     | [ Expression.Call head ] -> evalCall commands variables head
-    | [ _ ] -> Ok (SimpleResult None)
     | Expression.Call head :: tail ->
         match evalCall commands variables head with
-        | Ok _ -> evalScript commands variables tail
+        | Ok(_, commands, variables) -> evalScript commands variables tail
         | Error err -> Error err
     | Expression.AnyAssignment(variable, value) :: tail -> evalScript commands (Map.add variable value variables) tail
     | Expression.CallAssignment(variable, call) :: tail ->
         match evalCall commands variables call with
-        | Ok(SimpleResult (Some value)) -> evalScript commands (Map.add variable value variables) tail
+        | Ok((Some value, commands, variables)) -> evalScript commands (Map.add variable value variables) tail
         | _ -> failwith "TODO"
     | Expression.ClosureDefinition closureDefinition :: tail ->
         evalScript (addClosure closureDefinition commands) variables tail

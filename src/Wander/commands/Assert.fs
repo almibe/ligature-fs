@@ -19,8 +19,7 @@ let assertEqualCommand: Command =
                     match first with
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(SimpleResult(Some(res))) -> res
-                        | Ok(FullResult(Some(res), _, _)) -> res
+                        | Ok((Some(res), _, _)) -> res
                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -33,8 +32,7 @@ let assertEqualCommand: Command =
                     match second with
                     | Any.Quote quote ->
                         match evalQuote commands variables quote with
-                        | Ok(SimpleResult(Some(res))) -> res
-                        | Ok(FullResult(Some(res), _, _)) -> res
+                        | Ok((Some(res), _, _)) -> res
                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
                     | Any.Variable variable ->
@@ -44,7 +42,7 @@ let assertEqualCommand: Command =
                     | _ -> second
 
                 if first = second then
-                    Ok(SimpleResult(Some(Any.Element(Element "Sucess!"))))
+                    Ok((Some(Any.Element(Element "Sucess!")), commands, variables))
                 else
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
@@ -53,12 +51,12 @@ let assertFailCommand: Command =
     { Name = Element "assert-fail"
       Doc = "Check that a call results in an error."
       Eval =
-        fun (commands: Commands) networks (arguments: Arguments) ->
+        fun (commands: Commands) variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Quote quote ] ->
-                match evalQuote commands networks quote with
+                match evalQuote commands variables quote with
                 | Ok(_) -> error "assert-fail call didn't result in error." None
-                | Error _ -> Ok(SimpleResult(Some(Any.Network Set.empty)))
+                | Error _ -> Ok((Some(Any.Network Set.empty), commands, variables))
             | args -> error $"assert-fail passed illegal arguments - {args}" None }
 
 let assertCommands =
