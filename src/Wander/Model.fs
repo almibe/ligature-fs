@@ -15,6 +15,7 @@ and [<RequireQualifiedAccess>] Any =
     | Quote of Quote
     | Element of Element
     | Network of Network
+    | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Pipe
 

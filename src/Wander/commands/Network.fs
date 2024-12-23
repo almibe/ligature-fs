@@ -223,14 +223,16 @@ let applyCommand =
         fun commands variables arguments ->
             match arguments with
             | [ Any.Network network; Any.Quote q ] ->
-                let resultSet =
-                    match evalQuote commands variables q with
-                    | Ok((Some(Any.ResultSet res), commands, variables)) -> res
-                    | Ok _ -> failwith "TODO"
-                    | Error err -> failwith "TODO"
+                match evalQuote commands variables q with
+                | Ok((Some(Any.ResultSet res), commands, variables)) ->
+                    let res = apply network res
+                    Ok((Some(Any.Network res), commands, variables))
+                | Ok((Some(Any.ValueSet res), commands, variables)) ->
+                    let res = applyValueSet network res
+                    Ok((Some(Any.Network res), commands, variables))
+                | Ok _ -> failwith "TODO"
+                | Error err -> failwith "TODO"
 
-                let res = apply network resultSet
-                Ok((Some(Any.Network res), commands, variables))
             | _ -> failwith "TODO" }
 
 let filterCommand =

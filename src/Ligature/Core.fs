@@ -171,7 +171,7 @@ let networkMatch (pattern: Network) (network: Network) : ResultSet =
     else
         List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
 
-let applySingleResult (pattern: Network) (result: Map<Variable, Value>) : Network =
+let applyValueSet (pattern: Network) (result: ValueSet) : Network =
     Set.map
         (fun (e, a, v) ->
             let element =
@@ -212,7 +212,7 @@ let applySingleResult (pattern: Network) (result: Map<Variable, Value>) : Networ
         pattern
 
 let apply (pattern: Network) (resultSet: ResultSet) : Network =
-    Set.fold (fun state result -> Set.union (applySingleResult pattern result) state) Set.empty resultSet
+    Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
 let query (pattern: Network) (template: Network) (source: Network) : Network =
     let rs = networkMatch pattern source

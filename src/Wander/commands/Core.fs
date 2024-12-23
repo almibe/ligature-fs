@@ -39,6 +39,46 @@ let evalCommand: Command =
             | [ Any.Quote(quote) ] -> evalQuote commands variables quote
             | _ -> error "Illegal call to read." None }
 
+let foldCommand: Command =
+    { Name = Element("fold")
+      Doc = "Perform a fold on a ResultSet.\nfold -> quote -> initialNetwork -> resultSet"
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ quote; initialNetwork; resultSet ] ->
+                let quote =
+                    match quote with
+                    | Any.Quote q -> q
+                    | _ -> failwith "TODO"
+
+                let initialNetwork =
+                    match initialNetwork with
+                    | Any.Network n -> n
+                    | _ -> failwith "TODO"
+
+                let resultSet =
+                    match resultSet with
+                    | Any.ResultSet rs -> rs
+                    | Any.Quote q ->
+                        match evalQuote commands variables q with
+                        | Ok(Some(Any.ResultSet rs), _, _) -> rs
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let res =
+                    Set.fold
+                        (fun s x ->
+                            let variables = Map.add (Variable "?_") (Any.ValueSet x) variables
+
+                            match evalQuote commands variables quote with
+                            | Ok(Some(Any.Network res), _, _) -> Set.union s res
+                            | _ -> failwith "TODO - error in fold")
+                        initialNetwork
+                        resultSet
+
+                Ok((Some(Any.Network res)), commands, variables)
+            | _ -> error "Illegal call to fold." None }
+
 let ignoreCommand: Command =
     { Name = Element("ignore")
       Doc = "Ignore any arguments passed and return working state unchanged."
@@ -130,5 +170,6 @@ let coreCommands =
           (ignoreCommand.Name, ignoreCommand)
           (readCommand.Name, readCommand)
           (resultSetCommand.Name, resultSetCommand)
+          (foldCommand.Name, foldCommand)
           // (containsCommand.Name, containsCommand)
           (evalCommand.Name, evalCommand) ])

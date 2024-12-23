@@ -34,7 +34,7 @@ module Main =
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
                                               match run stdCommands emptyVariables (script.Current) with
-                                              | Ok(Some(res)) -> result.Set $"{(Wander.Model.prettyPrint res)}"
+                                              | Ok(Some(res), _, _) -> result.Set $"{(Wander.Model.prettyPrint res)}"
                                               | Ok _ -> result.Set("--nothing--")
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create

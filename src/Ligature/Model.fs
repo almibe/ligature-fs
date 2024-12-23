@@ -31,7 +31,9 @@ type ConceptName = Element
 
 type Variable = Variable of string
 
-type ResultSet = Set<Map<Variable, Value>>
+type ResultSet = Set<ValueSet>
+
+and ValueSet = Map<Variable, Value>
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element

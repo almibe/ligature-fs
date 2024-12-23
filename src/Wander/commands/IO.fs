@@ -6,7 +6,6 @@ module Wander.Commands.IO
 
 open Ligature.Model
 open Wander.Model
-open Wander.Interpreter
 open Wander.Main
 
 let openLocalDependencyCommand: Command =
@@ -22,7 +21,26 @@ let openLocalDependencyCommand: Command =
                 | Ok((_, commands, variables)) -> Ok((None, commands, variables))
                 | _ -> failwith "TODO"
             //Ok(Some(value))
-            | _ -> failwith "id requires 1 argument." }
+            | _ -> failwith "open-local-dependency requires 1 argument." }
+
+let openLocalLibraryCommand: Command =
+    { Name = Element("open-local-library")
+      Doc = "Open a local dependency that is in the $WANDER_LIBS directory."
+      Eval =
+        fun commands variables arguments ->
+            match arguments with
+            | [ Any.Literal filePath ] ->
+                let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+                let script = System.IO.File.ReadAllText(path + "/" + filePath)
+
+                match run commands variables script with
+                | Ok((_, commands, variables)) -> Ok((None, commands, variables))
+                | _ -> failwith "TODO"
+            //Ok(Some(value))
+            | _ -> failwith "open-local-library requires 1 argument." }
+
 
 let ioCommands =
-    (Map.ofList [ (openLocalDependencyCommand.Name, openLocalDependencyCommand) ])
+    (Map.ofList
+        [ (openLocalDependencyCommand.Name, openLocalDependencyCommand)
+          (openLocalLibraryCommand.Name, openLocalLibraryCommand) ])
