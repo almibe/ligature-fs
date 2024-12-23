@@ -12,9 +12,7 @@ open Wander.Interpreter
 let isCompleteCommand =
     { Name = Element("is-complete")
       Doc = "Determine if a Network is complete."
-      Eval =
-        fun _ _ _ _ ->
-            failwith "TODO" }
+      Eval = fun _ _ _ _ -> failwith "TODO" }
 //             match arguments with
 //             // | [ Value.Element(Element(networkName)) ] ->
 //             //     let value = store.IsComplete networkName
@@ -68,7 +66,8 @@ let countCommand =
                 | Some(Any.Network network) ->
                     Ok((Some(Any.Element(Element((Set.count network).ToString()))), local, modules, variables))
                 | _ -> failwith "TODO"
-            | [ Any.Network network ] -> Ok((Some(Any.Element(Element(network.Count.ToString()))), local, modules, variables))
+            | [ Any.Network network ] ->
+                Ok((Some(Any.Element(Element(network.Count.ToString()))), local, modules, variables))
             | [ Any.Quote quote ] ->
                 match evalQuote local modules variables quote with
                 | Ok((Some(Any.Network network), local, modules, variables)) ->

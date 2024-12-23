@@ -8,13 +8,29 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
+let importCommand: Command =
+    { Name = Element "import"
+      Doc = "Import all of the commands in a given module into the local namespace."
+      Eval =
+        fun local modules variables arguments ->
+            let mutable local = local
+
+            match arguments with
+            | [ Any.Element importName ] ->
+                match modules.TryFind importName with
+                | Some res ->
+                    Map.iter (fun name command -> local <- Map.add name command local) res
+                    Ok(None, local, modules, variables)
+                | None -> failwith "TODO"
+            | _ -> error "Illegal call to import." None }
+
 let idCommand: Command =
     { Name = Element("id")
       Doc = "Return the value passed."
       Eval =
         fun local modules variables arguments ->
             match arguments with
-            | [ value ] -> Ok((Some(value), local, modules, variables))
+            | [ value ] -> Ok(Some(value), local, modules, variables)
             | _ -> failwith "id requires 1 argument." }
 
 let readCommand: Command =
@@ -114,10 +130,11 @@ let docsCommand: Command =
                 |> List.iter (fun (Element name, command) ->
                     docs <-
                         Set.add
-                            (ElementPattern.Element (Element $"{moduleName}.{name}"),
-                            ElementPattern.Element(Element("docString")),
-                            Value.Literal(command.Doc))
+                            (ElementPattern.Element(Element $"{moduleName}.{name}"),
+                             ElementPattern.Element(Element("docString")),
+                             Value.Literal(command.Doc))
                             docs
+
                     ()))
 
             Ok((Some(Any.Network docs), local, modules, variables)) }

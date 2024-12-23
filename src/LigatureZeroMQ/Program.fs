@@ -16,9 +16,9 @@ open Wander.Model
 let rec serve (server: ResponseSocket) =
     let script = server.ReceiveFrameString()
 
-    match run stdCommands (emptyVariables ()) script with
-    | Ok(Some(res)) -> server.SendFrame(prettyPrint res)
-    | Ok(None) -> server.SendFrame("{}")
+    match run defaultLocal stdModules emptyVariables script with
+    | Ok(Some(res), _, _, _) -> server.SendFrame(prettyPrint res)
+    | Ok(None, _, _, _) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)
 
     serve server

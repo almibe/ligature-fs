@@ -6,13 +6,15 @@ module Wander.Lib
 
 open FSharpPlus
 open Ligature.Model
+open Wander.Commands.Core
 
-let stdCommands =
-    Map.ofList [
-        (Element "core", Commands.Core.coreCommands)
-        (Element "assert", Commands.Assert.assertCommands)
-        (Element "bool", Commands.Bool.boolLib)
-        (Element "network", Commands.Network.networkCommands)
-        (Element "tinydl", Commands.TinyDL.tinyDLCommands)
-        (Element "io", Commands.IO.ioCommands)
-    ]
+let defaultLocal = Map.ofList [ (importCommand.Name, importCommand) ]
+
+let stdModules =
+    Map.ofList
+        [ (Element "core", Commands.Core.coreCommands)
+          (Element "assert", Commands.Assert.assertCommands)
+          (Element "bool", Commands.Bool.boolLib)
+          (Element "network", Commands.Network.networkCommands)
+          (Element "tinydl", Commands.TinyDL.tinyDLCommands)
+          (Element "io", Commands.IO.ioCommands) ]

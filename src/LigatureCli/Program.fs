@@ -14,9 +14,9 @@ let main (args: string[]) =
     let file = $"{dir}/{args[0]}"
     let script = System.IO.File.ReadAllText(file)
 
-    match run stdCommands emptyVariables script with
-    | Ok(Some(res), _, _) -> printfn $"{(prettyPrint res)}"
-    | Ok(None, _, _) -> printfn "--no result--"
+    match run defaultLocal stdModules emptyVariables script with
+    | Ok(Some(res), _, _, _) -> printfn $"{(prettyPrint res)}"
+    | Ok(None, _, _, _) -> printfn "--no result--"
     | Error err -> printfn $"{err.UserMessage}"
 
     0

@@ -14,9 +14,9 @@ let rec evalElement
     (arguments: Any list)
     (Element(name))
     : Result<CommandResult, LigatureError> =
-        match local.TryFind(Element(name)) with
-        | Some(command) -> command.Eval local modules variables arguments
-        | None -> error $"Could not find name {name}" None
+    match local.TryFind(Element(name)) with
+    | Some(command) -> command.Eval local modules variables arguments
+    | None -> error $"Could not find name {name}" None
 
 and processArguments local commands networks (arguments: Any list) : Any list =
     List.map
@@ -48,7 +48,12 @@ and addClosure (closureDefinition: ClosureDefinition) (commands: Module) : Modul
                     failwith "TODO" }
         commands
 
-and evalScript (local: Module) (modules: Modules) (variables: Variables) (script: Script) : Result<CommandResult, LigatureError> =
+and evalScript
+    (local: Module)
+    (modules: Modules)
+    (variables: Variables)
+    (script: Script)
+    : Result<CommandResult, LigatureError> =
     match script with
     | [] -> Ok(None, local, modules, variables)
     | [ Expression.Call head ] -> evalCall local modules variables head
@@ -56,19 +61,30 @@ and evalScript (local: Module) (modules: Modules) (variables: Variables) (script
         match evalCall local modules variables head with
         | Ok(_, local, modules, variables) -> evalScript local modules variables tail
         | Error err -> Error err
-    | Expression.AnyAssignment(variable, value) :: tail -> evalScript local modules (Map.add variable value variables) tail
+    | Expression.AnyAssignment(variable, value) :: tail ->
+        evalScript local modules (Map.add variable value variables) tail
     | Expression.CallAssignment(variable, call) :: tail ->
         match evalCall local modules variables call with
-        | Ok((Some value, local, modules, variables)) -> evalScript local modules (Map.add variable value variables) tail
+        | Ok((Some value, local, modules, variables)) ->
+            evalScript local modules (Map.add variable value variables) tail
         | _ -> failwith "TODO"
-    | Expression.ClosureDefinition closureDefinition :: tail ->
-        failwith "TODO"
+    | Expression.ClosureDefinition closureDefinition :: tail -> failwith "TODO"
 //        evalScript (addClosure closureDefinition modules) variables tail
 
-and evalCall (local: Module) (modules: Modules) (variables: Variables) ((name, args): Call) : Result<CommandResult, LigatureError> =
+and evalCall
+    (local: Module)
+    (modules: Modules)
+    (variables: Variables)
+    ((name, args): Call)
+    : Result<CommandResult, LigatureError> =
     evalElement local modules variables args name
 
-and evalQuote (local: Module) (modules: Modules) (variables: Variables) (quote: Quote) : Result<CommandResult, LigatureError> =
+and evalQuote
+    (local: Module)
+    (modules: Modules)
+    (variables: Variables)
+    (quote: Quote)
+    : Result<CommandResult, LigatureError> =
     match rewriteQuote quote with
     | Ok quote ->
         match quote with
