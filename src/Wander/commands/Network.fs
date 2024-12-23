@@ -232,8 +232,17 @@ let applyCommand =
                     Ok((Some(Any.Network res), commands, variables))
                 | Ok _ -> failwith "TODO"
                 | Error err -> failwith "TODO"
-
-            | _ -> failwith "TODO" }
+            | [ Any.Network network; Any.Variable v ] ->
+                match Map.tryFind v variables with
+                | Some(Any.ResultSet res) ->
+                    let res = apply network res
+                    Ok((Some(Any.Network res), commands, variables))
+                | Some(Any.ValueSet res) ->
+                    let res = applyValueSet network res
+                    Ok((Some(Any.Network res), commands, variables))
+                | Some _ -> failwith "TODO"
+                | None -> failwith "TODO"
+            | args -> failwith $"TODO - unexpected args {args}" }
 
 let filterCommand =
     { Name = Element("filter")
