@@ -88,7 +88,8 @@ let foldCommand: Command =
 
                             match evalQuote local modules variables quote with
                             | Ok(Some(Any.Network res), _, _, _) -> Set.union s res
-                            | _ -> failwith "TODO - error in fold")
+                            | Ok(None, _, _, _) -> failwith "TODO"
+                            | Error err -> failwith $"TODO - error in fold - {err.UserMessage}")
                         initialNetwork
                         resultSet
 

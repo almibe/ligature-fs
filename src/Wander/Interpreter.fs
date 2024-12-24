@@ -67,9 +67,10 @@ and evalScript
         match evalCall local modules variables call with
         | Ok((Some value, local, modules, variables)) ->
             evalScript local modules (Map.add variable value variables) tail
-        | _ -> failwith "TODO"
-    | Expression.ClosureDefinition closureDefinition :: tail -> failwith "TODO"
-//        evalScript (addClosure closureDefinition modules) variables tail
+        | Ok(None, _, _, _) -> error "Expected value in assignment." None
+        | Error err -> error $"Error in eval. {err.UserMessage}" None
+    | Expression.ClosureDefinition closureDefinition :: tail ->
+       evalScript (addClosure closureDefinition local) modules variables tail
 
 and evalCall
     (local: Module)

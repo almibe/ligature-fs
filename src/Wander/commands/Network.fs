@@ -72,7 +72,8 @@ let countCommand =
                 match evalQuote local modules variables quote with
                 | Ok((Some(Any.Network network), local, modules, variables)) ->
                     Ok((Some(Any.Element(Element(network.Count.ToString()))), local, modules, variables))
-                | _ -> failwith "TODO"
+                | Ok(None, _, _, _) -> error "Error in count, expected value." None
+                | Error err -> error $"Error in count, {err.UserMessage}" None
             | args -> failwith $"TODO - {args}" }
 
 let minusCommand =
@@ -202,7 +203,7 @@ let applyCommand =
                     let res = applyValueSet network res
                     Ok((Some(Any.Network res), local, modules, variables))
                 | Ok _ -> failwith "TODO"
-                | Error err -> failwith "TODO"
+                | Error err -> error $"Error in apply. {err.UserMessage}" None
             | [ Any.Network network; Any.Variable v ] ->
                 match Map.tryFind v variables with
                 | Some(Any.ResultSet res) ->
