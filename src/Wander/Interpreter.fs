@@ -70,7 +70,7 @@ and evalScript
         | Ok(None, _, _, _) -> error "Expected value in assignment." None
         | Error err -> error $"Error in eval. {err.UserMessage}" None
     | Expression.ClosureDefinition closureDefinition :: tail ->
-       evalScript (addClosure closureDefinition local) modules variables tail
+        evalScript (addClosure closureDefinition local) modules variables tail
 
 and evalCall
     (local: Module)

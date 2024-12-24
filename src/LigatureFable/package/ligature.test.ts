@@ -51,7 +51,7 @@ test("test adding commands from js", () => {
 })
 
 test("test command with error", () => {
-    let res = run("match {?a b ?c} {a b c}", [])
+    let res = run("import network, match {?a b ?c} {a b c}", [])
     expect(res.type).toEqual("resultset")
     let expected = new Map<string, string>();
     expected.set('?a', 'a')

@@ -15,12 +15,14 @@ let openLocalDependencyCommand: Command =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Literal filePath ] ->
+#if !FABLE_COMPILER
                 let script = System.IO.File.ReadAllText(filePath)
-
+#else
+                let script = failwith "TODO"
+#endif
                 match run local modules variables script with
                 | Ok((_, local, modules, variables)) -> Ok((None, local, modules, variables))
                 | _ -> failwith "TODO"
-            //Ok(Some(value))
             | _ -> failwith "open-local-dependency requires 1 argument." }
 
 let openLocalLibraryCommand: Command =
@@ -30,13 +32,17 @@ let openLocalLibraryCommand: Command =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Literal filePath ] ->
+#if !FABLE_COMPILER
                 let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
                 let script = System.IO.File.ReadAllText(path + "/" + filePath)
+#else
+                let path = failwith "TODO"
+                let script = failwith "TODO"
+#endif
 
                 match run local modules variables script with
                 | Ok((_, local, modules, variables)) -> Ok((None, local, modules, variables))
                 | _ -> failwith "TODO"
-            //Ok(Some(value))
             | _ -> failwith "open-local-library requires 1 argument." }
 
 let ioCommands =

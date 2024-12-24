@@ -119,23 +119,23 @@ let encodeAny (any: Any) =
         res
     | Any.Pipe -> failwith "Not Implemented"
 
-let encodeResult (result: Result<Any option, LigatureError>) =
+let encodeResult (result: Result<CommandResult, LigatureError>) =
     match result with
-    | Ok(Some res) -> encodeAny res
-    | Ok None -> createEmpty
+    | Ok(Some res, _, _, _) -> encodeAny res
+    | Ok(None, _, _, _) -> createEmpty
     | Error error ->
         let res = createEmpty
         res?``type`` <- "error"
         res?value <- error.UserMessage
         res
 
-let processArguments commands variables (args: Arguments) =
+let processArguments local modules variables (args: Arguments) =
     List.map
         (fun arg ->
             match arg with
             | Any.Quote q ->
-                match evalQuote commands variables q with
-                | Ok(Some res) -> encodeAny res
+                match evalQuote local modules variables q with
+                | Ok(Some res, _, _, _) -> encodeAny res
                 | _ -> failwith "TODO"
             | _ -> encodeAny arg)
         args
@@ -145,17 +145,17 @@ let createCommand obj : Command =
     { Name = Element obj?name
       Doc = obj?doc
       Eval =
-        fun commands variables arguments ->
-            obj?action (processArguments commands variables arguments)
-            Ok(Some(Any.ResultSet Set.empty)) }
+        fun local modules variables arguments ->
+            obj?action (processArguments local modules variables arguments)
+            Ok(None, local, modules, variables) }
 
 let runScript (script: string) commands =
-    let mutable stdCommands = stdCommands
+    let mutable local = defaultLocal
 
     Array.iter
         (fun command ->
             let command = createCommand command
-            stdCommands <- Map.add command.Name command stdCommands)
+            local <- Map.add command.Name command local)
         commands
 
-    run stdCommands emptyVariables script |> encodeResult
+    run local stdModules emptyVariables script |> encodeResult

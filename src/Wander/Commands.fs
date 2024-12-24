@@ -17,4 +17,7 @@ let stdModules =
           (Element "bool", Commands.Bool.boolLib)
           (Element "network", Commands.Network.networkCommands)
           (Element "tinydl", Commands.TinyDL.tinyDLCommands)
-          (Element "io", Commands.IO.ioCommands) ]
+#if !FABLE_COMPILE
+          (Element "io", Commands.IO.ioCommands)
+#endif
+          ]
