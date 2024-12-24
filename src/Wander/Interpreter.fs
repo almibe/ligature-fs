@@ -14,9 +14,19 @@ let rec evalElement
     (arguments: Any list)
     (Element(name))
     : Result<CommandResult, LigatureError> =
-    match local.TryFind(Element(name)) with
-    | Some(command) -> command.Eval local modules variables arguments
-    | None -> error $"Could not find name {name}" None
+    if name.Contains '.' then
+        let moduleName = (name.Split '.')[0]
+        let commandName = (name.Split '.')[1]
+        match modules.TryFind(Element moduleName) with
+        | Some(mdl) ->
+            match mdl.TryFind(Element(commandName)) with
+            | Some(command) -> command.Eval local modules variables arguments
+            | None -> error $"Could not find name {name} in module {moduleName}" None
+        | None -> error $"Could not find module {moduleName}" None
+    else
+        match local.TryFind(Element(name)) with
+        | Some(command) -> command.Eval local modules variables arguments
+        | None -> error $"Could not find name {name}" None
 
 and processArguments local commands networks (arguments: Any list) : Any list =
     List.map
