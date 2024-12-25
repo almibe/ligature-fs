@@ -8,7 +8,7 @@ open FSharpPlus
 open Ligature.Model
 open Wander.Commands.Core
 
-let defaultLocal = Map.ofList [ (importCommand.Name, importCommand) ]
+let defaultLocal = Map.ofList [ (Element "import", importCommand) ]
 
 let stdModules =
     Map.ofList

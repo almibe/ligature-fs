@@ -8,9 +8,7 @@ open Wander.Model
 open Ligature.Model
 
 let notFunction =
-    { Name = Element("Bool.not")
-      Doc = "Boolean not"
-      Eval =
+    { Eval =
         (fun local modules variables args ->
             match args with
             | [ Any.Element(value) ] ->
@@ -29,4 +27,4 @@ let notFunction =
 //             | [ Value.Bool(left); Value.Bool(right) ] -> Ok(Value.Bool(left && right))
 //             | _ -> error "Invalid call to and function." None) }
 
-let boolLib = Map.ofList [ (notFunction.Name, notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = Map.ofList [ (Element "not", notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]

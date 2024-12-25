@@ -17,6 +17,7 @@ let rec evalElement
     if name.Contains '.' then
         let moduleName = (name.Split '.')[0]
         let commandName = (name.Split '.')[1]
+
         match modules.TryFind(Element moduleName) with
         | Some(mdl) ->
             match mdl.TryFind(Element(commandName)) with
@@ -42,9 +43,7 @@ and processArguments local commands networks (arguments: Any list) : Any list =
 and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Module =
     Map.add
         closureDefinition.name
-        { Name = closureDefinition.name
-          Doc = "local closure"
-          Eval =
+        { Eval =
             fun local modules variables arguments ->
                 if arguments.Length = closureDefinition.args.Length then
                     let newVariables =

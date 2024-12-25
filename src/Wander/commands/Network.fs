@@ -9,10 +9,7 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let isCompleteCommand =
-    { Name = Element("is-complete")
-      Doc = "Determine if a Network is complete."
-      Eval = fun _ _ _ _ -> failwith "TODO" }
+let isCompleteCommand = { Eval = fun _ _ _ _ -> failwith "TODO" }
 //             match arguments with
 //             // | [ Value.Element(Element(networkName)) ] ->
 //             //     let value = store.IsComplete networkName
@@ -23,9 +20,7 @@ let isCompleteCommand =
 //             | _ -> error "Bad call to is-complete." None }
 
 let unionCommand =
-    { Name = Element("union")
-      Doc = "Find the union of two Networks."
-      Eval =
+    { Eval =
         fun local modules variables (arguments: Arguments) ->
             match arguments with
             | [ left; right ] ->
@@ -56,9 +51,7 @@ let unionCommand =
             | args -> failwith $"TODO - {args}" }
 
 let countCommand =
-    { Name = Element("count")
-      Doc = "Count the number of assertions in a Network."
-      Eval =
+    { Eval =
         fun local modules variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Variable variable ] ->
@@ -77,9 +70,7 @@ let countCommand =
             | args -> failwith $"TODO - {args}" }
 
 let minusCommand =
-    { Name = Element("minus")
-      Doc = "Remove all Statements from the first Network that are in the second Networks."
-      Eval =
+    { Eval =
         fun local modules variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Network(left); Any.Network(right) ] ->
@@ -88,9 +79,7 @@ let minusCommand =
             | _ -> failwith "TODO" }
 
 let queryCommand =
-    { Name = Element("query")
-      Doc = "arguments: pattern template data, returns network"
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ pattern; template; source ] ->
@@ -139,9 +128,7 @@ let queryCommand =
             | _ -> error "Invalid call to query" None }
 
 let matchCommand =
-    { Name = Element "match"
-      Doc = "Match a pattern against a network."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
@@ -189,9 +176,7 @@ let matchCommand =
             | _ -> failwith "TODO" }
 
 let applyCommand =
-    { Name = Element "apply"
-      Doc = "Fill in Variables in a Network with values from a Result Set."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Network network; Any.Quote q ] ->
@@ -217,9 +202,7 @@ let applyCommand =
             | args -> failwith $"TODO - unexpected args {args}" }
 
 let filterCommand =
-    { Name = Element("filter")
-      Doc = "arguments: pattern data, returns network"
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ pattern; source ] ->
@@ -262,13 +245,13 @@ let filterCommand =
 
 let networkCommands: Map<Element, Command> =
     (Map.ofList
-        [ (applyCommand.Name, applyCommand)
-          (countCommand.Name, countCommand)
-          (minusCommand.Name, minusCommand)
-          (matchCommand.Name, matchCommand)
-          (queryCommand.Name, queryCommand)
-          (unionCommand.Name, unionCommand)
-          (filterCommand.Name, filterCommand)
+        [ (Element "apply", applyCommand)
+          (Element "count", countCommand)
+          (Element "minus", minusCommand)
+          (Element "match", matchCommand)
+          (Element "query", queryCommand)
+          (Element "union", unionCommand)
+          (Element "filter", filterCommand)
           //(isCompleteCommand.Name, isCompleteCommand)
           //(isConsistentCommand.Name, isConsistentCommand)
           ])

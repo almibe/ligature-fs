@@ -26,9 +26,7 @@ and Module = Map<Element, Command>
 and Modules = Map<Element, Module>
 
 and Command =
-    { Name: Element
-      Doc: string
-      Eval: Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
+    { Eval: Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
 
 and Call = Element * Arguments
 

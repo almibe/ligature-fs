@@ -9,9 +9,7 @@ open Wander.Interpreter
 open Wander.Model
 
 let assertEqualCommand: Command =
-    { Name = Element "assert-equal"
-      Doc = "Check that two values are equal."
-      Eval =
+    { Eval =
         fun local (modules: Modules) variables (arguments: Arguments) ->
             match arguments with
             | [ first; second ] ->
@@ -48,9 +46,7 @@ let assertEqualCommand: Command =
             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
 let assertFailCommand: Command =
-    { Name = Element "assert-fail"
-      Doc = "Check that a call results in an error."
-      Eval =
+    { Eval =
         fun local (modules: Modules) variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Quote quote ] ->
@@ -61,5 +57,5 @@ let assertFailCommand: Command =
 
 let assertCommands =
     Map.ofList
-        [ (assertEqualCommand.Name, (assertEqualCommand))
-          (assertFailCommand.Name, (assertFailCommand)) ]
+        [ (Element "assert-equal", (assertEqualCommand))
+          (Element "assert-fail", (assertFailCommand)) ]

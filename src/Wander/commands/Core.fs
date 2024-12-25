@@ -9,9 +9,7 @@ open Wander.Model
 open Wander.Interpreter
 
 let importCommand: Command =
-    { Name = Element "import"
-      Doc = "Import all of the commands in a given module into the local namespace."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             let mutable local = local
 
@@ -25,18 +23,14 @@ let importCommand: Command =
             | _ -> error "Illegal call to import." None }
 
 let idCommand: Command =
-    { Name = Element("id")
-      Doc = "Return the value passed."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ value ] -> Ok(Some(value), local, modules, variables)
             | _ -> failwith "id requires 1 argument." }
 
 let readCommand: Command =
-    { Name = Element("read")
-      Doc = "Read the value of a given variable."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Variable(name) ] ->
@@ -47,18 +41,14 @@ let readCommand: Command =
             | _ -> error "Illegal call to read." None }
 
 let evalCommand: Command =
-    { Name = Element("eval")
-      Doc = "Eval a quote."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Quote(quote) ] -> evalQuote local modules variables quote
             | _ -> error "Illegal call to read." None }
 
 let foldCommand: Command =
-    { Name = Element("fold")
-      Doc = "Perform a fold on a ResultSet.\nfold -> quote -> initialNetwork -> resultSet"
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ quote; initialNetwork; resultSet ] ->
@@ -97,9 +87,7 @@ let foldCommand: Command =
             | _ -> error "Illegal call to fold." None }
 
 let ignoreCommand: Command =
-    { Name = Element("ignore")
-      Doc = "Ignore any arguments passed and return working state unchanged."
-      Eval = fun local modules variables _ -> Ok(None, local, modules, variables) }
+    { Eval = fun local modules variables _ -> Ok(None, local, modules, variables) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
 //     Element($"{arguments} -> {result}")
@@ -119,26 +107,23 @@ let ignoreCommand: Command =
 //     signature
 
 let docsCommand: Command =
-    { Name = Element("docs")
-      Doc = "Create a network that contains documentation for the available commands."
-      Eval =
-        fun local modules variables _ ->
-            let mutable docs: Network = Set.empty
+    { Eval = fun local modules variables _ -> failwith "TODO" }
+// let mutable docs: Network = Set.empty
 
-            Map.toList modules
-            |> List.iter (fun (Element moduleName, m) ->
-                Map.toList m
-                |> List.iter (fun (Element name, command) ->
-                    docs <-
-                        Set.add
-                            (ElementPattern.Element(Element $"{moduleName}.{name}"),
-                             ElementPattern.Element(Element("docString")),
-                             Value.Literal(command.Doc))
-                            docs
+// Map.toList modules
+// |> List.iter (fun (Element moduleName, m) ->
+//     Map.toList m
+//     |> List.iter (fun (Element name, command) ->
+//         docs <-
+//             Set.add
+//                 (ElementPattern.Element(Element $"{moduleName}.{name}"),
+//                  ElementPattern.Element(Element("docString")),
+//                  Value.Literal(command.Doc))
+//                 docs
 
-                    ()))
+//         ()))
 
-            Ok((Some(Any.Network docs), local, modules, variables)) }
+// Ok((Some(Any.Network docs), local, modules, variables)) }
 
 // let containsCommand: Command =
 //     { Name = Element "contains"
@@ -154,9 +139,7 @@ let docsCommand: Command =
 //             | _ -> error "Illegal call to contains" None }
 
 let resultSetCommand: Command =
-    { Name = Element "result-set"
-      Doc = "Construct a result set value."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             let mutable resultSet = Set.empty
 
@@ -184,11 +167,11 @@ let resultSetCommand: Command =
 
 let coreCommands =
     (Map.ofList
-        [ (docsCommand.Name, docsCommand)
-          (idCommand.Name, idCommand)
-          (ignoreCommand.Name, ignoreCommand)
-          (readCommand.Name, readCommand)
-          (resultSetCommand.Name, resultSetCommand)
-          (foldCommand.Name, foldCommand)
+        [ (Element "docs", docsCommand)
+          (Element "id", idCommand)
+          (Element "ignore", ignoreCommand)
+          (Element "read", readCommand)
+          (Element "result-set", resultSetCommand)
+          (Element "fold", foldCommand)
           // (containsCommand.Name, containsCommand)
-          (evalCommand.Name, evalCommand) ])
+          (Element "eval", evalCommand) ])

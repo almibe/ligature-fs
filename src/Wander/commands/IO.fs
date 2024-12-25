@@ -9,9 +9,7 @@ open Wander.Model
 open Wander.Main
 
 let openLocalDependencyCommand: Command =
-    { Name = Element("open-local-dependency")
-      Doc = "Open a local dependency."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Literal filePath ] ->
@@ -26,9 +24,7 @@ let openLocalDependencyCommand: Command =
             | _ -> failwith "open-local-dependency requires 1 argument." }
 
 let openLocalLibraryCommand: Command =
-    { Name = Element("open-local-library")
-      Doc = "Open a local dependency that is in the $WANDER_LIBS directory."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ Any.Literal filePath ] ->
@@ -47,5 +43,5 @@ let openLocalLibraryCommand: Command =
 
 let ioCommands =
     (Map.ofList
-        [ (openLocalDependencyCommand.Name, openLocalDependencyCommand)
-          (openLocalLibraryCommand.Name, openLocalLibraryCommand) ])
+        [ (Element "open-local-dependency", openLocalDependencyCommand)
+          (Element "open-local-library", openLocalLibraryCommand) ])

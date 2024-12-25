@@ -65,9 +65,7 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
     if aBox = res then Ok res else infer tBox res
 
 let inferCommand: Command =
-    { Name = Element("infer")
-      Doc = "Infer all supported tiny-dl relations."
-      Eval =
+    { Eval =
         fun local modules variables arguments ->
             match arguments with
             | [ description; network ] ->
@@ -102,4 +100,4 @@ let inferCommand: Command =
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None }
 
-let tinyDLCommands = (Map.ofList [ (inferCommand.Name, inferCommand) ])
+let tinyDLCommands = (Map.ofList [ (Element "infer", inferCommand) ])

@@ -19,17 +19,36 @@ let main (args: string[]) =
     let moduleName = "Test"
     let scriptText = System.IO.File.ReadAllText(fileName)
 
-    let ast = 
+    let ast =
         match parseString scriptText with
         | Ok res -> res
         | _ -> failwith "TODO"
 
     printfn "%A" ast
 
-    Oak() { 
+    let modules =
+        List.map
+            (fun (expression) ->
+                match expression with
+                | Expression.CommandDefinition def -> AnyModuleDecl(ConstantExpr(String(def.ToString())))
+                | _ -> failwith "Unexpected type.")
+            ast
+
+    Oak() {
         AnonymousModule() {
             Module($"Wander.CodeGen.Gen.{moduleName}") {
-                failwith "TODO" 
+                // let rec x (expressions: Script) =
+                //     match expressions with
+                //     | head :: tail ->
+                //         match head with
+                //         | Expression.CommandDefinition def ->
+                //             Value (def.name.ToString(), "3")
+                //             printfn "TEST"
+
+                //         | _ -> failwith "Unsupported type."
+                // x ast
+                yield! modules
+            // Value("x", "6")
             }
         }
     }
