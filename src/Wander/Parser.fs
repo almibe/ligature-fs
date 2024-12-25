@@ -173,7 +173,7 @@ let closureDefNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> 
     result {
         let! _ = Gaze.attempt (take (Token.Element("define"))) gaze
         let! name = Gaze.attempt elementNib gaze
-        let! args = Gaze.attempt (repeat variableNib) gaze
+        let! args = Gaze.attempt (optional (repeat variableNib)) gaze
         let! body = Gaze.attempt quoteNib gaze
 
         return
