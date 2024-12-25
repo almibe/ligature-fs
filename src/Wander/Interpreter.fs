@@ -39,7 +39,7 @@ and processArguments local commands networks (arguments: Any list) : Any list =
             | value -> value)
         arguments
 
-and addClosure (closureDefinition: ClosureDefinition) (commands: Module) : Module =
+and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Module =
     Map.add
         closureDefinition.name
         { Name = closureDefinition.name
@@ -79,7 +79,7 @@ and evalScript
             evalScript local modules (Map.add variable value variables) tail
         | Ok(None, _, _, _) -> error "Expected value in assignment." None
         | Error err -> error $"Error in eval. {err.UserMessage}" None
-    | Expression.ClosureDefinition closureDefinition :: tail ->
+    | Expression.CommandDefinition closureDefinition :: tail ->
         evalScript (addClosure closureDefinition local) modules variables tail
 
 and evalCall

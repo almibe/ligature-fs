@@ -177,7 +177,7 @@ let closureDefNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> 
         let! body = Gaze.attempt quoteNib gaze
 
         return
-            Expression.ClosureDefinition
+            Expression.CommandDefinition
                 { name = name
                   args = args
                   body = body }
