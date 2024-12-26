@@ -13,6 +13,7 @@ open Fabulous.AST
 open type Fabulous.AST.Ast
 open Wander.Parser
 open Ligature.Model
+open System.IO
 
 let encodeElementPattern (e: ElementPattern) =
     match e with
@@ -96,10 +97,13 @@ let main (args: string[]) =
                 | _ -> failwith "Unexpected type.")
             ast
 
+    let writeFile (moduleName: string) (content: string) =
+        File.WriteAllText($"../WanderGen/{moduleName}.fs", content)
+
     Oak() { AnonymousModule() { Module($"Wander.CodeGen.Gen.{moduleName}") { yield! modules } } }
     |> Gen.mkOak
     |> CodeFormatter.FormatOakAsync
     |> Async.RunSynchronously
-    |> printfn "%s"
+    |> writeFile moduleName
 
     0
