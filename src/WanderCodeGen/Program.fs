@@ -12,6 +12,7 @@ open Fantomas.Core
 open Fabulous.AST
 open type Fabulous.AST.Ast
 open Wander.Parser
+open Ligature.Model
 
 [<EntryPoint>]
 let main (args: string[]) =
@@ -27,31 +28,34 @@ let main (args: string[]) =
     printfn "%A" ast
 
     let modules =
-        List.map
+        List.collect
             (fun (expression) ->
                 match expression with
-                | Expression.CommandDefinition def -> AnyModuleDecl(ConstantExpr(String(def.ToString())))
+                | Expression.CommandDefinition { name = Element name
+                                                 args = args
+                                                 body = body } ->
+                    [ AnyModuleDecl(Value($"{name}Quote", ListExpr([ConstantUnit()])))
+                      AnyModuleDecl(
+                          Value(
+                              $"{name}Command",
+                              RecordExpr(
+                                  [ RecordFieldExpr(
+                                        "Eval",
+                                        LambdaExpr(
+                                            [ Constant("local")
+                                              Constant("modules")
+                                              Constant("variables")
+                                              Constant("arguments") ],
+                                            ConstantUnit()
+                                        )
+                                    ) ]
+                              )
+                          )
+                      ) ]
                 | _ -> failwith "Unexpected type.")
             ast
 
-    Oak() {
-        AnonymousModule() {
-            Module($"Wander.CodeGen.Gen.{moduleName}") {
-                // let rec x (expressions: Script) =
-                //     match expressions with
-                //     | head :: tail ->
-                //         match head with
-                //         | Expression.CommandDefinition def ->
-                //             Value (def.name.ToString(), "3")
-                //             printfn "TEST"
-
-                //         | _ -> failwith "Unsupported type."
-                // x ast
-                yield! modules
-            // Value("x", "6")
-            }
-        }
-    }
+    Oak() { AnonymousModule() { Module($"Wander.CodeGen.Gen.{moduleName}") { yield! modules } } }
     |> Gen.mkOak
     |> CodeFormatter.FormatOakAsync
     |> Async.RunSynchronously
