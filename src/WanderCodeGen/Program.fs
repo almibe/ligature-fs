@@ -14,6 +14,12 @@ open type Fabulous.AST.Ast
 open Wander.Parser
 open Ligature.Model
 
+let encodeAny (any: Any) =
+    match any with
+    | Any.Element (Element e) -> AppExpr("Element", [Constant(e)])
+    | Any.Network n -> failwith "TODO"
+    | _ -> failwith "TODO"
+
 [<EntryPoint>]
 let main (args: string[]) =
     let fileName = "./Test.wander"
@@ -34,7 +40,9 @@ let main (args: string[]) =
                 | Expression.CommandDefinition { name = Element name
                                                  args = args
                                                  body = body } ->
-                    [ AnyModuleDecl(Value($"{name}Quote", ListExpr([ConstantUnit()])))
+                    let quote = List.map encodeAny body
+
+                    [ AnyModuleDecl(Value($"{name}Quote", ListExpr(quote)))
                       AnyModuleDecl(
                           Value(
                               $"{name}Command",
@@ -46,7 +54,7 @@ let main (args: string[]) =
                                               Constant("modules")
                                               Constant("variables")
                                               Constant("arguments") ],
-                                            ConstantUnit()
+                                            AppExpr("evalQuote", [Constant("local"); Constant("modules"); Constant("variables"); Constant($"{name}Quote")])
                                         )
                                     ) ]
                               )
