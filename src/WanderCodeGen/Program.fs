@@ -14,16 +14,43 @@ open type Fabulous.AST.Ast
 open Wander.Parser
 open Ligature.Model
 
+let encodeElementPattern (e: ElementPattern) =
+    match e with
+    | ElementPattern.Element(Element e) ->
+        AppExpr("ElementPattern.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
+    | ElementPattern.Variable(Variable v) ->
+        AppExpr("ElementPattern.Variable", [ AppExpr("Variable", [ ConstantExpr(String(v)) ]) ])
+
+let encodeValue (value: Value) =
+    match value with
+    | Value.Element(Element e) -> AppExpr("Value.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
+    | Value.Literal l -> AppExpr("Value.Literal", [ AppExpr("Literal", [ ConstantExpr(String(l)) ]) ])
+    | Value.Variable(Variable v) -> AppExpr("Value.Variable", [ AppExpr("Variable", [ ConstantExpr(String(v)) ]) ])
+
+let encodeTriple (e: ElementPattern, a: ElementPattern, v: Value) =
+    let e = encodeElementPattern e
+    let a = encodeElementPattern a
+    let v = encodeValue v
+    TupleExpr([ e; a; v ])
+
+let encodeNetwork (network: Network) =
+    if network.IsEmpty then
+        AppExpr("Any.Network", ConstantExpr(Constant("Set.empty")))
+    else
+        let triples = Set.toList network |> List.map (fun triple -> encodeTriple triple)
+        AppExpr("Any.Network", AppExpr("Set.ofList", ListExpr(triples)))
+
 let encodeAny (any: Any) =
     match any with
-    | Any.Element (Element e) -> AppExpr("Element", [Constant(e)])
-    | Any.Network n -> failwith "TODO"
+    | Any.Element(Element e) -> AppExpr("Any.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
+    | Any.Network n -> encodeNetwork n
     | _ -> failwith "TODO"
 
 [<EntryPoint>]
 let main (args: string[]) =
-    let fileName = "./Test.wander"
-    let moduleName = "Test"
+    let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+    let fileName = path + "/docs.wander"
+    let moduleName = "Docs"
     let scriptText = System.IO.File.ReadAllText(fileName)
 
     let ast =
@@ -54,7 +81,13 @@ let main (args: string[]) =
                                               Constant("modules")
                                               Constant("variables")
                                               Constant("arguments") ],
-                                            AppExpr("evalQuote", [Constant("local"); Constant("modules"); Constant("variables"); Constant($"{name}Quote")])
+                                            AppExpr(
+                                                "evalQuote",
+                                                [ Constant("local")
+                                                  Constant("modules")
+                                                  Constant("variables")
+                                                  Constant($"{name}Quote") ]
+                                            )
                                         )
                                     ) ]
                               )
