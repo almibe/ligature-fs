@@ -15,18 +15,30 @@ open Wander.Parser
 open Ligature.Model
 open System.IO
 
+let kababToCamel (input: string) =
+    let (res, _) = 
+        Seq.fold (fun (state, upperCase) value ->
+            if value = '-' then
+                state, true
+            else
+                if upperCase then
+                    (state + (value.ToString().ToUpper())), false
+                else
+                    (state + value.ToString(), false)) ("", false) input
+    res
+
 let encodeElementPattern (e: ElementPattern) =
     match e with
     | ElementPattern.Element(Element e) ->
-        AppExpr("ElementPattern.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
+        AppExpr("ElementPattern.Element", [ ParenExpr(AppExpr("Element", [ ConstantExpr(String(e)) ])) ])
     | ElementPattern.Variable(Variable v) ->
-        AppExpr("ElementPattern.Variable", [ AppExpr("Variable", [ ConstantExpr(String(v)) ]) ])
+        AppExpr("ElementPattern.Variable", [ ParenExpr(AppExpr("Variable", [ ConstantExpr(String(v)) ])) ])
 
 let encodeValue (value: Value) =
     match value with
-    | Value.Element(Element e) -> AppExpr("Value.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
-    | Value.Literal l -> AppExpr("Value.Literal", [ AppExpr("Literal", [ ConstantExpr(String(l)) ]) ])
-    | Value.Variable(Variable v) -> AppExpr("Value.Variable", [ AppExpr("Variable", [ ConstantExpr(String(v)) ]) ])
+    | Value.Element(Element e) -> AppExpr("Value.Element", [ ParenExpr(AppExpr("Element", [ ConstantExpr(String(e)) ])) ])
+    | Value.Literal l -> AppExpr("Value.Literal",  ConstantExpr(String(l)) )
+    | Value.Variable(Variable v) -> AppExpr("Value.Variable", [ ParenExpr(AppExpr("Variable", [ ConstantExpr(String(v)) ])) ])
 
 let encodeTriple (e: ElementPattern, a: ElementPattern, v: Value) =
     let e = encodeElementPattern e
@@ -39,11 +51,11 @@ let encodeNetwork (network: Network) =
         AppExpr("Any.Network", ConstantExpr(Constant("Set.empty")))
     else
         let triples = Set.toList network |> List.map (fun triple -> encodeTriple triple)
-        AppExpr("Any.Network", AppExpr("Set.ofList", ListExpr(triples)))
+        AppExpr("Any.Network", ParenExpr(AppExpr("Set.ofList", ListExpr(triples))))
 
 let encodeAny (any: Any) =
     match any with
-    | Any.Element(Element e) -> AppExpr("Any.Element", [ AppExpr("Element", [ ConstantExpr(String(e)) ]) ])
+    | Any.Element(Element e) -> AppExpr("Any.Element", ParenExpr(AppExpr("Element", [ ConstantExpr(String(e)) ])) )
     | Any.Network n -> encodeNetwork n
     | _ -> failwith "TODO"
 
@@ -59,7 +71,7 @@ let main (args: string[]) =
         | Ok res -> res
         | _ -> failwith "TODO"
 
-    printfn "%A" ast
+    // printfn "%A" ast
 
     let modules =
         List.collect
@@ -69,7 +81,7 @@ let main (args: string[]) =
                                                  args = args
                                                  body = body } ->
                     let quote = List.map encodeAny body
-
+                    let name = kababToCamel name
                     [ AnyModuleDecl(Value($"{name}Quote", ListExpr(quote)))
                       AnyModuleDecl(
                           Value(
@@ -100,7 +112,13 @@ let main (args: string[]) =
     let writeFile (moduleName: string) (content: string) =
         File.WriteAllText($"../WanderGen/{moduleName}.fs", content)
 
-    Oak() { AnonymousModule() { Module($"Wander.CodeGen.Gen.{moduleName}") { yield! modules } } }
+    Oak() { Namespace("Wander.CodeGen.Gen") { 
+        Open([ "Ligature"; "Model" ])
+        Open([ "Wander"; "Model" ])
+        Open([ "Wander"; "Interpreter"])
+
+        Module($"{moduleName}") { yield! modules } 
+    } }
     |> Gen.mkOak
     |> CodeFormatter.FormatOakAsync
     |> Async.RunSynchronously
