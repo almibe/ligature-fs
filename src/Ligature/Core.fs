@@ -73,33 +73,33 @@ open Ligature.Model
 //         true
 //         network
 
-let namedVariable (v: Variable) : bool =
+let namedSlot (v: Slot) : bool =
     match v with
-    | Variable "?" -> false
+    | Slot "?" -> false
     | _ -> true
 
 let elementPatternToValue (ep: ElementPattern) : Value =
     match ep with
     | ElementPattern.Element e -> Value.Element e
-    | ElementPattern.Variable v -> Value.Variable v
+    | ElementPattern.Slot v -> Value.Slot v
 
 let testPattern
     ((elementPattern, attributePattern, valuePattern): Triple)
     ((element, attribute, value): Triple)
-    : Map<Variable, Value> option =
+    : Map<Slot, Value> option =
     let mutable result = Map.empty
     let mutable isMatch = true
 
     match elementPattern with
-    | ElementPattern.Variable variable ->
-        if namedVariable variable then
+    | ElementPattern.Slot variable ->
+        if namedSlot variable then
             result <- Map.add variable (elementPatternToValue element) result
     | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
 
     if isMatch then
         match attributePattern with
-        | ElementPattern.Variable variable ->
-            if namedVariable variable then
+        | ElementPattern.Slot variable ->
+            if namedSlot variable then
                 if result.ContainsKey variable then
                     match result[variable] with
                     | Value.Element e -> isMatch <- ElementPattern.Element e = attribute
@@ -110,8 +110,8 @@ let testPattern
 
     if isMatch then
         match (valuePattern, value) with
-        | (Value.Variable variable, value) ->
-            if namedVariable variable then
+        | (Value.Slot variable, value) ->
+            if namedSlot variable then
                 if result.ContainsKey variable then
                     match result[variable], value with
                     | Value.Element e, Value.Element v -> isMatch <- e = v
@@ -134,7 +134,7 @@ let singleMatch (pattern: ElementPattern * ElementPattern * Value) (network: Net
         Set.empty
         network
 
-let andSingleResult (left: Map<Variable, Value>) (right: Map<Variable, Value>) : Option<Map<Variable, Value>> =
+let andSingleResult (left: Map<Slot, Value>) (right: Map<Slot, Value>) : Option<Map<Slot, Value>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys
@@ -177,36 +177,36 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
             let element =
                 match e with
                 | ElementPattern.Element _ -> e
-                | ElementPattern.Variable v ->
+                | ElementPattern.Slot v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
-                        | Value.Variable v -> ElementPattern.Variable v
+                        | Value.Slot v -> ElementPattern.Slot v
                     else
-                        ElementPattern.Variable v
+                        ElementPattern.Slot v
 
             let attribute =
                 match a with
                 | ElementPattern.Element _ -> a
-                | ElementPattern.Variable v ->
+                | ElementPattern.Slot v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
-                        | Value.Variable v -> ElementPattern.Variable v
+                        | Value.Slot v -> ElementPattern.Slot v
                     else
-                        ElementPattern.Variable v
+                        ElementPattern.Slot v
 
             let value =
                 match v with
                 | Value.Element _ -> v
                 | Value.Literal _ -> v
-                | Value.Variable variable ->
+                | Value.Slot variable ->
                     if result.ContainsKey variable then
                         result[variable]
                     else
-                        Value.Variable variable
+                        Value.Slot variable
 
             (element, attribute, value))
         pattern

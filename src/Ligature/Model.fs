@@ -29,20 +29,20 @@ type Element = Element of string
 
 type ConceptName = Element
 
-type Variable = Variable of string
+type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Variable, Value>
+and ValueSet = Map<Slot, Value>
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element
-    | Variable of Variable
+    | Slot of Slot
 
 and [<RequireQualifiedAccess>] Value =
     | Element of Element
     | Literal of string
-    | Variable of Variable
+    | Slot of Slot
 
 and Triple = ElementPattern * ElementPattern * Value
 

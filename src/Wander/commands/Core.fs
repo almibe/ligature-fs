@@ -74,7 +74,7 @@ let foldCommand: Command =
                 let res =
                     Set.fold
                         (fun s x ->
-                            let variables = Map.add (Variable "?_") (Any.ValueSet x) variables
+                            let variables = Map.add (Slot "?_") (Any.ValueSet x) variables
 
                             match evalQuote local modules variables quote with
                             | Ok(Some(Any.Network res), _, _, _) -> Set.union s res

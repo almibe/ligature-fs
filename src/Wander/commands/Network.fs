@@ -135,19 +135,19 @@ let matchCommand =
                 let element =
                     match e with
                     | Any.Element e -> ElementPattern.Element e
-                    | Any.Variable v -> ElementPattern.Variable v
+                    | Any.Variable v -> ElementPattern.Slot v
                     | _ -> failwith "TODO"
 
                 let attribute =
                     match a with
                     | Any.Element e -> ElementPattern.Element e
-                    | Any.Variable v -> ElementPattern.Variable v
+                    | Any.Variable v -> ElementPattern.Slot v
                     | _ -> failwith "TODO"
 
                 let value =
                     match v with
                     | Any.Element e -> Value.Element e
-                    | Any.Variable v -> Value.Variable v
+                    | Any.Variable v -> Value.Slot v
                     | Any.Literal l -> Value.Literal l
                     | _ -> failwith "TODO"
 

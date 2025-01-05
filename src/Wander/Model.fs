@@ -10,7 +10,7 @@ type Quote = Any list
 
 and [<RequireQualifiedAccess>] Any =
     | Literal of string
-    | Variable of Variable
+    | Variable of Slot
     | Quote of Quote
     | Element of Element
     | Network of Network
@@ -32,13 +32,13 @@ and Call = Element * Arguments
 
 and Arguments = Any list
 
-and AnyAssignment = Variable * Any
+and AnyAssignment = Slot * Any
 
-and CallAssignment = Variable * Call
+and CallAssignment = Slot * Call
 
 and CommandDefinition =
     { name: Element
-      args: List<Variable>
+      args: List<Slot>
       body: Quote }
 
 and [<RequireQualifiedAccess>] Expression =
@@ -49,7 +49,7 @@ and [<RequireQualifiedAccess>] Expression =
 
 and Script = Expression list
 
-and Variables = Map<Variable, Any>
+and Variables = Map<Slot, Any>
 
 let emptyVariables: Variables = Map.empty
 
@@ -66,7 +66,7 @@ let rec prettyPrint (value: Any) : string =
     | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Any.Network n -> printNetwork n
     | Any.Literal(value) -> encodeString value
-    | Any.Variable(Variable variable) -> variable
+    | Any.Variable(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.Pipe -> "|"
 
@@ -76,7 +76,7 @@ and printResultSet (rs: ResultSet) =
     Set.iter
         (fun variables ->
             res <- res + "("
-            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
             res <- res + ")")
         rs
 
@@ -116,17 +116,17 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
-    | Value.Variable(Variable variable) -> variable
+    | Value.Slot(Slot variable) -> variable
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =
         match element with
         | ElementPattern.Element(Element e) -> e
-        | ElementPattern.Variable(Variable v) -> v
+        | ElementPattern.Slot(Slot v) -> v
 
     let attribute =
         match attribute with
         | ElementPattern.Element(Element e) -> e
-        | ElementPattern.Variable(Variable v) -> v
+        | ElementPattern.Slot(Slot v) -> v
 
     $"{element} {attribute} {writeValue value}"

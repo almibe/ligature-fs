@@ -30,10 +30,10 @@ let equalNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> =
     | Ok(Token.Element("=")) -> Ok(Element "=")
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
+let variableNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Variable(value)) -> Ok(Variable value)
+    | Ok(Token.Variable(value)) -> Ok(Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
@@ -85,14 +85,14 @@ let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.Gaz
     | Error(err) -> Error err
     | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
-    | Ok(Token.Variable(value)) -> Ok(ElementPattern.Variable(Variable value))
+    | Ok(Token.Variable(value)) -> Ok(ElementPattern.Slot(Slot value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Any.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal value)
-    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
+    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Slot value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -116,7 +116,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
-    | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
+    | Ok(Token.Variable(value)) -> Ok(Value.Slot(Slot value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let callToQuote ((name, args): Call) : Quote = List.append [ Any.Element name ] args
