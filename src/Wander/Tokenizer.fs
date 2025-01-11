@@ -11,11 +11,7 @@ let identifierPattern =
     Regex("^[-a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;%=]$¬", RegexOptions.Compiled)
 
 let parseString (input: string) =
-#if !FABLE_COMPILER
     System.Text.Json.Nodes.JsonNode.Parse(input.Replace("\n", "\\n"))
-#else
-    Fable.Core.JsInterop.emitJsExpr (input.Replace("\n", "\\n")) "JSON.parse($0)"
-#endif
 
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
@@ -153,11 +149,7 @@ let tokenNibbler =
     )
 
 let replaceLineEndings (script: string) =
-#if !FABLE_COMPILER
-    (script.ReplaceLineEndings("\n"))
-#else
-    script.Replace("\r\n", "\n")
-#endif
+    script.ReplaceLineEndings("\n")
 
 let tokenize (script: string) =
     let gaze = Gaze.fromString (replaceLineEndings script)

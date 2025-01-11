@@ -6,73 +6,6 @@ module Ligature.Core
 
 open Ligature.Model
 
-// let isComplete (entries: Set<Entry>) : bool =
-//     let concepts =
-//         Set.fold
-//             (fun state value ->
-//                 match value with
-//                 | Entry.Extends { concept = concept } -> Set.add concept state
-//                 | _ -> state)
-//             Set.empty
-//             entries
-
-//     Set.fold
-//         (fun state (entry: Entry) ->
-//             match entry with
-//             //            | Entry.Attribute { first = first; second = second } -> (concepts.Contains first) && (concepts.Contains second)
-//             | _ -> state)
-//         true
-//         entries
-
-// let isConsistent (network: Network) : bool =
-//     let mutable individuals: Map<Element, Set<Entry>> = Map.empty
-
-//     Set.fold
-//         (fun state (entry: Entry) ->
-//             match state with
-//             | false -> false
-//             | true ->
-//                 match entry with
-//                 | Entry.Extends { concept = conceptName
-//                                   element = symbol } ->
-//                     let concept =
-//                         Entry.Extends
-//                             { concept = conceptName
-//                               element = symbol }
-
-//                     let notVersion =
-//                         Entry.NotExtends
-//                             { concept = conceptName
-//                               element = symbol }
-
-//                     match individuals.TryFind symbol with
-//                     | None ->
-//                         individuals <- Map.add symbol (Set.ofList [ concept ]) individuals
-//                         true
-//                     | Some res ->
-//                         if res.Contains(notVersion) then
-//                             false
-//                         else
-//                             individuals <- Map.add symbol (Set.add (concept) res) individuals
-//                             true
-//                 | Entry.NotExtends { concept = concept; element = symbol } ->
-//                     let notConcept = Entry.NotExtends { concept = concept; element = symbol }
-//                     let inverse = Entry.Extends { concept = concept; element = symbol }
-
-//                     match individuals.TryFind symbol with
-//                     | None ->
-//                         individuals <- Map.add symbol (Set.ofList [ notConcept ]) individuals
-//                         true
-//                     | Some res ->
-//                         if res.Contains(inverse) then
-//                             false
-//                         else
-//                             individuals <- Map.add symbol (Set.add notConcept res) individuals
-//                             true
-//                 | Entry.Attribute _ -> true)
-//         true
-//         network
-
 let namedSlot (v: Slot) : bool =
     match v with
     | Slot "?" -> false
@@ -91,34 +24,34 @@ let testPattern
     let mutable isMatch = true
 
     match elementPattern with
-    | ElementPattern.Slot variable ->
-        if namedSlot variable then
-            result <- Map.add variable (elementPatternToValue element) result
+    | ElementPattern.Slot slot ->
+        if namedSlot slot then
+            result <- Map.add slot (elementPatternToValue element) result
     | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
 
     if isMatch then
         match attributePattern with
-        | ElementPattern.Slot variable ->
-            if namedSlot variable then
-                if result.ContainsKey variable then
-                    match result[variable] with
+        | ElementPattern.Slot slot ->
+            if namedSlot slot then
+                if result.ContainsKey slot then
+                    match result[slot] with
                     | Value.Element e -> isMatch <- ElementPattern.Element e = attribute
                     | _ -> failwith "TODO"
                 else
-                    result <- Map.add variable (elementPatternToValue attribute) result
+                    result <- Map.add slot (elementPatternToValue attribute) result
         | ElementPattern.Element elementP -> isMatch <- attribute = ElementPattern.Element elementP
 
     if isMatch then
         match (valuePattern, value) with
-        | (Value.Slot variable, value) ->
-            if namedSlot variable then
-                if result.ContainsKey variable then
-                    match result[variable], value with
+        | (Value.Slot slot, value) ->
+            if namedSlot slot then
+                if result.ContainsKey slot then
+                    match result[slot], value with
                     | Value.Element e, Value.Element v -> isMatch <- e = v
                     | Value.Literal l, Value.Literal v -> isMatch <- l = v
                     | _, _ -> isMatch <- false
                 else
-                    result <- Map.add variable value result
+                    result <- Map.add slot value result
         | (Value.Element elementP, Value.Element value) -> isMatch <- elementP = value
         | (Value.Literal literal, Value.Literal value) -> isMatch <- literal = value
         | _ -> isMatch <- false
@@ -202,11 +135,11 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                 match v with
                 | Value.Element _ -> v
                 | Value.Literal _ -> v
-                | Value.Slot variable ->
-                    if result.ContainsKey variable then
-                        result[variable]
+                | Value.Slot slot ->
+                    if result.ContainsKey slot then
+                        result[slot]
                     else
-                        Value.Slot variable
+                        Value.Slot slot
 
             (element, attribute, value))
         pattern

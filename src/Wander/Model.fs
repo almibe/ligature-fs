@@ -54,11 +54,7 @@ and Variables = Map<Slot, Any>
 let emptyVariables: Variables = Map.empty
 
 let encodeString string =
-#if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
-#else
-    Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
-#endif
 
 let rec prettyPrint (value: Any) : string =
     match value with
