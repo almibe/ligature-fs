@@ -8,6 +8,7 @@ open Ligature.Model
 open Model
 
 let rec evalElement
+    (networks: Networks)
     (local: Module)
     (modules: Modules)
     (variables: Variables)
@@ -21,30 +22,30 @@ let rec evalElement
         match modules.TryFind(Element moduleName) with
         | Some(mdl) ->
             match mdl.TryFind(Element(commandName)) with
-            | Some(command) -> command.Eval local modules variables arguments
+            | Some(command) -> command.Eval networks local modules variables arguments
             | None -> error $"Could not find name {name} in module {moduleName}" None
         | None -> error $"Could not find module {moduleName}" None
     else
         match local.TryFind(Element(name)) with
-        | Some(command) -> command.Eval local modules variables arguments
+        | Some(command) -> command.Eval networks local modules variables arguments
         | None -> error $"Could not find name {name}" None
 
-and processArguments local commands networks (arguments: Any list) : Any list =
-    List.map
-        (fun argument ->
-            match argument with
-            | Any.Quote quote ->
-                match evalQuote local commands networks quote with
-                | Ok((Some(value), _, _, _)) -> value
-                | _ -> Any.Network Set.empty
-            | value -> value)
-        arguments
+// and processArguments local commands networks (arguments: Any list) : Any list =
+//     List.map
+//         (fun argument ->
+//             match argument with
+//             | Any.Quote quote ->
+//                 match evalQuote local commands networks quote with
+//                 | Ok((Some(value), _, _, _)) -> value
+//                 | _ -> Any.Network Set.empty
+//             | value -> value)
+//         arguments
 
 and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Module =
     Map.add
         closureDefinition.name
         { Eval =
-            fun local modules variables arguments ->
+            fun networks local modules variables arguments ->
                 if arguments.Length = closureDefinition.args.Length then
                     let newVariables =
                         List.fold
@@ -52,44 +53,47 @@ and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Modul
                             variables
                             (List.allPairs closureDefinition.args arguments)
 
-                    evalQuote local modules newVariables closureDefinition.body
+                    evalQuote networks local modules newVariables closureDefinition.body
                 else
                     failwith "TODO" }
         commands
 
 and evalScript
+    (networks: Networks)
     (local: Module)
     (modules: Modules)
     (variables: Variables)
     (script: Script)
     : Result<CommandResult, LigatureError> =
     match script with
-    | [] -> Ok(None, local, modules, variables)
-    | [ Expression.Call head ] -> evalCall local modules variables head
+    | [] -> Ok(None, networks, local, modules, variables)
+    | [ Expression.Call head ] -> evalCall networks local modules variables head
     | Expression.Call head :: tail ->
-        match evalCall local modules variables head with
-        | Ok(_, local, modules, variables) -> evalScript local modules variables tail
+        match evalCall networks local modules variables head with
+        | Ok(_, networks, local, modules, variables) -> evalScript networks local modules variables tail
         | Error err -> Error err
     | Expression.AnyAssignment(variable, value) :: tail ->
-        evalScript local modules (Map.add variable value variables) tail
+        evalScript networks local modules (Map.add variable value variables) tail
     | Expression.CallAssignment(variable, call) :: tail ->
-        match evalCall local modules variables call with
-        | Ok((Some value, local, modules, variables)) ->
-            evalScript local modules (Map.add variable value variables) tail
-        | Ok(None, _, _, _) -> error "Expected value in assignment." None
+        match evalCall networks local modules variables call with
+        | Ok((Some value, networks, local, modules, variables)) ->
+            evalScript networks local modules (Map.add variable value variables) tail
+        | Ok(None, _, _, _, _) -> error "Expected value in assignment." None
         | Error err -> error $"Error in eval. {err.UserMessage}" None
     | Expression.CommandDefinition closureDefinition :: tail ->
-        evalScript (addClosure closureDefinition local) modules variables tail
+        evalScript networks (addClosure closureDefinition local) modules variables tail
 
 and evalCall
+    (networks: Networks)
     (local: Module)
     (modules: Modules)
     (variables: Variables)
     ((name, args): Call)
     : Result<CommandResult, LigatureError> =
-    evalElement local modules variables args name
+    evalElement networks local modules variables args name
 
 and evalQuote
+    (networks: Networks)
     (local: Module)
     (modules: Modules)
     (variables: Variables)
@@ -99,10 +103,10 @@ and evalQuote
     | Ok quote ->
         match quote with
         | [] -> failwith "TODO"
-        | [ Any.Element name ] -> evalElement local modules variables [] name
+        | [ Any.Element name ] -> evalElement networks local modules variables [] name
         | _ ->
             match quote.Head with
-            | Any.Element name -> evalElement local modules variables quote.Tail name
+            | Any.Element name -> evalElement networks local modules variables quote.Tail name
             | _ -> failwith "TODO"
     | _ -> failwith "TODO"
 

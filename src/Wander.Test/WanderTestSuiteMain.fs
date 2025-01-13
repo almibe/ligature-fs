@@ -34,7 +34,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run defaultLocal stdModules emptyVariables script with
+                match run Map.empty defaultLocal stdModules emptyVariables script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

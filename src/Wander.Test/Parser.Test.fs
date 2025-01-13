@@ -60,7 +60,7 @@ let tests =
                             Element "a",
                             [ Any.Network(
                                   Set.ofList
-                                      [ ElementPattern.Slot(Slot "?a"),
+                                      [ ElementPattern.Variable(Variable "?a"),
                                         ElementPattern.Element(Element "b"),
                                         Value.Element(Element "c") ]
                               ) ]

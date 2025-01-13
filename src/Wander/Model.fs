@@ -6,39 +6,28 @@ module Wander.Model
 
 open Ligature.Model
 
-type Quote = Any list
+type CommandResult = (Any option * Networks * Module * Modules * Variables)
 
-and [<RequireQualifiedAccess>] Any =
-    | Literal of string
-    | Variable of Slot
-    | Quote of Quote
-    | Element of Element
-    | Network of Network
-    | ValueSet of ValueSet
-    | ResultSet of ResultSet
-    //| Module of Module
-    | Pipe
+and Module = Map<Element, Command> //TODO remove
 
-and CommandResult = (Any option * Module * Modules * Variables)
+and Modules = Map<Element, Module> //TODO remove
 
-and Module = Map<Element, Command>
-
-and Modules = Map<Element, Module>
+and Networks = Map<Element, Network>
 
 and Command =
-    { Eval: Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
+    { Eval: Networks -> Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
 
 and Call = Element * Arguments
 
 and Arguments = Any list
 
-and AnyAssignment = Slot * Any
+and AnyAssignment = Variable * Any
 
-and CallAssignment = Slot * Call
+and CallAssignment = Variable * Call
 
 and CommandDefinition =
     { name: Element
-      args: List<Slot>
+      args: List<Variable>
       body: Quote }
 
 and [<RequireQualifiedAccess>] Expression =
@@ -49,7 +38,7 @@ and [<RequireQualifiedAccess>] Expression =
 
 and Script = Expression list
 
-and Variables = Map<Slot, Any>
+and Variables = Map<Variable, Any>
 
 let emptyVariables: Variables = Map.empty
 
@@ -62,9 +51,10 @@ let rec prettyPrint (value: Any) : string =
     | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
     | Any.Network n -> printNetwork n
     | Any.Literal(value) -> encodeString value
-    | Any.Variable(Slot variable) -> variable
+    | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.Pipe -> "|"
+    | Any.ValueSet(_) -> failwith "Not Implemented"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
@@ -72,7 +62,7 @@ and printResultSet (rs: ResultSet) =
     Set.iter
         (fun variables ->
             res <- res + "("
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
+            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
             res <- res + ")")
         rs
 
@@ -112,17 +102,17 @@ and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
-    | Value.Slot(Slot variable) -> variable
+    | Value.Variable(Variable variable) -> variable
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =
         match element with
         | ElementPattern.Element(Element e) -> e
-        | ElementPattern.Slot(Slot v) -> v
+        | ElementPattern.Variable(Variable v) -> v
 
     let attribute =
         match attribute with
         | ElementPattern.Element(Element e) -> e
-        | ElementPattern.Slot(Slot v) -> v
+        | ElementPattern.Variable(Variable v) -> v
 
     $"{element} {attribute} {writeValue value}"

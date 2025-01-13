@@ -29,21 +29,34 @@ type Element = Element of string
 
 type ConceptName = Element
 
-type Slot = Slot of string
+type Variable = Variable of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, Value>
+and ValueSet = Map<Variable, Value>
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element
-    | Slot of Slot
+    | Variable of Variable
 
 and [<RequireQualifiedAccess>] Value =
     | Element of Element
     | Literal of string
-    | Slot of Slot
+    | Variable of Variable
+    | Quote of Quote
 
 and Triple = ElementPattern * ElementPattern * Value
 
 and Network = Set<Triple>
+
+and Quote = Any list
+
+and [<RequireQualifiedAccess>] Any =
+    | Literal of string
+    | Variable of Variable
+    | Quote of Quote
+    | Element of Element
+    | Network of Network
+    | ValueSet of ValueSet
+    | ResultSet of ResultSet
+    | Pipe

@@ -9,19 +9,9 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let isCompleteCommand = { Eval = fun _ _ _ _ -> failwith "TODO" }
-//             match arguments with
-//             // | [ Value.Element(Element(networkName)) ] ->
-//             //     let value = store.IsComplete networkName
-//             //     Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             // | [ Value.Network(network) ] ->
-//             //     let value = isComplete network
-//             //     Ok(Some(Value.Element(value.ToString().ToLower() |> Element)))
-//             | _ -> error "Bad call to is-complete." None }
-
 let unionCommand =
     { Eval =
-        fun local modules variables (arguments: Arguments) ->
+        fun networks local modules variables (arguments: Arguments) ->
             match arguments with
             | [ left; right ] ->
                 let left =
@@ -41,46 +31,115 @@ let unionCommand =
                         | Some(Any.Network res) -> res
                         | _ -> failwith "TODO"
                     | Any.Quote quote ->
-                        match evalQuote local modules variables quote with
-                        | Ok((Some(Any.Network network), _, _, _)) -> network
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network network), _, _, _, _)) -> network
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let result = Set.union left right |> Any.Network
-                Ok((Some(result), local, modules, variables))
+                Ok((Some(result), networks, local, modules, variables))
+            | args -> failwith $"TODO - {args}" }
+
+let setCommand =
+    { Eval =
+        fun networks local modules variables (arguments: Arguments) ->
+            match arguments with
+            | [ name; network ] ->
+                let name =
+                    match name with
+                    | Any.Element networkName -> networkName
+                    | _ -> failwith "TODO"
+
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | Any.Quote quote ->
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network network), _, _, _, _)) -> network
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let networks = Map.add name network networks
+                Ok((None, networks, local, modules, variables))
+            | args -> failwith $"TODO - {args}" }
+
+let readCommand =
+    { Eval =
+        fun networks local modules variables (arguments: Arguments) ->
+            match arguments with
+            | [ name ] ->
+                let name =
+                    match name with
+                    | Any.Element networkName -> networkName
+                    | _ -> failwith "TODO"
+
+                match Map.tryFind name networks with
+                | Some(network) -> Ok((Some(Any.Network network), networks, local, modules, variables))
+                | None -> Ok((None, networks, local, modules, variables))
+            | args -> failwith $"TODO - {args}" }
+
+let mergeCommand =
+    { Eval =
+        fun networks local modules variables (arguments: Arguments) ->
+            match arguments with
+            | [ name; network ] ->
+                let name =
+                    match name with
+                    | Any.Element networkName ->
+                        match Map.tryFind networkName networks with
+                        | Some network ->
+
+                            failwith "TODO"
+                        | None -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    // | Any.Quote quote ->
+                    //     match evalQuote local modules variables quote with
+                    //     | Ok((Some(Any.Network network), _, _, _)) -> network
+                    //     | _ -> failwith "TODO"
+                    | _ -> failwith "TODO"
+
+                failwith "TODO"
+            // let result = Set.union left right |> Any.Network
+            // Ok((Some(result), local, modules, variables))
             | args -> failwith $"TODO - {args}" }
 
 let countCommand =
     { Eval =
-        fun local modules variables (arguments: Arguments) ->
+        fun networks local modules variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Variable variable ] ->
                 match variables.TryFind variable with
                 | Some(Any.Network network) ->
-                    Ok((Some(Any.Element(Element((Set.count network).ToString()))), local, modules, variables))
+                    Ok(
+                        (Some(Any.Element(Element((Set.count network).ToString()))), networks, local, modules, variables)
+                    )
                 | _ -> failwith "TODO"
             | [ Any.Network network ] ->
-                Ok((Some(Any.Element(Element(network.Count.ToString()))), local, modules, variables))
+                Ok((Some(Any.Element(Element(network.Count.ToString()))), networks, local, modules, variables))
             | [ Any.Quote quote ] ->
-                match evalQuote local modules variables quote with
-                | Ok((Some(Any.Network network), local, modules, variables)) ->
-                    Ok((Some(Any.Element(Element(network.Count.ToString()))), local, modules, variables))
-                | Ok(None, _, _, _) -> error "Error in count, expected value." None
+                match evalQuote networks local modules variables quote with
+                | Ok((Some(Any.Network network), networks, local, modules, variables)) ->
+                    Ok((Some(Any.Element(Element(network.Count.ToString()))), networks, local, modules, variables))
+                | Ok(None, _, _, _, _) -> error "Error in count, expected value." None
                 | Error err -> error $"Error in count, {err.UserMessage}" None
             | args -> failwith $"TODO - {args}" }
 
 let minusCommand =
     { Eval =
-        fun local modules variables (arguments: Arguments) ->
+        fun networks local modules variables (arguments: Arguments) ->
             match arguments with
             | [ Any.Network(left); Any.Network(right) ] ->
                 let result = Set.difference left right |> Any.Network
-                Ok((Some(result), local, modules, variables))
+                Ok((Some(result), networks, local, modules, variables))
             | _ -> failwith "TODO" }
 
 let queryCommand =
     { Eval =
-        fun local modules variables arguments ->
+        fun networks local modules variables arguments ->
             match arguments with
             | [ pattern; template; source ] ->
                 let pattern =
@@ -118,47 +177,53 @@ let queryCommand =
                         else
                             failwith "TODO"
                     | Any.Quote quote ->
-                        match evalQuote local modules variables quote with
-                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let results = query pattern template source
-                Ok((Some(Any.Network results), local, modules, variables))
+                Ok((Some(Any.Network results), networks, local, modules, variables))
             | _ -> error "Invalid call to query" None }
 
 let matchCommand =
     { Eval =
-        fun local modules variables arguments ->
+        fun networks local modules variables arguments ->
             match arguments with
             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
                 let element =
                     match e with
                     | Any.Element e -> ElementPattern.Element e
-                    | Any.Variable v -> ElementPattern.Slot v
+                    | Any.Variable v -> ElementPattern.Variable v
                     | _ -> failwith "TODO"
 
                 let attribute =
                     match a with
                     | Any.Element e -> ElementPattern.Element e
-                    | Any.Variable v -> ElementPattern.Slot v
+                    | Any.Variable v -> ElementPattern.Variable v
                     | _ -> failwith "TODO"
 
                 let value =
                     match v with
                     | Any.Element e -> Value.Element e
-                    | Any.Variable v -> Value.Slot v
+                    | Any.Variable v -> Value.Variable v
                     | Any.Literal l -> Value.Literal l
                     | _ -> failwith "TODO"
 
-                Ok((Some(Any.ResultSet(singleMatch (element, attribute, value) network)), local, modules, variables))
+                Ok(
+                    (Some(Any.ResultSet(singleMatch (element, attribute, value) network)),
+                     networks,
+                     local,
+                     modules,
+                     variables)
+                )
             | [ pattern; network ] ->
                 let pattern =
                     match pattern with
                     | Any.Network n -> n
                     | Any.Quote q ->
-                        match evalQuote local modules variables q with
-                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
+                        match evalQuote networks local modules variables q with
+                        | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
@@ -166,44 +231,44 @@ let matchCommand =
                     match network with
                     | Any.Network n -> n
                     | Any.Quote q ->
-                        match evalQuote local modules variables q with
-                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
+                        match evalQuote networks local modules variables q with
+                        | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
-                Ok(Some(Any.ResultSet(networkMatch pattern network)), local, modules, variables)
+                Ok(Some(Any.ResultSet(networkMatch pattern network)), networks, local, modules, variables)
 
             | _ -> failwith "TODO" }
 
 let applyCommand =
     { Eval =
-        fun local modules variables arguments ->
+        fun networks local modules variables arguments ->
             match arguments with
             | [ Any.Network network; Any.Quote q ] ->
-                match evalQuote local modules variables q with
-                | Ok((Some(Any.ResultSet res), local, modules, variables)) ->
+                match evalQuote networks local modules variables q with
+                | Ok((Some(Any.ResultSet res), networks, local, modules, variables)) ->
                     let res = apply network res
-                    Ok((Some(Any.Network res), local, modules, variables))
-                | Ok((Some(Any.ValueSet res), local, modules, variables)) ->
+                    Ok((Some(Any.Network res), networks, local, modules, variables))
+                | Ok((Some(Any.ValueSet res), networks, local, modules, variables)) ->
                     let res = applyValueSet network res
-                    Ok((Some(Any.Network res), local, modules, variables))
+                    Ok((Some(Any.Network res), networks, local, modules, variables))
                 | Ok _ -> failwith "TODO"
                 | Error err -> error $"Error in apply. {err.UserMessage}" None
             | [ Any.Network network; Any.Variable v ] ->
                 match Map.tryFind v variables with
                 | Some(Any.ResultSet res) ->
                     let res = apply network res
-                    Ok((Some(Any.Network res), local, modules, variables))
+                    Ok((Some(Any.Network res), networks, local, modules, variables))
                 | Some(Any.ValueSet res) ->
                     let res = applyValueSet network res
-                    Ok((Some(Any.Network res), local, modules, variables))
+                    Ok((Some(Any.Network res), networks, local, modules, variables))
                 | Some _ -> failwith "TODO"
                 | None -> failwith "TODO"
             | args -> failwith $"TODO - unexpected args {args}" }
 
 let filterCommand =
     { Eval =
-        fun local modules variables arguments ->
+        fun networks local modules variables arguments ->
             match arguments with
             | [ pattern; source ] ->
                 let pattern =
@@ -217,8 +282,8 @@ let filterCommand =
                         else
                             failwith "TODO"
                     | Any.Quote quote ->
-                        match evalQuote local modules variables quote with
-                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
@@ -234,13 +299,13 @@ let filterCommand =
                         else
                             failwith "TODO"
                     | Any.Quote quote ->
-                        match evalQuote local modules variables quote with
-                        | Ok((Some(Any.Network n), local, modules, variables)) -> n
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok((Some(Any.Network results), local, modules, variables))
+                Ok((Some(Any.Network results), networks, local, modules, variables))
             | _ -> error "Invalid call to filter" None }
 
 let networkCommands: Map<Element, Command> =
@@ -251,6 +316,9 @@ let networkCommands: Map<Element, Command> =
           (Element "match", matchCommand)
           (Element "query", queryCommand)
           (Element "union", unionCommand)
+          (Element "merge", mergeCommand)
+          (Element "set", setCommand)
+          (Element "read", readCommand)
           (Element "filter", filterCommand)
           //(isCompleteCommand.Name, isCompleteCommand)
           //(isConsistentCommand.Name, isConsistentCommand)

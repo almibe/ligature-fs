@@ -83,6 +83,7 @@ let nameNibbler =
                     ('¬', '¬')
                     ('$', '$')
                     ('?', '?')
+                    ('*', '*')
                     ('_', '_')
                     ('=', '=')
                     (':', ':') ])
@@ -112,7 +113,7 @@ let newLineTokenNibbler =
     Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> Token.NewLine)
 
 let commentNibbler =
-    Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
+    Nibblers.takeAll [ Nibblers.takeString ";"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
 
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
@@ -148,8 +149,7 @@ let tokenNibbler =
         )
     )
 
-let replaceLineEndings (script: string) =
-    script.ReplaceLineEndings("\n")
+let replaceLineEndings (script: string) = script.ReplaceLineEndings("\n")
 
 let tokenize (script: string) =
     let gaze = Gaze.fromString (replaceLineEndings script)

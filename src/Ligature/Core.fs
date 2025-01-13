@@ -6,32 +6,32 @@ module Ligature.Core
 
 open Ligature.Model
 
-let namedSlot (v: Slot) : bool =
+let namedSlot (v: Variable) : bool =
     match v with
-    | Slot "?" -> false
+    | Variable "?" -> false
     | _ -> true
 
 let elementPatternToValue (ep: ElementPattern) : Value =
     match ep with
     | ElementPattern.Element e -> Value.Element e
-    | ElementPattern.Slot v -> Value.Slot v
+    | ElementPattern.Variable v -> Value.Variable v
 
 let testPattern
     ((elementPattern, attributePattern, valuePattern): Triple)
     ((element, attribute, value): Triple)
-    : Map<Slot, Value> option =
+    : Map<Variable, Value> option =
     let mutable result = Map.empty
     let mutable isMatch = true
 
     match elementPattern with
-    | ElementPattern.Slot slot ->
+    | ElementPattern.Variable slot ->
         if namedSlot slot then
             result <- Map.add slot (elementPatternToValue element) result
     | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
 
     if isMatch then
         match attributePattern with
-        | ElementPattern.Slot slot ->
+        | ElementPattern.Variable slot ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot] with
@@ -43,7 +43,7 @@ let testPattern
 
     if isMatch then
         match (valuePattern, value) with
-        | (Value.Slot slot, value) ->
+        | (Value.Variable slot, value) ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot], value with
@@ -67,7 +67,7 @@ let singleMatch (pattern: ElementPattern * ElementPattern * Value) (network: Net
         Set.empty
         network
 
-let andSingleResult (left: Map<Slot, Value>) (right: Map<Slot, Value>) : Option<Map<Slot, Value>> =
+let andSingleResult (left: Map<Variable, Value>) (right: Map<Variable, Value>) : Option<Map<Variable, Value>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys
@@ -110,36 +110,36 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
             let element =
                 match e with
                 | ElementPattern.Element _ -> e
-                | ElementPattern.Slot v ->
+                | ElementPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
-                        | Value.Slot v -> ElementPattern.Slot v
+                        | Value.Variable v -> ElementPattern.Variable v
                     else
-                        ElementPattern.Slot v
+                        ElementPattern.Variable v
 
             let attribute =
                 match a with
                 | ElementPattern.Element _ -> a
-                | ElementPattern.Slot v ->
+                | ElementPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
-                        | Value.Slot v -> ElementPattern.Slot v
+                        | Value.Variable v -> ElementPattern.Variable v
                     else
-                        ElementPattern.Slot v
+                        ElementPattern.Variable v
 
             let value =
                 match v with
                 | Value.Element _ -> v
                 | Value.Literal _ -> v
-                | Value.Slot slot ->
+                | Value.Variable slot ->
                     if result.ContainsKey slot then
                         result[slot]
                     else
-                        Value.Slot slot
+                        Value.Variable slot
 
             (element, attribute, value))
         pattern
