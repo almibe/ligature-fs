@@ -83,28 +83,27 @@ let mergeCommand =
         fun networks local modules variables (arguments: Arguments) ->
             match arguments with
             | [ name; network ] ->
-                let name =
+                let networkName =
                     match name with
-                    | Any.Element networkName ->
-                        match Map.tryFind networkName networks with
-                        | Some network ->
-
-                            failwith "TODO"
-                        | None -> failwith "TODO"
+                    | Any.Element networkName -> networkName
                     | _ -> failwith "TODO"
+
+                let originalNetwork =
+                    match Map.tryFind networkName networks with
+                    | Some network -> network
+                    | None -> failwith "TODO"
 
                 let network =
                     match network with
                     | Any.Network n -> n
-                    // | Any.Quote quote ->
-                    //     match evalQuote local modules variables quote with
-                    //     | Ok((Some(Any.Network network), _, _, _)) -> network
-                    //     | _ -> failwith "TODO"
+                    | Any.Quote quote ->
+                        match evalQuote networks local modules variables quote with
+                        | Ok((Some(Any.Network network), _, _, _, _)) -> network
+                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
-
-                failwith "TODO"
-            // let result = Set.union left right |> Any.Network
-            // Ok((Some(result), local, modules, variables))
+                let result = Set.union originalNetwork network
+                let networks = Map.add networkName result networks
+                Ok((Some(Any.Network result), networks, local, modules, variables))
             | args -> failwith $"TODO - {args}" }
 
 let countCommand =
