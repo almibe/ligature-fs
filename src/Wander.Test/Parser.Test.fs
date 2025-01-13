@@ -51,6 +51,22 @@ let tests =
                         ) ]
                   ))
                   ""
+          testCase "read network with quote in value"
+          <| fun _ ->
+              Expect.equal
+                  (parse "a {a b ()}")
+                  (Ok(
+                      [ Expression.Call(
+                            Element "a",
+                            [ Any.Network(
+                                  Set.ofList
+                                      [ ElementPattern.Element(Element "a"),
+                                        ElementPattern.Element(Element "b"),
+                                        Value.Quote [] ]
+                              ) ]
+                        ) ]
+                  ))
+                  ""
           testCase "read call with pattern passed"
           <| fun _ ->
               Expect.equal

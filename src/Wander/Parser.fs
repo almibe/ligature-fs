@@ -36,6 +36,13 @@ let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
         return values
     }
 
+let partialQuoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
+    result {
+        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return values
+    }
+
 let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
@@ -109,6 +116,10 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
+    | Ok(Token.OpenParen) ->
+        match partialQuoteNib gaze with
+        | Ok value -> Ok(Value.Quote(value))
+        | _ -> Error(Gaze.GazeError.NoMatch)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let callToQuote ((name, args): Call) : Quote = List.append [ Any.Element name ] args
