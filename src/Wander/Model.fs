@@ -6,16 +6,14 @@ module Wander.Model
 
 open Ligature.Model
 
-type CommandResult = (Any option * Networks * Module * Modules * Variables)
+type CommandResult = (Network * Module * Modules)
 
 and Module = Map<Element, Command> //TODO remove
 
 and Modules = Map<Element, Module> //TODO remove
 
-and Networks = Map<Element, Network>
-
 and Command =
-    { Eval: Networks -> Module -> Modules -> Variables -> Arguments -> Result<CommandResult, LigatureError> }
+    { Eval: Network -> Module -> Modules -> Arguments -> Result<CommandResult, LigatureError> }
 
 and Call = Element * Arguments
 
@@ -35,6 +33,7 @@ and [<RequireQualifiedAccess>] Expression =
     | AnyAssignment of AnyAssignment
     | CallAssignment of CallAssignment
     | CommandDefinition of CommandDefinition
+    | Network of Network
 
 and Script = Expression list
 
@@ -69,20 +68,6 @@ and printResultSet (rs: ResultSet) =
     res <- res + ")"
     res
 
-// and printNetwork (network: Network) : string =
-//     let mutable first = true
-
-//     (Seq.fold
-//         (fun state triple ->
-//             if first then
-//                 first <- false
-//                 state + " " + (printEntry triple) + ","
-//             else
-//                 state + "\n  " + (printEntry triple) + ",")
-//         "{"
-//         (network))
-//     + " }"
-
 and printNetwork (network: Network) : string =
     let mutable first = true
 
@@ -97,12 +82,13 @@ and printNetwork (network: Network) : string =
         (network))
     + " }"
 
-
 and writeValue (value: Value) : string =
     match value with
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
     | Value.Variable(Variable variable) -> variable
+    | Value.Quote(quote) -> failwith "Not Implemented"
+    | Value.Network(network) -> failwith "Not Implemented"
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =

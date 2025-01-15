@@ -60,12 +60,27 @@ let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(ElementPattern * Elem
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
+let partialNetworkNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
+    result {
+        let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Set.ofList statements
+    }
+
 let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
         return Any.Network(Set.ofList statements)
+    }
+
+let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+        let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
+        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+        return Expression.Network(Set.ofList statements)
     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =
@@ -119,6 +134,10 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     | Ok(Token.OpenParen) ->
         match partialQuoteNib gaze with
         | Ok value -> Ok(Value.Quote(value))
+        | _ -> Error(Gaze.GazeError.NoMatch)
+    | Ok(Token.OpenBrace) ->
+        match partialNetworkNib gaze with
+        | Ok value -> Ok(Value.Network(value))
         | _ -> Error(Gaze.GazeError.NoMatch)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -203,7 +222,7 @@ let callAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeErr
     }
 
 let scriptNib =
-    repeatSep (takeFirst [ closureDefNib; callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
+    repeatSep (takeFirst [ networkExpressionNib; closureDefNib; callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

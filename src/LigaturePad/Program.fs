@@ -23,6 +23,7 @@ module Main =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
+            let mutable network = Set.empty
 
             DockPanel.create
                 [ DockPanel.children
@@ -35,15 +36,15 @@ module Main =
                                           Button.onClick (fun _ ->
                                               match
                                                   run
-                                                      Map.empty
+                                                      network
                                                       defaultLocal
                                                       stdModules
                                                       emptyVariables
                                                       (script.Current)
                                               with
-                                              | Ok(Some(res), _, _, _, _) ->
-                                                  result.Set $"{(Wander.Model.prettyPrint res)}"
-                                              | Ok _ -> result.Set("--nothing--")
+                                              | Ok(newNetwork, _, _) ->
+                                                  result.Set $"{(Wander.Model.printNetwork newNetwork)}"
+                                                  network <- newNetwork
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom

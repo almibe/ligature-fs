@@ -44,6 +44,7 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Variable of Variable
     | Quote of Quote
+    | Network of Network
 
 and Triple = ElementPattern * ElementPattern * Value
 

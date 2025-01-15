@@ -8,48 +8,48 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
-let importCommand: Command =
-    { Eval =
-        fun networks local modules variables arguments ->
-            let mutable local = local
+// let importCommand: Command =
+//     { Eval =
+//         fun networks local modules arguments ->
+//             let mutable local = local
 
-            match arguments with
-            | [ Any.Element importName ] ->
-                match modules.TryFind importName with
-                | Some res ->
-                    Map.iter (fun name command -> local <- Map.add name command local) res
-                    Ok(None, networks, local, modules, variables)
-                | None -> failwith "TODO"
-            | _ -> error "Illegal call to import." None }
+//             match arguments with
+//             | [ Any.Element importName ] ->
+//                 match modules.TryFind importName with
+//                 | Some res ->
+//                     Map.iter (fun name command -> local <- Map.add name command local) res
+//                     Ok(None, networks, local, modules, variables)
+//                 | None -> failwith "TODO"
+//             | _ -> error "Illegal call to import." None }
 
 let idCommand: Command =
     { Eval =
-        fun networks local modules variables arguments ->
+        fun networks local modules arguments ->
             match arguments with
-            | [ value ] -> Ok(Some(value), networks, local, modules, variables)
+            | [ value ] -> Ok(networks, local, modules)
             | _ -> failwith "id requires 1 argument." }
 
-let readCommand: Command =
-    { Eval =
-        fun networks local modules variables arguments ->
-            match arguments with
-            | [ Any.Variable(name) ] ->
-                if variables.ContainsKey name then
-                    Ok((Some variables[name], networks, local, modules, variables))
-                else
-                    error "Could not read variable" None
-            | _ -> error "Illegal call to read." None }
+// let readCommand: Command =
+//     { Eval =
+//         fun networks local modules arguments ->
+//             match arguments with
+//             | [ Any.Variable(name) ] ->
+//                 if variables.ContainsKey name then
+//                     Ok((Snetworks, local, modules))
+//                 else
+//                     error "Could not read variable" None
+//             | _ -> error "Illegal call to read." None }
 
 let evalCommand: Command =
     { Eval =
-        fun networks local modules variables arguments ->
+        fun networks local modules arguments ->
             match arguments with
-            | [ Any.Quote(quote) ] -> evalQuote networks local modules variables quote
+            | [ Any.Quote(quote) ] -> evalQuote networks local modules quote
             | _ -> error "Illegal call to read." None }
 
 let foldCommand: Command =
     { Eval =
-        fun networks local modules variables arguments ->
+        fun networks local modules arguments ->
             match arguments with
             | [ quote; initialNetwork; resultSet ] ->
                 let quote =
@@ -66,28 +66,27 @@ let foldCommand: Command =
                     match resultSet with
                     | Any.ResultSet rs -> rs
                     | Any.Quote q ->
-                        match evalQuote networks local modules variables q with
-                        | Ok(Some(Any.ResultSet rs), _, _, _, _) -> rs
+                        match evalQuote networks local modules q with
+                        | Ok(_, _, _) -> failwith "TODO"
                         | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let res =
                     Set.fold
                         (fun s x ->
-                            let variables = Map.add (Variable "?_") (Any.ValueSet x) variables
+                            let variables = Map.add (Variable "?_") (Any.ValueSet x)
 
-                            match evalQuote networks local modules variables quote with
-                            | Ok(Some(Any.Network res), _, _, _, _) -> Set.union s res
-                            | Ok(None, _, _, _, _) -> failwith "TODO"
+                            match evalQuote networks local modules quote with
+                            | Ok(_, _, _) -> failwith "TODO"
                             | Error err -> failwith $"TODO - error in fold - {err.UserMessage}")
                         initialNetwork
                         resultSet
 
-                Ok((Some(Any.Network res)), networks, local, modules, variables)
+                Ok(networks, local, modules)
             | _ -> error "Illegal call to fold." None }
 
 let ignoreCommand: Command =
-    { Eval = fun networks local modules variables _ -> Ok(None, networks, local, modules, variables) }
+    { Eval = fun networks local modules _ -> Ok(networks, local, modules) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
 //     Element($"{arguments} -> {result}")
@@ -140,7 +139,7 @@ let docsCommand: Command =
 
 let resultSetCommand: Command =
     { Eval =
-        fun networks local modules variables arguments ->
+        fun networks local modules arguments ->
             let mutable resultSet = Set.empty
 
             List.iter
@@ -163,14 +162,14 @@ let resultSetCommand: Command =
                     | _ -> failwith "TODO")
                 arguments
 
-            Ok((Some(Any.ResultSet resultSet), networks, local, modules, variables)) }
+            Ok(networks, local, modules) }
 
 let coreCommands =
     (Map.ofList
         [ (Element "docs", docsCommand)
           (Element "id", idCommand)
           (Element "ignore", ignoreCommand)
-          (Element "read", readCommand)
+//          (Element "read", readCommand)
           (Element "result-set", resultSetCommand)
           (Element "fold", foldCommand)
           // (containsCommand.Name, containsCommand)

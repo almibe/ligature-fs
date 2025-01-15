@@ -8,10 +8,9 @@ open Ligature.Model
 open Model
 
 let rec evalElement
-    (networks: Networks)
+    (network: Network)
     (local: Module)
     (modules: Modules)
-    (variables: Variables)
     (arguments: Any list)
     (Element(name))
     : Result<CommandResult, LigatureError> =
@@ -22,12 +21,12 @@ let rec evalElement
         match modules.TryFind(Element moduleName) with
         | Some(mdl) ->
             match mdl.TryFind(Element(commandName)) with
-            | Some(command) -> command.Eval networks local modules variables arguments
+            | Some(command) -> command.Eval network local modules arguments
             | None -> error $"Could not find name {name} in module {moduleName}" None
         | None -> error $"Could not find module {moduleName}" None
     else
         match local.TryFind(Element(name)) with
-        | Some(command) -> command.Eval networks local modules variables arguments
+        | Some(command) -> command.Eval network local modules arguments
         | None -> error $"Could not find name {name}" None
 
 // and processArguments local commands networks (arguments: Any list) : Any list =
@@ -41,72 +40,71 @@ let rec evalElement
 //             | value -> value)
 //         arguments
 
-and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Module =
-    Map.add
-        closureDefinition.name
-        { Eval =
-            fun networks local modules variables arguments ->
-                if arguments.Length = closureDefinition.args.Length then
-                    let newVariables =
-                        List.fold
-                            (fun state (name, value) -> Map.add name value state)
-                            variables
-                            (List.allPairs closureDefinition.args arguments)
+and addClosure (closureDefinition: CommandDefinition) (commands: Module) : Module = failwith "TODO"
+    // Map.add
+    //     closureDefinition.name
+    //     { Eval =
+    //         fun networks local modules arguments ->
+    //             if arguments.Length = closureDefinition.args.Length then
+    //                 let newVariables =
+    //                     List.fold
+    //                         (fun state (name, value) -> Map.add name value state)
+    //                         variables
+    //                         (List.allPairs closureDefinition.args arguments)
 
-                    evalQuote networks local modules newVariables closureDefinition.body
-                else
-                    failwith "TODO" }
-        commands
+    //                 evalQuote networks local modules newVariables closureDefinition.body
+    //             else
+                    // failwith "TODO" }
+    //     commands
 
 and evalScript
-    (networks: Networks)
+    (network: Network)
     (local: Module)
     (modules: Modules)
-    (variables: Variables)
     (script: Script)
     : Result<CommandResult, LigatureError> =
     match script with
-    | [] -> Ok(None, networks, local, modules, variables)
-    | [ Expression.Call head ] -> evalCall networks local modules variables head
-    | Expression.Call head :: tail ->
-        match evalCall networks local modules variables head with
-        | Ok(_, networks, local, modules, variables) -> evalScript networks local modules variables tail
-        | Error err -> Error err
-    | Expression.AnyAssignment(variable, value) :: tail ->
-        evalScript networks local modules (Map.add variable value variables) tail
-    | Expression.CallAssignment(variable, call) :: tail ->
-        match evalCall networks local modules variables call with
-        | Ok((Some value, networks, local, modules, variables)) ->
-            evalScript networks local modules (Map.add variable value variables) tail
-        | Ok(None, _, _, _, _) -> error "Expected value in assignment." None
-        | Error err -> error $"Error in eval. {err.UserMessage}" None
-    | Expression.CommandDefinition closureDefinition :: tail ->
-        evalScript networks (addClosure closureDefinition local) modules variables tail
+    | [] -> Ok(network, local, modules)
+    | [ Expression.Call head ] -> evalCall network local modules head
+    // | Expression.Call head :: tail ->
+    //     match evalCall network local modules head with
+    //     | Ok(_, networks, local, modules) -> evalScript networks local modules tail
+    //     | Error err -> Error err
+    | Expression.Network head :: tail ->
+        Ok((Set.union head network), local, modules)
+    // | Expression.AnyAssignment(variable, value) :: tail ->
+    //     evalScript network local modules (Map.add variable value) tail
+    // | Expression.CallAssignment(variable, call) :: tail ->
+    //     match evalCall network local modules variables call with
+    //     | Ok((Some value, networks, local, modules, variables)) ->
+    //         evalScript networks local modules (Map.add variable value variables) tail
+    //     | Ok(None, _, _, _, _) -> error "Expected value in assignment." None
+    //     | Error err -> error $"Error in eval. {err.UserMessage}" None
+    // | Expression.CommandDefinition closureDefinition :: tail ->
+    //     evalScript network (addClosure closureDefinition local) modules variables tail
 
 and evalCall
-    (networks: Networks)
+    (network: Network)
     (local: Module)
     (modules: Modules)
-    (variables: Variables)
     ((name, args): Call)
     : Result<CommandResult, LigatureError> =
-    evalElement networks local modules variables args name
+    evalElement network local modules args name
 
 and evalQuote
-    (networks: Networks)
+    (network: Network)
     (local: Module)
     (modules: Modules)
-    (variables: Variables)
     (quote: Quote)
     : Result<CommandResult, LigatureError> =
     match rewriteQuote quote with
     | Ok quote ->
         match quote with
         | [] -> failwith "TODO"
-        | [ Any.Element name ] -> evalElement networks local modules variables [] name
+        | [ Any.Element name ] -> evalElement network local modules [] name
         | _ ->
             match quote.Head with
-            | Any.Element name -> evalElement networks local modules variables quote.Tail name
+            | Any.Element name -> evalElement network local modules quote.Tail name
             | _ -> failwith "TODO"
     | _ -> failwith "TODO"
 

@@ -8,32 +8,32 @@ open Ligature.Model
 open Wander.Model
 open Wander.Main
 
-let openLocalDependencyCommand: Command =
-    { Eval =
-        fun networks local modules variables arguments ->
-            match arguments with
-            | [ Any.Literal filePath ] ->
-                let script = System.IO.File.ReadAllText(filePath)
+// let openLocalDependencyCommand: Command =
+//     { Eval =
+//         fun networks local modules variables arguments ->
+//             match arguments with
+//             | [ Any.Literal filePath ] ->
+//                 let script = System.IO.File.ReadAllText(filePath)
 
-                match run networks local modules variables script with
-                | Ok((_, networks, local, modules, variables)) -> Ok((None, networks, local, modules, variables))
-                | _ -> failwith "TODO"
-            | _ -> failwith "open-local-dependency requires 1 argument." }
+//                 match run networks local modules variables script with
+//                 | Ok((_, networks, local, modules, variables)) -> Ok((None, networks, local, modules, variables))
+//                 | _ -> failwith "TODO"
+//             | _ -> failwith "open-local-dependency requires 1 argument." }
 
-let openLocalLibraryCommand: Command =
-    { Eval =
-        fun networks local modules variables arguments ->
-            match arguments with
-            | [ Any.Literal filePath ] ->
-                let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
-                let script = System.IO.File.ReadAllText(path + "/" + filePath)
+// let openLocalLibraryCommand: Command =
+//     { Eval =
+//         fun networks local modules variables arguments ->
+//             match arguments with
+//             | [ Any.Literal filePath ] ->
+//                 let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+//                 let script = System.IO.File.ReadAllText(path + "/" + filePath)
 
-                match run networks local modules variables script with
-                | Ok((_, networks, local, modules, variables)) -> Ok((None, networks, local, modules, variables))
-                | _ -> failwith "TODO"
-            | _ -> failwith "open-local-library requires 1 argument." }
+//                 match run networks local modules variables script with
+//                 | Ok((_, networks, local, modules, variables)) -> Ok((None, networks, local, modules, variables))
+//                 | _ -> failwith "TODO"
+//             | _ -> failwith "open-local-library requires 1 argument." }
 
 let ioCommands =
-    (Map.ofList
-        [ (Element "open-local-dependency", openLocalDependencyCommand)
-          (Element "open-local-library", openLocalLibraryCommand) ])
+    (Map.empty)
+        // [ (Element "open-local-dependency", openLocalDependencyCommand)
+        //   (Element "open-local-library", openLocalLibraryCommand) ])

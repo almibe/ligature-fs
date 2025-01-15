@@ -8,54 +8,54 @@ open Ligature.Model
 open Wander.Interpreter
 open Wander.Model
 
-let assertEqualCommand: Command =
-    { Eval =
-        fun networks local (modules: Modules) variables (arguments: Arguments) ->
-            match arguments with
-            | [ first; second ] ->
-                let first =
-                    match first with
-                    | Any.Quote quote ->
-                        match evalQuote networks local modules variables quote with
-                        | Ok((Some(res), _, _, _, _)) -> res
-                        | Ok _ -> failwith "Invalid first expression passed to assert-equal."
-                        | Error err -> failwith $"Expression errored: {err.UserMessage}."
-                    | Any.Variable variable ->
-                        match Map.tryFind variable variables with
-                        | Some(res) -> res
-                        | None -> failwith "Invalid first expression passed to assert-equal."
-                    | _ -> first
+// let assertEqualCommand: Command =
+//     { Eval =
+//         fun networks local (modules: Modules) variables (arguments: Arguments) ->
+//             match arguments with
+//             | [ first; second ] ->
+//                 let first =
+//                     match first with
+//                     | Any.Quote quote ->
+//                         match evalQuote networks local modules variables quote with
+//                         | Ok((Some(res), _, _, _, _)) -> res
+//                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+//                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+//                     | Any.Variable variable ->
+//                         match Map.tryFind variable variables with
+//                         | Some(res) -> res
+//                         | None -> failwith "Invalid first expression passed to assert-equal."
+//                     | _ -> first
 
-                let second =
-                    match second with
-                    | Any.Quote quote ->
-                        match evalQuote networks local modules variables quote with
-                        | Ok((Some(res), _, _, _, _)) -> res
-                        | Ok _ -> failwith "Invalid second expression passed to assert-equal."
-                        | Error err -> failwith $"Expression errored: {err.UserMessage}."
-                    | Any.Variable variable ->
-                        match Map.tryFind variable variables with
-                        | Some(res) -> res
-                        | None -> failwith "Invalid second expression passed to assert-equal."
-                    | _ -> second
+//                 let second =
+//                     match second with
+//                     | Any.Quote quote ->
+//                         match evalQuote networks local modules variables quote with
+//                         | Ok((Some(res), _, _, _, _)) -> res
+//                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
+//                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+//                     | Any.Variable variable ->
+//                         match Map.tryFind variable variables with
+//                         | Some(res) -> res
+//                         | None -> failwith "Invalid second expression passed to assert-equal."
+//                     | _ -> second
 
-                if first = second then
-                    Ok((Some(Any.Element(Element "Sucess!")), networks, local, modules, variables))
-                else
-                    error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
-            | args -> error $"assert-equal passed illegal arguments - {args}" None }
+//                 if first = second then
+//                     Ok((Some(Any.Element(Element "Sucess!")), networks, local, modules, variables))
+//                 else
+//                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
+//             | args -> error $"assert-equal passed illegal arguments - {args}" None }
 
-let assertFailCommand: Command =
-    { Eval =
-        fun networks local (modules: Modules) variables (arguments: Arguments) ->
-            match arguments with
-            | [ Any.Quote quote ] ->
-                match evalQuote networks local modules variables quote with
-                | Ok(_) -> error "assert-fail call didn't result in error." None
-                | Error _ -> Ok((Some(Any.Network Set.empty), networks, local, modules, variables))
-            | args -> error $"assert-fail passed illegal arguments - {args}" None }
+// let assertFailCommand: Command =
+//     { Eval =
+//         fun networks local (modules: Modules) (arguments: Arguments) ->
+//             match arguments with
+//             | [ Any.Quote quote ] ->
+//                 match evalQuote networks local modules quote with
+//                 | Ok(_) -> error "assert-fail call didn't result in error." None
+//                 | Error _ -> Ok((Some(Any.Network Set.empty), networks, local, modules))
+//             | args -> error $"assert-fail passed illegal arguments - {args}" None }
 
-let assertCommands =
-    Map.ofList
-        [ (Element "assert-equal", (assertEqualCommand))
-          (Element "assert-fail", (assertFailCommand)) ]
+let assertCommands = Map.empty
+    // Map.ofList
+    //     [ (Element "assert-equal", (assertEqualCommand))
+    //       (Element "assert-fail", (assertFailCommand)) ]

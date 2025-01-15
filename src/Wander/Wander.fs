@@ -11,7 +11,7 @@ open Interpreter
 open Wander.Model
 
 let run
-    (networks: Networks)
+    (network: Network)
     (local: Module)
     (modules: Modules)
     (variables: Variables)
@@ -21,7 +21,7 @@ let run
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok script -> evalScript networks local modules variables script
+            | Ok script -> evalScript network local modules script
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

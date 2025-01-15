@@ -7,16 +7,16 @@ module Wander.Commands.Bool
 open Wander.Model
 open Ligature.Model
 
-let notFunction =
-    { Eval =
-        (fun networks local modules variables args ->
-            match args with
-            | [ Any.Element(value) ] ->
-                match value with
-                | Element("true") -> Ok((Some(Any.Element(Element("false"))), networks, local, modules, variables))
-                | Element("false") -> Ok((Some(Any.Element(Element("true"))), networks, local, modules, variables))
-                | _ -> error "Invalid argument passed to not." None
-            | _ -> error "Invalid call to not function." None) }
+// let notFunction =
+//     { Eval =
+//         (fun networks local modules variables args ->
+//             match args with
+//             | [ Any.Element(value) ] ->
+//                 match value with
+//                 | Element("true") -> Ok((Some(Any.Element(Element("false"))), networks, local, modules, variables))
+//                 | Element("false") -> Ok((Some(Any.Element(Element("true"))), networks, local, modules, variables))
+//                 | _ -> error "Invalid argument passed to not." None
+//             | _ -> error "Invalid call to not function." None) }
 
 // let andFunction =
 //     { Name = "and"
@@ -27,4 +27,4 @@ let notFunction =
 //             | [ Value.Bool(left); Value.Bool(right) ] -> Ok(Value.Bool(left && right))
 //             | _ -> error "Invalid call to and function." None) }
 
-let boolLib = Map.ofList [ (Element "not", notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = Map.empty//.ofList [ ]//(Element "not", notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
