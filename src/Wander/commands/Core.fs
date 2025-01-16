@@ -22,12 +22,6 @@ open Wander.Interpreter
 //                 | None -> failwith "TODO"
 //             | _ -> error "Illegal call to import." None }
 
-let idCommand: Command =
-    { Eval =
-        fun networks local modules arguments ->
-            match arguments with
-            | [ value ] -> Ok(networks, local, modules)
-            | _ -> failwith "id requires 1 argument." }
 
 // let readCommand: Command =
 //     { Eval =
@@ -40,53 +34,53 @@ let idCommand: Command =
 //                     error "Could not read variable" None
 //             | _ -> error "Illegal call to read." None }
 
-let evalCommand: Command =
-    { Eval =
-        fun networks local modules arguments ->
-            match arguments with
-            | [ Any.Quote(quote) ] -> evalQuote networks local modules quote
-            | _ -> error "Illegal call to read." None }
+// let evalCommand: Action =
+//     { Eval =
+//         fun networks local modules arguments ->
+//             match arguments with
+//             | [ Any.Quote(quote) ] -> evalQuote networks local modules quote
+//             | _ -> error "Illegal call to read." None }
 
-let foldCommand: Command =
-    { Eval =
-        fun networks local modules arguments ->
-            match arguments with
-            | [ quote; initialNetwork; resultSet ] ->
-                let quote =
-                    match quote with
-                    | Any.Quote q -> q
-                    | _ -> failwith "TODO"
+// let foldCommand: Action =
+//     { Eval =
+//         fun networks local modules arguments ->
+//             match arguments with
+//             | [ quote; initialNetwork; resultSet ] ->
+//                 let quote =
+//                     match quote with
+//                     | Any.Quote q -> q
+//                     | _ -> failwith "TODO"
 
-                let initialNetwork =
-                    match initialNetwork with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+//                 let initialNetwork =
+//                     match initialNetwork with
+//                     | Any.Network n -> n
+//                     | _ -> failwith "TODO"
 
-                let resultSet =
-                    match resultSet with
-                    | Any.ResultSet rs -> rs
-                    | Any.Quote q ->
-                        match evalQuote networks local modules q with
-                        | Ok(_, _, _) -> failwith "TODO"
-                        | _ -> failwith "TODO"
-                    | _ -> failwith "TODO"
+//                 let resultSet =
+//                     match resultSet with
+//                     | Any.ResultSet rs -> rs
+//                     | Any.Quote q ->
+//                         match evalQuote networks local modules q with
+//                         | Ok(_, _, _) -> failwith "TODO"
+//                         | _ -> failwith "TODO"
+//                     | _ -> failwith "TODO"
 
-                let res =
-                    Set.fold
-                        (fun s x ->
-                            let variables = Map.add (Variable "?_") (Any.ValueSet x)
+//                 let res =
+//                     Set.fold
+//                         (fun s x ->
+//                             let variables = Map.add (Variable "?_") (Any.ValueSet x)
 
-                            match evalQuote networks local modules quote with
-                            | Ok(_, _, _) -> failwith "TODO"
-                            | Error err -> failwith $"TODO - error in fold - {err.UserMessage}")
-                        initialNetwork
-                        resultSet
+//                             match evalQuote networks local modules quote with
+//                             | Ok(_, _, _) -> failwith "TODO"
+//                             | Error err -> failwith $"TODO - error in fold - {err.UserMessage}")
+//                         initialNetwork
+//                         resultSet
 
-                Ok(networks, local, modules)
-            | _ -> error "Illegal call to fold." None }
+//                 Ok(networks, local, modules)
+//             | _ -> error "Illegal call to fold." None }
 
-let ignoreCommand: Command =
-    { Eval = fun networks local modules _ -> Ok(networks, local, modules) }
+// let ignoreCommand: Action =
+//     { Eval = fun networks local modules _ -> Ok(networks, local, modules) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Element =
 //     Element($"{arguments} -> {result}")
@@ -105,8 +99,8 @@ let ignoreCommand: Command =
 //         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
-let docsCommand: Command =
-    { Eval = fun local modules variables _ -> failwith "TODO" }
+// let docsCommand: Action =
+//     { Eval = fun local modules variables _ -> failwith "TODO" }
 // let mutable docs: Network = Set.empty
 
 // Map.toList modules
@@ -137,40 +131,38 @@ let docsCommand: Command =
 //                     Ok(Some(Any.Element(Element "false")))
 //             | _ -> error "Illegal call to contains" None }
 
-let resultSetCommand: Command =
-    { Eval =
-        fun networks local modules arguments ->
-            let mutable resultSet = Set.empty
+// let resultSetCommand: Action =
+//     { Eval =
+//         fun actions network ->
+//             let mutable resultSet = Set.empty
 
-            List.iter
-                (fun arg ->
-                    match arg with
-                    | Any.Quote q ->
-                        let mutable variables = Map.empty
+//             List.iter
+//                 (fun arg ->
+//                     match arg with
+//                     | Any.Quote q ->
+//                         let mutable variables = Map.empty
 
-                        List.iter
-                            (fun chunk ->
-                                match chunk with
-                                | [ Any.Variable v; Any.Element e ] ->
-                                    variables <- Map.add v (Value.Element e) variables
-                                | [ Any.Variable v; Any.Literal l ] ->
-                                    variables <- Map.add v (Value.Literal l) variables
-                                | _ -> failwith "TODO")
-                            (q |> List.chunkBySize 2)
+//                         List.iter
+//                             (fun chunk ->
+//                                 match chunk with
+//                                 | [ Any.Variable v; Any.Element e ] ->
+//                                     variables <- Map.add v (Value.Element e) variables
+//                                 | [ Any.Variable v; Any.Literal l ] ->
+//                                     variables <- Map.add v (Value.Literal l) variables
+//                                 | _ -> failwith "TODO")
+//                             (q |> List.chunkBySize 2)
 
-                        resultSet <- Set.add variables resultSet
-                    | _ -> failwith "TODO")
-                arguments
+//                         resultSet <- Set.add variables resultSet
+//                     | _ -> failwith "TODO")
+//                 arguments
 
-            Ok(networks, local, modules) }
+//             Ok(networks, local, modules) }
 
-let coreCommands =
-    (Map.ofList
-        [ (Element "docs", docsCommand)
-          (Element "id", idCommand)
-          (Element "ignore", ignoreCommand)
-//          (Element "read", readCommand)
-          (Element "result-set", resultSetCommand)
-          (Element "fold", foldCommand)
-          // (containsCommand.Name, containsCommand)
-          (Element "eval", evalCommand) ])
+let coreCommands = (Map.empty)
+// [ (Element "docs", docsCommand)
+//   (Element "ignore", ignoreCommand)
+//   //          (Element "read", readCommand)
+//   (Element "result-set", resultSetCommand)
+//   (Element "fold", foldCommand)
+//   // (containsCommand.Name, containsCommand)
+//   (Element "eval", evalCommand) ])

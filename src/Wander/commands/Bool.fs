@@ -27,4 +27,4 @@ open Ligature.Model
 //             | [ Value.Bool(left); Value.Bool(right) ] -> Ok(Value.Bool(left && right))
 //             | _ -> error "Invalid call to and function." None) }
 
-let boolLib = Map.empty//.ofList [ ]//(Element "not", notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]
+let boolLib = Map.empty //.ofList [ ]//(Element "not", notFunction) ] // toBytesFunction; fromBytesFunction; notFunction; andFunction ]

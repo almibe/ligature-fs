@@ -6,36 +6,7 @@ module Wander.Model
 
 open Ligature.Model
 
-type CommandResult = (Network * Module * Modules)
-
-and Module = Map<Element, Command> //TODO remove
-
-and Modules = Map<Element, Module> //TODO remove
-
-and Command =
-    { Eval: Network -> Module -> Modules -> Arguments -> Result<CommandResult, LigatureError> }
-
-and Call = Element * Arguments
-
-and Arguments = Any list
-
-and AnyAssignment = Variable * Any
-
-and CallAssignment = Variable * Call
-
-and CommandDefinition =
-    { name: Element
-      args: List<Variable>
-      body: Quote }
-
-and [<RequireQualifiedAccess>] Expression =
-    | Call of Call
-    | AnyAssignment of AnyAssignment
-    | CallAssignment of CallAssignment
-    | CommandDefinition of CommandDefinition
-    | Network of Network
-
-and Script = Expression list
+type Script = Network list
 
 and Variables = Map<Variable, Any>
 
@@ -52,7 +23,6 @@ let rec prettyPrint (value: Any) : string =
     | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
-    | Any.Pipe -> "|"
     | Any.ValueSet(_) -> failwith "Not Implemented"
 
 and printResultSet (rs: ResultSet) =

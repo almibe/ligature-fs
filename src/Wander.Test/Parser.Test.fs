@@ -7,7 +7,6 @@ module Wander.Parser.Test
 open Expecto
 open Wander.Tokenizer
 open Ligature.Model
-open Wander.Model
 
 let parse input =
     match tokenize input with
@@ -19,102 +18,76 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
-          testCase "read call with network passed"
+          testCase "read call with empty network passed"
+          <| fun _ -> Expect.equal (parse "{}") (Ok([ Set.empty ])) ""
+          testCase "read call with single count network passed"
           <| fun _ ->
               Expect.equal
-                  (parse "a {a b c}")
+                  (parse "{a b c}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ (ElementPattern.Element(Element "a"),
-                                         ElementPattern.Element(Element "b"),
-                                         Value.Element(Element "c")) ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ (ElementPattern.Element(Element "a"),
+                               ElementPattern.Element(Element "b"),
+                               Value.Element(Element "c")) ] ]
                   ))
                   ""
           testCase "read network with attribute"
           <| fun _ ->
               Expect.equal
-                  (parse "a {a b \"c\"}")
+                  (parse "{a b \"c\"}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ ElementPattern.Element(Element "a"),
-                                        ElementPattern.Element(Element "b"),
-                                        Value.Literal "c" ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ ElementPattern.Element(Element "a"),
+                              ElementPattern.Element(Element "b"),
+                              Value.Literal "c" ] ]
+
                   ))
                   ""
           testCase "read network with quote in value"
           <| fun _ ->
               Expect.equal
-                  (parse "a {a b ()}")
+                  (parse "{a b ()}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ ElementPattern.Element(Element "a"),
-                                        ElementPattern.Element(Element "b"),
-                                        Value.Quote [] ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ ElementPattern.Element(Element "a"), ElementPattern.Element(Element "b"), Value.Quote [] ] ]
                   ))
                   ""
           testCase "read network with network in value"
           <| fun _ ->
               Expect.equal
-                  (parse "a {a b {}}")
+                  (parse "{a b {}}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ ElementPattern.Element(Element "a"),
-                                        ElementPattern.Element(Element "b"),
-                                        Value.Network Set.empty ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ ElementPattern.Element(Element "a"),
+                              ElementPattern.Element(Element "b"),
+                              Value.Network Set.empty ] ]
                   ))
                   ""
           testCase "read call with pattern passed"
           <| fun _ ->
               Expect.equal
-                  (parse "a {?a b c}")
+                  (parse "{?a b c}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "a",
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ ElementPattern.Variable(Variable "?a"),
-                                        ElementPattern.Element(Element "b"),
-                                        Value.Element(Element "c") ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ ElementPattern.Variable(Variable "?a"),
+                              ElementPattern.Element(Element "b"),
+                              Value.Element(Element "c") ] ]
                   ))
                   ""
-          testCase "read call with pipe"
+          testCase "read multiple network script"
           <| fun _ ->
               Expect.equal
-                  (parse "id {a b c} | count")
+                  (parse "{a b c} {d e f}")
                   (Ok(
-                      [ Expression.Call(
-                            Element "count",
-                            [ Any.Quote(
-                                  [ Any.Element(Element "id")
-                                    Any.Network(
-                                        Set.ofList
-                                            [ ElementPattern.Element(Element "a"),
-                                              ElementPattern.Element(Element "b"),
-                                              Value.Element(Element "c") ]
-                                    ) ]
-                              ) ]
-                        ) ]
+                      [ Set.ofList
+                            [ ElementPattern.Element(Element "a"),
+                              ElementPattern.Element(Element "b"),
+                              Value.Element(Element "c") ]
+
+
+                        Set.ofList
+                            [ ElementPattern.Element(Element "d"),
+                              ElementPattern.Element(Element "e"),
+                              Value.Element(Element "f") ] ]
                   ))
                   "" ]

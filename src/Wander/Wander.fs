@@ -10,18 +10,12 @@ open Ligature.Model
 open Interpreter
 open Wander.Model
 
-let run
-    (network: Network)
-    (local: Module)
-    (modules: Modules)
-    (variables: Variables)
-    (input: string)
-    : Result<CommandResult, LigatureError> =
+let run (actions: Actions) (network: Network) (input: string) : Result<Network, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
-            | Ok script -> evalScript network local modules script
+            | Ok script -> evalScript actions network script
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->

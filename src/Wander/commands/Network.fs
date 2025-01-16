@@ -244,15 +244,15 @@ open Wander.Interpreter
 //                 Ok((Some(Any.Network results), networks, local, modules))
 //             | _ -> error "Invalid call to filter" None }
 
-let networkCommands: Map<Element, Command> =
+let networkCommands: Map<Element, Action> =
     (Map.ofList
-        [// (Element "apply", applyCommand)
+        [ // (Element "apply", applyCommand)
         //   (Element "count", countCommand)
         //   (Element "minus", minusCommand)
         //   (Element "match", matchCommand)
         //   (Element "query", queryCommand)
         //   (Element "union", unionCommand)
         //   (Element "filter", filterCommand)
-          //(isCompleteCommand.Name, isCompleteCommand)
-          //(isConsistentCommand.Name, isConsistentCommand)
-          ])
+        //(isCompleteCommand.Name, isCompleteCommand)
+        //(isConsistentCommand.Name, isConsistentCommand)
+        ])

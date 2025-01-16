@@ -56,6 +56,6 @@ open Wander.Model
 //             | args -> error $"assert-fail passed illegal arguments - {args}" None }
 
 let assertCommands = Map.empty
-    // Map.ofList
-    //     [ (Element "assert-equal", (assertEqualCommand))
-    //       (Element "assert-fail", (assertFailCommand)) ]
+// Map.ofList
+//     [ (Element "assert-equal", (assertEqualCommand))
+//       (Element "assert-fail", (assertFailCommand)) ]

@@ -33,7 +33,6 @@ open Wander.Main
 //                 | _ -> failwith "TODO"
 //             | _ -> failwith "open-local-library requires 1 argument." }
 
-let ioCommands =
-    (Map.empty)
-        // [ (Element "open-local-dependency", openLocalDependencyCommand)
-        //   (Element "open-local-library", openLocalLibraryCommand) ])
+let ioCommands = (Map.empty)
+// [ (Element "open-local-dependency", openLocalDependencyCommand)
+//   (Element "open-local-library", openLocalLibraryCommand) ])

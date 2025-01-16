@@ -34,15 +34,8 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match
-                                                  run
-                                                      network
-                                                      defaultLocal
-                                                      stdModules
-                                                      emptyVariables
-                                                      (script.Current)
-                                              with
-                                              | Ok(newNetwork, _, _) ->
+                                              match run Map.empty network (script.Current) with
+                                              | Ok(newNetwork) ->
                                                   result.Set $"{(Wander.Model.printNetwork newNetwork)}"
                                                   network <- newNetwork
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]

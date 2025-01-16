@@ -100,4 +100,4 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 //                 | Error err -> error $"Error calling infer: {err}" None
 //             | _ -> error "Improper call to infer." None }
 
-let tinyDLCommands = Map.empty//(Map.ofList [ (Element "infer", inferCommand) ])
+let tinyDLCommands = Map.empty //(Map.ofList [ (Element "infer", inferCommand) ])

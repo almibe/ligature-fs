@@ -75,12 +75,12 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Network(Set.ofList statements)
     }
 
-let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Expression.Network(Set.ofList statements)
+        return (Set.ofList statements)
     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =
@@ -109,13 +109,8 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
     | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Ok(Token.Pipe) -> Ok(Any.Pipe)
-    | _ -> Error(Gaze.GazeError.NoMatch)
-
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib; pipeNib ]
+    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib ]
 
 let anyNibIgnorePipe: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib ]
@@ -141,88 +136,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
         | _ -> Error(Gaze.GazeError.NoMatch)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let callToQuote ((name, args): Call) : Quote = List.append [ Any.Element name ] args
-
-let callNib (gaze: Gaze.Gaze<Token>) : Result<Call, Gaze.GazeError> =
-    let mutable cont = true
-    let mutable currentCommandName: Element = Element ""
-    let mutable call = None
-
-    while cont do
-        match Gaze.peek gaze with
-        | Ok Token.Comma -> cont <- false
-        | Ok Token.Pipe ->
-            if call = None then
-                cont <- false
-            else
-                Gaze.next gaze |> ignore
-
-                match Gaze.next gaze with
-                | Ok(Token.Element name) -> currentCommandName <- Element name
-                | _ -> failwith "TODO"
-        | Error _ -> cont <- false
-        | Ok(Token.Element e) ->
-            currentCommandName <- Element e
-            Gaze.next gaze |> ignore
-        | Ok _ ->
-            call <- None
-            cont <- false
-
-        if cont then
-            let arguments = Gaze.attempt (optional (repeat anyNibIgnorePipe)) gaze
-
-            match arguments with
-            | Ok arguments ->
-                match call with
-                | None -> call <- Some(Call(currentCommandName, arguments))
-                | Some prevCall ->
-                    let quote = callToQuote prevCall
-                    let newArgs = List.append arguments [ Any.Quote quote ]
-                    call <- Some(Call(currentCommandName, newArgs))
-            | Error _ -> failwith "TODO"
-
-    match call with
-    | Some call -> Ok call
-    | _ -> Error Gaze.NoMatch
-
-let callExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! call = Gaze.attempt callNib gaze
-        return Expression.Call(call)
-    }
-
-let closureDefNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take (Token.Element("define"))) gaze
-        let! name = Gaze.attempt elementNib gaze
-        let! args = Gaze.attempt (optional (repeat variableNib)) gaze
-        let! body = Gaze.attempt quoteNib gaze
-
-        return
-            Expression.CommandDefinition
-                { name = name
-                  args = args
-                  body = body }
-    }
-
-let anyAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! variable = Gaze.attempt variableNib gaze
-        let! _ = Gaze.attempt equalNib gaze
-        let! value = Gaze.attempt anyNibIgnorePipe gaze
-        return Expression.AnyAssignment(variable, value)
-    }
-
-let callAssignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! variable = Gaze.attempt variableNib gaze
-        let! _ = Gaze.attempt equalNib gaze
-        let! call = Gaze.attempt callNib gaze
-        return Expression.CallAssignment(variable, call)
-    }
-
-let scriptNib =
-    repeatSep (takeFirst [ networkExpressionNib; closureDefNib; callExpressionNib; callAssignmentNib; anyAssignmentNib ]) Token.Comma
+let scriptNib = repeat (takeFirst [ networkExpressionNib ])
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
