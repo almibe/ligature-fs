@@ -6,8 +6,9 @@ module Wander.Lib
 
 open Ligature.Model
 open Wander.Model
-open Wander.Actions.Network
 open Wander.Actions.Assert
+open Wander.Actions.Core
+open Wander.Actions.Network
 open Wander.Actions.TinyDL
 
 let stdActions: Actions =
@@ -15,4 +16,7 @@ let stdActions: Actions =
         [ (Element "assert-equal", assertEqualAction)
           (Element "union", unionAction)
           (Element "infer", inferAction)
+          (Element "clear", clearAction)
+          (Element "pop", popAction)
+          (Element "filter", filterAction)
           (Element "count", countAction) ]

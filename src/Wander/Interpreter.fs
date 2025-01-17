@@ -22,5 +22,8 @@ let rec evalScript
     | [] -> Ok(network, stack)
     | head :: tail ->
         match head with
-        | Any.Element action -> executeAction actions network stack action
+        | Any.Element action -> 
+            match executeAction actions network stack action with
+            | Ok(network, stack) -> evalScript actions network stack tail
+            | Error err -> Error err
         | value -> evalScript actions network (value :: stack) tail

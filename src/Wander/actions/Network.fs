@@ -202,52 +202,51 @@ let countAction =
 //                 | None -> failwith "TODO"
 //             | args -> failwith $"TODO - unexpected args {args}" }
 
-// let filterCommand =
-//     { Eval =
-//         fun networks local modules variables arguments ->
-//             match arguments with
-//             | [ pattern; source ] ->
-//                 let pattern =
-//                     match pattern with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         if variables.ContainsKey v then
-//                             match variables[v] with
-//                             | Any.Network n -> n
-//                             | _ -> failwith "TODO"
-//                         else
-//                             failwith "TODO"
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
+let filterAction =
+    { Eval =
+        fun actions network stack ->
+            match stack with
+            | Any.Network pattern :: Any.Network source :: tail ->
+                // let pattern =
+                //     match pattern with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
+                // let source =
+                //     match source with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-//                 let source =
-//                     match source with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         if variables.ContainsKey v then
-//                             match variables[v] with
-//                             | Any.Network n -> n
-//                             | _ -> failwith "TODO"
-//                         else
-//                             failwith "TODO"
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
-
-//                 let results = filter pattern source
-//                 Ok((Some(Any.Network results), networks, local, modules))
-//             | _ -> error "Invalid call to filter" None }
+                let results = filter pattern source
+                Ok(network, Any.Network results :: tail)
+            | _ -> error "Invalid call to filter" None }
 
 let networkCommands: Map<Element, Action> =
     (Map.ofList
         [ // (Element "apply", applyCommand)
-          (Element "count", countAction)
+        //   (Element "count", countAction)
           //   (Element "minus", minusCommand)
           //   (Element "match", matchCommand)
           //   (Element "query", queryCommand)
