@@ -19,16 +19,18 @@ let tests =
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "read call with empty network passed"
-          <| fun _ -> Expect.equal (parse "{}") (Ok([ Set.empty ])) ""
+          <| fun _ -> Expect.equal (parse "{}") (Ok([ Any.Network Set.empty ])) ""
           testCase "read call with single count network passed"
           <| fun _ ->
               Expect.equal
                   (parse "{a b c}")
                   (Ok(
-                      [ Set.ofList
-                            [ (ElementPattern.Element(Element "a"),
-                               ElementPattern.Element(Element "b"),
-                               Value.Element(Element "c")) ] ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ (ElementPattern.Element(Element "a"),
+                                   ElementPattern.Element(Element "b"),
+                                   Value.Element(Element "c")) ]
+                        ) ]
                   ))
                   ""
           testCase "read network with attribute"
@@ -36,10 +38,12 @@ let tests =
               Expect.equal
                   (parse "{a b \"c\"}")
                   (Ok(
-                      [ Set.ofList
-                            [ ElementPattern.Element(Element "a"),
-                              ElementPattern.Element(Element "b"),
-                              Value.Literal "c" ] ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Element(Element "a"),
+                                  ElementPattern.Element(Element "b"),
+                                  Value.Literal "c" ]
+                        ) ]
 
                   ))
                   ""
@@ -48,8 +52,12 @@ let tests =
               Expect.equal
                   (parse "{a b ()}")
                   (Ok(
-                      [ Set.ofList
-                            [ ElementPattern.Element(Element "a"), ElementPattern.Element(Element "b"), Value.Quote [] ] ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Element(Element "a"),
+                                  ElementPattern.Element(Element "b"),
+                                  Value.Quote [] ]
+                        ) ]
                   ))
                   ""
           testCase "read network with network in value"
@@ -57,10 +65,12 @@ let tests =
               Expect.equal
                   (parse "{a b {}}")
                   (Ok(
-                      [ Set.ofList
-                            [ ElementPattern.Element(Element "a"),
-                              ElementPattern.Element(Element "b"),
-                              Value.Network Set.empty ] ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Element(Element "a"),
+                                  ElementPattern.Element(Element "b"),
+                                  Value.Network Set.empty ]
+                        ) ]
                   ))
                   ""
           testCase "read call with pattern passed"
@@ -68,10 +78,12 @@ let tests =
               Expect.equal
                   (parse "{?a b c}")
                   (Ok(
-                      [ Set.ofList
-                            [ ElementPattern.Variable(Variable "?a"),
-                              ElementPattern.Element(Element "b"),
-                              Value.Element(Element "c") ] ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Variable(Variable "?a"),
+                                  ElementPattern.Element(Element "b"),
+                                  Value.Element(Element "c") ]
+                        ) ]
                   ))
                   ""
           testCase "read multiple network script"
@@ -79,15 +91,19 @@ let tests =
               Expect.equal
                   (parse "{a b c} {d e f}")
                   (Ok(
-                      [ Set.ofList
-                            [ ElementPattern.Element(Element "a"),
-                              ElementPattern.Element(Element "b"),
-                              Value.Element(Element "c") ]
+                      [ Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Element(Element "a"),
+                                  ElementPattern.Element(Element "b"),
+                                  Value.Element(Element "c") ]
+                        )
 
 
-                        Set.ofList
-                            [ ElementPattern.Element(Element "d"),
-                              ElementPattern.Element(Element "e"),
-                              Value.Element(Element "f") ] ]
+                        Any.Network(
+                            Set.ofList
+                                [ ElementPattern.Element(Element "d"),
+                                  ElementPattern.Element(Element "e"),
+                                  Value.Element(Element "f") ]
+                        ) ]
                   ))
                   "" ]

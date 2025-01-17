@@ -34,7 +34,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run Map.empty Set.empty script with
+                match run Map.empty Set.empty List.Empty script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList
