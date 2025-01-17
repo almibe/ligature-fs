@@ -32,16 +32,17 @@ let stdActions: Actions =
           (Element "is-consistent", createAction [
             Any.Network(
                 Set.ofList
-                    [ ElementPattern.Variable(Variable "?el"),
-                      ElementPattern.Element(Element ":"),
-                      Value.Variable(Variable "?concept") ])
+                    [ (ElementPattern.Variable(Variable "?el"),
+                        ElementPattern.Element(Element ":"),
+                        Value.Variable(Variable "?concept"));
+                      (ElementPattern.Variable(Variable "?el"),
+                        ElementPattern.Element(Element ":¬"),
+                        Value.Variable(Variable "?concept")) ])
             Any.Network(
                 Set.ofList
                     [ ElementPattern.Variable(Variable "?el"),
                       ElementPattern.Element(Element ":¬"),
                       Value.Variable(Variable "?concept") ])
             Any.Element (Element "query")
-            Any.Literal "true"
-            Any.Literal "false"
-            Any.Element(Element "if-empty")
+            Any.Element(Element "is-empty")
           ]) ]
