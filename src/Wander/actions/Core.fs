@@ -158,8 +158,8 @@ open Wander.Interpreter
 
 //             Ok(networks, local, modules) }
 
-let coreCommands = (Map.empty)
-// [ (Element "docs", docsCommand)
+let coreActions = Map.empty
+// [ (Element "docs", docsCommand) ]
 //   (Element "ignore", ignoreCommand)
 //   //          (Element "read", readCommand)
 //   (Element "result-set", resultSetCommand)

@@ -38,7 +38,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run Map.empty network stack (script.Current) with
+                                              match run stdActions network stack (script.Current) with
                                               | Ok(newNetwork, newStack) ->
                                                   network <- newNetwork
                                                   stack <- newStack

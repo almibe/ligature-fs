@@ -9,42 +9,43 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-// let unionCommand =
-//     { Eval =
-//         fun networks local modules variables (arguments: Arguments) ->
-//             match arguments with
-//             | [ left; right ] ->
-//                 let left =
-//                     match left with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         match Map.tryFind v variables with
-//                         | Some(Any.Network res) -> res
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
+let unionAction =
+    { Eval =
+        fun actions network stack ->
+            match stack with
+            | Any.Network left :: Any.Network right :: tail ->
+                // let left =
+                //     match left with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         match Map.tryFind v variables with
+                //         | Some(Any.Network res) -> res
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-//                 let right =
-//                     match right with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         match Map.tryFind v variables with
-//                         | Some(Any.Network res) -> res
-//                         | _ -> failwith "TODO"
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(Any.Network network), _, _, _, _)) -> network
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
-
-//                 let result = Set.union left right |> Any.Network
-//                 Ok((Some(result), networks, local, modules, variables))
-//             | args -> failwith $"TODO - {args}" }
+                // let right =
+                //     match right with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         match Map.tryFind v variables with
+                //         | Some(Any.Network res) -> res
+                //         | _ -> failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
+                let result = Set.union left right |> Any.Network
+                Ok(network, result :: tail)
+            | _ -> failwith $"Calls to union requires two Networks on the stack." }
 
 let countAction =
     { Eval =
-        fun actions network ->
-
-            failwith "TODO" }
+        fun _ network stack ->
+            match stack with
+            | [ Any.Network n ] -> Ok(network, [ Any.Literal((Set.count n).ToString()) ])
+            | Any.Network n :: tail -> Ok(network, Any.Literal((Set.count n).ToString()) :: tail)
+            | _ -> error "Network on stack required to call count." None }
 // match arguments with
 // // | [ Any.Variable variable ] ->
 // //     match variables.TryFind variable with
@@ -246,12 +247,12 @@ let countAction =
 let networkCommands: Map<Element, Action> =
     (Map.ofList
         [ // (Element "apply", applyCommand)
-        //  (Element "count", countCommand)
-        //   (Element "minus", minusCommand)
-        //   (Element "match", matchCommand)
-        //   (Element "query", queryCommand)
-        //   (Element "union", unionCommand)
-        //   (Element "filter", filterCommand)
-        //(isCompleteCommand.Name, isCompleteCommand)
-        //(isConsistentCommand.Name, isConsistentCommand)
-        ])
+          (Element "count", countAction)
+          //   (Element "minus", minusCommand)
+          //   (Element "match", matchCommand)
+          //   (Element "query", queryCommand)
+          //   (Element "union", unionCommand)
+          //   (Element "filter", filterCommand)
+          //(isCompleteCommand.Name, isCompleteCommand)
+          //(isConsistentCommand.Name, isConsistentCommand)
+          ])

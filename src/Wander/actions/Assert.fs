@@ -8,42 +8,42 @@ open Ligature.Model
 open Wander.Interpreter
 open Wander.Model
 
-// let assertEqualCommand: Command =
-//     { Eval =
-//         fun networks local (modules: Modules) variables (arguments: Arguments) ->
-//             match arguments with
-//             | [ first; second ] ->
-//                 let first =
-//                     match first with
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(res), _, _, _, _)) -> res
-//                         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
-//                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-//                     | Any.Variable variable ->
-//                         match Map.tryFind variable variables with
-//                         | Some(res) -> res
-//                         | None -> failwith "Invalid first expression passed to assert-equal."
-//                     | _ -> first
+let assertEqualAction: Action =
+    { Eval =
+        fun actions network stack ->
+            match stack with
+            | first :: second :: tail ->
+                // let first =
+                //     match first with
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(res), _, _, _, _)) -> res
+                //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+                //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                //     | Any.Variable variable ->
+                //         match Map.tryFind variable variables with
+                //         | Some(res) -> res
+                //         | None -> failwith "Invalid first expression passed to assert-equal."
+                //     | _ -> first
 
-//                 let second =
-//                     match second with
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(res), _, _, _, _)) -> res
-//                         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
-//                         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-//                     | Any.Variable variable ->
-//                         match Map.tryFind variable variables with
-//                         | Some(res) -> res
-//                         | None -> failwith "Invalid second expression passed to assert-equal."
-//                     | _ -> second
+                // let second =
+                //     match second with
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(res), _, _, _, _)) -> res
+                //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
+                //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                //     | Any.Variable variable ->
+                //         match Map.tryFind variable variables with
+                //         | Some(res) -> res
+                //         | None -> failwith "Invalid second expression passed to assert-equal."
+                //     | _ -> second
 
-//                 if first = second then
-//                     Ok((Some(Any.Element(Element "Sucess!")), networks, local, modules, variables))
-//                 else
-//                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
-//             | args -> error $"assert-equal passed illegal arguments - {args}" None }
+                if first = second then
+                    Ok(network, tail)
+                else
+                    error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
+            | _ -> error $"assert-equal requires two values on stack." None }
 
 // let assertFailCommand: Command =
 //     { Eval =

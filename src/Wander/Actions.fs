@@ -4,14 +4,15 @@
 
 module Wander.Lib
 
-open FSharpPlus
 open Ligature.Model
-open Wander.Actions.Core
+open Wander.Model
+open Wander.Actions.Network
+open Wander.Actions.Assert
+open Wander.Actions.TinyDL
 
-let stdActions: Actions = Map.empty
-// [ (Element "core", Commands.Core.coreCommands)
-//   (Element "assert", Commands.Assert.assertCommands)
-//   (Element "bool", Commands.Bool.boolLib)
-//   (Element "network", Commands.Network.networkCommands)
-//   (Element "tinydl", Commands.TinyDL.tinyDLCommands)
-//   (Element "io", Commands.IO.ioCommands) ]
+let stdActions: Actions =
+    Map.ofSeq
+        [ (Element "assert-equal", assertEqualAction)
+          (Element "union", unionAction)
+          (Element "infer", inferAction)
+          (Element "count", countAction) ]

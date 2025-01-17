@@ -50,11 +50,6 @@ and Triple = ElementPattern * ElementPattern * Value
 
 and Network = Set<Triple>
 
-and Actions = Map<Element, Action>
-
-and Action =
-    { Eval: Actions -> Network -> Result<Network, LigatureError> }
-
 and Quote = Any list
 
 and [<RequireQualifiedAccess>] Any =

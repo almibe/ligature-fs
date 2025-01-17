@@ -10,6 +10,11 @@ type Script = Any list
 
 type Stack = Any list
 
+and Actions = Map<Element, Action>
+
+and Action =
+    { Eval: Actions -> Network -> Stack -> Result<Network * Stack, LigatureError> }
+
 and Variables = Map<Variable, Any>
 
 let emptyVariables: Variables = Map.empty

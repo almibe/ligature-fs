@@ -7,9 +7,10 @@ module Wander.Interpreter
 open Ligature.Model
 open Model
 
-let executeAction actions network stack action =
-
-    failwith "TODO"
+let executeAction (actions: Actions) (network: Network) (stack: Stack) (action: Element) =
+    match Map.tryFind action actions with
+    | Some(action) -> action.Eval actions network stack
+    | None -> error $"Could not find action {action}." None
 
 let rec evalScript
     (actions: Actions)
@@ -22,4 +23,4 @@ let rec evalScript
     | head :: tail ->
         match head with
         | Any.Element action -> executeAction actions network stack action
-        | value -> Ok(network, (value :: stack))
+        | value -> evalScript actions network (value :: stack) tail
