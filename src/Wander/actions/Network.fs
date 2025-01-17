@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Commands.Network
+module Wander.Actions.Network
 
 open Ligature.Model
 open Wander.Model
@@ -40,29 +40,28 @@ open Wander.Interpreter
 //                 Ok((Some(result), networks, local, modules, variables))
 //             | args -> failwith $"TODO - {args}" }
 
+let countAction =
+    { Eval =
+        fun actions network ->
 
-
-
-// let countCommand =
-//     { Eval =
-//         fun networks local modules (arguments: Arguments) ->
-//             match arguments with
-//             // | [ Any.Variable variable ] ->
-//             //     match variables.TryFind variable with
-//             //     | Some(Any.Network network) ->
-//             //         Ok(
-//             //             (Some(Any.Element(Element((Set.count network).ToString()))), networks, local, modules, variables)
-//             //         )
-//             //     | _ -> failwith "TODO"
-//             | [ Any.Network network ] ->
-//                 Ok((networks, local, modules))
-//             | [ Any.Quote quote ] ->
-//                 match evalQuote networks local modules quote with
-//                 | Ok(networks, local, modules) ->
-//                     Ok(networks, local, modules)
-//                 | Ok(_, _, _) -> error "Error in count, expected value." None
-//                 | Error err -> error $"Error in count, {err.UserMessage}" None
-//             | args -> failwith $"TODO - {args}" }
+            failwith "TODO" }
+// match arguments with
+// // | [ Any.Variable variable ] ->
+// //     match variables.TryFind variable with
+// //     | Some(Any.Network network) ->
+// //         Ok(
+// //             (Some(Any.Element(Element((Set.count network).ToString()))), networks, local, modules, variables)
+// //         )
+// //     | _ -> failwith "TODO"
+// | [ Any.Network network ] ->
+//     Ok((networks, local, modules))
+// | [ Any.Quote quote ] ->
+//     match evalQuote networks local modules quote with
+//     | Ok(networks, local, modules) ->
+//         Ok(networks, local, modules)
+//     | Ok(_, _, _) -> error "Error in count, expected value." None
+//     | Error err -> error $"Error in count, {err.UserMessage}" None
+// | args -> failwith $"TODO - {args}" }
 
 // let minusCommand =
 //     { Eval =
@@ -247,7 +246,7 @@ open Wander.Interpreter
 let networkCommands: Map<Element, Action> =
     (Map.ofList
         [ // (Element "apply", applyCommand)
-        //   (Element "count", countCommand)
+        //  (Element "count", countCommand)
         //   (Element "minus", minusCommand)
         //   (Element "match", matchCommand)
         //   (Element "query", queryCommand)

@@ -14,16 +14,20 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
-    open Wander.Commands
+    open Wander.Actions
     open Wander.Main
     open Wander.Lib
     open Wander.Model
+
+    let printStack (stack: Stack) : string =
+        List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
 
     let view () =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
             let mutable network = Set.empty
+            let mutable stack = List.empty
 
             DockPanel.create
                 [ DockPanel.children
@@ -34,10 +38,11 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run Map.empty network (script.Current) with
-                                              | Ok(newNetwork) ->
-                                                  result.Set $"{(Wander.Model.printNetwork newNetwork)}"
+                                              match run Map.empty network stack (script.Current) with
+                                              | Ok(newNetwork, newStack) ->
                                                   network <- newNetwork
+                                                  stack <- newStack
+                                                  result.Set $"{(printStack stack)}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom

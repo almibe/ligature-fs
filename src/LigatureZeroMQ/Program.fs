@@ -9,14 +9,14 @@ open NetMQ.Sockets
 open NetMQ
 open System
 open Ligature.Model
-open Wander.Commands
+open Wander.Actions
 open Wander.Lib
 open Wander.Model
 
 let rec serve (server: ResponseSocket) =
     let script = server.ReceiveFrameString()
 
-    match run defaultLocal stdModules emptyVariables script with
+    match run defaultLocal stdActions emptyVariables script with
     | Ok(Some(res), _, _, _) -> server.SendFrame(prettyPrint res)
     | Ok(None, _, _, _) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)

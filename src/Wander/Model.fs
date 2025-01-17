@@ -6,7 +6,9 @@ module Wander.Model
 
 open Ligature.Model
 
-type Script = Network list
+type Script = Any list
+
+type Stack = Any list
 
 and Variables = Map<Variable, Any>
 

@@ -112,9 +112,6 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib ]
 
-let anyNibIgnorePipe: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNib ]
-
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
@@ -136,7 +133,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
         | _ -> Error(Gaze.GazeError.NoMatch)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let scriptNib = repeat (takeFirst [ networkExpressionNib ])
+let scriptNib = repeat anyNib
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -183,7 +180,7 @@ let read (tokens: Token list) : Result<Any, LigatureError> =
     else
         let gaze = Gaze.fromList tokens
 
-        match Gaze.attempt anyNibIgnorePipe gaze with
+        match Gaze.attempt anyNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
                 //failwith "TODO"
