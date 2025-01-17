@@ -10,6 +10,12 @@ open Wander.Actions.Assert
 open Wander.Actions.Core
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
+open Interpreter
+
+let createAction (quote: Quote): Action =
+  { Eval = 
+      fun actions networks stack ->
+        evalScript actions networks stack quote }
 
 let stdActions: Actions =
     Map.ofSeq
@@ -18,5 +24,24 @@ let stdActions: Actions =
           (Element "infer", inferAction)
           (Element "clear", clearAction)
           (Element "pop", popAction)
+          (Element "if-empty", ifEmptyAction)
+          (Element "is-empty", isEmptyAction)
           (Element "filter", filterAction)
-          (Element "count", countAction) ]
+          (Element "query", queryAction)
+          (Element "count", countAction) 
+          (Element "is-consistent", createAction [
+            Any.Network(
+                Set.ofList
+                    [ ElementPattern.Variable(Variable "?el"),
+                      ElementPattern.Element(Element ":"),
+                      Value.Variable(Variable "?concept") ])
+            Any.Network(
+                Set.ofList
+                    [ ElementPattern.Variable(Variable "?el"),
+                      ElementPattern.Element(Element ":¬"),
+                      Value.Variable(Variable "?concept") ])
+            Any.Element (Element "query")
+            Any.Literal "true"
+            Any.Literal "false"
+            Any.Element(Element "if-empty")
+          ]) ]

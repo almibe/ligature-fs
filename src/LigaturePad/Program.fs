@@ -20,13 +20,16 @@ module Main =
     open Wander.Model
 
     let printStack (stack: Stack) : string =
-        List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
+        if List.isEmpty stack then
+            "--empty stack--"
+        else
+            List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
 
     let view () =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
-            let mutable network = Set.empty
+            let mutable networks = Map.empty
             let mutable stack = List.empty
 
             DockPanel.create
@@ -38,9 +41,9 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdActions network stack (script.Current) with
-                                              | Ok(newNetwork, newStack) ->
-                                                  network <- newNetwork
+                                              match run stdActions networks stack (script.Current) with
+                                              | Ok(newNetworks, newStack) ->
+                                                  networks <- newNetworks
                                                   stack <- newStack
                                                   result.Set $"{(printStack stack)}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]

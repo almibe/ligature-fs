@@ -9,7 +9,10 @@ open Wander.Lib
 open Wander.Model
 
 let printStack (stack: Stack) : string =
-    List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
+    if List.isEmpty stack then
+        "--empty stack--"
+    else
+        List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
 
 [<EntryPoint>]
 let main (args: string[]) =

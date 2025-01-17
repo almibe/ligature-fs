@@ -13,7 +13,7 @@ type Stack = Any list
 and Actions = Map<Element, Action>
 
 and Action =
-    { Eval: Actions -> Network -> Stack -> Result<Network * Stack, LigatureError> }
+    { Eval: Actions -> Networks -> Stack -> Result<Networks * Stack, LigatureError> }
 
 and Variables = Map<Variable, Any>
 
@@ -25,12 +25,16 @@ let encodeString string =
 let rec prettyPrint (value: Any) : string =
     match value with
     | Any.Element(Element(value)) -> value
-    | Any.Quote(values) -> "(" + (values.ToString()) + ")" //TODO print values correctly
+    | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
     | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
+
+and printQuote (quote: Quote) : string =
+    (Seq.fold (fun state value -> state + (prettyPrint value) + ", ") "(" quote)
+    + ")"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
@@ -64,8 +68,7 @@ and writeValue (value: Value) : string =
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
     | Value.Variable(Variable variable) -> variable
-    | Value.Quote(quote) -> failwith "Not Implemented"
-    | Value.Network(network) -> failwith "Not Implemented"
+    | Value.Quote(quote) -> printQuote quote
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =

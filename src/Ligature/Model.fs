@@ -44,11 +44,12 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Variable of Variable
     | Quote of Quote
-    | Network of Network
 
 and Triple = ElementPattern * ElementPattern * Value
 
 and Network = Set<Triple>
+
+and Networks = Map<Element, Network>
 
 and Quote = Any list
 

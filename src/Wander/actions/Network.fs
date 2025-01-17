@@ -73,54 +73,54 @@ let countAction =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-// let queryCommand =
-//     { Eval =
-//         fun networks local modules arguments ->
-//             match arguments with
-//             | [ pattern; template; source ] ->
-//                 let pattern =
-//                     match pattern with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         if variables.ContainsKey v then
-//                             match variables[v] with
-//                             | Any.Network n -> n
-//                             | _ -> failwith "TODO"
-//                         else
-//                             failwith "TODO"
-//                     | _ -> failwith "TODO"
+let queryAction =
+    { Eval =
+        fun actions network stack ->
+            match stack with
+            | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
+                // let pattern =
+                //     match pattern with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-//                 let template =
-//                     match template with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         if variables.ContainsKey v then
-//                             match variables[v] with
-//                             | Any.Network n -> n
-//                             | _ -> failwith "TODO"
-//                         else
-//                             failwith "TODO"
-//                     | _ -> failwith "TODO"
+                // let template =
+                //     match template with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-//                 let source =
-//                     match source with
-//                     | Any.Network n -> n
-//                     | Any.Variable v ->
-//                         if variables.ContainsKey v then
-//                             match variables[v] with
-//                             | Any.Network n -> n
-//                             | _ -> failwith "TODO"
-//                         else
-//                             failwith "TODO"
-//                     | Any.Quote quote ->
-//                         match evalQuote networks local modules variables quote with
-//                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
+                // let source =
+                //     match source with
+                //     | Any.Network n -> n
+                //     | Any.Variable v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-//                 let results = query pattern template source
-//                 Ok((Some(Any.Network results), networks, local, modules, variables))
-//             | _ -> error "Invalid call to query" None }
+                let results = query pattern template source
+                Ok(network, Any.Network results :: tail)
+            | _ -> error "Invalid call to query" None }
 
 // let matchCommand =
 //     { Eval =
@@ -202,6 +202,7 @@ let countAction =
 //                 | None -> failwith "TODO"
 //             | args -> failwith $"TODO - unexpected args {args}" }
 
+
 let filterAction =
     { Eval =
         fun actions network stack ->
@@ -243,15 +244,38 @@ let filterAction =
                 Ok(network, Any.Network results :: tail)
             | _ -> error "Invalid call to filter" None }
 
+let ifEmptyAction =
+    { Eval =
+        fun _ network stack ->
+            match stack with
+            | elseCase :: emptyCase :: Any.Network cond :: tail ->
+                if cond = Set.empty then
+                    Ok(network, emptyCase :: tail)
+                else
+                    Ok(network, elseCase :: tail)
+            | _ -> error "Invalid call to if-empty" None }
+
+let isEmptyAction =
+    { Eval =
+        fun _ network stack ->
+            match stack with
+            | Any.Network cond :: tail ->
+                if cond = Set.empty then
+                    Ok(network, Any.Literal "true" :: tail)
+                else
+                    Ok(network, Any.Literal "false" :: tail)
+            | _ -> error "Invalid call to is-empty" None }
+
+
 let networkCommands: Map<Element, Action> =
     (Map.ofList
         [ // (Element "apply", applyCommand)
         //   (Element "count", countAction)
-          //   (Element "minus", minusCommand)
-          //   (Element "match", matchCommand)
-          //   (Element "query", queryCommand)
-          //   (Element "union", unionCommand)
-          //   (Element "filter", filterCommand)
-          //(isCompleteCommand.Name, isCompleteCommand)
-          //(isConsistentCommand.Name, isConsistentCommand)
-          ])
+        //   (Element "minus", minusCommand)
+        //   (Element "match", matchCommand)
+        //   (Element "query", queryCommand)
+        //   (Element "union", unionCommand)
+        //   (Element "filter", filterCommand)
+        //(isCompleteCommand.Name, isCompleteCommand)
+        //(isConsistentCommand.Name, isConsistentCommand)
+        ])

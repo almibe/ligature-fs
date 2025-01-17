@@ -66,7 +66,7 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 
 let inferAction: Action =
     { Eval =
-        fun actions network stack ->
+        fun _ networks stack ->
             match stack with
             | Any.Network description :: Any.Network network :: tail ->
                 // let description =
@@ -96,6 +96,6 @@ let inferAction: Action =
                 //     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok(network, Any.Network res :: tail)
+                | Ok res -> Ok(networks, Any.Network res :: tail)
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None }

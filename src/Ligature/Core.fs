@@ -116,6 +116,7 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
                         | Value.Variable v -> ElementPattern.Variable v
+                        | Value.Quote q -> failwith "illegal value"
                     else
                         ElementPattern.Variable v
 
@@ -128,6 +129,7 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                         | Value.Element e -> ElementPattern.Element e
                         | Value.Literal l -> failwith "illegal value"
                         | Value.Variable v -> ElementPattern.Variable v
+                        | Value.Quote(_) -> failwith "illegal value"
                     else
                         ElementPattern.Variable v
 
@@ -140,6 +142,7 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                         result[slot]
                     else
                         Value.Variable slot
+                | Value.Quote(_) -> failwith "Not Implemented"
 
             (element, attribute, value))
         pattern

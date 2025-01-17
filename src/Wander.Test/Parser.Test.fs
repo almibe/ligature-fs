@@ -60,19 +60,6 @@ let tests =
                         ) ]
                   ))
                   ""
-          testCase "read network with network in value"
-          <| fun _ ->
-              Expect.equal
-                  (parse "{a b {}}")
-                  (Ok(
-                      [ Any.Network(
-                            Set.ofList
-                                [ ElementPattern.Element(Element "a"),
-                                  ElementPattern.Element(Element "b"),
-                                  Value.Network Set.empty ]
-                        ) ]
-                  ))
-                  ""
           testCase "read call with pattern passed"
           <| fun _ ->
               Expect.equal

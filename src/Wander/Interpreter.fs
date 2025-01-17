@@ -7,23 +7,23 @@ module Wander.Interpreter
 open Ligature.Model
 open Model
 
-let executeAction (actions: Actions) (network: Network) (stack: Stack) (action: Element) =
+let executeAction (actions: Actions) (networks: Networks) (stack: Stack) (action: Element) =
     match Map.tryFind action actions with
-    | Some(action) -> action.Eval actions network stack
+    | Some(action) -> action.Eval actions networks stack
     | None -> error $"Could not find action {action}." None
 
 let rec evalScript
     (actions: Actions)
-    (network: Network)
+    (networks: Networks)
     (stack: Stack)
     (script: Script)
-    : Result<Network * Stack, LigatureError> =
+    : Result<Networks * Stack, LigatureError> =
     match script with
-    | [] -> Ok(network, stack)
+    | [] -> Ok(networks, stack)
     | head :: tail ->
         match head with
-        | Any.Element action -> 
-            match executeAction actions network stack action with
-            | Ok(network, stack) -> evalScript actions network stack tail
+        | Any.Element action ->
+            match executeAction actions networks stack action with
+            | Ok(_, stack) -> evalScript actions networks stack tail
             | Error err -> Error err
-        | value -> evalScript actions network (value :: stack) tail
+        | value -> evalScript actions networks (value :: stack) tail
