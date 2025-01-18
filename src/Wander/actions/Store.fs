@@ -6,21 +6,33 @@ module Wander.Actions.Store
 
 open Wander.Model
 open Ligature.Model
-open System
-open System.Collections.Generic
 
 let mergeAction =
     { Eval =
-        (fun actions network stack ->
+        (fun _ networks stack ->
             match stack with
-            | Any.Network network :: tail -> failwith "TODO"
+            | Any.NetworkName name :: Any.Network network :: tail ->
+                match Map.tryFind name networks with
+                | Some(currenNetwork) -> Ok(Map.add name (Set.union network currenNetwork) networks, tail)
+                | None -> Ok(Map.add name network networks, tail)
             | _ -> error "Invalid call merge action." None) }
 
 let removeAction =
     { Eval =
-        (fun actions network stack ->
+        (fun _ networks stack ->
             match stack with
-            | Any.Network network :: tail -> failwith "TODO"
-            | _ -> error "Invalid call to remove action." None) }
+            | Any.NetworkName name :: Any.Network network :: tail ->
+                match Map.tryFind name networks with
+                | Some(currenNetwork) -> Ok(Map.add name (Set.difference network currenNetwork) networks, tail)
+                | None -> Ok(networks, tail)
+            | _ -> error "Invalid call remove action." None) }
 
-let readAction = { Eval = (fun actions network stack -> failwith "TODO") }
+let readAction =
+    { Eval =
+        (fun _ networks stack ->
+            match stack with
+            | Any.NetworkName name :: tail ->
+                match Map.tryFind name networks with
+                | Some(currenNetwork) -> Ok(networks, Any.Network currenNetwork :: tail)
+                | None -> failwith "TODO"
+            | _ -> error "Invalid call remove action." None) }

@@ -11,6 +11,7 @@ open Wander.Actions.Core
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
 open Interpreter
+open Wander.Actions.Store
 
 let createAction (quote: Quote) : Action =
     { Eval = fun actions networks stack -> evalScript actions networks stack quote }
@@ -27,6 +28,9 @@ let stdActions: Actions =
           (Element "filter", filterAction)
           (Element "query", queryAction)
           (Element "count", countAction)
+          (Element "merge", mergeAction)
+          (Element "remove", removeAction)
+          (Element "read", readAction)
           (Element "is-consistent",
            createAction
                [ Any.Network(

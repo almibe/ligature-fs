@@ -50,7 +50,7 @@ and Triple = ElementPattern * ElementPattern * Value
 
 and Network = Set<Triple>
 
-and Networks = Map<Element, Network>
+and Networks = Map<NetworkName, Network>
 
 and Quote = Any list
 

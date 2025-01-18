@@ -22,7 +22,7 @@ let run
             match parse tokens with
             | Ok script ->
                 match evalScript actions networks stack script with
-                | Ok(network, stack) -> Ok(networks, stack)
+                | Ok(networks, stack) -> Ok(networks, stack)
                 | Error err -> Error err
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None

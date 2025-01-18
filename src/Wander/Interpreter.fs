@@ -24,6 +24,6 @@ let rec evalScript
         match head with
         | Any.Element action ->
             match executeAction actions networks stack action with
-            | Ok(_, stack) -> evalScript actions networks stack tail
+            | Ok(networks, stack) -> evalScript actions networks stack tail
             | Error err -> Error err
         | value -> evalScript actions networks (value :: stack) tail
