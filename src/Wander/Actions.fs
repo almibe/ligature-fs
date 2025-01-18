@@ -12,10 +12,8 @@ open Wander.Actions.Network
 open Wander.Actions.TinyDL
 open Interpreter
 
-let createAction (quote: Quote): Action =
-  { Eval = 
-      fun actions networks stack ->
-        evalScript actions networks stack quote }
+let createAction (quote: Quote) : Action =
+    { Eval = fun actions networks stack -> evalScript actions networks stack quote }
 
 let stdActions: Actions =
     Map.ofSeq
@@ -28,21 +26,23 @@ let stdActions: Actions =
           (Element "is-empty", isEmptyAction)
           (Element "filter", filterAction)
           (Element "query", queryAction)
-          (Element "count", countAction) 
-          (Element "is-consistent", createAction [
-            Any.Network(
-                Set.ofList
-                    [ (ElementPattern.Variable(Variable "?el"),
-                        ElementPattern.Element(Element ":"),
-                        Value.Variable(Variable "?concept"));
-                      (ElementPattern.Variable(Variable "?el"),
-                        ElementPattern.Element(Element ":¬"),
-                        Value.Variable(Variable "?concept")) ])
-            Any.Network(
-                Set.ofList
-                    [ ElementPattern.Variable(Variable "?el"),
-                      ElementPattern.Element(Element ":¬"),
-                      Value.Variable(Variable "?concept") ])
-            Any.Element (Element "query")
-            Any.Element(Element "is-empty")
-          ]) ]
+          (Element "count", countAction)
+          (Element "is-consistent",
+           createAction
+               [ Any.Network(
+                     Set.ofList
+                         [ (ElementPattern.Variable(Variable "?el"),
+                            ElementPattern.Element(Element ":"),
+                            Value.Variable(Variable "?concept"))
+                           (ElementPattern.Variable(Variable "?el"),
+                            ElementPattern.Element(Element ":¬"),
+                            Value.Variable(Variable "?concept")) ]
+                 )
+                 Any.Network(
+                     Set.ofList
+                         [ ElementPattern.Variable(Variable "?el"),
+                           ElementPattern.Element(Element ":¬"),
+                           Value.Variable(Variable "?concept") ]
+                 )
+                 Any.Element(Element "query")
+                 Any.Element(Element "is-empty") ]) ]

@@ -27,7 +27,7 @@ type Element = Element of string
 
 //   let value (Element e) = e
 
-type ConceptName = Element
+type NetworkName = NetworkName of string
 
 type Variable = Variable of string
 
@@ -44,6 +44,7 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Variable of Variable
     | Quote of Quote
+    | NetworkName of NetworkName
 
 and Triple = ElementPattern * ElementPattern * Value
 
@@ -61,3 +62,4 @@ and [<RequireQualifiedAccess>] Any =
     | Network of Network
     | ValueSet of ValueSet
     | ResultSet of ResultSet
+    | NetworkName of NetworkName

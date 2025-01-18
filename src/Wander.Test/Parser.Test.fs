@@ -18,6 +18,8 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
+          testCase "Parse network name"
+          <| fun _ -> Expect.equal (parse "*test") (Ok [ Any.NetworkName(NetworkName "*test") ]) ""
           testCase "read call with empty network passed"
           <| fun _ -> Expect.equal (parse "{}") (Ok([ Any.Network Set.empty ])) ""
           testCase "read call with single count network passed"

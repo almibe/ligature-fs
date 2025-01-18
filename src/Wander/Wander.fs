@@ -10,7 +10,12 @@ open Ligature.Model
 open Interpreter
 open Wander.Model
 
-let run (actions: Actions) (networks: Networks) (stack: Stack) (input: string) : Result<Networks * Stack, LigatureError> =
+let run
+    (actions: Actions)
+    (networks: Networks)
+    (stack: Stack)
+    (input: string)
+    : Result<Networks * Stack, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
