@@ -23,7 +23,7 @@ let removeAction =
             match stack with
             | Any.NetworkName name :: Any.Network network :: tail ->
                 match Map.tryFind name networks with
-                | Some(currenNetwork) -> Ok(Map.add name (Set.difference network currenNetwork) networks, tail)
+                | Some(currenNetwork) -> Ok(Map.add name (Set.difference currenNetwork network) networks, tail)
                 | None -> Ok(networks, tail)
             | _ -> error "Invalid call remove action." None) }
 
