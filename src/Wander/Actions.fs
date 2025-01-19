@@ -13,9 +13,6 @@ open Wander.Actions.TinyDL
 open Interpreter
 open Wander.Actions.Store
 
-let createAction (quote: Quote) : Action =
-    { Eval = fun actions networks stack -> evalScript actions networks stack quote }
-
 let stdActions: Actions =
     Map.ofSeq
         [ (Element "assert-equal", assertEqualAction)

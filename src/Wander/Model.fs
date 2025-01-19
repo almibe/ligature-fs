@@ -31,6 +31,7 @@ let rec prettyPrint (value: Any) : string =
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
+    | Any.NetworkName(NetworkName name) -> name
 
 and printQuote (quote: Quote) : string =
     (Seq.fold (fun state value -> state + (prettyPrint value) + ", ") "(" quote)
@@ -69,6 +70,7 @@ and writeValue (value: Value) : string =
     | Value.Literal value -> encodeString value
     | Value.Variable(Variable variable) -> variable
     | Value.Quote(quote) -> printQuote quote
+    | Value.NetworkName(NetworkName name) -> name
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =
