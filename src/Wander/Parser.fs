@@ -24,24 +24,32 @@ let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
     result {
-        let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return values
     }
 
 let partialQuoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
     result {
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return values
     }
 
-let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let commentNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
+        return Any.Comment(values.ToString())
+    }
+
+let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
+        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Any.Quote values
     }
 
@@ -104,7 +112,12 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; networkNameNib ]
+    takeFirst
+        [ quoteAnyNib
+          elementLiteralVariableNib
+          networkNib
+          networkNameNib
+          commentNib ]
 
 let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
@@ -112,7 +125,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | Ok(Token.NetworkName(value)) -> Ok(Value.NetworkName(NetworkName value))
     | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
-    | Ok(Token.OpenParen) ->
+    | Ok(Token.OpenSquare) ->
         match partialQuoteNib gaze with
         | Ok value -> Ok(Value.Quote(value))
         | _ -> Error(Gaze.GazeError.NoMatch)

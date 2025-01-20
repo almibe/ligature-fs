@@ -49,10 +49,12 @@ let tests =
 
                   ))
                   ""
+          testCase "read empty quote"
+          <| fun _ -> Expect.equal (parse "[]") (Ok([ Any.Quote [] ])) ""
           testCase "read network with quote in value"
           <| fun _ ->
               Expect.equal
-                  (parse "{a b ()}")
+                  (parse "{a b []}")
                   (Ok(
                       [ Any.Network(
                             Set.ofList

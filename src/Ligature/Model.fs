@@ -63,3 +63,4 @@ and [<RequireQualifiedAccess>] Any =
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | NetworkName of NetworkName
+    | Comment of string
