@@ -24,8 +24,8 @@ let rec evalScript
         | value -> evalScript actions networks (value :: stack) tail
 
 and createAction (quote: Quote) : Action =
-    Action.Full (fun actions networks stack -> evalScript actions networks stack quote)
-    
+    Action.Full(fun actions networks stack -> evalScript actions networks stack quote)
+
 and lookupAction (actions: Actions) (networks: Networks) (action: Element) : Action option =
 
     let actionInNetwork: Action option =
@@ -56,8 +56,8 @@ and lookupAction (actions: Actions) (networks: Networks) (action: Element) : Act
 and executeAction (actions: Actions) (networks: Networks) (stack: Stack) (action: Element) =
     match lookupAction actions networks action with
     | Some(Action.Full action) -> action actions networks stack
-    | Some(Action.Stack action) -> 
+    | Some(Action.Stack action) ->
         match action stack with
-        | Ok stack -> Ok (networks, stack)
+        | Ok stack -> Ok(networks, stack)
         | Error err -> Error err
     | None -> error $"Could not find action {action}." None

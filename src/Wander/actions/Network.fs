@@ -10,42 +10,40 @@ open Ligature.Core
 open Wander.Interpreter
 
 let unionAction =
-    Action.Stack
-        (fun stack ->
-            match stack with
-            | Any.Network left :: Any.Network right :: tail ->
-                // let left =
-                //     match left with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+    Action.Stack(fun stack ->
+        match stack with
+        | Any.Network left :: Any.Network right :: tail ->
+            // let left =
+            //     match left with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         match Map.tryFind v variables with
+            //         | Some(Any.Network res) -> res
+            //         | _ -> failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                // let right =
-                //     match right with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
-                let result = Set.union left right |> Any.Network
-                Ok(result :: tail)
-            | _ -> failwith $"Calls to union requires two Networks on the stack.")
+            // let right =
+            //     match right with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         match Map.tryFind v variables with
+            //         | Some(Any.Network res) -> res
+            //         | _ -> failwith "TODO"
+            //     | Any.Quote quote ->
+            //         match evalQuote networks local modules variables quote with
+            //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
+            //         | _ -> failwith "TODO"
+            //     | _ -> failwith "TODO"
+            let result = Set.union left right |> Any.Network
+            Ok(result :: tail)
+        | _ -> failwith $"Calls to union requires two Networks on the stack.")
 
 let countAction =
-    Action.Stack
-        (fun stack ->
-            match stack with
-            | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
-            | Any.Network n :: tail -> Ok(Any.Literal((Set.count n).ToString()) :: tail)
-            | _ -> error "Network on stack required to call count." None)
+    Action.Stack(fun stack ->
+        match stack with
+        | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
+        | Any.Network n :: tail -> Ok(Any.Literal((Set.count n).ToString()) :: tail)
+        | _ -> error "Network on stack required to call count." None)
 // match arguments with
 // // | [ Any.Variable variable ] ->
 // //     match variables.TryFind variable with
@@ -74,53 +72,52 @@ let countAction =
 //             | _ -> failwith "TODO" }
 
 let queryAction =
-    Action.Full
-        (fun actions network stack ->
-            match stack with
-            | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
-                // let pattern =
-                //     match pattern with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | _ -> failwith "TODO"
+    Action.Full(fun actions network stack ->
+        match stack with
+        | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
+            // let pattern =
+            //     match pattern with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         if variables.ContainsKey v then
+            //             match variables[v] with
+            //             | Any.Network n -> n
+            //             | _ -> failwith "TODO"
+            //         else
+            //             failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                // let template =
-                //     match template with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | _ -> failwith "TODO"
+            // let template =
+            //     match template with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         if variables.ContainsKey v then
+            //             match variables[v] with
+            //             | Any.Network n -> n
+            //             | _ -> failwith "TODO"
+            //         else
+            //             failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                // let source =
-                //     match source with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+            // let source =
+            //     match source with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         if variables.ContainsKey v then
+            //             match variables[v] with
+            //             | Any.Network n -> n
+            //             | _ -> failwith "TODO"
+            //         else
+            //             failwith "TODO"
+            //     | Any.Quote quote ->
+            //         match evalQuote networks local modules variables quote with
+            //         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
+            //         | _ -> failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                let results = query pattern template source
-                Ok(network, Any.Network results :: tail)
-            | _ -> error "Invalid call to query" None)
+            let results = query pattern template source
+            Ok(network, Any.Network results :: tail)
+        | _ -> error "Invalid call to query" None)
 
 // let matchCommand =
 //     { Eval =
@@ -204,67 +201,64 @@ let queryAction =
 
 
 let filterAction =
-    Action.Full
-        (fun actions network stack ->
-            match stack with
-            | Any.Network pattern :: Any.Network source :: tail ->
-                // let pattern =
-                //     match pattern with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+    Action.Full(fun actions network stack ->
+        match stack with
+        | Any.Network pattern :: Any.Network source :: tail ->
+            // let pattern =
+            //     match pattern with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         if variables.ContainsKey v then
+            //             match variables[v] with
+            //             | Any.Network n -> n
+            //             | _ -> failwith "TODO"
+            //         else
+            //             failwith "TODO"
+            //     | Any.Quote quote ->
+            //         match evalQuote networks local modules variables quote with
+            //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+            //         | _ -> failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                // let source =
-                //     match source with
-                //     | Any.Network n -> n
-                //     | Any.Variable v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+            // let source =
+            //     match source with
+            //     | Any.Network n -> n
+            //     | Any.Variable v ->
+            //         if variables.ContainsKey v then
+            //             match variables[v] with
+            //             | Any.Network n -> n
+            //             | _ -> failwith "TODO"
+            //         else
+            //             failwith "TODO"
+            //     | Any.Quote quote ->
+            //         match evalQuote networks local modules variables quote with
+            //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+            //         | _ -> failwith "TODO"
+            //     | _ -> failwith "TODO"
 
-                let results = filter pattern source
-                Ok(network, Any.Network results :: tail)
-            | _ -> error "Invalid call to filter" None)
+            let results = filter pattern source
+            Ok(network, Any.Network results :: tail)
+        | _ -> error "Invalid call to filter" None)
 
 let ifEmptyAction =
-    Action.Full
-        (fun _ network stack ->
-            match stack with
-            | elseCase :: emptyCase :: Any.Network cond :: tail ->
-                if cond = Set.empty then
-                    Ok(network, emptyCase :: tail)
-                else
-                    Ok(network, elseCase :: tail)
-            | _ -> error "Invalid call to if-empty" None)
+    Action.Full(fun _ network stack ->
+        match stack with
+        | elseCase :: emptyCase :: Any.Network cond :: tail ->
+            if cond = Set.empty then
+                Ok(network, emptyCase :: tail)
+            else
+                Ok(network, elseCase :: tail)
+        | _ -> error "Invalid call to if-empty" None)
 
 let isEmptyAction =
-    Action.Full
-        (fun _ network stack ->
-            match stack with
-            | Any.Network cond :: tail ->
-                if cond = Set.empty then
-                    Ok(network, Any.Literal "true" :: tail)
-                else
-                    Ok(network, Any.Literal "false" :: tail)
-            | _ -> error "Invalid call to is-empty" None)
+    Action.Full(fun _ network stack ->
+        match stack with
+        | Any.Network cond :: tail ->
+            if cond = Set.empty then
+                Ok(network, Any.Literal "true" :: tail)
+            else
+                Ok(network, Any.Literal "false" :: tail)
+        | _ -> error "Invalid call to is-empty" None)
 
 let networkCommands: Map<Element, Action> =
     (Map.ofList
