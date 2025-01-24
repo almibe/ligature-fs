@@ -10,8 +10,8 @@ open Ligature.Core
 open Wander.Interpreter
 
 let unionAction =
-    { Eval =
-        fun actions network stack ->
+    Action.Stack
+        (fun stack ->
             match stack with
             | Any.Network left :: Any.Network right :: tail ->
                 // let left =
@@ -36,16 +36,16 @@ let unionAction =
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
                 let result = Set.union left right |> Any.Network
-                Ok(network, result :: tail)
-            | _ -> failwith $"Calls to union requires two Networks on the stack." }
+                Ok(result :: tail)
+            | _ -> failwith $"Calls to union requires two Networks on the stack.")
 
 let countAction =
-    { Eval =
-        fun _ network stack ->
+    Action.Stack
+        (fun stack ->
             match stack with
-            | [ Any.Network n ] -> Ok(network, [ Any.Literal((Set.count n).ToString()) ])
-            | Any.Network n :: tail -> Ok(network, Any.Literal((Set.count n).ToString()) :: tail)
-            | _ -> error "Network on stack required to call count." None }
+            | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
+            | Any.Network n :: tail -> Ok(Any.Literal((Set.count n).ToString()) :: tail)
+            | _ -> error "Network on stack required to call count." None)
 // match arguments with
 // // | [ Any.Variable variable ] ->
 // //     match variables.TryFind variable with
@@ -74,8 +74,8 @@ let countAction =
 //             | _ -> failwith "TODO" }
 
 let queryAction =
-    { Eval =
-        fun actions network stack ->
+    Action.Full
+        (fun actions network stack ->
             match stack with
             | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
                 // let pattern =
@@ -120,7 +120,7 @@ let queryAction =
 
                 let results = query pattern template source
                 Ok(network, Any.Network results :: tail)
-            | _ -> error "Invalid call to query" None }
+            | _ -> error "Invalid call to query" None)
 
 // let matchCommand =
 //     { Eval =
@@ -204,8 +204,8 @@ let queryAction =
 
 
 let filterAction =
-    { Eval =
-        fun actions network stack ->
+    Action.Full
+        (fun actions network stack ->
             match stack with
             | Any.Network pattern :: Any.Network source :: tail ->
                 // let pattern =
@@ -242,30 +242,29 @@ let filterAction =
 
                 let results = filter pattern source
                 Ok(network, Any.Network results :: tail)
-            | _ -> error "Invalid call to filter" None }
+            | _ -> error "Invalid call to filter" None)
 
 let ifEmptyAction =
-    { Eval =
-        fun _ network stack ->
+    Action.Full
+        (fun _ network stack ->
             match stack with
             | elseCase :: emptyCase :: Any.Network cond :: tail ->
                 if cond = Set.empty then
                     Ok(network, emptyCase :: tail)
                 else
                     Ok(network, elseCase :: tail)
-            | _ -> error "Invalid call to if-empty" None }
+            | _ -> error "Invalid call to if-empty" None)
 
 let isEmptyAction =
-    { Eval =
-        fun _ network stack ->
+    Action.Full
+        (fun _ network stack ->
             match stack with
             | Any.Network cond :: tail ->
                 if cond = Set.empty then
                     Ok(network, Any.Literal "true" :: tail)
                 else
                     Ok(network, Any.Literal "false" :: tail)
-            | _ -> error "Invalid call to is-empty" None }
-
+            | _ -> error "Invalid call to is-empty" None)
 
 let networkCommands: Map<Element, Action> =
     (Map.ofList

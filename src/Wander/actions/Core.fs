@@ -8,15 +8,14 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
-let clearAction: Action = { Eval = fun _ network _ -> Ok(network, []) }
+let clearAction: Action = Action.Stack (fun _ -> Ok([]))
 
 let popAction: Action =
-    { Eval =
-        fun _ networks stack ->
+    Action.Stack 
+        (fun stack ->
             match stack with
             | [] -> error "Cannot pop an empty stack." None
-            | _ :: tail -> Ok(networks, tail) }
-
+            | _ :: tail -> Ok(tail))
 
 // let importCommand: Command =
 //     { Eval =

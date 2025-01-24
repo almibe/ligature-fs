@@ -12,8 +12,9 @@ type Stack = Any list
 
 and Actions = Map<Element, Action>
 
-and Action =
-    { Eval: Actions -> Networks -> Stack -> Result<Networks * Stack, LigatureError> }
+and [<RequireQualifiedAccess>] Action =
+    | Full of (Actions -> Networks -> Stack -> Result<Networks * Stack, LigatureError>)
+    | Stack of (Stack -> Result<Stack, LigatureError>)
 
 and Variables = Map<Variable, Any>
 

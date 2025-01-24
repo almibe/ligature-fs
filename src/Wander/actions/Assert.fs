@@ -9,8 +9,8 @@ open Wander.Interpreter
 open Wander.Model
 
 let assertEqualAction: Action =
-    { Eval =
-        fun actions network stack ->
+    Action.Stack
+        (fun stack ->
             match stack with
             | first :: second :: tail ->
                 // let first =
@@ -40,10 +40,10 @@ let assertEqualAction: Action =
                 //     | _ -> second
 
                 if first = second then
-                    Ok(network, tail)
+                    Ok(tail)
                 else
                     error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
-            | _ -> error $"assert-equal requires two values on stack." None }
+            | _ -> error $"assert-equal requires two values on stack." None)
 
 // let assertFailCommand: Command =
 //     { Eval =
