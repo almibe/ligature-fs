@@ -7,7 +7,7 @@ module Wander.TestSuite
 open Expecto
 open FSharpPlus
 open Wander.Main
-open Lib
+open Library
 open Model
 
 let rec allFiles dirs =

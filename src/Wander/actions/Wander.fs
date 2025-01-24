@@ -6,7 +6,6 @@ module Wander.Actions.Wander
 
 open Wander.Model
 open Ligature.Model
-open Wander.Main
 
 // let writeValueFunction =
 //     { Name = "writeValue"

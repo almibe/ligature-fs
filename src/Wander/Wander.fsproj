@@ -10,7 +10,6 @@
     <Compile Include="Tokenizer.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
-    <Compile Include="Wander.fs" />
     <Compile Include="actions/IO.fs" />
     <Compile Include="actions/Bool.fs" />
     <Compile Include="actions/Core.fs" />
@@ -21,7 +20,8 @@
     <Compile Include="actions/Ulid.fs" />
     <Compile Include="actions/Wander.fs" />
     <Compile Include="actions/Assert.fs" />
-    <Compile Include="Actions.fs" />
+    <Compile Include="Library.fs" />
+    <Compile Include="Wander.fs" />
   </ItemGroup>
 
   <ItemGroup>  

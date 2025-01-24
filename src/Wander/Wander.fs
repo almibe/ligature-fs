@@ -9,6 +9,7 @@ open Tokenizer
 open Ligature.Model
 open Interpreter
 open Wander.Model
+open Library
 
 let run
     (actions: Actions)
@@ -28,6 +29,9 @@ let run
         | Error _ -> error "Error tokenizing." None
     with x ->
         error $"Error running script. {x}" None
+
+let runWithDefaults (script: string) =
+    run stdActions Map.empty List.empty script
 
 let read (input: string) : Result<Any, LigatureError> =
     try

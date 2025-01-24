@@ -6,7 +6,6 @@ module Wander.Actions.IO
 
 open Ligature.Model
 open Wander.Model
-open Wander.Main
 
 // let openLocalDependencyCommand: Command =
 //     { Eval =
