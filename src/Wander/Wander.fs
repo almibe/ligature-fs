@@ -33,6 +33,17 @@ let run
 let runWithDefaults (script: string) =
     run stdActions Map.empty List.empty script
 
+let printStack (stack: Stack) : string =
+    if List.isEmpty stack then
+        "--empty stack--"
+    else
+        List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
+
+let printResult (result: Result<(Networks * Stack), LigatureError>) =
+    match result with
+    | Ok(_, stack) -> printStack stack
+    | Error(err) -> $"Error {err.UserMessage}"
+
 let read (input: string) : Result<Any, LigatureError> =
     try
         match tokenize input with
