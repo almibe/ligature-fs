@@ -17,7 +17,7 @@ let rec serve (server: ResponseSocket) =
     let script = server.ReceiveFrameString()
 
     match run defaultLocal stdActions emptyVariables script with
-    | Ok(Some(res), _, _, _) -> server.SendFrame(prettyPrint res)
+    | Ok(Some(res), _, _, _) -> server.SendFrame(printAny res)
     | Ok(None, _, _, _) -> server.SendFrame("{}")
     | Error(err) -> server.SendFrame(err.UserMessage)
 

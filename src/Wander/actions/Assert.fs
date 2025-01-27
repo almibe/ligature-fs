@@ -41,7 +41,7 @@ let assertEqualAction: Action =
             if first = second then
                 Ok(tail)
             else
-                error $"assert-equal failed {prettyPrint first} != {prettyPrint second}" None
+                error $"assert-equal failed {printAny first} != {printAny second}" None
         | _ -> error $"assert-equal requires two values on stack." None)
 
 // let assertFailCommand: Command =

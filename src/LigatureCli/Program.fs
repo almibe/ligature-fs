@@ -8,12 +8,6 @@ open Wander.Main
 open Wander.Lib
 open Wander.Model
 
-let printStack (stack: Stack) : string =
-    if List.isEmpty stack then
-        "--empty stack--"
-    else
-        List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
-
 [<EntryPoint>]
 let main (args: string[]) =
     let dir = System.IO.Directory.GetCurrentDirectory()

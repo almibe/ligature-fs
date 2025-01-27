@@ -27,7 +27,7 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-let rec prettyPrint (value: Any) : string =
+let rec printAny (value: Any) : string =
     match value with
     | Any.Element(Element(value)) -> value
     | Any.Quote quote -> printQuote quote
@@ -39,7 +39,7 @@ let rec prettyPrint (value: Any) : string =
     | Any.NetworkName(NetworkName name) -> name
 
 and printQuote (quote: Quote) : string =
-    (Seq.fold (fun state value -> state + (prettyPrint value) + ", ") "(" quote)
+    (Seq.fold (fun state value -> state + (printAny value) + ", ") "(" quote)
     + ")"
 
 and printResultSet (rs: ResultSet) =
@@ -89,3 +89,9 @@ and printTriple ((element, attribute, value): Triple) : string =
         | ElementPattern.Variable(Variable v) -> v
 
     $"{element} {attribute} {writeValue value}"
+
+let printStack (stack: Stack) : string =
+    if List.isEmpty stack then
+        "--empty stack--"
+    else
+        List.fold (fun state any -> state + " → " + printAny any + "\n") "" stack

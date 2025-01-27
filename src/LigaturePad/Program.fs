@@ -14,17 +14,9 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
 module Main =
-    open Wander.Actions
+    open Wander.Library
     open Wander.Main
-    open Wander.Lib
     open Wander.Model
-
-    let printStack (stack: Stack) : string =
-        if List.isEmpty stack then
-            "--empty stack--"
-        else
-            List.fold (fun state any -> state + " → " + prettyPrint any + "\n") "" stack
-
     let view () =
         Component(fun ctx ->
             let result = ctx.useState ""

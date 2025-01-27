@@ -13,7 +13,7 @@ open Ligature.Model
 //       Eval =
 //         (fun args _ ->
 //             match args with
-//             | [ value ] -> Ok(Value.String(prettyPrint value))
+//             | [ value ] -> Ok(Value.String(printAny value))
 //             | value -> error $"Unexpected value - {value}." None) }
 
 // let readValueFunction =
