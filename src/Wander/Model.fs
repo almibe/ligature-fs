@@ -39,8 +39,7 @@ let rec printAny (value: Any) : string =
     | Any.NetworkName(NetworkName name) -> name
 
 and printQuote (quote: Quote) : string =
-    (Seq.fold (fun state value -> state + (printAny value) + ", ") "(" quote)
-    + ")"
+    (Seq.fold (fun state value -> state + (printAny value) + ", ") "(" quote) + ")"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("

@@ -65,36 +65,28 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
     if aBox = res then Ok res else infer tBox res
 
 let inferAction: Action =
-    Action.Stack(fun stack ->
+    Action.Full(fun _ networks stack ->
         match stack with
-        | Any.Network description :: Any.Network network :: tail ->
-            // let description =
-            //     match description with
-            //     | Any.Network n -> n
-            //     | Any.Quote q ->
-            //         match evalQuote networks local modules variables q with
-            //         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-            //         | _ -> failwith "TODO"
-            //     | Any.Variable v ->
-            //         match variables.TryFind v with
-            //         | Some(Any.Network n) -> n
-            //         | _ -> failwith "TODO"
-            //     | _ -> failwith "TODO"
+        | description :: network :: tail ->
+            let description =
+                match description with
+                | Any.Network n -> n
+                | Any.NetworkName name ->
+                    match networks.TryFind name with
+                    | Some(n) -> n
+                    | _ -> failwith "TODO"
+                | _ -> failwith "TODO"
 
-            // let network =
-            //     match network with
-            //     | Any.Network n -> n
-            //     | Any.Variable v ->
-            //         match variables.TryFind v with
-            //         | Some(Any.Network n) -> n
-            //         | _ -> failwith "TODO"
-            //     | Any.Quote q ->
-            //         match evalQuote networks local modules variables q with
-            //         | Ok((Some(Any.Network n)), networks, local, modules, variables) -> n
-            //         | _ -> failwith "TODO"
-            //     | _ -> failwith "TODO"
+            let network =
+                match network with
+                | Any.Network n -> n
+                | Any.NetworkName name ->
+                    match networks.TryFind name with
+                    | Some(n) -> n
+                    | _ -> failwith "TODO"
+                | _ -> failwith "TODO"
 
             match infer description network with
-            | Ok res -> Ok(Any.Network res :: tail)
+            | Ok res -> Ok(networks, Any.Network res :: tail)
             | Error err -> error $"Error calling infer: {err}" None
         | _ -> error "Improper call to infer." None)

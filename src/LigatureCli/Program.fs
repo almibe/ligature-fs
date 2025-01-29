@@ -5,7 +5,7 @@
 module Ligature.Cli
 
 open Wander.Main
-open Wander.Lib
+open Wander.Library
 open Wander.Model
 
 [<EntryPoint>]
@@ -14,7 +14,7 @@ let main (args: string[]) =
     let file = $"{dir}/{args[0]}"
     let script = System.IO.File.ReadAllText(file)
 
-    match run Map.empty Set.empty List.empty script with
+    match run stdActions Map.empty List.empty script with
     | Ok(_, stack) -> printfn $"{(printStack stack)}"
     | Error err -> printfn $"{err.UserMessage}"
 
