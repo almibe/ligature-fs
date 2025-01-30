@@ -10,7 +10,7 @@ open Ligature.Core
 open Wander.Interpreter
 
 let unionAction =
-    Action.Stack(fun stack ->
+    Action.Stack({ doc = "Combine the top two Networks on the Stack and push the resulting Network." }, fun stack ->
         match stack with
         | Any.Network left :: Any.Network right :: tail ->
             // let left =
@@ -39,7 +39,7 @@ let unionAction =
         | _ -> failwith $"Calls to union requires two Networks on the stack.")
 
 let countAction =
-    Action.Stack(fun stack ->
+    Action.Stack({ doc = "Take a Network from the top of the Stack and push its size." }, fun stack ->
         match stack with
         | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
         | Any.Network n :: tail -> Ok(Any.Literal((Set.count n).ToString()) :: tail)
@@ -72,7 +72,7 @@ let countAction =
 //             | _ -> failwith "TODO" }
 
 let queryAction =
-    Action.Full(fun actions network stack ->
+    Action.Full({doc = "Query a network. This Action requires three Networks on the stack." }, fun actions network stack ->
         match stack with
         | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
             // let pattern =
@@ -201,7 +201,7 @@ let queryAction =
 
 
 let filterAction =
-    Action.Full(fun actions network stack ->
+    Action.Full({ doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network." }, fun actions network stack ->
         match stack with
         | Any.Network pattern :: Any.Network source :: tail ->
             // let pattern =
@@ -241,7 +241,7 @@ let filterAction =
         | _ -> error "Invalid call to filter" None)
 
 let ifEmptyAction =
-    Action.Full(fun _ network stack ->
+    Action.Full({ doc = "Takes three Terms..." }, fun _ network stack ->
         match stack with
         | elseCase :: emptyCase :: Any.Network cond :: tail ->
             if cond = Set.empty then
@@ -251,7 +251,7 @@ let ifEmptyAction =
         | _ -> error "Invalid call to if-empty" None)
 
 let isEmptyAction =
-    Action.Full(fun _ network stack ->
+    Action.Full({ doc = "Takes a Network off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not." }, fun _ network stack ->
         match stack with
         | Any.Network cond :: tail ->
             if cond = Set.empty then
@@ -259,16 +259,3 @@ let isEmptyAction =
             else
                 Ok(network, Any.Literal "false" :: tail)
         | _ -> error "Invalid call to is-empty" None)
-
-let networkCommands: Map<Element, Action> =
-    (Map.ofList
-        [ // (Element "apply", applyCommand)
-        //   (Element "count", countAction)
-        //   (Element "minus", minusCommand)
-        //   (Element "match", matchCommand)
-        //   (Element "query", queryCommand)
-        //   (Element "union", unionCommand)
-        //   (Element "filter", filterCommand)
-        //(isCompleteCommand.Name, isCompleteCommand)
-        //(isConsistentCommand.Name, isConsistentCommand)
-        ])

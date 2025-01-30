@@ -9,7 +9,7 @@ open Wander.Interpreter
 open Wander.Model
 
 let assertEqualAction: Action =
-    Action.Stack(fun stack ->
+    Action.Stack({ doc = "Assert that to top two Terms on the Stack are equal." }, fun stack ->
         match stack with
         | first :: second :: tail ->
             // let first =

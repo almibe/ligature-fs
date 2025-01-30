@@ -8,7 +8,7 @@ open Wander.Model
 open Ligature.Model
 
 let mergeAction =
-    Action.Full(fun _ networks stack ->
+    Action.Full({ doc = "Take a Network Name and Network and merge the Network into the Named Network." }, fun _ networks stack ->
         match stack with
         | Any.NetworkName name :: Any.Network network :: tail ->
             match Map.tryFind name networks with
@@ -17,7 +17,7 @@ let mergeAction =
         | _ -> error "Invalid call merge action." None)
 
 let removeAction =
-    Action.Full(fun _ networks stack ->
+    Action.Full({ doc = "..." }, fun _ networks stack ->
         match stack with
         | Any.NetworkName name :: Any.Network network :: tail ->
             match Map.tryFind name networks with
@@ -26,7 +26,7 @@ let removeAction =
         | _ -> error "Invalid call remove action." None)
 
 let readAction =
-    Action.Full(fun _ networks stack ->
+    Action.Full({ doc = "Read a Network Name off the Stack and then push that Network's value onto the Stack." }, fun _ networks stack ->
         match stack with
         | Any.NetworkName name :: tail ->
             match Map.tryFind name networks with

@@ -65,7 +65,7 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
     if aBox = res then Ok res else infer tBox res
 
 let inferAction: Action =
-    Action.Full(fun _ networks stack ->
+    Action.Full({doc = "..."}, fun _ networks stack ->
         match stack with
         | description :: network :: tail ->
             let description =

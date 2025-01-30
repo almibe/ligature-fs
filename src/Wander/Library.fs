@@ -13,11 +13,23 @@ open Wander.Actions.TinyDL
 open Interpreter
 open Wander.Actions.Store
 
+let docsAction: Action =
+    Action.Full({ doc = "Push the docs Network on the Stack." }, fun actions networks stack ->
+        let docs: Network =
+            Map.toSeq actions
+            |> Seq.map (fun (name, action) -> 
+                match action with
+                | Action.Full (doc, _) -> (ElementPattern.Element name, ElementPattern.Element (Element "doc-string"), Value.Literal doc.doc)
+                | Action.Stack (doc, _) -> (ElementPattern.Element name, ElementPattern.Element (Element "doc-string"), Value.Literal doc.doc))
+            |> Set.ofSeq
+        Ok(networks, Any.Network docs :: stack))
+
 let stdActions: Actions =
     Map.ofSeq
         [ (Element "assert-equal", assertEqualAction)
           (Element "union", unionAction)
           (Element "infer", inferAction)
+          (Element "docs", docsAction)
           (Element "clear", clearAction)
           (Element "pop", popAction)
           (Element "if-empty", ifEmptyAction)
@@ -30,6 +42,7 @@ let stdActions: Actions =
           (Element "read", readAction)
           (Element "is-consistent",
            createAction
+               "Check if the Network on the top of the Stack is consistent."
                [ Any.Network(
                      Set.ofList
                          [ (ElementPattern.Variable(Variable "?el"),
