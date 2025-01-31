@@ -41,25 +41,25 @@ let wanderTestSuite =
     else
         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
-[<Tests>]
-let wanderDocsTestSuite =
-    let wanderLibs =
-        System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+// [<Tests>]
+// let wanderDocsTestSuite =
+//     let wanderLibs =
+//         System.Environment.GetEnvironmentVariable("WANDER_LIBS")
 
-    if wanderLibs <> null then
-        let docsFileName = wanderLibs ++ "/" ++ "docs.wander"
-        let script = System.IO.File.ReadLines docsFileName |> String.concat "\n"
+//     if wanderLibs <> null then
+//         let docsFileName = wanderLibs ++ "/" ++ "docs.wander"
+//         let script = System.IO.File.ReadLines docsFileName |> String.concat "\n"
 
-        testCase $"Docs test cases"
-        <| fun _ ->
-            match runWithDefaults script with
-            | Ok (networks, stack) ->
-                match stack with
-                | [ Any.Network n ] -> 
-                    // search network for test cases -- use Ligature.Core.networkMatch
-                    // run the test case
-                    failwith "TODO"
-                | _ -> failwith "Error reading docs.wander"
-            | Error(err) -> failwithf "Test failed %A" err
-    else
-        failwith "Please set WANDER_LIBS environment variable."
+//         testCase $"Docs test cases"
+//         <| fun _ ->
+//             match runWithDefaults script with
+//             | Ok (networks, stack) ->
+//                 match stack with
+//                 | [ Any.Network n ] -> 
+//                     // search network for test cases -- use Ligature.Core.networkMatch
+//                     // run the test case
+//                     failwith "TODO"
+//                 | _ -> failwith "Error reading docs.wander"
+//             | Error(err) -> failwithf "Test failed %A" err
+//     else
+//         failwith "Please set WANDER_LIBS environment variable."

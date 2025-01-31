@@ -115,8 +115,11 @@ let queryAction =
             //         | _ -> failwith "TODO"
             //     | _ -> failwith "TODO"
 
-            let results = query pattern template source
-            Ok(network, Any.Network results :: tail)
+            let results = 
+                query pattern template source
+                |> Seq.map (fun network -> Any.Network network)
+                |> Seq.toList
+            Ok(network, Any.Quote results :: tail)
         | _ -> error "Invalid call to query" None)
 
 // let matchCommand =
@@ -251,10 +254,15 @@ let ifEmptyAction =
         | _ -> error "Invalid call to if-empty" None)
 
 let isEmptyAction =
-    Action.Full({ doc = "Takes a Network off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not." }, fun _ network stack ->
+    Action.Full({ doc = "Takes a Network or Quote off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not." }, fun _ network stack ->
         match stack with
         | Any.Network cond :: tail ->
             if cond = Set.empty then
+                Ok(network, Any.Literal "true" :: tail)
+            else
+                Ok(network, Any.Literal "false" :: tail)
+        | Any.Quote q :: tail ->
+            if q.IsEmpty then
                 Ok(network, Any.Literal "true" :: tail)
             else
                 Ok(network, Any.Literal "false" :: tail)

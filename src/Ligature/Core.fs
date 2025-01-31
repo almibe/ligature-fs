@@ -150,10 +150,15 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
 let apply (pattern: Network) (resultSet: ResultSet) : Network =
     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
-let query (pattern: Network) (template: Network) (source: Network) : Network =
+let applySeq (pattern: Network) (resultSet: ResultSet) : Network list =
+    Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
+
+let query (pattern: Network) (template: Network) (source: Network) : Network seq =
     let rs = networkMatch pattern source
-    apply template rs
+    applySeq template rs
 
 let contains (test: Network) (source: Network) : bool = Set.isSubset test source
 
-let filter (pattern: Network) (source: Network) : Network = query pattern pattern source
+let filter (pattern: Network) (source: Network) : Network = 
+    let res = query pattern pattern source
+    Seq.fold (fun state network -> Set.union state network) Set.empty res
