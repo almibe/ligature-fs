@@ -75,49 +75,15 @@ let queryAction =
     Action.Full({doc = "Query a network. This Action requires three Networks on the stack." }, fun actions network stack ->
         match stack with
         | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
-            // let pattern =
-            //     match pattern with
-            //     | Any.Network n -> n
-            //     | Any.Variable v ->
-            //         if variables.ContainsKey v then
-            //             match variables[v] with
-            //             | Any.Network n -> n
-            //             | _ -> failwith "TODO"
-            //         else
-            //             failwith "TODO"
-            //     | _ -> failwith "TODO"
-
-            // let template =
-            //     match template with
-            //     | Any.Network n -> n
-            //     | Any.Variable v ->
-            //         if variables.ContainsKey v then
-            //             match variables[v] with
-            //             | Any.Network n -> n
-            //             | _ -> failwith "TODO"
-            //         else
-            //             failwith "TODO"
-            //     | _ -> failwith "TODO"
-
-            // let source =
-            //     match source with
-            //     | Any.Network n -> n
-            //     | Any.Variable v ->
-            //         if variables.ContainsKey v then
-            //             match variables[v] with
-            //             | Any.Network n -> n
-            //             | _ -> failwith "TODO"
-            //         else
-            //             failwith "TODO"
-            //     | Any.Quote quote ->
-            //         match evalQuote networks local modules variables quote with
-            //         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-            //         | _ -> failwith "TODO"
-            //     | _ -> failwith "TODO"
-
             let results = 
                 query pattern template source
                 |> Seq.map (fun network -> Any.Network network)
+                |> Seq.toList
+            Ok(network, Any.Quote results :: tail)
+        | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+            let results = 
+                queryQuoteTemplate pattern template source
+                |> Seq.map (fun quote -> Any.Quote quote)
                 |> Seq.toList
             Ok(network, Any.Quote results :: tail)
         | _ -> error "Invalid call to query" None)

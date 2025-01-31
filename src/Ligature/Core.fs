@@ -147,15 +147,40 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
             (element, attribute, value))
         pattern
 
+let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
+    List.map
+        (fun any ->
+            match any with
+            | Any.Variable slot ->
+                if result.ContainsKey slot then
+                    match result[slot] with
+                    | Value.Element e -> Any.Element e
+                    | Value.Literal l -> Any.Literal l
+                    | Value.Variable v -> Any.Variable v
+                    | Value.Quote q -> Any.Quote q
+                    | Value.NetworkName n -> Any.NetworkName n
+                else
+                    Any.Variable slot
+            | _ -> any)
+        pattern
+
 let apply (pattern: Network) (resultSet: ResultSet) : Network =
     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
 let applySeq (pattern: Network) (resultSet: ResultSet) : Network list =
     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
+let applySeqQuoteTemplate (pattern: Quote) (resultSet: ResultSet) : Quote list =
+    Set.fold (fun state result -> (applyValueSetQuoteTemplate pattern result) :: state) [] resultSet
+
 let query (pattern: Network) (template: Network) (source: Network) : Network seq =
     let rs = networkMatch pattern source
     applySeq template rs
+
+let queryQuoteTemplate (pattern: Network) (template: Quote) (source: Network) : Quote seq =
+    let rs = networkMatch pattern source
+    applySeqQuoteTemplate template rs
+
 
 let contains (test: Network) (source: Network) : bool = Set.isSubset test source
 
