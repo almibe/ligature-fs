@@ -8,6 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Wander.Actions.Assert
 open Wander.Actions.Core
+open Wander.Actions.Quote
 open Wander.Actions.JSON
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
@@ -32,6 +33,7 @@ let stdActions: Actions =
           (Element "infer", inferAction)
           (Element "to-json", toJSONAction)
           (Element "docs", docsAction)
+          (Element "prepend", prependAction)
           (Element "clear", clearAction)
           (Element "pop", popAction)
           (Element "if-empty", ifEmptyAction)

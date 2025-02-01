@@ -10,7 +10,8 @@ open Wander.Interpreter
 
 let rec anyToJson (any: Any): Result<string, LigatureError> =
     match any with
-    | Any.Literal l -> Ok (System.Web.HttpUtility.JavaScriptStringEncode(l, true))
+    | Any.Element (Element e) -> Ok (encodeString e)
+    | Any.Literal l -> Ok (encodeString l)
     | Any.Quote q -> quoteToJson q
     | _ -> failwith "TODO"
 
@@ -19,17 +20,27 @@ and quoteToJson (quote: Quote): Result<string, LigatureError> =
     | Any.Element (Element "object") :: tail -> 
         let mutable res = "{"
         List.chunkBySize 2 tail
-        |> List.iter (fun value -> 
+        |> List.iteri (fun i value -> 
             match value with
-            | [Any.Literal name; value] -> 
-                res <- res + $"{System.Web.HttpUtility.JavaScriptStringEncode(name, true)}:" + 
+            | [Any.Literal name; value] ->
+                if i > 0 then res <- res + ","
+                res <- res + $"{encodeString name}:" + 
                     match anyToJson value with
                     | Ok jsonRes -> jsonRes
                     | _ -> failwith "TODO"
             | _ -> failwith "TODO")
         res <- res + "}"
         Ok(res)
-    | Any.Element (Element "array") :: tail -> Ok("[]")
+    | Any.Element (Element "array") :: tail -> 
+        let mutable res = "["
+        List.iteri (fun i value -> 
+            match anyToJson value with
+            | Ok jsonRes -> 
+                if i > 0 then res <- res + ","
+                res <- res + jsonRes
+            | _ -> failwith "TODO") tail
+        res <- res + "]"
+        Ok(res)
     | [Any.Element (Element "number"); Any.Literal value] ->
         match System.Double.TryParse(value) with 
         | true, n -> Ok(value)
@@ -49,5 +60,5 @@ let toJSONAction: Action =
             | Ok result -> Ok(Any.Literal result :: tail)
             | _ -> failwith "TODO"
         | Any.Literal literal :: tail ->
-            Ok(Any.Literal (System.Web.HttpUtility.JavaScriptStringEncode(literal, true)) :: tail)
+            Ok(Any.Literal (encodeString literal) :: tail)
         | _ -> error "Invalid call to to-json." None)
