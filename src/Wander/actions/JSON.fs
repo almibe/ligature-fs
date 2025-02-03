@@ -28,6 +28,12 @@ and quoteToJson (quote: Quote): Result<string, LigatureError> =
                     match anyToJson value with
                     | Ok jsonRes -> jsonRes
                     | _ -> failwith "TODO"
+            | [Any.Element (Element name); value] ->
+                if i > 0 then res <- res + ","
+                res <- res + $"{encodeString name}:" + 
+                    match anyToJson value with
+                    | Ok jsonRes -> jsonRes
+                    | _ -> failwith "TODO"
             | _ -> failwith "TODO")
         res <- res + "}"
         Ok(res)
