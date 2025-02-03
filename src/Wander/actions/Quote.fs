@@ -8,9 +8,13 @@ open Wander.Model
 open Ligature.Model
 
 let prependAction =
-    Action.Stack({ doc = "Read a Term and a Quote off the Stack, push a new Quote with the Term at the front." }, fun stack ->
-        match stack with
-        | Any.Quote source :: Any.Quote dest :: tail -> 
-            let newQuote = List.append source dest
-            Ok(Any.Quote newQuote :: tail)
-        | _ -> error "Invalid call to prepend action." None)
+    Action.Stack(
+        { doc = "Read a Term and a Quote off the Stack, push a new Quote with the Term at the front."
+          examples = [] },
+        fun stack ->
+            match stack with
+            | Any.Quote source :: Any.Quote dest :: tail ->
+                let newQuote = List.append source dest
+                Ok(Any.Quote newQuote :: tail)
+            | _ -> error "Invalid call to prepend action." None
+    )

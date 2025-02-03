@@ -184,6 +184,6 @@ let queryQuoteTemplate (pattern: Network) (template: Quote) (source: Network) : 
 
 let contains (test: Network) (source: Network) : bool = Set.isSubset test source
 
-let filter (pattern: Network) (source: Network) : Network = 
+let filter (pattern: Network) (source: Network) : Network =
     let res = query pattern pattern source
     Seq.fold (fun state network -> Set.union state network) Set.empty res

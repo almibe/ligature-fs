@@ -16,15 +16,26 @@ open Interpreter
 open Wander.Actions.Store
 
 let docsAction: Action =
-    Action.Full({ doc = "Push the docs Network on the Stack." }, fun actions networks stack ->
-        let docs: Network =
-            Map.toSeq actions
-            |> Seq.map (fun (name, action) -> 
-                match action with
-                | Action.Full (doc, _) -> (ElementPattern.Element name, ElementPattern.Element (Element "doc-string"), Value.Literal doc.doc)
-                | Action.Stack (doc, _) -> (ElementPattern.Element name, ElementPattern.Element (Element "doc-string"), Value.Literal doc.doc))
-            |> Set.ofSeq
-        Ok(networks, Any.Network docs :: stack))
+    Action.Full(
+        { doc = "Push the docs Network on the Stack."
+          examples = [] },
+        fun actions networks stack ->
+            let docs: Network =
+                Map.toSeq actions
+                |> Seq.map (fun (name, action) ->
+                    match action with
+                    | Action.Full(doc, _) ->
+                        (ElementPattern.Element name,
+                         ElementPattern.Element(Element "doc-string"),
+                         Value.Literal doc.doc)
+                    | Action.Stack(doc, _) ->
+                        (ElementPattern.Element name,
+                         ElementPattern.Element(Element "doc-string"),
+                         Value.Literal doc.doc))
+                |> Set.ofSeq
+
+            Ok(networks, Any.Network docs :: stack)
+    )
 
 let stdActions: Actions =
     Map.ofSeq

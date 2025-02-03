@@ -65,28 +65,31 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
     if aBox = res then Ok res else infer tBox res
 
 let inferAction: Action =
-    Action.Full({doc = "..."}, fun _ networks stack ->
-        match stack with
-        | description :: network :: tail ->
-            let description =
-                match description with
-                | Any.Network n -> n
-                | Any.NetworkName name ->
-                    match networks.TryFind name with
-                    | Some(n) -> n
+    Action.Full(
+        { doc = "..."; examples = [] },
+        fun _ networks stack ->
+            match stack with
+            | description :: network :: tail ->
+                let description =
+                    match description with
+                    | Any.Network n -> n
+                    | Any.NetworkName name ->
+                        match networks.TryFind name with
+                        | Some(n) -> n
+                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
-                | _ -> failwith "TODO"
 
-            let network =
-                match network with
-                | Any.Network n -> n
-                | Any.NetworkName name ->
-                    match networks.TryFind name with
-                    | Some(n) -> n
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | Any.NetworkName name ->
+                        match networks.TryFind name with
+                        | Some(n) -> n
+                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
-                | _ -> failwith "TODO"
 
-            match infer description network with
-            | Ok res -> Ok(networks, Any.Network res :: tail)
-            | Error err -> error $"Error calling infer: {err}" None
-        | _ -> error "Improper call to infer." None)
+                match infer description network with
+                | Ok res -> Ok(networks, Any.Network res :: tail)
+                | Error err -> error $"Error calling infer: {err}" None
+            | _ -> error "Improper call to infer." None
+    )

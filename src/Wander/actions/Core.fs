@@ -8,13 +8,18 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
-let clearAction: Action = Action.Stack({ doc = "Clear Stack." }, fun _ -> Ok([]))
+let clearAction: Action =
+    Action.Stack({ doc = "Clear Stack."; examples = [] }, (fun _ -> Ok([])))
 
 let popAction: Action =
-    Action.Stack({ doc = "Remove top Term from Stack." }, fun stack ->
-        match stack with
-        | [] -> error "Cannot pop an empty Stack." None
-        | _ :: tail -> Ok(tail))
+    Action.Stack(
+        { doc = "Remove top Term from Stack."
+          examples = [] },
+        fun stack ->
+            match stack with
+            | [] -> error "Cannot pop an empty Stack." None
+            | _ :: tail -> Ok(tail)
+    )
 
 // let importCommand: Command =
 //     { Eval =
@@ -165,12 +170,3 @@ let popAction: Action =
 //                 arguments
 
 //             Ok(networks, local, modules) }
-
-let coreActions = Map.empty
-// [ (Element "docs", docsCommand) ]
-//   (Element "ignore", ignoreCommand)
-//   //          (Element "read", readCommand)
-//   (Element "result-set", resultSetCommand)
-//   (Element "fold", foldCommand)
-//   // (containsCommand.Name, containsCommand)
-//   (Element "eval", evalCommand) ])

@@ -9,40 +9,44 @@ open Wander.Interpreter
 open Wander.Model
 
 let assertEqualAction: Action =
-    Action.Stack({ doc = "Assert that to top two Terms on the Stack are equal." }, fun stack ->
-        match stack with
-        | first :: second :: tail ->
-            // let first =
-            //     match first with
-            //     | Any.Quote quote ->
-            //         match evalQuote networks local modules variables quote with
-            //         | Ok((Some(res), _, _, _, _)) -> res
-            //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
-            //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-            //     | Any.Variable variable ->
-            //         match Map.tryFind variable variables with
-            //         | Some(res) -> res
-            //         | None -> failwith "Invalid first expression passed to assert-equal."
-            //     | _ -> first
+    Action.Stack(
+        { doc = "Assert that to top two Terms on the Stack are equal."
+          examples = [] },
+        fun stack ->
+            match stack with
+            | first :: second :: tail ->
+                // let first =
+                //     match first with
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(res), _, _, _, _)) -> res
+                //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+                //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                //     | Any.Variable variable ->
+                //         match Map.tryFind variable variables with
+                //         | Some(res) -> res
+                //         | None -> failwith "Invalid first expression passed to assert-equal."
+                //     | _ -> first
 
-            // let second =
-            //     match second with
-            //     | Any.Quote quote ->
-            //         match evalQuote networks local modules variables quote with
-            //         | Ok((Some(res), _, _, _, _)) -> res
-            //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
-            //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-            //     | Any.Variable variable ->
-            //         match Map.tryFind variable variables with
-            //         | Some(res) -> res
-            //         | None -> failwith "Invalid second expression passed to assert-equal."
-            //     | _ -> second
+                // let second =
+                //     match second with
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(res), _, _, _, _)) -> res
+                //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
+                //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+                //     | Any.Variable variable ->
+                //         match Map.tryFind variable variables with
+                //         | Some(res) -> res
+                //         | None -> failwith "Invalid second expression passed to assert-equal."
+                //     | _ -> second
 
-            if first = second then
-                Ok(tail)
-            else
-                error $"assert-equal failed {printAny first} != {printAny second}" None
-        | _ -> error $"assert-equal requires two values on stack." None)
+                if first = second then
+                    Ok(tail)
+                else
+                    error $"assert-equal failed {printAny first} != {printAny second}" None
+            | _ -> error $"assert-equal requires two values on stack." None
+    )
 
 // let assertFailCommand: Command =
 //     { Eval =
