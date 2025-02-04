@@ -45,7 +45,7 @@ let unionAction =
 let countAction =
     Action.Stack(
         { doc = "Take a Network from the top of the Stack and push its size."
-          examples = [] },
+          examples = [ "{} count 0 assert-equal" ] },
         fun stack ->
             match stack with
             | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])

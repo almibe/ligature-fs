@@ -22,17 +22,26 @@ let docsAction: Action =
         fun actions networks stack ->
             let docs: Network =
                 Map.toSeq actions
-                |> Seq.map (fun (name, action) ->
+                |> Seq.fold (fun state (name, action) ->
                     match action with
                     | Action.Full(doc, _) ->
-                        (ElementPattern.Element name,
-                         ElementPattern.Element(Element "doc-string"),
-                         Value.Literal doc.doc)
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-string"),
+                            Value.Literal doc.doc) state
+                        List.fold (fun state example -> 
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-example"),
+                            Value.Literal example) state) state doc.examples
                     | Action.Stack(doc, _) ->
-                        (ElementPattern.Element name,
-                         ElementPattern.Element(Element "doc-string"),
-                         Value.Literal doc.doc))
-                |> Set.ofSeq
+                        let state = 
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-string"),
+                            Value.Literal doc.doc) state
+                        List.fold (fun state example ->
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-example"),
+                            Value.Literal example) state) state doc.examples) Set.empty
 
             Ok(networks, Any.Network docs :: stack)
     )
@@ -42,6 +51,7 @@ let stdActions: Actions =
         [ (Element "assert-equal", assertEqualAction)
           (Element "union", unionAction)
           (Element "infer", inferAction)
+          (Element "instances", instancesAction)
           (Element "to-json", toJSONAction)
           (Element "docs", docsAction)
           (Element "prepend", prependAction)
