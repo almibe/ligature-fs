@@ -142,6 +142,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
             (fun token ->
                 match token with
                 | Token.WhiteSpace(_)
+                | Token.Comment
                 | Token.NewLine(_) -> false
                 | _ -> true)
             tokens

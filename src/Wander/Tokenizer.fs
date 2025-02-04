@@ -63,7 +63,7 @@ type Token =
     | CloseParen
     | Comma
     | Pipe
-    | Comment of string
+    | Comment
 
 let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
@@ -120,7 +120,7 @@ let newLineTokenNibbler =
     Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> Token.NewLine)
 
 let commentNibbler =
-    Nibblers.takeAll [ Nibblers.takeString ";"; Nibblers.takeUntil newLineNibbler ] //TODO doesn't handle \r\n
+    Gaze.map (Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ]) (fun _ -> Token.Comment)
 
 let whiteSpaceNibbler =
     Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
@@ -139,7 +139,8 @@ let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
             Nibblers.takeFirst (
-                [ whiteSpaceNibbler
+                [ commentNibbler
+                  whiteSpaceNibbler
                   elementTokenNibbler
                   newLineTokenNibbler
                   stringLiteralTokenNibbler
