@@ -125,7 +125,7 @@ let extract (source: Network) (id: Element): Network =
 
 let extractAction: Action =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
@@ -173,7 +173,7 @@ let extractJson (ids: Quote) (source: Network): string =
 
 let extractJsonAction: Action =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
@@ -194,7 +194,7 @@ let instances (source: Network) (concept: Element): AnySet =
 
 let instancesAction: Action =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.Quote concepts :: Any.Network source :: tail ->
@@ -210,7 +210,7 @@ let instancesAction: Action =
 
 let instancesJsonAction: Action =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.Quote concepts :: Any.Network source :: tail ->
@@ -234,7 +234,7 @@ let instancesJsonAction: Action =
 
 let inferAction: Action =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | description :: network :: tail ->

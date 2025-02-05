@@ -9,7 +9,6 @@ open Wander.Model
 open Wander.Actions.Assert
 open Wander.Actions.Core
 open Wander.Actions.Quote
-open Wander.Actions.JSON
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
 open Interpreter
@@ -18,7 +17,9 @@ open Wander.Actions.Store
 let docsAction: Action =
     Action.Full(
         { doc = "Push the docs Network on the Stack."
-          examples = [] },
+          examples = []
+          pre = ""
+          post = "Network" },
         fun actions networks stack ->
             let docs: Network =
                 Map.toSeq actions
@@ -33,6 +34,14 @@ let docsAction: Action =
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element ":"),
                             Value.Element (Element "Action") ) state
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-pre"),
+                            Value.Literal doc.pre ) state
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-post"),
+                            Value.Literal doc.post ) state
                         List.fold (fun state example -> 
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-example"),
@@ -46,6 +55,14 @@ let docsAction: Action =
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-string"),
                             Value.Literal doc.doc) state
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-pre"),
+                            Value.Literal doc.pre ) state
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element "doc-post"),
+                            Value.Literal doc.post ) state
                         List.fold (fun state example ->
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-example"),
@@ -63,7 +80,6 @@ let stdActions: Actions =
           (Element "extract-json", extractJsonAction)
           (Element "instances", instancesAction)
           (Element "instances-json", instancesJsonAction)
-          (Element "to-json", toJSONAction)
           (Element "docs", docsAction)
           (Element "prepend", prependAction)
           (Element "clear", clearAction)
@@ -96,4 +112,4 @@ let stdActions: Actions =
                            Value.Variable(Variable "?concept") ]
                  )
                  Any.Element(Element "query")
-                 Any.Element(Element "is-empty") ]) ]
+                 Any.Element(Element "is-empty") ] [] "" "") ]

@@ -16,5 +16,3 @@ open System
 //             match args with
 //             | [ _ ] -> Ok(Value.Int(bigint DateTime.Now.Ticks))
 //             | _ -> error "Invalid call to map function." None) }
-
-let dateTimeLib = [] //[(ticksFunction.Name, ticksFunction)]

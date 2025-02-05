@@ -10,7 +10,7 @@ open Ligature.Model
 let mergeAction =
     Action.Full(
         { doc = "Take a Network Name and Network and merge the Network into the Named Network."
-          examples = [] },
+          examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.NetworkName name :: Any.Network network :: tail ->
@@ -22,7 +22,7 @@ let mergeAction =
 
 let removeAction =
     Action.Full(
-        { doc = "..."; examples = [] },
+        { doc = "..."; examples = []; pre = ""; post = "" },
         fun _ networks stack ->
             match stack with
             | Any.NetworkName name :: Any.Network network :: tail ->
@@ -35,7 +35,7 @@ let removeAction =
 let readAction =
     Action.Full(
         { doc = "Read a Network Name off the Stack and then push that Network's value onto the Stack."
-          examples = [] },
+          examples = []; pre = "NetworkName"; post = "Network" },
         fun _ networks stack ->
             match stack with
             | Any.NetworkName name :: tail ->

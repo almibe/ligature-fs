@@ -12,7 +12,7 @@ type Stack = Any list
 
 and Actions = Map<Element, Action>
 
-and ActionDoc = { doc: string; examples: string list }
+and ActionDoc = { doc: string; examples: string list; pre: string; post: string }
 
 and [<RequireQualifiedAccess>] Action =
     | Full of ActionDoc * (Actions -> Networks -> Stack -> Result<Networks * Stack, LigatureError>)

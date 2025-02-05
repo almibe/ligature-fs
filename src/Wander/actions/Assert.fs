@@ -11,7 +11,9 @@ open Wander.Model
 let assertEqualAction: Action =
     Action.Stack(
         { doc = "Assert that to top two Terms on the Stack are equal."
-          examples = [] },
+          examples = []
+          pre = "Any Any"
+          post = "" },
         fun stack ->
             match stack with
             | first :: second :: tail ->
@@ -57,8 +59,3 @@ let assertEqualAction: Action =
 //                 | Ok(_) -> error "assert-fail call didn't result in error." None
 //                 | Error _ -> Ok((Some(Any.Network Set.empty), networks, local, modules))
 //             | args -> error $"assert-fail passed illegal arguments - {args}" None }
-
-let assertCommands = Map.empty
-// Map.ofList
-//     [ (Element "assert-equal", (assertEqualCommand))
-//       (Element "assert-fail", (assertFailCommand)) ]

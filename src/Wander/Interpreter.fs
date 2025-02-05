@@ -23,8 +23,8 @@ let rec evalScript
             | Error err -> Error err
         | value -> evalScript actions networks (value :: stack) tail
 
-and createAction (doc: string) (quote: Quote) : Action =
-    Action.Full({ doc = doc; examples = [] }, (fun actions networks stack -> evalScript actions networks stack quote))
+and createAction (doc: string) (quote: Quote) examples pre post : Action =
+    Action.Full({ doc = doc; examples = examples; pre = pre; post = post }, (fun actions networks stack -> evalScript actions networks stack quote))
 
 and lookupAction (actions: Actions) (networks: Networks) (action: Element) : Action option =
 
@@ -37,7 +37,7 @@ and lookupAction (actions: Actions) (networks: Networks) (action: Element) : Act
                         match triple with
                         | ElementPattern.Element el, ElementPattern.Element(Element "action-def"), Value.Quote def ->
                             if el = action then
-                                Some(createAction "no docs" def)
+                                Some(createAction "no docs" def [] "" "")
                             else
                                 None
                         | _ -> None)

@@ -12,7 +12,9 @@ open Wander.Interpreter
 let unionAction =
     Action.Stack(
         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
-          examples = [] },
+          examples = ["{a b c} {d e f} union\n{a b c, d e f} assert-equal"]
+          pre = "Network Network"
+          post = "Network" },
         fun stack ->
             match stack with
             | Any.Network left :: Any.Network right :: tail ->
@@ -45,7 +47,9 @@ let unionAction =
 let countAction =
     Action.Stack(
         { doc = "Take a Network from the top of the Stack and push its size."
-          examples = [ "{} count 0 assert-equal" ] },
+          examples = [ "{} count 0 assert-equal" ]
+          pre = "Network"
+          post = "Literal" },
         fun stack ->
             match stack with
             | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
@@ -82,7 +86,9 @@ let countAction =
 let queryAction =
     Action.Full(
         { doc = "Query a network. This Action requires three Networks on the stack."
-          examples = [] },
+          examples = []
+          pre = "Template Pattern Network"
+          post = "TemplateResult" },
         fun actions network stack ->
             match stack with
             | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
@@ -186,7 +192,9 @@ let queryAction =
 let filterAction =
     Action.Full(
         { doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network."
-          examples = [] },
+          examples = []
+          pre = "Pattern Network"
+          post = "Network" },
         fun actions network stack ->
             match stack with
             | Any.Network pattern :: Any.Network source :: tail ->
@@ -230,7 +238,9 @@ let filterAction =
 let ifEmptyAction =
     Action.Full(
         { doc = "Takes three Terms..."
-          examples = [] },
+          examples = []
+          pre = ""
+          post = "" },
         fun _ network stack ->
             match stack with
             | elseCase :: emptyCase :: Any.Network cond :: tail ->
@@ -245,7 +255,9 @@ let isEmptyAction =
     Action.Full(
         { doc =
             "Takes a Network or Quote off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
-          examples = [] },
+          examples = []
+          pre = ""
+          post = ""  },
         fun _ network stack ->
             match stack with
             | Any.Network cond :: tail ->

@@ -11,7 +11,6 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="actions/IO.fs" />
-    <Compile Include="actions/JSON.fs" />
     <Compile Include="actions/Bool.fs" />
     <Compile Include="actions/Core.fs" />
     <Compile Include="actions/Quote.fs" />
