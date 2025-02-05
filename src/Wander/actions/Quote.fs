@@ -18,3 +18,15 @@ let prependAction =
                 Ok(Any.Quote newQuote :: tail)
             | _ -> error "Invalid call to prepend action." None
     )
+
+let setAction =
+    Action.Stack(
+        { doc = "Read a Quote off the Stack and convert it to a Set and push the new Set on the Stack."
+          examples = [] },
+        fun stack ->
+            match stack with
+            | Any.Quote quote :: tail ->
+                let set = Set.ofList quote
+                Ok(Any.AnySet set :: tail)
+            | _ -> error "Invalid call to set action." None
+    )

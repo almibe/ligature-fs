@@ -39,9 +39,14 @@ let rec printAny (value: Any) : string =
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
     | Any.NetworkName(NetworkName name) -> name
+    | Any.Comment(_) -> failwith "Not Implemented"
+    | Any.AnySet s -> printAnySet s
 
 and printQuote (quote: Quote) : string =
     (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" quote) + "]"
+
+and printAnySet (set: AnySet) : string =
+    (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set) + "] set"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("

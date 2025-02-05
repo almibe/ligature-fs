@@ -54,6 +54,8 @@ and Networks = Map<NetworkName, Network>
 
 and Quote = Any list
 
+and AnySet = Set<Any>
+
 and [<RequireQualifiedAccess>] Any =
     | Literal of string
     | Variable of Variable
@@ -64,3 +66,4 @@ and [<RequireQualifiedAccess>] Any =
     | ResultSet of ResultSet
     | NetworkName of NetworkName
     | Comment of string
+    | AnySet of AnySet

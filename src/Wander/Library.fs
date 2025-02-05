@@ -29,11 +29,19 @@ let docsAction: Action =
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-string"),
                             Value.Literal doc.doc) state
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element ":"),
+                            Value.Element (Element "Action") ) state
                         List.fold (fun state example -> 
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-example"),
                             Value.Literal example) state) state doc.examples
                     | Action.Stack(doc, _) ->
+                        let state =
+                            Set.add (ElementPattern.Element name,
+                            ElementPattern.Element(Element ":"),
+                            Value.Element (Element "Action") ) state
                         let state = 
                             Set.add (ElementPattern.Element name,
                             ElementPattern.Element(Element "doc-string"),
@@ -51,11 +59,15 @@ let stdActions: Actions =
         [ (Element "assert-equal", assertEqualAction)
           (Element "union", unionAction)
           (Element "infer", inferAction)
+          (Element "extract", extractAction)
+          (Element "extract-json", extractJsonAction)
           (Element "instances", instancesAction)
+          (Element "instances-json", instancesJsonAction)
           (Element "to-json", toJSONAction)
           (Element "docs", docsAction)
           (Element "prepend", prependAction)
           (Element "clear", clearAction)
+          (Element "set", setAction)
           (Element "pop", popAction)
           (Element "if-empty", ifEmptyAction)
           (Element "is-empty", isEmptyAction)
