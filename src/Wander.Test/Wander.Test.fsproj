@@ -26,8 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wander\Wander.fsproj" />
-    <ProjectReference Include="..\LigatureLMDB\LigatureLMDB.fsproj" />
-    <ProjectReference Include="..\LigatureLMDB.Test\LigatureLMDB.Test.fsproj" />
   </ItemGroup>
 
 </Project>

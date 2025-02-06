@@ -10,12 +10,6 @@ open Nibblers
 open Ligature.Model
 open Model
 
-let networkNameNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Error(err) -> Error err
-    | Ok(Token.NetworkName(name)) -> Ok(Any.NetworkName(NetworkName name))
-    | _ -> Error(Gaze.GazeError.NoMatch)
-
 let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
@@ -116,14 +110,12 @@ let anyNib: Gaze.Nibbler<Token, Any> =
         [ quoteAnyNib
           elementLiteralVariableNib
           networkNib
-          networkNameNib
           commentNib ]
 
 let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
-    | Ok(Token.NetworkName(value)) -> Ok(Value.NetworkName(NetworkName value))
     | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
     | Ok(Token.OpenSquare) ->
         match partialQuoteNib gaze with

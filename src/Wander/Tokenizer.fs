@@ -53,7 +53,6 @@ type Token =
     | NewLine of string
     | Element of string
     | Variable of string
-    | NetworkName of string
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -132,7 +131,6 @@ let elementTokenNibbler =
         |> implode
         |> (fun value ->
             if value.StartsWith "?" then Token.Variable value
-            else if value.StartsWith "*" then Token.NetworkName value
             else Token.Element value))
 
 let tokenNibbler =

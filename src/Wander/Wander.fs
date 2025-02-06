@@ -13,17 +13,16 @@ open Library
 
 let run
     (actions: Actions)
-    (networks: Networks)
     (stack: Stack)
     (input: string)
-    : Result<Networks * Stack, LigatureError> =
+    : Result<Stack, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok script ->
-                match evalScript actions networks stack script with
-                | Ok(networks, stack) -> Ok(networks, stack)
+                match evalScript actions stack script with
+                | Ok(stack) -> Ok(stack)
                 | Error err -> Error err
             | Error(err) -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
@@ -31,11 +30,11 @@ let run
         error $"Error running script. {x}" None
 
 let runWithDefaults (script: string) =
-    run stdActions Map.empty List.empty script
+    run stdActions List.empty script
 
-let printResult (result: Result<(Networks * Stack), LigatureError>) =
+let printResult (result: Result<(Stack), LigatureError>) =
     match result with
-    | Ok(_, stack) -> printStack stack
+    | Ok(stack) -> printStack stack
     | Error(err) -> $"Error {err.UserMessage}"
 
 let read (input: string) : Result<Any, LigatureError> =

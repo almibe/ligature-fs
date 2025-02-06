@@ -158,7 +158,6 @@ let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
                     | Value.Literal l -> Any.Literal l
                     | Value.Variable v -> Any.Variable v
                     | Value.Quote q -> Any.Quote q
-                    | Value.NetworkName n -> Any.NetworkName n
                 else
                     Any.Variable slot
             | _ -> any)

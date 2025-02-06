@@ -20,7 +20,7 @@ let docsAction: Action =
           examples = []
           pre = ""
           post = "Network" },
-        fun actions networks stack ->
+        fun actions stack ->
             let docs: Network =
                 Map.toSeq actions
                 |> Seq.fold (fun state (name, action) ->
@@ -68,7 +68,7 @@ let docsAction: Action =
                             ElementPattern.Element(Element "doc-example"),
                             Value.Literal example) state) state doc.examples) Set.empty
 
-            Ok(networks, Any.Network docs :: stack)
+            Ok(Any.Network docs :: stack)
     )
 
 let stdActions: Actions =
@@ -90,8 +90,8 @@ let stdActions: Actions =
           (Element "filter", filterAction)
           (Element "query", queryAction)
           (Element "count", countAction)
-          (Element "merge", mergeAction)
-          (Element "remove", removeAction)
+        //   (Element "merge", mergeAction)
+        //   (Element "remove", removeAction)
           (Element "read", readAction)
           (Element "is-consistent",
            createAction

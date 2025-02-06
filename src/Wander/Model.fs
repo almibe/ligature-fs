@@ -15,7 +15,7 @@ and Actions = Map<Element, Action>
 and ActionDoc = { doc: string; examples: string list; pre: string; post: string }
 
 and [<RequireQualifiedAccess>] Action =
-    | Full of ActionDoc * (Actions -> Networks -> Stack -> Result<Networks * Stack, LigatureError>)
+    | Full of ActionDoc * (Actions -> Stack -> Result<Stack, LigatureError>)
     | Stack of ActionDoc * (Stack -> Result<Stack, LigatureError>)
 
 and Variables = Map<Variable, Any>
@@ -38,7 +38,6 @@ let rec printAny (value: Any) : string =
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
-    | Any.NetworkName(NetworkName name) -> name
     | Any.Comment(_) -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
 
@@ -81,7 +80,6 @@ and writeValue (value: Value) : string =
     | Value.Literal value -> encodeString value
     | Value.Variable(Variable variable) -> variable
     | Value.Quote(quote) -> printQuote quote
-    | Value.NetworkName(NetworkName name) -> name
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =

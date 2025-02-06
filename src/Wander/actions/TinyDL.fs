@@ -126,7 +126,7 @@ let extract (source: Network) (id: Element): Network =
 let extractAction: Action =
     Action.Full(
         { doc = "..."; examples = []; pre = ""; post = "" },
-        fun _ networks stack ->
+        fun _ stack ->
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let result: AnySet =
@@ -135,7 +135,7 @@ let extractAction: Action =
                         | Any.Element concept -> 
                             Set.add (Any.Network (extract source concept)) state
                         | _ -> failwith "TODO") (Set.empty) ids
-                Ok(networks, Any.AnySet result :: tail)
+                Ok(Any.AnySet result :: tail)
             | _ -> failwith "TODO"
     )
 
@@ -174,11 +174,11 @@ let extractJson (ids: Quote) (source: Network): string =
 let extractJsonAction: Action =
     Action.Full(
         { doc = "..."; examples = []; pre = ""; post = "" },
-        fun _ networks stack ->
+        fun _ stack ->
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let json = extractJson ids source
-                Ok(networks, Any.Literal json :: tail)
+                Ok(Any.Literal json :: tail)
             | _ -> failwith "TODO"
     )
 
@@ -195,7 +195,7 @@ let instances (source: Network) (concept: Element): AnySet =
 let instancesAction: Action =
     Action.Full(
         { doc = "..."; examples = []; pre = ""; post = "" },
-        fun _ networks stack ->
+        fun _ stack ->
             match stack with
             | Any.Quote concepts :: Any.Network source :: tail ->
                 let result: AnySet =
@@ -204,14 +204,14 @@ let instancesAction: Action =
                         | Any.Element concept -> 
                             instances source concept
                         | _ -> failwith "TODO") (Set.empty) concepts
-                Ok(networks, Any.AnySet result :: tail)
+                Ok(Any.AnySet result :: tail)
             | _ -> failwith "TODO"
     )
 
 let instancesJsonAction: Action =
     Action.Full(
         { doc = "..."; examples = []; pre = ""; post = "" },
-        fun _ networks stack ->
+        fun _ stack ->
             match stack with
             | Any.Quote concepts :: Any.Network source :: tail ->
                 let ids: Quote = 
@@ -228,36 +228,28 @@ let instancesJsonAction: Action =
                             state
                         | _ -> failwith "TODO") List.empty concepts
                 let json = extractJson ids source
-                Ok(networks, Any.Literal json :: tail)
+                Ok(Any.Literal json :: tail)
             | _ -> failwith "TODO"
     )
 
 let inferAction: Action =
     Action.Full(
         { doc = "..."; examples = []; pre = ""; post = "" },
-        fun _ networks stack ->
+        fun _ stack ->
             match stack with
             | description :: network :: tail ->
                 let description =
                     match description with
                     | Any.Network n -> n
-                    | Any.NetworkName name ->
-                        match networks.TryFind name with
-                        | Some(n) -> n
-                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 let network =
                     match network with
                     | Any.Network n -> n
-                    | Any.NetworkName name ->
-                        match networks.TryFind name with
-                        | Some(n) -> n
-                        | _ -> failwith "TODO"
                     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok(networks, Any.Network res :: tail)
+                | Ok res -> Ok(Any.Network res :: tail)
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None
     )

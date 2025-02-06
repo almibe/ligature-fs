@@ -89,7 +89,7 @@ let queryAction =
           examples = []
           pre = "Template Pattern Network"
           post = "TemplateResult" },
-        fun actions network stack ->
+        fun actions stack ->
             match stack with
             | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
                 let results =
@@ -97,14 +97,14 @@ let queryAction =
                     |> Seq.map (fun network -> Any.Network network)
                     |> Seq.toList
 
-                Ok(network, Any.Quote results :: tail)
+                Ok(Any.Quote results :: tail)
             | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
                 let results =
                     queryQuoteTemplate pattern template source
                     |> Seq.map (fun quote -> Any.Quote quote)
                     |> Seq.toList
 
-                Ok(network, Any.Quote results :: tail)
+                Ok(Any.Quote results :: tail)
             | _ -> error "Invalid call to query" None
     )
 
@@ -195,7 +195,7 @@ let filterAction =
           examples = []
           pre = "Pattern Network"
           post = "Network" },
-        fun actions network stack ->
+        fun actions stack ->
             match stack with
             | Any.Network pattern :: Any.Network source :: tail ->
                 // let pattern =
@@ -231,7 +231,7 @@ let filterAction =
                 //     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok(network, Any.Network results :: tail)
+                Ok(Any.Network results :: tail)
             | _ -> error "Invalid call to filter" None
     )
 
@@ -241,13 +241,13 @@ let ifEmptyAction =
           examples = []
           pre = ""
           post = "" },
-        fun _ network stack ->
+        fun _ stack ->
             match stack with
             | elseCase :: emptyCase :: Any.Network cond :: tail ->
                 if cond = Set.empty then
-                    Ok(network, emptyCase :: tail)
+                    Ok(emptyCase :: tail)
                 else
-                    Ok(network, elseCase :: tail)
+                    Ok(elseCase :: tail)
             | _ -> error "Invalid call to if-empty" None
     )
 
@@ -258,17 +258,17 @@ let isEmptyAction =
           examples = []
           pre = ""
           post = ""  },
-        fun _ network stack ->
+        fun _ stack ->
             match stack with
             | Any.Network cond :: tail ->
                 if cond = Set.empty then
-                    Ok(network, Any.Literal "true" :: tail)
+                    Ok(Any.Literal "true" :: tail)
                 else
-                    Ok(network, Any.Literal "false" :: tail)
+                    Ok(Any.Literal "false" :: tail)
             | Any.Quote q :: tail ->
                 if q.IsEmpty then
-                    Ok(network, Any.Literal "true" :: tail)
+                    Ok(Any.Literal "true" :: tail)
                 else
-                    Ok(network, Any.Literal "false" :: tail)
+                    Ok(Any.Literal "false" :: tail)
             | _ -> error "Invalid call to is-empty" None
     )

@@ -27,8 +27,6 @@ type Element = Element of string
 
 //   let value (Element e) = e
 
-type NetworkName = NetworkName of string
-
 type Variable = Variable of string
 
 type ResultSet = Set<ValueSet>
@@ -44,13 +42,10 @@ and [<RequireQualifiedAccess>] Value =
     | Literal of string
     | Variable of Variable
     | Quote of Quote
-    | NetworkName of NetworkName
 
 and Triple = ElementPattern * ElementPattern * Value
 
 and Network = Set<Triple>
-
-and Networks = Map<NetworkName, Network>
 
 and Quote = Any list
 
@@ -64,6 +59,5 @@ and [<RequireQualifiedAccess>] Any =
     | Network of Network
     | ValueSet of ValueSet
     | ResultSet of ResultSet
-    | NetworkName of NetworkName
     | Comment of string
     | AnySet of AnySet

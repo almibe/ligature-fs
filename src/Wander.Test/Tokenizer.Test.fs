@@ -100,8 +100,6 @@ let tests =
                   ""
           testCase "read variable"
           <| fun _ -> Expect.equal (tokenize "?") (Ok([ Token.Variable("?") ])) ""
-          testCase "read network name"
-          <| fun _ -> Expect.equal (tokenize "*test") (Ok([ Token.NetworkName("*test") ])) ""
           testCase "read named variable"
           <| fun _ -> Expect.equal (tokenize "?test") (Ok([ Token.Variable("?test") ])) ""
           testCase "return error on invalid input"

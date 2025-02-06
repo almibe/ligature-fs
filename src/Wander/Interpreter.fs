@@ -9,58 +9,32 @@ open Model
 
 let rec evalScript
     (actions: Actions)
-    (networks: Networks)
     (stack: Stack)
     (script: Script)
-    : Result<Networks * Stack, LigatureError> =
+    : Result<Stack, LigatureError> =
     match script with
-    | [] -> Ok(networks, stack)
+    | [] -> Ok(stack)
     | head :: tail ->
         match head with
         | Any.Element action ->
-            match executeAction actions networks stack action with
-            | Ok(networks, stack) -> evalScript actions networks stack tail
+            match executeAction actions stack action with
+            | Ok(stack) -> evalScript actions stack tail
             | Error err -> Error err
-        | value -> evalScript actions networks (value :: stack) tail
+        | value -> evalScript actions (value :: stack) tail
 
 and createAction (doc: string) (quote: Quote) examples pre post : Action =
-    Action.Full({ doc = doc; examples = examples; pre = pre; post = post }, (fun actions networks stack -> evalScript actions networks stack quote))
+    Action.Full({ doc = doc; examples = examples; pre = pre; post = post }, (fun actions stack -> evalScript actions stack quote))
 
-and lookupAction (actions: Actions) (networks: Networks) (action: Element) : Action option =
+and lookupAction (actions: Actions) (action: Element) : Action option =
+    match Map.tryFind action actions with
+    | Some(action) -> Some(action)
+    | None -> None
 
-    let actionInNetwork: Action option =
-        match Map.tryFind (NetworkName "*") networks with
-        | Some(baseNetwork) ->
-            let res: Action seq =
-                Seq.choose
-                    (fun triple ->
-                        match triple with
-                        | ElementPattern.Element el, ElementPattern.Element(Element "action-def"), Value.Quote def ->
-                            if el = action then
-                                Some(createAction "no docs" def [] "" "")
-                            else
-                                None
-                        | _ -> None)
-                    baseNetwork
-
-            if Seq.length res = 1 then
-                (List.ofSeq res).Head |> Some
-            else
-                None
-        | None -> None
-
-    if Option.isNone actionInNetwork then
-        match Map.tryFind action actions with
-        | Some(action) -> Some(action)
-        | None -> None
-    else
-        actionInNetwork
-
-and executeAction (actions: Actions) (networks: Networks) (stack: Stack) (action: Element) =
-    match lookupAction actions networks action with
-    | Some(Action.Full(_, action)) -> action actions networks stack
+and executeAction (actions: Actions) (stack: Stack) (action: Element) =
+    match lookupAction actions action with
+    | Some(Action.Full(_, action)) -> action actions stack
     | Some(Action.Stack(_, action)) ->
         match action stack with
-        | Ok stack -> Ok(networks, stack)
+        | Ok stack -> Ok(stack)
         | Error err -> Error err
     | None -> error $"Could not find action {action}." None
