@@ -7,11 +7,7 @@ module Wander.Interpreter
 open Ligature.Model
 open Model
 
-let rec evalScript
-    (actions: Actions)
-    (stack: Stack)
-    (script: Script)
-    : Result<Stack, LigatureError> =
+let rec evalScript (actions: Actions) (stack: Stack) (script: Script) : Result<Stack, LigatureError> =
     match script with
     | [] -> Ok(stack)
     | head :: tail ->
@@ -23,7 +19,13 @@ let rec evalScript
         | value -> evalScript actions (value :: stack) tail
 
 and createAction (doc: string) (quote: Quote) examples pre post : Action =
-    Action.Full({ doc = doc; examples = examples; pre = pre; post = post }, (fun actions stack -> evalScript actions stack quote))
+    Action.Full(
+        { doc = doc
+          examples = examples
+          pre = pre
+          post = post },
+        (fun actions stack -> evalScript actions stack quote)
+    )
 
 and lookupAction (actions: Actions) (action: Element) : Action option =
     match Map.tryFind action actions with

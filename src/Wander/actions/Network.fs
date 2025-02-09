@@ -12,7 +12,7 @@ open Wander.Interpreter
 let unionAction =
     Action.Stack(
         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
-          examples = ["{a b c} {d e f} union\n{a b c, d e f} assert-equal"]
+          examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
           pre = "Network Network"
           post = "Network" },
         fun stack ->
@@ -257,7 +257,7 @@ let isEmptyAction =
             "Takes a Network or Quote off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
           examples = []
           pre = ""
-          post = ""  },
+          post = "" },
         fun _ stack ->
             match stack with
             | Any.Network cond :: tail ->

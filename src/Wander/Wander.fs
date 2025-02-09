@@ -11,11 +11,7 @@ open Interpreter
 open Wander.Model
 open Library
 
-let run
-    (actions: Actions)
-    (stack: Stack)
-    (input: string)
-    : Result<Stack, LigatureError> =
+let run (actions: Actions) (stack: Stack) (input: string) : Result<Stack, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
@@ -29,8 +25,7 @@ let run
     with x ->
         error $"Error running script. {x}" None
 
-let runWithDefaults (script: string) =
-    run stdActions List.empty script
+let runWithDefaults (script: string) = run stdActions List.empty script
 
 let printResult (result: Result<(Stack), LigatureError>) =
     match result with

@@ -106,11 +106,7 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst
-        [ quoteAnyNib
-          elementLiteralVariableNib
-          networkNib
-          commentNib ]
+    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; commentNib ]
 
 let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with

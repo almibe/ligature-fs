@@ -9,7 +9,13 @@ open Wander.Model
 open Wander.Interpreter
 
 let clearAction: Action =
-    Action.Stack({ doc = "Clear Stack."; examples = ["clear"]; pre = "*"; post = "Empty Stack" }, (fun _ -> Ok([])))
+    Action.Stack(
+        { doc = "Clear Stack."
+          examples = [ "clear" ]
+          pre = "*"
+          post = "Empty Stack" },
+        (fun _ -> Ok([]))
+    )
 
 let popAction: Action =
     Action.Stack(

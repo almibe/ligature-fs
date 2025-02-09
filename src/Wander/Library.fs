@@ -23,50 +23,86 @@ let docsAction: Action =
         fun actions stack ->
             let docs: Network =
                 Map.toSeq actions
-                |> Seq.fold (fun state (name, action) ->
-                    match action with
-                    | Action.Full(doc, _) ->
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-string"),
-                            Value.Literal doc.doc) state
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element ":"),
-                            Value.Element (Element "Action") ) state
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-pre"),
-                            Value.Literal doc.pre ) state
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-post"),
-                            Value.Literal doc.post ) state
-                        List.fold (fun state example -> 
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-example"),
-                            Value.Literal example) state) state doc.examples
-                    | Action.Stack(doc, _) ->
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element ":"),
-                            Value.Element (Element "Action") ) state
-                        let state = 
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-string"),
-                            Value.Literal doc.doc) state
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-pre"),
-                            Value.Literal doc.pre ) state
-                        let state =
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-post"),
-                            Value.Literal doc.post ) state
-                        List.fold (fun state example ->
-                            Set.add (ElementPattern.Element name,
-                            ElementPattern.Element(Element "doc-example"),
-                            Value.Literal example) state) state doc.examples) Set.empty
+                |> Seq.fold
+                    (fun state (name, action) ->
+                        match action with
+                        | Action.Full(doc, _) ->
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-string"),
+                                     Value.Literal doc.doc)
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element ":"),
+                                     Value.Element(Element "Action"))
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-pre"),
+                                     Value.Literal doc.pre)
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-post"),
+                                     Value.Literal doc.post)
+                                    state
+
+                            List.fold
+                                (fun state example ->
+                                    Set.add
+                                        (ElementPattern.Element name,
+                                         ElementPattern.Element(Element "doc-example"),
+                                         Value.Literal example)
+                                        state)
+                                state
+                                doc.examples
+                        | Action.Stack(doc, _) ->
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element ":"),
+                                     Value.Element(Element "Action"))
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-string"),
+                                     Value.Literal doc.doc)
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-pre"),
+                                     Value.Literal doc.pre)
+                                    state
+
+                            let state =
+                                Set.add
+                                    (ElementPattern.Element name,
+                                     ElementPattern.Element(Element "doc-post"),
+                                     Value.Literal doc.post)
+                                    state
+
+                            List.fold
+                                (fun state example ->
+                                    Set.add
+                                        (ElementPattern.Element name,
+                                         ElementPattern.Element(Element "doc-example"),
+                                         Value.Literal example)
+                                        state)
+                                state
+                                doc.examples)
+                    Set.empty
 
             Ok(Any.Network docs :: stack)
     )
@@ -90,8 +126,8 @@ let stdActions: Actions =
           (Element "filter", filterAction)
           (Element "query", queryAction)
           (Element "count", countAction)
-        //   (Element "merge", mergeAction)
-        //   (Element "remove", removeAction)
+          //   (Element "merge", mergeAction)
+          //   (Element "remove", removeAction)
           (Element "read", readAction)
           (Element "is-consistent",
            createAction
@@ -112,4 +148,7 @@ let stdActions: Actions =
                            Value.Variable(Variable "?concept") ]
                  )
                  Any.Element(Element "query")
-                 Any.Element(Element "is-empty") ] [] "" "") ]
+                 Any.Element(Element "is-empty") ]
+               []
+               ""
+               "") ]

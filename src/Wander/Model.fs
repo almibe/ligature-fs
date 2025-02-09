@@ -12,7 +12,11 @@ type Stack = Any list
 
 and Actions = Map<Element, Action>
 
-and ActionDoc = { doc: string; examples: string list; pre: string; post: string }
+and ActionDoc =
+    { doc: string
+      examples: string list
+      pre: string
+      post: string }
 
 and [<RequireQualifiedAccess>] Action =
     | Full of ActionDoc * (Actions -> Stack -> Result<Stack, LigatureError>)
@@ -45,7 +49,8 @@ and printQuote (quote: Quote) : string =
     (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" quote) + "]"
 
 and printAnySet (set: AnySet) : string =
-    (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set) + "] set"
+    (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set)
+    + "] set"
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("

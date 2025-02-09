@@ -9,26 +9,34 @@ open System
 open Ligature.Model
 open Wander.Actions
 open Wander.Model
-
-// [<EntryPoint>]
-// let main args =
-//     Console.WriteLine("Starting Ligature HTTP.")
-//     0
-
 open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Builder
-// ^-- this import adds many useful extensions
 
 let endpoints =
-    [
-        get "/" (Response.ofPlainText "Hello World!")
-        // ^-- associate GET / to plain text HttpHandler
-    ]
+    [ get "/" (fun ctx ->
+          let message = ""
+          Response.ofPlainText message ctx)
+      put "/{name}/" (fun ctx ->
+          let route = Request.getRoute ctx
+          let name = route.GetString "name"
+          let message = sprintf "Hello %s" name
+          Response.ofPlainText message ctx)
+      post "/{name}/" (fun ctx ->
+          let route = Request.getRoute ctx
+          let name = route.GetString "name"
+          let message = sprintf "Hello %s" name
+          Response.ofPlainText message ctx)
+      delete "/{name}/" (fun ctx ->
+          let route = Request.getRoute ctx
+          let name = route.GetString "name"
+          let message = sprintf "Hello %s" name
+          Response.ofPlainText message ctx) ]
 
 let wapp = WebApplication.Create()
 
-wapp.UseRouting()
+wapp
+    .UseRouting()
     .UseFalco(endpoints)
     // ^-- activate Falco endpoint source
     .Run()

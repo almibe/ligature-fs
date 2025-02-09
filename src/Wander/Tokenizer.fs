@@ -130,8 +130,10 @@ let elementTokenNibbler =
         |> List.concat
         |> implode
         |> (fun value ->
-            if value.StartsWith "?" then Token.Variable value
-            else Token.Element value))
+            if value.StartsWith "?" then
+                Token.Variable value
+            else
+                Token.Element value))
 
 let tokenNibbler =
     Nibblers.optional (

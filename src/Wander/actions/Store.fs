@@ -35,12 +35,14 @@ open Ligature.Model
 let readAction =
     Action.Full(
         { doc = "Read a Network Name off the Stack and then push that Network's value onto the Stack."
-          examples = []; pre = "NetworkName"; post = "Network" },
+          examples = []
+          pre = "NetworkName"
+          post = "Network" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | Any.NetworkName name :: tail ->
-            //     match Map.tryFind name with
-            //     | Some(currenNetwork) -> Ok(Any.Network currenNetwork :: tail)
-            //     | None -> failwith "TODO"
-            // | _ -> error "Invalid call remove action." None
+    // match stack with
+    // | Any.NetworkName name :: tail ->
+    //     match Map.tryFind name with
+    //     | Some(currenNetwork) -> Ok(Any.Network currenNetwork :: tail)
+    //     | None -> failwith "TODO"
+    // | _ -> error "Invalid call remove action." None
     )
