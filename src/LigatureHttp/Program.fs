@@ -12,31 +12,31 @@ open Wander.Model
 open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Builder
+open Ligature.Lmdb
 
-let endpoints =
+let createEndpoints (store: IStore) =
     [ get "/" (fun ctx ->
-          let message = ""
+          let message = Seq.fold (fun state value -> state + " " + value) "[" (store.Networks()) + "]\n"
           Response.ofPlainText message ctx)
-      put "/{name}/" (fun ctx ->
+      post "/{name}" (fun ctx ->
           let route = Request.getRoute ctx
           let name = route.GetString "name"
-          let message = sprintf "Hello %s" name
-          Response.ofPlainText message ctx)
-      post "/{name}/" (fun ctx ->
+          task {
+            let! body = Request.getBodyString ctx
+            let _ = store.AddNetwork name
+            match run (createStoreActions store Wander.Library.stdActions) List.empty body with
+            | _ -> Response.ofPlainText "" ctx
+          })
+      delete "/{name}" (fun ctx ->
           let route = Request.getRoute ctx
           let name = route.GetString "name"
-          let message = sprintf "Hello %s" name
-          Response.ofPlainText message ctx)
-      delete "/{name}/" (fun ctx ->
-          let route = Request.getRoute ctx
-          let name = route.GetString "name"
-          let message = sprintf "Hello %s" name
-          Response.ofPlainText message ctx) ]
+          store.RemoveNetwork name
+          Response.ofPlainText "" ctx) ]
 
 let wapp = WebApplication.Create()
 
 wapp
     .UseRouting()
-    .UseFalco(endpoints)
+    .UseFalco(createEndpoints (createInMemoryStore ()))
     // ^-- activate Falco endpoint source
     .Run()

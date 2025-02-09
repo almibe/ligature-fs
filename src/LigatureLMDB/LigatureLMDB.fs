@@ -47,6 +47,35 @@ type InMemoryStore(store: Ref<Map<string, Network>>) =
 
 let createInMemoryStore () = InMemoryStore(ref Map.empty)
 
+let createStoreActions (store: IStore) (baseActions: Actions): Actions =
+    baseActions.Add
+        (Element "merge",
+        Action.Stack(
+            { doc = "Reads a Network off the Stack and merges that Network into the target Network."
+              examples = ["{a b c} merge"]
+              pre = "Network"
+              post = "" },
+            fun stack ->
+                failwith "TODO"))
+    |> Map.add
+        (Element "delete")
+        (Action.Stack(
+            { doc = "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
+              examples = []
+              pre = "Network"
+              post = "" },
+            fun stack -> 
+                failwith "TODO"))
+    |> Map.add
+        (Element "read")
+        (Action.Stack(
+            { doc = "Push the target Network on to the Stack."
+              examples = ["read"]
+              pre = ""
+              post = "Network" },
+            fun stack -> 
+                failwith "TODO"))
+
 // let createStore (location: string): IStore =
 //     let env = LightningEnvironment(location)
 //     env.Open()
