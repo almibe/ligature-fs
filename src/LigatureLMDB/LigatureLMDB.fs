@@ -16,14 +16,15 @@ type IStore =
     abstract RemoveNetwork: string -> unit
     abstract Merge: string -> Network -> unit
     abstract Remove: string -> Network -> unit
-    abstract Query: string -> Network -> Network -> Network seq
-
+    abstract Read: string -> Network
 
 type InMemoryStore(store: Ref<Map<string, Network>>) =
 
     interface IStore with
         member _.AddNetwork(name: string) : unit =
-            store.Value <- Map.add name Set.empty store.contents
+            match store.contents.TryFind name with
+            | Some _ -> ()
+            | None -> store.Value <- Map.add name Set.empty store.contents
 
         member this.Merge (name: string) (network: Network) : unit =
             match store.contents.TryFind name with
@@ -32,9 +33,9 @@ type InMemoryStore(store: Ref<Map<string, Network>>) =
 
         member this.Networks() : string seq = store.contents.Keys
 
-        member this.Query (name: string) (pattern: Network) (template: Network) : Network seq =
+        member this.Read(name: string) : Network =
             match store.contents.TryFind name with
-            | Some currentNetwork -> Ligature.Core.query pattern template currentNetwork
+            | Some currentNetwork -> currentNetwork
             | _ -> failwith "Not Implemented"
 
         member this.Remove (name: string) (network: Network) : unit =
@@ -47,34 +48,41 @@ type InMemoryStore(store: Ref<Map<string, Network>>) =
 
 let createInMemoryStore () = InMemoryStore(ref Map.empty)
 
-let createStoreActions (store: IStore) (baseActions: Actions): Actions =
-    baseActions.Add
-        (Element "merge",
+let createStoreActions (store: IStore) (networkName: string) (baseActions: Actions) : Actions =
+    baseActions.Add(
+        Element "merge",
         Action.Stack(
             { doc = "Reads a Network off the Stack and merges that Network into the target Network."
-              examples = ["{a b c} merge"]
+              examples = [ "{a b c} merge" ]
               pre = "Network"
               post = "" },
             fun stack ->
-                failwith "TODO"))
+                match stack with
+                | Any.Network network :: tail ->
+                    store.Merge networkName network
+                    Ok tail
+                | _ -> failwith "TODO"
+        )
+    )
     |> Map.add
         (Element "delete")
         (Action.Stack(
-            { doc = "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
+            { doc =
+                "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
               examples = []
               pre = "Network"
               post = "" },
-            fun stack -> 
-                failwith "TODO"))
+            fun stack -> failwith "TODO"
+        ))
     |> Map.add
         (Element "read")
         (Action.Stack(
             { doc = "Push the target Network on to the Stack."
-              examples = ["read"]
+              examples = [ "read" ]
               pre = ""
               post = "Network" },
-            fun stack -> 
-                failwith "TODO"))
+            fun stack -> Ok(Any.Network(store.Read networkName) :: stack)
+        ))
 
 // let createStore (location: string): IStore =
 //     let env = LightningEnvironment(location)

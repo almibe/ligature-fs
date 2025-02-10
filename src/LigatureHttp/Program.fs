@@ -16,16 +16,21 @@ open Ligature.Lmdb
 
 let createEndpoints (store: IStore) =
     [ get "/" (fun ctx ->
-          let message = Seq.fold (fun state value -> state + " " + value) "[" (store.Networks()) + "]\n"
+          let message =
+              Seq.fold (fun state value -> state + " " + value) "[" (store.Networks()) + "]\n"
+
           Response.ofPlainText message ctx)
       post "/{name}" (fun ctx ->
           let route = Request.getRoute ctx
           let name = route.GetString "name"
+
           task {
-            let! body = Request.getBodyString ctx
-            let _ = store.AddNetwork name
-            match run (createStoreActions store Wander.Library.stdActions) List.empty body with
-            | _ -> Response.ofPlainText "" ctx
+              let! body = Request.getBodyString ctx
+              let _ = store.AddNetwork name
+
+              match run (createStoreActions store name Wander.Library.stdActions) List.empty body with
+              | Ok result -> Response.ofPlainText (printResult (Ok result)) ctx
+              | Error err -> Response.ofPlainText err.UserMessage ctx
           })
       delete "/{name}" (fun ctx ->
           let route = Request.getRoute ctx
