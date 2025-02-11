@@ -15,28 +15,18 @@ open Microsoft.AspNetCore.Builder
 open Ligature.Lmdb
 
 let createEndpoints (store: IStore) =
-    [ get "/" (fun ctx ->
-          let message =
-              Seq.fold (fun state value -> state + " " + value) "[" (store.Networks()) + "]\n"
-
-          Response.ofPlainText message ctx)
-      post "/{name}" (fun ctx ->
+    [ 
+      post "/" (fun ctx ->
           let route = Request.getRoute ctx
-          let name = route.GetString "name"
-
+          
           task {
               let! body = Request.getBodyString ctx
-              let _ = store.AddNetwork name
 
-              match run (createStoreActions store name Wander.Library.stdActions) List.empty body with
+              match run (createStoreActions store Wander.Library.stdActions) List.empty body with
               | Ok result -> Response.ofPlainText (printResult (Ok result)) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
           })
-      delete "/{name}" (fun ctx ->
-          let route = Request.getRoute ctx
-          let name = route.GetString "name"
-          store.RemoveNetwork name
-          Response.ofPlainText "" ctx) ]
+      ]
 
 let wapp = WebApplication.Create()
 
