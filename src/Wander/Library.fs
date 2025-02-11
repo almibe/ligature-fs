@@ -12,7 +12,6 @@ open Wander.Actions.Quote
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
 open Interpreter
-open Wander.Actions.Store
 
 let docsAction: Action =
     Action.Full(
@@ -126,9 +125,6 @@ let stdActions: Actions =
           (Element "filter", filterAction)
           (Element "query", queryAction)
           (Element "count", countAction)
-          //   (Element "merge", mergeAction)
-          //   (Element "remove", removeAction)
-          (Element "read", readAction)
           (Element "is-consistent",
            createAction
                "Check if the Network on the top of the Stack is consistent."
