@@ -48,17 +48,17 @@ type InMemoryStore(store: Ref<Map<string, Network>>) =
 
 let createInMemoryStore () = InMemoryStore(ref Map.empty)
 
-let createStoreActions (store: IStore) (networkName: string) (baseActions: Actions) : Actions =
+let createStoreActions (store: IStore) (baseActions: Actions) : Actions =
     baseActions.Add(
         Element "merge",
         Action.Stack(
-            { doc = "Reads a Network off the Stack and merges that Network into the target Network."
-              examples = [ "{a b c} merge" ]
+            { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
+              examples = [ "{a b c} \"test\" merge" ]
               pre = "Network"
               post = "" },
             fun stack ->
                 match stack with
-                | Any.Network network :: tail ->
+                | Any.Literal networkName :: Any.Network network :: tail ->
                     store.Merge networkName network
                     Ok tail
                 | _ -> failwith "TODO"
@@ -81,7 +81,7 @@ let createStoreActions (store: IStore) (networkName: string) (baseActions: Actio
               examples = [ "read" ]
               pre = ""
               post = "Network" },
-            fun stack -> Ok(Any.Network(store.Read networkName) :: stack)
+            fun stack -> failwith "TODO" //Ok(Any.Network(store.Read networkName) :: stack)
         ))
 
 // let createStore (location: string): IStore =
