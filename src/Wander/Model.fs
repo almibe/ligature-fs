@@ -84,7 +84,6 @@ and writeValue (value: Value) : string =
     | Value.Element(Element element) -> element
     | Value.Literal value -> encodeString value
     | Value.Variable(Variable variable) -> variable
-    | Value.Quote(quote) -> printQuote quote
 
 and printTriple ((element, attribute, value): Triple) : string =
     let element =

@@ -41,7 +41,6 @@ and [<RequireQualifiedAccess>] Value =
     | Element of Element
     | Literal of string
     | Variable of Variable
-    | Quote of Quote
 
 and Triple = ElementPattern * ElementPattern * Value
 

@@ -113,10 +113,6 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
     | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
     | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
-    | Ok(Token.OpenSquare) ->
-        match partialQuoteNib gaze with
-        | Ok value -> Ok(Value.Quote(value))
-        | _ -> Error(Gaze.GazeError.NoMatch)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let scriptNib = repeat anyNib
