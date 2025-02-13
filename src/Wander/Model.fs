@@ -38,7 +38,6 @@ let rec printAny (value: Any) : string =
     | Any.Element(Element(value)) -> value
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
-    | Any.Literal(value) -> encodeString value
     | Any.Variable(Variable variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
@@ -52,13 +51,18 @@ and printAnySet (set: AnySet) : string =
     (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set)
     + "] set"
 
+and writeElementPattern (value: ElementPattern) =
+    match value with
+    | ElementPattern.Element(Element e) -> e
+    | ElementPattern.Variable(Variable v) -> v
+
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
 
     Set.iter
         (fun variables ->
             res <- res + "("
-            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeValue value) + ", ") variables
+            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeElementPattern value) + ", ") variables
             res <- res + ")")
         rs
 
@@ -79,12 +83,6 @@ and printNetwork (network: Network) : string =
         (network))
     + " }"
 
-and writeValue (value: Value) : string =
-    match value with
-    | Value.Element(Element element) -> element
-    | Value.Literal value -> encodeString value
-    | Value.Variable(Variable variable) -> variable
-
 and printTriple ((element, attribute, value): Triple) : string =
     let element =
         match element with
@@ -96,7 +94,12 @@ and printTriple ((element, attribute, value): Triple) : string =
         | ElementPattern.Element(Element e) -> e
         | ElementPattern.Variable(Variable v) -> v
 
-    $"{element} {attribute} {writeValue value}"
+    let value =
+        match value with
+        | ElementPattern.Element(Element e) -> e
+        | ElementPattern.Variable(Variable v) -> v
+
+    $"{element} {attribute} {value}"
 
 let printStack (stack: Stack) : string =
     if List.isEmpty stack then

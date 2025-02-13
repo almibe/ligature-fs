@@ -50,45 +50,45 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                     match (tStatement, aStatement) with
                     | (ElementPattern.Element subconcept,
                        ElementPattern.Element(Element "subconcept-of"),
-                       Value.Element superconcept),
-                      (ElementPattern.Element element, ElementPattern.Element(Element ":"), Value.Element concept) when
+                       ElementPattern.Element superconcept),
+                      (ElementPattern.Element element, ElementPattern.Element(Element ":"), ElementPattern.Element concept) when
                         subconcept = concept
                         ->
                         res <-
                             Set.add
                                 (ElementPattern.Element element,
                                  ElementPattern.Element(Element ":"),
-                                 Value.Element superconcept)
+                                 ElementPattern.Element superconcept)
                                 res
                     | (ElementPattern.Element firstRole,
                        ElementPattern.Element(Element "tdl.inverse-of"),
-                       Value.Element secondRole),
-                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                       ElementPattern.Element secondRole),
+                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
                         role = firstRole
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element secondRole, Value.Element first)
+                                (ElementPattern.Element second, ElementPattern.Element secondRole, ElementPattern.Element first)
                                 res
                     | (ElementPattern.Element firstRole,
                        ElementPattern.Element(Element "tdl.inverse-of"),
-                       Value.Element secondRole),
-                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                       ElementPattern.Element secondRole),
+                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
                         role = secondRole
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element firstRole, Value.Element first)
+                                (ElementPattern.Element second, ElementPattern.Element firstRole, ElementPattern.Element first)
                                 res
                     | (ElementPattern.Element roleName,
                        ElementPattern.Element(Element ":"),
-                       Value.Element(Element "tdl.Is-Symmetrical")),
-                      (ElementPattern.Element first, ElementPattern.Element role, Value.Element second) when
+                       ElementPattern.Element(Element "tdl.Is-Symmetrical")),
+                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
                         role = roleName
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element role, Value.Element first)
+                                (ElementPattern.Element second, ElementPattern.Element role, ElementPattern.Element first)
                                 res
                     | _ -> ())
                 aBox)
@@ -112,7 +112,7 @@ let extract (source: Network) (id: Element) : Network =
                     | ElementPattern.Element e ->
                         if e = current then
                             match v with
-                            | Value.Element e ->
+                            | ElementPattern.Element e ->
                                 if not (checkedIds.Contains(e)) then
                                     toCheck <- e :: toCheck
                                     checkedIds <- Set.add e checkedIds
@@ -162,8 +162,7 @@ let rec createJsonView (source: Network) (Element root) : JsonView =
                 if element = Element root then
                     let value =
                         match value with
-                        | Value.Literal l -> JsonViewValue.Literal l
-                        | Value.Element e -> JsonViewValue.Element(createJsonView source e)
+                        | ElementPattern.Element e -> JsonViewValue.Element(createJsonView source e)
                         | _ -> failwith "TODO"
 
                     if attrs.ContainsKey(attribute) then
@@ -204,7 +203,7 @@ let extractJsonAction: Action =
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let json = extractJson ids source
-                Ok(Any.Literal json :: tail)
+                Ok(Any.Element (Element json) :: tail)
             | _ -> failwith "TODO"
     )
 
@@ -212,7 +211,7 @@ let instances (source: Network) (concept: Element) : AnySet =
     Set.fold
         (fun state triple ->
             match triple with
-            | ElementPattern.Element element, ElementPattern.Element(Element ":"), Value.Element conceptToCheck ->
+            | ElementPattern.Element element, ElementPattern.Element(Element ":"), ElementPattern.Element conceptToCheck ->
                 if conceptToCheck = concept then
                     Set.add (Any.Network(extract source element)) state
                 else
@@ -264,7 +263,7 @@ let instancesJsonAction: Action =
                                         match triple with
                                         | ElementPattern.Element e,
                                           ElementPattern.Element(Element ":"),
-                                          Value.Element concept ->
+                                          ElementPattern.Element concept ->
                                             if el = concept then
                                                 state <- Any.Element e :: state
                                         | _ -> ())
@@ -276,7 +275,7 @@ let instancesJsonAction: Action =
                         concepts
 
                 let json = extractJson ids source
-                Ok(Any.Literal json :: tail)
+                Ok(Any.Element (Element json) :: tail)
             | _ -> failwith "TODO"
     )
 

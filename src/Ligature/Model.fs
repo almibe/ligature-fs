@@ -16,33 +16,17 @@ let error userMessage debugMessage =
 
 type Element = Element of string
 
-// module Element =
-//   let isValid e = failwith "TODO"
-
-//   let create (e: string) =
-//     if isValid e then
-//       Some (Element e)
-//     else
-//       None
-
-//   let value (Element e) = e
-
 type Variable = Variable of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Variable, Value>
+and ValueSet = Map<Variable, ElementPattern>
 
 and [<RequireQualifiedAccess>] ElementPattern =
     | Element of Element
     | Variable of Variable
 
-and [<RequireQualifiedAccess>] Value =
-    | Element of Element
-    | Literal of string
-    | Variable of Variable
-
-and Triple = ElementPattern * ElementPattern * Value
+and Triple = ElementPattern * ElementPattern * ElementPattern
 
 and Network = Set<Triple>
 
@@ -51,7 +35,6 @@ and Quote = Any list
 and AnySet = Set<Any>
 
 and [<RequireQualifiedAccess>] Any =
-    | Literal of string
     | Variable of Variable
     | Quote of Quote
     | Element of Element

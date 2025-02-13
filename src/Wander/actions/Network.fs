@@ -52,8 +52,8 @@ let countAction =
           post = "Literal" },
         fun stack ->
             match stack with
-            | [ Any.Network n ] -> Ok([ Any.Literal((Set.count n).ToString()) ])
-            | Any.Network n :: tail -> Ok(Any.Literal((Set.count n).ToString()) :: tail)
+            | [ Any.Network n ] -> Ok([ Any.Element(Element ((Set.count n).ToString())) ])
+            | Any.Network n :: tail -> Ok(Any.Element(Element ((Set.count n).ToString())) :: tail)
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
@@ -262,13 +262,13 @@ let isEmptyAction =
             match stack with
             | Any.Network cond :: tail ->
                 if cond = Set.empty then
-                    Ok(Any.Literal "true" :: tail)
+                    Ok(Any.Element (Element "true") :: tail)
                 else
-                    Ok(Any.Literal "false" :: tail)
+                    Ok(Any.Element (Element "false") :: tail)
             | Any.Quote q :: tail ->
                 if q.IsEmpty then
-                    Ok(Any.Literal "true" :: tail)
+                    Ok(Any.Element (Element "true") :: tail)
                 else
-                    Ok(Any.Literal "false" :: tail)
+                    Ok(Any.Element (Element "false") :: tail)
             | _ -> error "Invalid call to is-empty" None
     )

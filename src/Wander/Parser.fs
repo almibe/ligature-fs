@@ -47,10 +47,10 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Quote values
     }
 
-let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(ElementPattern * ElementPattern * Value), Gaze.GazeError> =
+let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(ElementPattern * ElementPattern * ElementPattern), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
-    let value = Gaze.attempt valuePatternNib gaze
+    let value = elementPatternNib gaze
 
     match (entity, attribute, value) with
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
@@ -101,19 +101,11 @@ let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.Gaz
 let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Any.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal value)
     | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; commentNib ]
-
-let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Ok(Token.Element(value)) -> Ok(Value.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(Value.Literal value)
-    | Ok(Token.Variable(value)) -> Ok(Value.Variable(Variable value))
-    | _ -> Error(Gaze.GazeError.NoMatch)
 
 let scriptNib = repeat anyNib
 

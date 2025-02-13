@@ -11,22 +11,17 @@ let namedSlot (v: Variable) : bool =
     | Variable "?" -> false
     | _ -> true
 
-let elementPatternToValue (ep: ElementPattern) : Value =
-    match ep with
-    | ElementPattern.Element e -> Value.Element e
-    | ElementPattern.Variable v -> Value.Variable v
-
 let testPattern
     ((elementPattern, attributePattern, valuePattern): Triple)
     ((element, attribute, value): Triple)
-    : Map<Variable, Value> option =
+    : Map<Variable, ElementPattern> option =
     let mutable result = Map.empty
     let mutable isMatch = true
 
     match elementPattern with
     | ElementPattern.Variable slot ->
         if namedSlot slot then
-            result <- Map.add slot (elementPatternToValue element) result
+            result <- Map.add slot (element) result
     | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
 
     if isMatch then
@@ -35,30 +30,28 @@ let testPattern
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot] with
-                    | Value.Element e -> isMatch <- ElementPattern.Element e = attribute
+                    | ElementPattern.Element e -> isMatch <- ElementPattern.Element e = attribute
                     | _ -> failwith "TODO"
                 else
-                    result <- Map.add slot (elementPatternToValue attribute) result
+                    result <- Map.add slot (attribute) result
         | ElementPattern.Element elementP -> isMatch <- attribute = ElementPattern.Element elementP
 
     if isMatch then
         match (valuePattern, value) with
-        | (Value.Variable slot, value) ->
+        | (ElementPattern.Variable slot, value) ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot], value with
-                    | Value.Element e, Value.Element v -> isMatch <- e = v
-                    | Value.Literal l, Value.Literal v -> isMatch <- l = v
+                    | ElementPattern.Element e, ElementPattern.Element v -> isMatch <- e = v
                     | _, _ -> isMatch <- false
                 else
                     result <- Map.add slot value result
-        | (Value.Element elementP, Value.Element value) -> isMatch <- elementP = value
-        | (Value.Literal literal, Value.Literal value) -> isMatch <- literal = value
+        | (ElementPattern.Element elementP, ElementPattern.Element value) -> isMatch <- elementP = value
         | _ -> isMatch <- false
 
     if isMatch then Some result else None
 
-let singleMatch (pattern: ElementPattern * ElementPattern * Value) (network: Network) : ResultSet =
+let singleMatch (pattern: ElementPattern * ElementPattern * ElementPattern) (network: Network) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -67,7 +60,7 @@ let singleMatch (pattern: ElementPattern * ElementPattern * Value) (network: Net
         Set.empty
         network
 
-let andSingleResult (left: Map<Variable, Value>) (right: Map<Variable, Value>) : Option<Map<Variable, Value>> =
+let andSingleResult (left: Map<Variable, ElementPattern>) (right: Map<Variable, ElementPattern>) : Option<Map<Variable, ElementPattern>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys
@@ -113,9 +106,8 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                 | ElementPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
-                        | Value.Element e -> ElementPattern.Element e
-                        | Value.Literal l -> failwith "illegal value"
-                        | Value.Variable v -> ElementPattern.Variable v
+                        | ElementPattern.Element e -> ElementPattern.Element e
+                        | ElementPattern.Variable v -> ElementPattern.Variable v
                     else
                         ElementPattern.Variable v
 
@@ -125,21 +117,19 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                 | ElementPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
-                        | Value.Element e -> ElementPattern.Element e
-                        | Value.Literal l -> failwith "illegal value"
-                        | Value.Variable v -> ElementPattern.Variable v
+                        | ElementPattern.Element e -> ElementPattern.Element e
+                        | ElementPattern.Variable v -> ElementPattern.Variable v
                     else
                         ElementPattern.Variable v
 
             let value =
                 match v with
-                | Value.Element _ -> v
-                | Value.Literal _ -> v
-                | Value.Variable slot ->
+                | ElementPattern.Element _ -> v
+                | ElementPattern.Variable slot ->
                     if result.ContainsKey slot then
                         result[slot]
                     else
-                        Value.Variable slot
+                        ElementPattern.Variable slot
             (element, attribute, value))
         pattern
 
@@ -150,9 +140,8 @@ let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
             | Any.Variable slot ->
                 if result.ContainsKey slot then
                     match result[slot] with
-                    | Value.Element e -> Any.Element e
-                    | Value.Literal l -> Any.Literal l
-                    | Value.Variable v -> Any.Variable v
+                    | ElementPattern.Element e -> Any.Element e
+                    | ElementPattern.Variable v -> Any.Variable v
                 else
                     Any.Variable slot
             | _ -> any)

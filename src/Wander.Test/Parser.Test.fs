@@ -29,7 +29,7 @@ let tests =
                             Set.ofList
                                 [ (ElementPattern.Element(Element "a"),
                                    ElementPattern.Element(Element "b"),
-                                   Value.Element(Element "c")) ]
+                                   ElementPattern.Element(Element "c")) ]
                         ) ]
                   ))
                   ""
@@ -42,7 +42,7 @@ let tests =
                             Set.ofList
                                 [ ElementPattern.Element(Element "a"),
                                   ElementPattern.Element(Element "b"),
-                                  Value.Literal "c" ]
+                                  ElementPattern.Element(Element "c") ]
                         ) ]
 
                   ))
@@ -58,7 +58,7 @@ let tests =
                             Set.ofList
                                 [ ElementPattern.Variable(Variable "?a"),
                                   ElementPattern.Element(Element "b"),
-                                  Value.Element(Element "c") ]
+                                  ElementPattern.Element(Element "c") ]
                         ) ]
                   ))
                   ""
@@ -71,7 +71,7 @@ let tests =
                             Set.ofList
                                 [ ElementPattern.Element(Element "a"),
                                   ElementPattern.Element(Element "b"),
-                                  Value.Element(Element "c") ]
+                                  ElementPattern.Element(Element "c") ]
                         )
 
 
@@ -79,7 +79,7 @@ let tests =
                             Set.ofList
                                 [ ElementPattern.Element(Element "d"),
                                   ElementPattern.Element(Element "e"),
-                                  Value.Element(Element "f") ]
+                                  ElementPattern.Element(Element "f") ]
                         ) ]
                   ))
                   "" ]
