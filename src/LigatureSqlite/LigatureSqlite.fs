@@ -7,9 +7,8 @@ module Ligature.LigatureSqlite
 open System.Data
 open Microsoft.Data.Sqlite
 open Donald
-// open Ligature.Wander.Main
-// open Ligature.Wander.Model
-// open Ligature.Wander.Interpreter
+open Wander.Model
+open Ligature.Model
 
 // type Event =
 //     { Network: string
@@ -83,14 +82,23 @@ type LigatureSqlite(path: string) =
         //         | _ -> failwith "Error"
         //     | _ -> failwith "Error")
 
-    member this.AddNetwork networkName =
-        failwith "TODO"
-        // store.addNetwork (networkName)
+    member this.AddNetwork (networkName: string) =
+        conn
+        |> Db.newCommand "select count(*) as num from networks where name = @name"
+        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.query (fun rd ->
+            let count = rd.ReadInt32 "num"
+            printfn $"{count}"
+            // conn
+            // |> Db.newCommand "insert into events(type, network) values('AN', @network)"
+            // |> Db.setParams [ "network", SqlType.String networkName ]
+            // |> Db.exec
 
-        // conn
-        // |> Db.newCommand "insert into events(type, network) values('AN', @network)"
-        // |> Db.setParams [ "network", SqlType.String networkName ]
-        // |> Db.exec
+            //check if network exists
+            //if so do nothing
+            //if not insert into networks table
+            failwith "TODO")
+        failwith "TODO"
 
     member this.removeNetwork networkName =
         failwith "TODO"
@@ -101,10 +109,15 @@ type LigatureSqlite(path: string) =
         // |> Db.setParams [ "network", SqlType.String networkName ]
         // |> Db.exec
 
-    member this.networks() = 
-        failwith "TODO"
+    member this.networks(): Quote = 
+        conn
+        |> Db.newCommand "select * from networks"
+        |> Db.query (fun rd ->
+            rd.ReadString "name")
+        |> List.map (fun name -> Any.Element (Element name))
 
     member this.add networkName network =
+
         failwith "TODO"
         // store.add networkName network
         // let ligature = writeLigature network
@@ -131,6 +144,70 @@ type LigatureSqlite(path: string) =
 
     member this.read name =
         failwith "TODO"
+
+let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions =
+    baseActions.Add(
+        Element "merge",
+        Action.Stack(
+            { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
+              examples = [ "{a b c} \"test\" merge" ]
+              pre = "Network"
+              post = "" },
+            fun stack ->
+                match stack with
+                | Any.Element networkName :: Any.Network network :: tail ->
+                    failwith "TODO"
+                    //store.Merge networkName network
+                    //Ok tail
+                | _ -> failwith "TODO"
+        )
+    )
+    |> Map.add
+        (Element "networks")
+        (Action.Stack(
+            { doc =
+                "Returns a quote of all the existing Networks."
+              examples = ["networks"]
+              pre = ""
+              post = "Quote" },
+            fun stack -> 
+                Ok (Any.Quote (store.networks()) :: stack)
+        ))
+    |> Map.add
+        (Element "add-network")
+        (Action.Stack(
+            { doc =
+                "Reads a Network name and creates a Network in the Store."
+              examples = ["\"test\" add-network"]
+              pre = "Literal"
+              post = "" },
+            fun stack -> 
+                match stack with
+                | Any.Literal name :: tail -> 
+                    store.AddNetwork(name)
+                    Ok(tail)
+                | _ -> failwith "TODO")
+        )
+    |> Map.add
+        (Element "delete")
+        (Action.Stack(
+            { doc =
+                "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
+              examples = []
+              pre = "Network"
+              post = "" },
+            fun stack -> failwith "TODO"
+        ))
+    |> Map.add
+        (Element "read")
+        (Action.Stack(
+            { doc = "Push the target Network on to the Stack."
+              examples = [ "read" ]
+              pre = ""
+              post = "Network" },
+            fun stack -> failwith "TODO" //Ok(Any.Network(store.Read networkName) :: stack)
+        ))
+
 
 // module Ligature.DuckDB
 
@@ -253,42 +330,6 @@ type LigatureSqlite(path: string) =
 //             store.Value <- Map.remove name store.contents
 
 // let createInMemoryStore () = InMemoryStore(ref Map.empty)
-
-// let createStoreActions (store: IStore) (baseActions: Actions) : Actions =
-//     baseActions.Add(
-//         Element "merge",
-//         Action.Stack(
-//             { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
-//               examples = [ "{a b c} \"test\" merge" ]
-//               pre = "Network"
-//               post = "" },
-//             fun stack ->
-//                 match stack with
-//                 | Any.Literal networkName :: Any.Network network :: tail ->
-//                     store.Merge networkName network
-//                     Ok tail
-//                 | _ -> failwith "TODO"
-//         )
-//     )
-//     |> Map.add
-//         (Element "delete")
-//         (Action.Stack(
-//             { doc =
-//                 "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
-//               examples = []
-//               pre = "Network"
-//               post = "" },
-//             fun stack -> failwith "TODO"
-//         ))
-//     |> Map.add
-//         (Element "read")
-//         (Action.Stack(
-//             { doc = "Push the target Network on to the Stack."
-//               examples = [ "read" ]
-//               pre = ""
-//               post = "Network" },
-//             fun stack -> failwith "TODO" //Ok(Any.Network(store.Read networkName) :: stack)
-//         ))
 
 // let createStore (location: string): IStore =
 //     let env = LightningEnvironment(location)

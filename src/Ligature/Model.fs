@@ -37,6 +37,7 @@ and AnySet = Set<Any>
 and [<RequireQualifiedAccess>] Any =
     | Variable of Variable
     | Quote of Quote
+    | Literal of string
     | Element of Element
     | Network of Network
     | ValueSet of ValueSet

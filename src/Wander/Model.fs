@@ -36,6 +36,7 @@ let encodeString string =
 let rec printAny (value: Any) : string =
     match value with
     | Any.Element(Element(value)) -> value
+    | Any.Literal(value) -> value
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
     | Any.Variable(Variable variable) -> variable

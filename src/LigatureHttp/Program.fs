@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Ligature.ZMQ.Main
+module Ligature.Http
 
 open Wander.Main
 open System
@@ -12,9 +12,9 @@ open Wander.Model
 open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Builder
-open Ligature.Lmdb
+open Ligature.LigatureSqlite
 
-let createEndpoints (store: IStore) =
+let createEndpoints (store: LigatureSqlite) =
     [ 
       post "/" (fun ctx ->
           let route = Request.getRoute ctx
@@ -30,8 +30,10 @@ let createEndpoints (store: IStore) =
 
 let wapp = WebApplication.Create()
 
+let store = LigatureSqlite ":memory:"
+store.initialize()
+
 wapp
     .UseRouting()
-    .UseFalco(createEndpoints (createInMemoryStore ()))
-    // ^-- activate Falco endpoint source
+    .UseFalco(createEndpoints store)
     .Run()

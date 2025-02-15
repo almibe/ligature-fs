@@ -102,6 +102,7 @@ let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeEr
     match Gaze.next gaze with
     | Ok(Token.Element(value)) -> Ok(Any.Element(Element value))
     | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
+    | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
