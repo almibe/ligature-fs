@@ -4,27 +4,25 @@
 
 module Ligature.LigatureSqlite
 
-open Ligature.LigatureStore
 open System.Data
 open Microsoft.Data.Sqlite
 open Donald
-open Ligature.Wander.Main
-open Ligature.Wander.Model
-open Ligature.Wander.Interpreter
+// open Ligature.Wander.Main
+// open Ligature.Wander.Model
+// open Ligature.Wander.Interpreter
 
-type Event =
-    { Network: string
-      Type: string
-      Ligature: string option }
+// type Event =
+//     { Network: string
+//       Type: string
+//       Ligature: string option }
 
-module Event =
-    let ofDataReader (rd: IDataReader) : Event =
-        { Network = rd.ReadString "network"
-          Type = rd.ReadString "type"
-          Ligature = rd.ReadStringOption "ligature" }
+// module Event =
+//     let ofDataReader (rd: IDataReader) : Event =
+//         { Network = rd.ReadString "network"
+//           Type = rd.ReadString "type"
+//           Ligature = rd.ReadStringOption "ligature" }
 
 type LigatureSqlite(path: string) =
-    let store = InMemoryStore.empty ()
     let conn = new SqliteConnection($"Data Source={path}")
 
     member this.initialize() =
@@ -32,85 +30,107 @@ type LigatureSqlite(path: string) =
 
         conn
         |> Db.newCommand
-            "create table if not exists events (
+            "create table if not exists terms (
 	        id int PRIMARY KEY,
-   	        type text NOT NULL,
-            network text not null,
-            ligature text
+   	        term text NOT NULL
             )"
         |> Db.exec
 
         conn
-        |> Db.newCommand "select * from events"
-        |> Db.query (fun rd ->
-            let event = Event.ofDataReader rd
+        |> Db.newCommand
+            "create table if not exists networks (
+	        id int PRIMARY KEY,
+   	        name text NOT NULL
+            )"
+        |> Db.exec
 
-            match event.Type with
-            | "AN" -> store.addNetwork event.Network
-            | "RN" -> store.removeNetwork event.Network
-            | "AS" ->
-                let script =
-                    match event.Ligature with
-                    | Some(script) -> script
-                    | _ -> failwith "Error"
+        conn
+        |> Db.newCommand
+            "create table if not exists triples (
+	        id int PRIMARY KEY,
+   	        network int NOT NULL,
+            entity int NOT NULL,
+            attribute int NOT NULL,
+            value int NOT NULL
+            )"
+        |> Db.exec
 
-                match run script Map.empty List.empty with
-                | Ok([ WanderValue.Network(value) ]) -> store.add event.Network value |> ignore
-                | err -> () //failwith $"Error - {err}"
-            | "RS" ->
-                let script =
-                    match event.Ligature with
-                    | Some(script) -> script
-                    | _ -> failwith "Error"
+        // conn
+        // |> Db.newCommand "select * from events"
+        // |> Db.query (fun rd ->
+        //     let event = Event.ofDataReader rd
 
-                match run script Map.empty List.empty with
-                | Ok([ WanderValue.Network(value) ]) -> store.remove event.Network value |> ignore
-                | _ -> failwith "Error"
-            | _ -> failwith "Error")
+        //     match event.Type with
+        //     | "AN" -> store.addNetwork event.Network
+        //     | "RN" -> store.removeNetwork event.Network
+        //     | "AS" ->
+        //         let script =
+        //             match event.Ligature with
+        //             | Some(script) -> script
+        //             | _ -> failwith "Error"
 
-    interface LigatureStore with
-        member this.AddNetwork networkName =
-            store.addNetwork (networkName)
+        //         match run script Map.empty List.empty with
+        //         | Ok([ WanderValue.Network(value) ]) -> store.add event.Network value |> ignore
+        //         | err -> () //failwith $"Error - {err}"
+        //     | "RS" ->
+        //         let script =
+        //             match event.Ligature with
+        //             | Some(script) -> script
+        //             | _ -> failwith "Error"
 
-            conn
-            |> Db.newCommand "insert into events(type, network) values('AN', @network)"
-            |> Db.setParams [ "network", SqlType.String networkName ]
-            |> Db.exec
+        //         match run script Map.empty List.empty with
+        //         | Ok([ WanderValue.Network(value) ]) -> store.remove event.Network value |> ignore
+        //         | _ -> failwith "Error"
+        //     | _ -> failwith "Error")
 
-        member this.removeNetwork networkName =
-            store.removeNetwork (networkName)
+    member this.AddNetwork networkName =
+        failwith "TODO"
+        // store.addNetwork (networkName)
 
-            conn
-            |> Db.newCommand "insert into events(type, network) values('RN', @network)"
-            |> Db.setParams [ "network", SqlType.String networkName ]
-            |> Db.exec
+        // conn
+        // |> Db.newCommand "insert into events(type, network) values('AN', @network)"
+        // |> Db.setParams [ "network", SqlType.String networkName ]
+        // |> Db.exec
 
-        member this.networks() = store.networks ()
+    member this.removeNetwork networkName =
+        failwith "TODO"
+        // store.removeNetwork (networkName)
 
-        member this.add networkName network =
-            store.add networkName network
-            let ligature = writeLigature network
+        // conn
+        // |> Db.newCommand "insert into events(type, network) values('RN', @network)"
+        // |> Db.setParams [ "network", SqlType.String networkName ]
+        // |> Db.exec
 
-            conn
-            |> Db.newCommand "insert into events(type, network, ligature) values('AS', @network, @ligature)"
-            |> Db.setParams [ "network", SqlType.String networkName; "ligature", SqlType.String ligature ]
-            |> Db.exec
+    member this.networks() = 
+        failwith "TODO"
 
-            Ok(())
+    member this.add networkName network =
+        failwith "TODO"
+        // store.add networkName network
+        // let ligature = writeLigature network
 
-        member this.remove networkName network =
-            store.remove networkName network
-            let ligature = writeLigature network
+        // conn
+        // |> Db.newCommand "insert into events(type, network, ligature) values('AS', @network, @ligature)"
+        // |> Db.setParams [ "network", SqlType.String networkName; "ligature", SqlType.String ligature ]
+        // |> Db.exec
 
-            conn
-            |> Db.newCommand "insert into events(type, network, ligature) values('RS', @network, @ligature)"
-            |> Db.setParams [ "network", SqlType.String networkName ]
-            |> Db.setParams [ "ligature", SqlType.String ligature ]
-            |> Db.exec
+        // Ok(())
 
-            Ok(())
+    member this.remove networkName network =
+        failwith "TODO"
+        // store.remove networkName network
+        // let ligature = writeLigature network
 
-        member this.read name = store.read (name)
+        // conn
+        // |> Db.newCommand "insert into events(type, network, ligature) values('RS', @network, @ligature)"
+        // |> Db.setParams [ "network", SqlType.String networkName ]
+        // |> Db.setParams [ "ligature", SqlType.String ligature ]
+        // |> Db.exec
+
+        // Ok(())
+
+    member this.read name =
+        failwith "TODO"
 
 // module Ligature.DuckDB
 
