@@ -30,7 +30,7 @@ let docsAction: Action =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-string"),
-                                     ElementPattern.Element (Element doc.doc))
+                                     ElementPattern.Element(Element doc.doc))
                                     state
 
                             let state =
@@ -44,14 +44,14 @@ let docsAction: Action =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-pre"),
-                                     ElementPattern.Element (Element doc.pre))
+                                     ElementPattern.Element(Element doc.pre))
                                     state
 
                             let state =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-post"),
-                                     ElementPattern.Element (Element doc.post))
+                                     ElementPattern.Element(Element doc.post))
                                     state
 
                             List.fold
@@ -59,7 +59,7 @@ let docsAction: Action =
                                     Set.add
                                         (ElementPattern.Element name,
                                          ElementPattern.Element(Element "doc-example"),
-                                         ElementPattern.Element (Element example))
+                                         ElementPattern.Element(Element example))
                                         state)
                                 state
                                 doc.examples
@@ -75,21 +75,21 @@ let docsAction: Action =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-string"),
-                                     ElementPattern.Element (Element doc.doc))
+                                     ElementPattern.Element(Element doc.doc))
                                     state
 
                             let state =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-pre"),
-                                     ElementPattern.Element (Element doc.pre))
+                                     ElementPattern.Element(Element doc.pre))
                                     state
 
                             let state =
                                 Set.add
                                     (ElementPattern.Element name,
                                      ElementPattern.Element(Element "doc-post"),
-                                     ElementPattern.Element (Element doc.post))
+                                     ElementPattern.Element(Element doc.post))
                                     state
 
                             List.fold
@@ -97,7 +97,7 @@ let docsAction: Action =
                                     Set.add
                                         (ElementPattern.Element name,
                                          ElementPattern.Element(Element "doc-example"),
-                                         ElementPattern.Element (Element example))
+                                         ElementPattern.Element(Element example))
                                         state)
                                 state
                                 doc.examples)

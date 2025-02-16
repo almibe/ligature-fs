@@ -9,18 +9,20 @@ open Ligature.Model
 
 let remoteAction =
     Action.Stack(
-        { doc = "Reads a Literal for the address and a quote for the code to execute remotely in a Quote.\nAdds all returned values onto the current Stack."
-          examples = ["[docs] \"localhost:5000/test\" remote"]
+        { doc =
+            "Reads a Literal for the address and a quote for the code to execute remotely in a Quote.\nAdds all returned values onto the current Stack."
+          examples = [ "[docs] \"localhost:5000/test\" remote" ]
           pre = "Literal Quote"
           post = "Any..." },
         fun stack ->
             match stack with
             | Any.Literal address :: Any.Quote code :: tail ->
-                task {
-                    use client = new HttpClient()
-                    let! response = client.GetStringA
-                }
-                let newQuote = List.append source dest
-                Ok(Any.Quote newQuote :: tail)
+                // task {
+                //     use client = new HttpClient()
+                //     let! response = client.GetStringA
+                // }
+                // let newQuote = List.append source dest
+                // Ok(Any.Quote newQuote :: tail)
+                failwith "TODO"
             | _ -> error "Invalid call to prepend action." None
     )

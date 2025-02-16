@@ -63,7 +63,11 @@ and printResultSet (rs: ResultSet) =
     Set.iter
         (fun variables ->
             res <- res + "("
-            Map.iter (fun (Variable var) value -> res <- res + var + " " + (writeElementPattern value) + ", ") variables
+
+            Map.iter
+                (fun (Variable var) value -> res <- res + var + " " + (writeElementPattern value) + ", ")
+                variables
+
             res <- res + ")")
         rs
 

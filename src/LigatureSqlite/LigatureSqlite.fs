@@ -51,12 +51,13 @@ type LigatureSqlite(path: string) =
             )"
         |> Db.exec
 
-    member this.AddNetwork (networkName: string) =
+    member this.AddNetwork(networkName: string) =
         conn
         |> Db.newCommand "select count(*) as num from networks where name = @name"
-        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.setParams [ "name", SqlType.String networkName ]
         |> Db.query (fun rd ->
             let count = rd.ReadInt64 "num"
+
             if count = 0 then
                 conn
                 |> Db.newCommand "insert into networks(name) values(@name)"
@@ -66,126 +67,134 @@ type LigatureSqlite(path: string) =
     member this.RemoveNetwork networkName =
         conn
         |> Db.newCommand "select rowid from networks where name = @name"
-        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.setParams [ "name", SqlType.String networkName ]
         |> Db.query (fun rd ->
             let id = rd.ReadInt64 "rowid"
-            conn
-                |> Db.newCommand "delete from networks where rowid = @id"
-                |> Db.setParams [ "id", SqlType.Int64 id ]
-                |> Db.exec)
 
-    member this.networks(): Quote = 
+            conn
+            |> Db.newCommand "delete from networks where rowid = @id"
+            |> Db.setParams [ "id", SqlType.Int64 id ]
+            |> Db.exec)
+
+    member this.networks() : Quote =
         conn
         |> Db.newCommand "select * from networks"
-        |> Db.query (fun rd ->
-            rd.ReadString "name")
-        |> List.map (fun name -> Any.Element (Element name))
+        |> Db.query (fun rd -> rd.ReadString "name")
+        |> List.map (fun name -> Any.Element(Element name))
 
-    member this.fetchOrCreateElement (Element(element)): int64 =
-        let res = 
+    member this.fetchOrCreateElement(Element(element)) : int64 =
+        let res =
             conn
             |> Db.newCommand "select rowid from terms where term = @term"
-            |> Db.setParams ["term", SqlType.String element]
+            |> Db.setParams [ "term", SqlType.String element ]
             |> Db.query (fun rd -> rd.ReadInt64 "rowid")
+
         match res with
-        | [] -> 
+        | [] ->
             conn
             |> Db.newCommand "insert into terms(term) values(@element)"
             |> Db.setParams [ "element", SqlType.String element ]
             |> Db.exec
-            this.fetchOrCreateElement(Element element)
+
+            this.fetchOrCreateElement (Element element)
         | [ id ] -> id
         | _ -> failwith "TODO"
 
-    member this.readElementId (id: int64): Element =
-        let res = 
+    member this.readElementId(id: int64) : Element =
+        let res =
             conn
             |> Db.newCommand "select * from terms where rowid = @id"
-            |> Db.setParams ["id", SqlType.Int64 id]
+            |> Db.setParams [ "id", SqlType.Int64 id ]
             |> Db.query (fun rd -> rd.ReadString "term")
+
         match res with
         | [] -> failwith "TODO"
         | [ id ] -> Element id
         | _ -> failwith "TODO"
 
-    member this.add (networkName: string) (network: Network): Unit =
+    member this.add (networkName: string) (network: Network) : Unit =
         conn
         |> Db.newCommand "select rowid from networks where name = @name"
-        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.setParams [ "name", SqlType.String networkName ]
         |> Db.query (fun rd ->
             let id = rd.ReadInt64 "rowid"
-            Set.iter (fun triple ->
-                match triple with
-                | (ElementPattern.Element e, ElementPattern.Element a, ElementPattern.Element v) ->
-                    let eid = this.fetchOrCreateElement e
-                    let aid = this.fetchOrCreateElement a
-                    let vid = this.fetchOrCreateElement v
 
-                    conn
-                    |> Db.newCommand "select count(*) as num from triples where 
+            Set.iter
+                (fun triple ->
+                    match triple with
+                    | (ElementPattern.Element e, ElementPattern.Element a, ElementPattern.Element v) ->
+                        let eid = this.fetchOrCreateElement e
+                        let aid = this.fetchOrCreateElement a
+                        let vid = this.fetchOrCreateElement v
+
+                        conn
+                        |> Db.newCommand
+                            "select count(*) as num from triples where 
                         network = @network
                         and entity = @entity
                         and attribute = @attribute
                         and value = @value"
-                    |> Db.setParams [
-                        "network", SqlType.Int64 id
-                        "entity", SqlType.Int64 eid
-                        "attribute", SqlType.Int64 aid
-                        "value", SqlType.Int64 vid]
-                    |> Db.query (fun rd -> 
-                        let count = rd.ReadInt64 "num"
-                        if count = 0 then
-                            conn
-                                |> Db.newCommand "insert into triples(network, entity, attribute, value)
+                        |> Db.setParams
+                            [ "network", SqlType.Int64 id
+                              "entity", SqlType.Int64 eid
+                              "attribute", SqlType.Int64 aid
+                              "value", SqlType.Int64 vid ]
+                        |> Db.query (fun rd ->
+                            let count = rd.ReadInt64 "num"
+
+                            if count = 0 then
+                                conn
+                                |> Db.newCommand
+                                    "insert into triples(network, entity, attribute, value)
                                     values(@network, @entity, @attribute, @value)"
-                                |> Db.setParams [ 
-                                    "network", SqlType.Int64 id 
-                                    "entity", SqlType.Int64 eid
-                                    "attribute", SqlType.Int64 aid
-                                    "value", SqlType.Int64 vid]
+                                |> Db.setParams
+                                    [ "network", SqlType.Int64 id
+                                      "entity", SqlType.Int64 eid
+                                      "attribute", SqlType.Int64 aid
+                                      "value", SqlType.Int64 vid ]
                                 |> Db.exec)
-                    ()
-                | _ -> failwith "TODO"
-            ) network)
+
+                        ()
+                    | _ -> failwith "TODO")
+                network)
         |> ignore
 
-    member this.remove networkName network =
-        failwith "TODO"
-        // store.remove networkName network
-        // let ligature = writeLigature network
+    member this.remove networkName network = failwith "TODO"
+    // store.remove networkName network
+    // let ligature = writeLigature network
 
-        // conn
-        // |> Db.newCommand "insert into events(type, network, ligature) values('RS', @network, @ligature)"
-        // |> Db.setParams [ "network", SqlType.String networkName ]
-        // |> Db.setParams [ "ligature", SqlType.String ligature ]
-        // |> Db.exec
+    // conn
+    // |> Db.newCommand "insert into events(type, network, ligature) values('RS', @network, @ligature)"
+    // |> Db.setParams [ "network", SqlType.String networkName ]
+    // |> Db.setParams [ "ligature", SqlType.String ligature ]
+    // |> Db.exec
 
-        // Ok(())
+    // Ok(())
 
-    member this.read (name: string): Network =
+    member this.read(name: string) : Network =
         let res =
             conn
             |> Db.newCommand "select rowid from networks where name = @name"
-            |> Db.setParams ["name", SqlType.String name]
+            |> Db.setParams [ "name", SqlType.String name ]
             |> Db.query (fun rd -> rd.ReadInt64 "rowid")
+
         match res with
         | [] -> failwith "Network not found"
         | [ id ] ->
-            conn
-            |> Db.newCommand "select * from triples where network = @network"
-            |> Db.setParams ["network", SqlType.Int64 id]
-            |> Db.query (fun rd ->
-                //read all triples
-                //read all elements
-                let eid = rd.ReadInt64 "entity"
-                let aid = rd.ReadInt64 "attribute"
-                let vid = rd.ReadInt64 "value"
-                let entity = this.readElementId(eid)
-                let attribute = this.readElementId(aid)
-                let value = this.readElementId(vid)
-                
-                failwith "TODO")
-            failwith "TODO"
+            let res =
+                conn
+                |> Db.newCommand "select * from triples where network = @network"
+                |> Db.setParams [ "network", SqlType.Int64 id ]
+                |> Db.query (fun rd ->
+                    let eid = rd.ReadInt64 "entity"
+                    let aid = rd.ReadInt64 "attribute"
+                    let vid = rd.ReadInt64 "value"
+                    let entity = this.readElementId (eid)
+                    let attribute = this.readElementId (aid)
+                    let value = this.readElementId (vid)
+                    (ElementPattern.Element entity, ElementPattern.Element attribute, ElementPattern.Element value))
+
+            Set.ofList res
         | _ -> failwith "expected state"
 
 let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions =
@@ -207,44 +216,40 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
     |> Map.add
         (Element "networks")
         (Action.Stack(
-            { doc =
-                "Returns a quote of all the existing Networks."
-              examples = ["networks"]
+            { doc = "Returns a quote of all the existing Networks."
+              examples = [ "networks" ]
               pre = ""
               post = "Quote" },
-            fun stack -> 
-                Ok (Any.Quote (store.networks()) :: stack)
+            fun stack -> Ok(Any.Quote(store.networks ()) :: stack)
         ))
     |> Map.add
         (Element "add-network")
         (Action.Stack(
-            { doc =
-                "Reads a Network name and creates a Network in the Store."
-              examples = ["\"test\" add-network"]
+            { doc = "Reads a Network name and creates a Network in the Store."
+              examples = [ "\"test\" add-network" ]
               pre = "Literal"
               post = "" },
-            fun stack -> 
+            fun stack ->
                 match stack with
-                | Any.Literal name :: tail -> 
+                | Any.Literal name :: tail ->
                     store.AddNetwork(name)
                     Ok(tail)
-                | _ -> failwith "TODO")
-        )
+                | _ -> failwith "TODO"
+        ))
     |> Map.add
         (Element "remove-network")
         (Action.Stack(
-            { doc =
-                "Reads a Network name and removes that Network from the Store."
-              examples = ["\"test\" remove-network"]
+            { doc = "Reads a Network name and removes that Network from the Store."
+              examples = [ "\"test\" remove-network" ]
               pre = "Literal"
               post = "" },
-            fun stack -> 
+            fun stack ->
                 match stack with
-                | Any.Literal name :: tail -> 
+                | Any.Literal name :: tail ->
                     store.RemoveNetwork(name)
                     Ok(tail)
-                | _ -> failwith "TODO")
-        )
+                | _ -> failwith "TODO"
+        ))
     |> Map.add
         (Element "delete")
         (Action.Stack(
@@ -264,8 +269,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
               post = "Network" },
             fun stack ->
                 match stack with
-                | Any.Literal networkName :: tail -> 
-                    Ok(Any.Network(store.read networkName) :: tail)
+                | Any.Literal networkName :: tail -> Ok(Any.Network(store.read networkName) :: tail)
                 | _ -> failwith "TODO"
         ))
 

@@ -47,7 +47,9 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Quote values
     }
 
-let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(ElementPattern * ElementPattern * ElementPattern), Gaze.GazeError> =
+let patternStatementNib
+    (gaze: Gaze.Gaze<Token>)
+    : Result<(ElementPattern * ElementPattern * ElementPattern), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
     let value = elementPatternNib gaze

@@ -51,9 +51,9 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                     | (ElementPattern.Element subconcept,
                        ElementPattern.Element(Element "subconcept-of"),
                        ElementPattern.Element superconcept),
-                      (ElementPattern.Element element, ElementPattern.Element(Element ":"), ElementPattern.Element concept) when
-                        subconcept = concept
-                        ->
+                      (ElementPattern.Element element,
+                       ElementPattern.Element(Element ":"),
+                       ElementPattern.Element concept) when subconcept = concept ->
                         res <-
                             Set.add
                                 (ElementPattern.Element element,
@@ -68,7 +68,9 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element secondRole, ElementPattern.Element first)
+                                (ElementPattern.Element second,
+                                 ElementPattern.Element secondRole,
+                                 ElementPattern.Element first)
                                 res
                     | (ElementPattern.Element firstRole,
                        ElementPattern.Element(Element "tdl.inverse-of"),
@@ -78,7 +80,9 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element firstRole, ElementPattern.Element first)
+                                (ElementPattern.Element second,
+                                 ElementPattern.Element firstRole,
+                                 ElementPattern.Element first)
                                 res
                     | (ElementPattern.Element roleName,
                        ElementPattern.Element(Element ":"),
@@ -88,7 +92,9 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second, ElementPattern.Element role, ElementPattern.Element first)
+                                (ElementPattern.Element second,
+                                 ElementPattern.Element role,
+                                 ElementPattern.Element first)
                                 res
                     | _ -> ())
                 aBox)
@@ -203,7 +209,7 @@ let extractJsonAction: Action =
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let json = extractJson ids source
-                Ok(Any.Element (Element json) :: tail)
+                Ok(Any.Element(Element json) :: tail)
             | _ -> failwith "TODO"
     )
 
@@ -211,7 +217,9 @@ let instances (source: Network) (concept: Element) : AnySet =
     Set.fold
         (fun state triple ->
             match triple with
-            | ElementPattern.Element element, ElementPattern.Element(Element ":"), ElementPattern.Element conceptToCheck ->
+            | ElementPattern.Element element,
+              ElementPattern.Element(Element ":"),
+              ElementPattern.Element conceptToCheck ->
                 if conceptToCheck = concept then
                     Set.add (Any.Network(extract source element)) state
                 else
@@ -275,7 +283,7 @@ let instancesJsonAction: Action =
                         concepts
 
                 let json = extractJson ids source
-                Ok(Any.Element (Element json) :: tail)
+                Ok(Any.Element(Element json) :: tail)
             | _ -> failwith "TODO"
     )
 

@@ -15,25 +15,20 @@ open Microsoft.AspNetCore.Builder
 open Ligature.LigatureSqlite
 
 let createEndpoints (store: LigatureSqlite) =
-    [ 
-      post "/" (fun ctx ->
+    [ post "/" (fun ctx ->
           let route = Request.getRoute ctx
-          
+
           task {
               let! body = Request.getBodyString ctx
 
               match run (createStoreActions store Wander.Library.stdActions) List.empty body with
               | Ok result -> Response.ofPlainText (printResult (Ok result)) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
-          })
-      ]
+          }) ]
 
 let wapp = WebApplication.Create()
 
 let store = LigatureSqlite ":memory:"
-store.initialize()
+store.initialize ()
 
-wapp
-    .UseRouting()
-    .UseFalco(createEndpoints store)
-    .Run()
+wapp.UseRouting().UseFalco(createEndpoints store).Run()

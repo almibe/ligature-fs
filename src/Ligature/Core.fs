@@ -60,7 +60,10 @@ let singleMatch (pattern: ElementPattern * ElementPattern * ElementPattern) (net
         Set.empty
         network
 
-let andSingleResult (left: Map<Variable, ElementPattern>) (right: Map<Variable, ElementPattern>) : Option<Map<Variable, ElementPattern>> =
+let andSingleResult
+    (left: Map<Variable, ElementPattern>)
+    (right: Map<Variable, ElementPattern>)
+    : Option<Map<Variable, ElementPattern>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys
@@ -130,6 +133,7 @@ let applyValueSet (pattern: Network) (result: ValueSet) : Network =
                         result[slot]
                     else
                         ElementPattern.Variable slot
+
             (element, attribute, value))
         pattern
 
