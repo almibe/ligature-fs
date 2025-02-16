@@ -30,7 +30,6 @@ type LigatureSqlite(path: string) =
         conn
         |> Db.newCommand
             "create table if not exists terms (
-	        id int PRIMARY KEY,
    	        term text NOT NULL
             )"
         |> Db.exec
@@ -38,7 +37,6 @@ type LigatureSqlite(path: string) =
         conn
         |> Db.newCommand
             "create table if not exists networks (
-	        id int PRIMARY KEY,
    	        name text NOT NULL
             )"
         |> Db.exec
@@ -46,7 +44,6 @@ type LigatureSqlite(path: string) =
         conn
         |> Db.newCommand
             "create table if not exists triples (
-	        id int PRIMARY KEY,
    	        network int NOT NULL,
             entity int NOT NULL,
             attribute int NOT NULL,
@@ -87,27 +84,23 @@ type LigatureSqlite(path: string) =
         |> Db.newCommand "select count(*) as num from networks where name = @name"
         |> Db.setParams ["name", SqlType.String networkName]
         |> Db.query (fun rd ->
-            let count = rd.ReadInt32 "num"
-            printfn $"{count}"
-            // conn
-            // |> Db.newCommand "insert into events(type, network) values('AN', @network)"
-            // |> Db.setParams [ "network", SqlType.String networkName ]
-            // |> Db.exec
+            let count = rd.ReadInt64 "num"
+            if count = 0 then
+                conn
+                |> Db.newCommand "insert into networks(name) values(@name)"
+                |> Db.setParams [ "name", SqlType.String networkName ]
+                |> Db.exec)
 
-            //check if network exists
-            //if so do nothing
-            //if not insert into networks table
-            failwith "TODO")
-        failwith "TODO"
-
-    member this.removeNetwork networkName =
-        failwith "TODO"
-        // store.removeNetwork (networkName)
-
-        // conn
-        // |> Db.newCommand "insert into events(type, network) values('RN', @network)"
-        // |> Db.setParams [ "network", SqlType.String networkName ]
-        // |> Db.exec
+    member this.RemoveNetwork networkName =
+        conn
+        |> Db.newCommand "select rowid from networks where name = @name"
+        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.query (fun rd ->
+            let id = rd.ReadInt64 "rowid"
+            conn
+                |> Db.newCommand "delete from networks where rowid = @id"
+                |> Db.setParams [ "id", SqlType.Int64 id ]
+                |> Db.exec)
 
     member this.networks(): Quote = 
         conn
@@ -116,8 +109,58 @@ type LigatureSqlite(path: string) =
             rd.ReadString "name")
         |> List.map (fun name -> Any.Element (Element name))
 
-    member this.add networkName network =
+    member this.fetchOrCreateElement (Element(element)): int64 =
+        let res = 
+            conn
+            |> Db.newCommand "select rowid from elements where name = @name"
+            |> Db.setParams ["name", SqlType.String element]
+            |> Db.query (fun rd -> rd.ReadInt64 "rowid")
+                // if count = 0 then
+                //     conn
+                //     |> Db.newCommand "insert into networks(name) values(@name)"
+                //     |> Db.setParams [ "name", SqlType.String networkName ]
+                //     |> Db.exec)
+        match res with
+        | [] -> failwith "TODO"
+        | [ id ] -> id
+        | _ -> failwith "TODO"
 
+    member this.add networkName network =
+        conn
+        |> Db.newCommand "select rowid from networks where name = @name"
+        |> Db.setParams ["name", SqlType.String networkName]
+        |> Db.query (fun rd ->
+            let id = rd.ReadInt64 "rowid"
+            Set.iter (fun (e, a, v) ->
+                let eid = this.fetchOrCreateElement e
+                let aid = this.fetchOrCreateElement a
+                let vid = this.fetchOrCreateElement v
+                conn
+                |> Db.newCommand "select count(*) as num from elements where 
+                    network = @network
+                    entity = @entity
+                    attribute = @attribute
+                    value = @value"
+                |> Db.setParams [
+                    "network", SqlType.Int64 id
+                    "entity", SqlType.Int64 eid
+                    "attribute", SqlType.Int64 aid
+                    "value", SqlType.Int64 vid]
+                |> Db.query (fun rd ->
+                    let count = rd.ReadInt64 "num"
+                    if count = 0 then
+                        failwith "TODO"
+                    else
+                        failwith "TODO")
+                // conn
+                //     |> Db.newCommand "insert from networks where rowid = @id"
+                //     |> Db.setParams [ "id", SqlType.Int64 id ]
+                //     |> Db.exec
+                ) network
+            failwith "TODO")
+
+        //make sure network exists and get network id
+        //for each triple 
         failwith "TODO"
         // store.add networkName network
         // let ligature = writeLigature network
@@ -185,6 +228,21 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
                 match stack with
                 | Any.Literal name :: tail -> 
                     store.AddNetwork(name)
+                    Ok(tail)
+                | _ -> failwith "TODO")
+        )
+    |> Map.add
+        (Element "remove-network")
+        (Action.Stack(
+            { doc =
+                "Reads a Network name and removes that Network from the Store."
+              examples = ["\"test\" remove-network"]
+              pre = "Literal"
+              post = "" },
+            fun stack -> 
+                match stack with
+                | Any.Literal name :: tail -> 
+                    store.RemoveNetwork(name)
                     Ok(tail)
                 | _ -> failwith "TODO")
         )
