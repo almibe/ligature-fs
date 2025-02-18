@@ -14,7 +14,7 @@ let rec evalScript (actions: Actions) (stack: Stack) (script: Script) : Result<S
     | [] -> Ok(stack)
     | head :: tail ->
         match head with
-        | Any.Element action ->
+        | Any.Term action ->
             match executeAction actions stack action with
             | Ok(stack) -> evalScript actions stack tail
             | Error err -> Error err

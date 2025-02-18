@@ -24,7 +24,7 @@ and ValueSet = Map<Slot, TermPattern>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term
-    | Variable of Slot
+    | Slot of Slot
 
 and Triple = Term * Term * Term
 

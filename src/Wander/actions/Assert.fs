@@ -24,7 +24,7 @@ let assertEqualAction: Action =
                 //         | Ok((Some(res), _, _, _, _)) -> res
                 //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                 //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-                //     | Any.Variable variable ->
+                //     | Any.Slot variable ->
                 //         match Map.tryFind variable variables with
                 //         | Some(res) -> res
                 //         | None -> failwith "Invalid first expression passed to assert-equal."
@@ -37,7 +37,7 @@ let assertEqualAction: Action =
                 //         | Ok((Some(res), _, _, _, _)) -> res
                 //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                 //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-                //     | Any.Variable variable ->
+                //     | Any.Slot variable ->
                 //         match Map.tryFind variable variables with
                 //         | Some(res) -> res
                 //         | None -> failwith "Invalid second expression passed to assert-equal."

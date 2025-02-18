@@ -51,8 +51,8 @@ let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
 type Token =
     | WhiteSpace of string
     | NewLine of string
-    | Element of string
-    | Variable of string
+    | Term of string
+    | Slot of string
     | StringLiteral of string
     | OpenBrace
     | CloseBrace
@@ -131,9 +131,9 @@ let elementTokenNibbler =
         |> implode
         |> (fun value ->
             if value.StartsWith "?" then
-                Token.Variable value
+                Token.Slot value
             else
-                Token.Element value))
+                Token.Term value))
 
 let tokenNibbler =
     Nibblers.optional (

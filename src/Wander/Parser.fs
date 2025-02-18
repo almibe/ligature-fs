@@ -13,7 +13,7 @@ open Model
 let variableNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Variable(value)) -> Ok(Slot value)
+    | Ok(Token.Slot(value)) -> Ok(Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
@@ -86,7 +86,7 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.Term(value)) -> Ok(TermPattern.Term(Term value))
     | Ok(Token.StringLiteral(value)) -> Ok(TermPattern.Term(Term value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
@@ -95,20 +95,20 @@ let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeEr
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.Term(value)) -> Ok(TermPattern.Term(Term value))
     | Ok(Token.StringLiteral(value)) -> Ok(TermPattern.Term(Term value))
-    | Ok(Token.Variable(value)) -> Ok(TermPattern.Variable(Slot value))
+    | Ok(Token.Slot(value)) -> Ok(TermPattern.Slot(Slot value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match Gaze.next gaze with
-    | Ok(Token.Element(value)) -> Ok(Any.Element(Term value))
-    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Slot value))
+    | Ok(Token.Term(value)) -> Ok(Any.Term(Term value))
+    | Ok(Token.Slot(value)) -> Ok(Any.Slot(Slot value))
     | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralVariableNib; networkNib; commentNib ]
+    takeFirst [ quoteAnyNib; elementLiteralSlotNib; networkNib; commentNib ]
 
 let scriptNib = repeat anyNib
 

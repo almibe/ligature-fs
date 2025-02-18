@@ -11,7 +11,7 @@ open Wander.Interpreter
 [<RequireQualifiedAccess>]
 type JsonViewValue =
     | Literal of string
-    | Element of JsonView
+    | Term of JsonView
 
 and JsonView =
     { Id: string
@@ -22,7 +22,7 @@ let rec writeValues (values: Set<JsonViewValue>) : string =
         (fun state value ->
             let value =
                 match value with
-                | JsonViewValue.Element element -> writeJsonView element
+                | JsonViewValue.Term element -> writeJsonView element
                 | JsonViewValue.Literal literal -> encodeString literal
 
             if state = "[" then state + value else state + "," + value)
@@ -149,7 +149,7 @@ let extractAction: Action =
                     List.fold
                         (fun state concept ->
                             match concept with
-                            | Any.Element concept -> Set.add (Any.Network(extract source concept)) state
+                            | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
                             | _ -> failwith "TODO")
                         (Set.empty)
                         ids
@@ -168,7 +168,7 @@ let rec createJsonView (source: Pattern) (Term root) : JsonView =
                 if element = Term root then
                     let value =
                         match value with
-                        | TermPattern.Term e -> JsonViewValue.Element(createJsonView source e)
+                        | TermPattern.Term e -> JsonViewValue.Term(createJsonView source e)
                         | _ -> failwith "TODO"
 
                     if attrs.ContainsKey(attribute) then
@@ -188,7 +188,7 @@ let extractJson (ids: Quote) (source: Pattern) : string =
     List.iteri
         (fun index id ->
             match id with
-            | Any.Element id ->
+            | Any.Term id ->
                 if (index > 0) then
                     result <- result + ","
 
@@ -209,7 +209,7 @@ let extractJsonAction: Action =
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let json = extractJson ids source
-                Ok(Any.Element(Term json) :: tail)
+                Ok(Any.Term(Term json) :: tail)
             | _ -> failwith "TODO"
     )
 
@@ -241,7 +241,7 @@ let instancesAction: Action =
                     List.fold
                         (fun state concept ->
                             match concept with
-                            | Any.Element concept -> instances source concept
+                            | Any.Term concept -> instances source concept
                             | _ -> failwith "TODO")
                         (Set.empty)
                         concepts
@@ -265,7 +265,7 @@ let instancesJsonAction: Action =
                             let mutable state = state
 
                             match concept with
-                            | Any.Element el ->
+                            | Any.Term el ->
                                 Set.iter
                                     (fun triple ->
                                         match triple with
@@ -273,7 +273,7 @@ let instancesJsonAction: Action =
                                           TermPattern.Term(Term ":"),
                                           TermPattern.Term concept ->
                                             if el = concept then
-                                                state <- Any.Element e :: state
+                                                state <- Any.Term e :: state
                                         | _ -> ())
                                     source
 
@@ -283,7 +283,7 @@ let instancesJsonAction: Action =
                         concepts
 
                 let json = extractJson ids source
-                Ok(Any.Element(Term json) :: tail)
+                Ok(Any.Term(Term json) :: tail)
             | _ -> failwith "TODO"
     )
 

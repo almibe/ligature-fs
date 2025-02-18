@@ -132,21 +132,21 @@ let stdActions: Actions =
                "Check if the Network on the top of the Stack is consistent."
                [ Any.Network(
                      Set.ofList
-                         [ (TermPattern.Variable(Slot "?el"),
+                         [ (TermPattern.Slot(Slot "?el"),
                             TermPattern.Term(Term ":"),
-                            TermPattern.Variable(Slot "?concept"))
-                           (TermPattern.Variable(Slot "?el"),
+                            TermPattern.Slot(Slot "?concept"))
+                           (TermPattern.Slot(Slot "?el"),
                             TermPattern.Term(Term ":¬"),
-                            TermPattern.Variable(Slot "?concept")) ]
+                            TermPattern.Slot(Slot "?concept")) ]
                  )
                  Any.Network(
                      Set.ofList
-                         [ TermPattern.Variable(Slot "?el"),
+                         [ TermPattern.Slot(Slot "?el"),
                            TermPattern.Term(Term ":¬"),
-                           TermPattern.Variable(Slot "?concept") ]
+                           TermPattern.Slot(Slot "?concept") ]
                  )
-                 Any.Element(Term "query")
-                 Any.Element(Term "is-empty") ]
+                 Any.Term(Term "query")
+                 Any.Term(Term "is-empty") ]
                []
                ""
                "") ]

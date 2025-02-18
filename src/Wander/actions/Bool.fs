@@ -11,10 +11,10 @@ open Ligature.Model
 //     { Eval =
 //         (fun networks local modules variables args ->
 //             match args with
-//             | [ Any.Element(value) ] ->
+//             | [ Any.Term(value) ] ->
 //                 match value with
-//                 | Element("true") -> Ok((Some(Any.Element(Element("false"))), networks, local, modules, variables))
-//                 | Element("false") -> Ok((Some(Any.Element(Element("true"))), networks, local, modules, variables))
+//                 | Term("true") -> Ok((Some(Any.Term(Term("false"))), networks, local, modules, variables))
+//                 | Term("false") -> Ok((Some(Any.Term(Term("true"))), networks, local, modules, variables))
 //                 | _ -> error "Invalid argument passed to not." None
 //             | _ -> error "Invalid call to not function." None) }
 

@@ -18,8 +18,8 @@ let tests =
           // testCase "contains"
           // <| fun _ ->
           //     let testCases = [
-          //       (Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))],
-          //       Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))]
+          //       (Set.ofList [(Term "e", Term "a", Value.Term(Term "v"))],
+          //       Set.ofList [(Term "e", Term "a", Value.Term(Term "v"))]
           //       , true)
           //     ]
 
@@ -30,12 +30,12 @@ let tests =
           testCase "matches"
           <| fun _ ->
               let testCases =
-                  [ ((elementPattern "e", elementPattern "a", Value.Element(Element "v")),
-                     Set.ofList [ (elementPattern "e", elementPattern "a", Value.Element(Element "v")) ],
+                  [ ((elementPattern "e", elementPattern "a", Value.Term(Term "v")),
+                     Set.ofList [ (elementPattern "e", elementPattern "a", Value.Term(Term "v")) ],
                      Set.ofList [ Map.empty ])
 
-                    // (Set.ofList [(elementPattern "e", elementPattern "a", ValuePattern.Element(Element "v"))],
-                    // Set.ofList [(Element "e", Element "a", Value.Element(Element "v"))]
+                    // (Set.ofList [(elementPattern "e", elementPattern "a", ValuePattern.Term(Term "v"))],
+                    // Set.ofList [(Term "e", Term "a", Value.Term(Term "v"))]
                     // , true)
                     ]
 
@@ -50,7 +50,7 @@ let tests =
           //   testCase "empty pattern"
           //   <| fun _ ->
           //       let result =
-          //           filter Set.empty (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+          //           filter Set.empty (Set.ofList [ (Term "e", Term "a", Value.Term(Term "v")) ])
 
           //       Expect.equal result Set.empty ""
           //   testCase "empty network"
@@ -58,9 +58,9 @@ let tests =
           //       let result =
           //           filter
           //               (Set.ofList
-          //                   [ (ElementPattern.Element(Element "e"),
-          //                      ElementPattern.Element(Element "c"),
-          //                      ValuePattern.Element(Element "e")) ])
+          //                   [ (TermPattern.Term(Term "e"),
+          //                      TermPattern.Term(Term "c"),
+          //                      ValuePattern.Term(Term "e")) ])
           //               Set.empty
 
           //       Expect.equal result Set.empty ""
@@ -69,21 +69,21 @@ let tests =
           //       let result =
           //           filter
           //               (Set.ofList
-          //                   [ (ElementPattern.Variable(Variable "e"),
-          //                      ElementPattern.Variable(Variable "a"),
-          //                      ValuePattern.Variable(Variable "v")) ])
-          //               (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+          //                   [ (TermPattern.Slot(Slot "e"),
+          //                      TermPattern.Slot(Slot "a"),
+          //                      ValuePattern.Slot(Slot "v")) ])
+          //               (Set.ofList [ (Term "e", Term "a", Value.Term(Term "v")) ])
 
-          //       Expect.equal result (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ]) ""
+          //       Expect.equal result (Set.ofList [ (Term "e", Term "a", Value.Term(Term "v")) ]) ""
           //   testCase "not matching pattern"
           //   <| fun _ ->
           //       let result =
           //           filter
           //               (Set.ofList
-          //                   [ (ElementPattern.Variable(Variable "e"),
-          //                      ElementPattern.Variable(Variable "a"),
-          //                      ValuePattern.Element(Element "v2")) ])
-          //               (Set.ofList [ (Element "e", Element "a", Value.Element(Element "v")) ])
+          //                   [ (TermPattern.Slot(Slot "e"),
+          //                      TermPattern.Slot(Slot "a"),
+          //                      ValuePattern.Term(Term "v2")) ])
+          //               (Set.ofList [ (Term "e", Term "a", Value.Term(Term "v")) ])
 
           //       Expect.equal result Set.empty ""
           ]

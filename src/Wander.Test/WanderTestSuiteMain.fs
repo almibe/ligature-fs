@@ -44,7 +44,7 @@ let wanderTestSuite =
 // [<Tests>]
 // let wanderDocsTestSuite =
 //     let wanderLibs =
-//         System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+//         System.Environment.GetEnvironmentSlot("WANDER_LIBS")
 
 //     if wanderLibs <> null then
 //         let docsFileName = wanderLibs ++ "/" ++ "docs.wander"

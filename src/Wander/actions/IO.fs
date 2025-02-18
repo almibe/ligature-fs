@@ -24,7 +24,7 @@ open Wander.Model
 //         fun networks local modules variables arguments ->
 //             match arguments with
 //             | [ Any.Literal filePath ] ->
-//                 let path = System.Environment.GetEnvironmentVariable("WANDER_LIBS")
+//                 let path = System.Environment.GetEnvironmentSlot("WANDER_LIBS")
 //                 let script = System.IO.File.ReadAllText(path + "/" + filePath)
 
 //                 match run networks local modules variables script with

@@ -21,7 +21,7 @@ let unionAction =
                 // let left =
                 //     match left with
                 //     | Any.Network n -> n
-                //     | Any.Variable v ->
+                //     | Any.Slot v ->
                 //         match Map.tryFind v variables with
                 //         | Some(Any.Network res) -> res
                 //         | _ -> failwith "TODO"
@@ -30,7 +30,7 @@ let unionAction =
                 // let right =
                 //     match right with
                 //     | Any.Network n -> n
-                //     | Any.Variable v ->
+                //     | Any.Slot v ->
                 //         match Map.tryFind v variables with
                 //         | Some(Any.Network res) -> res
                 //         | _ -> failwith "TODO"
@@ -52,16 +52,16 @@ let countAction =
           post = "Literal" },
         fun stack ->
             match stack with
-            | [ Any.Network n ] -> Ok([ Any.Element(Term((Set.count n).ToString())) ])
-            | Any.Network n :: tail -> Ok(Any.Element(Term((Set.count n).ToString())) :: tail)
+            | [ Any.Network n ] -> Ok([ Any.Term(Term((Set.count n).ToString())) ])
+            | Any.Network n :: tail -> Ok(Any.Term(Term((Set.count n).ToString())) :: tail)
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
-// // | [ Any.Variable variable ] ->
+// // | [ Any.Slot variable ] ->
 // //     match variables.TryFind variable with
 // //     | Some(Any.Network network) ->
 // //         Ok(
-// //             (Some(Any.Element(Element((Set.count network).ToString()))), networks, local, modules, variables)
+// //             (Some(Any.Term(Term((Set.count network).ToString()))), networks, local, modules, variables)
 // //         )
 // //     | _ -> failwith "TODO"
 // | [ Any.Network network ] ->
@@ -115,20 +115,20 @@ let queryAction =
 //             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
 //                 let element =
 //                     match e with
-//                     | Any.Element e -> ElementPattern.Element e
-//                     | Any.Variable v -> ElementPattern.Variable v
+//                     | Any.Term e -> TermPattern.Term e
+//                     | Any.Slot v -> TermPattern.Slot v
 //                     | _ -> failwith "TODO"
 
 //                 let attribute =
 //                     match a with
-//                     | Any.Element e -> ElementPattern.Element e
-//                     | Any.Variable v -> ElementPattern.Variable v
+//                     | Any.Term e -> TermPattern.Term e
+//                     | Any.Slot v -> TermPattern.Slot v
 //                     | _ -> failwith "TODO"
 
 //                 let value =
 //                     match v with
-//                     | Any.Element e -> Value.Element e
-//                     | Any.Variable v -> Value.Variable v
+//                     | Any.Term e -> Value.Term e
+//                     | Any.Slot v -> Value.Slot v
 //                     | Any.Literal l -> Value.Literal l
 //                     | _ -> failwith "TODO"
 
@@ -176,7 +176,7 @@ let queryAction =
 //                     Ok((Some(Any.Network res), networks, local, modules, variables))
 //                 | Ok _ -> failwith "TODO"
 //                 | Error err -> error $"Error in apply. {err.UserMessage}" None
-//             | [ Any.Network network; Any.Variable v ] ->
+//             | [ Any.Network network; Any.Slot v ] ->
 //                 match Map.tryFind v variables with
 //                 | Some(Any.ResultSet res) ->
 //                     let res = apply network res
@@ -201,7 +201,7 @@ let filterAction =
                 // let pattern =
                 //     match pattern with
                 //     | Any.Network n -> n
-                //     | Any.Variable v ->
+                //     | Any.Slot v ->
                 //         if variables.ContainsKey v then
                 //             match variables[v] with
                 //             | Any.Network n -> n
@@ -217,7 +217,7 @@ let filterAction =
                 // let source =
                 //     match source with
                 //     | Any.Network n -> n
-                //     | Any.Variable v ->
+                //     | Any.Slot v ->
                 //         if variables.ContainsKey v then
                 //             match variables[v] with
                 //             | Any.Network n -> n
@@ -262,13 +262,13 @@ let isEmptyAction =
             match stack with
             | Any.Network cond :: tail ->
                 if cond = Set.empty then
-                    Ok(Any.Element(Term "true") :: tail)
+                    Ok(Any.Term(Term "true") :: tail)
                 else
-                    Ok(Any.Element(Term "false") :: tail)
+                    Ok(Any.Term(Term "false") :: tail)
             | Any.Quote q :: tail ->
                 if q.IsEmpty then
-                    Ok(Any.Element(Term "true") :: tail)
+                    Ok(Any.Term(Term "true") :: tail)
                 else
-                    Ok(Any.Element(Term "false") :: tail)
+                    Ok(Any.Term(Term "false") :: tail)
             | _ -> error "Invalid call to is-empty" None
     )

@@ -28,7 +28,7 @@ let tests = testList "Network Writer Tests" []
 //           (NetworkName "test")
 //           (Set.ofList
 //               [ Entry.Extends
-//                     { element = Element "element"
-//                       concept = Element "Concept" } ])
+//                     { element = Term "element"
+//                       concept = Term "Concept" } ])
 
 //       Expect.equal (writeStore store) "let test { element : Concept,}\n" "" ]

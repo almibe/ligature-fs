@@ -19,14 +19,14 @@ let testPattern
     let mutable isMatch = true
 
     match elementPattern with
-    | TermPattern.Variable slot ->
+    | TermPattern.Slot slot ->
         if namedSlot slot then
             result <- Map.add slot (element) result
     | TermPattern.Term elementP -> isMatch <- TermPattern.Term elementP = element
 
     if isMatch then
         match attributePattern with
-        | TermPattern.Variable slot ->
+        | TermPattern.Slot slot ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot] with
@@ -38,7 +38,7 @@ let testPattern
 
     if isMatch then
         match (valuePattern, value) with
-        | (TermPattern.Variable slot, value) ->
+        | (TermPattern.Slot slot, value) ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot], value with
@@ -106,33 +106,33 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Pattern =
             let element =
                 match e with
                 | TermPattern.Term _ -> e
-                | TermPattern.Variable v ->
+                | TermPattern.Slot v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | TermPattern.Term e -> TermPattern.Term e
-                        | TermPattern.Variable v -> TermPattern.Variable v
+                        | TermPattern.Slot v -> TermPattern.Slot v
                     else
-                        TermPattern.Variable v
+                        TermPattern.Slot v
 
             let attribute =
                 match a with
                 | TermPattern.Term _ -> a
-                | TermPattern.Variable v ->
+                | TermPattern.Slot v ->
                     if result.ContainsKey v then
                         match result[v] with
                         | TermPattern.Term e -> TermPattern.Term e
-                        | TermPattern.Variable v -> TermPattern.Variable v
+                        | TermPattern.Slot v -> TermPattern.Slot v
                     else
-                        TermPattern.Variable v
+                        TermPattern.Slot v
 
             let value =
                 match v with
                 | TermPattern.Term _ -> v
-                | TermPattern.Variable slot ->
+                | TermPattern.Slot slot ->
                     if result.ContainsKey slot then
                         result[slot]
                     else
-                        TermPattern.Variable slot
+                        TermPattern.Slot slot
 
             (element, attribute, value))
         pattern
@@ -141,13 +141,13 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Pattern =
 //     List.map
 //         (fun any ->
 //             match any with
-//             | Any.Variable slot ->
+//             | Any.Slot slot ->
 //                 if result.ContainsKey slot then
 //                     match result[slot] with
-//                     | TermPattern.Term e -> Any.Element e
-//                     | TermPattern.Variable v -> Any.Variable v
+//                     | TermPattern.Term e -> Any.Term e
+//                     | TermPattern.Slot v -> Any.Slot v
 //                 else
-//                     Any.Variable slot
+//                     Any.Slot slot
 //             | _ -> any)
 //         pattern
 

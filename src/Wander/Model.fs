@@ -11,10 +11,10 @@ type Quote = Any list
 and AnySet = Set<Any>
 
 and [<RequireQualifiedAccess>] Any =
-    | Variable of Slot
+    | Slot of Slot
     | Quote of Quote
     | Literal of string
-    | Element of Term
+    | Term of Term
     | Network of Pattern
     | ValueSet of ValueSet
     | ResultSet of ResultSet
@@ -37,9 +37,9 @@ and [<RequireQualifiedAccess>] Action =
     | Full of ActionDoc * (Actions -> Stack -> Result<Stack, LigatureError>)
     | Stack of ActionDoc * (Stack -> Result<Stack, LigatureError>)
 
-and Variables = Map<Slot, Any>
+and Slots = Map<Slot, Any>
 
-let emptyVariables: Variables = Map.empty
+let emptySlots: Slots = Map.empty
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -50,11 +50,11 @@ let encodeString string =
 
 let rec printAny (value: Any) : string =
     match value with
-    | Any.Element(Term(value)) -> encodeString value
+    | Any.Term(Term(value)) -> encodeString value
     | Any.Literal(value) -> encodeString value
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
-    | Any.Variable(Slot variable) -> variable
+    | Any.Slot(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"
     | Any.Comment(_) -> failwith "Not Implemented"
@@ -67,10 +67,10 @@ and printAnySet (set: AnySet) : string =
     (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set)
     + "] set"
 
-and writeElementPattern (value: TermPattern) =
+and writeTermPattern (value: TermPattern) =
     match value with
     | TermPattern.Term(Term e) -> e
-    | TermPattern.Variable(Slot v) -> v
+    | TermPattern.Slot(Slot v) -> v
 
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
@@ -80,7 +80,7 @@ and printResultSet (rs: ResultSet) =
             res <- res + "("
 
             Map.iter
-                (fun (Slot var) value -> res <- res + var + " " + (writeElementPattern value) + ", ")
+                (fun (Slot var) value -> res <- res + var + " " + (writeTermPattern value) + ", ")
                 variables
 
             res <- res + ")")
@@ -107,17 +107,17 @@ and printTriple ((element, attribute, value): TriplePattern) : string =
     let element =
         match element with
         | TermPattern.Term(Term e) -> e
-        | TermPattern.Variable(Slot v) -> v
+        | TermPattern.Slot(Slot v) -> v
 
     let attribute =
         match attribute with
         | TermPattern.Term(Term e) -> e
-        | TermPattern.Variable(Slot v) -> v
+        | TermPattern.Slot(Slot v) -> v
 
     let value =
         match value with
         | TermPattern.Term(Term e) -> e
-        | TermPattern.Variable(Slot v) -> v
+        | TermPattern.Slot(Slot v) -> v
 
     $"{element} {attribute} {value}"
 

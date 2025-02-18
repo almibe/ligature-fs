@@ -7,6 +7,7 @@ module Wander.Parser.Test
 open Expecto
 open Wander.Tokenizer
 open Ligature.Model
+open Wander.Model
 
 let parse input =
     match tokenize input with
@@ -27,9 +28,9 @@ let tests =
                   (Ok(
                       [ Any.Network(
                             Set.ofList
-                                [ (ElementPattern.Element(Element "a"),
-                                   ElementPattern.Element(Element "b"),
-                                   ElementPattern.Element(Element "c")) ]
+                                [ (TermPattern.Term(Term "a"),
+                                   TermPattern.Term(Term "b"),
+                                   TermPattern.Term(Term "c")) ]
                         ) ]
                   ))
                   ""
@@ -40,9 +41,9 @@ let tests =
                   (Ok(
                       [ Any.Network(
                             Set.ofList
-                                [ ElementPattern.Element(Element "a"),
-                                  ElementPattern.Element(Element "b"),
-                                  ElementPattern.Element(Element "c") ]
+                                [ TermPattern.Term(Term "a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
                         ) ]
 
                   ))
@@ -56,9 +57,9 @@ let tests =
                   (Ok(
                       [ Any.Network(
                             Set.ofList
-                                [ ElementPattern.Variable(Variable "?a"),
-                                  ElementPattern.Element(Element "b"),
-                                  ElementPattern.Element(Element "c") ]
+                                [ TermPattern.Slot(Slot "?a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
                         ) ]
                   ))
                   ""
@@ -69,17 +70,17 @@ let tests =
                   (Ok(
                       [ Any.Network(
                             Set.ofList
-                                [ ElementPattern.Element(Element "a"),
-                                  ElementPattern.Element(Element "b"),
-                                  ElementPattern.Element(Element "c") ]
+                                [ TermPattern.Term(Term "a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
                         )
 
 
                         Any.Network(
                             Set.ofList
-                                [ ElementPattern.Element(Element "d"),
-                                  ElementPattern.Element(Element "e"),
-                                  ElementPattern.Element(Element "f") ]
+                                [ TermPattern.Term(Term "d"),
+                                  TermPattern.Term(Term "e"),
+                                  TermPattern.Term(Term "f") ]
                         ) ]
                   ))
                   "" ]

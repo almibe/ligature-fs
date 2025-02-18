@@ -80,9 +80,9 @@ type LigatureSqlite(path: string) =
         conn
         |> Db.newCommand "select * from networks"
         |> Db.query (fun rd -> rd.ReadString "name")
-        |> List.map (fun name -> Any.Element(Element name))
+        |> List.map (fun name -> Any.Term(Term name))
 
-    member this.fetchOrCreateElement(Element(element)) : int64 =
+    member this.fetchOrCreateTerm(Term(element)) : int64 =
         let res =
             conn
             |> Db.newCommand "select rowid from terms where term = @term"
@@ -96,11 +96,11 @@ type LigatureSqlite(path: string) =
             |> Db.setParams [ "element", SqlType.String element ]
             |> Db.exec
 
-            this.fetchOrCreateElement (Element element)
+            this.fetchOrCreateTerm (Term element)
         | [ id ] -> id
         | _ -> failwith "TODO"
 
-    member this.readElementId(id: int64) : Element =
+    member this.readTermId(id: int64) : Term =
         let res =
             conn
             |> Db.newCommand "select * from terms where rowid = @id"
@@ -109,7 +109,7 @@ type LigatureSqlite(path: string) =
 
         match res with
         | [] -> failwith "TODO"
-        | [ id ] -> Element id
+        | [ id ] -> Term id
         | _ -> failwith "TODO"
 
     member this.add (networkName: string) (network: Network) : Unit =
@@ -122,10 +122,10 @@ type LigatureSqlite(path: string) =
             Set.iter
                 (fun triple ->
                     match triple with
-                    | (ElementPattern.Element e, ElementPattern.Element a, ElementPattern.Element v) ->
-                        let eid = this.fetchOrCreateElement e
-                        let aid = this.fetchOrCreateElement a
-                        let vid = this.fetchOrCreateElement v
+                    | (TermPattern.Term e, TermPattern.Term a, TermPattern.Term v) ->
+                        let eid = this.fetchOrCreateTerm e
+                        let aid = this.fetchOrCreateTerm a
+                        let vid = this.fetchOrCreateTerm v
 
                         conn
                         |> Db.newCommand
@@ -189,17 +189,17 @@ type LigatureSqlite(path: string) =
                     let eid = rd.ReadInt64 "entity"
                     let aid = rd.ReadInt64 "attribute"
                     let vid = rd.ReadInt64 "value"
-                    let entity = this.readElementId (eid)
-                    let attribute = this.readElementId (aid)
-                    let value = this.readElementId (vid)
-                    (ElementPattern.Element entity, ElementPattern.Element attribute, ElementPattern.Element value))
+                    let entity = this.readTermId (eid)
+                    let attribute = this.readTermId (aid)
+                    let value = this.readTermId (vid)
+                    (TermPattern.Term entity, TermPattern.Term attribute, TermPattern.Term value))
 
             Set.ofList res
         | _ -> failwith "expected state"
 
 let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions =
     baseActions.Add(
-        Element "merge",
+        Term "merge",
         Action.Stack(
             { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
               examples = [ "{a b c} \"test\" merge" ]
@@ -214,7 +214,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
         )
     )
     |> Map.add
-        (Element "networks")
+        (Term "networks")
         (Action.Stack(
             { doc = "Returns a quote of all the existing Networks."
               examples = [ "networks" ]
@@ -223,7 +223,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
             fun stack -> Ok(Any.Quote(store.networks ()) :: stack)
         ))
     |> Map.add
-        (Element "add-network")
+        (Term "add-network")
         (Action.Stack(
             { doc = "Reads a Network name and creates a Network in the Store."
               examples = [ "\"test\" add-network" ]
@@ -237,7 +237,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Element "remove-network")
+        (Term "remove-network")
         (Action.Stack(
             { doc = "Reads a Network name and removes that Network from the Store."
               examples = [ "\"test\" remove-network" ]
@@ -251,7 +251,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Element "delete")
+        (Term "delete")
         (Action.Stack(
             { doc =
                 "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
@@ -261,7 +261,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
             fun stack -> failwith "TODO"
         ))
     |> Map.add
-        (Element "read")
+        (Term "read")
         (Action.Stack(
             { doc = "Push the target Network on to the Stack."
               examples = [ "read" ]
@@ -275,7 +275,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
 
 // let openDefault () : LigatureEngine =
 //     let home =
-//         System.Environment.GetEnvironmentVariable("LIGATURE_HOME")
+//         System.Environment.GetEnvironmentSlot("LIGATURE_HOME")
 //         + System.IO.Path.DirectorySeparatorChar.ToString()
 //         + "ligature.duckdb"
 
