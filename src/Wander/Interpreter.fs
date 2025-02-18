@@ -35,8 +35,11 @@ and lookupAction (actions: Actions) (action: Term) : Action option =
     | Some(action) -> Some(action)
     | None -> None
 
-and executeApplication (actions: Actions) (stack: Variables) (application: Any list) =
-    failwith "TODO"
+and executeApplication (actions: Actions) (variables: Variables) (application: Any list) =
+    match application with
+    | [Any.Network network] -> 
+        Ok(variables, network)
+    | _ -> failwith "TODO"
     // match lookupAction actions action with
     // | Some(Action.Full(_, action)) -> action actions stack
     // | Some(Action.Stack(_, action)) ->
