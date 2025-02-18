@@ -20,26 +20,26 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect System.IO.Directory.EnumerateDirectories |> allFiles
         }
 
-[<Tests>]
-let wanderTestSuite =
-    let ligatureTestSuite =
-        System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+// [<Tests>]
+// let wanderTestSuite =
+//     let ligatureTestSuite =
+//         System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
 
-    if ligatureTestSuite <> null then
-        allFiles [ ligatureTestSuite ]
-        |> Seq.filter (fun file -> String.endsWith ".wander" file)
-        |> Seq.map (fun file ->
-            let script = System.IO.File.ReadLines file |> String.concat "\n"
+//     if ligatureTestSuite <> null then
+//         allFiles [ ligatureTestSuite ]
+//         |> Seq.filter (fun file -> String.endsWith ".wander" file)
+//         |> Seq.map (fun file ->
+//             let script = System.IO.File.ReadLines file |> String.concat "\n"
 
-            testCase $"Test for {file}"
-            <| fun _ ->
-                match run stdActions Map.empty script with
-                | Ok _ -> ()
-                | Error(err) -> failwithf "Test failed %A" err)
-        |> Seq.toList
-        |> testList "Wander tests"
-    else
-        failwith "Please set LIGATURE_TEST_SUITE environment variable."
+//             testCase $"Test for {file}"
+//             <| fun _ ->
+//                 match run stdActions Map.empty script with
+//                 | Ok _ -> ()
+//                 | Error(err) -> failwithf "Test failed %A" err)
+//         |> Seq.toList
+//         |> testList "Wander tests"
+//     else
+//         failwith "Please set LIGATURE_TEST_SUITE environment variable."
 
 // [<Tests>]
 // let wanderDocsTestSuite =

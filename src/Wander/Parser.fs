@@ -110,7 +110,23 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteAnyNib; elementLiteralSlotNib; networkNib; commentNib ]
 
-let scriptNib = repeat anyNib
+let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    let variable = Gaze.attempt anyNib gaze
+    let assignmentOp = Gaze.attempt anyNib gaze
+    let value = Gaze.attempt anyNib gaze
+
+    match variable, assignmentOp, value with
+    | Ok(Any.Variable name), Ok(Any.Term(Term("="))), Ok(value) ->
+        Expression.Assignment
+        failwith "TODO"
+    | _ -> Error Gaze.GazeError.NoMatch
+
+let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    match repeat anyNib gaze with
+    | Ok res -> Ok (Application res)
+    | _ -> Error Gaze.GazeError.NoMatch
+
+let scriptNib = repeatSep (takeFirst [applicationNib; assignmentNib]) Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -134,8 +150,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
-                failwith "TODO"
-                //Ok res
+                Ok res
             else
                 error $"Failed to parse completely. {Gaze.remaining gaze}" None
         | Error err -> error $"Failed to parse.\n{err.ToString()}" None

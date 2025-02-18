@@ -18,69 +18,65 @@ let parse input =
 let tests =
     testList
         "Parser Test"
-        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) "" ]
-        //   testCase "read call with empty network passed"
-        //   <| fun _ -> Expect.equal (parse "{}") (Ok([ Any.Network Set.empty ])) ""
-        //   testCase "read call with single count network passed"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (parse "{a b c}")
-        //           (Ok(
-        //               [ Any.Network(
-        //                     Set.ofList
-        //                         [ (TermPattern.Term(Term "a"),
-        //                            TermPattern.Term(Term "b"),
-        //                            TermPattern.Term(Term "c")) ]
-        //                 ) ]
-        //           ))
-        //           ""
-        //   testCase "read network with attribute"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (parse "{a b \"c\"}")
-        //           (Ok(
-        //               [ Any.Network(
-        //                     Set.ofList
-        //                         [ TermPattern.Term(Term "a"),
-        //                           TermPattern.Term(Term "b"),
-        //                           TermPattern.Term(Term "c") ]
-        //                 ) ]
-
-        //           ))
-        //           ""
-        //   testCase "read empty quote"
-        //   <| fun _ -> Expect.equal (parse "[]") (Ok([ Any.Quote [] ])) ""
-        //   testCase "read call with pattern passed"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (parse "{?a b c}")
-        //           (Ok(
-        //               [ Any.Network(
-        //                     Set.ofList
-        //                         [ TermPattern.Slot(Slot "?a"),
-        //                           TermPattern.Term(Term "b"),
-        //                           TermPattern.Term(Term "c") ]
-        //                 ) ]
-        //           ))
-        //           ""
-        //   testCase "read multiple network script"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (parse "{a b c} {d e f}")
-        //           (Ok(
-        //               [ Any.Network(
-        //                     Set.ofList
-        //                         [ TermPattern.Term(Term "a"),
-        //                           TermPattern.Term(Term "b"),
-        //                           TermPattern.Term(Term "c") ]
-        //                 )
-
-
-        //                 Any.Network(
-        //                     Set.ofList
-        //                         [ TermPattern.Term(Term "d"),
-        //                           TermPattern.Term(Term "e"),
-        //                           TermPattern.Term(Term "f") ]
-        //                 ) ]
-        //           ))
-        //           "" ]
+        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
+          testCase "read call with empty network passed"
+          <| fun _ -> Expect.equal (parse "{}") (Ok [ Application [Any.Network Set.empty] ]) ""
+          testCase "read call with single count network passed"
+          <| fun _ ->
+              Expect.equal
+                  (parse "{a b c}")
+                  (Ok
+                      [ Application [Any.Network(
+                            Set.ofList
+                                [ (TermPattern.Term(Term "a"),
+                                   TermPattern.Term(Term "b"),
+                                   TermPattern.Term(Term "c")) ]
+                        )] ])
+                  ""
+          testCase "read network with attribute"
+          <| fun _ ->
+              Expect.equal
+                  (parse "{a b \"c\"}")
+                  (Ok
+                      [ Application [Any.Network(
+                            Set.ofList
+                                [ TermPattern.Term(Term "a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
+                        )] ])
+                  ""
+          testCase "read empty quote"
+          <| fun _ -> Expect.equal (parse "[]") (Ok [ Application [Any.Quote []] ]) ""
+          testCase "read call with pattern passed"
+          <| fun _ ->
+              Expect.equal
+                  (parse "{?a b c}")
+                  (Ok
+                      [ Application [Any.Network(
+                            Set.ofList
+                                [ TermPattern.Slot(Slot "?a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
+                        )] ])
+                  ""
+          testCase "read multiple network script"
+          <| fun _ ->
+              Expect.equal
+                  (parse "{a b c}, {d e f}")
+                  (Ok([
+                    Application
+                      [ Any.Network(
+                            Set.ofList
+                                [ TermPattern.Term(Term "a"),
+                                  TermPattern.Term(Term "b"),
+                                  TermPattern.Term(Term "c") ]
+                        )]
+                    Application [
+                        Any.Network(
+                            Set.ofList
+                                [ TermPattern.Term(Term "d"),
+                                  TermPattern.Term(Term "e"),
+                                  TermPattern.Term(Term "f") ]
+                        ) ]]
+                  ))
+                  "" ]

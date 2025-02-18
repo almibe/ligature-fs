@@ -6,12 +6,15 @@ module Wander.Model
 
 open Ligature.Model
 
+type Variable = Variable of string
+
 type Quote = Any list
 
 and AnySet = Set<Any>
 
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
+    | Variable of Variable
     | Quote of Quote
     | Literal of string
     | Term of Term
@@ -23,11 +26,11 @@ and [<RequireQualifiedAccess>] Any =
 
 type Expression =
     | Application of Any list
-    | Assignment of Term * Any
+    | Assignment of Variable * Any
 
 type Script = Expression list
 
-type Variables = Map<string, Any>
+type Variables = Map<Variable, Any>
 
 and Actions = Map<Term, Action>
 
