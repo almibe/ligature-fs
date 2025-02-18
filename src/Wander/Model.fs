@@ -21,9 +21,13 @@ and [<RequireQualifiedAccess>] Any =
     | Comment of string
     | AnySet of AnySet
 
-type Script = Any list
+type Expression =
+    | Application of Any list
+    | Assignment of Term * Any
 
-type Stack = Any list
+type Script = Expression list
+
+type Variables = Map<string, Any>
 
 and Actions = Map<Term, Action>
 
@@ -34,8 +38,8 @@ and ActionDoc =
       post: string }
 
 and [<RequireQualifiedAccess>] Action =
-    | Full of ActionDoc * (Actions -> Stack -> Result<Stack, LigatureError>)
-    | Stack of ActionDoc * (Stack -> Result<Stack, LigatureError>)
+    | Full of ActionDoc * (Actions -> Variables -> Result<Variables, LigatureError>)
+    | Stack of ActionDoc * (Variables -> Result<Variables, LigatureError>)
 
 and Slots = Map<Slot, Any>
 
@@ -121,11 +125,11 @@ and printTriple ((element, attribute, value): TriplePattern) : string =
 
     $"{element} {attribute} {value}"
 
-let printStack (stack: Stack) : string =
-    if List.isEmpty stack then
-        "--empty stack--"
-    else
-        List.fold (fun state any -> state + " → " + printAny any + "\n") "" stack
+// let printStack (stack: Variables) : string =
+//     if List.isEmpty stack then
+//         "--empty stack--"
+//     else
+//         List.fold (fun state any -> state + " → " + printAny any + "\n") "" stack
 
-let printStackAsScript (stack: Stack) =
-    List.fold (fun state any -> state + printAny any + "\n") "" stack
+// let printStackAsScript (stack: Variables) =
+//     List.fold (fun state any -> state + printAny any + "\n") "" stack

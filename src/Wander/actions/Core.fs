@@ -8,14 +8,6 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
-let clearAction: Action =
-    Action.Stack(
-        { doc = "Clear Stack."
-          examples = [ "clear" ]
-          pre = "*"
-          post = "Empty Stack" },
-        (fun _ -> Ok([]))
-    )
 
 let popAction: Action =
     Action.Stack(
@@ -23,10 +15,10 @@ let popAction: Action =
           examples = []
           pre = "Term"
           post = "" },
-        fun stack ->
-            match stack with
-            | [] -> error "Cannot pop an empty Stack." None
-            | _ :: tail -> Ok(tail)
+        fun stack -> failwith "TODO"
+            // match stack with
+            // | [] -> error "Cannot pop an empty Stack." None
+            // | _ :: tail -> Ok(tail)
     )
 
 // let importCommand: Command =

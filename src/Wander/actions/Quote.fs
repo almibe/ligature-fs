@@ -13,12 +13,12 @@ let prependAction =
           examples = []
           pre = "Quote Quote"
           post = "Quote" },
-        fun stack ->
-            match stack with
-            | Any.Quote source :: Any.Quote dest :: tail ->
-                let newQuote = List.append source dest
-                Ok(Any.Quote newQuote :: tail)
-            | _ -> error "Invalid call to prepend action." None
+        fun stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote source :: Any.Quote dest :: tail ->
+            //     let newQuote = List.append source dest
+            //     Ok(Any.Quote newQuote :: tail)
+            // | _ -> error "Invalid call to prepend action." None
     )
 
 let setAction =
@@ -27,10 +27,10 @@ let setAction =
           examples = []
           pre = "Quote"
           post = "Set" },
-        fun stack ->
-            match stack with
-            | Any.Quote quote :: tail ->
-                let set = Set.ofList quote
-                Ok(Any.AnySet set :: tail)
-            | _ -> error "Invalid call to set action." None
+        fun stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote quote :: tail ->
+            //     let set = Set.ofList quote
+            //     Ok(Any.AnySet set :: tail)
+            // | _ -> error "Invalid call to set action." None
     )

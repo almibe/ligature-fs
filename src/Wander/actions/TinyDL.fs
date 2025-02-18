@@ -142,20 +142,20 @@ let extractAction: Action =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | Any.Quote ids :: Any.Network source :: tail ->
-                let result: AnySet =
-                    List.fold
-                        (fun state concept ->
-                            match concept with
-                            | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
-                            | _ -> failwith "TODO")
-                        (Set.empty)
-                        ids
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote ids :: Any.Network source :: tail ->
+            //     let result: AnySet =
+            //         List.fold
+            //             (fun state concept ->
+            //                 match concept with
+            //                 | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
+            //                 | _ -> failwith "TODO")
+            //             (Set.empty)
+            //             ids
 
-                Ok(Any.AnySet result :: tail)
-            | _ -> failwith "TODO"
+            //     Ok(Any.AnySet result :: tail)
+            // | _ -> failwith "TODO"
     )
 
 let rec createJsonView (source: Pattern) (Term root) : JsonView =
@@ -205,12 +205,12 @@ let extractJsonAction: Action =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | Any.Quote ids :: Any.Network source :: tail ->
-                let json = extractJson ids source
-                Ok(Any.Term(Term json) :: tail)
-            | _ -> failwith "TODO"
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote ids :: Any.Network source :: tail ->
+            //     let json = extractJson ids source
+            //     Ok(Any.Term(Term json) :: tail)
+            // | _ -> failwith "TODO"
     )
 
 let instances (source: Pattern) (concept: Term) : AnySet =
@@ -234,20 +234,20 @@ let instancesAction: Action =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | Any.Quote concepts :: Any.Network source :: tail ->
-                let result: AnySet =
-                    List.fold
-                        (fun state concept ->
-                            match concept with
-                            | Any.Term concept -> instances source concept
-                            | _ -> failwith "TODO")
-                        (Set.empty)
-                        concepts
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote concepts :: Any.Network source :: tail ->
+            //     let result: AnySet =
+            //         List.fold
+            //             (fun state concept ->
+            //                 match concept with
+            //                 | Any.Term concept -> instances source concept
+            //                 | _ -> failwith "TODO")
+            //             (Set.empty)
+            //             concepts
 
-                Ok(Any.AnySet result :: tail)
-            | _ -> failwith "TODO"
+            //     Ok(Any.AnySet result :: tail)
+            // | _ -> failwith "TODO"
     )
 
 let instancesJsonAction: Action =
@@ -256,35 +256,35 @@ let instancesJsonAction: Action =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | Any.Quote concepts :: Any.Network source :: tail ->
-                let ids: Quote =
-                    List.fold
-                        (fun state concept ->
-                            let mutable state = state
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | Any.Quote concepts :: Any.Network source :: tail ->
+            //     let ids: Quote =
+            //         List.fold
+            //             (fun state concept ->
+            //                 let mutable state = state
 
-                            match concept with
-                            | Any.Term el ->
-                                Set.iter
-                                    (fun triple ->
-                                        match triple with
-                                        | TermPattern.Term e,
-                                          TermPattern.Term(Term ":"),
-                                          TermPattern.Term concept ->
-                                            if el = concept then
-                                                state <- Any.Term e :: state
-                                        | _ -> ())
-                                    source
+            //                 match concept with
+            //                 | Any.Term el ->
+            //                     Set.iter
+            //                         (fun triple ->
+            //                             match triple with
+            //                             | TermPattern.Term e,
+            //                               TermPattern.Term(Term ":"),
+            //                               TermPattern.Term concept ->
+            //                                 if el = concept then
+            //                                     state <- Any.Term e :: state
+            //                             | _ -> ())
+            //                         source
 
-                                state
-                            | _ -> failwith "TODO")
-                        List.empty
-                        concepts
+            //                     state
+            //                 | _ -> failwith "TODO")
+            //             List.empty
+            //             concepts
 
-                let json = extractJson ids source
-                Ok(Any.Term(Term json) :: tail)
-            | _ -> failwith "TODO"
+            //     let json = extractJson ids source
+            //     Ok(Any.Term(Term json) :: tail)
+            // | _ -> failwith "TODO"
     )
 
 let inferAction: Action =
@@ -293,21 +293,21 @@ let inferAction: Action =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | description :: network :: tail ->
-                let description =
-                    match description with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | description :: network :: tail ->
+            //     let description =
+            //         match description with
+            //         | Any.Network n -> n
+            //         | _ -> failwith "TODO"
 
-                let network =
-                    match network with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+            //     let network =
+            //         match network with
+            //         | Any.Network n -> n
+            //         | _ -> failwith "TODO"
 
-                match infer description network with
-                | Ok res -> Ok(Any.Network res :: tail)
-                | Error err -> error $"Error calling infer: {err}" None
-            | _ -> error "Improper call to infer." None
+            //     match infer description network with
+            //     | Ok res -> Ok(Any.Network res :: tail)
+            //     | Error err -> error $"Error calling infer: {err}" None
+            // | _ -> error "Improper call to infer." None
     )

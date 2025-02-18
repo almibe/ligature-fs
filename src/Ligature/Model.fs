@@ -35,7 +35,7 @@ and TriplePattern = TermPattern * TermPattern * TermPattern
 and Pattern = Set<TriplePattern>
 
 type INetwork =
-    abstract Triples: unit -> Async<Pattern>
+    abstract Triples: unit -> Async<Network>
 
 type ILigatureStore =
     abstract Networks: unit -> Async<string seq>

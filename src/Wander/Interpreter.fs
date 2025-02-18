@@ -9,32 +9,34 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Actions) (stack: Stack) (script: Script) : Result<Stack, LigatureError> =
-    match script with
-    | [] -> Ok(stack)
-    | head :: tail ->
-        match head with
-        | Any.Term action ->
-            match executeAction actions stack action with
-            | Ok(stack) -> evalScript actions stack tail
-            | Error err -> Error err
-        | value -> evalScript actions (value :: stack) tail
+let rec evalScript (actions: Actions) (stack: Variables) (script: Script) : Result<Variables, LigatureError> =
+    failwith "TODO"
+    // match script with
+    // | [] -> Ok(stack)
+    // | head :: tail ->
+    //     match head with
+    //     | Any.Term action ->
+    //         match executeAction actions stack action with
+    //         | Ok(stack) -> evalScript actions stack tail
+    //         | Error err -> Error err
+    //     | value -> evalScript actions (value :: stack) tail
 
 and createAction (doc: string) (quote: Quote) examples pre post : Action =
-    Action.Full(
-        { doc = doc
-          examples = examples
-          pre = pre
-          post = post },
-        (fun actions stack -> evalScript actions stack quote)
-    )
+    failwith "TODO"
+    // Action.Full(
+    //     { doc = doc
+    //       examples = examples
+    //       pre = pre
+    //       post = post },
+    //     (fun actions stack -> evalScript actions stack quote)
+    // )
 
 and lookupAction (actions: Actions) (action: Term) : Action option =
     match Map.tryFind action actions with
     | Some(action) -> Some(action)
     | None -> None
 
-and executeAction (actions: Actions) (stack: Stack) (action: Term) =
+and executeAction (actions: Actions) (stack: Variables) (action: Term) =
     match lookupAction actions action with
     | Some(Action.Full(_, action)) -> action actions stack
     | Some(Action.Stack(_, action)) ->

@@ -15,33 +15,33 @@ let unionAction =
           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
           pre = "Network Network"
           post = "Network" },
-        fun stack ->
-            match stack with
-            | Any.Network left :: Any.Network right :: tail ->
-                // let left =
-                //     match left with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+        fun stack -> failwith "TODO"
+            // match stack with
+            // | Any.Network left :: Any.Network right :: tail ->
+            //     // let left =
+            //     //     match left with
+            //     //     | Any.Network n -> n
+            //     //     | Any.Slot v ->
+            //     //         match Map.tryFind v variables with
+            //     //         | Some(Any.Network res) -> res
+            //     //         | _ -> failwith "TODO"
+            //     //     | _ -> failwith "TODO"
 
-                // let right =
-                //     match right with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
-                let result = Set.union left right |> Any.Network
-                Ok(result :: tail)
-            | _ -> failwith $"Calls to union requires two Networks on the stack."
+            //     // let right =
+            //     //     match right with
+            //     //     | Any.Network n -> n
+            //     //     | Any.Slot v ->
+            //     //         match Map.tryFind v variables with
+            //     //         | Some(Any.Network res) -> res
+            //     //         | _ -> failwith "TODO"
+            //     //     | Any.Quote quote ->
+            //     //         match evalQuote networks local modules variables quote with
+            //     //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
+            //     //         | _ -> failwith "TODO"
+            //     //     | _ -> failwith "TODO"
+            //     let result = Set.union left right |> Any.Network
+            //     Ok(result :: tail)
+            // | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
 
 let countAction =
@@ -50,11 +50,11 @@ let countAction =
           examples = [ "{} count 0 assert-equal" ]
           pre = "Network"
           post = "Literal" },
-        fun stack ->
-            match stack with
-            | [ Any.Network n ] -> Ok([ Any.Term(Term((Set.count n).ToString())) ])
-            | Any.Network n :: tail -> Ok(Any.Term(Term((Set.count n).ToString())) :: tail)
-            | _ -> error "Network on stack required to call count." None
+        fun stack -> failwith "TODO"
+            // match stack with
+            // | [ Any.Network n ] -> Ok([ Any.Term(Term((Set.count n).ToString())) ])
+            // | Any.Network n :: tail -> Ok(Any.Term(Term((Set.count n).ToString())) :: tail)
+            // | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
 // // | [ Any.Slot variable ] ->
@@ -89,23 +89,23 @@ let queryAction =
           examples = []
           pre = "Template Pattern Network"
           post = "TemplateResult" },
-        fun actions stack ->
-            match stack with
-            | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
-                let results =
-                    query pattern template source
-                    |> Seq.map (fun network -> Any.Network network)
-                    |> Seq.toList
-
-                Ok(Any.Quote results :: tail)
-            // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+        fun actions stack -> failwith "TODO"
+            // match stack with
+            // | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
             //     let results =
-            //         queryQuoteTemplate pattern template source
-            //         |> Seq.map (fun quote -> Any.Quote quote)
+            //         query pattern template source
+            //         |> Seq.map (fun network -> Any.Network network)
             //         |> Seq.toList
 
             //     Ok(Any.Quote results :: tail)
-            | _ -> error "Invalid call to query" None
+            // // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+            // //     let results =
+            // //         queryQuoteTemplate pattern template source
+            // //         |> Seq.map (fun quote -> Any.Quote quote)
+            // //         |> Seq.toList
+
+            // //     Ok(Any.Quote results :: tail)
+            // | _ -> error "Invalid call to query" None
     )
 
 // let matchCommand =
@@ -195,44 +195,44 @@ let filterAction =
           examples = []
           pre = "Pattern Network"
           post = "Network" },
-        fun actions stack ->
-            match stack with
-            | Any.Network pattern :: Any.Network source :: tail ->
-                // let pattern =
-                //     match pattern with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+        fun actions stack -> failwith "TODO"
+            // match stack with
+            // | Any.Network pattern :: Any.Network source :: tail ->
+            //     // let pattern =
+            //     //     match pattern with
+            //     //     | Any.Network n -> n
+            //     //     | Any.Slot v ->
+            //     //         if variables.ContainsKey v then
+            //     //             match variables[v] with
+            //     //             | Any.Network n -> n
+            //     //             | _ -> failwith "TODO"
+            //     //         else
+            //     //             failwith "TODO"
+            //     //     | Any.Quote quote ->
+            //     //         match evalQuote networks local modules variables quote with
+            //     //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+            //     //         | _ -> failwith "TODO"
+            //     //     | _ -> failwith "TODO"
 
-                // let source =
-                //     match source with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+            //     // let source =
+            //     //     match source with
+            //     //     | Any.Network n -> n
+            //     //     | Any.Slot v ->
+            //     //         if variables.ContainsKey v then
+            //     //             match variables[v] with
+            //     //             | Any.Network n -> n
+            //     //             | _ -> failwith "TODO"
+            //     //         else
+            //     //             failwith "TODO"
+            //     //     | Any.Quote quote ->
+            //     //         match evalQuote networks local modules variables quote with
+            //     //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+            //     //         | _ -> failwith "TODO"
+            //     //     | _ -> failwith "TODO"
 
-                let results = filter pattern source
-                Ok(Any.Network results :: tail)
-            | _ -> error "Invalid call to filter" None
+            //     let results = filter pattern source
+            //     Ok(Any.Network results :: tail)
+            // | _ -> error "Invalid call to filter" None
     )
 
 let ifEmptyAction =
@@ -241,14 +241,14 @@ let ifEmptyAction =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | elseCase :: emptyCase :: Any.Network cond :: tail ->
-                if cond = Set.empty then
-                    Ok(emptyCase :: tail)
-                else
-                    Ok(elseCase :: tail)
-            | _ -> error "Invalid call to if-empty" None
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | elseCase :: emptyCase :: Any.Network cond :: tail ->
+            //     if cond = Set.empty then
+            //         Ok(emptyCase :: tail)
+            //     else
+            //         Ok(elseCase :: tail)
+            // | _ -> error "Invalid call to if-empty" None
     )
 
 let isEmptyAction =
@@ -258,17 +258,17 @@ let isEmptyAction =
           examples = []
           pre = ""
           post = "" },
-        fun _ stack ->
-            match stack with
-            | Any.Network cond :: tail ->
-                if cond = Set.empty then
-                    Ok(Any.Term(Term "true") :: tail)
-                else
-                    Ok(Any.Term(Term "false") :: tail)
-            | Any.Quote q :: tail ->
-                if q.IsEmpty then
-                    Ok(Any.Term(Term "true") :: tail)
-                else
-                    Ok(Any.Term(Term "false") :: tail)
-            | _ -> error "Invalid call to is-empty" None
+        fun _ stack -> failwith "TODO"
+            // match stack with
+            // | Any.Network cond :: tail ->
+            //     if cond = Set.empty then
+            //         Ok(Any.Term(Term "true") :: tail)
+            //     else
+            //         Ok(Any.Term(Term "false") :: tail)
+            // | Any.Quote q :: tail ->
+            //     if q.IsEmpty then
+            //         Ok(Any.Term(Term "true") :: tail)
+            //     else
+            //         Ok(Any.Term(Term "false") :: tail)
+            // | _ -> error "Invalid call to is-empty" None
     )

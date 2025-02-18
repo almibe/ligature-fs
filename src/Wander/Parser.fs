@@ -134,8 +134,8 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
         match Gaze.attempt scriptNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
-                //failwith "TODO"
-                Ok res
+                failwith "TODO"
+                //Ok res
             else
                 error $"Failed to parse completely. {Gaze.remaining gaze}" None
         | Error err -> error $"Failed to parse.\n{err.ToString()}" None
