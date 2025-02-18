@@ -22,7 +22,7 @@ module Main =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
-            let mutable stack = List.empty
+            let mutable variables = Map.empty
 
             DockPanel.create
                 [ DockPanel.children
@@ -33,10 +33,11 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdActions stack (script.Current) with
-                                              | Ok newStack ->
-                                                  stack <- newStack
-                                                  result.Set $"{printStack stack}"
+                                              match run stdActions variables script.Current with
+                                              | Ok (newVariables, res) ->
+                                                  variables <- newVariables
+                                                  failwith "TODO"
+                                                  //result.Set $"{print stack}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom

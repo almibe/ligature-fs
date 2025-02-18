@@ -16,9 +16,9 @@ let popAction: Action =
           pre = "Term"
           post = "" },
         fun stack -> failwith "TODO"
-            // match stack with
-            // | [] -> error "Cannot pop an empty Stack." None
-            // | _ :: tail -> Ok(tail)
+    // match stack with
+    // | [] -> error "Cannot pop an empty Stack." None
+    // | _ :: tail -> Ok(tail)
     )
 
 // let importCommand: Command =

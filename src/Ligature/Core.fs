@@ -60,10 +60,7 @@ let singleMatch (pattern: TermPattern * TermPattern * TermPattern) (network: Pat
         Set.empty
         network
 
-let andSingleResult
-    (left: Map<Slot, TermPattern>)
-    (right: Map<Slot, TermPattern>)
-    : Option<Map<Slot, TermPattern>> =
+let andSingleResult (left: Map<Slot, TermPattern>) (right: Map<Slot, TermPattern>) : Option<Map<Slot, TermPattern>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys

@@ -9,41 +9,41 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Actions) (stack: Variables) (script: Script) : Result<Variables, LigatureError> =
-    failwith "TODO"
-    // match script with
-    // | [] -> Ok(stack)
-    // | head :: tail ->
-    //     match head with
-    //     | Any.Term action ->
-    //         match executeAction actions stack action with
-    //         | Ok(stack) -> evalScript actions stack tail
-    //         | Error err -> Error err
-    //     | value -> evalScript actions (value :: stack) tail
+let rec evalScript (actions: Actions) (variables: Variables) (script: Script) : Result<Variables * Any, LigatureError> =
+    match script with
+    | [] -> Ok(variables, Any.Network Set.empty)
+    | head :: tail ->
+        match head with
+        | Assignment(variable, value) -> 
+            failwith "TODO"
+        | Application application ->
+            match executeApplication actions variables application with
+            | Ok(variables, _) -> evalScript actions variables tail
+            | Error err -> Error err
 
-and createAction (doc: string) (quote: Quote) examples pre post : Action =
-    failwith "TODO"
-    // Action.Full(
-    //     { doc = doc
-    //       examples = examples
-    //       pre = pre
-    //       post = post },
-    //     (fun actions stack -> evalScript actions stack quote)
-    // )
+and createAction (doc: string) (script: Script) examples pre post : Action =
+    Action.Full(
+        { doc = doc
+          examples = examples
+          pre = pre
+          post = post },
+          (fun actions variables -> evalScript actions variables script)
+    )
 
 and lookupAction (actions: Actions) (action: Term) : Action option =
     match Map.tryFind action actions with
     | Some(action) -> Some(action)
     | None -> None
 
-and executeAction (actions: Actions) (stack: Variables) (action: Term) =
-    match lookupAction actions action with
-    | Some(Action.Full(_, action)) -> action actions stack
-    | Some(Action.Stack(_, action)) ->
-        match action stack with
-        | Ok stack -> Ok(stack)
-        | Error err -> Error err
-    | None -> error $"Could not find action {action}." None
+and executeApplication (actions: Actions) (stack: Variables) (application: Any list) =
+    failwith "TODO"
+    // match lookupAction actions action with
+    // | Some(Action.Full(_, action)) -> action actions stack
+    // | Some(Action.Stack(_, action)) ->
+    //     match action stack with
+    //     | Ok stack -> Ok(stack)
+    //     | Error err -> Error err
+    // | None -> error $"Could not find action {action}." None
 
 let read (input: string) : Result<Script, LigatureError> =
     try

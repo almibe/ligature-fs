@@ -2,16 +2,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Parser.Test
+module Wander.Interpreter.Test
 
 open Expecto
 open Wander.Tokenizer
 open Ligature.Model
 open Wander.Model
 
-let parse input =
+let runScript input =
     match tokenize input with
-    | Ok res -> parse res
+    | Ok res -> 
+        match parse res with
+        | _ -> failwith "TODO"
     | _ -> failwith "Error tokenizing."
 
 [<Tests>]

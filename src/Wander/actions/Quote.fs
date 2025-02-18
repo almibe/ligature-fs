@@ -14,11 +14,11 @@ let prependAction =
           pre = "Quote Quote"
           post = "Quote" },
         fun stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote source :: Any.Quote dest :: tail ->
-            //     let newQuote = List.append source dest
-            //     Ok(Any.Quote newQuote :: tail)
-            // | _ -> error "Invalid call to prepend action." None
+    // match stack with
+    // | Any.Quote source :: Any.Quote dest :: tail ->
+    //     let newQuote = List.append source dest
+    //     Ok(Any.Quote newQuote :: tail)
+    // | _ -> error "Invalid call to prepend action." None
     )
 
 let setAction =
@@ -28,9 +28,9 @@ let setAction =
           pre = "Quote"
           post = "Set" },
         fun stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote quote :: tail ->
-            //     let set = Set.ofList quote
-            //     Ok(Any.AnySet set :: tail)
-            // | _ -> error "Invalid call to set action." None
+    // match stack with
+    // | Any.Quote quote :: tail ->
+    //     let set = Set.ofList quote
+    //     Ok(Any.AnySet set :: tail)
+    // | _ -> error "Invalid call to set action." None
     )

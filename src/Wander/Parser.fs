@@ -47,9 +47,7 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Quote values
     }
 
-let patternStatementNib
-    (gaze: Gaze.Gaze<Token>)
-    : Result<(TermPattern * TermPattern * TermPattern), Gaze.GazeError> =
+let patternStatementNib (gaze: Gaze.Gaze<Token>) : Result<(TermPattern * TermPattern * TermPattern), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
     let value = elementPatternNib gaze
@@ -123,10 +121,10 @@ let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> 
 
 let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match repeat anyNib gaze with
-    | Ok res -> Ok (Application res)
+    | Ok res -> Ok(Application res)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let scriptNib = repeatSep (takeFirst [applicationNib; assignmentNib]) Token.Comma
+let scriptNib = repeatSep (takeFirst [ applicationNib; assignmentNib ]) Token.Comma
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

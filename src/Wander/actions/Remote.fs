@@ -9,9 +9,8 @@ open Wander.Interpreter
 open Ligature.Model
 open FsHttp
 
-let toScript (code: Quote): string =
-    List.fold (fun state value -> 
-        state + printAny value + "\n") "" code
+let toScript (code: Quote) : string =
+    List.fold (fun state value -> state + printAny value + "\n") "" code
 
 let remoteAction =
     Action.Stack(
@@ -21,25 +20,25 @@ let remoteAction =
           pre = "Literal Quote"
           post = "Any..." },
         fun stack -> failwith "TODO"
-            // match stack with
-            // | Any.Literal address :: Any.Quote code :: tail ->
-            //     let script = toScript code
-            //     printfn $"Script = {script}"
-            //     let res =
-            //         http {
-            //             POST address
-            //             CacheControl "no-cache"
-            //             body 
-            //             text script
-            //         }
-            //         |> Request.send
-            //     let resText = res.ToText()
-            //     printfn $"{resText}"
-            //     match read resText with
-            //     | Ok res -> failwith "TODO"
-            //     | _ -> failwith "TODO"
-            //     // failwith "TODO"
-            //     //let newQuote = List.append source dest
-            //     //Ok(Any.Quote newQuote :: tail)
-            // | _ -> error "Invalid call to prepend action." None
+    // match stack with
+    // | Any.Literal address :: Any.Quote code :: tail ->
+    //     let script = toScript code
+    //     printfn $"Script = {script}"
+    //     let res =
+    //         http {
+    //             POST address
+    //             CacheControl "no-cache"
+    //             body
+    //             text script
+    //         }
+    //         |> Request.send
+    //     let resText = res.ToText()
+    //     printfn $"{resText}"
+    //     match read resText with
+    //     | Ok res -> failwith "TODO"
+    //     | _ -> failwith "TODO"
+    //     // failwith "TODO"
+    //     //let newQuote = List.append source dest
+    //     //Ok(Any.Quote newQuote :: tail)
+    // | _ -> error "Invalid call to prepend action." None
     )

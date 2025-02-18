@@ -51,51 +51,30 @@ let rec infer (tBox: Pattern) (aBox: Pattern) : Result<Pattern, LigatureError> =
                     | (TermPattern.Term subconcept,
                        TermPattern.Term(Term "subconcept-of"),
                        TermPattern.Term superconcept),
-                      (TermPattern.Term element,
-                       TermPattern.Term(Term ":"),
-                       TermPattern.Term concept) when subconcept = concept ->
+                      (TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term concept) when
+                        subconcept = concept
+                        ->
                         res <-
                             Set.add
-                                (TermPattern.Term element,
-                                 TermPattern.Term(Term ":"),
-                                 TermPattern.Term superconcept)
+                                (TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term superconcept)
                                 res
                     | (TermPattern.Term firstRole,
                        TermPattern.Term(Term "tdl.inverse-of"),
                        TermPattern.Term secondRole),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
-                        role = firstRole
-                        ->
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = firstRole ->
                         res <-
-                            Set.add
-                                (TermPattern.Term second,
-                                 TermPattern.Term secondRole,
-                                 TermPattern.Term first)
-                                res
+                            Set.add (TermPattern.Term second, TermPattern.Term secondRole, TermPattern.Term first) res
                     | (TermPattern.Term firstRole,
                        TermPattern.Term(Term "tdl.inverse-of"),
                        TermPattern.Term secondRole),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
-                        role = secondRole
-                        ->
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = secondRole ->
                         res <-
-                            Set.add
-                                (TermPattern.Term second,
-                                 TermPattern.Term firstRole,
-                                 TermPattern.Term first)
-                                res
+                            Set.add (TermPattern.Term second, TermPattern.Term firstRole, TermPattern.Term first) res
                     | (TermPattern.Term roleName,
                        TermPattern.Term(Term ":"),
                        TermPattern.Term(Term "tdl.Is-Symmetrical")),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
-                        role = roleName
-                        ->
-                        res <-
-                            Set.add
-                                (TermPattern.Term second,
-                                 TermPattern.Term role,
-                                 TermPattern.Term first)
-                                res
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = roleName ->
+                        res <- Set.add (TermPattern.Term second, TermPattern.Term role, TermPattern.Term first) res
                     | _ -> ())
                 aBox)
         tBox
@@ -143,19 +122,19 @@ let extractAction: Action =
           pre = ""
           post = "" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote ids :: Any.Network source :: tail ->
-            //     let result: AnySet =
-            //         List.fold
-            //             (fun state concept ->
-            //                 match concept with
-            //                 | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
-            //                 | _ -> failwith "TODO")
-            //             (Set.empty)
-            //             ids
+    // match stack with
+    // | Any.Quote ids :: Any.Network source :: tail ->
+    //     let result: AnySet =
+    //         List.fold
+    //             (fun state concept ->
+    //                 match concept with
+    //                 | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
+    //                 | _ -> failwith "TODO")
+    //             (Set.empty)
+    //             ids
 
-            //     Ok(Any.AnySet result :: tail)
-            // | _ -> failwith "TODO"
+    //     Ok(Any.AnySet result :: tail)
+    // | _ -> failwith "TODO"
     )
 
 let rec createJsonView (source: Pattern) (Term root) : JsonView =
@@ -206,20 +185,18 @@ let extractJsonAction: Action =
           pre = ""
           post = "" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote ids :: Any.Network source :: tail ->
-            //     let json = extractJson ids source
-            //     Ok(Any.Term(Term json) :: tail)
-            // | _ -> failwith "TODO"
+    // match stack with
+    // | Any.Quote ids :: Any.Network source :: tail ->
+    //     let json = extractJson ids source
+    //     Ok(Any.Term(Term json) :: tail)
+    // | _ -> failwith "TODO"
     )
 
 let instances (source: Pattern) (concept: Term) : AnySet =
     Set.fold
         (fun state triple ->
             match triple with
-            | TermPattern.Term element,
-              TermPattern.Term(Term ":"),
-              TermPattern.Term conceptToCheck ->
+            | TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term conceptToCheck ->
                 if conceptToCheck = concept then
                     Set.add (Any.Network(extract source element)) state
                 else
@@ -235,19 +212,19 @@ let instancesAction: Action =
           pre = ""
           post = "" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote concepts :: Any.Network source :: tail ->
-            //     let result: AnySet =
-            //         List.fold
-            //             (fun state concept ->
-            //                 match concept with
-            //                 | Any.Term concept -> instances source concept
-            //                 | _ -> failwith "TODO")
-            //             (Set.empty)
-            //             concepts
+    // match stack with
+    // | Any.Quote concepts :: Any.Network source :: tail ->
+    //     let result: AnySet =
+    //         List.fold
+    //             (fun state concept ->
+    //                 match concept with
+    //                 | Any.Term concept -> instances source concept
+    //                 | _ -> failwith "TODO")
+    //             (Set.empty)
+    //             concepts
 
-            //     Ok(Any.AnySet result :: tail)
-            // | _ -> failwith "TODO"
+    //     Ok(Any.AnySet result :: tail)
+    // | _ -> failwith "TODO"
     )
 
 let instancesJsonAction: Action =
@@ -257,34 +234,34 @@ let instancesJsonAction: Action =
           pre = ""
           post = "" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | Any.Quote concepts :: Any.Network source :: tail ->
-            //     let ids: Quote =
-            //         List.fold
-            //             (fun state concept ->
-            //                 let mutable state = state
+    // match stack with
+    // | Any.Quote concepts :: Any.Network source :: tail ->
+    //     let ids: Quote =
+    //         List.fold
+    //             (fun state concept ->
+    //                 let mutable state = state
 
-            //                 match concept with
-            //                 | Any.Term el ->
-            //                     Set.iter
-            //                         (fun triple ->
-            //                             match triple with
-            //                             | TermPattern.Term e,
-            //                               TermPattern.Term(Term ":"),
-            //                               TermPattern.Term concept ->
-            //                                 if el = concept then
-            //                                     state <- Any.Term e :: state
-            //                             | _ -> ())
-            //                         source
+    //                 match concept with
+    //                 | Any.Term el ->
+    //                     Set.iter
+    //                         (fun triple ->
+    //                             match triple with
+    //                             | TermPattern.Term e,
+    //                               TermPattern.Term(Term ":"),
+    //                               TermPattern.Term concept ->
+    //                                 if el = concept then
+    //                                     state <- Any.Term e :: state
+    //                             | _ -> ())
+    //                         source
 
-            //                     state
-            //                 | _ -> failwith "TODO")
-            //             List.empty
-            //             concepts
+    //                     state
+    //                 | _ -> failwith "TODO")
+    //             List.empty
+    //             concepts
 
-            //     let json = extractJson ids source
-            //     Ok(Any.Term(Term json) :: tail)
-            // | _ -> failwith "TODO"
+    //     let json = extractJson ids source
+    //     Ok(Any.Term(Term json) :: tail)
+    // | _ -> failwith "TODO"
     )
 
 let inferAction: Action =
@@ -294,20 +271,20 @@ let inferAction: Action =
           pre = ""
           post = "" },
         fun _ stack -> failwith "TODO"
-            // match stack with
-            // | description :: network :: tail ->
-            //     let description =
-            //         match description with
-            //         | Any.Network n -> n
-            //         | _ -> failwith "TODO"
+    // match stack with
+    // | description :: network :: tail ->
+    //     let description =
+    //         match description with
+    //         | Any.Network n -> n
+    //         | _ -> failwith "TODO"
 
-            //     let network =
-            //         match network with
-            //         | Any.Network n -> n
-            //         | _ -> failwith "TODO"
+    //     let network =
+    //         match network with
+    //         | Any.Network n -> n
+    //         | _ -> failwith "TODO"
 
-            //     match infer description network with
-            //     | Ok res -> Ok(Any.Network res :: tail)
-            //     | Error err -> error $"Error calling infer: {err}" None
-            // | _ -> error "Improper call to infer." None
+    //     match infer description network with
+    //     | Ok res -> Ok(Any.Network res :: tail)
+    //     | Error err -> error $"Error calling infer: {err}" None
+    // | _ -> error "Improper call to infer." None
     )

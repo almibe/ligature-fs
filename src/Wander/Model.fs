@@ -41,8 +41,8 @@ and ActionDoc =
       post: string }
 
 and [<RequireQualifiedAccess>] Action =
-    | Full of ActionDoc * (Actions -> Variables -> Result<Variables, LigatureError>)
-    | Stack of ActionDoc * (Variables -> Result<Variables, LigatureError>)
+    | Full of ActionDoc * (Actions -> Variables -> Result<Variables * Any, LigatureError>)
+    | Stack of ActionDoc * (Variables -> Result<Variables * Any, LigatureError>)
 
 and Slots = Map<Slot, Any>
 
@@ -86,9 +86,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter
-                (fun (Slot var) value -> res <- res + var + " " + (writeTermPattern value) + ", ")
-                variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeTermPattern value) + ", ") variables
 
             res <- res + ")")
         rs

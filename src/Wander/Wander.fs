@@ -11,7 +11,7 @@ open Interpreter
 open Wander.Model
 open Library
 
-let run (actions: Actions) (stack: Variables) (input: string) : Result<Variables, LigatureError> =
+let run (actions: Actions) (stack: Variables) (input: string) : Result<Variables * Any, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
