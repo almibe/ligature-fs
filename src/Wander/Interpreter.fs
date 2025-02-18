@@ -6,6 +6,8 @@ module Wander.Interpreter
 
 open Ligature.Model
 open Model
+open Tokenizer
+open Parser
 
 let rec evalScript (actions: Actions) (stack: Stack) (script: Script) : Result<Stack, LigatureError> =
     match script with
@@ -27,12 +29,12 @@ and createAction (doc: string) (quote: Quote) examples pre post : Action =
         (fun actions stack -> evalScript actions stack quote)
     )
 
-and lookupAction (actions: Actions) (action: Element) : Action option =
+and lookupAction (actions: Actions) (action: Term) : Action option =
     match Map.tryFind action actions with
     | Some(action) -> Some(action)
     | None -> None
 
-and executeAction (actions: Actions) (stack: Stack) (action: Element) =
+and executeAction (actions: Actions) (stack: Stack) (action: Term) =
     match lookupAction actions action with
     | Some(Action.Full(_, action)) -> action actions stack
     | Some(Action.Stack(_, action)) ->
@@ -40,3 +42,11 @@ and executeAction (actions: Actions) (stack: Stack) (action: Element) =
         | Ok stack -> Ok(stack)
         | Error err -> Error err
     | None -> error $"Could not find action {action}." None
+
+let read (input: string) : Result<Script, LigatureError> =
+    try
+        match tokenize input with
+        | Ok tokens -> parse tokens
+        | Error _ -> error "Error tokenizing." None
+    with x ->
+        error $"Error reading {x}" None

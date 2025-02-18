@@ -14,33 +14,31 @@ let error userMessage debugMessage =
           DebugMessage = debugMessage }
     )
 
-type Element = Element of string
+type Term = Term of string
 
-type Variable = Variable of string
+type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Variable, ElementPattern>
+and ValueSet = Map<Slot, TermPattern>
 
-and [<RequireQualifiedAccess>] ElementPattern =
-    | Element of Element
-    | Variable of Variable
+and [<RequireQualifiedAccess>] TermPattern =
+    | Term of Term
+    | Variable of Slot
 
-and Triple = ElementPattern * ElementPattern * ElementPattern
+and Triple = Term * Term * Term
 
 and Network = Set<Triple>
 
-and Quote = Any list
+and TriplePattern = TermPattern * TermPattern * TermPattern
 
-and AnySet = Set<Any>
+and Pattern = Set<TriplePattern>
 
-and [<RequireQualifiedAccess>] Any =
-    | Variable of Variable
-    | Quote of Quote
-    | Literal of string
-    | Element of Element
-    | Network of Network
-    | ValueSet of ValueSet
-    | ResultSet of ResultSet
-    | Comment of string
-    | AnySet of AnySet
+type INetwork =
+    abstract Triples: unit -> Async<Pattern>
+
+type ILigatureStore =
+    abstract Networks: unit -> Async<string seq>
+    abstract AddNetwork: string -> Async<unit>
+    abstract RemoveNetwork: string -> Async<unit>
+    abstract Read: string -> Async<INetwork>

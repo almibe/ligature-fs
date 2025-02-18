@@ -52,8 +52,8 @@ let countAction =
           post = "Literal" },
         fun stack ->
             match stack with
-            | [ Any.Network n ] -> Ok([ Any.Element(Element((Set.count n).ToString())) ])
-            | Any.Network n :: tail -> Ok(Any.Element(Element((Set.count n).ToString())) :: tail)
+            | [ Any.Network n ] -> Ok([ Any.Element(Term((Set.count n).ToString())) ])
+            | Any.Network n :: tail -> Ok(Any.Element(Term((Set.count n).ToString())) :: tail)
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
@@ -98,13 +98,13 @@ let queryAction =
                     |> Seq.toList
 
                 Ok(Any.Quote results :: tail)
-            | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
-                let results =
-                    queryQuoteTemplate pattern template source
-                    |> Seq.map (fun quote -> Any.Quote quote)
-                    |> Seq.toList
+            // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+            //     let results =
+            //         queryQuoteTemplate pattern template source
+            //         |> Seq.map (fun quote -> Any.Quote quote)
+            //         |> Seq.toList
 
-                Ok(Any.Quote results :: tail)
+            //     Ok(Any.Quote results :: tail)
             | _ -> error "Invalid call to query" None
     )
 
@@ -262,13 +262,13 @@ let isEmptyAction =
             match stack with
             | Any.Network cond :: tail ->
                 if cond = Set.empty then
-                    Ok(Any.Element(Element "true") :: tail)
+                    Ok(Any.Element(Term "true") :: tail)
                 else
-                    Ok(Any.Element(Element "false") :: tail)
+                    Ok(Any.Element(Term "false") :: tail)
             | Any.Quote q :: tail ->
                 if q.IsEmpty then
-                    Ok(Any.Element(Element "true") :: tail)
+                    Ok(Any.Element(Term "true") :: tail)
                 else
-                    Ok(Any.Element(Element "false") :: tail)
+                    Ok(Any.Element(Term "false") :: tail)
             | _ -> error "Invalid call to is-empty" None
     )

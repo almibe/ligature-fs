@@ -12,6 +12,7 @@ open Wander.Actions.Quote
 open Wander.Actions.Network
 open Wander.Actions.TinyDL
 open Interpreter
+open Wander.Actions.Remote
 
 let docsAction: Action =
     Action.Full(
@@ -20,7 +21,7 @@ let docsAction: Action =
           pre = ""
           post = "Network" },
         fun actions stack ->
-            let docs: Network =
+            let docs: Pattern =
                 Map.toSeq actions
                 |> Seq.fold
                     (fun state (name, action) ->
@@ -28,76 +29,76 @@ let docsAction: Action =
                         | Action.Full(doc, _) ->
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-string"),
-                                     ElementPattern.Element(Element doc.doc))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-string"),
+                                     TermPattern.Term(Term doc.doc))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element ":"),
-                                     ElementPattern.Element(Element "Action"))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term ":"),
+                                     TermPattern.Term(Term "Action"))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-pre"),
-                                     ElementPattern.Element(Element doc.pre))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-pre"),
+                                     TermPattern.Term(Term doc.pre))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-post"),
-                                     ElementPattern.Element(Element doc.post))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-post"),
+                                     TermPattern.Term(Term doc.post))
                                     state
 
                             List.fold
                                 (fun state example ->
                                     Set.add
-                                        (ElementPattern.Element name,
-                                         ElementPattern.Element(Element "doc-example"),
-                                         ElementPattern.Element(Element example))
+                                        (TermPattern.Term name,
+                                         TermPattern.Term(Term "doc-example"),
+                                         TermPattern.Term(Term example))
                                         state)
                                 state
                                 doc.examples
                         | Action.Stack(doc, _) ->
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element ":"),
-                                     ElementPattern.Element(Element "Action"))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term ":"),
+                                     TermPattern.Term(Term "Action"))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-string"),
-                                     ElementPattern.Element(Element doc.doc))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-string"),
+                                     TermPattern.Term(Term doc.doc))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-pre"),
-                                     ElementPattern.Element(Element doc.pre))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-pre"),
+                                     TermPattern.Term(Term doc.pre))
                                     state
 
                             let state =
                                 Set.add
-                                    (ElementPattern.Element name,
-                                     ElementPattern.Element(Element "doc-post"),
-                                     ElementPattern.Element(Element doc.post))
+                                    (TermPattern.Term name,
+                                     TermPattern.Term(Term "doc-post"),
+                                     TermPattern.Term(Term doc.post))
                                     state
 
                             List.fold
                                 (fun state example ->
                                     Set.add
-                                        (ElementPattern.Element name,
-                                         ElementPattern.Element(Element "doc-example"),
-                                         ElementPattern.Element(Element example))
+                                        (TermPattern.Term name,
+                                         TermPattern.Term(Term "doc-example"),
+                                         TermPattern.Term(Term example))
                                         state)
                                 state
                                 doc.examples)
@@ -108,43 +109,44 @@ let docsAction: Action =
 
 let stdActions: Actions =
     Map.ofSeq
-        [ (Element "assert-equal", assertEqualAction)
-          (Element "union", unionAction)
-          (Element "infer", inferAction)
-          (Element "extract", extractAction)
-          (Element "extract-json", extractJsonAction)
-          (Element "instances", instancesAction)
-          (Element "instances-json", instancesJsonAction)
-          (Element "docs", docsAction)
-          (Element "prepend", prependAction)
-          (Element "clear", clearAction)
-          (Element "set", setAction)
-          (Element "pop", popAction)
-          (Element "if-empty", ifEmptyAction)
-          (Element "is-empty", isEmptyAction)
-          (Element "filter", filterAction)
-          (Element "query", queryAction)
-          (Element "count", countAction)
-          (Element "is-consistent",
+        [ (Term "assert-equal", assertEqualAction)
+          (Term "union", unionAction)
+          (Term "infer", inferAction)
+          (Term "remote", remoteAction)
+          (Term "extract", extractAction)
+          (Term "extract-json", extractJsonAction)
+          (Term "instances", instancesAction)
+          (Term "instances-json", instancesJsonAction)
+          (Term "docs", docsAction)
+          (Term "prepend", prependAction)
+          (Term "clear", clearAction)
+          (Term "set", setAction)
+          (Term "pop", popAction)
+          (Term "if-empty", ifEmptyAction)
+          (Term "is-empty", isEmptyAction)
+          (Term "filter", filterAction)
+          (Term "query", queryAction)
+          (Term "count", countAction)
+          (Term "is-consistent",
            createAction
                "Check if the Network on the top of the Stack is consistent."
                [ Any.Network(
                      Set.ofList
-                         [ (ElementPattern.Variable(Variable "?el"),
-                            ElementPattern.Element(Element ":"),
-                            ElementPattern.Variable(Variable "?concept"))
-                           (ElementPattern.Variable(Variable "?el"),
-                            ElementPattern.Element(Element ":¬"),
-                            ElementPattern.Variable(Variable "?concept")) ]
+                         [ (TermPattern.Variable(Slot "?el"),
+                            TermPattern.Term(Term ":"),
+                            TermPattern.Variable(Slot "?concept"))
+                           (TermPattern.Variable(Slot "?el"),
+                            TermPattern.Term(Term ":¬"),
+                            TermPattern.Variable(Slot "?concept")) ]
                  )
                  Any.Network(
                      Set.ofList
-                         [ ElementPattern.Variable(Variable "?el"),
-                           ElementPattern.Element(Element ":¬"),
-                           ElementPattern.Variable(Variable "?concept") ]
+                         [ TermPattern.Variable(Slot "?el"),
+                           TermPattern.Term(Term ":¬"),
+                           TermPattern.Variable(Slot "?concept") ]
                  )
-                 Any.Element(Element "query")
-                 Any.Element(Element "is-empty") ]
+                 Any.Element(Term "query")
+                 Any.Element(Term "is-empty") ]
                []
                ""
                "") ]

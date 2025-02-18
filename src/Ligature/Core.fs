@@ -6,52 +6,52 @@ module Ligature.Core
 
 open Ligature.Model
 
-let namedSlot (v: Variable) : bool =
+let namedSlot (v: Slot) : bool =
     match v with
-    | Variable "?" -> false
+    | Slot "?" -> false
     | _ -> true
 
 let testPattern
-    ((elementPattern, attributePattern, valuePattern): Triple)
-    ((element, attribute, value): Triple)
-    : Map<Variable, ElementPattern> option =
+    ((elementPattern, attributePattern, valuePattern): TriplePattern)
+    ((element, attribute, value): TriplePattern)
+    : Map<Slot, TermPattern> option =
     let mutable result = Map.empty
     let mutable isMatch = true
 
     match elementPattern with
-    | ElementPattern.Variable slot ->
+    | TermPattern.Variable slot ->
         if namedSlot slot then
             result <- Map.add slot (element) result
-    | ElementPattern.Element elementP -> isMatch <- ElementPattern.Element elementP = element
+    | TermPattern.Term elementP -> isMatch <- TermPattern.Term elementP = element
 
     if isMatch then
         match attributePattern with
-        | ElementPattern.Variable slot ->
+        | TermPattern.Variable slot ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot] with
-                    | ElementPattern.Element e -> isMatch <- ElementPattern.Element e = attribute
+                    | TermPattern.Term e -> isMatch <- TermPattern.Term e = attribute
                     | _ -> failwith "TODO"
                 else
                     result <- Map.add slot (attribute) result
-        | ElementPattern.Element elementP -> isMatch <- attribute = ElementPattern.Element elementP
+        | TermPattern.Term elementP -> isMatch <- attribute = TermPattern.Term elementP
 
     if isMatch then
         match (valuePattern, value) with
-        | (ElementPattern.Variable slot, value) ->
+        | (TermPattern.Variable slot, value) ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result[slot], value with
-                    | ElementPattern.Element e, ElementPattern.Element v -> isMatch <- e = v
+                    | TermPattern.Term e, TermPattern.Term v -> isMatch <- e = v
                     | _, _ -> isMatch <- false
                 else
                     result <- Map.add slot value result
-        | (ElementPattern.Element elementP, ElementPattern.Element value) -> isMatch <- elementP = value
+        | (TermPattern.Term elementP, TermPattern.Term value) -> isMatch <- elementP = value
         | _ -> isMatch <- false
 
     if isMatch then Some result else None
 
-let singleMatch (pattern: ElementPattern * ElementPattern * ElementPattern) (network: Network) : ResultSet =
+let singleMatch (pattern: TermPattern * TermPattern * TermPattern) (network: Pattern) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -61,9 +61,9 @@ let singleMatch (pattern: ElementPattern * ElementPattern * ElementPattern) (net
         network
 
 let andSingleResult
-    (left: Map<Variable, ElementPattern>)
-    (right: Map<Variable, ElementPattern>)
-    : Option<Map<Variable, ElementPattern>> =
+    (left: Map<Slot, TermPattern>)
+    (right: Map<Slot, TermPattern>)
+    : Option<Map<Slot, TermPattern>> =
     let leftKeys = Set.ofSeq left.Keys
     let rightKeys = Set.ofSeq right.Keys
     let intersection = Set.intersect leftKeys rightKeys
@@ -91,7 +91,7 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let networkMatch (pattern: Network) (network: Network) : ResultSet =
+let networkMatch (pattern: Pattern) (network: Pattern) : ResultSet =
     let resultSets =
         Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
 
@@ -100,77 +100,77 @@ let networkMatch (pattern: Network) (network: Network) : ResultSet =
     else
         List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
 
-let applyValueSet (pattern: Network) (result: ValueSet) : Network =
+let applyValueSet (pattern: Pattern) (result: ValueSet) : Pattern =
     Set.map
         (fun (e, a, v) ->
             let element =
                 match e with
-                | ElementPattern.Element _ -> e
-                | ElementPattern.Variable v ->
+                | TermPattern.Term _ -> e
+                | TermPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
-                        | ElementPattern.Element e -> ElementPattern.Element e
-                        | ElementPattern.Variable v -> ElementPattern.Variable v
+                        | TermPattern.Term e -> TermPattern.Term e
+                        | TermPattern.Variable v -> TermPattern.Variable v
                     else
-                        ElementPattern.Variable v
+                        TermPattern.Variable v
 
             let attribute =
                 match a with
-                | ElementPattern.Element _ -> a
-                | ElementPattern.Variable v ->
+                | TermPattern.Term _ -> a
+                | TermPattern.Variable v ->
                     if result.ContainsKey v then
                         match result[v] with
-                        | ElementPattern.Element e -> ElementPattern.Element e
-                        | ElementPattern.Variable v -> ElementPattern.Variable v
+                        | TermPattern.Term e -> TermPattern.Term e
+                        | TermPattern.Variable v -> TermPattern.Variable v
                     else
-                        ElementPattern.Variable v
+                        TermPattern.Variable v
 
             let value =
                 match v with
-                | ElementPattern.Element _ -> v
-                | ElementPattern.Variable slot ->
+                | TermPattern.Term _ -> v
+                | TermPattern.Variable slot ->
                     if result.ContainsKey slot then
                         result[slot]
                     else
-                        ElementPattern.Variable slot
+                        TermPattern.Variable slot
 
             (element, attribute, value))
         pattern
 
-let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
-    List.map
-        (fun any ->
-            match any with
-            | Any.Variable slot ->
-                if result.ContainsKey slot then
-                    match result[slot] with
-                    | ElementPattern.Element e -> Any.Element e
-                    | ElementPattern.Variable v -> Any.Variable v
-                else
-                    Any.Variable slot
-            | _ -> any)
-        pattern
+// let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
+//     List.map
+//         (fun any ->
+//             match any with
+//             | Any.Variable slot ->
+//                 if result.ContainsKey slot then
+//                     match result[slot] with
+//                     | TermPattern.Term e -> Any.Element e
+//                     | TermPattern.Variable v -> Any.Variable v
+//                 else
+//                     Any.Variable slot
+//             | _ -> any)
+//         pattern
 
-let apply (pattern: Network) (resultSet: ResultSet) : Network =
+let apply (pattern: Pattern) (resultSet: ResultSet) : Pattern =
     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
-let applySeq (pattern: Network) (resultSet: ResultSet) : Network list =
+let applySeq (pattern: Pattern) (resultSet: ResultSet) : Pattern list =
     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
-let applySeqQuoteTemplate (pattern: Quote) (resultSet: ResultSet) : Quote list =
-    Set.fold (fun state result -> (applyValueSetQuoteTemplate pattern result) :: state) [] resultSet
+// let applySeqQuoteTemplate (pattern: Quote) (resultSet: ResultSet) : Quote list =
+//     Set.fold (fun state result -> (applyValueSetQuoteTemplate pattern result) :: state) [] resultSet
 
-let query (pattern: Network) (template: Network) (source: Network) : Network seq =
+let query (pattern: Pattern) (template: Pattern) (source: Pattern) : Pattern seq =
     let rs = networkMatch pattern source
     applySeq template rs
 
-let queryQuoteTemplate (pattern: Network) (template: Quote) (source: Network) : Quote seq =
-    let rs = networkMatch pattern source
-    applySeqQuoteTemplate template rs
+// let queryQuoteTemplate (pattern: Pattern) (template: Quote) (source: Pattern) : Quote seq =
+//     let rs = networkMatch pattern source
+//     applySeqQuoteTemplate template rs
 
 
-let contains (test: Network) (source: Network) : bool = Set.isSubset test source
+let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 
-let filter (pattern: Network) (source: Network) : Network =
+let filter (pattern: Pattern) (source: Pattern) : Pattern =
     let res = query pattern pattern source
     Seq.fold (fun state network -> Set.union state network) Set.empty res

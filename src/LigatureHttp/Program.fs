@@ -22,7 +22,7 @@ let createEndpoints (store: LigatureSqlite) =
               let! body = Request.getBodyString ctx
 
               match run (createStoreActions store Wander.Library.stdActions) List.empty body with
-              | Ok result -> Response.ofPlainText (printResult (Ok result)) ctx
+              | Ok result -> Response.ofPlainText (printStackAsScript result) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
 

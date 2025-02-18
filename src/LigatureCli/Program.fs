@@ -14,8 +14,8 @@ let main (args: string[]) =
     let file = $"{dir}/{args[0]}"
     let script = System.IO.File.ReadAllText(file)
 
-    match run stdActions Map.empty List.empty script with
-    | Ok(_, stack) -> printfn $"{(printStack stack)}"
+    match run stdActions List.empty script with
+    | Ok stack -> printfn $"{printStack stack}"
     | Error err -> printfn $"{err.UserMessage}"
 
     0

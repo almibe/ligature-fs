@@ -8,7 +8,7 @@ open Expecto
 open Ligature.Model
 open Ligature.Core
 
-let elementPattern e = ElementPattern.Element(Element e)
+let elementPattern e = TermPattern.Term(Term e)
 
 [<Tests>]
 let tests =

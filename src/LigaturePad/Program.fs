@@ -22,7 +22,6 @@ module Main =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
-            let mutable networks = Map.empty
             let mutable stack = List.empty
 
             DockPanel.create
@@ -34,11 +33,10 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdActions networks stack (script.Current) with
-                                              | Ok(newNetworks, newStack) ->
-                                                  networks <- newNetworks
+                                              match run stdActions stack (script.Current) with
+                                              | Ok newStack ->
                                                   stack <- newStack
-                                                  result.Set $"{(printStack stack)}"
+                                                  result.Set $"{printStack stack}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom

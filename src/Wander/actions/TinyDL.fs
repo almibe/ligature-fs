@@ -40,7 +40,7 @@ and writeJsonView (view: JsonView) : string =
     res <- res + "}"
     res
 
-let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
+let rec infer (tBox: Pattern) (aBox: Pattern) : Result<Pattern, LigatureError> =
     let mutable res = aBox
 
     Set.iter
@@ -48,53 +48,53 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
             Set.iter
                 (fun aStatement ->
                     match (tStatement, aStatement) with
-                    | (ElementPattern.Element subconcept,
-                       ElementPattern.Element(Element "subconcept-of"),
-                       ElementPattern.Element superconcept),
-                      (ElementPattern.Element element,
-                       ElementPattern.Element(Element ":"),
-                       ElementPattern.Element concept) when subconcept = concept ->
+                    | (TermPattern.Term subconcept,
+                       TermPattern.Term(Term "subconcept-of"),
+                       TermPattern.Term superconcept),
+                      (TermPattern.Term element,
+                       TermPattern.Term(Term ":"),
+                       TermPattern.Term concept) when subconcept = concept ->
                         res <-
                             Set.add
-                                (ElementPattern.Element element,
-                                 ElementPattern.Element(Element ":"),
-                                 ElementPattern.Element superconcept)
+                                (TermPattern.Term element,
+                                 TermPattern.Term(Term ":"),
+                                 TermPattern.Term superconcept)
                                 res
-                    | (ElementPattern.Element firstRole,
-                       ElementPattern.Element(Element "tdl.inverse-of"),
-                       ElementPattern.Element secondRole),
-                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
+                    | (TermPattern.Term firstRole,
+                       TermPattern.Term(Term "tdl.inverse-of"),
+                       TermPattern.Term secondRole),
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
                         role = firstRole
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second,
-                                 ElementPattern.Element secondRole,
-                                 ElementPattern.Element first)
+                                (TermPattern.Term second,
+                                 TermPattern.Term secondRole,
+                                 TermPattern.Term first)
                                 res
-                    | (ElementPattern.Element firstRole,
-                       ElementPattern.Element(Element "tdl.inverse-of"),
-                       ElementPattern.Element secondRole),
-                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
+                    | (TermPattern.Term firstRole,
+                       TermPattern.Term(Term "tdl.inverse-of"),
+                       TermPattern.Term secondRole),
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
                         role = secondRole
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second,
-                                 ElementPattern.Element firstRole,
-                                 ElementPattern.Element first)
+                                (TermPattern.Term second,
+                                 TermPattern.Term firstRole,
+                                 TermPattern.Term first)
                                 res
-                    | (ElementPattern.Element roleName,
-                       ElementPattern.Element(Element ":"),
-                       ElementPattern.Element(Element "tdl.Is-Symmetrical")),
-                      (ElementPattern.Element first, ElementPattern.Element role, ElementPattern.Element second) when
+                    | (TermPattern.Term roleName,
+                       TermPattern.Term(Term ":"),
+                       TermPattern.Term(Term "tdl.Is-Symmetrical")),
+                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when
                         role = roleName
                         ->
                         res <-
                             Set.add
-                                (ElementPattern.Element second,
-                                 ElementPattern.Element role,
-                                 ElementPattern.Element first)
+                                (TermPattern.Term second,
+                                 TermPattern.Term role,
+                                 TermPattern.Term first)
                                 res
                     | _ -> ())
                 aBox)
@@ -102,7 +102,7 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 
     if aBox = res then Ok res else infer tBox res
 
-let extract (source: Network) (id: Element) : Network =
+let extract (source: Pattern) (id: Term) : Pattern =
     let mutable checkedIds = Set.ofList [ id ]
     let mutable toCheck = [ id ]
     let mutable result = Set.empty
@@ -115,10 +115,10 @@ let extract (source: Network) (id: Element) : Network =
             Set.filter
                 (fun (element, a, v) ->
                     match element with
-                    | ElementPattern.Element e ->
+                    | TermPattern.Term e ->
                         if e = current then
                             match v with
-                            | ElementPattern.Element e ->
+                            | TermPattern.Term e ->
                                 if not (checkedIds.Contains(e)) then
                                     toCheck <- e :: toCheck
                                     checkedIds <- Set.add e checkedIds
@@ -158,17 +158,17 @@ let extractAction: Action =
             | _ -> failwith "TODO"
     )
 
-let rec createJsonView (source: Network) (Element root) : JsonView =
+let rec createJsonView (source: Pattern) (Term root) : JsonView =
     let mutable attrs = Map.empty
 
     Set.iter
         (fun triple ->
             match triple with
-            | (ElementPattern.Element element, ElementPattern.Element(Element attribute), value) ->
-                if element = Element root then
+            | (TermPattern.Term element, TermPattern.Term(Term attribute), value) ->
+                if element = Term root then
                     let value =
                         match value with
-                        | ElementPattern.Element e -> JsonViewValue.Element(createJsonView source e)
+                        | TermPattern.Term e -> JsonViewValue.Element(createJsonView source e)
                         | _ -> failwith "TODO"
 
                     if attrs.ContainsKey(attribute) then
@@ -182,7 +182,7 @@ let rec createJsonView (source: Network) (Element root) : JsonView =
     let view = { Id = root; Attrs = attrs }
     view
 
-let extractJson (ids: Quote) (source: Network) : string =
+let extractJson (ids: Quote) (source: Pattern) : string =
     let mutable result = "["
 
     List.iteri
@@ -209,17 +209,17 @@ let extractJsonAction: Action =
             match stack with
             | Any.Quote ids :: Any.Network source :: tail ->
                 let json = extractJson ids source
-                Ok(Any.Element(Element json) :: tail)
+                Ok(Any.Element(Term json) :: tail)
             | _ -> failwith "TODO"
     )
 
-let instances (source: Network) (concept: Element) : AnySet =
+let instances (source: Pattern) (concept: Term) : AnySet =
     Set.fold
         (fun state triple ->
             match triple with
-            | ElementPattern.Element element,
-              ElementPattern.Element(Element ":"),
-              ElementPattern.Element conceptToCheck ->
+            | TermPattern.Term element,
+              TermPattern.Term(Term ":"),
+              TermPattern.Term conceptToCheck ->
                 if conceptToCheck = concept then
                     Set.add (Any.Network(extract source element)) state
                 else
@@ -269,9 +269,9 @@ let instancesJsonAction: Action =
                                 Set.iter
                                     (fun triple ->
                                         match triple with
-                                        | ElementPattern.Element e,
-                                          ElementPattern.Element(Element ":"),
-                                          ElementPattern.Element concept ->
+                                        | TermPattern.Term e,
+                                          TermPattern.Term(Term ":"),
+                                          TermPattern.Term concept ->
                                             if el = concept then
                                                 state <- Any.Element e :: state
                                         | _ -> ())
@@ -283,7 +283,7 @@ let instancesJsonAction: Action =
                         concepts
 
                 let json = extractJson ids source
-                Ok(Any.Element(Element json) :: tail)
+                Ok(Any.Element(Term json) :: tail)
             | _ -> failwith "TODO"
     )
 

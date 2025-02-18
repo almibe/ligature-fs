@@ -31,11 +31,3 @@ let printResult (result: Result<(Stack), LigatureError>) =
     match result with
     | Ok(stack) -> printStack stack
     | Error(err) -> $"Error {err.UserMessage}"
-
-let read (input: string) : Result<Any, LigatureError> =
-    try
-        match tokenize input with
-        | Ok tokens -> read tokens
-        | Error _ -> error "Error tokenizing." None
-    with x ->
-        error $"Error reading {x}" None

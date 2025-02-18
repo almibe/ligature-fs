@@ -10,10 +10,10 @@ open Nibblers
 open Ligature.Model
 open Model
 
-let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
+let variableNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error(err) -> Error err
-    | Ok(Token.Variable(value)) -> Ok(Variable value)
+    | Ok(Token.Variable(value)) -> Ok(Slot value)
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
@@ -49,7 +49,7 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
 
 let patternStatementNib
     (gaze: Gaze.Gaze<Token>)
-    : Result<(ElementPattern * ElementPattern * ElementPattern), Gaze.GazeError> =
+    : Result<(TermPattern * TermPattern * TermPattern), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
     let value = elementPatternNib gaze
@@ -58,7 +58,7 @@ let patternStatementNib
     | (Ok(e), Ok(a), Ok(v)) -> Ok(e, a, v)
     | _ -> Error(Gaze.NoMatch)
 
-let partialNetworkNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
+let partialNetworkNib (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
     result {
         let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
         let! _ = Gaze.attempt (take Token.CloseBrace) gaze
@@ -73,7 +73,7 @@ let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Network(Set.ofList statements)
     }
 
-let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
+let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Pattern, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenBrace) gaze
         let! statements = (optional (repeatSep patternStatementNib Token.Comma)) gaze
@@ -81,29 +81,29 @@ let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeErr
         return (Set.ofList statements)
     }
 
-let symbolNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =
+let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
+    | Ok(Token.Element(value)) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.StringLiteral(value)) -> Ok(TermPattern.Term(Term value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
-let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<ElementPattern, Gaze.GazeError> =
+let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     let next = Gaze.next gaze
 
     match next with
     | Error(err) -> Error err
-    | Ok(Token.Element(value)) -> Ok(ElementPattern.Element(Element value))
-    | Ok(Token.StringLiteral(value)) -> Ok(ElementPattern.Element(Element value))
-    | Ok(Token.Variable(value)) -> Ok(ElementPattern.Variable(Variable value))
+    | Ok(Token.Element(value)) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.StringLiteral(value)) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.Variable(value)) -> Ok(TermPattern.Variable(Slot value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let elementLiteralVariableNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match Gaze.next gaze with
-    | Ok(Token.Element(value)) -> Ok(Any.Element(Element value))
-    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Variable value))
+    | Ok(Token.Element(value)) -> Ok(Any.Element(Term value))
+    | Ok(Token.Variable(value)) -> Ok(Any.Variable(Slot value))
     | Ok(Token.StringLiteral(value)) -> Ok(Any.Literal(value))
     | _ -> Error(Gaze.GazeError.NoMatch)
 
