@@ -9,7 +9,7 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Actions) (variables: Variables) (script: Script) : Result<Variables * Any, LigatureError> =
+let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Result<Variables * Any, LigatureError> =
     match script with
     | [] -> Ok(variables, Any.Network Set.empty)
     | head :: tail ->
@@ -21,28 +21,32 @@ let rec evalScript (actions: Actions) (variables: Variables) (script: Script) : 
             | Ok(variables, _) -> evalScript actions variables tail
             | Error err -> Error err
 
-and createAction (doc: string) (script: Script) examples pre post : Action =
-    Action.Full(
+and createFn (doc: string) (script: Script) examples pre post : Fn =
+    Fn(
         { doc = doc
           examples = examples
           pre = pre
           post = post },
-          (fun actions variables -> evalScript actions variables script)
+          (fun actions variables args -> evalScript actions variables script)
     )
 
-and lookupAction (actions: Actions) (action: Term) : Action option =
+and lookupFn (actions: Fns) (action: Term) : Fn option =
     match Map.tryFind action actions with
     | Some(action) -> Some(action)
     | None -> None
 
-and executeApplication (actions: Actions) (variables: Variables) (application: Any list) =
+and executeApplication (actions: Fns) (variables: Variables) (application: Any list): Result<Variables * Any, LigatureError> =
     match application with
     | [Any.Network network] -> 
-        Ok(variables, network)
+        Ok(variables, Any.Network network)
+    | Any.Term fn :: tail ->
+        match actions.TryFind fn with
+        | Some (Fn (_, fn)) -> fn actions variables tail
+        | None -> failwith "TODO"
     | _ -> failwith "TODO"
-    // match lookupAction actions action with
-    // | Some(Action.Full(_, action)) -> action actions stack
-    // | Some(Action.Stack(_, action)) ->
+    // match lookupFn actions action with
+    // | Some(Fn.Full(_, action)) -> action actions stack
+    // | Some(Fn.Stack(_, action)) ->
     //     match action stack with
     //     | Ok stack -> Ok(stack)
     //     | Error err -> Error err

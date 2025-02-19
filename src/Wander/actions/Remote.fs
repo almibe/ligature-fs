@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Actions.Remote
+module Wander.Fns.Remote
 
 open Wander.Model
 open Wander.Interpreter
@@ -12,14 +12,14 @@ open FsHttp
 let toScript (code: Quote) : string =
     List.fold (fun state value -> state + printAny value + "\n") "" code
 
-let remoteAction =
-    Action.Stack(
+let remoteFn =
+    Fn(
         { doc =
             "Reads a Literal for the address and a quote for the code to execute remotely in a Quote.\nAdds all returned values onto the current Stack."
           examples = [ "[docs] \"localhost:5000\" remote" ]
           pre = "Literal Quote"
           post = "Any..." },
-        fun stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Literal address :: Any.Quote code :: tail ->
     //     let script = toScript code

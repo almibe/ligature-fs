@@ -7,7 +7,7 @@ module Ligature.Http
 open Wander.Main
 open System
 open Ligature.Model
-open Wander.Actions
+open Wander.Fns
 open Wander.Model
 open Falco
 open Falco.Routing
@@ -21,7 +21,7 @@ let createEndpoints (store: LigatureSqlite) =
           task {
               let! body = Request.getBodyString ctx
 
-              match run (createStoreActions store Wander.Library.stdActions) List.empty body with
+              match run (createStoreFns store Wander.Library.stdFns) List.empty body with
               | Ok result -> Response.ofPlainText (printStackAsScript result) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]

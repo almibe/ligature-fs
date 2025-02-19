@@ -33,7 +33,7 @@ let rec allFiles dirs =
 
 //             testCase $"Test for {file}"
 //             <| fun _ ->
-//                 match run stdActions Map.empty script with
+//                 match run stdFns Map.empty script with
 //                 | Ok _ -> ()
 //                 | Error(err) -> failwithf "Test failed %A" err)
 //         |> Seq.toList

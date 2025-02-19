@@ -2,20 +2,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Actions.Core
+module Wander.Fns.Core
 
 open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 
 
-let popAction: Action =
-    Action.Stack(
+let popFn: Fn =
+    Fn(
         { doc = "Remove top Term from Stack."
           examples = []
           pre = "Term"
           post = "" },
-        fun stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | [] -> error "Cannot pop an empty Stack." None
     // | _ :: tail -> Ok(tail)
@@ -47,14 +47,14 @@ let popAction: Action =
 //                     error "Could not read variable" None
 //             | _ -> error "Illegal call to read." None }
 
-// let evalCommand: Action =
+// let evalCommand: Fn =
 //     { Eval =
 //         fun networks local modules arguments ->
 //             match arguments with
 //             | [ Any.Quote(quote) ] -> evalQuote networks local modules quote
 //             | _ -> error "Illegal call to read." None }
 
-// let foldCommand: Action =
+// let foldCommand: Fn =
 //     { Eval =
 //         fun networks local modules arguments ->
 //             match arguments with
@@ -92,7 +92,7 @@ let popAction: Action =
 //                 Ok(networks, local, modules)
 //             | _ -> error "Illegal call to fold." None }
 
-// let ignoreCommand: Action =
+// let ignoreCommand: Fn =
 //     { Eval = fun networks local modules _ -> Ok(networks, local, modules) }
 
 // let printSignature ((arguments, result): WanderType list * WanderType option) : Term =
@@ -112,7 +112,7 @@ let popAction: Action =
 //         | LigatureType.Value -> Identifier.Name(Name("Value")))
 //     signature
 
-// let docsCommand: Action =
+// let docsCommand: Fn =
 //     { Eval = fun local modules variables _ -> failwith "TODO" }
 // let mutable docs: Network = Set.empty
 
@@ -144,7 +144,7 @@ let popAction: Action =
 //                     Ok(Some(Any.Term(Term "false")))
 //             | _ -> error "Illegal call to contains" None }
 
-// let resultSetCommand: Action =
+// let resultSetCommand: Fn =
 //     { Eval =
 //         fun actions network ->
 //             let mutable resultSet = Set.empty

@@ -2,19 +2,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Actions.Assert
+module Wander.Fns.Assert
 
 open Ligature.Model
 open Wander.Interpreter
 open Wander.Model
 
-let assertEqualAction: Action =
-    Action.Stack(
+let assertEqualFn: Fn =
+    Fn(
         { doc = "Assert that to top two Terms on the Stack are equal."
           examples = []
           pre = "Any Any"
           post = "" },
-        fun stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | first :: second :: tail ->
     //     // let first =

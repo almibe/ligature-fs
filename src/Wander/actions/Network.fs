@@ -2,20 +2,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Actions.Network
+module Wander.Fns.Network
 
 open Ligature.Model
 open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let unionAction =
-    Action.Stack(
+let unionFn =
+    Fn(
         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
           pre = "Network Network"
           post = "Network" },
-        fun stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Network left :: Any.Network right :: tail ->
     //     // let left =
@@ -44,13 +44,13 @@ let unionAction =
     // | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
 
-let countAction =
-    Action.Stack(
+let countFn =
+    Fn(
         { doc = "Take a Network from the top of the Stack and push its size."
           examples = [ "{} count 0 assert-equal" ]
           pre = "Network"
           post = "Literal" },
-        fun stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | [ Any.Network n ] -> Ok([ Any.Term(Term((Set.count n).ToString())) ])
     // | Any.Network n :: tail -> Ok(Any.Term(Term((Set.count n).ToString())) :: tail)
@@ -83,13 +83,13 @@ let countAction =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-let queryAction =
-    Action.Full(
-        { doc = "Query a network. This Action requires three Networks on the stack."
+let queryFn =
+    Fn(
+        { doc = "Query a network. This Fn requires three Networks on the stack."
           examples = []
           pre = "Template Pattern Network"
           post = "TemplateResult" },
-        fun actions stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
     //     let results =
@@ -189,13 +189,13 @@ let queryAction =
 //             | args -> failwith $"TODO - unexpected args {args}" }
 
 
-let filterAction =
-    Action.Full(
+let filterFn =
+    Fn(
         { doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network."
           examples = []
           pre = "Pattern Network"
           post = "Network" },
-        fun actions stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Network pattern :: Any.Network source :: tail ->
     //     // let pattern =
@@ -235,13 +235,13 @@ let filterAction =
     // | _ -> error "Invalid call to filter" None
     )
 
-let ifEmptyAction =
-    Action.Full(
+let ifEmptyFn =
+    Fn(
         { doc = "Takes three Terms..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | elseCase :: emptyCase :: Any.Network cond :: tail ->
     //     if cond = Set.empty then
@@ -251,14 +251,14 @@ let ifEmptyAction =
     // | _ -> error "Invalid call to if-empty" None
     )
 
-let isEmptyAction =
-    Action.Full(
+let isEmptyFn =
+    Fn(
         { doc =
             "Takes a Network or Quote off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Network cond :: tail ->
     //     if cond = Set.empty then

@@ -30,19 +30,19 @@ type Expression =
 
 type Script = Expression list
 
+type Arguments = Any list
+
 type Variables = Map<Variable, Any>
 
-and Actions = Map<Term, Action>
+and Fns = Map<Term, Fn>
 
-and ActionDoc =
+and FnDoc =
     { doc: string
       examples: string list
       pre: string
       post: string }
 
-and [<RequireQualifiedAccess>] Action =
-    | Full of ActionDoc * (Actions -> Variables -> Result<Variables * Any, LigatureError>)
-    | Stack of ActionDoc * (Variables -> Result<Variables * Any, LigatureError>)
+and Fn = Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Variables * Any, LigatureError>)
 
 and Slots = Map<Slot, Any>
 

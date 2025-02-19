@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Actions.TinyDL
+module Wander.Fns.TinyDL
 
 open Ligature.Model
 open Wander.Model
@@ -115,13 +115,13 @@ let extract (source: Pattern) (id: Term) : Pattern =
 
     result
 
-let extractAction: Action =
-    Action.Full(
+let extractFn: Fn =
+    Fn(
         { doc = "..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote ids :: Any.Network source :: tail ->
     //     let result: AnySet =
@@ -178,13 +178,13 @@ let extractJson (ids: Quote) (source: Pattern) : string =
     result <- result + "]"
     result
 
-let extractJsonAction: Action =
-    Action.Full(
+let extractJsonFn: Fn =
+    Fn(
         { doc = "..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote ids :: Any.Network source :: tail ->
     //     let json = extractJson ids source
@@ -205,13 +205,13 @@ let instances (source: Pattern) (concept: Term) : AnySet =
         Set.empty
         source
 
-let instancesAction: Action =
-    Action.Full(
+let instancesFn: Fn =
+    Fn(
         { doc = "..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote concepts :: Any.Network source :: tail ->
     //     let result: AnySet =
@@ -227,13 +227,13 @@ let instancesAction: Action =
     // | _ -> failwith "TODO"
     )
 
-let instancesJsonAction: Action =
-    Action.Full(
+let instancesJsonFn: Fn =
+    Fn(
         { doc = "..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote concepts :: Any.Network source :: tail ->
     //     let ids: Quote =
@@ -264,13 +264,13 @@ let instancesJsonAction: Action =
     // | _ -> failwith "TODO"
     )
 
-let inferAction: Action =
-    Action.Full(
+let inferFn: Fn =
+    Fn(
         { doc = "..."
           examples = []
           pre = ""
           post = "" },
-        fun _ stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | description :: network :: tail ->
     //     let description =

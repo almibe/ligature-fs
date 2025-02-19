@@ -6,27 +6,27 @@ module Wander.Library
 
 open Ligature.Model
 open Wander.Model
-open Wander.Actions.Assert
-open Wander.Actions.Core
-open Wander.Actions.Quote
-open Wander.Actions.Network
-open Wander.Actions.TinyDL
+open Wander.Fns.Assert
+open Wander.Fns.Core
+open Wander.Fns.Quote
+open Wander.Fns.Network
+open Wander.Fns.TinyDL
 open Interpreter
-open Wander.Actions.Remote
+open Wander.Fns.Remote
 
-let docsAction: Action =
-    Action.Full(
+let docsFn: Fn =
+    Fn(
         { doc = "Push the docs Network on the Stack."
           examples = []
           pre = ""
           post = "Network" },
-        fun actions stack -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
     // let docs: Pattern =
     //     Map.toSeq actions
     //     |> Seq.fold
     //         (fun state (name, action) ->
     //             match action with
-    //             | Action.Full(doc, _) ->
+    //             | Fn.Full(doc, _) ->
     //                 let state =
     //                     Set.add
     //                         (TermPattern.Term name,
@@ -38,7 +38,7 @@ let docsAction: Action =
     //                     Set.add
     //                         (TermPattern.Term name,
     //                          TermPattern.Term(Term ":"),
-    //                          TermPattern.Term(Term "Action"))
+    //                          TermPattern.Term(Term "Fn"))
     //                         state
 
     //                 let state =
@@ -64,12 +64,12 @@ let docsAction: Action =
     //                             state)
     //                     state
     //                     doc.examples
-    //             | Action.Stack(doc, _) ->
+    //             | Fn.Stack(doc, _) ->
     //                 let state =
     //                     Set.add
     //                         (TermPattern.Term name,
     //                          TermPattern.Term(Term ":"),
-    //                          TermPattern.Term(Term "Action"))
+    //                          TermPattern.Term(Term "Fn"))
     //                         state
 
     //                 let state =
@@ -107,27 +107,27 @@ let docsAction: Action =
     // Ok(Any.Network docs :: stack)
     )
 
-let stdActions: Actions =
+let stdFns: Fns =
     Map.ofSeq
-        [ (Term "assert-equal", assertEqualAction)
-          (Term "union", unionAction)
-          (Term "infer", inferAction)
-          (Term "remote", remoteAction)
-          (Term "extract", extractAction)
-          (Term "extract-json", extractJsonAction)
-          (Term "instances", instancesAction)
-          (Term "instances-json", instancesJsonAction)
-          (Term "docs", docsAction)
-          (Term "prepend", prependAction)
-          (Term "set", setAction)
-          (Term "pop", popAction)
-          (Term "if-empty", ifEmptyAction)
-          (Term "is-empty", isEmptyAction)
-          (Term "filter", filterAction)
-          (Term "query", queryAction)
-          (Term "count", countAction) ]
+        [ (Term "assert-equal", assertEqualFn)
+          (Term "union", unionFn)
+          (Term "infer", inferFn)
+          (Term "remote", remoteFn)
+          (Term "extract", extractFn)
+          (Term "extract-json", extractJsonFn)
+          (Term "instances", instancesFn)
+          (Term "instances-json", instancesJsonFn)
+          (Term "docs", docsFn)
+          (Term "prepend", prependFn)
+          (Term "set", setFn)
+          (Term "pop", popFn)
+          (Term "if-empty", ifEmptyFn)
+          (Term "is-empty", isEmptyFn)
+          (Term "filter", filterFn)
+          (Term "query", queryFn)
+          (Term "count", countFn) ]
           // (Term "is-consistent",
-          //  createAction
+          //  createFn
           //      "Check if the Network on the top of the Stack is consistent."
           //      [ Any.Network(
           //            Set.ofList

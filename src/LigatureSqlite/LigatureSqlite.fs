@@ -197,10 +197,10 @@ type LigatureSqlite(path: string) =
             Set.ofList res
         | _ -> failwith "expected state"
 
-let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions =
-    baseActions.Add(
+let createStoreFns (store: LigatureSqlite) (baseFns: Fns) : Fns =
+    baseFns.Add(
         Term "merge",
-        Action.Stack(
+        Fn.Stack(
             { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
               examples = [ "{a b c} \"test\" merge" ]
               pre = "Literal Network"
@@ -215,7 +215,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
     )
     |> Map.add
         (Term "networks")
-        (Action.Stack(
+        (Fn.Stack(
             { doc = "Returns a quote of all the existing Networks."
               examples = [ "networks" ]
               pre = ""
@@ -224,7 +224,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
         ))
     |> Map.add
         (Term "add-network")
-        (Action.Stack(
+        (Fn.Stack(
             { doc = "Reads a Network name and creates a Network in the Store."
               examples = [ "\"test\" add-network" ]
               pre = "Literal"
@@ -238,7 +238,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
         ))
     |> Map.add
         (Term "remove-network")
-        (Action.Stack(
+        (Fn.Stack(
             { doc = "Reads a Network name and removes that Network from the Store."
               examples = [ "\"test\" remove-network" ]
               pre = "Literal"
@@ -252,7 +252,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
         ))
     |> Map.add
         (Term "delete")
-        (Action.Stack(
+        (Fn.Stack(
             { doc =
                 "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
               examples = []
@@ -262,7 +262,7 @@ let createStoreActions (store: LigatureSqlite) (baseActions: Actions) : Actions 
         ))
     |> Map.add
         (Term "read")
-        (Action.Stack(
+        (Fn.Stack(
             { doc = "Push the target Network on to the Stack."
               examples = [ "read" ]
               pre = "Literal"

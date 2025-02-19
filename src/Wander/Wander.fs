@@ -11,7 +11,7 @@ open Interpreter
 open Wander.Model
 open Library
 
-let run (actions: Actions) (stack: Variables) (input: string) : Result<Variables * Any, LigatureError> =
+let run (actions: Fns) (stack: Variables) (input: string) : Result<Variables * Any, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
@@ -25,7 +25,7 @@ let run (actions: Actions) (stack: Variables) (input: string) : Result<Variables
     with x ->
         error $"Error running script. {x}" None
 
-let runWithDefaults (script: string) = run stdActions Map.empty script
+let runWithDefaults (script: string) = run stdFns Map.empty script
 
 let printResult (result: Result<(Variables), LigatureError>) =
     match result with

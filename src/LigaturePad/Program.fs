@@ -33,7 +33,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdActions variables script.Current with
+                                              match run stdFns variables script.Current with
                                               | Ok (newVariables, res) ->
                                                   variables <- newVariables
                                                   failwith "TODO"
