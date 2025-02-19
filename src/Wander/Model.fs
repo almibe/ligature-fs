@@ -23,12 +23,13 @@ and [<RequireQualifiedAccess>] Any =
     | ResultSet of ResultSet
     | Comment of string
     | AnySet of AnySet
+    | Block of Script
 
-type Expression =
+and Expression =
     | Application of Any list
     | Assignment of Variable * Any
 
-type Script = Expression list
+and Script = Expression list
 
 type Arguments = Any list
 

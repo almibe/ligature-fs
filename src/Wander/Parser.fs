@@ -31,12 +31,12 @@ let partialQuoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
         return values
     }
 
-let commentNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let blockNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+        let! values = Gaze.attempt scriptNib gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Any.Comment(values.ToString())
+        return Any.Block(values)
     }
 
 let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -106,7 +106,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | _ -> Error(Gaze.GazeError.NoMatch)
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralSlotNib; networkNib; commentNib ]
+    takeFirst [ quoteAnyNib; elementLiteralSlotNib; networkNib; blockNib ]
 
 let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let variable = Gaze.attempt anyNib gaze

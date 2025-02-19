@@ -126,20 +126,20 @@ let stdFns: Fns =
           (Term "filter", filterFn)
           (Term "query", queryFn)
           (Term "count", countFn) ]
-          // (Term "is-consistent",
-          //  createFn
-          //      "Check if the Network on the top of the Stack is consistent."
-          //      [ Any.Network(
-          //            Set.ofList
-          //                [ (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), TermPattern.Slot(Slot "?concept"))
-          //                  (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept")) ]
-          //        )
-          //        Any.Network(
-          //            Set.ofList
-          //                [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept") ]
-          //        )
-          //        Any.Term(Term "query")
-          //        Any.Term(Term "is-empty") ]
-          //      []
-          //      ""
-          //      "") ]
+// (Term "is-consistent",
+//  createFn
+//      "Check if the Network on the top of the Stack is consistent."
+//      [ Any.Network(
+//            Set.ofList
+//                [ (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), TermPattern.Slot(Slot "?concept"))
+//                  (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept")) ]
+//        )
+//        Any.Network(
+//            Set.ofList
+//                [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept") ]
+//        )
+//        Any.Term(Term "query")
+//        Any.Term(Term "is-empty") ]
+//      []
+//      ""
+//      "") ]

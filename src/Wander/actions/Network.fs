@@ -50,11 +50,10 @@ let countFn =
           examples = [ "{} count 0 assert-equal" ]
           pre = "Network"
           post = "Literal" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | [ Any.Network n ] -> Ok([ Any.Term(Term((Set.count n).ToString())) ])
-    // | Any.Network n :: tail -> Ok(Any.Term(Term((Set.count n).ToString())) :: tail)
-    // | _ -> error "Network on stack required to call count." None
+        fun actions variables arguments ->
+            match arguments with
+            | [ Any.Network n ] -> Ok(variables, Any.Term(Term((Set.count n).ToString())))
+            | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
 // // | [ Any.Slot variable ] ->

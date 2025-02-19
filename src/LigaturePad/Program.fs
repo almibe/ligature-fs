@@ -34,10 +34,10 @@ module Main =
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
                                               match run stdFns variables script.Current with
-                                              | Ok (newVariables, res) ->
+                                              | Ok(newVariables, res) ->
                                                   variables <- newVariables
                                                   failwith "TODO"
-                                                  //result.Set $"{print stack}"
+                                              //result.Set $"{print stack}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom
