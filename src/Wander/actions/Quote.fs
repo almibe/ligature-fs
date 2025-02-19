@@ -27,10 +27,10 @@ let setFn =
           examples = []
           pre = "Quote"
           post = "Set" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Quote quote :: tail ->
-    //     let set = Set.ofList quote
-    //     Ok(Any.AnySet set :: tail)
-    // | _ -> error "Invalid call to set action." None
+        fun actions variables arguments ->
+          match arguments with
+          | [Any.Quote quote] ->
+              let set = Set.ofList quote
+              Ok(variables, Any.AnySet set)
+          | _ -> error "Invalid call to set action." None
     )

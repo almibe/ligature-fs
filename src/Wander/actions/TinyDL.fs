@@ -211,20 +211,20 @@ let instancesFn: Fn =
           examples = []
           pre = ""
           post = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Quote concepts :: Any.Network source :: tail ->
-    //     let result: AnySet =
-    //         List.fold
-    //             (fun state concept ->
-    //                 match concept with
-    //                 | Any.Term concept -> instances source concept
-    //                 | _ -> failwith "TODO")
-    //             (Set.empty)
-    //             concepts
+        fun actions variables arguments ->
+            match arguments with
+            | [Any.Quote concepts; Any.Network source] ->
+                let result: AnySet =
+                    List.fold
+                        (fun state concept ->
+                            match concept with
+                            | Any.Term concept -> instances source concept
+                            | _ -> failwith "TODO")
+                        (Set.empty)
+                        concepts
 
-    //     Ok(Any.AnySet result :: tail)
-    // | _ -> failwith "TODO"
+                Ok(variables, Any.AnySet result)
+            | _ -> failwith "TODO"
     )
 
 let instancesJsonFn: Fn =
@@ -270,21 +270,21 @@ let inferFn: Fn =
           examples = []
           pre = ""
           post = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | description :: network :: tail ->
-    //     let description =
-    //         match description with
-    //         | Any.Network n -> n
-    //         | _ -> failwith "TODO"
+        fun actions variables arguments ->
+            match arguments with
+            | [description; network] ->
+                let description =
+                    match description with
+                    | Any.Network n -> n
+                    | _ -> failwith "TODO"
 
-    //     let network =
-    //         match network with
-    //         | Any.Network n -> n
-    //         | _ -> failwith "TODO"
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | _ -> failwith "TODO"
 
-    //     match infer description network with
-    //     | Ok res -> Ok(Any.Network res :: tail)
-    //     | Error err -> error $"Error calling infer: {err}" None
-    // | _ -> error "Improper call to infer." None
+                match infer description network with
+                | Ok res -> Ok(variables, Any.Network res)
+                | Error err -> error $"Error calling infer: {err}" None
+            | _ -> error "Improper call to infer." None
     )

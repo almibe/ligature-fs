@@ -14,40 +14,40 @@ let assertEqualFn: Fn =
           examples = []
           pre = "Any Any"
           post = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | first :: second :: tail ->
-    //     // let first =
-    //     //     match first with
-    //     //     | Any.Quote quote ->
-    //     //         match evalQuote networks local modules variables quote with
-    //     //         | Ok((Some(res), _, _, _, _)) -> res
-    //     //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
-    //     //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-    //     //     | Any.Slot variable ->
-    //     //         match Map.tryFind variable variables with
-    //     //         | Some(res) -> res
-    //     //         | None -> failwith "Invalid first expression passed to assert-equal."
-    //     //     | _ -> first
+        fun actions variables arguments ->
+    match arguments with
+    | [first; second] ->
+        // let first =
+        //     match first with
+        //     | Any.Quote quote ->
+        //         match evalQuote networks local modules variables quote with
+        //         | Ok((Some(res), _, _, _, _)) -> res
+        //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
+        //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+        //     | Any.Slot variable ->
+        //         match Map.tryFind variable variables with
+        //         | Some(res) -> res
+        //         | None -> failwith "Invalid first expression passed to assert-equal."
+        //     | _ -> first
 
-    //     // let second =
-    //     //     match second with
-    //     //     | Any.Quote quote ->
-    //     //         match evalQuote networks local modules variables quote with
-    //     //         | Ok((Some(res), _, _, _, _)) -> res
-    //     //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
-    //     //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
-    //     //     | Any.Slot variable ->
-    //     //         match Map.tryFind variable variables with
-    //     //         | Some(res) -> res
-    //     //         | None -> failwith "Invalid second expression passed to assert-equal."
-    //     //     | _ -> second
+        // let second =
+        //     match second with
+        //     | Any.Quote quote ->
+        //         match evalQuote networks local modules variables quote with
+        //         | Ok((Some(res), _, _, _, _)) -> res
+        //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
+        //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
+        //     | Any.Slot variable ->
+        //         match Map.tryFind variable variables with
+        //         | Some(res) -> res
+        //         | None -> failwith "Invalid second expression passed to assert-equal."
+        //     | _ -> second
 
-    //     if first = second then
-    //         Ok(tail)
-    //     else
-    //         error $"assert-equal failed {printAny first} != {printAny second}" None
-    // | _ -> error $"assert-equal requires two values on stack." None
+        if first = second then
+            Ok(variables, Any.Network Set.empty)
+        else
+            error $"assert-equal failed {printAny first} != {printAny second}" None
+    | _ -> error $"assert-equal requires two values on stack." None
     )
 
 // let assertFailCommand: Command =
