@@ -21,8 +21,8 @@ let createEndpoints (store: LigatureSqlite) =
           task {
               let! body = Request.getBodyString ctx
 
-              match run (createStoreFns store Wander.Library.stdFns) List.empty body with
-              | Ok result -> Response.ofPlainText (printStackAsScript result) ctx
+              match run (createStoreFns store Wander.Library.stdFns) Map.empty body with
+              | Ok(variables, result) -> Response.ofPlainText (printAny result) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
 

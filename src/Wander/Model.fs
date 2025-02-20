@@ -18,7 +18,8 @@ and [<RequireQualifiedAccess>] Any =
     | Quote of Quote
     | Literal of string
     | Term of Term
-    | Network of Pattern
+    | Pattern of Pattern
+    | Network of Network
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Comment of string
@@ -67,6 +68,9 @@ let rec printAny (value: Any) : string =
     | Any.ValueSet(_) -> failwith "Not Implemented"
     | Any.Comment(_) -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
+    | Any.Variable(_) -> failwith "Not Implemented"
+    | Any.Pattern(_) -> failwith "Not Implemented"
+    | Any.Block(_) -> failwith "Not Implemented"
 
 and printQuote (quote: Quote) : string =
     (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" quote) + "]"
@@ -80,6 +84,8 @@ and writeTermPattern (value: TermPattern) =
     | TermPattern.Term(Term e) -> e
     | TermPattern.Slot(Slot v) -> v
 
+and writeTerm (Term t) = t
+
 and printResultSet (rs: ResultSet) =
     let mutable res = "ResultSet("
 
@@ -87,7 +93,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeTermPattern value) + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeTerm value) + ", ") variables
 
             res <- res + ")")
         rs
@@ -95,7 +101,21 @@ and printResultSet (rs: ResultSet) =
     res <- res + ")"
     res
 
-and printNetwork (network: Pattern) : string =
+and printPattern (network: Pattern) : string =
+    let mutable first = true
+
+    (Seq.fold
+        (fun state triple ->
+            if first then
+                first <- false
+                state + " " + (printTriplePattern triple) + ","
+            else
+                state + "\n  " + (printTriplePattern triple) + ",")
+        "{"
+        (network))
+    + " }"
+
+and printNetwork (network: Network) : string =
     let mutable first = true
 
     (Seq.fold
@@ -109,7 +129,7 @@ and printNetwork (network: Pattern) : string =
         (network))
     + " }"
 
-and printTriple ((element, attribute, value): TriplePattern) : string =
+and printTriplePattern ((element, attribute, value): TriplePattern) : string =
     let element =
         match element with
         | TermPattern.Term(Term e) -> e
@@ -126,6 +146,8 @@ and printTriple ((element, attribute, value): TriplePattern) : string =
         | TermPattern.Slot(Slot v) -> v
 
     $"{element} {attribute} {value}"
+
+and printTriple ((Term(element), Term(attribute), Term(value)): Triple) : string = $"{element} {attribute} {value}"
 
 // let printStack (stack: Variables) : string =
 //     if List.isEmpty stack then

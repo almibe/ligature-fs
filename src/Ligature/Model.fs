@@ -20,7 +20,7 @@ type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, TermPattern>
+and ValueSet = Map<Slot, Term>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term

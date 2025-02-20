@@ -25,27 +25,13 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse "{a b c}")
-                  (Ok
-                      [ Application
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ (TermPattern.Term(Term "a"),
-                                         TermPattern.Term(Term "b"),
-                                         TermPattern.Term(Term "c")) ]
-                              ) ] ])
+                  (Ok [ Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Term "c") ]) ] ])
                   ""
           testCase "read network with attribute"
           <| fun _ ->
               Expect.equal
                   (parse "{a b \"c\"}")
-                  (Ok
-                      [ Application
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ TermPattern.Term(Term "a"),
-                                        TermPattern.Term(Term "b"),
-                                        TermPattern.Term(Term "c") ]
-                              ) ] ])
+                  (Ok [ Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ] ])
                   ""
           testCase "read empty quote"
           <| fun _ -> Expect.equal (parse "[]") (Ok [ Application [ Any.Quote [] ] ]) ""
@@ -58,7 +44,7 @@ let tests =
                   (parse "{?a b c}")
                   (Ok
                       [ Application
-                            [ Any.Network(
+                            [ Any.Pattern(
                                   Set.ofList
                                       [ TermPattern.Slot(Slot "?a"),
                                         TermPattern.Term(Term "b"),
@@ -70,18 +56,6 @@ let tests =
               Expect.equal
                   (parse "{a b c}, {d e f}")
                   (Ok
-                      [ Application
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ TermPattern.Term(Term "a"),
-                                        TermPattern.Term(Term "b"),
-                                        TermPattern.Term(Term "c") ]
-                              ) ]
-                        Application
-                            [ Any.Network(
-                                  Set.ofList
-                                      [ TermPattern.Term(Term "d"),
-                                        TermPattern.Term(Term "e"),
-                                        TermPattern.Term(Term "f") ]
-                              ) ] ])
+                      [ Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
+                        Application [ Any.Network(Set.ofList [ Term "d", Term "e", Term "f" ]) ] ])
                   "" ]

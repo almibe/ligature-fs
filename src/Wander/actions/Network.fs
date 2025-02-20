@@ -16,32 +16,32 @@ let unionFn =
           pre = "Network Network"
           post = "Network" },
         fun actions variables arguments ->
-    match arguments with
-    | [Any.Network left; Any.Network right] ->
-        // let left =
-        //     match left with
-        //     | Any.Network n -> n
-        //     | Any.Slot v ->
-        //         match Map.tryFind v variables with
-        //         | Some(Any.Network res) -> res
-        //         | _ -> failwith "TODO"
-        //     | _ -> failwith "TODO"
+            match arguments with
+            | [ Any.Network left; Any.Network right ] ->
+                // let left =
+                //     match left with
+                //     | Any.Network n -> n
+                //     | Any.Slot v ->
+                //         match Map.tryFind v variables with
+                //         | Some(Any.Network res) -> res
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-        // let right =
-        //     match right with
-        //     | Any.Network n -> n
-        //     | Any.Slot v ->
-        //         match Map.tryFind v variables with
-        //         | Some(Any.Network res) -> res
-        //         | _ -> failwith "TODO"
-        //     | Any.Quote quote ->
-        //         match evalQuote networks local modules variables quote with
-        //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
-        //         | _ -> failwith "TODO"
-        //     | _ -> failwith "TODO"
-        let result = Set.union left right |> Any.Network
-        Ok(variables, result)
-    | _ -> failwith $"Calls to union requires two Networks on the stack."
+                // let right =
+                //     match right with
+                //     | Any.Network n -> n
+                //     | Any.Slot v ->
+                //         match Map.tryFind v variables with
+                //         | Some(Any.Network res) -> res
+                //         | _ -> failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
+                let result = Set.union left right |> Any.Network
+                Ok(variables, result)
+            | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
 
 let countFn =
@@ -195,43 +195,43 @@ let filterFn =
           pre = "Pattern Network"
           post = "Network" },
         fun actions variables arguments ->
-          match arguments with
-          | [Any.Network pattern; Any.Network source] ->
-              // let pattern =
-              //     match pattern with
-              //     | Any.Network n -> n
-              //     | Any.Slot v ->
-              //         if variables.ContainsKey v then
-              //             match variables[v] with
-              //             | Any.Network n -> n
-              //             | _ -> failwith "TODO"
-              //         else
-              //             failwith "TODO"
-              //     | Any.Quote quote ->
-              //         match evalQuote networks local modules variables quote with
-              //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-              //         | _ -> failwith "TODO"
-              //     | _ -> failwith "TODO"
+            match arguments with
+            | [ Any.Pattern pattern; Any.Network source ] ->
+                // let pattern =
+                //     match pattern with
+                //     | Any.Network n -> n
+                //     | Any.Slot v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-              // let source =
-              //     match source with
-              //     | Any.Network n -> n
-              //     | Any.Slot v ->
-              //         if variables.ContainsKey v then
-              //             match variables[v] with
-              //             | Any.Network n -> n
-              //             | _ -> failwith "TODO"
-              //         else
-              //             failwith "TODO"
-              //     | Any.Quote quote ->
-              //         match evalQuote networks local modules variables quote with
-              //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-              //         | _ -> failwith "TODO"
-              //     | _ -> failwith "TODO"
+                // let source =
+                //     match source with
+                //     | Any.Network n -> n
+                //     | Any.Slot v ->
+                //         if variables.ContainsKey v then
+                //             match variables[v] with
+                //             | Any.Network n -> n
+                //             | _ -> failwith "TODO"
+                //         else
+                //             failwith "TODO"
+                //     | Any.Quote quote ->
+                //         match evalQuote networks local modules variables quote with
+                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+                //         | _ -> failwith "TODO"
+                //     | _ -> failwith "TODO"
 
-              let results = filter pattern source
-              Ok(variables, Any.Network results)
-          | _ -> error "Invalid call to filter" None
+                let results = filter pattern source
+                Ok(variables, Any.Network results)
+            | _ -> error "Invalid call to filter" None
     )
 
 let ifEmptyFn =

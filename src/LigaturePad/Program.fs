@@ -36,8 +36,7 @@ module Main =
                                               match run stdFns variables script.Current with
                                               | Ok(newVariables, res) ->
                                                   variables <- newVariables
-                                                  failwith "TODO"
-                                              //result.Set $"{print stack}"
+                                                  result.Set $"{printAny res}"
                                               | Error(err) -> result.Set(err.UserMessage)) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom

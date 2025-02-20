@@ -81,39 +81,39 @@ let rec infer (tBox: Pattern) (aBox: Pattern) : Result<Pattern, LigatureError> =
 
     if aBox = res then Ok res else infer tBox res
 
-let extract (source: Pattern) (id: Term) : Pattern =
-    let mutable checkedIds = Set.ofList [ id ]
-    let mutable toCheck = [ id ]
-    let mutable result = Set.empty
+let extract (source: Network) (id: Term) : Network = failwith "TODO"
+// let mutable checkedIds = Set.ofList [ id ]
+// let mutable toCheck = [ id ]
+// let mutable result = Set.empty
 
-    while not toCheck.IsEmpty do
-        let current = toCheck.Head
-        toCheck <- toCheck.Tail
+// while not toCheck.IsEmpty do
+//     let current = toCheck.Head
+//     toCheck <- toCheck.Tail
 
-        let matched =
-            Set.filter
-                (fun (element, a, v) ->
-                    match element with
-                    | TermPattern.Term e ->
-                        if e = current then
-                            match v with
-                            | TermPattern.Term e ->
-                                if not (checkedIds.Contains(e)) then
-                                    toCheck <- e :: toCheck
-                                    checkedIds <- Set.add e checkedIds
-                                else
-                                    ()
-                            | _ -> ()
+//     let matched =
+//         Set.filter
+//             (fun (element, a, v) ->
+//                 match element with
+//                 | TermPattern.Term e ->
+//                     if e = current then
+//                         match v with
+//                         | TermPattern.Term e ->
+//                             if not (checkedIds.Contains(e)) then
+//                                 toCheck <- e :: toCheck
+//                                 checkedIds <- Set.add e checkedIds
+//                             else
+//                                 ()
+//                         | _ -> ()
 
-                            true
-                        else
-                            false
-                    | _ -> false)
-                source
+//                         true
+//                     else
+//                         false
+//                 | _ -> false)
+//             source
 
-        result <- Set.union matched result
+//     result <- Set.union matched result
 
-    result
+// result
 
 let extractFn: Fn =
     Fn(
@@ -161,22 +161,22 @@ let rec createJsonView (source: Pattern) (Term root) : JsonView =
     let view = { Id = root; Attrs = attrs }
     view
 
-let extractJson (ids: Quote) (source: Pattern) : string =
-    let mutable result = "["
+let extractJson (ids: Quote) (source: Pattern) : string = failwith "TODO"
+// let mutable result = "["
 
-    List.iteri
-        (fun index id ->
-            match id with
-            | Any.Term id ->
-                if (index > 0) then
-                    result <- result + ","
+// List.iteri
+//     (fun index id ->
+//         match id with
+//         | Any.Term id ->
+//             if (index > 0) then
+//                 result <- result + ","
 
-                result <- result + (createJsonView (extract source id) id |> writeJsonView)
-            | _ -> failwith "TODO")
-        ids
+//             result <- result + (createJsonView (extract source id) id |> writeJsonView)
+//         | _ -> failwith "TODO")
+//     ids
 
-    result <- result + "]"
-    result
+// result <- result + "]"
+// result
 
 let extractJsonFn: Fn =
     Fn(
@@ -192,18 +192,18 @@ let extractJsonFn: Fn =
     // | _ -> failwith "TODO"
     )
 
-let instances (source: Pattern) (concept: Term) : AnySet =
-    Set.fold
-        (fun state triple ->
-            match triple with
-            | TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term conceptToCheck ->
-                if conceptToCheck = concept then
-                    Set.add (Any.Network(extract source element)) state
-                else
-                    state
-            | _ -> state)
-        Set.empty
-        source
+let instances (source: Network) (concept: Term) : AnySet = failwith "TODO"
+// Set.fold
+//     (fun state triple ->
+//         match triple with
+//         | TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term conceptToCheck ->
+//             if conceptToCheck = concept then
+//                 Set.add (Any.Network(extract source element)) state
+//             else
+//                 state
+//         | _ -> state)
+//     Set.empty
+//     source
 
 let instancesFn: Fn =
     Fn(
@@ -213,7 +213,7 @@ let instancesFn: Fn =
           post = "" },
         fun actions variables arguments ->
             match arguments with
-            | [Any.Quote concepts; Any.Network source] ->
+            | [ Any.Quote concepts; Any.Network source ] ->
                 let result: AnySet =
                     List.fold
                         (fun state concept ->
@@ -270,21 +270,21 @@ let inferFn: Fn =
           examples = []
           pre = ""
           post = "" },
-        fun actions variables arguments ->
-            match arguments with
-            | [description; network] ->
-                let description =
-                    match description with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+        fun actions variables arguments -> failwith "TODO"
+    // match arguments with
+    // | [description; network] ->
+    //     let description =
+    //         match description with
+    //         | Any.Network n -> n
+    //         | _ -> failwith "TODO"
 
-                let network =
-                    match network with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+    //     let network =
+    //         match network with
+    //         | Any.Network n -> n
+    //         | _ -> failwith "TODO"
 
-                match infer description network with
-                | Ok res -> Ok(variables, Any.Network res)
-                | Error err -> error $"Error calling infer: {err}" None
-            | _ -> error "Improper call to infer." None
+    //     match infer description network with
+    //     | Ok res -> Ok(variables, Any.Network res)
+    //     | Error err -> error $"Error calling infer: {err}" None
+    // | _ -> error "Improper call to infer." None
     )

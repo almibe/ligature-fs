@@ -122,7 +122,7 @@ type LigatureSqlite(path: string) =
             Set.iter
                 (fun triple ->
                     match triple with
-                    | (TermPattern.Term e, TermPattern.Term a, TermPattern.Term v) ->
+                    | (e, a, v) ->
                         let eid = this.fetchOrCreateTerm e
                         let aid = this.fetchOrCreateTerm a
                         let vid = this.fetchOrCreateTerm v
@@ -192,7 +192,7 @@ type LigatureSqlite(path: string) =
                     let entity = this.readTermId (eid)
                     let attribute = this.readTermId (aid)
                     let value = this.readTermId (vid)
-                    (TermPattern.Term entity, TermPattern.Term attribute, TermPattern.Term value))
+                    (entity, attribute, value))
 
             Set.ofList res
         | _ -> failwith "expected state"
@@ -200,14 +200,14 @@ type LigatureSqlite(path: string) =
 let createStoreFns (store: LigatureSqlite) (baseFns: Fns) : Fns =
     baseFns.Add(
         Term "merge",
-        Fn.Stack(
+        Fn(
             { doc = "Reads a Network and Name off the Stack and merges that Network into the target Network."
               examples = [ "{a b c} \"test\" merge" ]
               pre = "Literal Network"
               post = "" },
-            fun stack ->
-                match stack with
-                | Any.Literal networkName :: Any.Network network :: tail ->
+            fun actions variables arguments ->
+                match arguments with
+                | [ Any.Literal networkName; Any.Network network ] ->
                     store.add networkName network
                     Ok tail
                 | _ -> failwith "TODO"

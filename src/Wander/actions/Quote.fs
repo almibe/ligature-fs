@@ -28,9 +28,9 @@ let setFn =
           pre = "Quote"
           post = "Set" },
         fun actions variables arguments ->
-          match arguments with
-          | [Any.Quote quote] ->
-              let set = Set.ofList quote
-              Ok(variables, Any.AnySet set)
-          | _ -> error "Invalid call to set action." None
+            match arguments with
+            | [ Any.Quote quote ] ->
+                let set = Set.ofList quote
+                Ok(variables, Any.AnySet set)
+            | _ -> error "Invalid call to set action." None
     )
