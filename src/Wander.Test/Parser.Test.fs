@@ -38,7 +38,7 @@ let tests =
           testCase "read basic block"
           <| fun _ ->
               Expect.equal (parse "(2)") (Ok [ Application [ Any.Block [ Application [ Any.Term(Term "2") ] ] ] ]) ""
-          testCase "read call with pattern passed"
+          testCase "read pattern"
           <| fun _ ->
               Expect.equal
                   (parse "{?a b c}")

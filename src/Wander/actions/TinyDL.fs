@@ -40,41 +40,41 @@ and writeJsonView (view: JsonView) : string =
     res <- res + "}"
     res
 
-let rec infer (tBox: Pattern) (aBox: Pattern) : Result<Pattern, LigatureError> =
+let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
     let mutable res = aBox
 
     Set.iter
         (fun tStatement ->
             Set.iter
                 (fun aStatement ->
-                    match (tStatement, aStatement) with
-                    | (TermPattern.Term subconcept,
-                       TermPattern.Term(Term "subconcept-of"),
-                       TermPattern.Term superconcept),
-                      (TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term concept) when
+                    match tStatement, aStatement with
+                    | (subconcept,
+                       Term "subconcept-of",
+                       superconcept),
+                      (element, Term ":", concept) when
                         subconcept = concept
                         ->
                         res <-
                             Set.add
-                                (TermPattern.Term element, TermPattern.Term(Term ":"), TermPattern.Term superconcept)
+                                (element, Term ":", superconcept)
                                 res
-                    | (TermPattern.Term firstRole,
-                       TermPattern.Term(Term "tdl.inverse-of"),
-                       TermPattern.Term secondRole),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = firstRole ->
+                    | (firstRole,
+                       Term "tdl.inverse-of",
+                       secondRole),
+                      (first, role, second) when role = firstRole ->
                         res <-
-                            Set.add (TermPattern.Term second, TermPattern.Term secondRole, TermPattern.Term first) res
-                    | (TermPattern.Term firstRole,
-                       TermPattern.Term(Term "tdl.inverse-of"),
-                       TermPattern.Term secondRole),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = secondRole ->
+                            Set.add (second, secondRole, first) res
+                    | (firstRole,
+                       Term "tdl.inverse-of",
+                       secondRole),
+                      (first, role, second) when role = secondRole ->
                         res <-
-                            Set.add (TermPattern.Term second, TermPattern.Term firstRole, TermPattern.Term first) res
-                    | (TermPattern.Term roleName,
-                       TermPattern.Term(Term ":"),
-                       TermPattern.Term(Term "tdl.Is-Symmetrical")),
-                      (TermPattern.Term first, TermPattern.Term role, TermPattern.Term second) when role = roleName ->
-                        res <- Set.add (TermPattern.Term second, TermPattern.Term role, TermPattern.Term first) res
+                            Set.add (second, firstRole, first) res
+                    | (roleName,
+                       Term ":",
+                       Term "tdl.Is-Symmetrical"),
+                      (first, role, second) when role = roleName ->
+                        res <- Set.add (second, role, first) res
                     | _ -> ())
                 aBox)
         tBox
@@ -270,21 +270,21 @@ let inferFn: Fn =
           examples = []
           pre = ""
           post = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match arguments with
-    // | [description; network] ->
-    //     let description =
-    //         match description with
-    //         | Any.Network n -> n
-    //         | _ -> failwith "TODO"
+        fun actions variables arguments ->
+            match arguments with
+            | [description; network] ->
+                let description =
+                    match description with
+                    | Any.Network n -> n
+                    | _ -> failwith "TODO"
 
-    //     let network =
-    //         match network with
-    //         | Any.Network n -> n
-    //         | _ -> failwith "TODO"
+                let network =
+                    match network with
+                    | Any.Network n -> n
+                    | _ -> failwith "TODO"
 
-    //     match infer description network with
-    //     | Ok res -> Ok(variables, Any.Network res)
-    //     | Error err -> error $"Error calling infer: {err}" None
-    // | _ -> error "Improper call to infer." None
+                match infer description network with
+                | Ok res -> Ok(variables, Any.Network res)
+                | Error err -> error $"Error calling infer: {err}" None
+            | _ -> error "Improper call to infer." None
     )
