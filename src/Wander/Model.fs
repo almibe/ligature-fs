@@ -16,7 +16,6 @@ and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
     | Variable of Variable
     | Quote of Quote
-    | Literal of string
     | Term of Term
     | Pattern of Pattern
     | Network of Network
@@ -60,7 +59,6 @@ let encodeString string =
 let rec printAny (value: Any) : string =
     match value with
     | Any.Term(Term(value)) -> encodeString value
-    | Any.Literal(value) -> encodeString value
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
     | Any.Slot(Slot variable) -> variable

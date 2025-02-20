@@ -57,7 +57,7 @@ and executeApplication
                         | Any.Block block ->
                             match evalScript actions variables block with
                             | Ok(_, res) -> res
-                            | _ -> failwith "TODO"
+                            | Error err -> failwith $"Error: {err.UserMessage}"
                         | _ -> value)
                     tail)
         | None -> failwith "TODO"
