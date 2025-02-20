@@ -43,7 +43,7 @@ and FnDoc =
       pre: string
       post: string }
 
-and Fn = Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Variables * Any, LigatureError>)
+and Fn = Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Any, LigatureError>)
 
 and Slots = Map<Slot, Any>
 

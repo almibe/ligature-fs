@@ -11,16 +11,16 @@ open Interpreter
 open Wander.Model
 open Library
 
-let run (actions: Fns) (stack: Variables) (input: string) : Result<Variables * Any, LigatureError> =
+let run (actions: Fns) (stack: Variables) (input: string) : Result<Any, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok script ->
                 match evalScript actions stack script with
-                | Ok(stack) -> Ok(stack)
+                | Ok res -> Ok res
                 | Error err -> Error err
-            | Error(err) -> error $"Error parsing.\n{err}" None
+            | Error err -> error $"Error parsing.\n{err}" None
         | Error _ -> error "Error tokenizing." None
     with x ->
         error $"Error running script. {x}" None
@@ -29,5 +29,5 @@ let runWithDefaults (script: string) = run stdFns Map.empty script
 
 let printResult (result: Result<(Variables), LigatureError>) =
     match result with
-    | Ok(stack) -> failwith "TODO" //printStack stack
-    | Error(err) -> $"Error {err.UserMessage}"
+    | Ok stack -> failwith "TODO" //printStack stack
+    | Error err -> $"Error {err.UserMessage}"

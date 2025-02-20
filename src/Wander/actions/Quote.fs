@@ -31,6 +31,6 @@ let setFn =
             match arguments with
             | [ Any.Quote quote ] ->
                 let set = Set.ofList quote
-                Ok(variables, Any.AnySet set)
+                Ok(Any.AnySet set)
             | _ -> error "Invalid call to set action." None
     )

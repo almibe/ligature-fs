@@ -148,7 +148,8 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
     | Ok res -> Ok(Application res)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let scriptNib = optional (repeatSep (takeFirst [ applicationNib; assignmentNib ]) Token.Comma)
+let scriptNib =
+    optional (repeatSep (takeFirst [ applicationNib; assignmentNib ]) Token.Comma)
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

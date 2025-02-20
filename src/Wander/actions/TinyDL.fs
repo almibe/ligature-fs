@@ -48,32 +48,15 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
             Set.iter
                 (fun aStatement ->
                     match tStatement, aStatement with
-                    | (subconcept,
-                       Term "subconcept-of",
-                       superconcept),
-                      (element, Term ":", concept) when
+                    | (subconcept, Term "subconcept-of", superconcept), (element, Term ":", concept) when
                         subconcept = concept
                         ->
-                        res <-
-                            Set.add
-                                (element, Term ":", superconcept)
-                                res
-                    | (firstRole,
-                       Term "tdl.inverse-of",
-                       secondRole),
-                      (first, role, second) when role = firstRole ->
-                        res <-
-                            Set.add (second, secondRole, first) res
-                    | (firstRole,
-                       Term "tdl.inverse-of",
-                       secondRole),
-                      (first, role, second) when role = secondRole ->
-                        res <-
-                            Set.add (second, firstRole, first) res
-                    | (roleName,
-                       Term ":",
-                       Term "tdl.Is-Symmetrical"),
-                      (first, role, second) when role = roleName ->
+                        res <- Set.add (element, Term ":", superconcept) res
+                    | (firstRole, Term "tdl.inverse-of", secondRole), (first, role, second) when role = firstRole ->
+                        res <- Set.add (second, secondRole, first) res
+                    | (firstRole, Term "tdl.inverse-of", secondRole), (first, role, second) when role = secondRole ->
+                        res <- Set.add (second, firstRole, first) res
+                    | (roleName, Term ":", Term "tdl.Is-Symmetrical"), (first, role, second) when role = roleName ->
                         res <- Set.add (second, role, first) res
                     | _ -> ())
                 aBox)
@@ -269,7 +252,7 @@ let inferFn: Fn =
           post = "" },
         fun actions variables arguments ->
             match arguments with
-            | [description; network] ->
+            | [ description; network ] ->
                 let description =
                     match description with
                     | Any.Network n -> n
@@ -281,7 +264,7 @@ let inferFn: Fn =
                     | _ -> failwith "TODO"
 
                 match infer description network with
-                | Ok res -> Ok(variables, Any.Network res)
+                | Ok res -> Ok(Any.Network res)
                 | Error err -> error $"Error calling infer: {err}" None
             | _ -> error "Improper call to infer." None
     )

@@ -205,73 +205,73 @@ let createStoreFns (store: LigatureSqlite) (baseFns: Fns) : Fns =
               examples = [ "{a b c} \"test\" merge" ]
               pre = "Literal Network"
               post = "" },
-            fun actions variables arguments ->
-                match arguments with
-                | [ Any.Literal networkName; Any.Network network ] ->
-                    store.add networkName network
-                    Ok tail
-                | _ -> failwith "TODO"
+            fun actions variables arguments -> failwith "TODO"
+        // match arguments with
+        // | [ Any.Term (Term networkName); Any.Network network ] ->
+        //     store.add networkName network
+        //     Ok tail
+        // | _ -> failwith "TODO"
         )
     )
-    |> Map.add
-        (Term "networks")
-        (Fn.Stack(
-            { doc = "Returns a quote of all the existing Networks."
-              examples = [ "networks" ]
-              pre = ""
-              post = "Quote" },
-            fun stack -> Ok(Any.Quote(store.networks ()) :: stack)
-        ))
-    |> Map.add
-        (Term "add-network")
-        (Fn.Stack(
-            { doc = "Reads a Network name and creates a Network in the Store."
-              examples = [ "\"test\" add-network" ]
-              pre = "Literal"
-              post = "" },
-            fun stack ->
-                match stack with
-                | Any.Literal name :: tail ->
-                    store.AddNetwork(name)
-                    Ok(tail)
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "remove-network")
-        (Fn.Stack(
-            { doc = "Reads a Network name and removes that Network from the Store."
-              examples = [ "\"test\" remove-network" ]
-              pre = "Literal"
-              post = "" },
-            fun stack ->
-                match stack with
-                | Any.Literal name :: tail ->
-                    store.RemoveNetwork(name)
-                    Ok(tail)
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "delete")
-        (Fn.Stack(
-            { doc =
-                "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
-              examples = []
-              pre = "Network"
-              post = "" },
-            fun stack -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "read")
-        (Fn.Stack(
-            { doc = "Push the target Network on to the Stack."
-              examples = [ "read" ]
-              pre = "Literal"
-              post = "Network" },
-            fun stack ->
-                match stack with
-                | Any.Literal networkName :: tail -> Ok(Any.Network(store.read networkName) :: tail)
-                | _ -> failwith "TODO"
-        ))
+// |> Map.add
+//     (Term "networks")
+//     (Fn.Stack(
+//         { doc = "Returns a quote of all the existing Networks."
+//           examples = [ "networks" ]
+//           pre = ""
+//           post = "Quote" },
+//         fun stack -> Ok(Any.Quote(store.networks ()) :: stack)
+//     ))
+// |> Map.add
+//     (Term "add-network")
+//     (Fn(
+//         { doc = "Reads a Network name and creates a Network in the Store."
+//           examples = [ "\"test\" add-network" ]
+//           pre = "Literal"
+//           post = "" },
+//         fun stack ->
+//             match stack with
+//             | Any.Term name :: tail ->
+//                 store.AddNetwork(name)
+//                 Ok(tail)
+//             | _ -> failwith "TODO"
+//     ))
+// |> Map.add
+//     (Term "remove-network")
+//     (Fn.Stack(
+//         { doc = "Reads a Network name and removes that Network from the Store."
+//           examples = [ "\"test\" remove-network" ]
+//           pre = "Literal"
+//           post = "" },
+//         fun stack ->
+//             match stack with
+//             | Any.Literal name :: tail ->
+//                 store.RemoveNetwork(name)
+//                 Ok(tail)
+//             | _ -> failwith "TODO"
+//     ))
+// |> Map.add
+//     (Term "delete")
+//     (Fn.Stack(
+//         { doc =
+//             "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
+//           examples = []
+//           pre = "Network"
+//           post = "" },
+//         fun stack -> failwith "TODO"
+//     ))
+// |> Map.add
+//     (Term "read")
+//     (Fn.Stack(
+//         { doc = "Push the target Network on to the Stack."
+//           examples = [ "read" ]
+//           pre = "Literal"
+//           post = "Network" },
+//         fun stack ->
+//             match stack with
+//             | Any.Literal networkName :: tail -> Ok(Any.Network(store.read networkName) :: tail)
+//             | _ -> failwith "TODO"
+// ))
 
 // let openDefault () : LigatureEngine =
 //     let home =

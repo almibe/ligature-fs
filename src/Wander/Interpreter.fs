@@ -9,9 +9,9 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Result<Variables * Any, LigatureError> =
+let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Result<Any, LigatureError> =
     match script with
-    | [] -> Ok(variables, Any.Network Set.empty)
+    | [] -> Ok(Any.Network Set.empty)
     | [ head ] ->
         match head with
         | Assignment(variable, value) -> failwith "TODO"
@@ -21,7 +21,7 @@ let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Resu
         | Assignment(variable, value) -> failwith "TODO"
         | Application application ->
             match executeApplication actions variables application with
-            | Ok(variables, _) -> evalScript actions variables tail
+            | Ok _ -> evalScript actions variables tail
             | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
@@ -38,13 +38,9 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some(action) -> Some(action)
     | None -> None
 
-and executeApplication
-    (actions: Fns)
-    (variables: Variables)
-    (application: Any list)
-    : Result<Variables * Any, LigatureError> =
+and executeApplication (actions: Fns) (variables: Variables) (application: Any list) : Result<Any, LigatureError> =
     match application with
-    | [ Any.Network network ] -> Ok(variables, Any.Network network)
+    | [ Any.Network network ] -> Ok(Any.Network network)
     | Any.Term fn :: tail ->
         match actions.TryFind fn with
         | Some(Fn(_, fn)) ->
@@ -56,7 +52,7 @@ and executeApplication
                         match value with
                         | Any.Block block ->
                             match evalScript actions variables block with
-                            | Ok(_, res) -> res
+                            | Ok(res) -> res
                             | Error err -> failwith $"Error: {err.UserMessage}"
                         | _ -> value)
                     tail)

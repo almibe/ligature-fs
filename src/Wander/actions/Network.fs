@@ -40,7 +40,7 @@ let unionFn =
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
                 let result = Set.union left right |> Any.Network
-                Ok(variables, result)
+                Ok result
             | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
 
@@ -52,7 +52,7 @@ let countFn =
           post = "Literal" },
         fun actions variables arguments ->
             match arguments with
-            | [ Any.Network n ] -> Ok(variables, Any.Term(Term((Set.count n).ToString())))
+            | [ Any.Network n ] -> Ok(Any.Term(Term((Set.count n).ToString())))
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
@@ -230,7 +230,7 @@ let filterFn =
                 //     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok(variables, Any.Network results)
+                Ok(Any.Network results)
             | _ -> error "Invalid call to filter" None
     )
 
