@@ -24,13 +24,13 @@ let tests =
     testList
         "Interpreter Test"
         [ testCase "Run empty script"
-          <| fun _ -> Expect.equal (runScript "") (Ok(Map.empty, Any.Network Set.empty)) ""
+          <| fun _ -> Expect.equal (runScript "") (Ok(Any.Network Set.empty)) ""
           testCase "read call with empty network passed"
-          <| fun _ -> Expect.equal (runScript "{}") (Ok(Map.empty, Any.Network Set.empty)) ""
+          <| fun _ -> Expect.equal (runScript "{}") (Ok(Any.Network Set.empty)) ""
           testCase "read call with single count network passed"
-          <| fun _ -> Expect.equal (runScript "count {a b c}") (Ok(Map.empty, Any.Term(Term "1"))) ""
+          <| fun _ -> Expect.equal (runScript "count {a b c}") (Ok(Any.Term(Term "1"))) ""
           testCase "read call with single count network expression passed"
-          <| fun _ -> Expect.equal (runScript "count ({a b c})") (Ok(Map.empty, Any.Term(Term "1"))) "" ]
+          <| fun _ -> Expect.equal (runScript "count ({a b c})") (Ok(Any.Term(Term "1"))) "" ]
 //   testCase "read network with attribute"
 //   <| fun _ ->
 //       Expect.equal

@@ -24,8 +24,9 @@ and [<RequireQualifiedAccess>] Any =
     | Comment of string
     | AnySet of AnySet
     | Block of Script
+    | Pipe
 
-and Expression =
+and [<RequireQualifiedAccess>] Expression =
     | Application of Any list
     | Assignment of Variable * Any
 

@@ -9,16 +9,16 @@ open Wander.Model
 open Wander.Interpreter
 
 
-let popFn: Fn =
+let idFn: Fn =
     Fn(
-        { doc = "Remove top Term from Stack."
+        { doc = "Return the value passed."
           examples = []
-          pre = "Term"
-          post = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | [] -> error "Cannot pop an empty Stack." None
-    // | _ :: tail -> Ok(tail)
+          pre = "Any"
+          post = "Any" },
+        fun _ _ arguments ->
+            match arguments with
+            | [ value ] -> Ok value
+            | _ -> failwith "TODO"
     )
 
 // let importCommand: Command =

@@ -54,6 +54,12 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Quote values
     }
 
+let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.Pipe) gaze
+        return Any.Pipe
+    }
+
 let triplePatternNib (gaze: Gaze.Gaze<Token>) : Result<(TermPattern * TermPattern * TermPattern), Gaze.GazeError> =
     let entity = elementPatternNib gaze
     let attribute = elementPatternNib gaze
@@ -130,7 +136,13 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | _ -> Error Gaze.GazeError.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralSlotNib; networkNib; patternNib; blockNib ]
+    takeFirst
+        [ quoteAnyNib
+          elementLiteralSlotNib
+          networkNib
+          patternNib
+          blockNib
+          pipeNib ]
 
 let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let variable = Gaze.attempt anyNib gaze
@@ -145,7 +157,7 @@ let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> 
 
 let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match repeat anyNib gaze with
-    | Ok res -> Ok(Application res)
+    | Ok res -> Ok(Expression.Application res)
     | _ -> Error Gaze.GazeError.NoMatch
 
 let scriptNib =

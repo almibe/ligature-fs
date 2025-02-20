@@ -20,30 +20,33 @@ let tests =
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "read call with empty network passed"
-          <| fun _ -> Expect.equal (parse "{}") (Ok [ Application [ Any.Network Set.empty ] ]) ""
+          <| fun _ -> Expect.equal (parse "{}") (Ok [ Expression.Application [ Any.Network Set.empty ] ]) ""
           testCase "read call with single count network passed"
           <| fun _ ->
               Expect.equal
                   (parse "{a b c}")
-                  (Ok [ Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Term "c") ]) ] ])
+                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Term "c") ]) ] ])
                   ""
           testCase "read network with attribute"
           <| fun _ ->
               Expect.equal
                   (parse "{a b \"c\"}")
-                  (Ok [ Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ] ])
+                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ] ])
                   ""
           testCase "read empty quote"
-          <| fun _ -> Expect.equal (parse "[]") (Ok [ Application [ Any.Quote [] ] ]) ""
+          <| fun _ -> Expect.equal (parse "[]") (Ok [ Expression.Application [ Any.Quote [] ] ]) ""
           testCase "read basic block"
           <| fun _ ->
-              Expect.equal (parse "(2)") (Ok [ Application [ Any.Block [ Application [ Any.Term(Term "2") ] ] ] ]) ""
+              Expect.equal
+                  (parse "(2)")
+                  (Ok [ Expression.Application [ Any.Block [ Expression.Application [ Any.Term(Term "2") ] ] ] ])
+                  ""
           testCase "read pattern"
           <| fun _ ->
               Expect.equal
                   (parse "{?a b c}")
                   (Ok
-                      [ Application
+                      [ Expression.Application
                             [ Any.Pattern(
                                   Set.ofList
                                       [ TermPattern.Slot(Slot "?a"),
@@ -56,6 +59,6 @@ let tests =
               Expect.equal
                   (parse "{a b c}, {d e f}")
                   (Ok
-                      [ Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
-                        Application [ Any.Network(Set.ofList [ Term "d", Term "e", Term "f" ]) ] ])
+                      [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
+                        Expression.Application [ Any.Network(Set.ofList [ Term "d", Term "e", Term "f" ]) ] ])
                   "" ]

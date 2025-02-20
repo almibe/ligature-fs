@@ -120,7 +120,7 @@ let stdFns: Fns =
           (Term "docs", docsFn)
           (Term "prepend", prependFn)
           (Term "set", setFn)
-          (Term "pop", popFn)
+          (Term "id", idFn)
           (Term "if-empty", ifEmptyFn)
           (Term "is-empty", isEmptyFn)
           (Term "filter", filterFn)

@@ -129,16 +129,16 @@ let elementTokenNibbler =
         chars
         |> List.concat
         |> implode
-        |> (fun value ->
+        |> fun value ->
             if value.StartsWith "?" then
                 Token.Slot value
             else
-                Token.Term value))
+                Token.Term value)
 
 let tokenNibbler =
     Nibblers.optional (
         Nibblers.repeat (
-            Nibblers.takeFirst (
+            Nibblers.takeFirst
                 [ commentNibbler
                   whiteSpaceNibbler
                   elementTokenNibbler
@@ -152,7 +152,6 @@ let tokenNibbler =
                   takeAndMap ")" Token.CloseParen
                   takeAndMap "[" Token.OpenSquare
                   takeAndMap "]" Token.CloseSquare ]
-            )
         )
     )
 

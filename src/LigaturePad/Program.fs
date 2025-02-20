@@ -22,7 +22,6 @@ module Main =
         Component(fun ctx ->
             let result = ctx.useState ""
             let script = ctx.useState ""
-            let mutable variables = Map.empty
 
             DockPanel.create
                 [ DockPanel.children
@@ -33,11 +32,9 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdFns variables script.Current with
-                                              | Ok(newVariables, res) ->
-                                                  variables <- newVariables
-                                                  result.Set $"{printAny res}"
-                                              | Error(err) -> result.Set(err.UserMessage)) ] ] ]
+                                              match run stdFns Map.empty script.Current with
+                                              | Ok res -> result.Set $"{printAny res}"
+                                              | Error err -> result.Set err.UserMessage) ] ] ]
                         Grid.create
                             [ Grid.dock Dock.Bottom
                               Grid.columnDefinitions "1*"
@@ -51,7 +48,7 @@ module Main =
                                           TextBox.onTextChanged (fun e -> script.Set e) ]
                                     TextBox.create
                                         [ TextBox.isReadOnly true
-                                          TextBox.text (result.Current)
+                                          TextBox.text result.Current
                                           TextBox.fontFamily "Source Code Pro"
                                           Grid.row 1
                                           Grid.column 0
@@ -84,4 +81,5 @@ module Program =
             .Configure<App>()
             .UsePlatformDetect()
             .UseSkia()
-            .StartWithClassicDesktopLifetime(args)
+            .StartWithClassicDesktopLifetime
+            args

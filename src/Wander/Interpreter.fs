@@ -14,12 +14,12 @@ let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Resu
     | [] -> Ok(Any.Network Set.empty)
     | [ head ] ->
         match head with
-        | Assignment(variable, value) -> failwith "TODO"
-        | Application application -> executeApplication actions variables application
+        | Expression.Assignment(variable, value) -> failwith "TODO"
+        | Expression.Application application -> executeApplication actions variables application
     | head :: tail ->
         match head with
-        | Assignment(variable, value) -> failwith "TODO"
-        | Application application ->
+        | Expression.Assignment(variable, value) -> failwith "TODO"
+        | Expression.Application application ->
             match executeApplication actions variables application with
             | Ok _ -> evalScript actions variables tail
             | Error err -> Error err
@@ -35,12 +35,32 @@ and createFn (doc: string) (script: Script) examples pre post : Fn =
 
 and lookupFn (actions: Fns) (action: Term) : Fn option =
     match Map.tryFind action actions with
-    | Some(action) -> Some(action)
+    | Some action -> Some action
     | None -> None
 
+and rewriteApplication application =
+    let mutable currentBlock = []
+    let mutable prevBlock = []
+
+    List.iter
+        (fun value ->
+            match value with
+            | Any.Pipe ->
+                currentBlock <- [ Any.Block [ Expression.Application(List.append currentBlock prevBlock) ] ]
+                prevBlock <- currentBlock
+                currentBlock <- []
+            | _ -> currentBlock <- List.append currentBlock [ value ])
+        application
+
+    List.append currentBlock prevBlock
+
 and executeApplication (actions: Fns) (variables: Variables) (application: Any list) : Result<Any, LigatureError> =
+    let application = rewriteApplication application
+
     match application with
     | [ Any.Network network ] -> Ok(Any.Network network)
+    | [ Any.Term term ] -> Ok(Any.Term term)
+    | [ Any.Quote quote ] -> Ok(Any.Quote quote)
     | Any.Term fn :: tail ->
         match actions.TryFind fn with
         | Some(Fn(_, fn)) ->
@@ -52,7 +72,7 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
                         match value with
                         | Any.Block block ->
                             match evalScript actions variables block with
-                            | Ok(res) -> res
+                            | Ok res -> res
                             | Error err -> failwith $"Error: {err.UserMessage}"
                         | _ -> value)
                     tail)
