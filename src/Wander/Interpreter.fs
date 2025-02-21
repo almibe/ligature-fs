@@ -76,7 +76,7 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
                             | Error err -> failwith $"Error: {err.UserMessage}"
                         | _ -> value)
                     tail)
-        | None -> failwith "TODO"
+        | None -> error $"Could not find function {fn}" None
     | _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

@@ -109,23 +109,23 @@ let docsFn: Fn =
 
 let stdFns: Fns =
     Map.ofSeq
-        [ (Term "assert-equal", assertEqualFn)
-          (Term "union", unionFn)
-          (Term "infer", inferFn)
-          (Term "remote", remoteFn)
+        [ Term "assert-equal", assertEqualFn
+          Term "union", unionFn
+          Term "infer", inferFn
+          Term "remote", remoteFn
           //          (Term "extract", extractFn)
           //          (Term "extract-json", extractJsonFn)
           // (Term "instances", instancesFn)
           // (Term "instances-json", instancesJsonFn)
-          (Term "docs", docsFn)
-          (Term "prepend", prependFn)
-          (Term "set", setFn)
-          (Term "id", idFn)
-          (Term "if-empty", ifEmptyFn)
-          (Term "is-empty", isEmptyFn)
-          (Term "filter", filterFn)
-          (Term "query", queryFn)
-          (Term "count", countFn) ]
+          Term "docs", docsFn
+          Term "prepend", prependFn
+          Term "set", setFn
+          Term "id", idFn
+          Term "if-empty", ifEmptyFn
+          Term "is-empty", isEmptyFn
+          Term "filter", filterFn
+          Term "query", queryFn
+          Term "count", countFn ]
 // (Term "is-consistent",
 // createFn
 //     "Check if the Network on the top of the Stack is consistent."

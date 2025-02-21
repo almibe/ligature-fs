@@ -11,13 +11,13 @@ open Interpreter
 open Wander.Model
 open Library
 
-let run (actions: Fns) (stack: Variables) (input: string) : Result<Any, LigatureError> =
+let run (fns: Fns) (variables: Variables) (input: string) : Result<Any, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok script ->
-                match evalScript actions stack script with
+                match evalScript fns variables script with
                 | Ok res -> Ok res
                 | Error err -> Error err
             | Error err -> error $"Error parsing.\n{err}" None

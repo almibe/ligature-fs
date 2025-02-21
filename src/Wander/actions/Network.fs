@@ -88,23 +88,23 @@ let queryFn =
           examples = []
           pre = "Template Pattern Network"
           post = "TemplateResult" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Network template :: Any.Network pattern :: Any.Network source :: tail ->
-    //     let results =
-    //         query pattern template source
-    //         |> Seq.map (fun network -> Any.Network network)
-    //         |> Seq.toList
+        fun _ _ arguments ->
+            match arguments with
+            | Any.Pattern template :: Any.Pattern pattern :: Any.Network source :: tail ->
+                let results =
+                    query pattern template source
+                    |> Seq.map (fun network -> Any.Network network)
+                    |> Seq.toList
 
-    //     Ok(Any.Quote results :: tail)
-    // // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
-    // //     let results =
-    // //         queryQuoteTemplate pattern template source
-    // //         |> Seq.map (fun quote -> Any.Quote quote)
-    // //         |> Seq.toList
+                Ok(Any.Quote results)
+            // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+            //     let results =
+            //         queryQuoteTemplate pattern template source
+            //         |> Seq.map (fun quote -> Any.Quote quote)
+            //         |> Seq.toList
 
-    // //     Ok(Any.Quote results :: tail)
-    // | _ -> error "Invalid call to query" None
+            //     Ok(Any.Quote results :: tail)
+            | _ -> error "Invalid call to query" None
     )
 
 // let matchCommand =
