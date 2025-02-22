@@ -20,91 +20,66 @@ let docsFn: Fn =
           examples = []
           pre = ""
           post = "Network" },
-        fun actions variables arguments -> failwith "TODO"
-    // let docs: Pattern =
-    //     Map.toSeq actions
-    //     |> Seq.fold
-    //         (fun state (name, action) ->
-    //             match action with
-    //             | Fn.Full(doc, _) ->
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-string"),
-    //                          TermPattern.Term(Term doc.doc))
-    //                         state
+        fun actions variables arguments ->
+            let docs: Network =
+                Map.toSeq actions
+                |> Seq.fold
+                    (fun state (name, action) ->
+                        match action with
+                        | Fn(doc, _) ->
+                            let state = Set.add (name, Term "doc-string", Term doc.doc) state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term ":"),
-    //                          TermPattern.Term(Term "Fn"))
-    //                         state
+                            let state = Set.add (name, Term ":", Term "Fn") state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-pre"),
-    //                          TermPattern.Term(Term doc.pre))
-    //                         state
+                            let state = Set.add (name, Term "doc-pre", Term doc.pre) state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-post"),
-    //                          TermPattern.Term(Term doc.post))
-    //                         state
+                            let state = Set.add (name, Term "doc-post", Term doc.post) state
 
-    //                 List.fold
-    //                     (fun state example ->
-    //                         Set.add
-    //                             (TermPattern.Term name,
-    //                              TermPattern.Term(Term "doc-example"),
-    //                              TermPattern.Term(Term example))
-    //                             state)
-    //                     state
-    //                     doc.examples
-    //             | Fn.Stack(doc, _) ->
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term ":"),
-    //                          TermPattern.Term(Term "Fn"))
-    //                         state
+                            List.fold
+                                (fun state example -> Set.add (name, Term "doc-example", Term example) state)
+                                state
+                                doc.examples)
+                    // | Fn.Stack(doc, _) ->
+                    //     let state =
+                    //         Set.add
+                    //             (TermPattern.Term name,
+                    //             TermPattern.Term(Term ":"),
+                    //             TermPattern.Term(Term "Fn"))
+                    //             state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-string"),
-    //                          TermPattern.Term(Term doc.doc))
-    //                         state
+                    //     let state =
+                    //         Set.add
+                    //             (TermPattern.Term name,
+                    //             TermPattern.Term(Term "doc-string"),
+                    //             TermPattern.Term(Term doc.doc))
+                    //             state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-pre"),
-    //                          TermPattern.Term(Term doc.pre))
-    //                         state
+                    //     let state =
+                    //         Set.add
+                    //             (TermPattern.Term name,
+                    //             TermPattern.Term(Term "doc-pre"),
+                    //             TermPattern.Term(Term doc.pre))
+                    //             state
 
-    //                 let state =
-    //                     Set.add
-    //                         (TermPattern.Term name,
-    //                          TermPattern.Term(Term "doc-post"),
-    //                          TermPattern.Term(Term doc.post))
-    //                         state
+                    //     let state =
+                    //         Set.add
+                    //             (TermPattern.Term name,
+                    //             TermPattern.Term(Term "doc-post"),
+                    //             TermPattern.Term(Term doc.post))
+                    //             state
 
-    //                 List.fold
-    //                     (fun state example ->
-    //                         Set.add
-    //                             (TermPattern.Term name,
-    //                              TermPattern.Term(Term "doc-example"),
-    //                              TermPattern.Term(Term example))
-    //                             state)
-    //                     state
-    //                     doc.examples)
-    //         Set.empty
+                    // List.fold
+                    //     (fun state example ->
+                    //         Set.add
+                    //             (TermPattern.Term name,
+                    //             TermPattern.Term(Term "doc-example"),
+                    //             TermPattern.Term(Term example))
+                    //             state)
+                    //     state
+                    //     doc.examples)
+                    Set.empty
 
-    // Ok(Any.Network docs :: stack)
+            Ok(Any.Network docs)
     )
 
 let stdFns: Fns =
@@ -125,21 +100,5 @@ let stdFns: Fns =
           Term "is-empty", isEmptyFn
           Term "filter", filterFn
           Term "query", queryFn
-          Term "count", countFn ]
-// (Term "is-consistent",
-// createFn
-//     "Check if the Network on the top of the Stack is consistent."
-//     [ Any.Network(
-//           Set.ofList
-//               [ (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), TermPattern.Slot(Slot "?concept"))
-//                 (TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept")) ]
-//       )
-//       Any.Network(
-//           Set.ofList
-//               [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":¬"), TermPattern.Slot(Slot "?concept") ]
-//       )
-//       Any.Term(Term "query")
-//       Any.Term(Term "is-empty") ]
-//     []
-//     ""
-//     "") ]
+          Term "count", countFn
+          Term "is-consistent", isConsistentFn ]
