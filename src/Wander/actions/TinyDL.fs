@@ -18,7 +18,7 @@ and JsonView =
       Attrs: Map<string, Set<JsonViewValue>> }
 
 let rec writeValues (values: Set<JsonViewValue>) : string =
-    (Set.fold
+    Set.fold
         (fun state value ->
             let value =
                 match value with
@@ -27,7 +27,7 @@ let rec writeValues (values: Set<JsonViewValue>) : string =
 
             if state = "[" then state + value else state + "," + value)
         "["
-        values)
+        values
     + "]"
 
 and writeJsonView (view: JsonView) : string =
@@ -123,14 +123,14 @@ let rec createJsonView (source: Pattern) (Term root) : JsonView =
     Set.iter
         (fun triple ->
             match triple with
-            | (TermPattern.Term element, TermPattern.Term(Term attribute), value) ->
+            | TermPattern.Term element, TermPattern.Term(Term attribute), value ->
                 if element = Term root then
                     let value =
                         match value with
                         | TermPattern.Term e -> JsonViewValue.Term(createJsonView source e)
                         | _ -> failwith "TODO"
 
-                    if attrs.ContainsKey(attribute) then
+                    if attrs.ContainsKey attribute then
                         failwith "TODO"
                     else
                         let values = Set.ofList [ value ]
@@ -243,6 +243,37 @@ let extractJsonFn: Fn =
 //     //     Ok(Any.Term(Term json) :: tail)
 //     // | _ -> failwith "TODO"
 //     )
+
+let isConsistentFn =
+    Fn(
+        { doc = "Check if a Network is consistent."
+          examples = [ "is-consistent {a : B, b : C} | assert-equal true" ]
+          pre = "Network"
+          post = "Literal" },
+        fun _ _ arguments ->
+            match arguments with
+            | [ Any.Network n ] ->
+                if
+                    Ligature.Core.query
+                        (Set.ofList
+                            [ TermPattern.Slot(Slot "?el"),
+                              TermPattern.Term(Term ":"),
+                              TermPattern.Slot(Slot "?concept")
+                              TermPattern.Slot(Slot "?el"),
+                              TermPattern.Term(Term "~:"),
+                              TermPattern.Slot(Slot "?concept") ])
+                        (Set.ofList
+                            [ TermPattern.Slot(Slot "?el"),
+                              TermPattern.Term(Term "~:"),
+                              TermPattern.Slot(Slot "?concept") ])
+                        n
+                    |> Seq.length = 0
+                then
+                    Ok(Any.Term(Term "true"))
+                else
+                    Ok(Any.Term(Term "false"))
+            | _ -> error "Network on stack required to call count." None
+    )
 
 let inferFn: Fn =
     Fn(
