@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LigatureSqlite.fs" />
+    <Compile Include="LigatureStore.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -14,10 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Donald" Version="10.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
-    <PackageReference Include="Fable.Core" Version="4.3.0" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.3.0" />
+    <PackageReference Include="Microsoft.FASTER.Core" Version="2.6.5" />
+    <PackageReference Include="Mikodev.Binary.FSharp" Version="5.7.0" />
     <PackageReference Include="Ulid" Version="1.3.3" />
     <PackageReference Include="FSharpPlus" Version="1.6.1" />
   </ItemGroup>

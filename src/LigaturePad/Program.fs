@@ -17,6 +17,14 @@ module Main =
     open Wander.Library
     open Wander.Main
     open Wander.Model
+    open Wander.InMemoryStore
+    open Ligature.Store
+
+    //let store = new LigatureStore(None)
+    let store = new LigatureStore(Some "./store")
+
+    do
+        store.Init()
 
     let view () =
         Component(fun ctx ->
@@ -32,7 +40,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run stdFns Map.empty script.Current with
+                                              match run (stdFns store) Map.empty script.Current with
                                               | Ok res -> result.Set $"{printAny res}"
                                               | Error err -> result.Set err.UserMessage) ] ] ]
                         Grid.create

@@ -10,6 +10,7 @@ open Ligature.Model
 open Interpreter
 open Wander.Model
 open Library
+open InMemoryStore
 
 let run (fns: Fns) (variables: Variables) (input: string) : Result<Any, LigatureError> =
     try
@@ -25,7 +26,7 @@ let run (fns: Fns) (variables: Variables) (input: string) : Result<Any, Ligature
     with x ->
         error $"Error running script. {x}" None
 
-let runWithDefaults (script: string) = run stdFns Map.empty script
+let runWithDefaults (script: string) = run (stdFns (InMemoryStore())) Map.empty script
 
 let printResult (result: Result<(Variables), LigatureError>) =
     match result with

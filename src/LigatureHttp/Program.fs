@@ -13,22 +13,24 @@ open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Builder
 open Ligature.LigatureSqlite
+open Wander.InMemoryStore
 
-let createEndpoints (store: LigatureSqlite) =
+let createEndpoints (store: ILigatureStore) =
     [ post "/" (fun ctx ->
           let route = Request.getRoute ctx
 
           task {
               let! body = Request.getBodyString ctx
 
-              match run (createStoreFns store Wander.Library.stdFns) Map.empty body with
+              //match run (createStoreFns store Wander.Library.stdFns) Map.empty body with
+              match run Wander.Library.stdFns Map.empty body with
               | Ok result -> Response.ofPlainText (printAny result) ctx
               | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
 
 let wapp = WebApplication.Create()
 
-let store = LigatureSqlite ":memory:"
-store.initialize ()
+let store = InMemoryStore() //LigatureSqlite ":memory:"
+//store.initialize ()
 
 wapp.UseRouting().UseFalco(createEndpoints store).Run()

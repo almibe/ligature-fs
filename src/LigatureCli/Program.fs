@@ -15,7 +15,7 @@ let main (args: string[]) =
     let script = System.IO.File.ReadAllText(file)
 
     match run stdFns Map.empty script with
-    | Ok(_, res) -> printfn $"{printAny res}"
+    | Ok res -> printfn $"{printAny res}"
     | Error err -> printfn $"{err.UserMessage}"
 
     0
