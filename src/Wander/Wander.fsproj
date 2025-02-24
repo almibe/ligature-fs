@@ -16,6 +16,8 @@
     <Compile Include="actions/Quote.fs" />
     <Compile Include="actions/Network.fs" />
     <Compile Include="actions/TinyDL.fs" />
+    <Compile Include="InMemoryStore.fs" />
+    <Compile Include="actions/Kb.fs" />
     <Compile Include="actions/DateTime.fs" />
     <Compile Include="actions/Ulid.fs" />
     <Compile Include="actions/Remote.fs" />

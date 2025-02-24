@@ -9,10 +9,9 @@ type LigatureError =
       DebugMessage: string option }
 
 let error userMessage debugMessage =
-    Error(
+    Error
         { UserMessage = userMessage
           DebugMessage = debugMessage }
-    )
 
 type Term = Term of string
 
@@ -34,11 +33,17 @@ and TriplePattern = TermPattern * TermPattern * TermPattern
 
 and Pattern = Set<TriplePattern>
 
-type INetwork =
-    abstract Triples: unit -> Async<Network>
+// type INetwork =
+//     abstract Triples: unit -> Async<Network>
 
 type ILigatureStore =
-    abstract Networks: unit -> Async<string seq>
-    abstract AddNetwork: string -> Async<unit>
-    abstract RemoveNetwork: string -> Async<unit>
-    abstract Read: string -> Async<INetwork>
+    abstract KnowledgeBases: unit -> string seq
+    abstract AddKnowledgeBase: string -> unit
+    abstract RemoveKnowledgeBase: string -> unit
+    abstract AssertKnowledgeBase: string -> Network -> unit
+    abstract DefineKnowledgeBase: string -> Network -> unit
+    abstract UnassertKnowledgeBase: string -> Network -> unit
+    abstract UndefineKnowledgeBase: string -> Network -> unit
+    abstract ReadAsserts: string -> Result<Network, LigatureError>
+    abstract ReadDefinitions: string -> Result<Network, LigatureError>
+    abstract Read: string -> Result<Network, LigatureError>

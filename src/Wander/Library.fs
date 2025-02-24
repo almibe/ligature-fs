@@ -13,6 +13,8 @@ open Wander.Fns.Network
 open Wander.Fns.TinyDL
 open Interpreter
 open Wander.Fns.Remote
+open Wander.Fns.Kb
+open InMemoryStore
 
 let docsFn: Fn =
     Fn(
@@ -102,3 +104,6 @@ let stdFns: Fns =
           Term "query", queryFn
           Term "count", countFn
           Term "is-consistent", isConsistentFn ]
+    |> createStoreFns (InMemoryStore())
+
+let mergeLibraries first second = Map.fold (fun state key value -> Map.add key value state) first second
