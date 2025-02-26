@@ -72,11 +72,10 @@ let rec printAny (value: Any) : string =
     | Any.Block(_) -> failwith "Not Implemented"
 
 and printQuote (quote: Quote) : string =
-    (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" quote) + "]"
+    Seq.fold (fun state value -> state + printAny value + " ") "[" quote + "]"
 
 and printAnySet (set: AnySet) : string =
-    (Seq.fold (fun state value -> state + (printAny value) + ", ") "[" set)
-    + "] set"
+    Seq.fold (fun state value -> state + printAny value + " ") "[" set + "] set"
 
 and writeTermPattern (value: TermPattern) =
     match value with
@@ -92,7 +91,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + (writeTerm value) + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
 
             res <- res + ")")
         rs
@@ -103,15 +102,15 @@ and printResultSet (rs: ResultSet) =
 and printPattern (network: Pattern) : string =
     let mutable first = true
 
-    (Seq.fold
+    Seq.fold
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + (printTriplePattern triple) + ","
+                state + " " + printTriplePattern triple + ","
             else
-                state + "\n  " + (printTriplePattern triple) + ",")
+                state + "\n  " + printTriplePattern triple + ",")
         "{"
-        (network))
+        network
     + " }"
 
 and printNetwork (network: Network) : string =
@@ -146,7 +145,7 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
 
     $"{encodeString element} {encodeString attribute} {encodeString value}"
 
-and printTriple ((Term(element), Term(attribute), Term(value)): Triple) : string =
+and printTriple ((Term element, Term attribute, Term value): Triple) : string =
     $"{encodeString element} {encodeString attribute} {encodeString value}"
 
 // let printStack (stack: Variables) : string =

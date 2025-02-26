@@ -35,6 +35,12 @@ let tests =
                   ""
           testCase "read empty quote"
           <| fun _ -> Expect.equal (parse "[]") (Ok [ Expression.Application [ Any.Quote [] ] ]) ""
+          testCase "read quote"
+          <| fun _ ->
+              Expect.equal
+                  (parse "[test \"test2\"]")
+                  (Ok [ Expression.Application [ Any.Quote [ Any.Term(Term "test"); Any.Term(Term "test2") ] ] ])
+                  ""
           testCase "read basic block"
           <| fun _ ->
               Expect.equal

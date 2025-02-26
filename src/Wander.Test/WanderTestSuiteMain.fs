@@ -10,6 +10,7 @@ open Wander.Main
 open Ligature.Model
 open Library
 open Model
+open InMemoryStore
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -33,7 +34,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run stdFns Map.empty script with
+                match run (stdFns (new InMemoryStore())) Map.empty script with
                 | Ok _ -> ()
                 | Error(err) -> failwithf "Test failed %A" err)
         |> Seq.toList

@@ -10,12 +10,13 @@ open Ligature.Model
 open Wander.Model
 open Wander.Parser
 open Wander.Library
+open Wander.InMemoryStore
 
 let runScript input =
     match tokenize input with
     | Ok res ->
         match parse res with
-        | Ok script -> evalScript stdFns Map.empty script
+        | Ok script -> evalScript (stdFns (new InMemoryStore())) Map.empty script
         | _ -> failwith "TODO"
     | _ -> failwith "Error tokenizing."
 
@@ -27,6 +28,8 @@ let tests =
           <| fun _ -> Expect.equal (runScript "") (Ok(Any.Network Set.empty)) ""
           testCase "read call with empty network passed"
           <| fun _ -> Expect.equal (runScript "{}") (Ok(Any.Network Set.empty)) ""
+          testCase "run script with quote literal"
+          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Quote [ Any.Term(Term "test") ])) ""
           testCase "read call with single count network passed"
           <| fun _ -> Expect.equal (runScript "count {a b c}") (Ok(Any.Term(Term "1"))) ""
           testCase "read call with single count network expression passed"
