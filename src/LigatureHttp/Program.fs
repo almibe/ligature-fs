@@ -29,7 +29,7 @@ let createEndpoints (store: ILigatureStore) =
 let wapp = WebApplication.Create()
 
 let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
-let store = new Store.LigatureStore(Some path)//InMemoryStore()
+let store = new Store.LigatureStore(Some path) //InMemoryStore()
 store.Init()
 
 wapp.UseRouting().UseFalco(createEndpoints store).Run()

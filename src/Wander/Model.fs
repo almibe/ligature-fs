@@ -117,15 +117,15 @@ and printPattern (network: Pattern) : string =
 and printNetwork (network: Network) : string =
     let mutable first = true
 
-    (Seq.fold
+    Seq.fold
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + (printTriple triple) + ","
+                state + " " + printTriple triple + ","
             else
-                state + "\n  " + (printTriple triple) + ",")
+                state + "\n  " + printTriple triple + ",")
         "{"
-        (network))
+        network
     + " }"
 
 and printTriplePattern ((element, attribute, value): TriplePattern) : string =
@@ -144,9 +144,10 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
         | TermPattern.Term(Term e) -> e
         | TermPattern.Slot(Slot v) -> v
 
-    $"{element} {attribute} {value}"
+    $"{encodeString element} {encodeString attribute} {encodeString value}"
 
-and printTriple ((Term(element), Term(attribute), Term(value)): Triple) : string = $"{element} {attribute} {value}"
+and printTriple ((Term(element), Term(attribute), Term(value)): Triple) : string =
+    $"{encodeString element} {encodeString attribute} {encodeString value}"
 
 // let printStack (stack: Variables) : string =
 //     if List.isEmpty stack then

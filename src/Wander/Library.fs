@@ -84,7 +84,7 @@ let docsFn: Fn =
             Ok(Any.Network docs)
     )
 
-let stdFns (store: ILigatureStore): Fns =
+let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "assert-equal", assertEqualFn
           Term "union", unionFn
@@ -106,4 +106,5 @@ let stdFns (store: ILigatureStore): Fns =
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
 
-let mergeLibraries first second = Map.fold (fun state key value -> Map.add key value state) first second
+let mergeLibraries first second =
+    Map.fold (fun state key value -> Map.add key value state) first second
