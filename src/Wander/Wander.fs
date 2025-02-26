@@ -28,7 +28,7 @@ let run (fns: Fns) (variables: Variables) (input: string) : Result<Any, Ligature
 
 let runWithDefaults (script: string) = run (stdFns (InMemoryStore())) Map.empty script
 
-let printResult (result: Result<(Variables), LigatureError>) =
+let printResult (result: Result<Any, LigatureError>) =
     match result with
-    | Ok stack -> failwith "TODO" //printStack stack
+    | Ok res -> printAny res
     | Error err -> $"Error {err.UserMessage}"
