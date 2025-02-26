@@ -28,8 +28,10 @@ test suite for the other project.
 | build              | Fake build script.                                                 |
 | Gaze               | A parsing library.                                                 |
 | Ligature           | Main code base including the main logic and types.                 |
+| LigatureCli        | A simple Cli for running Wander scripts.                           |
+| LigatureHttp       | An Http backend for Ligature.                                      |
 | LigaturePad        | A simple desktop app for Ligature for testing¹.                    |
-| LigatureZeroMQ     | A backend of Ligature using ZeroMQ.                                |
+| LigatureStore      | A prototype persisted store for Ligature.                          |
 | Wander             | The Wander scripting language.                                     |
 
 ¹ See (https://github.com/almibe/ligature-desktop) for a more robust desktop application.
@@ -56,10 +58,10 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
-## Running LigatureZeroMQ
+## Running LigatureHttp
 
-LigatureZeroMQ starts up a request response ZeroMQ server.
+LigatureHttp starts up an Http server for working with Ligature.
 
-`dotnet run --project src/LigatureZeroMQ`
+`dotnet run --project src/LigatureHttp`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
