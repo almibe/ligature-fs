@@ -25,13 +25,13 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse "{a b c}")
-                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Term "c") ]) ] ])
+                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Value.Term (Term "c")) ]) ] ])
                   ""
           testCase "read network with attribute"
           <| fun _ ->
               Expect.equal
                   (parse "{a b \"c\"}")
-                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ] ])
+                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Value.Literal (Literal "c") ]) ] ])
                   ""
           testCase "read empty quote"
           <| fun _ -> Expect.equal (parse "[]") (Ok [ Expression.Application [ Any.Quote [] ] ]) ""
@@ -57,14 +57,22 @@ let tests =
                                   Set.ofList
                                       [ TermPattern.Slot(Slot "?a"),
                                         TermPattern.Term(Term "b"),
-                                        TermPattern.Term(Term "c") ]
+                                        ValuePattern.Term(Term "c") ]
                               ) ] ])
                   ""
+        //   testCase "read network with nested syntax"
+        //   <| fun _ ->
+        //       Expect.equal
+        //           (parse "{a {b c, d e}}")
+        //           (Ok
+        //               [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
+        //                 Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "d", Term "e" ]) ] ])
+        //           ""
           testCase "read multiple network script"
           <| fun _ ->
               Expect.equal
                   (parse "{a b c}, {d e f}")
                   (Ok
-                      [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
-                        Expression.Application [ Any.Network(Set.ofList [ Term "d", Term "e", Term "f" ]) ] ])
+                      [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Value.Term (Term "c") ]) ]
+                        Expression.Application [ Any.Network(Set.ofList [ Term "d", Term "e", Value.Term (Term "f") ]) ] ])
                   "" ]

@@ -77,6 +77,11 @@ and printQuote (quote: Quote) : string =
 and printAnySet (set: AnySet) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" set + "] set"
 
+and printValue (value: Value) : string =
+    match value with
+    | Value.Literal (Literal l) -> l
+    | Value.Term (Term t) -> t
+
 and writeTermPattern (value: TermPattern) =
     match value with
     | TermPattern.Term(Term e) -> e
@@ -85,19 +90,20 @@ and writeTermPattern (value: TermPattern) =
 and writeTerm (Term t) = t
 
 and printResultSet (rs: ResultSet) =
-    let mutable res = "ResultSet("
+    failwith "TODO"
+    // let mutable res = "ResultSet("
 
-    Set.iter
-        (fun variables ->
-            res <- res + "("
+    // Set.iter
+    //     (fun variables ->
+    //         res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
+    //         Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
 
-            res <- res + ")")
-        rs
+    //         res <- res + ")")
+    //     rs
 
-    res <- res + ")"
-    res
+    // res <- res + ")"
+    // res
 
 and printPattern (network: Pattern) : string =
     let mutable first = true
@@ -140,19 +146,11 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
 
     let value =
         match value with
-        | TermPattern.Term(Term e) -> e
-        | TermPattern.Slot(Slot v) -> v
+        | ValuePattern.Term(Term e) -> e
+        | ValuePattern.Slot(Slot v) -> v
+        | ValuePattern.Literal(Literal l) -> l
 
     $"{encodeString element} {encodeString attribute} {encodeString value}"
 
-and printTriple ((Term element, Term attribute, Term value): Triple) : string =
-    $"{encodeString element} {encodeString attribute} {encodeString value}"
-
-// let printStack (stack: Variables) : string =
-//     if List.isEmpty stack then
-//         "--empty stack--"
-//     else
-//         List.fold (fun state any -> state + " → " + printAny any + "\n") "" stack
-
-// let printStackAsScript (stack: Variables) =
-//     List.fold (fun state any -> state + printAny any + "\n") "" stack
+and printTriple ((Term element, Term attribute, value): Triple) : string =
+    $"{encodeString element} {encodeString attribute} {printValue value}"

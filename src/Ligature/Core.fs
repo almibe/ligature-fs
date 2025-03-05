@@ -21,7 +21,7 @@ let testPattern
     match elementPattern with
     | TermPattern.Slot slot ->
         if namedSlot slot then
-            result <- Map.add slot element result
+            result <- Map.add slot (Value.Term element) result
     | TermPattern.Term elementP -> isMatch <- elementP = element
 
     if isMatch then
@@ -30,15 +30,15 @@ let testPattern
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result.TryFind slot with
-                    | Some a -> isMatch <- a = attribute
+                    | Some a -> isMatch <- a = Value.Term attribute
                     | _ -> failwith "TODO"
                 else
-                    result <- Map.add slot (attribute) result
+                    result <- Map.add slot (Value.Term attribute) result
         | TermPattern.Term attributeTerm -> isMatch <- attribute = attributeTerm
 
     if isMatch then
         match valuePattern with
-        | TermPattern.Slot slot ->
+        | ValuePattern.Slot slot ->
             if namedSlot slot then
                 if result.ContainsKey slot then
                     match result.TryFind slot with
@@ -46,12 +46,12 @@ let testPattern
                     | _ -> isMatch <- false
                 else
                     result <- Map.add slot value result
-        | TermPattern.Term valueTerm -> isMatch <- valueTerm = value
+        | ValuePattern.Term valueTerm -> isMatch <- (Value.Term valueTerm) = value
         | _ -> isMatch <- false
 
     if isMatch then Some result else None
 
-let singleMatch (pattern: TermPattern * TermPattern * TermPattern) (network: Network) : ResultSet =
+let singleMatch (pattern: TermPattern * TermPattern * ValuePattern) (network: Network) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -106,7 +106,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                 | TermPattern.Slot v ->
                     if result.ContainsKey v then
                         match result.TryFind v with
-                        | Some term -> term
+                        | Some (Value.Term term) -> term
                         | _ -> failwith "Incomplete application."
                     else
                         failwith "Incomplete application."
@@ -116,13 +116,13 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                 | TermPattern.Term t -> t
                 | TermPattern.Slot v ->
                     match result.TryFind v with
-                    | Some a -> a
-                    | None -> failwith "Incomplete application."
+                    | Some (Value.Term a) -> a
+                    | _ -> failwith "Incomplete application."
 
             let value =
                 match v with
-                | TermPattern.Term t -> t
-                | TermPattern.Slot slot ->
+                | ValuePattern.Term t -> Value.Term t
+                | ValuePattern.Slot slot ->
                     match result.TryFind slot with
                     | Some t -> t
                     | None -> failwith "Incomplete application."
@@ -167,3 +167,7 @@ let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 let filter (pattern: Pattern) (source: Network) : Network =
     let res = query pattern pattern source
     Seq.fold (fun state network -> Set.union state network) Set.empty res
+
+let individuals (concept: Term) (tBox: Network) (aBox: Network) =
+    
+    failwith "TODO"

@@ -15,21 +15,32 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
+type Literal = Literal of string
+
+type [<RequireQualifiedAccess>] Value =
+    | Term of Term
+    | Literal of Literal
+
 type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, Term>
+and ValueSet = Map<Slot, Value>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term
     | Slot of Slot
 
-and Triple = Term * Term * Term
+and [<RequireQualifiedAccess>] ValuePattern =
+    | Term of Term
+    | Literal of Literal
+    | Slot of Slot
+
+and Triple = Term * Term * Value
 
 and Network = Set<Triple>
 
-and TriplePattern = TermPattern * TermPattern * TermPattern
+and TriplePattern = TermPattern * TermPattern * ValuePattern
 
 and Pattern = Set<TriplePattern>
 

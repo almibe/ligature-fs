@@ -7,14 +7,15 @@ module Ligature.Cli
 open Wander.Main
 open Wander.Library
 open Wander.Model
+open Wander.InMemoryStore
 
 [<EntryPoint>]
 let main (args: string[]) =
     let dir = System.IO.Directory.GetCurrentDirectory()
     let file = $"{dir}/{args[0]}"
-    let script = System.IO.File.ReadAllText(file)
+    let script = System.IO.File.ReadAllText file
 
-    match run stdFns Map.empty script with
+    match run (stdFns (new InMemoryStore())) Map.empty script with
     | Ok res -> printfn $"{printAny res}"
     | Error err -> printfn $"{err.UserMessage}"
 
