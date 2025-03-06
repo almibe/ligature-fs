@@ -17,6 +17,7 @@ and [<RequireQualifiedAccess>] Any =
     | Variable of Variable
     | Quote of Quote
     | Term of Term
+    | Literal of Literal
     | Pattern of Pattern
     | Network of Network
     | ValueSet of ValueSet
@@ -41,8 +42,8 @@ and Fns = Map<Term, Fn>
 and FnDoc =
     { doc: string
       examples: string list
-      pre: string
-      post: string }
+      args: string
+      result: string }
 
 and Fn = Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Any, LigatureError>)
 

@@ -16,8 +16,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Returns a quote of all the existing KBs."
               examples = [ "kbs" ]
-              pre = ""
-              post = "Quote" },
+              args = ""
+              result = "Quote" },
             fun fns variables arguments -> //TODO assert no args were passed
                 store.KnowledgeBases()
                 |> Seq.map (fun value -> Any.Term(Term value))
@@ -30,8 +30,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Reads a Network name and creates a Network in the Store."
               examples = [ "add-kb test" ]
-              pre = "Term"
-              post = "" },
+              args = "Term"
+              result = "" },
             fun fns variables arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
@@ -44,8 +44,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Removes the given KB name from the store."
               examples = [ "remove-kb test" ]
-              pre = "Term"
-              post = "" },
+              args = "Term"
+              result = "" },
             fun fns variables arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
@@ -58,8 +58,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Given a KB name and a Network merge the network into the ABox for given KB."
               examples = [ "assert-kb test {a b c}" ]
-              pre = "Literal Network"
-              post = "" },
+              args = "Literal Network"
+              result = "" },
             fun actions variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
@@ -72,8 +72,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Given a KB name and a Network merge the network into the TBox for given KB."
               examples = [ "define-kb test {A subconcept-of B}" ]
-              pre = "Literal Network"
-              post = "" },
+              args = "Literal Network"
+              result = "" },
             fun actions variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
@@ -86,8 +86,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Given a KB name and a Network remove the network into the ABox for given KB."
               examples = [ "unassert-kb test {a b c}" ]
-              pre = "Term Network"
-              post = "" },
+              args = "Term Network"
+              result = "" },
             fun actions variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
@@ -100,8 +100,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Given a KB name and a Network remove the network into the TBox for given KB."
               examples = [ "undefine-kb test {A subconcept-of B}" ]
-              pre = "Term Network"
-              post = "" },
+              args = "Term Network"
+              result = "" },
             fun actions variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
@@ -114,8 +114,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Read a KB."
               examples = [ "read test" ]
-              pre = "Term"
-              post = "Network" },
+              args = "Term"
+              result = "Network" },
             fun fns variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
@@ -129,8 +129,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Read only the asserts in a KB."
               examples = [ "read-assert-kb test" ]
-              pre = "Term"
-              post = "Network" },
+              args = "Term"
+              result = "Network" },
             fun fns variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
@@ -144,8 +144,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn(
             { doc = "Read only the definitions in a KB."
               examples = [ "read-define-kb test" ]
-              pre = "Term"
-              post = "Network" },
+              args = "Term"
+              result = "Network" },
             fun fns variables arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->

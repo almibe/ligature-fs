@@ -163,8 +163,8 @@ let extractJsonFn: Fn =
     Fn(
         { doc = "..."
           examples = []
-          pre = ""
-          post = "" },
+          args = ""
+          result = "" },
         fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote ids :: Any.Network source :: tail ->
@@ -249,8 +249,8 @@ let isConsistentFn =
     Fn(
         { doc = "Check if a Network is consistent."
           examples = [ "is-consistent {a : B, b : C} | assert-equal true" ]
-          pre = "Network"
-          post = "Literal" },
+          args = "Network"
+          result = "Literal" },
         fun _ _ arguments ->
             match arguments with
             | [ Any.Network n ] ->
@@ -280,8 +280,8 @@ let inferFn: Fn =
     Fn(
         { doc = "..."
           examples = []
-          pre = ""
-          post = "" },
+          args = ""
+          result = "" },
         fun actions variables arguments ->
             match arguments with
             | [ description; network ] ->

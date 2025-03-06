@@ -13,8 +13,8 @@ let idFn: Fn =
     Fn(
         { doc = "Return the value passed."
           examples = []
-          pre = "Any"
-          post = "Any" },
+          args = "Any"
+          result = "Any" },
         fun _ _ arguments ->
             match arguments with
             | [ value ] -> Ok value

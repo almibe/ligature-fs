@@ -11,8 +11,8 @@ let prependFn =
     Fn(
         { doc = "Read a Quote and a Quote off the Stack, push a new Quote with the first Quote at the front."
           examples = []
-          pre = "Quote Quote"
-          post = "Quote" },
+          args = "Quote Quote"
+          result = "Quote" },
         fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Quote source :: Any.Quote dest :: tail ->
@@ -25,8 +25,8 @@ let setFn =
     Fn(
         { doc = "Read a Quote off the Stack and convert it to a Set and push the new Set on the Stack."
           examples = []
-          pre = "Quote"
-          post = "Set" },
+          args = "Quote"
+          result = "Set" },
         fun actions variables arguments ->
             match arguments with
             | [ Any.Quote quote ] ->

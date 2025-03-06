@@ -12,8 +12,8 @@ let assertEqualFn: Fn =
     Fn(
         { doc = "Assert that to top two Terms on the Stack are equal."
           examples = []
-          pre = "Any Any"
-          post = "" },
+          args = "Any Any"
+          result = "" },
         fun actions variables arguments ->
             match arguments with
             | [ first; second ] ->

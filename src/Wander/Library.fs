@@ -20,8 +20,8 @@ let docsFn: Fn =
     Fn(
         { doc = "Push the docs Network on the Stack."
           examples = []
-          pre = ""
-          post = "Network" },
+          args = ""
+          result = "Network" },
         fun actions variables arguments ->
             let docs: Network =
                 Map.toSeq actions
@@ -33,9 +33,9 @@ let docsFn: Fn =
 
                             let state = Set.add (name, Term ":", Value.Term (Term "Fn")) state
 
-                            let state = Set.add (name, Term "doc-pre", Value.Term (Term doc.pre)) state
+                            let state = Set.add (name, Term "doc-pre", Value.Term (Term doc.args)) state
 
-                            let state = Set.add (name, Term "doc-post", Value.Term (Term doc.post)) state
+                            let state = Set.add (name, Term "doc-post", Value.Term (Term doc.result)) state
 
                             List.fold
                                 (fun state example -> Set.add (name, Term "doc-example", Value.Term (Term example)) state)
@@ -87,6 +87,7 @@ let docsFn: Fn =
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "assert-equal", assertEqualFn
+          Term "network", networkFn
           Term "union", unionFn
           Term "infer", inferFn
           Term "remote", remoteFn

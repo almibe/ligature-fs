@@ -28,8 +28,8 @@ and createFn (doc: string) (script: Script) examples pre post : Fn =
     Fn(
         { doc = doc
           examples = examples
-          pre = pre
-          post = post },
+          args = pre
+          result = post },
         (fun actions variables args -> evalScript actions variables script)
     )
 

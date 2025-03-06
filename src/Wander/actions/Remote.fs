@@ -17,8 +17,8 @@ let remoteFn =
         { doc =
             "Reads a Literal for the address and a quote for the code to execute remotely in a Quote.\nAdds all returned values onto the current Stack."
           examples = [ "[docs] \"localhost:5000\" remote" ]
-          pre = "Literal Quote"
-          post = "Any..." },
+          args = "Literal Quote"
+          result = "Any..." },
         fun actions variables arguments -> failwith "TODO"
     // match stack with
     // | Any.Literal address :: Any.Quote code :: tail ->
