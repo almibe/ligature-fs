@@ -106,7 +106,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                 | TermPattern.Slot v ->
                     if result.ContainsKey v then
                         match result.TryFind v with
-                        | Some (Value.Term term) -> term
+                        | Some(Value.Term term) -> term
                         | _ -> failwith "Incomplete application."
                     else
                         failwith "Incomplete application."
@@ -116,7 +116,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                 | TermPattern.Term t -> t
                 | TermPattern.Slot v ->
                     match result.TryFind v with
-                    | Some (Value.Term a) -> a
+                    | Some(Value.Term a) -> a
                     | _ -> failwith "Incomplete application."
 
             let value =
@@ -169,5 +169,5 @@ let filter (pattern: Pattern) (source: Network) : Network =
     Seq.fold (fun state network -> Set.union state network) Set.empty res
 
 let individuals (concept: Term) (tBox: Network) (aBox: Network) =
-    
+
     failwith "TODO"

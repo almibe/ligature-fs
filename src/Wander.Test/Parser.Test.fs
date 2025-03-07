@@ -19,20 +19,6 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
-          testCase "read call with empty network passed"
-          <| fun _ -> Expect.equal (parse "{}") (Ok [ Expression.Application [ Any.Network Set.empty ] ]) ""
-          testCase "read call with single count network passed"
-          <| fun _ ->
-              Expect.equal
-                  (parse "{a b c}")
-                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ (Term "a", Term "b", Value.Term (Term "c")) ]) ] ])
-                  ""
-          testCase "read network with attribute"
-          <| fun _ ->
-              Expect.equal
-                  (parse "{a b \"c\"}")
-                  (Ok [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Value.Literal (Literal "c") ]) ] ])
-                  ""
           testCase "read empty quote"
           <| fun _ -> Expect.equal (parse "[]") (Ok [ Expression.Application [ Any.Quote [] ] ]) ""
           testCase "read quote"
@@ -46,33 +32,4 @@ let tests =
               Expect.equal
                   (parse "(2)")
                   (Ok [ Expression.Application [ Any.Block [ Expression.Application [ Any.Term(Term "2") ] ] ] ])
-                  ""
-          testCase "read pattern"
-          <| fun _ ->
-              Expect.equal
-                  (parse "{?a b c}")
-                  (Ok
-                      [ Expression.Application
-                            [ Any.Pattern(
-                                  Set.ofList
-                                      [ TermPattern.Slot(Slot "?a"),
-                                        TermPattern.Term(Term "b"),
-                                        ValuePattern.Term(Term "c") ]
-                              ) ] ])
-                  ""
-        //   testCase "read network with nested syntax"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (parse "{a {b c, d e}}")
-        //           (Ok
-        //               [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Term "c" ]) ]
-        //                 Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "d", Term "e" ]) ] ])
-        //           ""
-          testCase "read multiple network script"
-          <| fun _ ->
-              Expect.equal
-                  (parse "{a b c}, {d e f}")
-                  (Ok
-                      [ Expression.Application [ Any.Network(Set.ofList [ Term "a", Term "b", Value.Term (Term "c") ]) ]
-                        Expression.Application [ Any.Network(Set.ofList [ Term "d", Term "e", Value.Term (Term "f") ]) ] ])
                   "" ]

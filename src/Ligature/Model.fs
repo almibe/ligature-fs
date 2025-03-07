@@ -17,7 +17,8 @@ type Term = Term of string
 
 type Literal = Literal of string
 
-type [<RequireQualifiedAccess>] Value =
+[<RequireQualifiedAccess>]
+type Value =
     | Term of Term
     | Literal of Literal
 

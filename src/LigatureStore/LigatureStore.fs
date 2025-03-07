@@ -10,7 +10,17 @@ open Mikodev.Binary
 open FASTER.core
 open System
 
-type Event = int * string * string * string * string
+type Event = int * string * string * string * int * string
+
+let valueToType value =
+    match value with
+    | Value.Term _ -> 0
+    | Value.Literal _ -> 1
+
+let valueToString value =
+    match value with
+    | Value.Term(Term t) -> t
+    | Value.Literal(Literal l) -> l
 
 type LigatureStore(path: string option) =
     let e_add = 0
@@ -41,12 +51,24 @@ type LigatureStore(path: string option) =
 
             if succ then
                 match generator.Decode<Event> value with
-                | 0, name, _, _, _ -> store.AddKnowledgeBase name
-                | 1, name, _, _, _ -> store.RemoveKnowledgeBase name
-                | 2, name, e, r, v -> store.AssertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term (Term v) ])
-                | 3, name, e, r, v -> store.DefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term (Term v) ])
-                | 4, name, e, r, v -> store.UnassertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term (Term v) ])
-                | 5, name, e, r, v -> store.UndefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term (Term v) ])
+                | 0, name, _, _, _, _ -> store.AddKnowledgeBase name
+                | 1, name, _, _, _, _ -> store.RemoveKnowledgeBase name
+                | 2, name, e, r, 0, v ->
+                    store.AssertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 2, name, e, r, 1, v ->
+                    store.AssertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                | 3, name, e, r, 0, v ->
+                    store.DefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 3, name, e, r, 1, v ->
+                    store.DefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                | 4, name, e, r, 0, v ->
+                    store.UnassertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 4, name, e, r, 1, v ->
+                    store.UnassertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                | 5, name, e, r, 0, v ->
+                    store.UndefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 5, name, e, r, 1, v ->
+                    store.UndefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
                 | _ -> failwith "Unexpected event type."
             else
                 cont <- false
@@ -61,14 +83,14 @@ type LigatureStore(path: string option) =
 
         member this.AddKnowledgeBase(name: string) : unit =
             store.AddKnowledgeBase name
-            let event = e_add, name, "", "", ""
+            let event: Event = e_add, name, "", "", 0, ""
             let encoded = generator.Encode event
             log.Enqueue encoded |> ignore
             log.Commit()
 
         member this.RemoveKnowledgeBase(name: string) : unit =
             store.RemoveKnowledgeBase name
-            let event = e_remove, name, "", "", ""
+            let event: Event = e_remove, name, "", "", 0, ""
             let encoded = generator.Encode event
             log.Enqueue encoded |> ignore
             log.Commit()
@@ -78,7 +100,7 @@ type LigatureStore(path: string option) =
 
             Set.iter
                 (fun (Term e, Term r, v) ->
-                    let event = e_assert, name, e, r, v
+                    let event: Event = e_assert, name, e, r, valueToType v, valueToString v
                     let encoded = generator.Encode event
                     log.Enqueue encoded |> ignore)
                 network
@@ -90,7 +112,7 @@ type LigatureStore(path: string option) =
 
             Set.iter
                 (fun (Term e, Term r, v) ->
-                    let event = e_define, name, e, r, v
+                    let event: Event = e_define, name, e, r, valueToType v, valueToString v
                     let encoded = generator.Encode event
                     log.Enqueue encoded |> ignore)
                 network
@@ -108,7 +130,7 @@ type LigatureStore(path: string option) =
 
             Set.iter
                 (fun (Term e, Term r, v) ->
-                    let event = e_unassert, name, e, r, v
+                    let event: Event = e_unassert, name, e, r, valueToType v, valueToString v
                     let encoded = generator.Encode event
                     log.Enqueue encoded |> ignore)
                 network
@@ -120,7 +142,7 @@ type LigatureStore(path: string option) =
 
             Set.iter
                 (fun (Term e, Term r, v) ->
-                    let event = e_undefine, name, e, r, v
+                    let event: Event = e_undefine, name, e, r, valueToType v, valueToString v
                     let encoded = generator.Encode event
                     log.Enqueue encoded |> ignore)
                 network

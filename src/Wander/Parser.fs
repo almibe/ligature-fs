@@ -18,8 +18,8 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
 
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
-    | Ok(Token.Term value) -> Ok(Value.Term (Term value))
-    | Ok(Token.StringLiteral value) -> Ok(Value.Literal (Literal value))
+    | Ok(Token.Term value) -> Ok(Value.Term(Term value))
+    | Ok(Token.StringLiteral value) -> Ok(Value.Literal(Literal value))
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -66,55 +66,6 @@ let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         return Any.Pipe
     }
 
-let triplePatternNib (gaze: Gaze.Gaze<Token>) : Result<(TermPattern * TermPattern * ValuePattern), Gaze.GazeError> =
-    let entity = elementPatternNib gaze
-    let attribute = elementPatternNib gaze
-    let value = valuePatternNib gaze
-
-    match entity, attribute, value with
-    | Ok e, Ok a, Ok v -> Ok(e, a, v)
-    | _ -> Error Gaze.NoMatch
-
-let tripleNib (gaze: Gaze.Gaze<Token>) : Result<Triple, Gaze.GazeError> =
-    let entity = termNib gaze
-    let attribute = termNib gaze
-    let value = valueNib gaze
-
-    match entity, attribute, value with
-    | Ok e, Ok a, Ok v -> Ok(e, a, v)
-    | _ -> Error Gaze.NoMatch
-
-let partialNetworkNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
-    result {
-        let! statements = optional (repeatSep tripleNib Token.Comma) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Set.ofList statements
-    }
-
-let networkNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! statements = optional (repeatSep tripleNib Token.Comma) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Any.Network(Set.ofList statements)
-    }
-
-let patternNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! statements = optional (repeatSep triplePatternNib Token.Comma) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Any.Pattern(Set.ofList statements)
-    }
-
-let networkExpressionNib (gaze: Gaze.Gaze<Token>) : Result<Network, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-        let! statements = optional (repeatSep tripleNib Token.Comma) gaze
-        let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-        return Set.ofList statements
-    }
-
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     let next = Gaze.next gaze
 
@@ -151,13 +102,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | _ -> Error Gaze.GazeError.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst
-        [ quoteAnyNib
-          elementLiteralSlotNib
-          networkNib
-          patternNib
-          blockNib
-          pipeNib ]
+    takeFirst [ quoteAnyNib; elementLiteralSlotNib; blockNib; pipeNib ]
 
 let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let variable = Gaze.attempt anyNib gaze

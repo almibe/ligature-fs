@@ -12,7 +12,7 @@ open Wander.Interpreter
 let bendJsonFn =
     Fn(
         { doc = ""
-          examples = [ ]
+          examples = []
           args = "Network Term Network"
           result = "Literal" },
         fun actions variables arguments ->

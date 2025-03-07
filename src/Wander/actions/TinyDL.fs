@@ -52,11 +52,16 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
                         subconcept = concept
                         ->
                         res <- Set.add (element, Term ":", superconcept) res
-                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when role = firstRole ->
+                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
+                        role = firstRole
+                        ->
                         res <- Set.add (second, secondRole, Value.Term first) res
-                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when role = secondRole ->
+                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
+                        role = secondRole
+                        ->
                         res <- Set.add (second, firstRole, Value.Term first) res
-                    | (roleName, Term ":", Value.Term (Term "tiny-dl.Is-Symmetrical")), (first, role, Value.Term second) when role = roleName ->
+                    | (roleName, Term ":", Value.Term(Term "tiny-dl.Is-Symmetrical")),
+                      (first, role, Value.Term second) when role = roleName ->
                         res <- Set.add (second, role, Value.Term first) res
                     | _ -> ())
                 aBox)
@@ -117,30 +122,29 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 //     // | _ -> failwith "TODO"
 //     )
 
-let rec createJsonView (source: Pattern) (Term root) : JsonView =
-    failwith "TODO"
-    // let mutable attrs = Map.empty
+let rec createJsonView (source: Pattern) (Term root) : JsonView = failwith "TODO"
+// let mutable attrs = Map.empty
 
-    // Set.iter
-    //     (fun triple ->
-    //         match triple with
-    //         | TermPattern.Term element, TermPattern.Term(Term attribute), value ->
-    //             if element = Term root then
-    //                 let value =
-    //                     match value with
-    //                     | TermPattern.Term e -> JsonViewValue.Term(createJsonView source e)
-    //                     | _ -> failwith "TODO"
+// Set.iter
+//     (fun triple ->
+//         match triple with
+//         | TermPattern.Term element, TermPattern.Term(Term attribute), value ->
+//             if element = Term root then
+//                 let value =
+//                     match value with
+//                     | TermPattern.Term e -> JsonViewValue.Term(createJsonView source e)
+//                     | _ -> failwith "TODO"
 
-    //                 if attrs.ContainsKey attribute then
-    //                     failwith "TODO"
-    //                 else
-    //                     let values = Set.ofList [ value ]
-    //                     attrs <- Map.add attribute values attrs
-    //         | _ -> failwith "TODO")
-    //     source
+//                 if attrs.ContainsKey attribute then
+//                     failwith "TODO"
+//                 else
+//                     let values = Set.ofList [ value ]
+//                     attrs <- Map.add attribute values attrs
+//         | _ -> failwith "TODO")
+//     source
 
-    // let view = { Id = root; Attrs = attrs }
-    // view
+// let view = { Id = root; Attrs = attrs }
+// view
 
 let extractJson (ids: Quote) (source: Pattern) : string = failwith "TODO"
 // let mutable result = "["

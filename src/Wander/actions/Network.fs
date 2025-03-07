@@ -17,29 +17,71 @@ let networkFn =
           result = "Network" },
         fun actions variables arguments ->
             let mutable res: Network = Set.empty
-            List.iter (fun arg ->
-                match arg with
-                | Any.Quote [e; a; v] -> 
-                    let e =
-                        match e with
-                        | Any.Term t -> t
-                        | _ -> failwith "Invalid call to network."
 
-                    let a =
-                        match a with
-                        | Any.Term t -> t
-                        | _ -> failwith "Invalid call to network."
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Any.Quote [ e; a; v ] ->
+                        let e =
+                            match e with
+                            | Any.Term t -> t
+                            | _ -> failwith "Invalid call to network."
 
-                    let v =
-                        match v with
-                        | Any.Term t -> Value.Term t
-                        | Any.Literal l -> Value.Literal l
-                        | _ -> failwith "Invalid call to network."
-                    
-                    res <- Set.add (e, a, v) res
-                | _ -> failwith "Invalid call to network.")
+                        let a =
+                            match a with
+                            | Any.Term t -> t
+                            | _ -> failwith "Invalid call to network."
+
+                        let v =
+                            match v with
+                            | Any.Term t -> Value.Term t
+                            | Any.Literal l -> Value.Literal l
+                            | _ -> failwith "Invalid call to network."
+
+                        res <- Set.add (e, a, v) res
+                    | _ -> failwith "Invalid call to network.")
                 arguments
-            Ok (Any.Network res)
+
+            Ok(Any.Network res)
+    )
+
+let patternFn =
+    Fn(
+        { doc = "Create a Pattern from triples."
+          examples = [ "pattern [?a b c] [?a e f]" ]
+          args = "Quote..."
+          result = "Pattern" },
+        fun actions variables arguments ->
+            let mutable res: Pattern = Set.empty
+
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Any.Quote [ e; a; v ] ->
+                        let e =
+                            match e with
+                            | Any.Term t -> TermPattern.Term t
+                            | Any.Slot s -> TermPattern.Slot s
+                            | _ -> failwith "Invalid call to pattern."
+
+                        let a =
+                            match a with
+                            | Any.Term t -> TermPattern.Term t
+                            | Any.Slot s -> TermPattern.Slot s
+                            | _ -> failwith "Invalid call to pattern."
+
+                        let v =
+                            match v with
+                            | Any.Term t -> ValuePattern.Term t
+                            | Any.Slot s -> ValuePattern.Slot s
+                            | Any.Literal l -> ValuePattern.Literal l
+                            | _ -> failwith "Invalid call to pattern."
+
+                        res <- Set.add (e, a, v) res
+                    | _ -> failwith "Invalid call to pattern.")
+                arguments
+
+            Ok(Any.Pattern res)
     )
 
 let unionFn =

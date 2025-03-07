@@ -29,16 +29,17 @@ let docsFn: Fn =
                     (fun state (name, action) ->
                         match action with
                         | Fn(doc, _) ->
-                            let state = Set.add (name, Term "doc-string", Value.Term (Term doc.doc)) state
+                            let state = Set.add (name, Term "doc-string", Value.Term(Term doc.doc)) state
 
-                            let state = Set.add (name, Term ":", Value.Term (Term "Fn")) state
+                            let state = Set.add (name, Term ":", Value.Term(Term "Fn")) state
 
-                            let state = Set.add (name, Term "doc-pre", Value.Term (Term doc.args)) state
+                            let state = Set.add (name, Term "doc-pre", Value.Term(Term doc.args)) state
 
-                            let state = Set.add (name, Term "doc-post", Value.Term (Term doc.result)) state
+                            let state = Set.add (name, Term "doc-post", Value.Term(Term doc.result)) state
 
                             List.fold
-                                (fun state example -> Set.add (name, Term "doc-example", Value.Term (Term example)) state)
+                                (fun state example ->
+                                    Set.add (name, Term "doc-example", Value.Term(Term example)) state)
                                 state
                                 doc.examples)
                     // | Fn.Stack(doc, _) ->
@@ -88,6 +89,7 @@ let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "assert-equal", assertEqualFn
           Term "network", networkFn
+          Term "pattern", patternFn
           Term "union", unionFn
           Term "infer", inferFn
           Term "remote", remoteFn

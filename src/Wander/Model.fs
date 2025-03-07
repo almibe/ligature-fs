@@ -60,7 +60,8 @@ let encodeString string =
 
 let rec printAny (value: Any) : string =
     match value with
-    | Any.Term(Term(value)) -> encodeString value
+    | Any.Term(Term value) -> encodeString value
+    | Any.Literal(Literal l) -> encodeString l
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
@@ -80,8 +81,8 @@ and printAnySet (set: AnySet) : string =
 
 and printValue (value: Value) : string =
     match value with
-    | Value.Literal (Literal l) -> l
-    | Value.Term (Term t) -> t
+    | Value.Literal(Literal l) -> l
+    | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =
     match value with
@@ -90,21 +91,20 @@ and writeTermPattern (value: TermPattern) =
 
 and writeTerm (Term t) = t
 
-and printResultSet (rs: ResultSet) =
-    failwith "TODO"
-    // let mutable res = "ResultSet("
+and printResultSet (rs: ResultSet) = failwith "TODO"
+// let mutable res = "ResultSet("
 
-    // Set.iter
-    //     (fun variables ->
-    //         res <- res + "("
+// Set.iter
+//     (fun variables ->
+//         res <- res + "("
 
-    //         Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
+//         Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
 
-    //         res <- res + ")")
-    //     rs
+//         res <- res + ")")
+//     rs
 
-    // res <- res + ")"
-    // res
+// res <- res + ")"
+// res
 
 and printPattern (network: Pattern) : string =
     let mutable first = true
@@ -113,12 +113,12 @@ and printPattern (network: Pattern) : string =
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + printTriplePattern triple + ","
+                state + " " + printTriplePattern triple + " "
             else
-                state + "\n  " + printTriplePattern triple + ",")
-        "{"
+                state + "\n  " + printTriplePattern triple + " ")
+        "(pattern "
         network
-    + " }"
+    + " )"
 
 and printNetwork (network: Network) : string =
     let mutable first = true
@@ -127,12 +127,12 @@ and printNetwork (network: Network) : string =
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + printTriple triple + ","
+                state + " " + printTriple triple + " "
             else
-                state + "\n  " + printTriple triple + ",")
-        "{"
+                state + "\n  " + printTriple triple + " ")
+        "(network "
         network
-    + " }"
+    + " )"
 
 and printTriplePattern ((element, attribute, value): TriplePattern) : string =
     let element =
@@ -151,7 +151,7 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
         | ValuePattern.Slot(Slot v) -> v
         | ValuePattern.Literal(Literal l) -> l
 
-    $"{encodeString element} {encodeString attribute} {encodeString value}"
+    $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
 and printTriple ((Term element, Term attribute, value): Triple) : string =
-    $"{encodeString element} {encodeString attribute} {printValue value}"
+    $"[{encodeString element} {encodeString attribute} {printValue value}]"
