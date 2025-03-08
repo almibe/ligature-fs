@@ -27,6 +27,8 @@ let tests =
                   (parse "[test \"test2\"]")
                   (Ok [ Expression.Application [ Any.Quote [ Any.Term(Term "test"); Any.Term(Term "test2") ] ] ])
                   ""
+          testCase "read empty record"
+          <| fun _ -> Expect.equal (parse "{}") (Ok [ Expression.Application [ Any.Record Map.empty ] ]) ""
           testCase "read basic block"
           <| fun _ ->
               Expect.equal

@@ -17,7 +17,9 @@ let bendJsonFn =
           result = "Literal" },
         fun actions variables arguments ->
             match arguments with
-            | [ Any.Network left; Any.Network right ] ->
+            | [ Any.Network definitions; Any.Term encodingName; Any.Network data ] ->
+                let res = networkMatch (Set.ofList []) definitions
+
                 // let left =
                 //     match left with
                 //     | Any.Network n -> n
@@ -39,7 +41,8 @@ let bendJsonFn =
                 //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
-                let result = Set.union left right |> Any.Network
-                Ok result
+                // let result = Set.union left right |> Any.Network
+                // Ok result
+                failwith "TODO"
             | _ -> failwith $"Calls to union requires two Networks on the stack."
     )

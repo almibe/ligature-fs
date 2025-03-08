@@ -29,14 +29,6 @@ let variableNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
     | Ok(Token.Slot value) -> Ok(Slot value)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let quoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return values
-    }
-
 let partialQuoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
     result {
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
@@ -59,6 +51,32 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Any.Quote values
     }
+
+let recordNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    let body =
+        result {
+            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
+            let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+            let! _ = Gaze.attempt (take Token.CloseBrace) gaze
+            return values
+        }
+
+    match body with
+    | Ok res ->
+        if res.Length % 2 = 0 then
+            let res =
+                List.fold
+                    (fun state value ->
+                        match value with
+                        | [ first; second ] -> Map.add first second state
+                        | _ -> failwith "TODO")
+                    Map.empty
+                    (List.chunkBySize 2 res)
+
+            Ok(Any.Record res)
+        else
+            Error Gaze.NoMatch
+    | Error err -> Error err
 
 let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
@@ -102,7 +120,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | _ -> Error Gaze.GazeError.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; elementLiteralSlotNib; blockNib; pipeNib ]
+    takeFirst [ quoteAnyNib; recordNib; elementLiteralSlotNib; blockNib; pipeNib ]
 
 let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let variable = Gaze.attempt anyNib gaze

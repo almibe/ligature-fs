@@ -12,6 +12,8 @@ type Quote = Any list
 
 and AnySet = Set<Any>
 
+and Record = Map<Any, Any>
+
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
     | Variable of Variable
@@ -24,6 +26,7 @@ and [<RequireQualifiedAccess>] Any =
     | ResultSet of ResultSet
     | Comment of string
     | AnySet of AnySet
+    | Record of Record
     | Block of Script
     | Pipe
 
@@ -72,12 +75,17 @@ let rec printAny (value: Any) : string =
     | Any.Variable(_) -> failwith "Not Implemented"
     | Any.Pattern(_) -> failwith "Not Implemented"
     | Any.Block(_) -> failwith "Not Implemented"
+    | Any.Record record -> printRecord record
 
 and printQuote (quote: Quote) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" quote + "]"
 
+and printRecord (record: Record) : string =
+    Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
+    + "}"
+
 and printAnySet (set: AnySet) : string =
-    Seq.fold (fun state value -> state + printAny value + " ") "[" set + "] set"
+    Seq.fold (fun state value -> state + printAny value + " ") "set [" set + "]"
 
 and printValue (value: Value) : string =
     match value with

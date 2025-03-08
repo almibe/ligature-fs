@@ -15,6 +15,7 @@ open Interpreter
 open Wander.Fns.Remote
 open Wander.Fns.Kb
 open InMemoryStore
+open Wander.Fns.Bend
 
 let docsFn: Fn =
     Fn(
@@ -106,6 +107,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "filter", filterFn
           Term "query", queryFn
           Term "count", countFn
+          Term "bend.json.instances", bendJsonFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
 

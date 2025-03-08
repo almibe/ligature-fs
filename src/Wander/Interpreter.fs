@@ -60,6 +60,7 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
     match application with
     | [ Any.Network network ] -> Ok(Any.Network network)
     | [ Any.Quote quote ] -> Ok(Any.Quote quote)
+    | [ Any.Record record ] -> Ok(Any.Record record)
     | Any.Term fn :: tail ->
         match actions.TryFind fn with
         | Some(Fn(_, fn)) ->
