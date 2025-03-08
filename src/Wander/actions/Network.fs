@@ -9,6 +9,96 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
+let rec recordToNetwork (record: Record): Result<Network, LigatureError> =
+    match Map.tryFind (Any.Term (Term "@id")) record with
+    | Some (Any.Term id) -> 
+        Seq.fold (fun state (key, value) -> 
+            if key = Any.Term (Term "@id") then
+                state
+            else
+                let role: Term = 
+                    match key with
+                    | Any.Term term -> term
+                    | _ -> failwith "TODO"
+
+                match value with
+                | Any.Literal literal -> 
+                    Set.add (id, role, Value.Literal literal) state
+                | Any.Term term -> 
+                    Set.add (id, role, Value.Term term) state
+                | Any.Quote quote ->
+                    List.fold (fun state value ->
+                        match value with
+                        | Any.Literal literal -> 
+                            Set.add (id, role, Value.Literal literal) state
+                        | Any.Term term -> 
+                            Set.add (id, role, Value.Term term) state
+                        | _ -> failwith "TODO") state quote
+                | Any.Record record ->
+                    let state = 
+                        match record.TryFind (Any.Term (Term "@id")) with
+                        | Some (Any.Term value) ->
+                            Set.add (id, role, Value.Term value) state
+                        | _ -> failwith "TODO"
+                    match recordToNetwork record with
+                    | Ok network -> state + network
+                    | _ -> failwith "TODO"
+                | _ -> failwith "TODO"
+            ) Set.empty (Map.toSeq record)
+        |> Ok
+    | _ -> error "Record requires valid @id entry." None
+
+let rec recordToPattern (record: Record): Result<Pattern, LigatureError> =
+    match Map.tryFind (Any.Term (Term "@id")) record with
+    | Some id ->
+        let id =
+            match id with
+            | Any.Term term -> TermPattern.Term term
+            | Any.Slot slot -> TermPattern.Slot slot
+            | _ -> failwith "TODO"
+        Seq.fold (fun state (key, value) -> 
+            if key = Any.Term (Term "@id") then
+                state
+            else
+                let role: TermPattern = 
+                    match key with
+                    | Any.Term term -> TermPattern.Term term
+                    | Any.Slot slot -> TermPattern.Slot slot
+                    | _ -> failwith "TODO"
+
+                match value with
+                | Any.Literal literal -> 
+                    Set.add (id, role, ValuePattern.Literal literal) state
+                | Any.Term term -> 
+                    Set.add (id, role, ValuePattern.Term term) state
+                | Any.Slot slot ->
+                    Set.add (id, role, ValuePattern.Slot slot) state
+                | Any.Quote quote ->
+                    List.fold (fun state value ->
+                        match value with
+                        | Any.Literal literal -> 
+                            Set.add (id, role, ValuePattern.Literal literal) state
+                        | Any.Term term -> 
+                            Set.add (id, role, ValuePattern.Term term) state
+                        | Any.Slot slot ->
+                            Set.add (id, role, ValuePattern.Slot slot) state
+                        | _ -> failwith "TODO") state quote
+                | Any.Record record ->
+                    let state = 
+                        match record.TryFind (Any.Term (Term "@id")) with
+                        | Some (Any.Term value) ->
+                            Set.add (id, role, ValuePattern.Term value) state
+                        | Some (Any.Slot slot) ->
+                            Set.add (id, role, ValuePattern.Slot slot) state
+                        | _ -> failwith "TODO"
+                    match recordToPattern record with
+                    | Ok pattern -> state + pattern
+                    | _ -> failwith "TODO"
+                | _ -> failwith "TODO"
+            ) Set.empty (Map.toSeq record)
+        |> Ok
+    | _ -> error "Record requires valid @id entry." None
+
 let networkFn =
     Fn(
         { doc = "Create a Network from triples."
@@ -39,6 +129,11 @@ let networkFn =
                             | _ -> failwith "Invalid call to network."
 
                         res <- Set.add (e, a, v) res
+                    | Any.Record record ->
+                        match recordToNetwork record with
+                        | Ok network -> 
+                            res <- res + network
+                        | _ -> failwith "TODO"
                     | _ -> failwith "Invalid call to network.")
                 arguments
 
@@ -78,6 +173,11 @@ let patternFn =
                             | _ -> failwith "Invalid call to pattern."
 
                         res <- Set.add (e, a, v) res
+                    | Any.Record record ->
+                        match recordToPattern record with
+                        | Ok pattern -> 
+                            res <- res + pattern
+                        | _ -> failwith "TODO"
                     | _ -> failwith "Invalid call to pattern.")
                 arguments
 
