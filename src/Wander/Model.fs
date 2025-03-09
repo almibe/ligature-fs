@@ -63,7 +63,7 @@ let encodeString string =
 
 let rec printAny (value: Any) : string =
     match value with
-    | Any.Term(Term value) -> encodeString value
+    | Any.Term(Term value) -> value
     | Any.Literal(Literal l) -> encodeString l
     | Any.Quote quote -> printQuote quote
     | Any.Network n -> printNetwork n
@@ -89,7 +89,7 @@ and printAnySet (set: AnySet) : string =
 
 and printValue (value: Value) : string =
     match value with
-    | Value.Literal(Literal l) -> l
+    | Value.Literal(Literal l) -> encodeString l
     | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =
@@ -162,4 +162,4 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
     $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
 and printTriple ((Term element, Term attribute, value): Triple) : string =
-    $"[{encodeString element} {encodeString attribute} {printValue value}]"
+    $"[{element} {attribute} {printValue value}]"

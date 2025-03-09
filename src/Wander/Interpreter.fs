@@ -77,6 +77,10 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
                         | _ -> value)
                     tail)
         | None -> error $"Could not find function {fn}" None
+    | [ Any.Block block ] ->
+        match evalScript actions variables block with
+        | Ok res -> Ok res
+        | Error err -> failwith $"Error: {err.UserMessage}"
     | _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

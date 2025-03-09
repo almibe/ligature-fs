@@ -116,7 +116,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Any.Term(Term value))
     | Ok(Token.Slot value) -> Ok(Any.Slot(Slot value))
-    | Ok(Token.StringLiteral value) -> Ok(Any.Term(Term value))
+    | Ok(Token.StringLiteral value) -> Ok(Any.Literal(Literal value))
     | _ -> Error Gaze.GazeError.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
