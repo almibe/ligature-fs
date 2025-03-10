@@ -225,7 +225,7 @@ let countFn =
           result = "Literal" },
         fun actions variables arguments ->
             match arguments with
-            | [ Any.Network n ] -> Ok(Any.Term(Term((Set.count n).ToString())))
+            | [ Any.Network n ] -> Ok(Any.Literal(Literal((Set.count n).ToString())))
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with

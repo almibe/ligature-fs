@@ -27,7 +27,7 @@ let tests =
         [ testCase "Run empty script"
           <| fun _ -> Expect.equal (runScript "") (Ok(Any.Network Set.empty)) ""
           testCase "run script with quote literal"
-          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Quote [ Any.Term(Term "test") ])) "" ]
+          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Quote [ Any.Literal(Literal "test") ])) "" ]
 //   testCase "read network with attribute"
 //   <| fun _ ->
 //       Expect.equal
