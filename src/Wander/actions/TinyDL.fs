@@ -69,185 +69,67 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 
     if aBox = res then Ok res else infer tBox res
 
-// let extract (source: Network) (id: Term) : Network =
-//     let mutable checkedIds = Set.ofList [ id ]
-//     let mutable toCheck = [ id ]
-//     let mutable result = Set.empty
+let extract (id: Term) (source: Network) : Record =
+    let mutable result = Map.empty
+    result <- Map.add (Any.Term (Term "@")) (Any.Term id) result
+    Set.iter (fun triple ->
+        match triple with
+        | e, a, Value.Term v ->
+            if e = id then
+                result <- Map.add (Any.Term a) (Any.Term v) result
+        | e, a, Value.Literal v ->
+            if e = id then
+                result <- Map.add (Any.Term a) (Any.Literal v) result
+        | _ -> ()) source
+    result
 
-//     while not toCheck.IsEmpty do
-//         let current = toCheck.Head
-//         toCheck <- toCheck.Tail
+let extractFn: Fn =
+    Fn(
+        { doc = "Create a Record of a single invidual's relations."
+          examples = ["extract a (network [a b c])"]
+          args = "Term Network"
+          result = "Record" },
+        fun actions variables arguments ->
+            match arguments with
+            | [Any.Term id; Any.Network source] ->
+                Ok (Any.Record (extract id source))
+            | _ -> error "Invalid call to extract." None
+    )
 
-//         let matched =
-//             Set.filter
-//                 (fun (element, a, v) ->
-//                     if element = current then
-//                         match v with
-//                         | TermPattern.Term e ->
-//                             if not (checkedIds.Contains(e)) then
-//                                 toCheck <- e :: toCheck
-//                                 checkedIds <- Set.add e checkedIds
-//                             else
-//                                 ()
-//                         | _ -> ()
+let instances (source: Network) (concept: Term) : AnySet =
+    Set.fold
+        (fun state triple ->
+            match triple with
+            | element, Term ":", conceptToCheck ->
+                if conceptToCheck = Value.Term concept then
+                    Set.add (Any.Record(extract element source)) state
+                else
+                    state
+            | _ -> state)
+        Set.empty
+        source
 
-//                         true
-//                     else
-//                         false)
-//                 source
-
-//         result <- Set.union matched result
-
-//     result
-
-// let extractFn: Fn =
-//     Fn(
-//         { doc = "..."
-//           examples = []
-//           pre = ""
-//           post = "" },
-//         fun actions variables arguments -> failwith "TODO"
-//     // match stack with
-//     // | Any.Quote ids :: Any.Network source :: tail ->
-//     //     let result: AnySet =
-//     //         List.fold
-//     //             (fun state concept ->
-//     //                 match concept with
-//     //                 | Any.Term concept -> Set.add (Any.Network(extract source concept)) state
-//     //                 | _ -> failwith "TODO")
-//     //             (Set.empty)
-//     //             ids
-
-//     //     Ok(Any.AnySet result :: tail)
-//     // | _ -> failwith "TODO"
-//     )
-
-let rec createJsonView (source: Pattern) (Term root) : JsonView = failwith "TODO"
-// let mutable attrs = Map.empty
-
-// Set.iter
-//     (fun triple ->
-//         match triple with
-//         | TermPattern.Term element, TermPattern.Term(Term attribute), value ->
-//             if element = Term root then
-//                 let value =
-//                     match value with
-//                     | TermPattern.Term e -> JsonViewValue.Term(createJsonView source e)
-//                     | _ -> failwith "TODO"
-
-//                 if attrs.ContainsKey attribute then
-//                     failwith "TODO"
-//                 else
-//                     let values = Set.ofList [ value ]
-//                     attrs <- Map.add attribute values attrs
-//         | _ -> failwith "TODO")
-//     source
-
-// let view = { Id = root; Attrs = attrs }
-// view
-
-let extractJson (ids: Quote) (source: Pattern) : string = failwith "TODO"
-// let mutable result = "["
-
-// List.iteri
-//     (fun index id ->
-//         match id with
-//         | Any.Term id ->
-//             if (index > 0) then
-//                 result <- result + ","
-
-//             result <- result + (createJsonView (extract source id) id |> writeJsonView)
-//         | _ -> failwith "TODO")
-//     ids
-
-// result <- result + "]"
-// result
-
-let extractJsonFn: Fn =
+let instancesFn: Fn =
     Fn(
         { doc = "..."
           examples = []
           args = ""
           result = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Quote ids :: Any.Network source :: tail ->
-    //     let json = extractJson ids source
-    //     Ok(Any.Term(Term json) :: tail)
-    // | _ -> failwith "TODO"
+        fun actions variables arguments ->
+            match arguments with
+            | [ Any.Quote concepts; Any.Network source ] ->
+                let result: AnySet =
+                    List.fold
+                        (fun state concept ->
+                            match concept with
+                            | Any.Term concept -> instances source concept
+                            | _ -> failwith "TODO")
+                        Set.empty
+                        concepts
+
+                Ok(Any.AnySet result)
+            | _ -> failwith "TODO"
     )
-
-// let instances (source: Network) (concept: Term) : AnySet =
-//     Set.fold
-//         (fun state triple ->
-//             match triple with
-//             | element, Term ":", conceptToCheck ->
-//                 if conceptToCheck = concept then
-//                     Set.add (Any.Network(extract source element)) state
-//                 else
-//                     state
-//             | _ -> state)
-//         Set.empty
-//         source
-
-// let instancesFn: Fn =
-//     Fn(
-//         { doc = "..."
-//           examples = []
-//           pre = ""
-//           post = "" },
-//         fun actions variables arguments ->
-//             match arguments with
-//             | [ Any.Quote concepts; Any.Network source ] ->
-//                 let result: AnySet =
-//                     List.fold
-//                         (fun state concept ->
-//                             match concept with
-//                             | Any.Term concept -> instances source concept
-//                             | _ -> failwith "TODO")
-//                         (Set.empty)
-//                         concepts
-
-//                 Ok(variables, Any.AnySet result)
-//             | _ -> failwith "TODO"
-//     )
-
-// let instancesJsonFn: Fn =
-//     Fn(
-//         { doc = "..."
-//           examples = []
-//           pre = ""
-//           post = "" },
-//         fun actions variables arguments -> failwith "TODO"
-//     // match stack with
-//     // | Any.Quote concepts :: Any.Network source :: tail ->
-//     //     let ids: Quote =
-//     //         List.fold
-//     //             (fun state concept ->
-//     //                 let mutable state = state
-
-//     //                 match concept with
-//     //                 | Any.Term el ->
-//     //                     Set.iter
-//     //                         (fun triple ->
-//     //                             match triple with
-//     //                             | TermPattern.Term e,
-//     //                               TermPattern.Term(Term ":"),
-//     //                               TermPattern.Term concept ->
-//     //                                 if el = concept then
-//     //                                     state <- Any.Term e :: state
-//     //                             | _ -> ())
-//     //                         source
-
-//     //                     state
-//     //                 | _ -> failwith "TODO")
-//     //             List.empty
-//     //             concepts
-
-//     //     let json = extractJson ids source
-//     //     Ok(Any.Term(Term json) :: tail)
-//     // | _ -> failwith "TODO"
-//     )
 
 let isConsistentFn =
     Fn(

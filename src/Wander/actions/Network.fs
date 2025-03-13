@@ -10,11 +10,11 @@ open Ligature.Core
 open Wander.Interpreter
 
 let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
-    match Map.tryFind (Any.Term(Term "@id")) record with
+    match Map.tryFind (Any.Term(Term "@")) record with
     | Some(Any.Term id) ->
         Seq.fold
             (fun state (key, value) ->
-                if key = Any.Term(Term "@id") then
+                if key = Any.Term(Term "@") then
                     state
                 else
                     let role: Term =
@@ -36,7 +36,7 @@ let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
                             quote
                     | Any.Record record ->
                         let state =
-                            match record.TryFind(Any.Term(Term "@id")) with
+                            match record.TryFind(Any.Term(Term "@")) with
                             | Some(Any.Term value) -> Set.add (id, role, Value.Term value) state
                             | _ -> failwith "TODO"
 
@@ -47,10 +47,10 @@ let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
             Set.empty
             (Map.toSeq record)
         |> Ok
-    | _ -> error "Record requires valid @id entry." None
+    | _ -> error "Record requires valid @ entry." None
 
 let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
-    match Map.tryFind (Any.Term(Term "@id")) record with
+    match Map.tryFind (Any.Term(Term "@")) record with
     | Some id ->
         let id =
             match id with
@@ -60,7 +60,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
 
         Seq.fold
             (fun state (key, value) ->
-                if key = Any.Term(Term "@id") then
+                if key = Any.Term(Term "@") then
                     state
                 else
                     let role: TermPattern =
@@ -85,7 +85,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
                             quote
                     | Any.Record record ->
                         let state =
-                            match record.TryFind(Any.Term(Term "@id")) with
+                            match record.TryFind(Any.Term(Term "@")) with
                             | Some(Any.Term value) -> Set.add (id, role, ValuePattern.Term value) state
                             | Some(Any.Slot slot) -> Set.add (id, role, ValuePattern.Slot slot) state
                             | _ -> failwith "TODO"
@@ -97,7 +97,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
             Set.empty
             (Map.toSeq record)
         |> Ok
-    | _ -> error "Record requires valid @id entry." None
+    | _ -> error "Record requires valid @ entry." None
 
 let networkFn =
     Fn(
