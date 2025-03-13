@@ -55,13 +55,15 @@ and rewriteApplication application =
     List.append currentBlock prevBlock
 
 and evalRecord (actions: Fns) (variables: Variables) (record: Record) : Record =
-    Map.map (fun _ value -> 
-        match value with
-        | Any.Block block ->
-            match evalScript actions variables block with
-            | Ok res -> res
-            | Error err -> failwith $"Error: {err.UserMessage}"
-        | other -> other) record
+    Map.map
+        (fun _ value ->
+            match value with
+            | Any.Block block ->
+                match evalScript actions variables block with
+                | Ok res -> res
+                | Error err -> failwith $"Error: {err.UserMessage}"
+            | other -> other)
+        record
 
 and executeApplication (actions: Fns) (variables: Variables) (application: Any list) : Result<Any, LigatureError> =
     let application = rewriteApplication application
@@ -69,8 +71,8 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
     match application with
     | [ Any.Network network ] -> Ok(Any.Network network)
     | [ Any.Quote quote ] -> Ok(Any.Quote quote)
-    | [ Any.Record record ] -> Ok(Any.Record (evalRecord actions variables record))
-    | [ Any.Literal literal] -> Ok(Any.Literal literal)
+    | [ Any.Record record ] -> Ok(Any.Record(evalRecord actions variables record))
+    | [ Any.Literal literal ] -> Ok(Any.Literal literal)
     | Any.Term fn :: tail ->
         match actions.TryFind fn with
         | Some(Fn(_, fn)) ->
@@ -84,7 +86,7 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Any l
                             match evalScript actions variables block with
                             | Ok res -> res
                             | Error err -> failwith $"Error: {err.UserMessage}"
-                        | Any.Record record -> Any.Record (evalRecord actions variables record)
+                        | Any.Record record -> Any.Record(evalRecord actions variables record)
                         | _ -> value)
                     tail)
         | None -> error $"Could not find function {fn}" None

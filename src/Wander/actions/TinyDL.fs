@@ -71,28 +71,31 @@ let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
 
 let extract (id: Term) (source: Network) : Record =
     let mutable result = Map.empty
-    result <- Map.add (Any.Term (Term "@")) (Any.Term id) result
-    Set.iter (fun triple ->
-        match triple with
-        | e, a, Value.Term v ->
-            if e = id then
-                result <- Map.add (Any.Term a) (Any.Term v) result
-        | e, a, Value.Literal v ->
-            if e = id then
-                result <- Map.add (Any.Term a) (Any.Literal v) result
-        | _ -> ()) source
+    result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
+
+    Set.iter
+        (fun triple ->
+            match triple with
+            | e, a, Value.Term v ->
+                if e = id then
+                    result <- Map.add (Any.Term a) (Any.Term v) result
+            | e, a, Value.Literal v ->
+                if e = id then
+                    result <- Map.add (Any.Term a) (Any.Literal v) result
+            | _ -> ())
+        source
+
     result
 
 let extractFn: Fn =
     Fn(
         { doc = "Create a Record of a single invidual's relations."
-          examples = ["extract a (network [a b c])"]
+          examples = [ "extract a (network [a b c])" ]
           args = "Term Network"
           result = "Record" },
         fun actions variables arguments ->
             match arguments with
-            | [Any.Term id; Any.Network source] ->
-                Ok (Any.Record (extract id source))
+            | [ Any.Term id; Any.Network source ] -> Ok(Any.Record(extract id source))
             | _ -> error "Invalid call to extract." None
     )
 
@@ -117,6 +120,9 @@ let instancesFn: Fn =
           result = "" },
         fun actions variables arguments ->
             match arguments with
+            | [ Any.Term concept; Any.Network source ] ->
+                let result: AnySet = instances source concept
+                Ok(Any.AnySet result)
             | [ Any.Quote concepts; Any.Network source ] ->
                 let result: AnySet =
                     List.fold

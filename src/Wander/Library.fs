@@ -94,7 +94,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "union", unionFn
           Term "infer", inferFn
           Term "remote", remoteFn
-          Term "extract", extractFn  
+          Term "extract", extractFn
           Term "instances", instancesFn
           Term "docs", docsFn
           Term "prepend", prependFn
