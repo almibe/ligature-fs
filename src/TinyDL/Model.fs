@@ -6,17 +6,20 @@ module TinyDL.Model
 
 open Ligature.Model
 
-type ExstRestriction = {
-    role: Term
-    filler: Term
-}
+type ExstRestriction = { role: Term; filler: Term }
 
 type ConceptExp =
     | ConceptName of Term
     | ConceptNegation of Term
-    | ConceptConjection of ConceptExp seq
+    | ConceptConjection of Set<ConceptExp>
     | ExstRestriction of ExstRestriction
 
 type ConceptDef =
     | ConceptEquiv of Term * ConceptExp
     | ConceptSub of Term * ConceptExp
+
+let networkToModel (network: Network) : Set<ConceptDef> = 
+    Set.empty
+
+let modelToNetwork (model: Set<ConceptDef>) : Network =
+    Set.empty

@@ -7,5 +7,4 @@ module TinyDL.Core
 open Ligature.Model
 open TinyDL.Model
 
-let infer (tBox: ConceptDef seq) (aBox: Network): Network =
-    aBox
+let infer (tBox: ConceptDef seq) (aBox: Network) : Network = aBox

@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Model.Test.fs" />
     <Compile Include="Core.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
