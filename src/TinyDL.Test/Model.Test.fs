@@ -16,4 +16,33 @@ let tests =
         [ testCase "pass empty network"
           <| fun _ ->
               let result = networkToModel Set.empty
-              Expect.equal result Set.empty "" ]
+              Expect.equal result Set.empty ""
+          testCase "A ≡ B"
+          <| fun _ ->
+              let result =
+                  networkToModel (Set.ofList [ 
+                    (Term "A", Term "tiny-dl.≡", Value.Term(Term "B"))
+                    (Term "B", Term ":", Value.Term(Term "tiny-dl.ConceptName")) ])
+
+              Expect.equal
+                  result
+                  (Set.ofList [ ConceptDef.ConceptEquiv(Term "A", ConceptExp.ConceptName(Term "B")) ])
+                  ""
+          testCase "A ≡ B ⊓ C"
+          <| fun _ ->
+              let result =
+                  networkToModel (Set.ofList [ 
+                    (Term "A", Term "tiny-dl.≡", Value.Term(Term "_1")) 
+                    (Term "_1", Term ":", Value.Term(Term "tiny-dl.Conjunction")) 
+                    (Term "_1", Term "tiny-dl.conjunct", Value.Term(Term "B"))
+                    (Term "_1", Term "tiny-dl.conjunct", Value.Term(Term "C"))
+                    (Term "B", Term ":", Value.Term(Term "tiny-dl.ConceptName"))
+                    (Term "C", Term ":", Value.Term(Term "tiny-dl.ConceptName")) ])
+
+              Expect.equal
+                  result
+                  (Set.ofList [ ConceptDef.ConceptEquiv(Term "A", 
+                    ConceptExp.ConceptConjection (Set.ofList [
+                        ConceptExp.ConceptName (Term "B")
+                        ConceptExp.ConceptName (Term "C")])) ])
+                  "" ]

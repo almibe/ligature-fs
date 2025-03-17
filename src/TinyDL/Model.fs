@@ -8,18 +8,25 @@ open Ligature.Model
 
 type ExstRestriction = { role: Term; filler: Term }
 
+[<RequireQualifiedAccess>]
 type ConceptExp =
     | ConceptName of Term
     | ConceptNegation of Term
     | ConceptConjection of Set<ConceptExp>
     | ExstRestriction of ExstRestriction
 
+[<RequireQualifiedAccess>]
 type ConceptDef =
     | ConceptEquiv of Term * ConceptExp
     | ConceptSub of Term * ConceptExp
 
-let networkToModel (network: Network) : Set<ConceptDef> = 
-    Set.empty
-
-let modelToNetwork (model: Set<ConceptDef>) : Network =
-    Set.empty
+let networkToModel (network: Network) : Set<ConceptDef> =
+    Set.filter (fun triple -> 
+        match triple with
+        | _, Term "tiny-dl.≡", _ -> true
+        | _ -> false) network
+    |> Set.map (fun triple ->
+        match triple with
+        | concept, Term "tiny-dl.≡", Value.Term equiv ->
+            ConceptDef.ConceptEquiv (concept, ConceptExp.ConceptName equiv)
+        | _ -> failwith "TODO")
