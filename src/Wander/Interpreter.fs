@@ -9,19 +9,26 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Result<Any, LigatureError> =
+let rec evalScript (actions: Fns) (bindings: Bindings) (script: Script) : Result<Any, LigatureError> =
     match script with
     | [] -> Ok(Any.Network Set.empty)
     | [ head ] ->
         match head with
-        | Expression.Assignment(variable, value) -> failwith "TODO"
-        | Expression.Application application -> executeApplication actions variables application
+        | Expression.Assignment(_, _, _) -> Ok(Any.Network Set.empty)
+        | Expression.Application application -> executeApplication actions bindings application
     | head :: tail ->
         match head with
-        | Expression.Assignment(variable, value) -> failwith "TODO"
+        | Expression.Assignment(name, argNames, value) ->
+            let bindings =
+                match argNames, value with
+                | [], value ->
+                    Map.add name value bindings
+                | args, Any.Lambda lambda -> failwith "TODO"
+                | _ -> failwith "Invalid assignment"
+            evalScript actions bindings tail
         | Expression.Application application ->
-            match executeApplication actions variables application with
-            | Ok _ -> evalScript actions variables tail
+            match executeApplication actions bindings application with
+            | Ok _ -> evalScript actions bindings tail
             | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
@@ -54,44 +61,47 @@ and rewriteApplication application =
 
     List.append currentBlock prevBlock
 
-and evalRecord (actions: Fns) (variables: Variables) (record: Record) : Record =
+and evalRecord (actions: Fns) (bindings: Bindings) (record: Record) : Record =
     Map.map
         (fun _ value ->
             match value with
             | Any.Block block ->
-                match evalScript actions variables block with
+                match evalScript actions bindings block with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}"
             | other -> other)
         record
 
-and executeApplication (actions: Fns) (variables: Variables) (application: Any list) : Result<Any, LigatureError> =
+and executeApplication (actions: Fns) (bindings: Bindings) (application: Any list) : Result<Any, LigatureError> =
     let application = rewriteApplication application
 
     match application with
     | [ Any.Network network ] -> Ok(Any.Network network)
     | [ Any.Quote quote ] -> Ok(Any.Quote quote)
-    | [ Any.Record record ] -> Ok(Any.Record(evalRecord actions variables record))
+    | [ Any.Record record ] -> Ok(Any.Record(evalRecord actions bindings record))
     | [ Any.Literal literal ] -> Ok(Any.Literal literal)
     | Any.Term fn :: tail ->
-        match actions.TryFind fn with
-        | Some(Fn(_, fn)) ->
+        match bindings.TryFind fn, actions.TryFind fn with
+        | Some binding, _ -> 
+            
+            failwith "TODO"
+        | None, Some(Fn(_, fn)) ->
             fn
                 actions
-                variables
+                bindings
                 (List.map
                     (fun value ->
                         match value with
                         | Any.Block block ->
-                            match evalScript actions variables block with
+                            match evalScript actions bindings block with
                             | Ok res -> res
                             | Error err -> failwith $"Error: {err.UserMessage}"
-                        | Any.Record record -> Any.Record(evalRecord actions variables record)
+                        | Any.Record record -> Any.Record(evalRecord actions bindings record)
                         | _ -> value)
                     tail)
-        | None -> error $"Could not find function {fn}" None
+        | None, None -> error $"Could not find function {fn}" None
     | [ Any.Block block ] ->
-        match evalScript actions variables block with
+        match evalScript actions bindings block with
         | Ok res -> Ok res
         | Error err -> failwith $"Error: {err.UserMessage}"
     | _ -> failwith "TODO"

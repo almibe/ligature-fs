@@ -45,8 +45,6 @@ let charInRange char start stop = char >= start && char <= stop
 let charListToInt i =
     System.Numerics.BigInteger.Parse(System.String(List.concat i |> List.toArray))
 
-let whitespaceNibbler = Nibblers.takeWhile (fun c -> c = ' ' || c = '\t')
-
 [<RequireQualifiedAccess>]
 type Token =
     | WhiteSpace of string

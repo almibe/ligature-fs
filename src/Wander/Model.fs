@@ -6,8 +6,6 @@ module Wander.Model
 
 open Ligature.Model
 
-type Variable = Variable of string
-
 type Quote = Any list
 
 and AnySet = Set<Any>
@@ -16,7 +14,6 @@ and Record = Map<Any, Any>
 
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
-    | Variable of Variable
     | Quote of Quote
     | Term of Term
     | Literal of Literal
@@ -28,17 +25,20 @@ and [<RequireQualifiedAccess>] Any =
     | AnySet of AnySet
     | Record of Record
     | Block of Script
-    | Pipe
+    | Lambda of Lambda
+    | Pipe //TODO eventually remove
 
 and [<RequireQualifiedAccess>] Expression =
     | Application of Any list
-    | Assignment of Variable * Any
+    | Assignment of Term * string list * Any
 
 and Script = Expression list
 
+and Lambda = Term list * Script
+
 type Arguments = Any list
 
-type Variables = Map<Variable, Any>
+type Bindings = Map<Term, Any>
 
 and Fns = Map<Term, Fn>
 
@@ -48,7 +48,7 @@ and FnDoc =
       args: string
       result: string }
 
-and Fn = Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Any, LigatureError>)
+and Fn = Fn of FnDoc * (Fns -> Bindings -> Arguments -> Result<Any, LigatureError>)
 
 and Slots = Map<Slot, Any>
 
@@ -72,10 +72,10 @@ let rec printAny (value: Any) : string =
     | Any.ValueSet(_) -> failwith "Not Implemented"
     | Any.Comment(_) -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
-    | Any.Variable(_) -> failwith "Not Implemented"
     | Any.Pattern(_) -> failwith "Not Implemented"
     | Any.Block(_) -> failwith "Not Implemented"
     | Any.Record record -> printRecord record
+    | Any.Pipe -> failwith "Not Implemented"
 
 and printQuote (quote: Quote) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" quote + "]"

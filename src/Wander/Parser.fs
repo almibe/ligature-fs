@@ -123,15 +123,38 @@ let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ quoteAnyNib; recordNib; elementLiteralSlotNib; blockNib; pipeNib ]
 
 let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    let variable = Gaze.attempt anyNib gaze
-    let assignmentOp = Gaze.attempt anyNib gaze
-    let value = Gaze.attempt anyNib gaze
+    let letKeyword = Gaze.attempt anyNib gaze
+    if letKeyword = Ok (Any.Term(Term "let")) then        
+        match Gaze.attempt anyNib gaze with
+        | Ok (Any.Term name) ->
+            let res =
+                takeWhile (fun value ->
+                    match value with
+                    | Token.Term "=" -> false
+                    | Token.Term _ -> true
+                    | _ -> false) gaze
+            match res with
+            | Ok args -> 
+                match Gaze.next gaze with
+                | Ok(Token.Term "=") -> 
+                    match Gaze.attempt anyNib gaze with
+                    | Ok value -> 
+                        Ok (Expression.Assignment (name, [], value))
+                    | _ -> Error Gaze.GazeError.NoMatch
+                | _ -> Error Gaze.GazeError.NoMatch
+            | _ -> Error Gaze.GazeError.NoMatch
+            // let assignmentOp = Gaze.attempt anyNib gaze
+            // let value = Gaze.attempt anyNib gaze
 
-    match variable, assignmentOp, value with
-    | Ok(Any.Variable _), Ok(Any.Term(Term "=")), Ok value ->
-        //Ok (Expression.Assignment )
-        failwith "TODO"
-    | _ -> Error Gaze.GazeError.NoMatch
+            // match letKeyword, variable, assignmentOp, value with
+            // | Ok(Any.Term(Term "let")), Ok(Any.Term _), Ok(Any.Term(Term "=")), Ok value ->
+            //     //Ok (Expression.Assignment )
+            //     failwith "TODO"
+            // | _ -> 
+        | _ -> Error Gaze.GazeError.NoMatch
+    else
+        Error Gaze.GazeError.NoMatch
+
 
 let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match repeat anyNib gaze with
@@ -139,7 +162,7 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
     | _ -> Error Gaze.GazeError.NoMatch
 
 let scriptNib =
-    optional (repeatSep (takeFirst [ applicationNib; assignmentNib ]) Token.Comma)
+    optional (repeatSep (takeFirst [ assignmentNib; applicationNib ]) Token.Comma)
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
