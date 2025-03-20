@@ -19,9 +19,9 @@ let tests =
               Expect.equal (tokenize "hello") (Ok [ Token.Term "hello" ]) ""
               Expect.equal (tokenize "x.y") (Ok [ Token.Term "x.y" ]) ""
               Expect.equal (tokenize "hello.t.x.a") (Ok [ Token.Term "hello.t.x.a" ]) ""
-              Expect.equal (tokenize "$") (Ok [ Token.Term "$" ]) ""
-              Expect.equal (tokenize "$a") (Ok [ Token.Term "$a" ]) ""
-              Expect.equal (tokenize "$this_is_also234") (Ok [ Token.Term "$this_is_also234" ]) ""
+              Expect.equal (tokenize "$") (Ok [ Token.Variable "$" ]) ""
+              Expect.equal (tokenize "$a") (Ok [ Token.Variable "$a" ]) ""
+              Expect.equal (tokenize "$this_is_also234") (Ok [ Token.Variable "$this_is_also234" ]) ""
               Expect.equal (tokenize "0") (Ok [ Token.Term "0" ]) ""
               Expect.equal (tokenize "?_") (Ok [ Token.Slot "?_" ]) ""
               Expect.equal (tokenize "?test") (Ok [ Token.Slot "?test" ]) ""
@@ -34,8 +34,8 @@ let tests =
           //Expect.equal (tokenize "\t  ") (Ok([Token.WhiteSpace("\t  ")])) ""
           testCase "tokenize strings"
           <| fun _ ->
-              Expect.equal (tokenize "\"hello\"") (Ok [ Token.StringLiteral "hello" ]) ""
-              Expect.equal (tokenize "\"\"") (Ok [ Token.StringLiteral "" ]) ""
+              Expect.equal (tokenize "\"hello\"") (Ok [ Token.Literal "hello" ]) ""
+              Expect.equal (tokenize "\"\"") (Ok [ Token.Literal "" ]) ""
           testCase "tokenize new lines"
           <| fun _ ->
               Expect.equal (tokenize "\n") (Ok [ Token.NewLine "\n" ]) ""
@@ -51,7 +51,7 @@ let tests =
           //           (Ok([ Token.Comment("-- this is a@#$@%$#@$%@ comment;;;;  ") ]))
           //           ""
           testCase "read String Literal"
-          <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok [ Token.StringLiteral "hello" ]) ""
+          <| fun _ -> Expect.equal (tokenize @"""hello""") (Ok [ Token.Literal "hello" ]) ""
           testCase "read braces"
           <| fun _ ->
               Expect.equal (tokenize "{") (Ok [ Token.OpenBrace ]) ""
@@ -98,6 +98,10 @@ let tests =
                   ""
           testCase "read variable"
           <| fun _ -> Expect.equal (tokenize "?") (Ok [ Token.Slot("?") ]) ""
+          testCase "read application"
+          <| fun _ -> Expect.equal (tokenize "(test)") (Ok [ Token.OpenParen; Token.Term("test"); Token.CloseParen ]) ""
+          testCase "read application2"
+          <| fun _ -> Expect.equal (tokenize "(2)") (Ok [ Token.OpenParen; Token.Term("2"); Token.CloseParen ]) ""
           testCase "read named variable"
           <| fun _ -> Expect.equal (tokenize "?test") (Ok [ Token.Slot("?test") ]) ""
           testCase "return error on invalid input"

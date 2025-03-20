@@ -20,18 +20,14 @@ let tests =
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "read empty quote"
-          <| fun _ -> Expect.equal (parse "[]") (Ok [ Expression.Application [ Any.Quote [] ] ]) ""
+          <| fun _ -> Expect.equal (parse "[]") (Ok [ Any.Quote [] ]) ""
           testCase "read quote"
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
-                  (Ok [ Expression.Application [ Any.Quote [ Any.Term(Term "test"); Any.Literal(Literal "test2") ] ] ])
+                  (Ok [ Any.Quote [ Any.Term(Term "test"); Any.Literal(Literal "test2") ] ])
                   ""
           testCase "read empty record"
-          <| fun _ -> Expect.equal (parse "{}") (Ok [ Expression.Application [ Any.Record Map.empty ] ]) ""
+          <| fun _ -> Expect.equal (parse "{}") (Ok [ Any.Record Map.empty ]) ""
           testCase "read basic block"
-          <| fun _ ->
-              Expect.equal
-                  (parse "(2)")
-                  (Ok [ Expression.Application [ Any.Block [ Expression.Application [ Any.Term(Term "2") ] ] ] ])
-                  "" ]
+          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.Application(Term "2", []) ]) "" ]

@@ -19,11 +19,17 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Value.Term(Term value))
-    | Ok(Token.StringLiteral value) -> Ok(Value.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(Value.Literal(Literal value))
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
-let variableNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
+let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
+    match Gaze.next gaze with
+    | Error err -> Error err
+    | Ok(Token.Variable value) -> Ok(Variable value)
+    | _ -> Error Gaze.GazeError.NoMatch
+
+let slotNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
     match Gaze.next gaze with
     | Error err -> Error err
     | Ok(Token.Slot value) -> Ok(Slot value)
@@ -36,12 +42,13 @@ let partialQuoteNib (gaze: Gaze.Gaze<Token>) : Result<Quote, Gaze.GazeError> =
         return values
     }
 
-let blockNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
+        let! fn = Gaze.attempt termNib gaze
         let! values = Gaze.attempt scriptNib gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Any.Block(values)
+        return Any.Application(fn, values)
     }
 
 let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -50,6 +57,14 @@ let quoteAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
         return Any.Quote values
+    }
+
+let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
+    result {
+        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
+        let! values = Gaze.attempt (optional (repeat variableNib)) gaze
+        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
+        return values
     }
 
 let recordNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -78,11 +93,11 @@ let recordNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
             Error Gaze.NoMatch
     | Error err -> Error err
 
-let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.Pipe) gaze
-        return Any.Pipe
-    }
+// let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+//     result {
+//         let! _ = Gaze.attempt (take Token.Pipe) gaze
+//         return Any.Pipe
+//     }
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     let next = Gaze.next gaze
@@ -90,7 +105,7 @@ let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     match next with
     | Error err -> Error err
     | Ok(Token.Term value) -> Ok(TermPattern.Term(Term value))
-    | Ok(Token.StringLiteral value) -> Ok(TermPattern.Term(Term value))
+    | Ok(Token.Literal value) -> Ok(TermPattern.Term(Term value))
     | _ -> Error Gaze.GazeError.NoMatch
 
 let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
@@ -108,7 +123,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     match next with
     | Error err -> Error err
     | Ok(Token.Term value) -> Ok(ValuePattern.Term(Term value))
-    | Ok(Token.StringLiteral value) -> Ok(ValuePattern.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(ValuePattern.Literal(Literal value))
     | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -116,53 +131,34 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Any.Term(Term value))
     | Ok(Token.Slot value) -> Ok(Any.Slot(Slot value))
-    | Ok(Token.StringLiteral value) -> Ok(Any.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(Any.Literal(Literal value))
     | _ -> Error Gaze.GazeError.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
-    takeFirst [ quoteAnyNib; recordNib; elementLiteralSlotNib; blockNib; pipeNib ]
+    takeFirst [ applicationNib; quoteAnyNib; recordNib; elementLiteralSlotNib ]
 
-let assignmentNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    let letKeyword = Gaze.attempt anyNib gaze
-    if letKeyword = Ok (Any.Term(Term "let")) then        
-        match Gaze.attempt anyNib gaze with
-        | Ok (Any.Term name) ->
-            let res =
-                takeWhile (fun value ->
-                    match value with
-                    | Token.Term "=" -> false
-                    | Token.Term _ -> true
-                    | _ -> false) gaze
-            match res with
-            | Ok args -> 
-                match Gaze.next gaze with
-                | Ok(Token.Term "=") -> 
-                    match Gaze.attempt anyNib gaze with
-                    | Ok value -> 
-                        Ok (Expression.Assignment (name, [], value))
-                    | _ -> Error Gaze.GazeError.NoMatch
-                | _ -> Error Gaze.GazeError.NoMatch
-            | _ -> Error Gaze.GazeError.NoMatch
-            // let assignmentOp = Gaze.attempt anyNib gaze
-            // let value = Gaze.attempt anyNib gaze
+// let defnNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+//     let defnKeyword = Gaze.attempt anyNib gaze
+//     if defnKeyword = Ok (Any.Term(Term "defn")) then
+//         match Gaze.attempt termNib gaze with
+//         | Ok name ->
+//             match Gaze.attempt argsNib gaze with
+//             | Ok args ->
+//                 match Gaze.attempt anyNib gaze with
+//                 | Ok value ->
+//                     Ok (Expression.Defn (name, (args, value)))
+//                 | _ -> Error Gaze.GazeError.NoMatch
+//             | _ -> Error Gaze.GazeError.NoMatch
+//         | _ -> Error Gaze.GazeError.NoMatch
+//     else
+//         Error Gaze.GazeError.NoMatch
 
-            // match letKeyword, variable, assignmentOp, value with
-            // | Ok(Any.Term(Term "let")), Ok(Any.Term _), Ok(Any.Term(Term "=")), Ok value ->
-            //     //Ok (Expression.Assignment )
-            //     failwith "TODO"
-            // | _ -> 
-        | _ -> Error Gaze.GazeError.NoMatch
-    else
-        Error Gaze.GazeError.NoMatch
-
-
-let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    match repeat anyNib gaze with
-    | Ok res -> Ok(Expression.Application res)
+let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+    match anyNib gaze with
+    | Ok res -> Ok res
     | _ -> Error Gaze.GazeError.NoMatch
 
-let scriptNib =
-    optional (repeatSep (takeFirst [ assignmentNib; applicationNib ]) Token.Comma)
+let scriptNib: Gaze.Nibbler<Token, Script> = repeatOptional anyNib
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>

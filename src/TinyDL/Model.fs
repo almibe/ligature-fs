@@ -21,12 +21,13 @@ type ConceptDef =
     | ConceptSub of Term * ConceptExp
 
 let networkToModel (network: Network) : Set<ConceptDef> =
-    Set.filter (fun triple -> 
-        match triple with
-        | _, Term "tiny-dl.≡", _ -> true
-        | _ -> false) network
+    Set.filter
+        (fun triple ->
+            match triple with
+            | _, Term "tiny-dl.≡", _ -> true
+            | _ -> false)
+        network
     |> Set.map (fun triple ->
         match triple with
-        | concept, Term "tiny-dl.≡", Value.Term equiv ->
-            ConceptDef.ConceptEquiv (concept, ConceptExp.ConceptName equiv)
+        | concept, Term "tiny-dl.≡", Value.Term equiv -> ConceptDef.ConceptEquiv(concept, ConceptExp.ConceptName equiv)
         | _ -> failwith "TODO")

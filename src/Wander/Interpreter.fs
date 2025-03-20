@@ -12,24 +12,17 @@ open Parser
 let rec evalScript (actions: Fns) (bindings: Bindings) (script: Script) : Result<Any, LigatureError> =
     match script with
     | [] -> Ok(Any.Network Set.empty)
-    | [ head ] ->
-        match head with
-        | Expression.Assignment(_, _, _) -> Ok(Any.Network Set.empty)
-        | Expression.Application application -> executeApplication actions bindings application
+    | [ head ] -> executeExpression actions bindings head
     | head :: tail ->
-        match head with
-        | Expression.Assignment(name, argNames, value) ->
-            let bindings =
-                match argNames, value with
-                | [], value ->
-                    Map.add name value bindings
-                | args, Any.Lambda lambda -> failwith "TODO"
-                | _ -> failwith "Invalid assignment"
-            evalScript actions bindings tail
-        | Expression.Application application ->
-            match executeApplication actions bindings application with
-            | Ok _ -> evalScript actions bindings tail
-            | Error err -> Error err
+        // match head with
+        // | _ -> failwith "TODO"
+        // | Expression.Defn(name, lambda) ->
+        //     let bindings = Map.add name lambda bindings
+        //     evalScript actions bindings tail
+        // | Expression.Application application ->
+        match executeExpression actions bindings head with
+        | Ok _ -> evalScript actions bindings tail
+        | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
     Fn(
@@ -45,46 +38,81 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some action -> Some action
     | None -> None
 
-and rewriteApplication application =
-    let mutable currentBlock = []
-    let mutable prevBlock = []
+and rewriteApplication application = failwith "TODO"
+// let mutable currentBlock = []
+// let mutable prevBlock = []
 
-    List.iter
-        (fun value ->
-            match value with
-            | Any.Pipe ->
-                currentBlock <- [ Any.Block [ Expression.Application(List.append currentBlock prevBlock) ] ]
-                prevBlock <- currentBlock
-                currentBlock <- []
-            | _ -> currentBlock <- List.append currentBlock [ value ])
-        application
+// List.iter
+//     (fun value ->
+//         match value with
+//         | Any.Pipe ->
+//             currentBlock <- [ Any.Block [ Expression.Application(List.append currentBlock prevBlock) ] ]
+//             prevBlock <- currentBlock
+//             currentBlock <- []
+//         | _ -> currentBlock <- List.append currentBlock [ value ])
+//     application
 
-    List.append currentBlock prevBlock
+// List.append currentBlock prevBlock
 
 and evalRecord (actions: Fns) (bindings: Bindings) (record: Record) : Record =
     Map.map
         (fun _ value ->
             match value with
-            | Any.Block block ->
-                match evalScript actions bindings block with
+            | Any.Application application ->
+                match executeApplication actions bindings application with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}"
             | other -> other)
         record
 
-and executeApplication (actions: Fns) (bindings: Bindings) (application: Any list) : Result<Any, LigatureError> =
-    let application = rewriteApplication application
+and evalLambda (fns: Fns) (bindings: Bindings) (lambda: Lambda) : Result<Any, LigatureError> = failwith "TODO"
+//     let args, body = lambda
+//     //TODO bind args
+//     evalScript fns bindings [Expression.Application [body]]
 
-    match application with
-    | [ Any.Network network ] -> Ok(Any.Network network)
-    | [ Any.Quote quote ] -> Ok(Any.Quote quote)
-    | [ Any.Record record ] -> Ok(Any.Record(evalRecord actions bindings record))
-    | [ Any.Literal literal ] -> Ok(Any.Literal literal)
-    | Any.Term fn :: tail ->
+and executeApplication (actions: Fns) (bindings: Bindings) (application: Application) : Result<Any, LigatureError> =
+    // let application = rewriteApplication expression
+    let fn, args = application
+
+    match bindings.TryFind fn, actions.TryFind fn with
+    | Some lambda, _ -> evalLambda actions bindings lambda
+    | None, Some(Fn(_, fn)) ->
+        fn
+            actions
+            bindings
+            (List.map
+                (fun value ->
+                    match value with
+                    | Any.Application application ->
+                        match executeApplication actions bindings application with
+                        | Ok res -> res
+                        | Error err -> failwith $"Error: {err.UserMessage}"
+                    | Any.Record record -> Any.Record(evalRecord actions bindings record)
+                    | _ -> value)
+                args)
+    | None, None -> error $"Could not find function {fn}" None
+// match lookupFn actions action with
+// | Some(Fn.Full(_, action)) -> action actions stack
+// | Some(Fn.Stack(_, action)) ->
+//     match action stack with
+//     | Ok stack -> Ok(stack)
+//     | Error err -> Error err
+// | None -> error $"Could not find action {action}." None
+
+
+
+and executeExpression (actions: Fns) (bindings: Bindings) (expression: Any) : Result<Any, LigatureError> =
+    // let application = rewriteApplication expression
+
+    match expression with
+    | Any.Network network -> Ok(Any.Network network)
+    | Any.Quote quote -> Ok(Any.Quote quote)
+    | Any.Record record -> Ok(Any.Record(evalRecord actions bindings record))
+    | Any.Literal literal -> Ok(Any.Literal literal)
+    | Any.Term term -> Ok(Any.Term term)
+    | Any.Application(fn, args) ->
         match bindings.TryFind fn, actions.TryFind fn with
-        | Some binding, _ -> 
-            
-            failwith "TODO"
+        | Some lambda, _ -> evalLambda actions bindings lambda
         | None, Some(Fn(_, fn)) ->
             fn
                 actions
@@ -92,18 +120,14 @@ and executeApplication (actions: Fns) (bindings: Bindings) (application: Any lis
                 (List.map
                     (fun value ->
                         match value with
-                        | Any.Block block ->
-                            match evalScript actions bindings block with
+                        | Any.Application application ->
+                            match executeApplication actions bindings application with
                             | Ok res -> res
                             | Error err -> failwith $"Error: {err.UserMessage}"
                         | Any.Record record -> Any.Record(evalRecord actions bindings record)
                         | _ -> value)
-                    tail)
+                    args)
         | None, None -> error $"Could not find function {fn}" None
-    | [ Any.Block block ] ->
-        match evalScript actions bindings block with
-        | Ok res -> Ok res
-        | Error err -> failwith $"Error: {err.UserMessage}"
     | _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

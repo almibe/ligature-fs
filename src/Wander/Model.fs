@@ -6,6 +6,8 @@ module Wander.Model
 
 open Ligature.Model
 
+type Variable = Variable of string
+
 type Quote = Any list
 
 and AnySet = Set<Any>
@@ -17,6 +19,7 @@ and [<RequireQualifiedAccess>] Any =
     | Quote of Quote
     | Term of Term
     | Literal of Literal
+    | Variable of Variable
     | Pattern of Pattern
     | Network of Network
     | ValueSet of ValueSet
@@ -24,21 +27,18 @@ and [<RequireQualifiedAccess>] Any =
     | Comment of string
     | AnySet of AnySet
     | Record of Record
-    | Block of Script
+    | Application of Application
     | Lambda of Lambda
-    | Pipe //TODO eventually remove
 
-and [<RequireQualifiedAccess>] Expression =
-    | Application of Any list
-    | Assignment of Term * string list * Any
+and Application = Term * Any list
 
-and Script = Expression list
+and Script = Any list
 
-and Lambda = Term list * Script
+and Lambda = Variable list * Any
 
 type Arguments = Any list
 
-type Bindings = Map<Term, Any>
+type Bindings = Map<Term, Lambda>
 
 and Fns = Map<Term, Fn>
 
@@ -73,9 +73,8 @@ let rec printAny (value: Any) : string =
     | Any.Comment(_) -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
     | Any.Pattern(_) -> failwith "Not Implemented"
-    | Any.Block(_) -> failwith "Not Implemented"
+    | Any.Application(_) -> failwith "Not Implemented"
     | Any.Record record -> printRecord record
-    | Any.Pipe -> failwith "Not Implemented"
 
 and printQuote (quote: Quote) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" quote + "]"

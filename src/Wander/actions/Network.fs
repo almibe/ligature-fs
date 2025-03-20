@@ -263,7 +263,7 @@ let queryFn =
           result = "TemplateResult" },
         fun _ _ arguments ->
             match arguments with
-            | [Any.Pattern template; Any.Pattern pattern; Any.Network source] ->
+            | [ Any.Pattern template; Any.Pattern pattern; Any.Network source ] ->
                 let results =
                     query pattern template source
                     |> Seq.map (fun network -> Any.Network network)

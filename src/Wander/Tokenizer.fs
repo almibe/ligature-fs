@@ -51,7 +51,8 @@ type Token =
     | NewLine of string
     | Term of string
     | Slot of string
-    | StringLiteral of string
+    | Literal of string
+    | Variable of string
     | OpenBrace
     | CloseBrace
     | OpenSquare
@@ -69,7 +70,7 @@ let takeAndMap toTake toMap =
     Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
 
 let stringLiteralTokenNibbler =
-    Gaze.map stringNibbler (fun string -> Token.StringLiteral(string))
+    Gaze.map stringNibbler (fun string -> Token.Literal(string))
 
 // let multiLineStringLiteralTokenNibbler =
 //     Gaze.map multiLineStringNibbler (fun string -> Token.StringLiteral(string))
@@ -130,10 +131,9 @@ let elementTokenNibbler =
         |> List.concat
         |> implode
         |> fun value ->
-            if value.StartsWith "?" then
-                Token.Slot value
-            else
-                Token.Term value)
+            if value.StartsWith "?" then Token.Slot value
+            else if value.StartsWith "$" then Token.Variable value
+            else Token.Term value)
 
 let tokenNibbler =
     Nibblers.optional (
