@@ -15,7 +15,7 @@ let main (args: string[]) =
     let file = $"{dir}/{args[0]}"
     let script = System.IO.File.ReadAllText file
 
-    match run (stdFns (new InMemoryStore())) Map.empty script with
+    match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
     | Ok res -> printfn $"{printAny res}"
     | Error err -> printfn $"{err.UserMessage}"
 

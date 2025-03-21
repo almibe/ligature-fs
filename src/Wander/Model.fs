@@ -34,7 +34,7 @@ and Application = Term * Any list
 
 and Script = Any list
 
-and Lambda = Variable list * Any
+and Lambda = Variable list * Script
 
 type Arguments = Any list
 
