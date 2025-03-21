@@ -14,13 +14,13 @@ let assertEqualFn: Fn =
           examples = []
           args = "Any Any"
           result = "" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ first; second ] ->
                 // let first =
                 //     match first with
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(res), _, _, _, _)) -> res
                 //         | Ok _ -> failwith "Invalid first expression passed to assert-equal."
                 //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
@@ -32,8 +32,8 @@ let assertEqualFn: Fn =
 
                 // let second =
                 //     match second with
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(res), _, _, _, _)) -> res
                 //         | Ok _ -> failwith "Invalid second expression passed to assert-equal."
                 //         | Error err -> failwith $"Expression errored: {err.UserMessage}."
@@ -54,8 +54,8 @@ let assertEqualFn: Fn =
 //     { Eval =
 //         fun networks local (modules: Modules) (arguments: Arguments) ->
 //             match arguments with
-//             | [ Any.Quote quote ] ->
-//                 match evalQuote networks local modules quote with
+//             | [ Any.Tuple tuple ] ->
+//                 match evalTuple networks local modules tuple with
 //                 | Ok(_) -> error "assert-fail call didn't result in error." None
 //                 | Error _ -> Ok((Some(Any.Network Set.empty), networks, local, modules))
 //             | args -> error $"assert-fail passed illegal arguments - {args}" None }

@@ -8,7 +8,7 @@ open Ligature.Model
 
 type Variable = Variable of string
 
-type Quote = Any list
+type Tuple = Any list
 
 and AnySet = Set<Any>
 
@@ -16,7 +16,7 @@ and Record = Map<Any, Any>
 
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
-    | Quote of Quote
+    | Tuple of Tuple
     | Term of Term
     | Literal of Literal
     | Variable of Variable
@@ -40,6 +40,8 @@ type Arguments = Any list
 
 type Bindings = Map<Term, Lambda>
 
+type Variables = Map<Variable, Any>
+
 and Fns = Map<Term, Fn>
 
 and FnDoc =
@@ -48,7 +50,7 @@ and FnDoc =
       args: string
       result: string }
 
-and Fn = Fn of FnDoc * (Fns -> Bindings -> Arguments -> Result<Any, LigatureError>)
+and Fn = Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Any, LigatureError>)
 
 and Slots = Map<Slot, Any>
 
@@ -65,7 +67,8 @@ let rec printAny (value: Any) : string =
     match value with
     | Any.Term(Term value) -> value
     | Any.Literal(Literal l) -> encodeString l
-    | Any.Quote quote -> printQuote quote
+    | Any.Variable(Variable v) -> v
+    | Any.Tuple tuple -> printTuple tuple
     | Any.Network n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
@@ -76,8 +79,8 @@ let rec printAny (value: Any) : string =
     | Any.Application(_) -> failwith "Not Implemented"
     | Any.Record record -> printRecord record
 
-and printQuote (quote: Quote) : string =
-    Seq.fold (fun state value -> state + printAny value + " ") "[" quote + "]"
+and printTuple (tuple: Tuple) : string =
+    Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
 
 and printRecord (record: Record) : string =
     Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)

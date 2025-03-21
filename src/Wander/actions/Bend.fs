@@ -15,7 +15,7 @@ let bendJsonFn =
           examples = []
           args = "Network Term Network"
           result = "Literal" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Network definitions; Any.Term encodingName; Any.Network data ] ->
                 let res = networkMatch (Set.ofList []) definitions
@@ -36,8 +36,8 @@ let bendJsonFn =
                 //         match Map.tryFind v variables with
                 //         | Some(Any.Network res) -> res
                 //         | _ -> failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"

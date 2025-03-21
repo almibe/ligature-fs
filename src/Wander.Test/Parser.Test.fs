@@ -19,13 +19,13 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
-          testCase "read empty quote"
-          <| fun _ -> Expect.equal (parse "[]") (Ok [ Any.Quote [] ]) ""
-          testCase "read quote"
+          testCase "read empty tuple"
+          <| fun _ -> Expect.equal (parse "[]") (Ok [ Any.Tuple [] ]) ""
+          testCase "read tuple"
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
-                  (Ok [ Any.Quote [ Any.Term(Term "test"); Any.Literal(Literal "test2") ] ])
+                  (Ok [ Any.Tuple [ Any.Term(Term "test"); Any.Literal(Literal "test2") ] ])
                   ""
           testCase "read empty record"
           <| fun _ -> Expect.equal (parse "{}") (Ok [ Any.Record Map.empty ]) ""

@@ -12,13 +12,13 @@ open Wander.Model
 open Library
 open InMemoryStore
 
-let run (fns: Fns) (bindings: Bindings) (input: string) : Result<Any, LigatureError> =
+let run (fns: Fns) (bindings: Bindings) (variables: Variables) (input: string) : Result<Any, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
             match parse tokens with
             | Ok script ->
-                match evalScript fns bindings script with
+                match evalScript fns bindings variables script with
                 | Ok res -> Ok res
                 | Error err -> Error err
             | Error err -> error $"Error parsing.\n{err}" None
@@ -27,7 +27,7 @@ let run (fns: Fns) (bindings: Bindings) (input: string) : Result<Any, LigatureEr
         error $"Error running script. {x}" None
 
 let runWithDefaults (script: string) =
-    run (stdFns (InMemoryStore())) Map.empty script
+    run (stdFns (InMemoryStore())) Map.empty Map.empty script
 
 let printResult (result: Result<Any, LigatureError>) =
     match result with

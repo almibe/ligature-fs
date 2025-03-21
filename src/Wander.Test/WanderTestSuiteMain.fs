@@ -7,9 +7,7 @@ module Wander.TestSuite
 open Expecto
 open FSharpPlus
 open Wander.Main
-open Ligature.Model
 open Library
-open Model
 open InMemoryStore
 
 let rec allFiles dirs =
@@ -34,9 +32,9 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run (stdFns (new InMemoryStore())) Map.empty script with
+                match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
                 | Ok _ -> ()
-                | Error(err) -> failwithf "Test failed %A" err)
+                | Error err -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"
     else

@@ -15,7 +15,7 @@ let idFn: Fn =
           examples = []
           args = "Any"
           result = "Any" },
-        fun _ _ arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ value ] -> Ok value
             | _ -> failwith "TODO"
@@ -51,17 +51,17 @@ let idFn: Fn =
 //     { Eval =
 //         fun networks local modules arguments ->
 //             match arguments with
-//             | [ Any.Quote(quote) ] -> evalQuote networks local modules quote
+//             | [ Any.Tuple(tuple) ] -> evalTuple networks local modules tuple
 //             | _ -> error "Illegal call to read." None }
 
 // let foldCommand: Fn =
 //     { Eval =
 //         fun networks local modules arguments ->
 //             match arguments with
-//             | [ quote; initialNetwork; resultSet ] ->
-//                 let quote =
-//                     match quote with
-//                     | Any.Quote q -> q
+//             | [ tuple; initialNetwork; resultSet ] ->
+//                 let tuple =
+//                     match tuple with
+//                     | Any.Tuple q -> q
 //                     | _ -> failwith "TODO"
 
 //                 let initialNetwork =
@@ -72,8 +72,8 @@ let idFn: Fn =
 //                 let resultSet =
 //                     match resultSet with
 //                     | Any.ResultSet rs -> rs
-//                     | Any.Quote q ->
-//                         match evalQuote networks local modules q with
+//                     | Any.Tuple q ->
+//                         match evalTuple networks local modules q with
 //                         | Ok(_, _, _) -> failwith "TODO"
 //                         | _ -> failwith "TODO"
 //                     | _ -> failwith "TODO"
@@ -83,7 +83,7 @@ let idFn: Fn =
 //                         (fun s x ->
 //                             let variables = Map.add (Slot "?_") (Any.ValueSet x)
 
-//                             match evalQuote networks local modules quote with
+//                             match evalTuple networks local modules tuple with
 //                             | Ok(_, _, _) -> failwith "TODO"
 //                             | Error err -> failwith $"TODO - error in fold - {err.UserMessage}")
 //                         initialNetwork
@@ -105,7 +105,7 @@ let idFn: Fn =
 //         | LigatureType.Name -> Identifier.Name(Name("Name"))
 //         | LigatureType.Network -> Identifier.Name(Name("Network"))
 //         | LigatureType.NetworkName -> Identifier.Name(Name("NetworkName"))
-//         | LigatureType.Quote -> Identifier.Name(Name("Quote"))
+//         | LigatureType.Tuple -> Identifier.Name(Name("Tuple"))
 //         | LigatureType.Slot -> Identifier.Name(Name("Slot"))
 //         | LigatureType.String -> Identifier.Name(Name("String"))
 //         | LigatureType.Expression -> Identifier.Name(Name("Expression"))
@@ -152,7 +152,7 @@ let idFn: Fn =
 //             List.iter
 //                 (fun arg ->
 //                     match arg with
-//                     | Any.Quote q ->
+//                     | Any.Tuple q ->
 //                         let mutable variables = Map.empty
 
 //                         List.iter

@@ -16,7 +16,7 @@ let runScript input =
     match tokenize input with
     | Ok res ->
         match parse res with
-        | Ok script -> evalScript (stdFns (new InMemoryStore())) Map.empty script
+        | Ok script -> evalScript (stdFns (new InMemoryStore())) Map.empty Map.empty script
         | _ -> failwith "TODO"
     | _ -> failwith "Error tokenizing."
 
@@ -25,9 +25,9 @@ let tests =
     testList
         "Interpreter Test"
         [ testCase "Run empty script"
-          <| fun _ -> Expect.equal (runScript "") (Ok(Any.Network Set.empty)) ""
-          testCase "run script with quote literal"
-          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Quote [ Any.Literal(Literal "test") ])) "" ]
+          <| fun _ -> Expect.equal (runScript "") (Ok(Any.Tuple [])) ""
+          testCase "run script with tuple literal"
+          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Tuple [ Any.Literal(Literal "test") ])) "" ]
 //   testCase "read network with attribute"
 //   <| fun _ ->
 //       Expect.equal
@@ -41,8 +41,8 @@ let tests =
 //                                 TermPattern.Term(Term "c") ]
 //                       ) ] ])
 //           ""
-//   testCase "read empty quote"
-//   <| fun _ -> Expect.equal (parse "[]") (Ok [ Application [ Any.Quote [] ] ]) ""
+//   testCase "read empty tuple"
+//   <| fun _ -> Expect.equal (parse "[]") (Ok [ Application [ Any.Tuple [] ] ]) ""
 //   testCase "read call with pattern passed"
 //   <| fun _ ->
 //       Expect.equal

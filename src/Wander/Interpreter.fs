@@ -9,20 +9,33 @@ open Model
 open Tokenizer
 open Parser
 
-let rec evalScript (actions: Fns) (bindings: Bindings) (script: Script) : Result<Any, LigatureError> =
+let rec evalScript (actions: Fns) (bindings: Bindings) (variables: Variables) (script: Script) : Result<Any, LigatureError> =
     match script with
-    | [] -> Ok(Any.Network Set.empty)
-    | head :: [] -> executeExpression actions bindings head
+    | Any.Application(Term "defn", [Any.Term name; Any.Tuple args; value]) :: tail ->
+        let args =
+            List.map (fun value -> 
+                match value with
+                | Any.Variable variable -> variable
+                | _ -> failwith "Parameters must be Variables.") args
+
+        let bindings = Map.add name (args, value) bindings
+        if tail = [] then
+            Ok(Any.Tuple [])
+        else
+            evalScript actions bindings variables tail
+    | Any.Application(Term "let", [Any.Variable var; value]) :: tail ->
+        //TODO process value
+        let variables = Map.add var value variables
+        if tail = [] then
+            Ok(Any.Tuple [])
+        else
+            evalScript actions bindings variables tail
+    | [] -> Ok(Any.Tuple [])
+    | head :: [] -> executeExpression actions bindings variables head
     | head :: tail ->
-        match head with
-        | Any.Application(Term "defn", [ Any.Term name; Any.Quote args; value ]) ->
-            //TODO process args
-            let bindings = Map.add name ([], value) bindings
-            evalScript actions bindings tail
-        | _ ->
-            match executeExpression actions bindings head with
-            | Ok _ -> evalScript actions bindings tail
-            | Error err -> Error err
+        match executeExpression actions bindings variables head with
+        | Ok _ -> evalScript actions bindings variables tail
+        | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
     Fn(
@@ -30,7 +43,7 @@ and createFn (doc: string) (script: Script) examples pre post : Fn =
           examples = examples
           args = pre
           result = post },
-        (fun actions variables args -> evalScript actions variables script)
+        (fun actions bindings variables args -> evalScript actions bindings variables script)
     )
 
 and lookupFn (actions: Fns) (action: Term) : Fn option =
@@ -54,40 +67,51 @@ and rewriteApplication application = failwith "TODO"
 
 // List.append currentBlock prevBlock
 
-and evalRecord (actions: Fns) (bindings: Bindings) (record: Record) : Record =
+and evalRecord (actions: Fns) (bindings: Bindings) (variables: Variables) (record: Record) : Record =
     Map.map
         (fun _ value ->
             match value with
             | Any.Application application ->
-                match executeApplication actions bindings application with
+                match executeApplication actions bindings variables application with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}"
             | other -> other)
         record
 
-and evalLambda (fns: Fns) (bindings: Bindings) (lambda: Lambda) : Result<Any, LigatureError> =
-    let args, body = lambda
-    //TODO bind args
-    executeExpression fns bindings body
+and evalLambda (fns: Fns) (bindings: Bindings) (variables: Variables) (args: Any list) (lambda: Lambda) : Result<Any, LigatureError> =
+    let parameters, body = lambda
+    if args.Length = parameters.Length then
+        let variables =        
+            Seq.fold (fun state (name, value) -> 
+                Map.add name value state) variables (Seq.zip parameters args)
+        executeExpression fns bindings variables body
+    else
+        error "Invalid number of arguments." None
 
-and executeApplication (actions: Fns) (bindings: Bindings) (application: Application) : Result<Any, LigatureError> =
-    // let application = rewriteApplication expression
+and executeApplication (actions: Fns) (bindings: Bindings) (variables: Variables) (application: Application) : Result<Any, LigatureError> =
     let fn, args = application
 
+    let args =
+        List.map (fun arg -> 
+            match executeExpression actions bindings variables arg with
+            | Ok value -> value
+            | Error err -> failwith $"Error: {err.UserMessage}") args
+
     match bindings.TryFind fn, actions.TryFind fn with
-    | Some lambda, _ -> evalLambda actions bindings lambda
+    | Some lambda, _ -> evalLambda actions bindings variables args lambda
     | None, Some(Fn(_, fn)) ->
         fn
             actions
             bindings
+            variables
             (List.map
                 (fun value ->
                     match value with
                     | Any.Application application ->
-                        match executeApplication actions bindings application with
+                        match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
-                    | Any.Record record -> Any.Record(evalRecord actions bindings record)
+                    | Any.Record record -> Any.Record(evalRecord actions bindings variables record)
                     | _ -> value)
                 args)
     | None, None -> error $"Could not find function {fn}" None
@@ -121,16 +145,29 @@ and executeApplication (actions: Fns) (bindings: Bindings) (application: Applica
 
 
 
-and executeExpression (actions: Fns) (bindings: Bindings) (expression: Any) : Result<Any, LigatureError> =
+and executeExpression (actions: Fns) (bindings: Bindings) (variables: Variables) (expression: Any) : Result<Any, LigatureError> =
     // let application = rewriteApplication expression
 
     match expression with
     | Any.Network network -> Ok(Any.Network network)
-    | Any.Quote quote -> Ok(Any.Quote quote)
-    | Any.Record record -> Ok(Any.Record(evalRecord actions bindings record))
+    | Any.Tuple tuple -> 
+        let tuple = 
+            List.map (fun value -> 
+                match value with
+                | Any.Application app -> 
+                    match executeApplication actions bindings variables app with
+                    | Ok value -> value
+                    | _ -> failwith "TODO"
+                | value -> value) tuple
+        Ok(Any.Tuple tuple)
+    | Any.Record record -> Ok(Any.Record(evalRecord actions bindings variables record))
     | Any.Literal literal -> Ok(Any.Literal literal)
+    | Any.Variable variable -> 
+        match variables.TryFind variable with
+        | Some value -> Ok value
+        | _ -> error $"Could not find {variable}" None
     | Any.Term term -> Ok(Any.Term term)
-    | Any.Application application -> executeApplication actions bindings application
+    | Any.Application application -> executeApplication actions bindings variables application
     | _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

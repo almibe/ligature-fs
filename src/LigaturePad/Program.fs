@@ -39,7 +39,7 @@ module Main =
                                   [ Button.create
                                         [ Button.content "Run"
                                           Button.onClick (fun _ ->
-                                              match run (stdFns store) Map.empty script.Current with
+                                              match run (stdFns store) Map.empty Map.empty script.Current with
                                               | Ok res -> result.Set $"{printAny res}"
                                               | Error err -> result.Set err.UserMessage) ] ] ]
                         Grid.create

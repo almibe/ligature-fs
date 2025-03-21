@@ -25,7 +25,7 @@ let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
                     match value with
                     | Any.Literal literal -> Set.add (id, role, Value.Literal literal) state
                     | Any.Term term -> Set.add (id, role, Value.Term term) state
-                    | Any.Quote quote ->
+                    | Any.Tuple tuple ->
                         List.fold
                             (fun state value ->
                                 match value with
@@ -33,7 +33,7 @@ let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
                                 | Any.Term term -> Set.add (id, role, Value.Term term) state
                                 | _ -> failwith "TODO")
                             state
-                            quote
+                            tuple
                     | Any.Record record ->
                         let state =
                             match record.TryFind(Any.Term(Term "@")) with
@@ -73,7 +73,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
                     | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
                     | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
                     | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
-                    | Any.Quote quote ->
+                    | Any.Tuple tuple ->
                         List.fold
                             (fun state value ->
                                 match value with
@@ -82,7 +82,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
                                 | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
                                 | _ -> failwith "TODO")
                             state
-                            quote
+                            tuple
                     | Any.Record record ->
                         let state =
                             match record.TryFind(Any.Term(Term "@")) with
@@ -103,15 +103,15 @@ let networkFn =
     Fn(
         { doc = "Create a Network from triples."
           examples = [ "network [a b c] [d e f]" ]
-          args = "Quote..."
+          args = "Tuple..."
           result = "Network" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             let mutable res: Network = Set.empty
 
             List.iter
                 (fun arg ->
                     match arg with
-                    | Any.Quote [ e; a; v ] ->
+                    | Any.Tuple [ e; a; v ] ->
                         let e =
                             match e with
                             | Any.Term t -> t
@@ -143,15 +143,15 @@ let patternFn =
     Fn(
         { doc = "Create a Pattern from triples."
           examples = [ "pattern [?a b c] [?a e f]" ]
-          args = "Quote..."
+          args = "Tuple..."
           result = "Pattern" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             let mutable res: Pattern = Set.empty
 
             List.iter
                 (fun arg ->
                     match arg with
-                    | Any.Quote [ e; a; v ] ->
+                    | Any.Tuple [ e; a; v ] ->
                         let e =
                             match e with
                             | Any.Term t -> TermPattern.Term t
@@ -188,7 +188,7 @@ let unionFn =
           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
           args = "Network Network"
           result = "Network" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Network left; Any.Network right ] ->
                 // let left =
@@ -207,8 +207,8 @@ let unionFn =
                 //         match Map.tryFind v variables with
                 //         | Some(Any.Network res) -> res
                 //         | _ -> failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
@@ -223,7 +223,7 @@ let countFn =
           examples = [ "{} count 0 assert-equal" ]
           args = "Network"
           result = "Literal" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Network n ] -> Ok(Any.Literal(Literal((Set.count n).ToString())))
             | _ -> error "Network on stack required to call count." None
@@ -238,8 +238,8 @@ let countFn =
 // //     | _ -> failwith "TODO"
 // | [ Any.Network network ] ->
 //     Ok((networks, local, modules))
-// | [ Any.Quote quote ] ->
-//     match evalQuote networks local modules quote with
+// | [ Any.Tuple tuple ] ->
+//     match evalTuple networks local modules tuple with
 //     | Ok(networks, local, modules) ->
 //         Ok(networks, local, modules)
 //     | Ok(_, _, _) -> error "Error in count, expected value." None
@@ -261,7 +261,7 @@ let queryFn =
           examples = []
           args = "Template Pattern Network"
           result = "TemplateResult" },
-        fun _ _ arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Pattern template; Any.Pattern pattern; Any.Network source ] ->
                 let results =
@@ -270,13 +270,13 @@ let queryFn =
                     |> Set.ofSeq
 
                 Ok(Any.AnySet results)
-            // | Any.Quote template :: Any.Network pattern :: Any.Network source :: tail ->
+            // | Any.Tuple template :: Any.Network pattern :: Any.Network source :: tail ->
             //     let results =
-            //         queryQuoteTemplate pattern template source
-            //         |> Seq.map (fun quote -> Any.Quote quote)
+            //         queryTupleTemplate pattern template source
+            //         |> Seq.map (fun tuple -> Any.Tuple tuple)
             //         |> Seq.toList
 
-            //     Ok(Any.Quote results :: tail)
+            //     Ok(Any.Tuple results :: tail)
             | _ -> error "Invalid call to query" None
     )
 
@@ -284,7 +284,7 @@ let queryFn =
 //     { Eval =
 //         fun networks local modules arguments ->
 //             match arguments with
-//             | [ Any.Quote [ e; a; v ]; Any.Network network ] ->
+//             | [ Any.Tuple [ e; a; v ]; Any.Network network ] ->
 //                 let element =
 //                     match e with
 //                     | Any.Term e -> TermPattern.Term e
@@ -315,8 +315,8 @@ let queryFn =
 //                 let pattern =
 //                     match pattern with
 //                     | Any.Network n -> n
-//                     | Any.Quote q ->
-//                         match evalQuote networks local modules variables q with
+//                     | Any.Tuple q ->
+//                         match evalTuple networks local modules variables q with
 //                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
 //                         | _ -> failwith "TODO"
 //                     | _ -> failwith "TODO"
@@ -324,8 +324,8 @@ let queryFn =
 //                 let network =
 //                     match network with
 //                     | Any.Network n -> n
-//                     | Any.Quote q ->
-//                         match evalQuote networks local modules variables q with
+//                     | Any.Tuple q ->
+//                         match evalTuple networks local modules variables q with
 //                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
 //                         | _ -> failwith "TODO"
 //                     | _ -> failwith "TODO"
@@ -338,8 +338,8 @@ let queryFn =
 //     { Eval =
 //         fun networks local modules variables arguments ->
 //             match arguments with
-//             | [ Any.Network network; Any.Quote q ] ->
-//                 match evalQuote networks local modules variables q with
+//             | [ Any.Network network; Any.Tuple q ] ->
+//                 match evalTuple networks local modules variables q with
 //                 | Ok((Some(Any.ResultSet res), networks, local, modules, variables)) ->
 //                     let res = apply network res
 //                     Ok((Some(Any.Network res), networks, local, modules, variables))
@@ -367,7 +367,7 @@ let filterFn =
           examples = []
           args = "Pattern Network"
           result = "Network" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Pattern pattern; Any.Network source ] ->
                 // let pattern =
@@ -380,8 +380,8 @@ let filterFn =
                 //             | _ -> failwith "TODO"
                 //         else
                 //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
@@ -396,8 +396,8 @@ let filterFn =
                 //             | _ -> failwith "TODO"
                 //         else
                 //             failwith "TODO"
-                //     | Any.Quote quote ->
-                //         match evalQuote networks local modules variables quote with
+                //     | Any.Tuple tuple ->
+                //         match evalTuple networks local modules variables tuple with
                 //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
@@ -426,7 +426,7 @@ let ifEmptyFn =
 let isEmptyFn =
     Fn(
         { doc =
-            "Takes a Network or Quote off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
+            "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
           examples = []
           args = ""
           result = "" },
@@ -437,7 +437,7 @@ let isEmptyFn =
     //         Ok(Any.Term(Term "true") :: tail)
     //     else
     //         Ok(Any.Term(Term "false") :: tail)
-    // | Any.Quote q :: tail ->
+    // | Any.Tuple q :: tail ->
     //     if q.IsEmpty then
     //         Ok(Any.Term(Term "true") :: tail)
     //     else

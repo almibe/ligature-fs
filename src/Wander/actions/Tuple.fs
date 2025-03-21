@@ -2,35 +2,35 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Fns.Quote
+module Wander.Fns.Tuple
 
 open Wander.Model
 open Ligature.Model
 
 let prependFn =
     Fn(
-        { doc = "Read a Quote and a Quote off the Stack, push a new Quote with the first Quote at the front."
+        { doc = "Read a Tuple and a Tuple off the Stack, push a new Tuple with the first Tuple at the front."
           examples = []
-          args = "Quote Quote"
-          result = "Quote" },
+          args = "Tuple Tuple"
+          result = "Tuple" },
         fun actions variables arguments -> failwith "TODO"
     // match stack with
-    // | Any.Quote source :: Any.Quote dest :: tail ->
-    //     let newQuote = List.append source dest
-    //     Ok(Any.Quote newQuote :: tail)
+    // | Any.Tuple source :: Any.Tuple dest :: tail ->
+    //     let newTuple = List.append source dest
+    //     Ok(Any.Tuple newTuple :: tail)
     // | _ -> error "Invalid call to prepend action." None
     )
 
 let setFn =
     Fn(
-        { doc = "Read a Quote off the Stack and convert it to a Set and push the new Set on the Stack."
+        { doc = "Read a Tuple off the Stack and convert it to a Set and push the new Set on the Stack."
           examples = []
-          args = "Quote"
+          args = "Tuple"
           result = "Set" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Quote quote ] ->
-                let set = Set.ofList quote
+            | [ Any.Tuple tuple ] ->
+                let set = Set.ofList tuple
                 Ok(Any.AnySet set)
             | _ -> error "Invalid call to set action." None
     )

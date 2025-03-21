@@ -93,7 +93,7 @@ let extractFn: Fn =
           examples = [ "extract a (network [a b c])" ]
           args = "Term Network"
           result = "Record" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term id; Any.Network source ] -> Ok(Any.Record(extract id source))
             | _ -> error "Invalid call to extract." None
@@ -118,12 +118,12 @@ let instancesFn: Fn =
           examples = []
           args = ""
           result = "" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term concept; Any.Network source ] ->
                 let result: AnySet = instances source concept
                 Ok(Any.AnySet result)
-            | [ Any.Quote concepts; Any.Network source ] ->
+            | [ Any.Tuple concepts; Any.Network source ] ->
                 let result: AnySet =
                     List.fold
                         (fun state concept ->
@@ -143,7 +143,7 @@ let isConsistentFn =
           examples = [ "is-consistent {a : B, b : C} | assert-equal true" ]
           args = "Network"
           result = "Literal" },
-        fun _ _ arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ Any.Network n ] ->
                 if
@@ -174,7 +174,7 @@ let inferFn: Fn =
           examples = []
           args = ""
           result = "" },
-        fun actions variables arguments ->
+        fun _ _ _ arguments ->
             match arguments with
             | [ description; network ] ->
                 let description =

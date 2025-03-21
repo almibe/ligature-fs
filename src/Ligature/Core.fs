@@ -130,7 +130,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
             element, attribute, value)
         pattern
 
-// let applyValueSetQuoteTemplate (pattern: Quote) (result: ValueSet) : Quote =
+// let applyValueSetTupleTemplate (pattern: Tuple) (result: ValueSet) : Tuple =
 //     List.map
 //         (fun any ->
 //             match any with
@@ -150,16 +150,16 @@ let apply (pattern: Pattern) (resultSet: ResultSet) : Network =
 let applySeq (pattern: Pattern) (resultSet: ResultSet) : Network list =
     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
-// let applySeqQuoteTemplate (pattern: Quote) (resultSet: ResultSet) : Quote list =
-//     Set.fold (fun state result -> (applyValueSetQuoteTemplate pattern result) :: state) [] resultSet
+// let applySeqTupleTemplate (pattern: Tuple) (resultSet: ResultSet) : Tuple list =
+//     Set.fold (fun state result -> (applyValueSetTupleTemplate pattern result) :: state) [] resultSet
 
 let query (pattern: Pattern) (template: Pattern) (source: Network) : Network seq =
     let rs = networkMatch pattern source
     applySeq template rs
 
-// let queryQuoteTemplate (pattern: Pattern) (template: Quote) (source: Pattern) : Quote seq =
+// let queryTupleTemplate (pattern: Pattern) (template: Tuple) (source: Pattern) : Tuple seq =
 //     let rs = networkMatch pattern source
-//     applySeqQuoteTemplate template rs
+//     applySeqTupleTemplate template rs
 
 
 let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source

@@ -13,7 +13,7 @@
     <Compile Include="actions/IO.fs" />
     <Compile Include="actions/Bool.fs" />
     <Compile Include="actions/Core.fs" />
-    <Compile Include="actions/Quote.fs" />
+    <Compile Include="actions/Tuple.fs" />
     <Compile Include="actions/Network.fs" />
     <Compile Include="actions/Bend.fs" />
     <Compile Include="actions/TinyDL.fs" />

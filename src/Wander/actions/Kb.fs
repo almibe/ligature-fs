@@ -14,15 +14,15 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     |> Map.add
         (Term "kbs")
         (Fn(
-            { doc = "Returns a quote of all the existing KBs."
+            { doc = "Returns a tuple of all the existing KBs."
               examples = [ "kbs" ]
               args = ""
-              result = "Quote" },
-            fun fns variables arguments -> //TODO assert no args were passed
+              result = "Tuple" },
+            fun _ _ _ _ -> //TODO assert no args were passed
                 store.KnowledgeBases()
                 |> Seq.map (fun value -> Any.Term(Term value))
                 |> List.ofSeq
-                |> Any.Quote
+                |> Any.Tuple
                 |> Ok
         ))
     |> Map.add
@@ -32,7 +32,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "add-kb test" ]
               args = "Term"
               result = "" },
-            fun fns variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
                     store.AddKnowledgeBase name
@@ -46,7 +46,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "remove-kb test" ]
               args = "Term"
               result = "" },
-            fun fns variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
                     store.RemoveKnowledgeBase(name)
@@ -60,7 +60,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "assert-kb test {a b c}" ]
               args = "Literal Network"
               result = "" },
-            fun actions variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
                     store.AssertKnowledgeBase networkName network
@@ -74,7 +74,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "define-kb test {A subconcept-of B}" ]
               args = "Literal Network"
               result = "" },
-            fun actions variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
                     store.DefineKnowledgeBase networkName network
@@ -88,7 +88,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "unassert-kb test {a b c}" ]
               args = "Term Network"
               result = "" },
-            fun actions variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
                     store.UnassertKnowledgeBase networkName network
@@ -102,7 +102,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "undefine-kb test {A subconcept-of B}" ]
               args = "Term Network"
               result = "" },
-            fun actions variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
                     store.UndefineKnowledgeBase networkName network
@@ -116,7 +116,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read test" ]
               args = "Term"
               result = "Network" },
-            fun fns variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
                     match store.Read networkName with
@@ -131,7 +131,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-assert-kb test" ]
               args = "Term"
               result = "Network" },
-            fun fns variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
                     match store.ReadAsserts networkName with
@@ -146,7 +146,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-define-kb test" ]
               args = "Term"
               result = "Network" },
-            fun fns variables arguments ->
+            fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
                     match store.ReadDefinitions networkName with

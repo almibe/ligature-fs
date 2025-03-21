@@ -8,7 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Wander.Fns.Assert
 open Wander.Fns.Core
-open Wander.Fns.Quote
+open Wander.Fns.Tuple
 open Wander.Fns.Network
 open Wander.Fns.TinyDL
 open Interpreter
@@ -23,7 +23,7 @@ let docsFn: Fn =
           examples = []
           args = ""
           result = "Network" },
-        fun actions variables arguments ->
+        fun actions _ _ _ ->
             let docs: Network =
                 Map.toSeq actions
                 |> Seq.fold
