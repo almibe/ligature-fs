@@ -84,7 +84,7 @@ and evalLambda
         let variables =
             Seq.fold (fun state (name, value) -> Map.add name value state) variables (Seq.zip parameters args)
 
-        List.fold (fun _ value -> executeExpression fns bindings variables value) (Ok(Any.Tuple [])) body
+        evalScript fns bindings variables body
     else
         error "Invalid number of arguments." None
 

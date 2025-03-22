@@ -21,9 +21,10 @@ let createEndpoints (store: ILigatureStore) =
           task {
               let! body = Request.getBodyString ctx
 
-              match run (Wander.Library.stdFns store) Map.empty body with
-              | Ok result -> Response.ofPlainText (printAny result) ctx
-              | Error err -> Response.ofPlainText err.UserMessage ctx
+              return!
+                  match run (Wander.Library.stdFns store) Map.empty Map.empty body with
+                  | Ok result -> Response.ofPlainText (printAny result) ctx
+                  | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
 
 let wapp = WebApplication.Create()
