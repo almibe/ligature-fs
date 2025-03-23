@@ -77,6 +77,7 @@ let rec printAny (value: Any) : string =
     | Any.AnySet s -> printAnySet s
     | Any.Pattern(_) -> failwith "Not Implemented"
     | Any.Application(_) -> failwith "Not Implemented"
+    | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
 
 and printTuple (tuple: Tuple) : string =

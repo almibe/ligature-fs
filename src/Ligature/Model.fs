@@ -49,13 +49,9 @@ and Pattern = Set<TriplePattern>
 //     abstract Triples: unit -> Async<Network>
 
 type ILigatureStore =
-    abstract KnowledgeBases: unit -> string seq
-    abstract AddKnowledgeBase: string -> unit
-    abstract RemoveKnowledgeBase: string -> unit
-    abstract AssertKnowledgeBase: string -> Network -> unit
-    abstract DefineKnowledgeBase: string -> Network -> unit
-    abstract UnassertKnowledgeBase: string -> Network -> unit
-    abstract UndefineKnowledgeBase: string -> Network -> unit
+    abstract Stores: unit -> string seq
+    abstract AddStore: string -> unit
+    abstract RemoveStore: string -> unit
+    abstract AssertStore: string -> Network -> unit
+    abstract UnassertStore: string -> Network -> unit
     abstract ReadAsserts: string -> Result<Network, LigatureError>
-    abstract ReadDefinitions: string -> Result<Network, LigatureError>
-    abstract Read: string -> Result<Network, LigatureError>

@@ -81,8 +81,7 @@ let extract (id: Term) (source: Network) : Record =
                     result <- Map.add (Any.Term a) (Any.Term v) result
             | e, a, Value.Literal v ->
                 if e = id then
-                    result <- Map.add (Any.Term a) (Any.Literal v) result
-            | _ -> ())
+                    result <- Map.add (Any.Term a) (Any.Literal v) result)
         source
 
     result

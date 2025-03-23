@@ -12,144 +12,86 @@ open Wander.Interpreter
 let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     baseFns
     |> Map.add
-        (Term "kbs")
+        (Term "stores")
         (Fn(
             { doc = "Returns a tuple of all the existing KBs."
-              examples = [ "kbs" ]
+              examples = [ "stores" ]
               args = ""
               result = "Tuple" },
             fun _ _ _ _ -> //TODO assert no args were passed
-                store.KnowledgeBases()
+                store.Stores()
                 |> Seq.map (fun value -> Any.Term(Term value))
                 |> List.ofSeq
                 |> Any.Tuple
                 |> Ok
         ))
     |> Map.add
-        (Term "add-kb")
+        (Term "add-store")
         (Fn(
             { doc = "Reads a Network name and creates a Network in the Store."
-              examples = [ "add-kb test" ]
+              examples = [ "add-store test" ]
               args = "Term"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
-                    store.AddKnowledgeBase name
+                    store.AddStore name
                     Ok(Any.Network Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "remove-kb")
+        (Term "remove-store")
         (Fn(
             { doc = "Removes the given KB name from the store."
-              examples = [ "remove-kb test" ]
+              examples = [ "remove-store test" ]
               args = "Term"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term name) ] ->
-                    store.RemoveKnowledgeBase(name)
+                    store.RemoveStore(name)
                     Ok(Any.Network Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "assert-kb")
+        (Term "assert-store")
         (Fn(
             { doc = "Given a KB name and a Network merge the network into the ABox for given KB."
-              examples = [ "assert-kb test {a b c}" ]
+              examples = [ "assert-store test {a b c}" ]
               args = "Literal Network"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
-                    store.AssertKnowledgeBase networkName network
+                    store.AssertStore networkName network
                     Ok(Any.Network Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "define-kb")
-        (Fn(
-            { doc = "Given a KB name and a Network merge the network into the TBox for given KB."
-              examples = [ "define-kb test {A subconcept-of B}" ]
-              args = "Literal Network"
-              result = "" },
-            fun _ _ _ arguments ->
-                match arguments with
-                | [ Any.Term(Term networkName); Any.Network network ] ->
-                    store.DefineKnowledgeBase networkName network
-                    Ok(Any.Network Set.empty)
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "unassert-kb")
+        (Term "unassert-store")
         (Fn(
             { doc = "Given a KB name and a Network remove the network into the ABox for given KB."
-              examples = [ "unassert-kb test {a b c}" ]
+              examples = [ "unassert-store test {a b c}" ]
               args = "Term Network"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName); Any.Network network ] ->
-                    store.UnassertKnowledgeBase networkName network
+                    store.UnassertStore networkName network
                     Ok(Any.Network Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "undefine-kb")
-        (Fn(
-            { doc = "Given a KB name and a Network remove the network into the TBox for given KB."
-              examples = [ "undefine-kb test {A subconcept-of B}" ]
-              args = "Term Network"
-              result = "" },
-            fun _ _ _ arguments ->
-                match arguments with
-                | [ Any.Term(Term networkName); Any.Network network ] ->
-                    store.UndefineKnowledgeBase networkName network
-                    Ok(Any.Network Set.empty)
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "read-kb")
-        (Fn(
-            { doc = "Read a KB."
-              examples = [ "read test" ]
-              args = "Term"
-              result = "Network" },
-            fun _ _ _ arguments ->
-                match arguments with
-                | [ Any.Term(Term networkName) ] ->
-                    match store.Read networkName with
-                    | Ok network -> Ok(Any.Network(network))
-                    | _ -> failwith "TODO"
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "read-assert-kb")
+        (Term "read-assert-store")
         (Fn(
             { doc = "Read only the asserts in a KB."
-              examples = [ "read-assert-kb test" ]
+              examples = [ "read-assert-store test" ]
               args = "Term"
               result = "Network" },
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
                     match store.ReadAsserts networkName with
-                    | Ok network -> Ok(Any.Network network)
-                    | _ -> failwith "TODO"
-                | _ -> failwith "TODO"
-        ))
-    |> Map.add
-        (Term "read-define-kb")
-        (Fn(
-            { doc = "Read only the definitions in a KB."
-              examples = [ "read-define-kb test" ]
-              args = "Term"
-              result = "Network" },
-            fun _ _ _ arguments ->
-                match arguments with
-                | [ Any.Term(Term networkName) ] ->
-                    match store.ReadDefinitions networkName with
                     | Ok network -> Ok(Any.Network network)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
