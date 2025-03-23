@@ -51,7 +51,7 @@ let testPattern
 
     if isMatch then Some result else None
 
-let singleMatch (pattern: TermPattern * TermPattern * ValuePattern) (network: Network) : ResultSet =
+let singleMatch (pattern: TriplePattern) (network: Network) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
