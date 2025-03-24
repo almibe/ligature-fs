@@ -102,20 +102,20 @@ and writeTermPattern (value: TermPattern) =
 
 and writeTerm (Term t) = t
 
-and printResultSet (rs: ResultSet) = failwith "TODO"
-// let mutable res = "ResultSet("
+and printResultSet (rs: ResultSet) =
+    let mutable res = "ResultSet("
 
-// Set.iter
-//     (fun variables ->
-//         res <- res + "("
+    Set.iter
+        (fun variables ->
+            res <- res + "("
 
-//         Map.iter (fun (Slot var) value -> res <- res + var + " " + writeTerm value + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + printValue value + ", ") variables
 
-//         res <- res + ")")
-//     rs
+            res <- res + ")")
+        rs
 
-// res <- res + ")"
-// res
+    res <- res + ")"
+    res
 
 and printPattern (network: Pattern) : string =
     let mutable first = true

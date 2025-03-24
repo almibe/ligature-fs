@@ -51,24 +51,16 @@ type LigatureStore(path: string option) =
 
             if succ then
                 match generator.Decode<Event> value with
-                | 0, name, _, _, _, _ -> store.AddKnowledgeBase name
-                | 1, name, _, _, _, _ -> store.RemoveKnowledgeBase name
+                | 0, name, _, _, _, _ -> store.AddStore name
+                | 1, name, _, _, _, _ -> store.RemoveStore name
                 | 2, name, e, r, 0, v ->
-                    store.AssertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                    store.AssertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 2, name, e, r, 1, v ->
-                    store.AssertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
-                | 3, name, e, r, 0, v ->
-                    store.DefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
-                | 3, name, e, r, 1, v ->
-                    store.DefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                    store.AssertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
                 | 4, name, e, r, 0, v ->
-                    store.UnassertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                    store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 4, name, e, r, 1, v ->
-                    store.UnassertKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
-                | 5, name, e, r, 0, v ->
-                    store.UndefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
-                | 5, name, e, r, 1, v ->
-                    store.UndefineKnowledgeBase name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                    store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
                 | _ -> failwith "Unexpected event type."
             else
                 cont <- false
@@ -79,24 +71,24 @@ type LigatureStore(path: string option) =
             log.Dispose()
 
     interface ILigatureStore with
-        member this.KnowledgeBases() : string seq = store.KnowledgeBases()
+        member this.Stores() : string seq = store.Stores()
 
-        member this.AddKnowledgeBase(name: string) : unit =
-            store.AddKnowledgeBase name
+        member this.AddStore(name: string) : unit =
+            store.AddStore name
             let event: Event = e_add, name, "", "", 0, ""
             let encoded = generator.Encode event
             log.Enqueue encoded |> ignore
             log.Commit()
 
-        member this.RemoveKnowledgeBase(name: string) : unit =
-            store.RemoveKnowledgeBase name
+        member this.RemoveStore(name: string) : unit =
+            store.RemoveStore name
             let event: Event = e_remove, name, "", "", 0, ""
             let encoded = generator.Encode event
             log.Enqueue encoded |> ignore
             log.Commit()
 
-        member this.AssertKnowledgeBase (name: string) (network: Network) : unit =
-            store.AssertKnowledgeBase name network
+        member this.AssertStore (name: string) (network: Network) : unit =
+            store.AssertStore name network
 
             Set.iter
                 (fun (Term e, Term r, v) ->
@@ -107,42 +99,14 @@ type LigatureStore(path: string option) =
 
             log.Commit()
 
-        member this.DefineKnowledgeBase (name: string) (network: Network) : unit =
-            store.DefineKnowledgeBase name network
-
-            Set.iter
-                (fun (Term e, Term r, v) ->
-                    let event: Event = e_define, name, e, r, valueToType v, valueToString v
-                    let encoded = generator.Encode event
-                    log.Enqueue encoded |> ignore)
-                network
-
-            log.Commit()
-
-        member this.Read(name: string) : Result<Network, LigatureError> = store.Read name
-
         member this.ReadAsserts(name: string) : Result<Network, LigatureError> = store.ReadAsserts name
 
-        member this.ReadDefinitions(name: string) : Result<Network, LigatureError> = store.ReadDefinitions name
-
-        member this.UnassertKnowledgeBase (name: string) (network: Network) : unit =
-            store.UnassertKnowledgeBase name network
+        member this.UnassertStore (name: string) (network: Network) : unit =
+            store.UnassertStore name network
 
             Set.iter
                 (fun (Term e, Term r, v) ->
                     let event: Event = e_unassert, name, e, r, valueToType v, valueToString v
-                    let encoded = generator.Encode event
-                    log.Enqueue encoded |> ignore)
-                network
-
-            log.Commit()
-
-        member this.UndefineKnowledgeBase (name: string) (network: Network) : unit =
-            store.UndefineKnowledgeBase name network
-
-            Set.iter
-                (fun (Term e, Term r, v) ->
-                    let event: Event = e_undefine, name, e, r, valueToType v, valueToString v
                     let encoded = generator.Encode event
                     log.Enqueue encoded |> ignore)
                 network

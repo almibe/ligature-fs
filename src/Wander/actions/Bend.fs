@@ -18,7 +18,7 @@ let bendJsonFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Network definitions; Any.Term encodingName; Any.Network data ] ->
-                let res = networkMatch (Set.ofList []) definitions
+                let res = query (Set.ofList []) definitions
 
                 // let left =
                 //     match left with

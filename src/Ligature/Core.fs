@@ -88,7 +88,7 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let networkMatch (pattern: Pattern) (network: Network) : ResultSet =
+let query (pattern: Pattern) (network: Network) : ResultSet =
     let resultSets =
         Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
 
@@ -153,10 +153,6 @@ let applySeq (pattern: Pattern) (resultSet: ResultSet) : Network list =
 // let applySeqTupleTemplate (pattern: Tuple) (resultSet: ResultSet) : Tuple list =
 //     Set.fold (fun state result -> (applyValueSetTupleTemplate pattern result) :: state) [] resultSet
 
-let query (pattern: Pattern) (template: Pattern) (source: Network) : Network seq =
-    let rs = networkMatch pattern source
-    applySeq template rs
-
 // let queryTupleTemplate (pattern: Pattern) (template: Tuple) (source: Pattern) : Tuple seq =
 //     let rs = networkMatch pattern source
 //     applySeqTupleTemplate template rs
@@ -165,7 +161,8 @@ let query (pattern: Pattern) (template: Pattern) (source: Network) : Network seq
 let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 
 let filter (pattern: Pattern) (source: Network) : Network =
-    let res = query pattern pattern source
+    let res = query pattern source
+    let res = applySeq pattern res
     Seq.fold (fun state network -> Set.union state network) Set.empty res
 
 let individuals (concept: Term) (tBox: Network) (aBox: Network) =

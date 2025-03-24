@@ -154,10 +154,6 @@ let isConsistentFn =
                               TermPattern.Slot(Slot "?el"),
                               TermPattern.Term(Term "~:"),
                               ValuePattern.Slot(Slot "?concept") ])
-                        (Set.ofList
-                            [ TermPattern.Slot(Slot "?el"),
-                              TermPattern.Term(Term "~:"),
-                              ValuePattern.Slot(Slot "?concept") ])
                         n
                     |> Seq.length = 0
                 then

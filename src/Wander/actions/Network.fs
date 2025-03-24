@@ -259,24 +259,14 @@ let queryFn =
     Fn(
         { doc = "Query a network. This Fn requires three Networks on the stack."
           examples = []
-          args = "Template Pattern Network"
-          result = "TemplateResult" },
+          args = "Pattern Network"
+          result = "ResultSet" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Pattern template; Any.Pattern pattern; Any.Network source ] ->
+            | [ Any.Pattern pattern; Any.Network source ] ->
                 let results =
-                    query pattern template source
-                    |> Seq.map (fun network -> Any.Network network)
-                    |> Set.ofSeq
-
-                Ok(Any.AnySet results)
-            // | Any.Tuple template :: Any.Network pattern :: Any.Network source :: tail ->
-            //     let results =
-            //         queryTupleTemplate pattern template source
-            //         |> Seq.map (fun tuple -> Any.Tuple tuple)
-            //         |> Seq.toList
-
-            //     Ok(Any.Tuple results :: tail)
+                    query pattern source
+                Ok(Any.ResultSet results)
             | _ -> error "Invalid call to query" None
     )
 

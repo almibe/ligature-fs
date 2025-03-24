@@ -99,6 +99,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "docs", docsFn
           Term "prepend", prependFn
           Term "set", setFn
+          Term "result-set", resultSetFn
           Term "id", idFn
           Term "if-empty", ifEmptyFn
           Term "is-empty", isEmptyFn
