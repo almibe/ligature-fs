@@ -93,12 +93,6 @@ let recordNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
             Error Gaze.NoMatch
     | Error err -> Error err
 
-// let pipeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
-//     result {
-//         let! _ = Gaze.attempt (take Token.Pipe) gaze
-//         return Any.Pipe
-//     }
-
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
     let next = Gaze.next gaze
 
@@ -137,22 +131,6 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
 
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ applicationNib; tupleAnyNib; recordNib; elementLiteralSlotNib ]
-
-// let defnNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-//     let defnKeyword = Gaze.attempt anyNib gaze
-//     if defnKeyword = Ok (Any.Term(Term "defn")) then
-//         match Gaze.attempt termNib gaze with
-//         | Ok name ->
-//             match Gaze.attempt argsNib gaze with
-//             | Ok args ->
-//                 match Gaze.attempt anyNib gaze with
-//                 | Ok value ->
-//                     Ok (Expression.Defn (name, (args, value)))
-//                 | _ -> Error Gaze.GazeError.NoMatch
-//             | _ -> Error Gaze.GazeError.NoMatch
-//         | _ -> Error Gaze.GazeError.NoMatch
-//     else
-//         Error Gaze.GazeError.NoMatch
 
 let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match anyNib gaze with

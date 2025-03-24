@@ -44,23 +44,24 @@ let resultSetFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Tuple tuple ] ->
-                let set = 
+                let set =
                     Set.ofList tuple
-                    |> Set.map (fun value -> 
+                    |> Set.map (fun value ->
                         match value with
                         | Any.Record record ->
                             let res =
-                                Seq.fold (fun state value ->
-                                    match value with
-                                    | Any.Slot key, Any.Term value ->
-                                        Map.add key (Value.Term value) state
-                                    | Any.Slot key, Any.Literal value ->
-                                        Map.add key (Value.Literal value) state
-                                    | _ -> failwith "TODO")
+                                Seq.fold
+                                    (fun state value ->
+                                        match value with
+                                        | Any.Slot key, Any.Term value -> Map.add key (Value.Term value) state
+                                        | Any.Slot key, Any.Literal value -> Map.add key (Value.Literal value) state
+                                        | _ -> failwith "TODO")
                                     Map.empty
                                     (Map.toSeq record)
+
                             res
                         | _ -> failwith "TODO")
+
                 Ok(Any.ResultSet set)
             | _ -> error "Invalid call to set action." None
     )

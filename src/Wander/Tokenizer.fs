@@ -24,21 +24,20 @@ let stringContentNibbler: Gaze.Nibbler<char, string> =
             if input <> '"' then
                 true
             else
-                (try
-                    (let s = "\"" + System.String.Concat((List.append result [ input ]))
-                     ignore <| parseString s
-                     false)
-                 with _ ->
-                     true)))
+                try
+                    let s = "\"" + System.String.Concat((List.append result [ input ]))
+                    ignore <| parseString s
+                    false
+                with _ ->
+                    true))
         (fun chars -> parseString("\"" + System.String.Concat(chars) + "\"").ToString())
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.
 let stringNibbler =
-    Nibblers.takeFirst (
+    Nibblers.takeFirst
         [ Nibblers.between '"' stringContentNibbler '"'
           Gaze.map (Nibblers.takeList [ '"'; '"' ]) (fun _ -> "") ]
-    )
 
 let charInRange char start stop = char >= start && char <= stop
 
@@ -77,46 +76,46 @@ let stringLiteralTokenNibbler =
 
 let nameNibbler =
     Nibblers.takeAll
-        [ (Nibblers.repeatN
+        [ Nibblers.repeatN
               (Nibblers.takeInRange
-                  [ ('a', 'z')
-                    ('A', 'Z')
-                    ('0', '9')
-                    ('-', '-')
-                    ('>', '>')
-                    ('/', '/')
-                    ('¬', '¬')
-                    ('~', '~')
-                    ('$', '$')
-                    ('?', '?')
-                    ('*', '*')
-                    ('@', '@')
-                    ('_', '_')
-                    ('=', '=')
-                    (':', ':') ])
-              1)
+                  [ 'a', 'z'
+                    'A', 'Z'
+                    '0', '9'
+                    '-', '-'
+                    '>', '>'
+                    '/', '/'
+                    '¬', '¬'
+                    '~', '~'
+                    '$', '$'
+                    '?', '?'
+                    '*', '*'
+                    '@', '@'
+                    '_', '_'
+                    '=', '='
+                    ':', ':' ])
+              1
           Nibblers.optional (
               Nibblers.repeat (
                   Nibblers.takeInRange
-                      [ ('a', 'z')
-                        ('A', 'Z')
-                        ('0', '9')
-                        ('?', '?')
-                        ('$', '$')
-                        ('/', '/')
-                        ('_', '_')
-                        ('>', '>')
-                        ('-', '-')
-                        ('=', '=')
-                        ('?', '?')
-                        (':', ':')
-                        ('.', '.')
-                        ('¬', '¬') ]
+                      [ 'a', 'z'
+                        'A', 'Z'
+                        '0', '9'
+                        '?', '?'
+                        '$', '$'
+                        '/', '/'
+                        '_', '_'
+                        '>', '>'
+                        '-', '-'
+                        '=', '='
+                        '?', '?'
+                        ':', ':'
+                        '.', '.'
+                        '¬', '¬' ]
               )
           ) ]
 
 let newLineNibbler =
-    Nibblers.takeFirst [ (Nibblers.takeString "\r\n"); (Nibblers.takeString "\n") ]
+    Nibblers.takeFirst [ Nibblers.takeString "\r\n"; Nibblers.takeString "\n" ]
 
 let newLineTokenNibbler =
     Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> Token.NewLine)
@@ -159,7 +158,7 @@ let tokenNibbler =
 
 let replaceLineEndings (script: string) =
 #if !FABLE_COMPILER
-    script.ReplaceLineEndings("\n")
+    script.ReplaceLineEndings "\n"
 #else
     script.Replace("\r\n", "\n")
 #endif

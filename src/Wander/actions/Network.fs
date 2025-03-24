@@ -264,8 +264,7 @@ let queryFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Pattern pattern; Any.Network source ] ->
-                let results =
-                    query pattern source
+                let results = query pattern source
                 Ok(Any.ResultSet results)
             | _ -> error "Invalid call to query" None
     )

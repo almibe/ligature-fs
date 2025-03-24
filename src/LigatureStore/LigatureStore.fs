@@ -53,12 +53,10 @@ type LigatureStore(path: string option) =
                 match generator.Decode<Event> value with
                 | 0, name, _, _, _, _ -> store.AddStore name
                 | 1, name, _, _, _, _ -> store.RemoveStore name
-                | 2, name, e, r, 0, v ->
-                    store.AssertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 2, name, e, r, 0, v -> store.AssertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 2, name, e, r, 1, v ->
                     store.AssertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
-                | 4, name, e, r, 0, v ->
-                    store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
+                | 4, name, e, r, 0, v -> store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 4, name, e, r, 1, v ->
                     store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
                 | _ -> failwith "Unexpected event type."
