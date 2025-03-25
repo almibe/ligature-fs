@@ -13,7 +13,7 @@ open Wander.Fns.Network
 open Wander.Fns.TinyDL
 open Interpreter
 open Wander.Fns.Remote
-open Wander.Fns.Kb
+open Wander.Fns.Store
 open InMemoryStore
 open Wander.Fns.Bend
 
