@@ -39,6 +39,25 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
+    | Any.Application(Term "->", body) :: tail ->
+        match body with
+        | [] -> failwith "Invalid pipe call."
+        | initialExpression :: remainingExpressions ->
+            match executeExpression actions bindings variables initialExpression with
+            | Ok initialValue ->
+                List.fold
+                    (fun state currentExpression ->
+                        match state with
+                        | Ok prevValue ->
+                            match currentExpression with
+                            | Any.Application(name, args) ->
+                                let newApp = name, List.append args [ prevValue ]
+                                executeApplication actions bindings variables newApp
+                            | _ -> failwith "TODO"
+                        | Error err -> Error err)
+                    (Ok initialValue)
+                    remainingExpressions
+            | _ -> failwith "TODO"
     | [] -> Ok(Any.Tuple [])
     | head :: [] -> executeExpression actions bindings variables head
     | head :: tail ->
