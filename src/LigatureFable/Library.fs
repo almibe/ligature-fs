@@ -115,36 +115,30 @@ let resultToJs (res: Result<Any, LigatureError>) =
         obj
     | Ok any -> anyToJs any
 
-let appendCanvas element (value: Record) =
-    failwith "TODO"
+let appendCanvas element (value: Result<Any, LigatureError>) =
+    match value with
+    | Ok (Any.Record value) ->
+        let canvas = emitJsExpr () "document.createElement('canvas')"
+        let ctx = emitJsExpr () "canvas.getContext('2d')"
 
-// export function appendCanvas(element, value) {
-//     console.log("value", JSON.stringify(value))
-//     if (element != null) {
-//         const canvas = document.createElement("canvas")
-//         const ctx = canvas.getContext("2d")
-//         if (value["height"] != undefined) {
-//             canvas.height = value["height"].value
-//         }
-//         if (value["width"] != undefined) {
-//             canvas.width = value["width"].value
-//         }
-//         if (value["instructions"] != undefined) {
-//             for (const instruction of value["instructions"].value) {
-//                 if (instruction["type"] == "tuple") {
-//                     let command = instruction["value"][0]["value"]
-//                     if (command == "fill-style") {
-//                         ctx.fillStyle = instruction["value"][1]["value"]
-//                     } else if (command == "fill-rect") {
-//                         ctx.fillRect(instruction["value"][1]["value"], instruction["value"][2]["value"], instruction["value"][3]["value"], instruction["value"][4]["value"])
-//                     } else {
-//                         throw "Invalid instruction."
-//                     }
-//                 } else {
-//                     throw "Invalid instruction."
-//                 }
-//             }
-//         }
-//         element.appendChild(canvas)
-//     }
-// }
+        match value.TryFind(Any.Term(Term "height")) with
+        | Some (Any.Term (Term height)) -> emitJsStatement (height) "canvas.height = $0"
+        | _ -> ()
+
+        match value.TryFind(Any.Term(Term "width")) with
+        | Some (Any.Term (Term width)) -> emitJsStatement (width) "canvas.width = $0"
+        | _ -> ()
+
+        match value.TryFind(Any.Term(Term "instructions")) with
+        | Some (Any.Tuple instructions) -> 
+                List.iter (fun instruction -> 
+                    match instruction with
+                    | Any.Tuple [ Any.Term (Term "fill-style"); Any.Term (Term value) ] ->
+                        emitJsStatement (value) "ctx.fillStyle = $0"
+                    | Any.Tuple [ Any.Term (Term "fill-rect"); Any.Term (Term x); Any.Term (Term y); Any.Term (Term w); Any.Term (Term h)] ->
+                        emitJsStatement (x, y, w, h) "ctx.fillRect($0, $1, $2, $3)"
+                    | x -> failwith $"Invalid instruction: {x}.") instructions
+        | _ -> failwith "Instructions required when drawing canvas."
+        emitJsStatement () "element.appendChild(canvas)"
+    | Ok value -> failwith $"Unexpected value passed to appendCanvas {value}"
+    | Error err -> failwith err.UserMessage
