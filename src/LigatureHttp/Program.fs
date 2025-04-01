@@ -14,15 +14,19 @@ open Falco.Routing
 open Microsoft.AspNetCore.Builder
 open Wander.InMemoryStore
 
+let readPrelude () =
+    let scriptPath = Environment.GetEnvironmentVariable "WANDER_LIBS" + "/lib.wander"
+    System.IO.File.ReadAllText scriptPath
+
 let createEndpoints (store: ILigatureStore) =
     [ post "/" (fun ctx ->
           let route = Request.getRoute ctx
-
+          let prelude = readPrelude ()
           task {
               let! body = Request.getBodyString ctx
 
               return!
-                  match run (Wander.Library.stdFns store) Map.empty Map.empty body with
+                  match run (Wander.Library.stdFns store) Map.empty Map.empty (prelude + body) with
                   | Ok result -> Response.ofPlainText (printAny result) ctx
                   | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
