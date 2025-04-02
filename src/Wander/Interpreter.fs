@@ -194,6 +194,10 @@ and executeExpression
                         match Map.tryFind variable variables with
                         | Some value -> value
                         | _ -> failwith "TODO"
+                    | Any.Tuple tuple ->
+                        match executeExpression actions bindings variables (Any.Tuple tuple) with
+                        | Ok value -> value
+                        | _ -> failwith "TODO"
                     | value -> value)
                 tuple
 
