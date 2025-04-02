@@ -190,6 +190,10 @@ and executeExpression
                         match executeApplication actions bindings variables app with
                         | Ok value -> value
                         | _ -> failwith "TODO"
+                    | Any.Variable variable ->
+                        match Map.tryFind variable variables with
+                        | Some value -> value
+                        | _ -> failwith "TODO"
                     | value -> value)
                 tuple
 
