@@ -9,6 +9,28 @@ open Model
 open Tokenizer
 open Parser
 
+let parseMatchBody (body: Any list): Result<(Any * Any) list, LigatureError> =
+    List.chunkBySize 3 body
+    |> List.map (fun value ->
+        match value with
+        | [pattern; Any.Term (Term "->"); body] -> pattern, body
+        | _ -> failwith "TODO")
+    |> Ok
+
+let handleMatch (value: Any) (body: Any list): Result<Any, LigatureError> =
+    let rec check (body: (Any * Any) list) =
+        match body with
+        | [] -> error "No match" None
+        | (cond, body) :: tail ->
+            if value = cond then
+                Ok body
+            else
+                check tail
+
+    match parseMatchBody body with
+    | Ok body -> check body
+    | Error e -> Error e
+
 let rec evalScript
     (actions: Fns)
     (bindings: Bindings)
@@ -123,9 +145,10 @@ and executeApplication
                 | Error err -> failwith $"Error: {err.UserMessage}")
             args
 
-    match bindings.TryFind fn, actions.TryFind fn with
-    | Some lambda, _ -> evalLambda actions bindings variables args lambda
-    | None, Some(Fn(_, fn)) ->
+    match fn, args, bindings.TryFind fn, actions.TryFind fn with
+    | Term "match", value :: body,_, _ -> handleMatch value body
+    | _, _, Some lambda, _ -> evalLambda actions bindings variables args lambda
+    | _, _, _, Some(Fn(_, fn)) ->
         fn
             actions
             bindings
@@ -140,36 +163,7 @@ and executeApplication
                     | Any.Record record -> Any.Record(evalRecord actions bindings variables record)
                     | _ -> value)
                 args)
-    | None, None -> error $"Could not find function {fn}" None
-// match bindings.TryFind fn, actions.TryFind fn with
-// | Some lambda, _ -> evalLambda actions bindings lambda
-// | None, Some(Fn(_, fn)) ->
-//     fn
-//         actions
-//         bindings
-//         (List.map
-//             (fun value ->
-//                 match value with
-//                 | Any.Application application ->
-//                     match executeApplication actions bindings application with
-//                     | Ok res -> res
-//                     | Error err -> failwith $"Error: {err.UserMessage}"
-//                 | Any.Record record -> Any.Record(evalRecord actions bindings record)
-//                 | _ -> value)
-//             args)
-// | None, None -> error $"Could not find function {fn}" None
-
-
-
-// match lookupFn actions action with
-// | Some(Fn.Full(_, action)) -> action actions stack
-// | Some(Fn.Stack(_, action)) ->
-//     match action stack with
-//     | Ok stack -> Ok(stack)
-//     | Error err -> Error err
-// | None -> error $"Could not find action {action}." None
-
-
+    | _, _, None, None -> error $"Could not find function {fn}" None
 
 and executeExpression
     (actions: Fns)
