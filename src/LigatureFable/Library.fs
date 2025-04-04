@@ -4,6 +4,7 @@ open Ligature.Model
 open Wander.Model
 open System.Collections.Generic
 open Wander.Library
+open Fable.Core
 open Fable.Core.JsInterop
 open Wander.InMemoryStore
 
@@ -169,6 +170,15 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
                                   Any.Term(Term x)
                                   Any.Term(Term y) ] -> emitJsStatement (text, x, y) "ctx.strokeText($0, $1, $2)"
 
+                    | Any.Tuple [ Any.Term(Term "draw-line")
+                                  Any.Term(Term x)
+                                  Any.Term(Term y)
+                                  Any.Term(Term x2)
+                                  Any.Term(Term y2) ] ->
+                        emitJsStatement
+                            (x, y, x2, y2)
+                            "ctx.beginPath(); ctx.moveTo($0, $1); ctx.lineTo($2, $3); ctx.stroke()"
+
                     | Any.Tuple [ Any.Term(Term "line-width"); Any.Term(Term value) ] ->
                         emitJsStatement (value) "ctx.lineWidth($0)"
                     | Any.Tuple [ Any.Term(Term "line-cap"); Any.Term(Term value) ] ->
@@ -247,44 +257,3 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
         emitJsStatement () "element.appendChild(canvas)"
     | Ok value -> failwith $"Unexpected value passed to appendCanvas {value}"
     | Error err -> failwith err.UserMessage
-
-let simplify (network: Network): Set<string * (string * string)> =
-    Set.map(fun (Term e,_,v) ->
-        let value =
-            match v with
-            | Value.Literal (Literal l) -> "literal", l
-            | Value.Term (Term t) -> "term", t
-        e,value) network
-
-let position (network: Set<string * (string * string)>): Map<string * string, float * float> =
-    let rand = System.Random()
-    Set.fold (fun state (e, (t, v)) -> 
-        state
-        |> Map.add ("term", e) (rand.NextDouble(), rand.NextDouble())
-        |> Map.add (t, v) (rand.NextDouble(), rand.NextDouble())) Map.empty network
-
-let computeForceDirectedLayout (network: Network) : Tuple =
-    let network = simplify network
-    let pos = position network
-
-    Map.toSeq pos
-    |> Seq.map (fun ((t, v), (x, y)) ->
-        Any.Tuple [ 
-            Any.Term(Term "fill-text")
-            Any.Literal(Literal v)
-            Any.Term(Term $"{x*400.0}")
-            Any.Term(Term $"{y*400.0}") ])
-    |> List.ofSeq
-
-let drawNetwork element (value: Result<Any, LigatureError>) =
-    match value with
-    | Ok(Any.Record conf) ->
-        match Map.tryFind (Any.Term(Term "network")) conf with
-        | Some(Any.Network network) ->
-            let instructions = computeForceDirectedLayout network
-            appendCanvas element (Ok(Any.Record(Map.ofList [ 
-                Any.Term(Term "width"), Any.Term(Term "400")
-                Any.Term(Term "height"), Any.Term(Term "400")
-                Any.Term(Term "instructions"), Any.Tuple instructions ])))
-        | _ -> failwith "TODO"
-    | r -> failwith $"Invalid agrument passed to drawNetwork: {printResult r}"

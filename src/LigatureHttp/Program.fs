@@ -22,6 +22,7 @@ let createEndpoints (store: ILigatureStore) =
     [ post "/" (fun ctx ->
           let route = Request.getRoute ctx
           let prelude = readPrelude ()
+
           task {
               let! body = Request.getBodyString ctx
 

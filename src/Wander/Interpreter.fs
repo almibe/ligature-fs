@@ -9,23 +9,19 @@ open Model
 open Tokenizer
 open Parser
 
-let parseMatchBody (body: Any list): Result<(Any * Any) list, LigatureError> =
+let parseMatchBody (body: Any list) : Result<(Any * Any) list, LigatureError> =
     List.chunkBySize 3 body
     |> List.map (fun value ->
         match value with
-        | [pattern; Any.Term (Term "->"); body] -> pattern, body
+        | [ pattern; Any.Term(Term "->"); body ] -> pattern, body
         | _ -> failwith "TODO")
     |> Ok
 
-let handleMatch (value: Any) (body: Any list): Result<Any, LigatureError> =
+let handleMatch (value: Any) (body: Any list) : Result<Any, LigatureError> =
     let rec check (body: (Any * Any) list) =
         match body with
         | [] -> error "No match" None
-        | (cond, body) :: tail ->
-            if value = cond then
-                Ok body
-            else
-                check tail
+        | (cond, body) :: tail -> if value = cond then Ok body else check tail
 
     match parseMatchBody body with
     | Ok body -> check body
@@ -146,7 +142,7 @@ and executeApplication
             args
 
     match fn, args, bindings.TryFind fn, actions.TryFind fn with
-    | Term "match", value :: body,_, _ -> handleMatch value body
+    | Term "match", value :: body, _, _ -> handleMatch value body
     | _, _, Some lambda, _ -> evalLambda actions bindings variables args lambda
     | _, _, _, Some(Fn(_, fn)) ->
         fn

@@ -1,6 +1,7 @@
 bin/
 obj/
 *.fs.js
+*.fs.js.map
 *.fs.ts
 .fake
 *.trx

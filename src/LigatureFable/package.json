@@ -9,7 +9,9 @@
   },
   "author": "https://almibe.dev",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/ligature.umd.js",
   "module": "./dist/ligature.es.js",
   "exports": {
