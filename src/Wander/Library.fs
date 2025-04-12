@@ -91,6 +91,8 @@ let stdFns (store: ILigatureStore) : Fns =
         [ Term "assert-equal", assertEqualFn
           Term "network", networkFn
           Term "pattern", patternFn
+          Term "define", defineFn
+          Term "subconcept", subconceptFn
           Term "union", unionFn
           Term "infer", inferFn
           Term "remote", remoteFn

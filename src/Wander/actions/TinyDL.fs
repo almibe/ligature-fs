@@ -7,6 +7,7 @@ module Wander.Fns.TinyDL
 open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
+open TinyDL.Model
 
 [<RequireQualifiedAccess>]
 type JsonViewValue =
@@ -185,5 +186,30 @@ let inferFn: Fn =
                 match infer description network with
                 | Ok res -> Ok(Any.Network res)
                 | Error err -> error $"Error calling infer: {err}" None
+            | _ -> error "Improper call to infer." None
+    )
+
+let subconceptFn: Fn =
+    Fn(
+        { doc = "Create a subconcept axiom."
+          examples = [ "(subconcept Dog Animal)" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term subconcept; Any.Term concept ] ->
+                Ok(Any.Definition(Definition.Subconcept(AtomicConcept subconcept, AtomicConcept concept)))
+            | _ -> error "Improper call to infer." None
+    )
+
+let defineFn: Fn =
+    Fn(
+        { doc = "Define a TBox."
+          examples = [ "(define (subconcept Dog Animal))" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definition def ] -> Ok(Any.Definitions(Set.ofList [ def ]))
             | _ -> error "Improper call to infer." None
     )

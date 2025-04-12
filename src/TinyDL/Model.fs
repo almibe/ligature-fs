@@ -8,9 +8,9 @@ open Ligature.Model
 
 type Concept = AtomicConcept of Term
 
+[<RequireQualifiedAccess>]
 type Definition =
     | Subconcept of Concept * Concept
     | Equivalent of Concept * Concept
 
-let infer (tBox: Set<Definition>) (aBox: Network) =
-    aBox
+let infer (tBox: Set<Definition>) (aBox: Network) = aBox

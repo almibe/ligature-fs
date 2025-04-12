@@ -5,6 +5,7 @@
 module Wander.Model
 
 open Ligature.Model
+open TinyDL.Model
 
 type Variable = Variable of string
 
@@ -29,6 +30,8 @@ and [<RequireQualifiedAccess>] Any =
     | Record of Record
     | Application of Application
     | Lambda of Lambda
+    | Definition of Definition
+    | Definitions of Set<Definition>
 
 and Application = Term * Any list
 
