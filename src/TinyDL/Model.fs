@@ -3,3 +3,14 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 module TinyDL.Model
+
+open Ligature.Model
+
+type Concept = AtomicConcept of Term
+
+type Definition =
+    | Subconcept of Concept * Concept
+    | Equivalent of Concept * Concept
+
+let infer (tBox: Set<Definition>) (aBox: Network) =
+    aBox
