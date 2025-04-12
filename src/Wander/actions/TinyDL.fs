@@ -8,6 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
 open TinyDL.Model
+open TinyDL.Core
 
 [<RequireQualifiedAccess>]
 type JsonViewValue =
@@ -40,35 +41,6 @@ and writeJsonView (view: JsonView) : string =
 
     res <- res + "}"
     res
-
-let rec infer (tBox: Network) (aBox: Network) : Result<Network, LigatureError> =
-    let mutable res = aBox
-
-    Set.iter
-        (fun tStatement ->
-            Set.iter
-                (fun aStatement ->
-                    match tStatement, aStatement with
-                    | (subconcept, Term "subconcept-of", superconcept), (element, Term ":", Value.Term concept) when
-                        subconcept = concept
-                        ->
-                        res <- Set.add (element, Term ":", superconcept) res
-                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
-                        role = firstRole
-                        ->
-                        res <- Set.add (second, secondRole, Value.Term first) res
-                    | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
-                        role = secondRole
-                        ->
-                        res <- Set.add (second, firstRole, Value.Term first) res
-                    | (roleName, Term ":", Value.Term(Term "tiny-dl.Is-Symmetrical")),
-                      (first, role, Value.Term second) when role = roleName ->
-                        res <- Set.add (second, role, Value.Term first) res
-                    | _ -> ())
-                aBox)
-        tBox
-
-    if aBox = res then Ok res else infer tBox res
 
 let extract (id: Term) (source: Network) : Record =
     let mutable result = Map.empty
@@ -175,7 +147,7 @@ let inferFn: Fn =
             | [ description; network ] ->
                 let description =
                     match description with
-                    | Any.Network n -> n
+                    | Any.Definitions n -> n
                     | _ -> failwith "TODO"
 
                 let network =
@@ -199,7 +171,7 @@ let subconceptFn: Fn =
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(Any.Definition(Definition.Subconcept(AtomicConcept subconcept, AtomicConcept concept)))
-            | _ -> error "Improper call to infer." None
+            | _ -> error "Improper call to subconcept." None
     )
 
 let defineFn: Fn =
@@ -209,7 +181,15 @@ let defineFn: Fn =
           args = ""
           result = "" },
         fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Definition def ] -> Ok(Any.Definitions(Set.ofList [ def ]))
-            | _ -> error "Improper call to infer." None
+            List.fold
+                (fun state value ->
+                    match state with
+                    | Ok(Any.Definitions state) ->
+                        match value with
+                        | Any.Definition def -> Ok(Any.Definitions(Set.add def state))
+                        | _ -> failwith "TODO"
+                    | Ok _ -> failwith "Unexpected value."
+                    | Error err -> Error err)
+                (Ok(Any.Definitions Set.empty))
+                arguments
     )

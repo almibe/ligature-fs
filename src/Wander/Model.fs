@@ -31,7 +31,7 @@ and [<RequireQualifiedAccess>] Any =
     | Application of Application
     | Lambda of Lambda
     | Definition of Definition
-    | Definitions of Set<Definition>
+    | Definitions of Definitions
 
 and Application = Term * Any list
 
@@ -82,6 +82,8 @@ let rec printAny (value: Any) : string =
     | Any.Application(_) -> failwith "Not Implemented"
     | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
+    | Any.Definition def -> printDefinition def
+    | Any.Definitions defs -> printDefinitions defs
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"

@@ -13,4 +13,8 @@ type Definition =
     | Subconcept of Concept * Concept
     | Equivalent of Concept * Concept
 
-let infer (tBox: Set<Definition>) (aBox: Network) = aBox
+type Definitions = Set<Definition>
+
+let printDefinition definition = "def"
+
+let printDefinitions definition = "defs"
