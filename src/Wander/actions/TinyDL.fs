@@ -112,8 +112,8 @@ let instancesFn: Fn =
 let isConsistentFn =
     Fn(
         { doc = "Check if a Network is consistent."
-          examples = [ "is-consistent {a : B, b : C} | assert-equal true" ]
-          args = "Network"
+          examples = [ "(is-consistent (define (subconcept A B)) (network [a : A]))" ]
+          args = "Definition Network Quote"
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
@@ -136,30 +136,30 @@ let isConsistentFn =
             | _ -> error "Network on stack required to call count." None
     )
 
-let inferFn: Fn =
-    Fn(
-        { doc = "..."
-          examples = []
-          args = ""
-          result = "" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ description; network ] ->
-                let description =
-                    match description with
-                    | Any.Definitions n -> n
-                    | _ -> failwith "TODO"
+// let inferFn: Fn =
+//     Fn(
+//         { doc = "..."
+//           examples = []
+//           args = ""
+//           result = "" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ description; network ] ->
+//                 let description =
+//                     match description with
+//                     | Any.Definitions n -> n
+//                     | _ -> failwith "TODO"
 
-                let network =
-                    match network with
-                    | Any.Network n -> n
-                    | _ -> failwith "TODO"
+//                 let network =
+//                     match network with
+//                     | Any.Network n -> n
+//                     | _ -> failwith "TODO"
 
-                match infer description network with
-                | Ok res -> Ok(Any.Network res)
-                | Error err -> error $"Error calling infer: {err}" None
-            | _ -> error "Improper call to infer." None
-    )
+//                 match infer description network with
+//                 | Ok res -> Ok(Any.Network res)
+//                 | Error err -> error $"Error calling infer: {err}" None
+//             | _ -> error "Improper call to infer." None
+//     )
 
 let subconceptFn: Fn =
     Fn(
@@ -170,7 +170,7 @@ let subconceptFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
-                Ok(Any.Definition(Definition.Subconcept(AtomicConcept subconcept, AtomicConcept concept)))
+                Ok(Any.Definition(Definition.Subconcept(subconcept, AtomicConcept concept)))
             | _ -> error "Improper call to subconcept." None
     )
 

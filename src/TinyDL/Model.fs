@@ -6,12 +6,14 @@ module TinyDL.Model
 
 open Ligature.Model
 
-type Concept = AtomicConcept of Term
+type ConceptExpr = 
+    | AtomicConcept of Term
+    | Conjunction of ConceptExpr list
 
 [<RequireQualifiedAccess>]
 type Definition =
-    | Subconcept of Concept * Concept
-    | Equivalent of Concept * Concept
+    | Subconcept of Term * ConceptExpr
+    | Equivalent of Term * ConceptExpr
 
 type Definitions = Set<Definition>
 

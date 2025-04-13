@@ -94,7 +94,6 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "define", defineFn
           Term "subconcept", subconceptFn
           Term "union", unionFn
-          Term "infer", inferFn
           Term "remote", remoteFn
           Term "extract", extractFn
           Term "instances", instancesFn
