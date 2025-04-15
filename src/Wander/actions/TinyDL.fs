@@ -117,22 +117,11 @@ let isConsistentFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Network n ] ->
-                if
-                    Ligature.Core.query
-                        (Set.ofList
-                            [ TermPattern.Slot(Slot "?el"),
-                              TermPattern.Term(Term ":"),
-                              ValuePattern.Slot(Slot "?concept")
-                              TermPattern.Slot(Slot "?el"),
-                              TermPattern.Term(Term "~:"),
-                              ValuePattern.Slot(Slot "?concept") ])
-                        n
-                    |> Seq.length = 0
-                then
-                    Ok(Any.Term(Term "true"))
-                else
-                    Ok(Any.Term(Term "false"))
+            | [ Any.Definitions def; Any.Network n ] ->
+                match isConsistent def n with
+                | Ok true -> Ok(Any.Term(Term "true"))
+                | Ok false -> Ok(Any.Term(Term "false"))
+                | Error err -> Error err
             | _ -> error "Network on stack required to call count." None
     )
 

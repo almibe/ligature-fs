@@ -6,7 +6,7 @@ module TinyDL.Model
 
 open Ligature.Model
 
-type ConceptExpr = 
+type ConceptExpr =
     | AtomicConcept of Term
     | Conjunction of ConceptExpr list
 
