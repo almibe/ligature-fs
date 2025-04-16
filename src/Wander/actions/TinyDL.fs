@@ -150,23 +150,52 @@ let isConsistentFn =
 //             | _ -> error "Improper call to infer." None
 //     )
 
-let subconceptFn: Fn =
+let impliesFn: Fn =
     Fn(
         { doc = "Create a subconcept axiom."
-          examples = [ "(subconcept Dog Animal)" ]
+          examples = [ "(implies Dog Animal)" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
-                Ok(Any.Definition(Definition.Subconcept(subconcept, AtomicConcept concept)))
-            | _ -> error "Improper call to subconcept." None
+                Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
+            | _ -> error "Improper call to implies." None
     )
 
-let defineFn: Fn =
+let defineConceptFn: Fn =
+    Fn(
+        { doc = "Define a Concept."
+          examples = [ "(define-concept Person (exists name))" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term subconcept; Any.Term concept ] ->
+                Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
+                Ok(Any.Definition(Definition.Implies(subconcept, concept)))
+            | _ -> error "Improper call to define." None
+    )
+
+let existsFn: Fn =
+    Fn(
+        { doc = "Create an existential quantification."
+          examples = [ "(exists name)"; "(exists dob Date)" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term role ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
+            | [ Any.Term role; Any.Term concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
+            | _ -> error "Improper call to exists." None
+    )
+
+let definitionsFn: Fn =
     Fn(
         { doc = "Define a TBox."
-          examples = [ "(define (subconcept Dog Animal))" ]
+          examples = [ "(definitions (implies Dog Animal))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->

@@ -30,6 +30,7 @@ and [<RequireQualifiedAccess>] Any =
     | Record of Record
     | Application of Application
     | Lambda of Lambda
+    | ConceptExpr of ConceptExpr
     | Definition of Definition
     | Definitions of Definitions
 
