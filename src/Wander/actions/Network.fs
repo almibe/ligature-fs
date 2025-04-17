@@ -9,46 +9,46 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let rec recordToNetwork (record: Record) : Result<Network, LigatureError> =
-    failwith "TODO"
-    // match Map.tryFind (Any.Term(Term "@")) record with
-    // | Some(Any.Term id) ->
-    //     Seq.fold
-    //         (fun state (key, value) ->
-    //             if key = Any.Term(Term "@") then
-    //                 state
-    //             else
-    //                 let role: Term =
-    //                     match key with
-    //                     | Any.Term term -> term
-    //                     | _ -> failwith "TODO"
+let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
+    match Map.tryFind (Any.Term(Term "@")) record with
+    | Some(Any.Term id) ->
+        Seq.fold
+            (fun state (key, value) ->
+                if key = Any.Term(Term "@") then
+                    state
+                else
+                    let role: Term =
+                        match key with
+                        | Any.Term term -> term
+                        | _ -> failwith "TODO"
 
-    //                 match value with
-    //                 | Any.Literal literal -> Set.add (id, role, Value.Literal literal) state
-    //                 | Any.Term term -> Set.add (id, role, Value.Term term) state
-    //                 | Any.Tuple tuple ->
-    //                     List.fold
-    //                         (fun state value ->
-    //                             match value with
-    //                             | Any.Literal literal -> Set.add (id, role, Value.Literal literal) state
-    //                             | Any.Term term -> Set.add (id, role, Value.Term term) state
-    //                             | _ -> failwith "TODO")
-    //                         state
-    //                         tuple
-    //                 | Any.Record record ->
-    //                     let state =
-    //                         match record.TryFind(Any.Term(Term "@")) with
-    //                         | Some(Any.Term value) -> Set.add (id, role, Value.Term value) state
-    //                         | _ -> failwith "TODO"
+                    match value with
+                    | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
+                    | Any.Term term -> Set.add (Assertion.Triple(id, role, Value.Term term)) state
+                    | Any.Tuple tuple ->
+                        List.fold
+                            (fun state value ->
+                                match value with
+                                | Any.Literal literal ->
+                                    Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
+                                | Any.Term term -> Set.add (Assertion.Triple(id, role, Value.Term term)) state
+                                | _ -> failwith "TODO")
+                            state
+                            tuple
+                    | Any.Record record ->
+                        let state =
+                            match record.TryFind(Any.Term(Term "@")) with
+                            | Some(Any.Term value) -> Set.add (Assertion.Triple(id, role, Value.Term value)) state
+                            | _ -> failwith "TODO"
 
-    //                     match recordToNetwork record with
-    //                     | Ok network -> state + network
-    //                     | _ -> failwith "TODO"
-    //                 | _ -> failwith "TODO")
-    //         Set.empty
-    //         (Map.toSeq record)
-    //     |> Ok
-    // | _ -> error "Record requires valid @ entry." None
+                        match recordToNetwork record with
+                        | Ok network -> state + network
+                        | _ -> failwith "TODO"
+                    | _ -> failwith "TODO")
+            Set.empty
+            (Map.toSeq record)
+        |> Ok
+    | _ -> error "Record requires valid @ entry." None
 
 let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
     match Map.tryFind (Any.Term(Term "@")) record with
@@ -107,7 +107,7 @@ let networkFn =
           args = "Tuple..."
           result = "Network" },
         fun _ _ _ arguments ->
-            let mutable res: Network = Set.empty
+            let mutable res: Assertions = Set.empty
 
             List.iter
                 (fun arg ->
@@ -129,7 +129,7 @@ let networkFn =
                             | Any.Literal l -> Value.Literal l
                             | _ -> failwith "Invalid call to network."
 
-                        res <- failwith "TODO" //Set.add (e, a, v) res
+                        res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Any.Record record ->
                         match recordToNetwork record with
                         | Ok network -> res <- res + network

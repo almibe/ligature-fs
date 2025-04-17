@@ -41,21 +41,22 @@ and writeJsonView (view: JsonView) : string =
     res <- res + "}"
     res
 
-let extract (id: Term) (source: Network) : Record =
+let extract (id: Term) (source: Assertions) : Record =
     let mutable result = Map.empty
     result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
 
-    // Set.iter
-    //     (fun triple ->
-    //         match triple with
-    //         | e, a, Value.Term v ->
-    //             if e = id then
-    //                 result <- Map.add (Any.Term a) (Any.Term v) result
-    //         | e, a, Value.Literal v ->
-    //             if e = id then
-    //                 result <- Map.add (Any.Term a) (Any.Literal v) result)
-    //     source
-    failwith "TODO"
+    Set.iter
+        (fun triple ->
+            match triple with
+            | Assertion.Triple(e, a, Value.Term v) ->
+                if e = id then
+                    result <- Map.add (Any.Term a) (Any.Term v) result
+            | Assertion.Triple(e, a, Value.Literal v) ->
+                if e = id then
+                    result <- Map.add (Any.Term a) (Any.Literal v) result
+            | _ -> failwith "TODO")
+        source
+
     result
 
 let extractFn: Fn =
@@ -70,19 +71,18 @@ let extractFn: Fn =
             | _ -> error "Invalid call to extract." None
     )
 
-let instances (source: Network) (concept: Term) : AnySet =
-    failwith "TODO"
-    // Set.fold
-    //     (fun state triple ->
-    //         match triple with
-    //         | element, Term ":", conceptToCheck ->
-    //             if conceptToCheck = Value.Term concept then
-    //                 Set.add (Any.Record(extract element source)) state
-    //             else
-    //                 state
-    //         | _ -> state)
-    //     Set.empty
-    //     source
+let instances (source: Assertions) (concept: Term) : AnySet =
+    Set.fold
+        (fun state triple ->
+            match triple with
+            | Assertion.Triple(element, Term ":", conceptToCheck) ->
+                if conceptToCheck = Value.Term concept then
+                    Set.add (Any.Record(extract element source)) state
+                else
+                    state
+            | _ -> state)
+        Set.empty
+        source
 
 let instancesFn: Fn =
     Fn(

@@ -37,13 +37,13 @@ and [<RequireQualifiedAccess>] ValuePattern =
     | Literal of Literal
     | Slot of Slot
 
-and [<RequireQualifiedAccess>] Assertion = 
+and [<RequireQualifiedAccess>] Assertion =
     | Triple of Term * Term * Value //TODO delete
     | IsA of Term * Term
     | Relation of Term * Term * Term
     | Attrbiute of Term * Term * Literal
 
-and Network = Set<Assertion>
+and Assertions = Set<Assertion>
 
 and TriplePattern = TermPattern * TermPattern * ValuePattern
 
@@ -56,9 +56,9 @@ type ILigatureStore =
     abstract Stores: unit -> string seq
     abstract AddStore: string -> unit
     abstract RemoveStore: string -> unit
-    abstract AssertStore: string -> Network -> unit
-    abstract UnassertStore: string -> Network -> unit
-    abstract ReadAsserts: string -> Result<Network, LigatureError>
+    abstract AssertStore: string -> Assertions -> unit
+    abstract UnassertStore: string -> Assertions -> unit
+    abstract ReadAsserts: string -> Result<Assertions, LigatureError>
 
 [<RequireQualifiedAccess>]
 type ConceptExpr =

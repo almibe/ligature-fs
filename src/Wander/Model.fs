@@ -21,7 +21,7 @@ and [<RequireQualifiedAccess>] Any =
     | Literal of Literal
     | Variable of Variable
     | Pattern of Pattern
-    | Network of Network
+    | Network of Assertions
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Comment of string
@@ -136,7 +136,7 @@ and printPattern (network: Pattern) : string =
         network
     + " )"
 
-and printNetwork (network: Network) : string =
+and printNetwork (network: Assertions) : string =
     let mutable first = true
 
     Seq.fold
@@ -171,6 +171,5 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
 
 and printTriple (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple (Term element, Term attribute, value) ->
-        $"[{element} {attribute} {printValue value}]"
+    | Assertion.Triple(Term element, Term attribute, value) -> $"[{element} {attribute} {printValue value}]"
     | _ -> failwith "TODO"

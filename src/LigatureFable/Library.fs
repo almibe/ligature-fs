@@ -36,7 +36,7 @@ let ok value = Ok value
 
 let error value = Error value
 
-let networkToJs (network: Network) =
+let networkToJs (network: Assertions) =
     let network =
         Set.map
             (fun (Term e, Term a, v) ->

@@ -19,7 +19,7 @@ let testPattern
     let mutable isMatch = true
 
     match assertion with
-    | Assertion.Triple (element, attribute, value) ->
+    | Assertion.Triple(element, attribute, value) ->
         match elementPattern with
         | TermPattern.Slot slot ->
             if namedSlot slot then
@@ -54,7 +54,7 @@ let testPattern
         if isMatch then Some result else None
     | _ -> failwith "TODO"
 
-let singleMatch (pattern: TriplePattern) (network: Network) : ResultSet =
+let singleMatch (pattern: TriplePattern) (network: Assertions) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -91,7 +91,7 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let query (pattern: Pattern) (network: Network) : ResultSet =
+let query (pattern: Pattern) (network: Assertions) : ResultSet =
     let resultSets =
         Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
 
@@ -100,7 +100,7 @@ let query (pattern: Pattern) (network: Network) : ResultSet =
     else
         List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
 
-let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
+let applyValueSet (pattern: Pattern) (result: ValueSet) : Assertions =
     Set.map
         (fun (e, a, v) ->
             let element =
@@ -130,7 +130,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                     | Some t -> t
                     | None -> failwith "Incomplete application."
 
-            Assertion.Triple (element, attribute, value))
+            Assertion.Triple(element, attribute, value))
         pattern
 
 // let applyValueSetTupleTemplate (pattern: Tuple) (result: ValueSet) : Tuple =
@@ -147,10 +147,10 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
 //             | _ -> any)
 //         pattern
 
-let apply (pattern: Pattern) (resultSet: ResultSet) : Network =
+let apply (pattern: Pattern) (resultSet: ResultSet) : Assertions =
     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
-let applySeq (pattern: Pattern) (resultSet: ResultSet) : Network list =
+let applySeq (pattern: Pattern) (resultSet: ResultSet) : Assertions list =
     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
 // let applySeqTupleTemplate (pattern: Tuple) (resultSet: ResultSet) : Tuple list =
@@ -163,16 +163,16 @@ let applySeq (pattern: Pattern) (resultSet: ResultSet) : Network list =
 
 let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 
-let filter (pattern: Pattern) (source: Network) : Network =
+let filter (pattern: Pattern) (source: Assertions) : Assertions =
     let res = query pattern source
     let res = applySeq pattern res
     Seq.fold (fun state network -> Set.union state network) Set.empty res
 
-let individuals (concept: Term) (tBox: Network) (aBox: Network) =
+let individuals (concept: Term) (tBox: Assertions) (aBox: Assertions) =
 
     failwith "TODO"
 
-let rec isConsistent (tBox: Definitions) (aBox: Network) : Result<bool, LigatureError> =
+let rec isConsistent (tBox: Definitions) (aBox: Assertions) : Result<bool, LigatureError> =
     if
         query
             (Set.ofList

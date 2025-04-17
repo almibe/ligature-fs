@@ -85,7 +85,7 @@ type LigatureStore(path: string option) =
             log.Enqueue encoded |> ignore
             log.Commit()
 
-        member this.AssertStore (name: string) (network: Network) : unit =
+        member this.AssertStore (name: string) (network: Assertions) : unit =
             store.AssertStore name network
 
             Set.iter
@@ -97,9 +97,9 @@ type LigatureStore(path: string option) =
 
             log.Commit()
 
-        member this.ReadAsserts(name: string) : Result<Network, LigatureError> = store.ReadAsserts name
+        member this.ReadAsserts(name: string) : Result<Assertions, LigatureError> = store.ReadAsserts name
 
-        member this.UnassertStore (name: string) (network: Network) : unit =
+        member this.UnassertStore (name: string) (network: Assertions) : unit =
             store.UnassertStore name network
 
             Set.iter

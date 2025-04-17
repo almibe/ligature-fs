@@ -99,7 +99,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "remote", remoteFn
           Term "extract", extractFn
           Term "instances", instancesFn
-//          Term "docs", docsFn
+          //          Term "docs", docsFn
           Term "prepend", prependFn
           Term "set", setFn
           Term "result-set", resultSetFn
