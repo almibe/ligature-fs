@@ -13,43 +13,46 @@ let namedSlot (v: Slot) : bool =
 
 let testPattern
     ((elementPattern, attributePattern, valuePattern): TriplePattern)
-    ((element, attribute, value): Triple)
+    (assertion: Assertion)
     : ValueSet option =
     let mutable result: ValueSet = Map.empty
     let mutable isMatch = true
 
-    match elementPattern with
-    | TermPattern.Slot slot ->
-        if namedSlot slot then
-            result <- Map.add slot (Value.Term element) result
-    | TermPattern.Term elementP -> isMatch <- elementP = element
-
-    if isMatch then
-        match attributePattern with
+    match assertion with
+    | Assertion.Triple (element, attribute, value) ->
+        match elementPattern with
         | TermPattern.Slot slot ->
             if namedSlot slot then
-                if result.ContainsKey slot then
-                    match result.TryFind slot with
-                    | Some a -> isMatch <- a = Value.Term attribute
-                    | _ -> failwith "TODO"
-                else
-                    result <- Map.add slot (Value.Term attribute) result
-        | TermPattern.Term attributeTerm -> isMatch <- attribute = attributeTerm
+                result <- Map.add slot (Value.Term element) result
+        | TermPattern.Term elementP -> isMatch <- elementP = element
 
-    if isMatch then
-        match valuePattern with
-        | ValuePattern.Slot slot ->
-            if namedSlot slot then
-                if result.ContainsKey slot then
-                    match result.TryFind slot with
-                    | Some vTerm -> isMatch <- vTerm = value
-                    | _ -> isMatch <- false
-                else
-                    result <- Map.add slot value result
-        | ValuePattern.Term valueTerm -> isMatch <- (Value.Term valueTerm) = value
-        | _ -> isMatch <- false
+        if isMatch then
+            match attributePattern with
+            | TermPattern.Slot slot ->
+                if namedSlot slot then
+                    if result.ContainsKey slot then
+                        match result.TryFind slot with
+                        | Some a -> isMatch <- a = Value.Term attribute
+                        | _ -> failwith "TODO"
+                    else
+                        result <- Map.add slot (Value.Term attribute) result
+            | TermPattern.Term attributeTerm -> isMatch <- attribute = attributeTerm
 
-    if isMatch then Some result else None
+        if isMatch then
+            match valuePattern with
+            | ValuePattern.Slot slot ->
+                if namedSlot slot then
+                    if result.ContainsKey slot then
+                        match result.TryFind slot with
+                        | Some vTerm -> isMatch <- vTerm = value
+                        | _ -> isMatch <- false
+                    else
+                        result <- Map.add slot value result
+            | ValuePattern.Term valueTerm -> isMatch <- (Value.Term valueTerm) = value
+            | _ -> isMatch <- false
+
+        if isMatch then Some result else None
+    | _ -> failwith "TODO"
 
 let singleMatch (pattern: TriplePattern) (network: Network) : ResultSet =
     Set.fold
@@ -127,7 +130,7 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Network =
                     | Some t -> t
                     | None -> failwith "Incomplete application."
 
-            element, attribute, value)
+            Assertion.Triple (element, attribute, value))
         pattern
 
 // let applyValueSetTupleTemplate (pattern: Tuple) (result: ValueSet) : Tuple =

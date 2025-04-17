@@ -45,17 +45,17 @@ let extract (id: Term) (source: Network) : Record =
     let mutable result = Map.empty
     result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
 
-    Set.iter
-        (fun triple ->
-            match triple with
-            | e, a, Value.Term v ->
-                if e = id then
-                    result <- Map.add (Any.Term a) (Any.Term v) result
-            | e, a, Value.Literal v ->
-                if e = id then
-                    result <- Map.add (Any.Term a) (Any.Literal v) result)
-        source
-
+    // Set.iter
+    //     (fun triple ->
+    //         match triple with
+    //         | e, a, Value.Term v ->
+    //             if e = id then
+    //                 result <- Map.add (Any.Term a) (Any.Term v) result
+    //         | e, a, Value.Literal v ->
+    //             if e = id then
+    //                 result <- Map.add (Any.Term a) (Any.Literal v) result)
+    //     source
+    failwith "TODO"
     result
 
 let extractFn: Fn =
@@ -71,17 +71,18 @@ let extractFn: Fn =
     )
 
 let instances (source: Network) (concept: Term) : AnySet =
-    Set.fold
-        (fun state triple ->
-            match triple with
-            | element, Term ":", conceptToCheck ->
-                if conceptToCheck = Value.Term concept then
-                    Set.add (Any.Record(extract element source)) state
-                else
-                    state
-            | _ -> state)
-        Set.empty
-        source
+    failwith "TODO"
+    // Set.fold
+    //     (fun state triple ->
+    //         match triple with
+    //         | element, Term ":", conceptToCheck ->
+    //             if conceptToCheck = Value.Term concept then
+    //                 Set.add (Any.Record(extract element source)) state
+    //             else
+    //                 state
+    //         | _ -> state)
+    //     Set.empty
+    //     source
 
 let instancesFn: Fn =
     Fn(

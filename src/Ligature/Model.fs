@@ -18,7 +18,7 @@ type Term = Term of string
 type Literal = Literal of string
 
 [<RequireQualifiedAccess>]
-type Value =
+type Value = //TODO delete
     | Term of Term
     | Literal of Literal
 
@@ -37,9 +37,13 @@ and [<RequireQualifiedAccess>] ValuePattern =
     | Literal of Literal
     | Slot of Slot
 
-and Triple = Term * Term * Value
+and [<RequireQualifiedAccess>] Assertion = 
+    | Triple of Term * Term * Value //TODO delete
+    | IsA of Term * Term
+    | Relation of Term * Term * Term
+    | Attrbiute of Term * Term * Literal
 
-and Network = Set<Triple>
+and Network = Set<Assertion>
 
 and TriplePattern = TermPattern * TermPattern * ValuePattern
 

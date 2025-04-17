@@ -169,5 +169,8 @@ and printTriplePattern ((element, attribute, value): TriplePattern) : string =
 
     $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
-and printTriple ((Term element, Term attribute, value): Triple) : string =
-    $"[{element} {attribute} {printValue value}]"
+and printTriple (assertion: Assertion) : string =
+    match assertion with
+    | Assertion.Triple (Term element, Term attribute, value) ->
+        $"[{element} {attribute} {printValue value}]"
+    | _ -> failwith "TODO"
