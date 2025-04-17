@@ -5,10 +5,9 @@
 module Wander.Fns.TinyDL
 
 open Ligature.Model
+open Ligature.Core
 open Wander.Model
 open Wander.Interpreter
-open TinyDL.Model
-open TinyDL.Core
 
 [<RequireQualifiedAccess>]
 type JsonViewValue =

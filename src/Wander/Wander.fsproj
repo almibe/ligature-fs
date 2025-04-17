@@ -31,7 +31,6 @@
   <ItemGroup>  
     <ProjectReference Include="..\Gaze\Gaze.fsproj" />
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
-    <ProjectReference Include="..\TinyDL\TinyDL.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

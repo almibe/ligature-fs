@@ -5,7 +5,6 @@
 module Wander.Model
 
 open Ligature.Model
-open TinyDL.Model
 
 type Variable = Variable of string
 

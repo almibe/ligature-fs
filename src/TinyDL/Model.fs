@@ -5,23 +5,3 @@
 module TinyDL.Model
 
 open Ligature.Model
-
-[<RequireQualifiedAccess>]
-type ConceptExpr =
-    | AtomicConcept of Term
-    | Conjunction of ConceptExpr list
-    | Top
-    | Bottom
-    | Exists of Term * ConceptExpr
-    | All of Term * ConceptExpr
-
-[<RequireQualifiedAccess>]
-type Definition =
-    | Implies of Term * ConceptExpr
-    | Define of Term * ConceptExpr
-
-type Definitions = Set<Definition>
-
-let printDefinition definition = "def"
-
-let printDefinitions definition = "defs"
