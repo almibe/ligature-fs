@@ -100,12 +100,12 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
         |> Ok
     | _ -> error "Record requires valid @ entry." None
 
-let networkFn =
+let assertionsFn =
     Fn(
-        { doc = "Create a Network from triples."
-          examples = [ "network [a b c] [d e f]" ]
-          args = "Tuple..."
-          result = "Network" },
+        { doc = "Create an ABox."
+          examples = [ "(assertions (isa betty Cat))" ]
+          args = "Assertion..."
+          result = "Assertions" },
         fun _ _ _ arguments ->
             let mutable res: Assertions = Set.empty
 
@@ -116,28 +116,28 @@ let networkFn =
                         let e =
                             match e with
                             | Any.Term t -> t
-                            | _ -> failwith "Invalid call to network."
+                            | _ -> failwith "Invalid call to assertions."
 
                         let a =
                             match a with
                             | Any.Term t -> t
-                            | _ -> failwith "Invalid call to network."
+                            | _ -> failwith "Invalid call to assertions."
 
                         let v =
                             match v with
                             | Any.Term t -> Value.Term t
                             | Any.Literal l -> Value.Literal l
-                            | _ -> failwith "Invalid call to network."
+                            | _ -> failwith "Invalid call to assertions."
 
                         res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Any.Record record ->
                         match recordToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
-                    | _ -> failwith "Invalid call to network.")
+                    | _ -> failwith "Invalid call to assertions.")
                 arguments
 
-            Ok(Any.Network res)
+            Ok(Any.Assertions res)
     )
 
 let patternFn =
@@ -191,7 +191,7 @@ let unionFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Network left; Any.Network right ] ->
+            | [ Any.Assertions left; Any.Assertions right ] ->
                 // let left =
                 //     match left with
                 //     | Any.Network n -> n
@@ -213,7 +213,7 @@ let unionFn =
                 //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
-                let result = Set.union left right |> Any.Network
+                let result = Set.union left right |> Any.Assertions
                 Ok result
             | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
@@ -226,7 +226,7 @@ let countFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Network n ] -> Ok(Any.Literal(Literal((Set.count n).ToString())))
+            | [ Any.Assertions n ] -> Ok(Any.Literal(Literal((Set.count n).ToString())))
             | _ -> error "Network on stack required to call count." None
     )
 // match arguments with
@@ -264,7 +264,7 @@ let queryFn =
           result = "ResultSet" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Network source ] ->
+            | [ Any.Pattern pattern; Any.Assertions source ] ->
                 let results = query pattern source
                 Ok(Any.ResultSet results)
             | _ -> error "Invalid call to query" None
@@ -359,7 +359,7 @@ let filterFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Network source ] ->
+            | [ Any.Pattern pattern; Any.Assertions source ] ->
                 // let pattern =
                 //     match pattern with
                 //     | Any.Network n -> n
@@ -393,7 +393,7 @@ let filterFn =
                 //     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok(Any.Network results)
+                Ok(Any.Assertions results)
             | _ -> error "Invalid call to filter" None
     )
 

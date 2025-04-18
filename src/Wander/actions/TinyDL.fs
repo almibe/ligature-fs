@@ -67,7 +67,7 @@ let extractFn: Fn =
           result = "Record" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term id; Any.Network source ] -> Ok(Any.Record(extract id source))
+            | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Record(extract id source))
             | _ -> error "Invalid call to extract." None
     )
 
@@ -92,10 +92,10 @@ let instancesFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term concept; Any.Network source ] ->
+            | [ Any.Term concept; Any.Assertions source ] ->
                 let result: AnySet = instances source concept
                 Ok(Any.AnySet result)
-            | [ Any.Tuple concepts; Any.Network source ] ->
+            | [ Any.Tuple concepts; Any.Assertions source ] ->
                 let result: AnySet =
                     List.fold
                         (fun state concept ->
@@ -117,7 +117,7 @@ let isConsistentFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Definitions def; Any.Network n ] ->
+            | [ Any.Definitions def; Any.Assertions n ] ->
                 match isConsistent def n with
                 | Ok true -> Ok(Any.Term(Term "true"))
                 | Ok false -> Ok(Any.Term(Term "false"))
@@ -175,21 +175,90 @@ let defineConceptFn: Fn =
                 Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
                 Ok(Any.Definition(Definition.Implies(subconcept, concept)))
-            | _ -> error "Improper call to define." None
+            | _ -> error "Improper call to define-concept." None
     )
 
-let existsFn: Fn =
+let isaFn: Fn =
     Fn(
-        { doc = "Create an existential quantification."
-          examples = [ "(exists name)"; "(exists dob Date)" ]
+        { doc = "Assert an Individual extends a Concept."
+          examples = [ "(isa betty (and Cat (not Dog)))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term role ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
+            | [ Any.Term individual; Any.Term concept ] ->
+                Ok(Any.Assertion(Assertion.IsA(individual, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term individual; Any.ConceptExpr concept ] ->
+                Ok(Any.Assertion(Assertion.IsA(individual, concept)))
+            | _ -> error "Improper call to isa." None
+    )
+
+let allFn: Fn =
+    Fn(
+        { doc = "Create a ∀ Concept."
+          examples = [ "(all knows Person)" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term role; Any.Term concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term role; Any.ConceptExpr concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.All(role, concept)))
+            | _ -> error "Improper call to all." None
+    )
+
+let existsFn: Fn =
+    Fn(
+        { doc = "Create an ∃ Concept."
+          examples = [ "(exists knows Person)" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
             | [ Any.Term role; Any.Term concept ] ->
                 Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term role; Any.ConceptExpr concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
             | _ -> error "Improper call to exists." None
+    )
+
+let notFn: Fn =
+    Fn(
+        { doc = "Negate a Concept Expression."
+          examples = [ "(not Dog)"; "(not (and Cat Dog))" ]
+          args = "ConceptExpression"
+          result = "ConceptExpression" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
+            | [ Any.ConceptExpr concept ] ->
+                Ok(Any.ConceptExpr(ConceptExpr.Not(concept)))
+            | _ -> error "Improper call to not." None
+    )
+
+let andFn: Fn =
+    Fn(
+        { doc = "And multiple Concept Expressions."
+          examples = [ "(and Cat Dog Ferret)"; "(and Cat (not (and Ferret Dog))))" ]
+          args = "ConceptExpression"
+          result = "ConceptExpression" },
+        fun _ _ _ arguments ->
+            let res =
+                List.fold (fun state arg -> 
+                    match state with
+                    | Ok state -> 
+                        match arg with
+                        | Any.Term term -> 
+                            Ok (List.append state [ConceptExpr.AtomicConcept term])
+                        | Any.ConceptExpr expr -> 
+                            Ok (List.append state [expr])
+                        | _ -> error "Invalid argument." None
+                    | _ -> state) (Ok []) arguments
+            match res with
+            | Ok value -> Ok (Any.ConceptExpr (ConceptExpr.Conjunction value))
+            | Error err -> Error err
     )
 
 let definitionsFn: Fn =

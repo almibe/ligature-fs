@@ -44,7 +44,7 @@ let assertEqualFn: Fn =
                 //     | _ -> second
 
                 if first = second then
-                    Ok(Any.Network Set.empty)
+                    Ok(Any.Assertions Set.empty)
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
             | _ -> error $"assert-equal requires two values on stack." None

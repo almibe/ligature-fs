@@ -89,10 +89,14 @@ open Wander.Fns.Bend
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "assert-equal", assertEqualFn
-          Term "network", networkFn
+          Term "assertions", assertionsFn
+          Term "isa", isaFn
+          Term "not", notFn
+          Term "and", andFn
           Term "pattern", patternFn
           Term "definitions", definitionsFn
           Term "define-concept", defineConceptFn
+          Term "all", allFn
           Term "exists", existsFn
           Term "implies", impliesFn
           Term "union", unionFn

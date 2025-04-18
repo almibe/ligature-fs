@@ -106,7 +106,7 @@ and anyToJs (any: Any) =
         obj?``type`` <- "literal"
         obj?value <- l
         obj
-    | Any.Network n -> networkToJs n
+    | Any.Assertions n -> networkToJs n
     | Any.Tuple t ->
         let res = List.map (fun any -> anyToJs any) t |> List.toArray
         let obj = createEmpty

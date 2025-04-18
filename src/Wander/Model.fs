@@ -21,7 +21,8 @@ and [<RequireQualifiedAccess>] Any =
     | Literal of Literal
     | Variable of Variable
     | Pattern of Pattern
-    | Network of Assertions
+    | Assertion of Assertion
+    | Assertions of Assertions
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Comment of string
@@ -72,7 +73,7 @@ let rec printAny (value: Any) : string =
     | Any.Literal(Literal l) -> encodeString l
     | Any.Variable(Variable v) -> v
     | Any.Tuple tuple -> printTuple tuple
-    | Any.Network n -> printNetwork n
+    | Any.Assertions n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet(_) -> failwith "Not Implemented"

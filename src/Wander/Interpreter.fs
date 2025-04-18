@@ -170,7 +170,7 @@ and executeExpression
     // let application = rewriteApplication expression
 
     match expression with
-    | Any.Network network -> Ok(Any.Network network)
+    | Any.Assertions network -> Ok(Any.Assertions network)
     | Any.Tuple tuple ->
         let tuple =
             List.map

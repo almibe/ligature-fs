@@ -38,16 +38,23 @@ and [<RequireQualifiedAccess>] ValuePattern =
     | Slot of Slot
 
 and [<RequireQualifiedAccess>] Assertion =
-    | Triple of Term * Term * Value //TODO delete
-    | IsA of Term * Term
-    | Relation of Term * Term * Term
-    | Attrbiute of Term * Term * Literal
+    | Triple of Term * Term * Value
+    | IsA of Term * ConceptExpr
 
 and Assertions = Set<Assertion>
 
 and TriplePattern = TermPattern * TermPattern * ValuePattern
 
 and Pattern = Set<TriplePattern>
+
+and [<RequireQualifiedAccess>] ConceptExpr =
+    | AtomicConcept of Term
+    | Conjunction of ConceptExpr list
+    | Top
+    | Bottom
+    | Exists of Term * ConceptExpr
+    | All of Term * ConceptExpr
+    | Not of ConceptExpr
 
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>
@@ -59,15 +66,6 @@ type ILigatureStore =
     abstract AssertStore: string -> Assertions -> unit
     abstract UnassertStore: string -> Assertions -> unit
     abstract ReadAsserts: string -> Result<Assertions, LigatureError>
-
-[<RequireQualifiedAccess>]
-type ConceptExpr =
-    | AtomicConcept of Term
-    | Conjunction of ConceptExpr list
-    | Top
-    | Bottom
-    | Exists of Term * ConceptExpr
-    | All of Term * ConceptExpr
 
 [<RequireQualifiedAccess>]
 type Definition =

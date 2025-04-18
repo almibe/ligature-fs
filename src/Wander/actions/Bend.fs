@@ -17,7 +17,7 @@ let bendJsonFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Network definitions; Any.Term encodingName; Any.Network data ] ->
+            | [ Any.Assertions definitions; Any.Term encodingName; Any.Assertions data ] ->
                 let res = query (Set.ofList []) definitions
 
                 // let left =
