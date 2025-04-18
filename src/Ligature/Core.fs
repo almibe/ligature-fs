@@ -12,49 +12,51 @@ let namedSlot (v: Slot) : bool =
     | _ -> true
 
 let testPattern
-    ((elementPattern, attributePattern, valuePattern): TriplePattern)
+    (pattern: AssertionPattern)
     (assertion: Assertion)
     : ValueSet option =
-    let mutable result: ValueSet = Map.empty
-    let mutable isMatch = true
+        failwith "TODO"
+    // let mutable result: ValueSet = Map.empty
+    // let mutable isMatch = true
 
-    match assertion with
-    | Assertion.Triple(element, attribute, value) ->
-        match elementPattern with
-        | TermPattern.Slot slot ->
-            if namedSlot slot then
-                result <- Map.add slot (Value.Term element) result
-        | TermPattern.Term elementP -> isMatch <- elementP = element
+    // match assertion with
+    // | Assertion.Triple(element, attribute, value) ->
+    //     match elementPattern with
+    //     | TermPattern.Slot slot ->
+    //         if namedSlot slot then
+    //             result <- Map.add slot (Value.Term element) result
+    //     | TermPattern.Term elementP -> isMatch <- elementP = element
 
-        if isMatch then
-            match attributePattern with
-            | TermPattern.Slot slot ->
-                if namedSlot slot then
-                    if result.ContainsKey slot then
-                        match result.TryFind slot with
-                        | Some a -> isMatch <- a = Value.Term attribute
-                        | _ -> failwith "TODO"
-                    else
-                        result <- Map.add slot (Value.Term attribute) result
-            | TermPattern.Term attributeTerm -> isMatch <- attribute = attributeTerm
+    //     if isMatch then
+    //         match attributePattern with
+    //         | TermPattern.Slot slot ->
+    //             if namedSlot slot then
+    //                 if result.ContainsKey slot then
+    //                     match result.TryFind slot with
+    //                     | Some a -> isMatch <- a = Value.Term attribute
+    //                     | _ -> failwith "TODO"
+    //                 else
+    //                     result <- Map.add slot (Value.Term attribute) result
+    //         | TermPattern.Term attributeTerm -> isMatch <- attribute = attributeTerm
 
-        if isMatch then
-            match valuePattern with
-            | ValuePattern.Slot slot ->
-                if namedSlot slot then
-                    if result.ContainsKey slot then
-                        match result.TryFind slot with
-                        | Some vTerm -> isMatch <- vTerm = value
-                        | _ -> isMatch <- false
-                    else
-                        result <- Map.add slot value result
-            | ValuePattern.Term valueTerm -> isMatch <- (Value.Term valueTerm) = value
-            | _ -> isMatch <- false
+    //     if isMatch then
+    //         match valuePattern with
+    //         | ValuePattern.Slot slot ->
+    //             if namedSlot slot then
+    //                 if result.ContainsKey slot then
+    //                     match result.TryFind slot with
+    //                     | Some vTerm -> isMatch <- vTerm = value
+    //                     | _ -> isMatch <- false
+    //                 else
+    //                     result <- Map.add slot value result
+    //         | ValuePattern.Term valueTerm -> isMatch <- (Value.Term valueTerm) = value
+    //         | _ -> isMatch <- false
 
-        if isMatch then Some result else None
-    | _ -> failwith "TODO"
+    //     if isMatch then Some result else None
+    // | Assertion.IsA(element, value) ->
+    //     failwith "TODO"
 
-let singleMatch (pattern: TriplePattern) (network: Assertions) : ResultSet =
+let singleMatch (pattern: AssertionPattern) (network: Assertions) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -101,37 +103,38 @@ let query (pattern: Pattern) (network: Assertions) : ResultSet =
         List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
 
 let applyValueSet (pattern: Pattern) (result: ValueSet) : Assertions =
-    Set.map
-        (fun (e, a, v) ->
-            let element =
-                match e with
-                | TermPattern.Term t -> t
-                | TermPattern.Slot v ->
-                    if result.ContainsKey v then
-                        match result.TryFind v with
-                        | Some(Value.Term term) -> term
-                        | _ -> failwith "Incomplete application."
-                    else
-                        failwith "Incomplete application."
+    failwith "TODO"
+    // Set.map
+    //     (fun (e, a, v) ->
+    //         let element =
+    //             match e with
+    //             | TermPattern.Term t -> t
+    //             | TermPattern.Slot v ->
+    //                 if result.ContainsKey v then
+    //                     match result.TryFind v with
+    //                     | Some(Value.Term term) -> term
+    //                     | _ -> failwith "Incomplete application."
+    //                 else
+    //                     failwith "Incomplete application."
 
-            let attribute =
-                match a with
-                | TermPattern.Term t -> t
-                | TermPattern.Slot v ->
-                    match result.TryFind v with
-                    | Some(Value.Term a) -> a
-                    | _ -> failwith "Incomplete application."
+    //         let attribute =
+    //             match a with
+    //             | TermPattern.Term t -> t
+    //             | TermPattern.Slot v ->
+    //                 match result.TryFind v with
+    //                 | Some(Value.Term a) -> a
+    //                 | _ -> failwith "Incomplete application."
 
-            let value =
-                match v with
-                | ValuePattern.Term t -> Value.Term t
-                | ValuePattern.Slot slot ->
-                    match result.TryFind slot with
-                    | Some t -> t
-                    | None -> failwith "Incomplete application."
+    //         let value =
+    //             match v with
+    //             | ValuePattern.Term t -> Value.Term t
+    //             | ValuePattern.Slot slot ->
+    //                 match result.TryFind slot with
+    //                 | Some t -> t
+    //                 | None -> failwith "Incomplete application."
 
-            Assertion.Triple(element, attribute, value))
-        pattern
+    //         Assertion.Triple(element, attribute, value))
+    //     pattern
 
 // let applyValueSetTupleTemplate (pattern: Tuple) (result: ValueSet) : Tuple =
 //     List.map
@@ -173,17 +176,18 @@ let individuals (concept: Term) (tBox: Assertions) (aBox: Assertions) =
     failwith "TODO"
 
 let rec isConsistent (tBox: Definitions) (aBox: Assertions) : Result<bool, LigatureError> =
-    if
-        query
-            (Set.ofList
-                [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), ValuePattern.Slot(Slot "?concept")
-                  TermPattern.Slot(Slot "?el"), TermPattern.Term(Term "~:"), ValuePattern.Slot(Slot "?concept") ])
-            aBox
-        |> Seq.length = 0
-    then
-        Ok true
-    else
-        Ok false
+    failwith "TODO"
+    // if
+    //     query
+    //         (Set.ofList
+    //             [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), ValuePattern.Slot(Slot "?concept")
+    //               TermPattern.Slot(Slot "?el"), TermPattern.Term(Term "~:"), ValuePattern.Slot(Slot "?concept") ])
+    //         aBox
+    //     |> Seq.length = 0
+    // then
+    //     Ok true
+    // else
+    //     Ok false
 
 // let mutable res = aBox
 

@@ -43,9 +43,11 @@ and [<RequireQualifiedAccess>] Assertion =
 
 and Assertions = Set<Assertion>
 
-and TriplePattern = TermPattern * TermPattern * ValuePattern
+and AssertionPattern = 
+    | TriplePattern of TermPattern * TermPattern * ValuePattern
+    | IsAPattern of TermPattern * TermPattern
 
-and Pattern = Set<TriplePattern>
+and Pattern = Set<AssertionPattern>
 
 and [<RequireQualifiedAccess>] ConceptExpr =
     | AtomicConcept of Term

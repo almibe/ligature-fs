@@ -111,10 +111,10 @@ let instancesFn: Fn =
 
 let isConsistentFn =
     Fn(
-        { doc = "Check if a Network is consistent."
-          examples = [ "(is-consistent (define (subconcept A B)) (network [a : A]))" ]
-          args = "Definition Network Quote"
-          result = "Literal" },
+        { doc = "Check if a KB is consistent."
+          examples = [ "(is-consistent (definitions (implies A B)) (assertions (isa a A)))" ]
+          args = "Definitions Assertions"
+          result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Definitions def; Any.Assertions n ] ->
