@@ -6,7 +6,7 @@ module Wander.Library
 
 open Ligature.Model
 open Wander.Model
-open Wander.Fns.Assert
+open Wander.Fns.Expect
 open Wander.Fns.Core
 open Wander.Fns.Tuple
 open Wander.Fns.Network
@@ -88,7 +88,7 @@ open Wander.Fns.Bend
 
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
-        [ Term "assert-equal", assertEqualFn
+        [ Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
           Term "isa", isaFn
           Term "not", notFn
@@ -114,6 +114,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "query", queryFn
           Term "count", countFn
           Term "bend.json.instances", bendJsonFn
+          Term "is-complete", isCompleteFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
 
