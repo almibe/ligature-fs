@@ -16,7 +16,7 @@
     <Compile Include="actions/Tuple.fs" />
     <Compile Include="actions/Network.fs" />
     <Compile Include="actions/Bend.fs" />
-    <Compile Include="actions/TinyDL.fs" />
+    <Compile Include="actions/Ligature.fs" />
     <Compile Include="InMemoryStore.fs" />
     <Compile Include="actions/Store.fs" />
     <Compile Include="actions/DateTime.fs" />

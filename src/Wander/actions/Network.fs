@@ -50,56 +50,55 @@ let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
         |> Ok
     | _ -> error "Record requires valid @ entry." None
 
-let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> =
-    failwith "TODO"
-    // match Map.tryFind (Any.Term(Term "@")) record with
-    // | Some id ->
-    //     let id =
-    //         match id with
-    //         | Any.Term term -> TermPattern.Term term
-    //         | Any.Slot slot -> TermPattern.Slot slot
-    //         | _ -> failwith "TODO"
+let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> = failwith "TODO"
+// match Map.tryFind (Any.Term(Term "@")) record with
+// | Some id ->
+//     let id =
+//         match id with
+//         | Any.Term term -> TermPattern.Term term
+//         | Any.Slot slot -> TermPattern.Slot slot
+//         | _ -> failwith "TODO"
 
-    //     Seq.fold
-    //         (fun state (key, value) ->
-    //             if key = Any.Term(Term "@") then
-    //                 state
-    //             else
-    //                 let role: TermPattern =
-    //                     match key with
-    //                     | Any.Term term -> TermPattern.Term term
-    //                     | Any.Slot slot -> TermPattern.Slot slot
-    //                     | _ -> failwith "TODO"
+//     Seq.fold
+//         (fun state (key, value) ->
+//             if key = Any.Term(Term "@") then
+//                 state
+//             else
+//                 let role: TermPattern =
+//                     match key with
+//                     | Any.Term term -> TermPattern.Term term
+//                     | Any.Slot slot -> TermPattern.Slot slot
+//                     | _ -> failwith "TODO"
 
-    //                 match value with
-    //                 | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
-    //                 | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
-    //                 | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
-    //                 | Any.Tuple tuple ->
-    //                     List.fold
-    //                         (fun state value ->
-    //                             match value with
-    //                             | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
-    //                             | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
-    //                             | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
-    //                             | _ -> failwith "TODO")
-    //                         state
-    //                         tuple
-    //                 | Any.Record record ->
-    //                     let state =
-    //                         match record.TryFind(Any.Term(Term "@")) with
-    //                         | Some(Any.Term value) -> Set.add (id, role, ValuePattern.Term value) state
-    //                         | Some(Any.Slot slot) -> Set.add (id, role, ValuePattern.Slot slot) state
-    //                         | _ -> failwith "TODO"
+//                 match value with
+//                 | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
+//                 | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
+//                 | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
+//                 | Any.Tuple tuple ->
+//                     List.fold
+//                         (fun state value ->
+//                             match value with
+//                             | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
+//                             | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
+//                             | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
+//                             | _ -> failwith "TODO")
+//                         state
+//                         tuple
+//                 | Any.Record record ->
+//                     let state =
+//                         match record.TryFind(Any.Term(Term "@")) with
+//                         | Some(Any.Term value) -> Set.add (id, role, ValuePattern.Term value) state
+//                         | Some(Any.Slot slot) -> Set.add (id, role, ValuePattern.Slot slot) state
+//                         | _ -> failwith "TODO"
 
-    //                     match recordToPattern record with
-    //                     | Ok pattern -> state + pattern
-    //                     | _ -> failwith "TODO"
-    //                 | _ -> failwith "TODO")
-    //         Set.empty
-    //         (Map.toSeq record)
-    //     |> Ok
-    // | _ -> error "Record requires valid @ entry." None
+//                     match recordToPattern record with
+//                     | Ok pattern -> state + pattern
+//                     | _ -> failwith "TODO"
+//                 | _ -> failwith "TODO")
+//         Set.empty
+//         (Map.toSeq record)
+//     |> Ok
+// | _ -> error "Record requires valid @ entry." None
 
 let assertionsFn =
     Fn(
@@ -113,8 +112,7 @@ let assertionsFn =
             List.iter
                 (fun arg ->
                     match arg with
-                    | Any.Assertion assertion ->
-                        res <- Set.add assertion res
+                    | Any.Assertion assertion -> res <- Set.add assertion res
                     | Any.Tuple [ e; a; v ] ->
                         let e =
                             match e with

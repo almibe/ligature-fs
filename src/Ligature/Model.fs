@@ -43,7 +43,7 @@ and [<RequireQualifiedAccess>] Assertion =
 
 and Assertions = Set<Assertion>
 
-and AssertionPattern = 
+and AssertionPattern =
     | TriplePattern of TermPattern * TermPattern * ValuePattern
     | IsAPattern of TermPattern * TermPattern
 

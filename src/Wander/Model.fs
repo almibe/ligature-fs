@@ -151,25 +151,24 @@ and printNetwork (network: Assertions) : string =
         network
     + " )"
 
-and printTriplePattern (pattern: AssertionPattern) : string =
-    failwith "TODO"
-    // let element =
-    //     match element with
-    //     | TermPattern.Term(Term e) -> e
-    //     | TermPattern.Slot(Slot v) -> v
+and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"
+// let element =
+//     match element with
+//     | TermPattern.Term(Term e) -> e
+//     | TermPattern.Slot(Slot v) -> v
 
-    // let attribute =
-    //     match attribute with
-    //     | TermPattern.Term(Term e) -> e
-    //     | TermPattern.Slot(Slot v) -> v
+// let attribute =
+//     match attribute with
+//     | TermPattern.Term(Term e) -> e
+//     | TermPattern.Slot(Slot v) -> v
 
-    // let value =
-    //     match value with
-    //     | ValuePattern.Term(Term e) -> e
-    //     | ValuePattern.Slot(Slot v) -> v
-    //     | ValuePattern.Literal(Literal l) -> l
+// let value =
+//     match value with
+//     | ValuePattern.Term(Term e) -> e
+//     | ValuePattern.Slot(Slot v) -> v
+//     | ValuePattern.Literal(Literal l) -> l
 
-    // $"[{encodeString element} {encodeString attribute} {encodeString value}]"
+// $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
 and printTriple (assertion: Assertion) : string =
     match assertion with

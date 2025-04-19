@@ -10,7 +10,7 @@ open Wander.Fns.Expect
 open Wander.Fns.Core
 open Wander.Fns.Tuple
 open Wander.Fns.Network
-open Wander.Fns.TinyDL
+open Wander.Fns.Ligature
 open Interpreter
 open Wander.Fns.Remote
 open Wander.Fns.Store
@@ -89,11 +89,12 @@ open Wander.Fns.Bend
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "expect-equal", expectEqualFn
+          Term "interpret", interpretFn
           Term "assertions", assertionsFn
           Term "isa", isaFn
           Term "not", notFn
           Term "and", andFn
-        //   Term "pattern", patternFn
+          //   Term "pattern", patternFn
           Term "definitions", definitionsFn
           Term "define-concept", defineConceptFn
           Term "all", allFn
@@ -114,7 +115,6 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "query", queryFn
           Term "count", countFn
           Term "bend.json.instances", bendJsonFn
-          Term "is-complete", isCompleteFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
 

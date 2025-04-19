@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Fns.TinyDL
+module Wander.Fns.Ligature
 
 open Ligature.Model
 open Ligature.Core
@@ -69,6 +69,20 @@ let extractFn: Fn =
             match arguments with
             | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Record(extract id source))
             | _ -> error "Invalid call to extract." None
+    )
+
+let interpretFn: Fn =
+    Fn(
+        { doc = "Interpret a KB."
+          examples = [ "(interpret (definitions (imples A B)) (assertions (isa a A)))" ]
+          args = "Definitions Assertions"
+          result = "Set" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definitions tBox; Any.Assertions aBox ] ->
+                match interpret tBox aBox with
+                | _ -> failwith "TODO"
+            | _ -> error "Invalid call to interpret." None
     )
 
 let instances (source: Assertions) (concept: Term) : AnySet =
@@ -188,8 +202,7 @@ let isaFn: Fn =
             match arguments with
             | [ Any.Term individual; Any.Term concept ] ->
                 Ok(Any.Assertion(Assertion.IsA(individual, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term individual; Any.ConceptExpr concept ] ->
-                Ok(Any.Assertion(Assertion.IsA(individual, concept)))
+            | [ Any.Term individual; Any.ConceptExpr concept ] -> Ok(Any.Assertion(Assertion.IsA(individual, concept)))
             | _ -> error "Improper call to isa." None
     )
 
@@ -203,8 +216,7 @@ let allFn: Fn =
             match arguments with
             | [ Any.Term role; Any.Term concept ] ->
                 Ok(Any.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term role; Any.ConceptExpr concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.All(role, concept)))
+            | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.All(role, concept)))
             | _ -> error "Improper call to all." None
     )
 
@@ -218,8 +230,7 @@ let existsFn: Fn =
             match arguments with
             | [ Any.Term role; Any.Term concept ] ->
                 Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term role; Any.ConceptExpr concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
+            | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
             | _ -> error "Improper call to exists." None
     )
 
@@ -231,10 +242,8 @@ let notFn: Fn =
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
-            | [ Any.ConceptExpr concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Not(concept)))
+            | [ Any.Term concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
+            | [ Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Not(concept)))
             | _ -> error "Improper call to not." None
     )
 
@@ -246,18 +255,20 @@ let andFn: Fn =
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             let res =
-                List.fold (fun state arg -> 
-                    match state with
-                    | Ok state -> 
-                        match arg with
-                        | Any.Term term -> 
-                            Ok (List.append state [ConceptExpr.AtomicConcept term])
-                        | Any.ConceptExpr expr -> 
-                            Ok (List.append state [expr])
-                        | _ -> error "Invalid argument." None
-                    | _ -> state) (Ok []) arguments
+                List.fold
+                    (fun state arg ->
+                        match state with
+                        | Ok state ->
+                            match arg with
+                            | Any.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
+                            | Any.ConceptExpr expr -> Ok(List.append state [ expr ])
+                            | _ -> error "Invalid argument." None
+                        | _ -> state)
+                    (Ok [])
+                    arguments
+
             match res with
-            | Ok value -> Ok (Any.ConceptExpr (ConceptExpr.Conjunction value))
+            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.Conjunction value))
             | Error err -> Error err
     )
 
