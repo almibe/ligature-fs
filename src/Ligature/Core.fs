@@ -168,29 +168,92 @@ let filter (pattern: Pattern) (source: Assertions) : Assertions =
 
 type ConceptValues = { isA: Set<Term>; isNot: Set<Term> }
 
-type Alternative = Map<Term, ConceptValues>
+type Alternative =
+    { individuals: Map<Term, ConceptValues>
+      roles: Map<Term * Term, Set<Term>>
+      attributes: Map<Term * Literal, Set<Term>> }
 
 type Interpretation = Set<Alternative>
 
-let interpret (tBox: Definitions) (aBox: Assertions) : Result<Interpretation, LigatureError> =
+let addIsA (interpretation: Interpretation) (individual: Term) (concept: Term) : Interpretation =
+    if interpretation.IsEmpty then
+        Set.ofList
+            [ { individuals =
+                  Map.ofList
+                      [ individual,
+                        { isA = Set.ofList [ concept ]
+                          isNot = Set.empty } ]
+                roles = Map.empty
+                attributes = Map.empty } ]
+    else
+        Set.map
+            (fun
+                { roles = roles
+                  attributes = a
+                  individuals = i } ->
+                match i.TryFind(individual) with
+                | Some { isA = isA; isNot = isNot } -> failwith "TODO"
+                | None -> failwith "TODO")
+            interpretation
+
+let addRole (interpretation: Interpretation) e a v =
+    if interpretation.IsEmpty then
+        failwith "TODO"
+    else
+        Set.map
+            (fun
+                { roles = roles
+                  attributes = a
+                  individuals = i } ->
+                match roles.TryFind(e, v) with
+                | Some value -> failwith "TODO"
+                | None -> failwith "TODO")
+            interpretation
+
+let addAttribute interpretation e a l = failwith "TODO"
+
+let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
     if tBox.IsEmpty then
-        let mutable interpretation = Set.empty
+        let mutable interpretation: Interpretation = Set.empty
 
         Set.iter
             (fun value ->
                 match value with
-                | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) -> failwith "TODO"
-                | _ -> failwith "TODO")
+                | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+                    interpretation <- addIsA interpretation individual concept
+                | Assertion.IsA(individual, expr) -> failwith "TODO"
+                | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
+                | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
             aBox
 
-        Ok interpretation
+        interpretation
     else
         failwith "TODO"
 
-let rec isConsistent (tBox: Definitions) (aBox: Assertions) : Result<bool, LigatureError> =
-    match interpret tBox aBox with
-    | Ok interpretation -> failwith "TODO"
-    | Error err -> Error err
+let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
+    Set.fold
+        (fun
+            state
+            { roles = r
+              attributes = a
+              individuals = i } ->
+            match state with
+            | Ok false ->
+                Map.fold
+                    (fun state individual { isA = isA; isNot = isNot } ->
+                        match state with
+                        | Ok false ->
+                            if (Set.intersect isA isNot).IsEmpty then
+                                Ok true
+                            else
+                                Ok false
+                        | e -> e)
+                    (Ok false)
+                    i
+            | e -> e)
+        (Ok false)
+        interpretation
+
 // if
 //     query
 //         (Set.ofList

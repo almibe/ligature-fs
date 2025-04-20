@@ -80,8 +80,34 @@ let interpretFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Definitions tBox; Any.Assertions aBox ] ->
-                match interpret tBox aBox with
-                | _ -> failwith "TODO"
+                interpret tBox aBox
+                |> Set.map
+                    (fun
+                        { roles = roles
+                          individuals = individuals
+                          attributes = attributes } ->
+                        let roles = Any.Record Map.empty //TODO this is wrong
+
+                        let individuals: Record =
+                            Map.toSeq individuals
+                            |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
+                                let isA = Set.map Any.Term isA |> Any.AnySet
+                                let isNot = Any.Tuple []
+
+                                Any.Term key,
+                                Any.Record(Map.ofList [ Any.Term(Term "isa"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
+                            |> Map.ofSeq
+
+                        let attributes = Any.Record Map.empty //TODO this is wrong
+
+                        Any.Record(
+                            Map.ofList
+                                [ Any.Term(Term "roles"), roles
+                                  Any.Term(Term "individuals"), Any.Record individuals
+                                  Any.Term(Term "attributes"), attributes ]
+                        ))
+                |> Any.AnySet
+                |> Ok
             | _ -> error "Invalid call to interpret." None
     )
 
@@ -132,7 +158,7 @@ let isConsistentFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Definitions def; Any.Assertions n ] ->
-                match isConsistent def n with
+                match isConsistent (interpret def n) with
                 | Ok true -> Ok(Any.Term(Term "true"))
                 | Ok false -> Ok(Any.Term(Term "false"))
                 | Error err -> Error err

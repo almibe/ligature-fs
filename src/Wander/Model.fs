@@ -80,7 +80,7 @@ let rec printAny (value: Any) : string =
     | Any.Comment(_) -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
     | Any.Pattern(_) -> failwith "Not Implemented"
-    | Any.Application(_) -> failwith "Not Implemented"
+    | Any.Application(_) -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
     | Any.Definition def -> printDefinition def
