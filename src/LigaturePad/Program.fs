@@ -18,12 +18,12 @@ module Main =
     open Wander.Main
     open Wander.Model
     open Wander.InMemoryStore
-    open Ligature.Store
+    // open Ligature.Store
 
-    //let store = new LigatureStore(None)
-    let store = new LigatureStore(Some "./store")
+    let store = new InMemoryStore()
+    // let store = new LigatureStore(Some "./store")
 
-    do store.Init()
+    // do store.Init()
 
     let view () =
         Component(fun ctx ->

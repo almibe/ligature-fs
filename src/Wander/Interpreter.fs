@@ -100,12 +100,9 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
 and evalRecord (actions: Fns) (bindings: Bindings) (variables: Variables) (record: Record) : Record =
     Map.map
         (fun _ value ->
-            match value with
-            | Any.Application application ->
-                match executeApplication actions bindings variables application with
-                | Ok res -> res
-                | Error err -> failwith $"Error: {err.UserMessage}"
-            | other -> other)
+            match executeExpression actions bindings variables value with
+            | Ok res -> res
+            | Error err -> failwith $"Error: {err.UserMessage}")
         record
 
 and evalLambda
@@ -175,20 +172,9 @@ and executeExpression
         let tuple =
             List.map
                 (fun value ->
-                    match value with
-                    | Any.Application app ->
-                        match executeApplication actions bindings variables app with
-                        | Ok value -> value
-                        | _ -> failwith "TODO"
-                    | Any.Variable variable ->
-                        match Map.tryFind variable variables with
-                        | Some value -> value
-                        | _ -> failwith "TODO"
-                    | Any.Tuple tuple ->
-                        match executeExpression actions bindings variables (Any.Tuple tuple) with
-                        | Ok value -> value
-                        | _ -> failwith "TODO"
-                    | value -> value)
+                    match executeExpression actions bindings variables value with
+                    | Ok res -> res
+                    | Error err -> failwith "TODO")
                 tuple
 
         Ok(Any.Tuple tuple)

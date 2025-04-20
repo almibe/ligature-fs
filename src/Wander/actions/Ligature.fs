@@ -92,7 +92,7 @@ let interpretFn: Fn =
                             Map.toSeq individuals
                             |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
                                 let isA = Set.map Any.Term isA |> Any.AnySet
-                                let isNot = Any.Tuple []
+                                let isNot = Set.map Any.Term isNot |> Any.AnySet
 
                                 Any.Term key,
                                 Any.Record(Map.ofList [ Any.Term(Term "isa"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
