@@ -12,6 +12,7 @@
     <Compile Include="Parser.Test.fs" />
     <Compile Include="Interpreter.Test.fs" />
     <Compile Include="NetworkWriter.Test.fs" />
+    <Compile Include="PrettyPrinter.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

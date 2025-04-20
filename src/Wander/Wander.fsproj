@@ -24,6 +24,7 @@
     <Compile Include="actions/Remote.fs" />
     <Compile Include="actions/Wander.fs" />
     <Compile Include="actions/Expect.fs" />
+    <Compile Include="PrettyPrinter.fs" />
     <Compile Include="Library.fs" />
     <Compile Include="Wander.fs" />
   </ItemGroup>
