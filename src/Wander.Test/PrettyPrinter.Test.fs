@@ -12,11 +12,10 @@ open Wander.Model
 let tests =
     testList
         "Pretty Printer Tests"
-        [ testCase "Print Text" <| fun _ -> 
-            Expect.equal (format (PrintToken.Text "Text")) "Text" ""
-          testCase "Print Break" <| fun _ -> 
-            Expect.equal (format PrintToken.Break) "" ""
-          testCase "Print empty Group" <| fun _ -> 
-            Expect.equal (format (PrintToken.Group [])) "" ""
-          testCase "Print small group" <| fun _ -> 
-            Expect.equal (format (PrintToken.Group [PrintToken.Text "a"; PrintToken.Text "b"])) "a b" ""]
+        [ testCase "Print Text"
+          <| fun _ -> Expect.equal (format (PrintToken.Text "Text")) "Text" ""
+          testCase "Print Break" <| fun _ -> Expect.equal (format PrintToken.Break) "" ""
+          testCase "Print empty Group"
+          <| fun _ -> Expect.equal (format (PrintToken.Group [])) "" ""
+          testCase "Print small group"
+          <| fun _ -> Expect.equal (format (PrintToken.Group [ PrintToken.Text "a"; PrintToken.Text "b" ])) "a b" "" ]

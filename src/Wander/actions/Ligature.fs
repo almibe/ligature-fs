@@ -54,6 +54,9 @@ let extract (id: Term) (source: Assertions) : Record =
             | Assertion.Triple(e, a, Value.Literal v) ->
                 if e = id then
                     result <- Map.add (Any.Term a) (Any.Literal v) result
+            | Assertion.IsA(i, ConceptExpr.AtomicConcept c) ->
+                if i = id then
+                    result <- Map.add (Any.Term(Term ":")) (Any.Term c) result
             | _ -> failwith "TODO")
         source
 

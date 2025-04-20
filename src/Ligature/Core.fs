@@ -175,14 +175,15 @@ type Alternative =
 
 type Interpretation = Set<Alternative>
 
-let addIsA (interpretation: Interpretation) (individual: Term) (concept: Term) : Interpretation =
+let addInstance
+    (interpretation: Interpretation)
+    (individual: Term)
+    (isA: Set<Term>)
+    (isNot: Set<Term>)
+    : Interpretation =
     if interpretation.IsEmpty then
         Set.ofList
-            [ { individuals =
-                  Map.ofList
-                      [ individual,
-                        { isA = Set.ofList [ concept ]
-                          isNot = Set.empty } ]
+            [ { individuals = Map.ofList [ individual, { isA = isA; isNot = isNot } ]
                 roles = Map.empty
                 attributes = Map.empty } ]
     else
@@ -192,14 +193,14 @@ let addIsA (interpretation: Interpretation) (individual: Term) (concept: Term) :
                   attributes = a
                   individuals = i } ->
                 match i.TryFind(individual) with
-                | Some { isA = isA; isNot = isNot } ->
+                | Some { isA = isA'; isNot = isNot' } ->
                     { individuals =
                         Map.ofList
                             [ individual,
-                              { isA = Set.add concept isA
-                                isNot = isNot } ]
-                      roles = Map.empty
-                      attributes = Map.empty }
+                              { isA = Set.union isA' isA
+                                isNot = Set.union isNot' isNot } ]
+                      roles = roles
+                      attributes = a }
                 | None -> failwith "TODO")
             interpretation
 
@@ -219,8 +220,8 @@ let addRole (interpretation: Interpretation) e a v =
 
 let addAttribute interpretation e a l = failwith "TODO"
 
-let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
-    let aBox =
+let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
+    let aBox' =
         if tBox.IsEmpty then
             aBox
         else
@@ -243,31 +244,36 @@ let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
                 aBox
                 tBox
 
-    let mutable interpretation: Interpretation = Set.empty
+    if aBox <> aBox' then
+        interpret tBox aBox'
+    else
+        let mutable interpretation: Interpretation = Set.empty
 
-    Set.iter
-        (fun value ->
-            match value with
-            | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
-                interpretation <- addIsA interpretation individual concept
-            | Assertion.IsA(individual, expr) -> failwith "TODO"
-            | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
-            | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
-        aBox
+        Set.iter
+            (fun value ->
+                match value with
+                | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+                    interpretation <- addInstance interpretation individual (Set.ofList [ concept ]) Set.empty
+                | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
+                    interpretation <- addInstance interpretation individual Set.empty (Set.ofList [ concept ])
+                | Assertion.IsA(individual, expr) -> failwith "TODO"
+                | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
+                | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
+            aBox
 
-    interpretation
+        interpretation
 
 let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
     Set.fold
         (fun
             state
-            { roles = r
-              attributes = a
+            { roles = _
+              attributes = _
               individuals = i } ->
             match state with
             | Ok false ->
                 Map.fold
-                    (fun state individual { isA = isA; isNot = isNot } ->
+                    (fun state _ { isA = isA; isNot = isNot } ->
                         match state with
                         | Ok false ->
                             if (Set.intersect isA isNot).IsEmpty then

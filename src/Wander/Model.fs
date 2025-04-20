@@ -173,4 +173,5 @@ and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"
 and printTriple (assertion: Assertion) : string =
     match assertion with
     | Assertion.Triple(Term element, Term attribute, value) -> $"[{element} {attribute} {printValue value}]"
+    | Assertion.IsA(Term i, ConceptExpr.AtomicConcept(Term c)) -> $"[{i} : {c}]"
     | _ -> failwith "TODO"

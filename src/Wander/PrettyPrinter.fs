@@ -11,14 +11,17 @@ type PrintToken =
     | Nest of int * PrintToken list
     | Group of PrintToken list
 
-let rec format (token: PrintToken): string =
+let rec format (token: PrintToken) : string =
     match token with
     | PrintToken.Text text -> text
     | PrintToken.Break -> ""
     | PrintToken.Group group ->
-        List.fold (fun state value -> 
-            if state = "" then
-                format value
-            else
-                state + " " + format value) "" group
-    | PrintToken.Nest (_, _) -> failwith "TODO"
+        List.fold
+            (fun state value ->
+                if state = "" then
+                    format value
+                else
+                    state + " " + format value)
+            ""
+            group
+    | PrintToken.Nest(_, _) -> failwith "TODO"

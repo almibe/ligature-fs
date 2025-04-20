@@ -24,14 +24,26 @@ let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
 
                     match value with
                     | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-                    | Any.Term term -> Set.add (Assertion.Triple(id, role, Value.Term term)) state
+                    | Any.Term term ->
+                        if role = Term ":" then
+                            Set.add (Assertion.IsA(id, ConceptExpr.AtomicConcept term)) state
+                        else if role = Term "~" then
+                            Set.add (Assertion.IsA(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
+                        else
+                            Set.add (Assertion.Triple(id, role, Value.Term term)) state
                     | Any.Tuple tuple ->
                         List.fold
                             (fun state value ->
                                 match value with
                                 | Any.Literal literal ->
                                     Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-                                | Any.Term term -> Set.add (Assertion.Triple(id, role, Value.Term term)) state
+                                | Any.Term term ->
+                                    if role = Term ":" then
+                                        Set.add (Assertion.IsA(id, ConceptExpr.AtomicConcept term)) state
+                                    else if role = Term "~" then
+                                        failwith "TODO"
+                                    else
+                                        Set.add (Assertion.Triple(id, role, Value.Term term)) state
                                 | _ -> failwith "TODO")
                             state
                             tuple
@@ -130,7 +142,12 @@ let assertionsFn =
                             | Any.Literal l -> Value.Literal l
                             | _ -> failwith "Invalid call to assertions."
 
-                        res <- Set.add (Assertion.Triple(e, a, v)) res
+                        match a, v with
+                        | Term ":", Value.Term concept ->
+                            res <- Set.add (Assertion.IsA(e, ConceptExpr.AtomicConcept concept)) res
+                        | Term "~", Value.Term concept ->
+                            res <- Set.add (Assertion.IsA(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
+                        | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Any.Record record ->
                         match recordToNetwork record with
                         | Ok network -> res <- res + network
