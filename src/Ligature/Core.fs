@@ -192,7 +192,14 @@ let addIsA (interpretation: Interpretation) (individual: Term) (concept: Term) :
                   attributes = a
                   individuals = i } ->
                 match i.TryFind(individual) with
-                | Some { isA = isA; isNot = isNot } -> failwith "TODO"
+                | Some { isA = isA; isNot = isNot } ->
+                    { individuals =
+                        Map.ofList
+                            [ individual,
+                              { isA = Set.add concept isA
+                                isNot = isNot } ]
+                      roles = Map.empty
+                      attributes = Map.empty }
                 | None -> failwith "TODO")
             interpretation
 
@@ -213,22 +220,42 @@ let addRole (interpretation: Interpretation) e a v =
 let addAttribute interpretation e a l = failwith "TODO"
 
 let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
-    if tBox.IsEmpty then
-        let mutable interpretation: Interpretation = Set.empty
-
-        Set.iter
-            (fun value ->
-                match value with
-                | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
-                    interpretation <- addIsA interpretation individual concept
-                | Assertion.IsA(individual, expr) -> failwith "TODO"
-                | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
-                | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
+    let aBox =
+        if tBox.IsEmpty then
             aBox
+        else
+            Set.fold
+                (fun state definition ->
+                    match definition with
+                    | Definition.Implies(a, c) ->
+                        match c with
+                        | ConceptExpr.AtomicConcept c ->
+                            Set.fold
+                                (fun state value ->
+                                    match value with
+                                    | Assertion.IsA(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+                                        Set.add (Assertion.IsA(ind, ConceptExpr.AtomicConcept c)) state
+                                    | _ -> state)
+                                state
+                                aBox
+                        | _ -> failwith "TODO"
+                    | Definition.Define(a, c) -> failwith "TODO")
+                aBox
+                tBox
 
-        interpretation
-    else
-        failwith "TODO"
+    let mutable interpretation: Interpretation = Set.empty
+
+    Set.iter
+        (fun value ->
+            match value with
+            | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+                interpretation <- addIsA interpretation individual concept
+            | Assertion.IsA(individual, expr) -> failwith "TODO"
+            | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
+            | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
+        aBox
+
+    interpretation
 
 let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
     Set.fold
