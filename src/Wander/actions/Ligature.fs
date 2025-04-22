@@ -297,7 +297,32 @@ let andFn: Fn =
                     arguments
 
             match res with
-            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.Conjunction value))
+            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.And value))
+            | Error err -> Error err
+    )
+
+let orFn: Fn =
+    Fn(
+        { doc = "Or multiple Concept Expressions."
+          examples = [ "(or Cat Dog Ferret)" ]
+          args = "ConceptExpression"
+          result = "ConceptExpression" },
+        fun _ _ _ arguments ->
+            let res =
+                List.fold
+                    (fun state arg ->
+                        match state with
+                        | Ok state ->
+                            match arg with
+                            | Any.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
+                            | Any.ConceptExpr expr -> Ok(List.append state [ expr ])
+                            | _ -> error "Invalid argument." None
+                        | _ -> state)
+                    (Ok [])
+                    arguments
+
+            match res with
+            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.Or value))
             | Error err -> Error err
     )
 

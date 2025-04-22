@@ -51,7 +51,8 @@ and Pattern = Set<AssertionPattern>
 
 and [<RequireQualifiedAccess>] ConceptExpr =
     | AtomicConcept of Term
-    | Conjunction of ConceptExpr list
+    | And of ConceptExpr list
+    | Or of ConceptExpr list
     | Top
     | Bottom
     | Exists of Term * ConceptExpr

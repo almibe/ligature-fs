@@ -168,12 +168,29 @@ let filter (pattern: Pattern) (source: Assertions) : Assertions =
 
 type ConceptValues = { isA: Set<Term>; isNot: Set<Term> }
 
-type Alternative =
+type CompleteAlternative =
     { individuals: Map<Term, ConceptValues>
       roles: Map<Term * Term, Set<Term>>
       attributes: Map<Term * Literal, Set<Term>> }
 
-type Interpretation = Set<Alternative>
+type IncompleteAlternative =
+    { assertions: Assertions
+      individuals: Map<Term, ConceptValues>
+      roles: Map<Term * Term, Set<Term>>
+      attributes: Map<Term * Literal, Set<Term>> }
+
+[<RequireQualifiedAccess>]
+type Alternative =
+    | Complete of CompleteAlternative
+    | Incomplete of IncompleteAlternative
+
+let newAlternative assertions =
+    { assertions = assertions
+      individuals = Map.empty
+      roles = Map.empty
+      attributes = Map.empty }
+
+type Interpretation = Set<CompleteAlternative>
 
 let addInstance
     (interpretation: Interpretation)
@@ -220,6 +237,42 @@ let addRole (interpretation: Interpretation) e a v =
 
 let addAttribute interpretation e a l = failwith "TODO"
 
+let interpretAlternative (alt: IncompleteAlternative) : Alternative list =
+    let mutable results = []
+    // Set.iter
+    //     (fun value ->
+    //         match value with
+    //         | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+    //             interpretation <- addInstance interpretation individual (Set.ofList [ concept ]) Set.empty
+    //             aBoxUnprocessed <- Set.remove value aBoxUnprocessed
+    //         | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
+    //             interpretation <- addInstance interpretation individual Set.empty (Set.ofList [ concept ])
+    //             aBoxUnprocessed <- Set.remove value aBoxUnprocessed
+    //         | Assertion.IsA(individual, ConceptExpr.And group) ->
+    //             List.iter (fun expr ->
+    //                 aBoxUnprocessed <- Set.add (Assertion.IsA(individual, expr)) aBoxUnprocessed) group
+    //             aBoxUnprocessed <- Set.remove value aBoxUnprocessed
+    //         | Assertion.IsA(individual, ConceptExpr.Or group) ->
+    //             List.iter (fun expr ->
+
+    //                 failwith "TODO") group
+    //             aBoxUnprocessed <- Set.remove value aBoxUnprocessed
+    //         | Assertion.IsA(_, _) -> failwith "TODO"
+    //         | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
+    //         | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
+    //     aBox
+    results
+
+let rec interpretABox (incomplete: IncompleteAlternative list) (complete: Interpretation) : Interpretation =
+    let mutable incomplete = incomplete
+    let mutable complete = complete
+
+    match incomplete with
+    | [] -> complete
+    | alt :: tail ->
+        List.iter (fun value -> failwith "TODO") (interpretAlternative alt)
+        interpretABox incomplete complete
+
 let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
     let aBox' =
         if tBox.IsEmpty then
@@ -239,6 +292,7 @@ let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
                                     | _ -> state)
                                 state
                                 aBox
+                        | ConceptExpr.And conj -> failwith "TODO"
                         | _ -> failwith "TODO"
                     | Definition.Define(a, c) -> failwith "TODO")
                 aBox
@@ -247,21 +301,7 @@ let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
     if aBox <> aBox' then
         interpret tBox aBox'
     else
-        let mutable interpretation: Interpretation = Set.empty
-
-        Set.iter
-            (fun value ->
-                match value with
-                | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
-                    interpretation <- addInstance interpretation individual (Set.ofList [ concept ]) Set.empty
-                | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
-                    interpretation <- addInstance interpretation individual Set.empty (Set.ofList [ concept ])
-                | Assertion.IsA(individual, expr) -> failwith "TODO"
-                | Assertion.Triple(e, a, Value.Term v) -> interpretation <- addRole interpretation e a v
-                | Assertion.Triple(e, a, Value.Literal l) -> interpretation <- addAttribute interpretation e a l)
-            aBox
-
-        interpretation
+        interpretABox [ newAlternative aBox' ] Set.empty
 
 let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
     Set.fold

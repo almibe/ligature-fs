@@ -94,6 +94,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "isa", isaFn
           Term "not", notFn
           Term "and", andFn
+          Term "or", orFn
           //   Term "pattern", patternFn
           Term "definitions", definitionsFn
           Term "define-concept", defineConceptFn
