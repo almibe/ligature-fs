@@ -30,11 +30,10 @@ let newAlternative assertions =
       roles = Map.empty
       attributes = Map.empty }
 
-type InterpretationStep = {
-    current: IncompleteAlternative
-    incomplete: List<IncompleteAlternative>
-    clash: Set<CompleteAlternative>
-}
+type InterpretationStep =
+    { current: IncompleteAlternative
+      incomplete: List<IncompleteAlternative>
+      clash: Set<CompleteAlternative> }
 
 [<RequireQualifiedAccess>]
 type InterpretationStepResult =
@@ -43,10 +42,10 @@ type InterpretationStepResult =
 
 type Interpretation = CompleteAlternative option
 
-let newInterpretation assertions: InterpretationStep = {
-        current = newAlternative assertions
-        incomplete = []
-        clash = Set.empty }
+let newInterpretation assertions : InterpretationStep =
+    { current = newAlternative assertions
+      incomplete = []
+      clash = Set.empty }
 
 let addInstance
     (individuals: Map<Term, ConceptValues>)
@@ -63,20 +62,19 @@ let addInstance
             individuals
     | None -> Map.add individual { isA = isA; isNot = isNot } individuals
 
-let addRole (interpretation: InterpretationStep) e a v =
-    failwith "TODO"
-    // if interpretation.IsEmpty then
-    //     failwith "TODO"
-    // else
-    //     Set.map
-    //         (fun
-    //             { roles = roles
-    //               attributes = a
-    //               individuals = i } ->
-    //             match roles.TryFind(e, v) with
-    //             | Some value -> failwith "TODO"
-    //             | None -> failwith "TODO")
-    //         interpretation
+let addRole (interpretation: InterpretationStep) e a v = failwith "TODO"
+// if interpretation.IsEmpty then
+//     failwith "TODO"
+// else
+//     Set.map
+//         (fun
+//             { roles = roles
+//               attributes = a
+//               individuals = i } ->
+//             match roles.TryFind(e, v) with
+//             | Some value -> failwith "TODO"
+//             | None -> failwith "TODO")
+//         interpretation
 
 let addAttribute interpretation e a l = failwith "TODO"
 
@@ -84,57 +82,70 @@ let interpretAssertion (assertion: Assertion) (step: InterpretationStep) : Inter
     match assertion with
     | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
         let assertions = Set.remove assertion step.current.assertions
+
         if assertions.IsEmpty then
-            InterpretationStepResult.Model ({
-                individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
-                attributes = step.current.attributes
-                roles = step.current.roles })
+            InterpretationStepResult.Model(
+                { individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
+                  attributes = step.current.attributes
+                  roles = step.current.roles }
+            )
         else
-            failwith "TODO"
-            // InterpretationStepResult.NextStep
-            //         [ Alternative.Incomplete
-            //             { assertions = assertions
-            //                 individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-            //                 attributes = alt.attributes
-            //                 roles = alt.roles } ] results
+            InterpretationStepResult.NextStep
+                { current =
+                    { assertions = assertions
+                      individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
+                      attributes = step.current.attributes
+                      roles = step.current.roles }
+                  clash = step.clash
+                  incomplete = step.incomplete }
     | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
-        failwith "TODO"
-        // interpretation <- addInstance interpretation individual Set.empty (Set.ofList [ concept ])
-        // aBoxUnprocessed <- Set.remove value aBoxUnprocessed
-    | Assertion.IsA(individual, ConceptExpr.And group) ->
-        failwith "TODO"
-        // let mutable assertions = Set.remove value assertions
-        // List.iter (fun expr ->
-        //     assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
-        // if assertions.IsEmpty then
-        //     results <-
-        //         List.append [ Alternative.Complete {
-        //             individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-        //             attributes = alt.attributes
-        //             roles = alt.roles } ]
-        //             results
-        // else
-        //     results <-
-        //         List.append
-        //             [ Alternative.Incomplete
-        //                 { assertions = assertions
-        //                     individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-        //                     attributes = alt.attributes
-        //                     roles = alt.roles } ] results
+        let assertions = Set.remove assertion step.current.assertions
 
-    | Assertion.IsA(individual, ConceptExpr.Or group) ->
-        failwith "TODO"
-        // List.iter (fun expr ->
+        if assertions.IsEmpty then
+            InterpretationStepResult.Model(
+                { individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
+                  attributes = step.current.attributes
+                  roles = step.current.roles }
+            )
+        else
+            InterpretationStepResult.NextStep
+                { current =
+                    { assertions = assertions
+                      individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
+                      attributes = step.current.attributes
+                      roles = step.current.roles }
+                  clash = step.clash
+                  incomplete = step.incomplete }
+    | Assertion.IsA(individual, ConceptExpr.And group) -> failwith "TODO"
+    // let mutable assertions = Set.remove value assertions
+    // List.iter (fun expr ->
+    //     assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
+    // if assertions.IsEmpty then
+    //     results <-
+    //         List.append [ Alternative.Complete {
+    //             individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
+    //             attributes = alt.attributes
+    //             roles = alt.roles } ]
+    //             results
+    // else
+    //     results <-
+    //         List.append
+    //             [ Alternative.Incomplete
+    //                 { assertions = assertions
+    //                     individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
+    //                     attributes = alt.attributes
+    //                     roles = alt.roles } ] results
 
-        //     failwith "TODO") group
-        // aBoxUnprocessed <- Set.remove value aBoxUnprocessed
+    | Assertion.IsA(individual, ConceptExpr.Or group) -> failwith "TODO"
+    // List.iter (fun expr ->
+
+    //     failwith "TODO") group
+    // aBoxUnprocessed <- Set.remove value aBoxUnprocessed
     | Assertion.IsA(_, _) -> failwith "TODO"
-    | Assertion.Triple(e, a, Value.Term v) ->
-        failwith "TODO"
-        //interpretation <- addRole interpretation e a v
-    | Assertion.Triple(e, a, Value.Literal l) ->
-        failwith "TODO"
-        //interpretation <- addAttribute interpretation e a l)
+    | Assertion.Triple(e, a, Value.Term v) -> failwith "TODO"
+    //interpretation <- addRole interpretation e a v
+    | Assertion.Triple(e, a, Value.Literal l) -> failwith "TODO"
+//interpretation <- addAttribute interpretation e a l)
 
 let rec interpretABox (interpretation: InterpretationStep) : Interpretation =
     if interpretation.current.assertions.IsEmpty then
@@ -143,31 +154,31 @@ let rec interpretABox (interpretation: InterpretationStep) : Interpretation =
         | _ -> failwith "TODO"
     else
         let assertion = interpretation.current.assertions.MinimumElement
+
         match interpretAssertion assertion interpretation with
         | InterpretationStepResult.Model model -> Some model
-        | InterpretationStepResult.NextStep step -> 
-            interpretABox step
-    // if interpretation.incomplete.IsEmpty then
-    //     toInterpretation interpretation
-    // else
-    //     let mutable complete = interpretation.complete
-    //     let assertion = interpretation.current.assertions.MinimumElement
-    //     let mutable incomplete = interpretation.incomplete.MinimumElement
+        | InterpretationStepResult.NextStep step -> interpretABox step
+// if interpretation.incomplete.IsEmpty then
+//     toInterpretation interpretation
+// else
+//     let mutable complete = interpretation.complete
+//     let assertion = interpretation.current.assertions.MinimumElement
+//     let mutable incomplete = interpretation.incomplete.MinimumElement
 
-    //     let alt =
-    //         { assertions = Set.remove assertion alt.assertions
-    //           roles = alt.roles
-    //           attributes = alt.attributes
-    //           individuals = alt.individuals }
+//     let alt =
+//         { assertions = Set.remove assertion alt.assertions
+//           roles = alt.roles
+//           attributes = alt.attributes
+//           individuals = alt.individuals }
 
-    //     List.iter
-    //         (fun value ->
-    //             match value with
-    //             | Alternative.Complete newComlete -> complete <- Set.add newComlete complete
-    //             | Alternative.Incomplete newIncomplete -> incomplete <- List.append [ newIncomplete ] incomplete)
-    //         (interpretAssertion assertion alt)
+//     List.iter
+//         (fun value ->
+//             match value with
+//             | Alternative.Complete newComlete -> complete <- Set.add newComlete complete
+//             | Alternative.Incomplete newIncomplete -> incomplete <- List.append [ newIncomplete ] incomplete)
+//         (interpretAssertion assertion alt)
 
-    //     interpretABox incomplete complete
+//     interpretABox incomplete complete
 
 let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
     let aBox' =
@@ -201,30 +212,19 @@ let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
 
 let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
     match interpretation with
-    | Some _ -> Ok true
     | None -> Ok false
-    // Set.fold
-    //     (fun
-    //         state
-    //         { roles = _
-    //           attributes = _
-    //           individuals = i } ->
-    //         match state with
-    //         | Ok false ->
-    //             Map.fold
-    //                 (fun state _ { isA = isA; isNot = isNot } ->
-    //                     match state with
-    //                     | Ok false ->
-    //                         if (Set.intersect isA isNot).IsEmpty then
-    //                             Ok true
-    //                         else
-    //                             Ok false
-    //                     | e -> e)
-    //                 (Ok false)
-    //                 i
-    //         | e -> e)
-    //     (Ok false)
-    //     interpretation
+    | Some interpretation ->
+        Map.fold
+            (fun state _ { isA = isA; isNot = isNot } ->
+                match state with
+                | Ok false ->
+                    if (Set.intersect isA isNot).IsEmpty then
+                        Ok true
+                    else
+                        Ok false
+                | e -> e)
+            (Ok false)
+            interpretation.individuals
 
 // if
 //     query
