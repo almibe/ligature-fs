@@ -5,6 +5,7 @@
 module Wander.Fns.Ligature
 
 open Ligature.Model
+open Ligature.Interpreter
 open Ligature.Core
 open Wander.Model
 open Wander.Interpreter
@@ -72,46 +73,6 @@ let extractFn: Fn =
             match arguments with
             | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Record(extract id source))
             | _ -> error "Invalid call to extract." None
-    )
-
-let interpretFn: Fn =
-    Fn(
-        { doc = "Interpret a KB."
-          examples = [ "(interpret (definitions (imples A B)) (assertions (isa a A)))" ]
-          args = "Definitions Assertions"
-          result = "Set" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Definitions tBox; Any.Assertions aBox ] ->
-                interpret tBox aBox
-                |> Set.map
-                    (fun
-                        { roles = roles
-                          individuals = individuals
-                          attributes = attributes } ->
-                        let roles = Any.Record Map.empty //TODO this is wrong
-
-                        let individuals: Record =
-                            Map.toSeq individuals
-                            |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
-                                let isA = Set.map Any.Term isA |> Any.AnySet
-                                let isNot = Set.map Any.Term isNot |> Any.AnySet
-
-                                Any.Term key,
-                                Any.Record(Map.ofList [ Any.Term(Term "isa"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
-                            |> Map.ofSeq
-
-                        let attributes = Any.Record Map.empty //TODO this is wrong
-
-                        Any.Record(
-                            Map.ofList
-                                [ Any.Term(Term "roles"), roles
-                                  Any.Term(Term "individuals"), Any.Record individuals
-                                  Any.Term(Term "attributes"), attributes ]
-                        ))
-                |> Any.AnySet
-                |> Ok
-            | _ -> error "Invalid call to interpret." None
     )
 
 let instances (source: Assertions) (concept: Term) : AnySet =

@@ -89,7 +89,6 @@ open Wander.Fns.Bend
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "expect-equal", expectEqualFn
-          Term "interpret", interpretFn
           Term "assertions", assertionsFn
           Term "isa", isaFn
           Term "not", notFn
