@@ -32,12 +32,12 @@ type Interpretation(_definitions, _assertions) =
     let mutable _model: Model option = None
 
     let setAssertions (assertions: Assertions) =
-        current <- Some {
-            assertions = assertions
-            roles = current.Value.roles
-            individuals = current.Value.individuals
-            attributes = current.Value.attributes
-        }
+        current <-
+            Some
+                { assertions = assertions
+                  roles = current.Value.roles
+                  individuals = current.Value.individuals
+                  attributes = current.Value.attributes }
 
     let addInstance (individual: Term) (isA: Set<Term>) (isNot: Set<Term>) =
         let individuals =
@@ -87,26 +87,16 @@ type Interpretation(_definitions, _assertions) =
 
             if assertions.IsEmpty then
                 addInstance individual Set.empty (Set.ofList [ concept ])
-                succeed()
+                succeed ()
             else
                 addInstance individual Set.empty (Set.ofList [ concept ])
-        | Assertion.IsA(individual, ConceptExpr.And group) -> 
-            failwith "TODO"
-        // let mutable assertions = Set.remove assertion step.current.assertions
-        // List.iter (fun expr ->
-        //     assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
-        // if assertions.IsEmpty then
-        //     InterpretationStepResult.Model {
-        //         individuals = step.current.individuals
-        //         attributes = step.current.attributes
-        //         roles = step.current.roles }
-        // else
-        //     failwith "TODO"
-        //     // InterpretationStepResult.NextStep
-        //     //     { assertions = assertions
-        //     //       individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-        //     //       attributes = alt.attributes
-        //     //       roles = alt.roles }
+        | Assertion.IsA(individual, ConceptExpr.And group) ->
+            let mutable assertions = Set.remove assertion current.Value.assertions
+            List.iter (fun expr -> assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
+            setAssertions assertions
+
+            if assertions.IsEmpty then
+                succeed ()
         | Assertion.IsA(individual, ConceptExpr.Or group) -> failwith "TODO"
         | Assertion.IsA(_, _) -> failwith "TODO"
         | Assertion.Triple(e, a, Value.Term v) -> failwith "TODO"
