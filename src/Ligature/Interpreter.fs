@@ -8,61 +8,162 @@ open Ligature.Model
 
 type ConceptValues = { isA: Set<Term>; isNot: Set<Term> }
 
-type CompleteAlternative =
+type Model =
     { individuals: Map<Term, ConceptValues>
       roles: Map<Term * Term, Set<Term>>
       attributes: Map<Term * Literal, Set<Term>> }
 
-type IncompleteAlternative =
+type IncompleteModel =
     { assertions: Assertions
       individuals: Map<Term, ConceptValues>
       roles: Map<Term * Term, Set<Term>>
       attributes: Map<Term * Literal, Set<Term>> }
 
-[<RequireQualifiedAccess>]
-type Alternative =
-    | Complete of CompleteAlternative
-    | Incomplete of IncompleteAlternative
-
-let newAlternative assertions =
+let newModel assertions =
     { assertions = assertions
       individuals = Map.empty
       roles = Map.empty
       attributes = Map.empty }
 
-type InterpretationStep =
-    { current: IncompleteAlternative
-      incomplete: List<IncompleteAlternative>
-      clash: Set<CompleteAlternative> }
+type Interpretation(_definitions, _assertions) =
+    let mutable current: IncompleteModel option = Some (newModel _assertions)
+    let mutable incomplete: List<IncompleteModel> = []
+    let mutable clash: Set<Model> = Set.empty
+    let mutable _model: Model option = None
 
-[<RequireQualifiedAccess>]
-type InterpretationStepResult =
-    | NextStep of InterpretationStep
-    | Model of CompleteAlternative
+    let addInstance
+        (individual: Term)
+        (isA: Set<Term>)
+        (isNot: Set<Term>) =
+            let individuals =
+                match current.Value.individuals.TryFind individual with
+                | Some { isA = isA'; isNot = isNot' } ->
+                            Map.add
+                                individual
+                                { isA = Set.union isA' isA
+                                  isNot = Set.union isNot' isNot }
+                                  current.Value.individuals
+                | None -> Map.add individual { isA = isA; isNot = isNot } current.Value.individuals
+            current <-
+                Some {
+                individuals = individuals
+                roles = current.Value.roles
+                attributes = current.Value.attributes
+                assertions = current.Value.assertions
+            }
 
-type Interpretation = CompleteAlternative option
+    let interpretNextAssertion () =
+        let assertion = current.Value.assertions.MinimumElement
+        match assertion with
+        | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+            let assertions = Set.remove assertion current.Value.assertions
 
-let newInterpretation assertions : InterpretationStep =
-    { current = newAlternative assertions
-      incomplete = []
-      clash = Set.empty }
+            if assertions.IsEmpty then
+                addInstance individual (Set.ofList [ concept ]) Set.empty
+                _model <-                
+                    Some { individuals = current.Value.individuals
+                           attributes = current.Value.attributes
+                           roles = current.Value.roles }
+                current <- None
+            else
+                failwith "TODO"
+                // InterpretationStepResult.NextStep
+                //     { current =
+                //         { assertions = assertions
+                //         individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
+                //         attributes = step.current.attributes
+                //         roles = step.current.roles }
+                //     clash = step.clash
+                //     incomplete = step.incomplete }
+        | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
+            
+            failwith "TODO"
+            // let assertions = Set.remove assertion step.current.assertions
 
-let addInstance
-    (individuals: Map<Term, ConceptValues>)
-    (individual: Term)
-    (isA: Set<Term>)
-    (isNot: Set<Term>)
-    : Map<Term, ConceptValues> =
-    match individuals.TryFind individual with
-    | Some { isA = isA'; isNot = isNot' } ->
-        Map.add
-            individual
-            { isA = Set.union isA' isA
-              isNot = Set.union isNot' isNot }
-            individuals
-    | None -> Map.add individual { isA = isA; isNot = isNot } individuals
+            // if assertions.IsEmpty then
+            //     InterpretationStepResult.Model
+            //         { individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
+            //         attributes = step.current.attributes
+            //         roles = step.current.roles }
+            // else
+            //     failwith "TODO"
+            //     // InterpretationStepResult.NextStep
+            //     //     { current =
+            //     //         { assertions = assertions
+            //     //         individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
+            //     //         attributes = step.current.attributes
+            //     //         roles = step.current.roles }
+            //     //     clash = step.clash
+            //     //     incomplete = step.incomplete }
+        | Assertion.IsA(individual, ConceptExpr.And group) ->
+            failwith "TODO"
+            // let mutable assertions = Set.remove assertion step.current.assertions
+            // List.iter (fun expr ->
+            //     assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
+            // if assertions.IsEmpty then
+            //     InterpretationStepResult.Model {
+            //         individuals = step.current.individuals
+            //         attributes = step.current.attributes
+            //         roles = step.current.roles }
+            // else
+            //     failwith "TODO"
+            //     // InterpretationStepResult.NextStep
+            //     //     { assertions = assertions
+            //     //       individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
+            //     //       attributes = alt.attributes
+            //     //       roles = alt.roles }
 
-let addRole (interpretation: InterpretationStep) e a v = failwith "TODO"
+        | Assertion.IsA(individual, ConceptExpr.Or group) -> 
+            failwith "TODO"
+        | Assertion.IsA(_, _) -> 
+            failwith "TODO"
+        | Assertion.Triple(e, a, Value.Term v) -> 
+            failwith "TODO"
+        | Assertion.Triple(e, a, Value.Literal l) -> 
+            failwith "TODO"
+
+    let rec processCurrent () =
+        if current.IsNone || current.Value.assertions.IsEmpty then
+            match incomplete with
+            | [] -> current <- None
+            | head :: tail ->
+                current <- Some head
+                incomplete <- tail
+        else
+            interpretNextAssertion ()
+            processCurrent()
+// // if interpretation.incomplete.IsEmpty then
+// //     toInterpretation interpretation
+// // else
+// //     let mutable complete = interpretation.complete
+// //     let assertion = interpretation.current.assertions.MinimumElement
+// //     let mutable incomplete = interpretation.incomplete.MinimumElement
+
+// //     let alt =
+// //         { assertions = Set.remove assertion alt.assertions
+// //           roles = alt.roles
+// //           attributes = alt.attributes
+// //           individuals = alt.individuals }
+
+// //     List.iter
+// //         (fun value ->
+// //             match value with
+// //             | Alternative.Complete newComlete -> complete <- Set.add newComlete complete
+// //             | Alternative.Incomplete newIncomplete -> incomplete <- List.append [ newIncomplete ] incomplete)
+// //         (interpretAssertion assertion alt)
+
+// //     interpretABox incomplete complete
+
+    do
+        processCurrent()
+        while _model = None && not incomplete.IsEmpty do
+            incomplete <- incomplete.Tail
+            current <- Some incomplete.Head
+            processCurrent()
+
+    member _.model = _model
+
+//let addRole (interpretation: InterpretationStep) e a v = failwith "TODO"
 // if interpretation.IsEmpty then
 //     failwith "TODO"
 // else
@@ -76,155 +177,57 @@ let addRole (interpretation: InterpretationStep) e a v = failwith "TODO"
 //             | None -> failwith "TODO")
 //         interpretation
 
-let addAttribute interpretation e a l = failwith "TODO"
 
-let interpretAssertion (assertion: Assertion) (step: InterpretationStep) : InterpretationStepResult =
-    match assertion with
-    | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
-        let assertions = Set.remove assertion step.current.assertions
 
-        if assertions.IsEmpty then
-            InterpretationStepResult.Model(
-                { individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
-                  attributes = step.current.attributes
-                  roles = step.current.roles }
-            )
-        else
-            InterpretationStepResult.NextStep
-                { current =
-                    { assertions = assertions
-                      individuals = addInstance step.current.individuals individual (Set.ofList [ concept ]) Set.empty
-                      attributes = step.current.attributes
-                      roles = step.current.roles }
-                  clash = step.clash
-                  incomplete = step.incomplete }
-    | Assertion.IsA(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
-        let assertions = Set.remove assertion step.current.assertions
+// let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
+//     let aBox' =
+//         if tBox.IsEmpty then
+//             aBox
+//         else
+//             Set.fold
+//                 (fun state definition ->
+//                     match definition with
+//                     | Definition.Implies(a, c) ->
+//                         match c with
+//                         | ConceptExpr.AtomicConcept c ->
+//                             Set.fold
+//                                 (fun state value ->
+//                                     match value with
+//                                     | Assertion.IsA(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+//                                         Set.add (Assertion.IsA(ind, ConceptExpr.AtomicConcept c)) state
+//                                     | _ -> state)
+//                                 state
+//                                 aBox
+//                         | ConceptExpr.And conj -> failwith "TODO"
+//                         | _ -> failwith "TODO"
+//                     | Definition.Define(a, c) -> failwith "TODO")
+//                 aBox
+//                 tBox
 
-        if assertions.IsEmpty then
-            InterpretationStepResult.Model(
-                { individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
-                  attributes = step.current.attributes
-                  roles = step.current.roles }
-            )
-        else
-            InterpretationStepResult.NextStep
-                { current =
-                    { assertions = assertions
-                      individuals = addInstance step.current.individuals individual Set.empty (Set.ofList [ concept ])
-                      attributes = step.current.attributes
-                      roles = step.current.roles }
-                  clash = step.clash
-                  incomplete = step.incomplete }
-    | Assertion.IsA(individual, ConceptExpr.And group) -> failwith "TODO"
-    // let mutable assertions = Set.remove value assertions
-    // List.iter (fun expr ->
-    //     assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
-    // if assertions.IsEmpty then
-    //     results <-
-    //         List.append [ Alternative.Complete {
-    //             individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-    //             attributes = alt.attributes
-    //             roles = alt.roles } ]
-    //             results
-    // else
-    //     results <-
-    //         List.append
-    //             [ Alternative.Incomplete
-    //                 { assertions = assertions
-    //                     individuals = addInstance alt.individuals individual (Set.ofList [ concept ]) Set.empty
-    //                     attributes = alt.attributes
-    //                     roles = alt.roles } ] results
+//     if aBox <> aBox' then
+//         interpret tBox aBox'
+//     else
+//         interpretABox (newInterpretation aBox')
 
-    | Assertion.IsA(individual, ConceptExpr.Or group) -> failwith "TODO"
-    // List.iter (fun expr ->
-
-    //     failwith "TODO") group
-    // aBoxUnprocessed <- Set.remove value aBoxUnprocessed
-    | Assertion.IsA(_, _) -> failwith "TODO"
-    | Assertion.Triple(e, a, Value.Term v) -> failwith "TODO"
-    //interpretation <- addRole interpretation e a v
-    | Assertion.Triple(e, a, Value.Literal l) -> failwith "TODO"
-//interpretation <- addAttribute interpretation e a l)
-
-let rec interpretABox (interpretation: InterpretationStep) : Interpretation =
-    if interpretation.current.assertions.IsEmpty then
-        match interpretation.incomplete with
-        | [] -> None
-        | _ -> failwith "TODO"
-    else
-        let assertion = interpretation.current.assertions.MinimumElement
-
-        match interpretAssertion assertion interpretation with
-        | InterpretationStepResult.Model model -> Some model
-        | InterpretationStepResult.NextStep step -> interpretABox step
-// if interpretation.incomplete.IsEmpty then
-//     toInterpretation interpretation
-// else
-//     let mutable complete = interpretation.complete
-//     let assertion = interpretation.current.assertions.MinimumElement
-//     let mutable incomplete = interpretation.incomplete.MinimumElement
-
-//     let alt =
-//         { assertions = Set.remove assertion alt.assertions
-//           roles = alt.roles
-//           attributes = alt.attributes
-//           individuals = alt.individuals }
-
-//     List.iter
-//         (fun value ->
-//             match value with
-//             | Alternative.Complete newComlete -> complete <- Set.add newComlete complete
-//             | Alternative.Incomplete newIncomplete -> incomplete <- List.append [ newIncomplete ] incomplete)
-//         (interpretAssertion assertion alt)
-
-//     interpretABox incomplete complete
-
-let rec interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
-    let aBox' =
-        if tBox.IsEmpty then
-            aBox
-        else
-            Set.fold
-                (fun state definition ->
-                    match definition with
-                    | Definition.Implies(a, c) ->
-                        match c with
-                        | ConceptExpr.AtomicConcept c ->
-                            Set.fold
-                                (fun state value ->
-                                    match value with
-                                    | Assertion.IsA(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-                                        Set.add (Assertion.IsA(ind, ConceptExpr.AtomicConcept c)) state
-                                    | _ -> state)
-                                state
-                                aBox
-                        | ConceptExpr.And conj -> failwith "TODO"
-                        | _ -> failwith "TODO"
-                    | Definition.Define(a, c) -> failwith "TODO")
-                aBox
-                tBox
-
-    if aBox <> aBox' then
-        interpret tBox aBox'
-    else
-        interpretABox (newInterpretation aBox')
-
-let rec isConsistent (interpretation: Interpretation) : Result<bool, LigatureError> =
-    match interpretation with
+let isConsistent definitions assertions : Result<bool, LigatureError> =
+    let interpretation = new Interpretation(definitions, assertions)
+    match interpretation.model with
+    | Some _ -> Ok true
     | None -> Ok false
-    | Some interpretation ->
-        Map.fold
-            (fun state _ { isA = isA; isNot = isNot } ->
-                match state with
-                | Ok false ->
-                    if (Set.intersect isA isNot).IsEmpty then
-                        Ok true
-                    else
-                        Ok false
-                | e -> e)
-            (Ok false)
-            interpretation.individuals
+    // match interpretation with
+    // | None -> Ok false
+    // | Some interpretation ->
+    //     Map.fold
+    //         (fun state _ { isA = isA; isNot = isNot } ->
+    //             match state with
+    //             | Ok false ->
+    //                 if (Set.intersect isA isNot).IsEmpty then
+    //                     Ok true
+    //                 else
+    //                     Ok false
+    //             | e -> e)
+    //         (Ok false)
+    //         interpretation.individuals
 
 // if
 //     query

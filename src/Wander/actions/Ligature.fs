@@ -122,7 +122,7 @@ let isConsistentFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Definitions def; Any.Assertions n ] ->
-                match isConsistent (interpret def n) with
+                match isConsistent def n with
                 | Ok true -> Ok(Any.Term(Term "true"))
                 | Ok false -> Ok(Any.Term(Term "false"))
                 | Error err -> Error err
