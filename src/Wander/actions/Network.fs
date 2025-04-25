@@ -26,9 +26,9 @@ let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
                     | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
                     | Any.Term term ->
                         if role = Term ":" then
-                            Set.add (Assertion.IsA(id, ConceptExpr.AtomicConcept term)) state
+                            Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
                         else if role = Term "~" then
-                            Set.add (Assertion.IsA(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
+                            Set.add (Assertion.Instance(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
                         else
                             Set.add (Assertion.Triple(id, role, Value.Term term)) state
                     | Any.Tuple tuple ->
@@ -39,7 +39,7 @@ let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
                                     Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
                                 | Any.Term term ->
                                     if role = Term ":" then
-                                        Set.add (Assertion.IsA(id, ConceptExpr.AtomicConcept term)) state
+                                        Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
                                     else if role = Term "~" then
                                         failwith "TODO"
                                     else
@@ -115,7 +115,7 @@ let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> = fail
 let assertionsFn =
     Fn(
         { doc = "Create an ABox."
-          examples = [ "(assertions (isa betty Cat))" ]
+          examples = [ "(assertions (instance betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -144,9 +144,10 @@ let assertionsFn =
 
                         match a, v with
                         | Term ":", Value.Term concept ->
-                            res <- Set.add (Assertion.IsA(e, ConceptExpr.AtomicConcept concept)) res
+                            res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept concept)) res
                         | Term "~", Value.Term concept ->
-                            res <- Set.add (Assertion.IsA(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
+                            res <-
+                                Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
                         | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Any.Record record ->
                         match recordToNetwork record with

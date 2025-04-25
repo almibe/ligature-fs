@@ -55,7 +55,7 @@ let extract (id: Term) (source: Assertions) : Record =
             | Assertion.Triple(e, a, Value.Literal v) ->
                 if e = id then
                     result <- Map.add (Any.Term a) (Any.Literal v) result
-            | Assertion.IsA(i, ConceptExpr.AtomicConcept c) ->
+            | Assertion.Instance(i, ConceptExpr.AtomicConcept c) ->
                 if i = id then
                     result <- Map.add (Any.Term(Term ":")) (Any.Term c) result
             | _ -> failwith "TODO")
@@ -116,7 +116,7 @@ let instancesFn: Fn =
 let isConsistentFn =
     Fn(
         { doc = "Check if a KB is consistent."
-          examples = [ "(is-consistent (definitions (implies A B)) (assertions (isa a A)))" ]
+          examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
           args = "Definitions Assertions"
           result = "Term" },
         fun _ _ _ arguments ->
@@ -182,18 +182,19 @@ let defineConceptFn: Fn =
             | _ -> error "Improper call to define-concept." None
     )
 
-let isaFn: Fn =
+let instanceFn: Fn =
     Fn(
         { doc = "Assert an Individual extends a Concept."
-          examples = [ "(isa betty (and Cat (not Dog)))" ]
+          examples = [ "(instance betty (and Cat (not Dog)))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term individual; Any.Term concept ] ->
-                Ok(Any.Assertion(Assertion.IsA(individual, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term individual; Any.ConceptExpr concept ] -> Ok(Any.Assertion(Assertion.IsA(individual, concept)))
-            | _ -> error "Improper call to isa." None
+                Ok(Any.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term individual; Any.ConceptExpr concept ] ->
+                Ok(Any.Assertion(Assertion.Instance(individual, concept)))
+            | _ -> error "Improper call to instance." None
     )
 
 let allFn: Fn =

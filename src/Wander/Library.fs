@@ -90,7 +90,7 @@ let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
-          Term "isa", isaFn
+          Term "instance", instanceFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn

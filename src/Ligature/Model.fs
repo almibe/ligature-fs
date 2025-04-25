@@ -39,7 +39,7 @@ and [<RequireQualifiedAccess>] ValuePattern =
 
 and [<RequireQualifiedAccess>] Assertion =
     | Triple of Term * Term * Value
-    | IsA of Term * ConceptExpr
+    | Instance of Term * ConceptExpr
 
 and Assertions = Set<Assertion>
 

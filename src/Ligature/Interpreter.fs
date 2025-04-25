@@ -99,7 +99,7 @@ type Interpretation(_definitions, _assertions) =
         let assertion = current.Value.assertions.MinimumElement
 
         match assertion with
-        | Assertion.IsA(individual, ConceptExpr.AtomicConcept concept) ->
+        | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
             let assertions = Set.remove assertion current.Value.assertions
             setAssertions assertions
 
@@ -109,30 +109,33 @@ type Interpretation(_definitions, _assertions) =
             else
                 addInstance individual (Set.ofList [ concept ]) Set.empty
 
-        | Assertion.IsA(individual, ConceptExpr.And group) ->
+        | Assertion.Instance(individual, ConceptExpr.And group) ->
             let mutable assertions = Set.remove assertion current.Value.assertions
-            List.iter (fun expr -> assertions <- Set.add (Assertion.IsA(individual, expr)) assertions) group
+            List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
             setAssertions assertions
 
             if assertions.IsEmpty then
                 succeed ()
-        | Assertion.IsA(individual, ConceptExpr.Or group) ->
+        | Assertion.Instance(individual, ConceptExpr.Or group) ->
             let mutable assertions = Set.remove assertion current.Value.assertions
 
             let alternatives: List<Assertions> =
-                List.fold (fun state expr -> Set.add (Assertion.IsA(individual, expr)) assertions :: state) [] group
+                List.fold
+                    (fun state expr -> Set.add (Assertion.Instance(individual, expr)) assertions :: state)
+                    []
+                    group
 
             setAlternatives alternatives
 
             if assertions.IsEmpty then
                 succeed ()
-        | Assertion.IsA(individual, ConceptExpr.All(role, concept)) ->
+        | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
 
             failwith "TODO"
-        | Assertion.IsA(individual, ConceptExpr.Exists(role, concept)) ->
+        | Assertion.Instance(individual, ConceptExpr.Exists(role, concept)) ->
 
             failwith "TODO"
-        | Assertion.IsA(individual, ConceptExpr.Not(concept)) ->
+        | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
             match concept with
             | ConceptExpr.AtomicConcept concept ->
                 let assertions = Set.remove assertion current.Value.assertions
@@ -143,15 +146,23 @@ type Interpretation(_definitions, _assertions) =
                     succeed ()
                 else
                     addInstance individual Set.empty (Set.ofList [ concept ])
-            | ConceptExpr.And(_) -> failwith "Not Implemented"
-            | ConceptExpr.Or(_) -> failwith "Not Implemented"
+            | ConceptExpr.And group ->
+                let mutable assertions = Set.remove assertion current.Value.assertions
+                let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+                assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
+                setAssertions assertions
+            | ConceptExpr.Or group ->
+                let mutable assertions = Set.remove assertion current.Value.assertions
+                let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+                assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
+                setAssertions assertions
             | ConceptExpr.Top -> failwith "Not Implemented"
             | ConceptExpr.Bottom -> failwith "Not Implemented"
             | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
             | ConceptExpr.All(_, _) -> failwith "Not Implemented"
             | ConceptExpr.Not concept ->
                 let assertions = Set.remove assertion current.Value.assertions
-                let assertions = Set.add (Assertion.IsA(individual, concept)) assertions
+                let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
                 setAssertions assertions
         | Assertion.Triple(e, a, Value.Term v) -> failwith "TODO"
         | Assertion.Triple(e, a, Value.Literal l) -> failwith "TODO"
