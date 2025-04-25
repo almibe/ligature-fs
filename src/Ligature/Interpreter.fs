@@ -255,6 +255,10 @@ type Interpretation(_definitions, _assertions) =
 //     else
 //         interpretABox (newInterpretation aBox')
 
+let findModel definitions assertions : Result<Model option, LigatureError> =
+    let interpretation = Interpretation(definitions, assertions)
+    Ok interpretation.model
+
 let isConsistent definitions assertions : Result<bool, LigatureError> =
     let interpretation = new Interpretation(definitions, assertions)
     // printfn $"{interpretation.model}"

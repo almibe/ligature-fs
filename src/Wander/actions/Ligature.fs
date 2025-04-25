@@ -182,6 +182,44 @@ let defineConceptFn: Fn =
             | _ -> error "Improper call to define-concept." None
     )
 
+let findModelFn: Fn =
+    Fn(
+        { doc = "Find the first model that matches the given KB."
+          examples = [ "(find-model (definitions) (assertions))" ]
+          args = "Definitions Assertions"
+          result = "Record" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definitions definitions; Any.Assertions assertions ] ->
+                match findModel definitions assertions with
+                | Ok None -> Ok(Any.Record Map.empty)
+                | Ok(Some model) ->
+
+                    let roles = Any.Record Map.empty //TODO this is wrong
+
+                    let individuals: Record =
+                        Map.toSeq model.individuals
+                        |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
+                            let isA = Set.map Any.Term isA |> Any.AnySet
+                            let isNot = Set.map Any.Term isNot |> Any.AnySet
+
+                            Any.Term key,
+                            Any.Record(Map.ofList [ Any.Term(Term "isa"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
+                        |> Map.ofSeq
+
+                    let attributes = Any.Record Map.empty //TODO this is wrong
+
+                    Any.Record(
+                        Map.ofList
+                            [ Any.Term(Term "roles"), roles
+                              Any.Term(Term "individuals"), Any.Record individuals
+                              Any.Term(Term "attributes"), attributes ]
+                    )
+                    |> Ok
+                | Error err -> Error err
+            | _ -> error "Improper call to find-model." None
+    )
+
 let instanceFn: Fn =
     Fn(
         { doc = "Assert an Individual extends a Concept."

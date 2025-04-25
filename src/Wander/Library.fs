@@ -91,6 +91,7 @@ let stdFns (store: ILigatureStore) : Fns =
         [ Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
           Term "instance", instanceFn
+          Term "find-model", findModelFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn

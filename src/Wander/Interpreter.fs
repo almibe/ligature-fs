@@ -186,7 +186,18 @@ and executeExpression
         | _ -> error $"Could not find {variable}" None
     | Any.Term term -> Ok(Any.Term term)
     | Any.Application application -> executeApplication actions bindings variables application
-    | _ -> failwith "TODO"
+    | Any.AnySet set -> Ok(Any.AnySet set)
+    | Any.Assertion assertion -> failwith "TODO"
+    | Any.Slot _ -> failwith "Not Implemented"
+    | Any.Pattern _ -> failwith "Not Implemented"
+    | Any.ValueSet _ -> failwith "Not Implemented"
+    | Any.ResultSet _ -> failwith "Not Implemented"
+    | Any.Comment _ -> failwith "Not Implemented"
+    | Any.Lambda _ -> failwith "Not Implemented"
+    | Any.ConceptExpr _ -> failwith "Not Implemented"
+    | Any.Definition _ -> failwith "Not Implemented"
+    | Any.Definitions _ -> failwith "Not Implemented"
+//| _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack
 // | Some(Fn.Stack(_, action)) ->
