@@ -76,15 +76,17 @@ let rec printAny (value: Any) : string =
     | Any.Assertions n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
-    | Any.ValueSet(_) -> failwith "Not Implemented"
-    | Any.Comment(_) -> failwith "Not Implemented"
+    | Any.ValueSet _ -> failwith "Not Implemented"
+    | Any.Comment _ -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
-    | Any.Pattern(_) -> failwith "Not Implemented"
-    | Any.Application(_) -> "-app-"
+    | Any.Pattern _ -> failwith "Not Implemented"
+    | Any.Application _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
     | Any.Definition def -> printDefinition def
     | Any.Definitions defs -> printDefinitions defs
+    | Any.Assertion _ -> "-assertion-"
+    | Any.ConceptExpr _ -> "-concept-expr-"
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
