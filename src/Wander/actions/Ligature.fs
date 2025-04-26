@@ -195,8 +195,6 @@ let findModelFn: Fn =
                 | Ok None -> Ok(Any.Record Map.empty)
                 | Ok(Some model) ->
 
-                    let roles = Any.Record Map.empty //TODO this is wrong
-
                     let individuals: Record =
                         Map.toSeq model.individuals
                         |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
@@ -204,16 +202,20 @@ let findModelFn: Fn =
                             let isNot = Set.map Any.Term isNot |> Any.AnySet
 
                             Any.Term key,
-                            Any.Record(Map.ofList [ Any.Term(Term "isa"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
+                            Any.Record(Map.ofList [ Any.Term(Term "is-a"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
                         |> Map.ofSeq
 
-                    let attributes = Any.Record Map.empty //TODO this is wrong
+                    let roles: AnySet =
+                        Set.map (fun (i, r, t) -> Any.Tuple [ Any.Term i; Any.Term r; Any.Term t ]) model.roles
+
+                    let attributes: AnySet =
+                        Set.map (fun (i, a, l) -> Any.Tuple [ Any.Term i; Any.Term a; Any.Literal l ]) model.attributes
 
                     Any.Record(
                         Map.ofList
-                            [ Any.Term(Term "roles"), roles
+                            [ Any.Term(Term "roles"), Any.AnySet roles
                               Any.Term(Term "individuals"), Any.Record individuals
-                              Any.Term(Term "attributes"), attributes ]
+                              Any.Term(Term "attributes"), Any.AnySet attributes ]
                     )
                     |> Ok
                 | Error err -> Error err

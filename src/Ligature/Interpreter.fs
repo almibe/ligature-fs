@@ -10,26 +10,54 @@ type ConceptValues = { isA: Set<Term>; isNot: Set<Term> }
 
 type Model =
     { individuals: Map<Term, ConceptValues>
-      roles: Map<Term * Term, Set<Term>>
-      attributes: Map<Term * Literal, Set<Term>> }
+      roles: Set<Term * Term * Term>
+      attributes: Set<Term * Term * Literal> }
 
 type IncompleteModel =
     { assertions: Assertions
       individuals: Map<Term, ConceptValues>
-      roles: Map<Term * Term, Set<Term>>
-      attributes: Map<Term * Literal, Set<Term>> }
+      roles: Set<Term * Term * Term>
+      attributes: Set<Term * Term * Literal> }
 
 let newModel assertions =
     { assertions = assertions
       individuals = Map.empty
-      roles = Map.empty
-      attributes = Map.empty }
+      roles = Set.empty
+      attributes = Set.empty }
 
 type Interpretation(_definitions, _assertions) =
-    let mutable current: IncompleteModel option = Some(newModel _assertions)
+    let mutable current: IncompleteModel option = None
     let mutable incomplete: List<IncompleteModel> = []
-    let mutable clash: Set<Model> = Set.empty
     let mutable _model: Model option = None
+
+    let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Assertions =
+        let aBox' =
+            if tBox.IsEmpty then
+                aBox
+            else
+                Set.fold
+                    (fun state definition ->
+                        match definition with
+                        | Definition.Implies(a, c) ->
+                            match c with
+                            | ConceptExpr.AtomicConcept c ->
+                                Set.fold
+                                    (fun state value ->
+                                        match value with
+                                        | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+                                            Set.add (Assertion.Instance(ind, ConceptExpr.AtomicConcept c)) state
+                                        | _ -> state)
+                                    state
+                                    aBox
+                            | ConceptExpr.And conj ->
+
+                                failwith "TODO"
+                            | _ -> failwith "TODO"
+                        | Definition.Define(a, c) -> failwith "TODO")
+                    aBox
+                    tBox
+
+        if aBox <> aBox' then handleTBox tBox aBox' else aBox'
 
     let setAssertions (assertions: Assertions) =
         current <-
@@ -66,6 +94,22 @@ type Interpretation(_definitions, _assertions) =
                           attributes = current.Value.attributes }
                         :: incomplete)
                 tail
+
+    let addRole (i: Term) (r: Term) (t: Term) =
+        current <-
+            Some
+                { individuals = current.Value.individuals
+                  assertions = current.Value.assertions
+                  roles = Set.add (i, r, t) current.Value.roles
+                  attributes = current.Value.attributes }
+
+    let addAttribute (i: Term) (a: Term) (l: Literal) =
+        current <-
+            Some
+                { individuals = current.Value.individuals
+                  assertions = current.Value.assertions
+                  roles = current.Value.roles
+                  attributes = Set.add (i, a, l) current.Value.attributes }
 
     let addInstance (individual: Term) (isA: Set<Term>) (isNot: Set<Term>) =
         let individuals =
@@ -132,20 +176,23 @@ type Interpretation(_definitions, _assertions) =
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
 
             failwith "TODO"
-        | Assertion.Instance(individual, ConceptExpr.Exists(role, concept)) ->
+        | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
+            //TODO handle inconsistent ConceptExprs
+            addInstance individual Set.empty Set.empty
+            let assertions = Set.remove assertion current.Value.assertions
+            setAssertions assertions
 
-            failwith "TODO"
+            if assertions.IsEmpty then
+                succeed ()
         | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
             match concept with
             | ConceptExpr.AtomicConcept concept ->
                 let assertions = Set.remove assertion current.Value.assertions
                 setAssertions assertions
+                addInstance individual Set.empty (Set.ofList [ concept ])
 
                 if assertions.IsEmpty then
-                    addInstance individual Set.empty (Set.ofList [ concept ])
                     succeed ()
-                else
-                    addInstance individual Set.empty (Set.ofList [ concept ])
             | ConceptExpr.And group ->
                 let mutable assertions = Set.remove assertion current.Value.assertions
                 let negGroup = List.map (fun value -> ConceptExpr.Not value) group
@@ -164,8 +211,24 @@ type Interpretation(_definitions, _assertions) =
                 let assertions = Set.remove assertion current.Value.assertions
                 let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
                 setAssertions assertions
-        | Assertion.Triple(e, a, Value.Term v) -> failwith "TODO"
-        | Assertion.Triple(e, a, Value.Literal l) -> failwith "TODO"
+        | Assertion.Triple(i, r, Value.Term t) ->
+            let mutable assertions = Set.remove assertion current.Value.assertions
+            setAssertions assertions
+            addInstance i Set.empty Set.empty
+            addInstance t Set.empty Set.empty
+            addRole i r t
+
+            if assertions.IsEmpty then
+                succeed ()
+        | Assertion.Triple(i, a, Value.Literal l) ->
+            let mutable assertions = Set.remove assertion current.Value.assertions
+            setAssertions assertions
+            addInstance i Set.empty Set.empty
+            addAttribute i a l
+
+            if assertions.IsEmpty then
+                succeed ()
+
 
     let rec processCurrent () =
         if current.IsNone || current.Value.assertions.IsEmpty then
@@ -177,29 +240,9 @@ type Interpretation(_definitions, _assertions) =
         else
             interpretNextAssertion ()
             processCurrent ()
-    // // if interpretation.incomplete.IsEmpty then
-    // //     toInterpretation interpretation
-    // // else
-    // //     let mutable complete = interpretation.complete
-    // //     let assertion = interpretation.current.assertions.MinimumElement
-    // //     let mutable incomplete = interpretation.incomplete.MinimumElement
-
-    // //     let alt =
-    // //         { assertions = Set.remove assertion alt.assertions
-    // //           roles = alt.roles
-    // //           attributes = alt.attributes
-    // //           individuals = alt.individuals }
-
-    // //     List.iter
-    // //         (fun value ->
-    // //             match value with
-    // //             | Alternative.Complete newComlete -> complete <- Set.add newComlete complete
-    // //             | Alternative.Incomplete newIncomplete -> incomplete <- List.append [ newIncomplete ] incomplete)
-    // //         (interpretAssertion assertion alt)
-
-    // //     interpretABox incomplete complete
 
     do
+        current <- Some(newModel (handleTBox _definitions _assertions))
         processCurrent ()
 
         while _model = None && not incomplete.IsEmpty do
@@ -209,59 +252,13 @@ type Interpretation(_definitions, _assertions) =
 
     member _.model = _model
 
-//let addRole (interpretation: InterpretationStep) e a v = failwith "TODO"
-// if interpretation.IsEmpty then
-//     failwith "TODO"
-// else
-//     Set.map
-//         (fun
-//             { roles = roles
-//               attributes = a
-//               individuals = i } ->
-//             match roles.TryFind(e, v) with
-//             | Some value -> failwith "TODO"
-//             | None -> failwith "TODO")
-//         interpretation
-
-
-
-// let interpret (tBox: Definitions) (aBox: Assertions) : Interpretation =
-//     let aBox' =
-//         if tBox.IsEmpty then
-//             aBox
-//         else
-//             Set.fold
-//                 (fun state definition ->
-//                     match definition with
-//                     | Definition.Implies(a, c) ->
-//                         match c with
-//                         | ConceptExpr.AtomicConcept c ->
-//                             Set.fold
-//                                 (fun state value ->
-//                                     match value with
-//                                     | Assertion.IsA(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-//                                         Set.add (Assertion.IsA(ind, ConceptExpr.AtomicConcept c)) state
-//                                     | _ -> state)
-//                                 state
-//                                 aBox
-//                         | ConceptExpr.And conj -> failwith "TODO"
-//                         | _ -> failwith "TODO"
-//                     | Definition.Define(a, c) -> failwith "TODO")
-//                 aBox
-//                 tBox
-
-//     if aBox <> aBox' then
-//         interpret tBox aBox'
-//     else
-//         interpretABox (newInterpretation aBox')
-
 let findModel definitions assertions : Result<Model option, LigatureError> =
     let interpretation = Interpretation(definitions, assertions)
     Ok interpretation.model
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
     let interpretation = new Interpretation(definitions, assertions)
-    // printfn $"{interpretation.model}"
+
     match interpretation.model with
     | None -> Ok false
     | Some interpretation ->
@@ -276,42 +273,3 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
                 | e -> e)
             (Ok false)
             interpretation.individuals
-// if
-//     query
-//         (Set.ofList
-//             [ TermPattern.Slot(Slot "?el"), TermPattern.Term(Term ":"), ValuePattern.Slot(Slot "?concept")
-//               TermPattern.Slot(Slot "?el"), TermPattern.Term(Term "~:"), ValuePattern.Slot(Slot "?concept") ])
-//         aBox
-//     |> Seq.length = 0
-// then
-//     Ok true
-// else
-//     Ok false
-
-// let mutable res = aBox
-
-// Set.iter
-//     (fun tStatement ->
-//         Set.iter
-//             (fun aStatement ->
-//                 match tStatement, aStatement with
-//                 | Definition.Subconcept (subconcept, AtomicConcept superconcept), (element, Term ":", Value.Term concept) when
-//                     subconcept = concept
-//                     ->
-//                     res <- Set.add (element, Term ":", Value.Term superconcept) res
-//                 // | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
-//                 //     role = firstRole
-//                 //     ->
-//                 //     res <- Set.add (second, secondRole, Value.Term first) res
-//                 // | (firstRole, Term "tiny-dl.inverse-of", Value.Term secondRole), (first, role, Value.Term second) when
-//                 //     role = secondRole
-//                 //     ->
-//                 //     res <- Set.add (second, firstRole, Value.Term first) res
-//                 // | (roleName, Term ":", Value.Term(Term "tiny-dl.Is-Symmetrical")),
-//                 //   (first, role, Value.Term second) when role = roleName ->
-//                 //     res <- Set.add (second, role, Value.Term first) res
-//                 | _ -> ())
-//             aBox)
-//     tBox
-
-// if aBox = res then Ok res else infer tBox res
