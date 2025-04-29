@@ -50,10 +50,11 @@ type Interpretation(_definitions, _assertions) =
                                     state
                                     aBox
                             | ConceptExpr.And conj ->
-
                                 failwith "TODO"
                             | _ -> failwith "TODO"
-                        | Definition.Define(a, c) -> failwith "TODO")
+                        | Definition.Define(a, c) -> 
+
+                            failwith "TODO")
                     aBox
                     tBox
 

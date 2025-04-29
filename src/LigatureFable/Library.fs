@@ -39,29 +39,32 @@ let error value = Error value
 let networkToJs (network: Assertions) =
     let network =
         Set.map
-            (fun (Term e, Term a, v) ->
-                let element = createEmpty
-                element?``type`` <- "term"
-                element?value <- e
+            (fun value ->
+                match value with
+                | Assertion.Triple (Term e, Term a, v) ->
+                    let element = createEmpty
+                    element?``type`` <- "term"
+                    element?value <- e
 
-                let role = createEmpty
-                role?``type`` <- "term"
-                role?value <- a
+                    let role = createEmpty
+                    role?``type`` <- "term"
+                    role?value <- a
 
-                let value = createEmpty
+                    let value = createEmpty
 
-                value?``type`` <-
-                    match v with
-                    | Value.Term _ -> "term"
-                    | Value.Literal _ -> "literal"
+                    value?``type`` <-
+                        match v with
+                        | Value.Term _ -> "term"
+                        | Value.Literal _ -> "literal"
 
-                value?value <-
-                    match v with
-                    | Value.Term(Term t) -> t
-                    | Value.Literal(Literal l) -> l
-                    | _ -> failwith "TODO"
+                    value?value <-
+                        match v with
+                        | Value.Term(Term t) -> t
+                        | Value.Literal(Literal l) -> l
 
-                [| element; role; value |])
+                    [| element; role; value |]
+                | Assertion.Instance (i, c) ->
+                    failwith "TODO")
             network
 
     let network = Array.ofSeq network

@@ -17,74 +17,36 @@ open Wander.Fns.Store
 open InMemoryStore
 open Wander.Fns.Bend
 
-// let docsFn: Fn =
-//     Fn(
-//         { doc = "Push the docs Network on the Stack."
-//           examples = []
-//           args = ""
-//           result = "Network" },
-//         fun actions _ _ _ ->
-//             let docs: Network =
-//                 Map.toSeq actions
-//                 |> Seq.fold
-//                     (fun state (name, action) ->
-//                         match action with
-//                         | Fn(doc, _) ->
-//                             let state = Set.add (name, Term "doc-string", Value.Literal(Literal doc.doc)) state
+let docsFn: Fn =
+    Fn(
+        { doc = "Push the docs Network on the Stack."
+          examples = []
+          args = "()"
+          result = "Assertions" },
+        fun actions _ _ _ ->
+            let docs: Assertions =
+                Map.toSeq actions
+                |> Seq.fold
+                    (fun state (name, action) ->
+                        match action with
+                        | Fn(doc, _) ->
+                            let state = Set.add (Assertion.Triple(name, Term "doc-string", Value.Literal(Literal doc.doc))) state
 
-//                             let state = Set.add (name, Term ":", Value.Term(Term "Fn")) state
+                            let state = Set.add (Assertion.Triple(name, Term ":", Value.Term(Term "Fn"))) state
 
-//                             let state = Set.add (name, Term "doc-pre", Value.Literal(Literal doc.args)) state
+                            let state = Set.add (Assertion.Triple(name, Term "args", Value.Literal(Literal doc.args))) state
 
-//                             let state = Set.add (name, Term "doc-post", Value.Literal(Literal doc.result)) state
+                            let state = Set.add (Assertion.Triple(name, Term "result", Value.Literal(Literal doc.result))) state
 
-//                             List.fold
-//                                 (fun state example ->
-//                                     Set.add (name, Term "doc-example", Value.Literal(Literal example)) state)
-//                                 state
-//                                 doc.examples)
-//                     // | Fn.Stack(doc, _) ->
-//                     //     let state =
-//                     //         Set.add
-//                     //             (TermPattern.Term name,
-//                     //             TermPattern.Term(Term ":"),
-//                     //             TermPattern.Term(Term "Fn"))
-//                     //             state
+                            List.fold
+                                (fun state example ->
+                                    Set.add (Assertion.Triple (name, Term "doc-example", Value.Literal(Literal example))) state)
+                                state
+                                doc.examples)
+                    Set.empty
 
-//                     //     let state =
-//                     //         Set.add
-//                     //             (TermPattern.Term name,
-//                     //             TermPattern.Term(Term "doc-string"),
-//                     //             TermPattern.Term(Term doc.doc))
-//                     //             state
-
-//                     //     let state =
-//                     //         Set.add
-//                     //             (TermPattern.Term name,
-//                     //             TermPattern.Term(Term "doc-pre"),
-//                     //             TermPattern.Term(Term doc.pre))
-//                     //             state
-
-//                     //     let state =
-//                     //         Set.add
-//                     //             (TermPattern.Term name,
-//                     //             TermPattern.Term(Term "doc-post"),
-//                     //             TermPattern.Term(Term doc.post))
-//                     //             state
-
-//                     // List.fold
-//                     //     (fun state example ->
-//                     //         Set.add
-//                     //             (TermPattern.Term name,
-//                     //             TermPattern.Term(Term "doc-example"),
-//                     //             TermPattern.Term(Term example))
-//                     //             state)
-//                     //     state
-//                     //     doc.examples)
-//                     Set.empty
-
-//             Ok(Any.Network docs)
-//     )
+            Ok(Any.Assertions docs)
+    )
 
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
@@ -105,7 +67,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "remote", remoteFn
           Term "extract", extractFn
           Term "instances", instancesFn
-          //          Term "docs", docsFn
+          Term "docs", docsFn
           Term "prepend", prependFn
           Term "set", setFn
           Term "result-set", resultSetFn

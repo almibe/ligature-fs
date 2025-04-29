@@ -176,9 +176,9 @@ let defineConceptFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
-                Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
+                Ok(Any.Definition(Definition.Define(subconcept, ConceptExpr.AtomicConcept concept)))
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(Definition.Implies(subconcept, concept)))
+                Ok(Any.Definition(Definition.Define(subconcept, concept)))
             | _ -> error "Improper call to define-concept." None
     )
 
