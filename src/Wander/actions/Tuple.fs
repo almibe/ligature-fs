@@ -7,23 +7,10 @@ module Wander.Fns.Tuple
 open Wander.Model
 open Ligature.Model
 
-let prependFn =
-    Fn(
-        { doc = "Read a Tuple and a Tuple off the Stack, push a new Tuple with the first Tuple at the front."
-          examples = []
-          args = "Tuple Tuple"
-          result = "Tuple" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Tuple source :: Any.Tuple dest :: tail ->
-    //     let newTuple = List.append source dest
-    //     Ok(Any.Tuple newTuple :: tail)
-    // | _ -> error "Invalid call to prepend action." None
-    )
 
 let setFn =
     Fn(
-        { doc = "Read a Tuple off the Stack and convert it to a Set and push the new Set on the Stack."
+        { doc = "Create a Set from a given Tuple."
           examples = []
           args = "Tuple"
           result = "Set" },
@@ -37,7 +24,7 @@ let setFn =
 
 let resultSetFn =
     Fn(
-        { doc = "Read a Tuple off the Stack and convert it to a Set and push the new Set on the Stack."
+        { doc = "Create a ResultSet."
           examples = [ "(result-set [{?a a}])" ]
           args = "Tuple"
           result = "ResultSet" },

@@ -239,32 +239,15 @@ let unionFn =
 
 let countFn =
     Fn(
-        { doc = "Take a Network from the top of the Stack and push its size."
-          examples = [ "{} count 0 assert-equal" ]
-          args = "Network"
+        { doc = "Count the assertions in a given ABox."
+          examples = [ "(count (assertions [a b c]))" ]
+          args = "Assertions"
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Assertions n ] -> Ok(Any.Literal(Literal((Set.count n).ToString())))
-            | _ -> error "Network on stack required to call count." None
+            | _ -> error "Illegal call to count." None
     )
-// match arguments with
-// // | [ Any.Slot variable ] ->
-// //     match variables.TryFind variable with
-// //     | Some(Any.Network network) ->
-// //         Ok(
-// //             (Some(Any.Term(Term((Set.count network).ToString()))), networks, local, modules, variables)
-// //         )
-// //     | _ -> failwith "TODO"
-// | [ Any.Network network ] ->
-//     Ok((networks, local, modules))
-// | [ Any.Tuple tuple ] ->
-//     match evalTuple networks local modules tuple with
-//     | Ok(networks, local, modules) ->
-//         Ok(networks, local, modules)
-//     | Ok(_, _, _) -> error "Error in count, expected value." None
-//     | Error err -> error $"Error in count, {err.UserMessage}" None
-// | args -> failwith $"TODO - {args}" }
 
 // let minusCommand =
 //     { Eval =
@@ -277,7 +260,7 @@ let countFn =
 
 let queryFn =
     Fn(
-        { doc = "Query a network. This Fn requires three Networks on the stack."
+        { doc = "Perform a query."
           examples = []
           args = "Pattern Network"
           result = "ResultSet" },

@@ -30,17 +30,26 @@ let docsFn: Fn =
                     (fun state (name, action) ->
                         match action with
                         | Fn(doc, _) ->
-                            let state = Set.add (Assertion.Triple(name, Term "doc-string", Value.Literal(Literal doc.doc))) state
+                            let state =
+                                Set.add
+                                    (Assertion.Triple(name, Term "doc-string", Value.Literal(Literal doc.doc)))
+                                    state
 
                             let state = Set.add (Assertion.Triple(name, Term ":", Value.Term(Term "Fn"))) state
 
-                            let state = Set.add (Assertion.Triple(name, Term "args", Value.Literal(Literal doc.args))) state
+                            let state =
+                                Set.add (Assertion.Triple(name, Term "args", Value.Literal(Literal doc.args))) state
 
-                            let state = Set.add (Assertion.Triple(name, Term "result", Value.Literal(Literal doc.result))) state
+                            let state =
+                                Set.add
+                                    (Assertion.Triple(name, Term "result", Value.Literal(Literal doc.result)))
+                                    state
 
                             List.fold
                                 (fun state example ->
-                                    Set.add (Assertion.Triple (name, Term "doc-example", Value.Literal(Literal example))) state)
+                                    Set.add
+                                        (Assertion.Triple(name, Term "doc-example", Value.Literal(Literal example)))
+                                        state)
                                 state
                                 doc.examples)
                     Set.empty
@@ -59,7 +68,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "or", orFn
           //   Term "pattern", patternFn
           Term "definitions", definitionsFn
-          Term "define-concept", defineConceptFn
+          //   Term "define-concept", defineConceptFn
           Term "all", allFn
           Term "exists", existsFn
           Term "implies", impliesFn
@@ -68,7 +77,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "extract", extractFn
           Term "instances", instancesFn
           Term "docs", docsFn
-          Term "prepend", prependFn
+          //   Term "prepend", prependFn
           Term "set", setFn
           Term "result-set", resultSetFn
           Term "id", idFn

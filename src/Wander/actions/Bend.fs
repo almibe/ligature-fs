@@ -44,5 +44,5 @@ let bendJsonFn =
                 // let result = Set.union left right |> Any.Network
                 // Ok result
                 failwith "TODO"
-            | _ -> failwith $"Calls to union requires two Networks on the stack."
+            | _ -> failwith "Illegal call to bend.json."
     )

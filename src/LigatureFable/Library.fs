@@ -41,7 +41,7 @@ let networkToJs (network: Assertions) =
         Set.map
             (fun value ->
                 match value with
-                | Assertion.Triple (Term e, Term a, v) ->
+                | Assertion.Triple(Term e, Term a, v) ->
                     let element = createEmpty
                     element?``type`` <- "term"
                     element?value <- e
@@ -63,8 +63,7 @@ let networkToJs (network: Assertions) =
                         | Value.Literal(Literal l) -> l
 
                     [| element; role; value |]
-                | Assertion.Instance (i, c) ->
-                    failwith "TODO")
+                | Assertion.Instance(i, c) -> failwith "TODO")
             network
 
     let network = Array.ofSeq network

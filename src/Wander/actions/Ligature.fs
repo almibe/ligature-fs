@@ -167,20 +167,20 @@ let impliesFn: Fn =
             | _ -> error "Improper call to implies." None
     )
 
-let defineConceptFn: Fn =
-    Fn(
-        { doc = "Define a Concept."
-          examples = [ "(define-concept Person (exists name))" ]
-          args = ""
-          result = "" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Term subconcept; Any.Term concept ] ->
-                Ok(Any.Definition(Definition.Define(subconcept, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(Definition.Define(subconcept, concept)))
-            | _ -> error "Improper call to define-concept." None
-    )
+// let defineConceptFn: Fn =
+//     Fn(
+//         { doc = "Define a Concept."
+//           examples = [ "(define-concept Person (exists name))" ]
+//           args = ""
+//           result = "" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Any.Term subconcept; Any.Term concept ] ->
+//                 Ok(Any.Definition(Definition.Define(subconcept, ConceptExpr.AtomicConcept concept)))
+//             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
+//                 Ok(Any.Definition(Definition.Define(subconcept, concept)))
+//             | _ -> error "Improper call to define-concept." None
+//     )
 
 let findModelFn: Fn =
     Fn(
