@@ -49,8 +49,24 @@ type Interpretation(_definitions, _assertions) =
                                         | _ -> state)
                                     state
                                     aBox
-                            | ConceptExpr.And conj -> failwith "TODO"
-                            | _ -> failwith "TODO")
+                            | ConceptExpr.And conj ->
+                                Set.fold
+                                    (fun state value ->
+                                        match value with
+                                        | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+                                            List.fold
+                                                (fun state c -> Set.add (Assertion.Instance(ind, c)) state)
+                                                state
+                                                conj
+                                        | _ -> state)
+                                    state
+                                    aBox
+                            | ConceptExpr.Or(_) -> failwith "Not Implemented"
+                            | ConceptExpr.Top -> failwith "Not Implemented"
+                            | ConceptExpr.Bottom -> failwith "Not Implemented"
+                            | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+                            | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                            | ConceptExpr.Not(_) -> failwith "Not Implemented")
                     aBox
                     tBox
 
@@ -171,8 +187,31 @@ type Interpretation(_definitions, _assertions) =
             if assertions.IsEmpty then
                 succeed ()
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
+            let assertions = Set.remove assertion current.Value.assertions
 
-            failwith "TODO"
+            //TODO find all instances of the given role and mark all fillers as being `concept`
+            let assertions =
+                Set.fold (fun state assertion -> 
+                    match assertion with
+                    | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
+                        Set.add (Assertion.Instance(f, concept)) state
+                    | _ -> state)
+                    assertions
+                    assertions
+
+            let assertions =
+                Set.fold (fun state value ->
+                    match value with
+                    | i, r, f when r = role && i = individual -> 
+                        Set.add (Assertion.Instance(f, concept)) state
+                    | _ -> state)
+                    assertions
+                    current.Value.roles
+
+            setAssertions assertions
+            //TODO handle inconsistent ConceptExprs
+            if assertions.IsEmpty then
+                succeed ()
         | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
             //TODO handle inconsistent ConceptExprs
             addInstance individual Set.empty Set.empty
@@ -262,11 +301,11 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
         Map.fold
             (fun state _ { isA = isA; isNot = isNot } ->
                 match state with
-                | Ok false ->
+                | Ok true ->
                     if (Set.intersect isA isNot).IsEmpty then
                         Ok true
                     else
                         Ok false
                 | e -> e)
-            (Ok false)
+            (Ok true)
             interpretation.individuals

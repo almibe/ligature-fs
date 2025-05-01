@@ -126,7 +126,7 @@ let isConsistentFn =
                 | Ok true -> Ok(Any.Term(Term "true"))
                 | Ok false -> Ok(Any.Term(Term "false"))
                 | Error err -> Error err
-            | _ -> error "Network on stack required to call count." None
+            | _ -> error "Invalid call to is-consistent." None
     )
 
 // let inferFn: Fn =
@@ -164,6 +164,8 @@ let impliesFn: Fn =
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
+            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
+                Ok(Any.Definition(Definition.Implies(subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
