@@ -38,7 +38,7 @@ type Interpretation(_definitions, _assertions) =
                 Set.fold
                     (fun state definition ->
                         match definition with
-                        | Definition.Implies(a, c) ->
+                        | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
                             match c with
                             | ConceptExpr.AtomicConcept c ->
                                 Set.fold
@@ -191,20 +191,21 @@ type Interpretation(_definitions, _assertions) =
 
             //TODO find all instances of the given role and mark all fillers as being `concept`
             let assertions =
-                Set.fold (fun state assertion -> 
-                    match assertion with
-                    | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
-                        Set.add (Assertion.Instance(f, concept)) state
-                    | _ -> state)
+                Set.fold
+                    (fun state assertion ->
+                        match assertion with
+                        | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
+                            Set.add (Assertion.Instance(f, concept)) state
+                        | _ -> state)
                     assertions
                     assertions
 
             let assertions =
-                Set.fold (fun state value ->
-                    match value with
-                    | i, r, f when r = role && i = individual -> 
-                        Set.add (Assertion.Instance(f, concept)) state
-                    | _ -> state)
+                Set.fold
+                    (fun state value ->
+                        match value with
+                        | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
+                        | _ -> state)
                     assertions
                     current.Value.roles
 

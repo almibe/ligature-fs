@@ -163,26 +163,34 @@ let impliesFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
-                Ok(Any.Definition(Definition.Implies(subconcept, ConceptExpr.AtomicConcept concept)))
+                Ok(
+                    Any.Definition(
+                        Definition.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                    )
+                )
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(Definition.Implies(subconcept, concept)))
+                Ok(Any.Definition(Definition.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
-// let defineConceptFn: Fn =
-//     Fn(
-//         { doc = "Define a Concept."
-//           examples = [ "(define-concept Person (exists name))" ]
-//           args = ""
-//           result = "" },
-//         fun _ _ _ arguments ->
-//             match arguments with
-//             | [ Any.Term subconcept; Any.Term concept ] ->
-//                 Ok(Any.Definition(Definition.Define(subconcept, ConceptExpr.AtomicConcept concept)))
-//             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-//                 Ok(Any.Definition(Definition.Define(subconcept, concept)))
-//             | _ -> error "Improper call to define-concept." None
-//     )
+let equivalentFn: Fn =
+    Fn(
+        { doc = "State two Concepts are equivs."
+          examples = [ "(equiv Named (exists name))" ]
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term subconcept; Any.Term concept ] ->
+                Ok(
+                    Any.Definition(
+                        Definition.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                    )
+                )
+            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
+                Ok(Any.Definition(Definition.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+            | _ -> error "Improper call to define-concept." None
+    )
 
 let findModelFn: Fn =
     Fn(

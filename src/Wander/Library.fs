@@ -68,7 +68,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "or", orFn
           //   Term "pattern", patternFn
           Term "definitions", definitionsFn
-          //   Term "define-concept", defineConceptFn
+          Term "equivalent", equivalentFn
           Term "all", allFn
           Term "exists", existsFn
           Term "implies", impliesFn
