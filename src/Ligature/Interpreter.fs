@@ -14,13 +14,15 @@ type Model =
       attributes: Set<Term * Term * Literal> }
 
 type IncompleteModel =
-    { assertions: Assertions
+    { definitions: Definitions
+      assertions: Assertions
       individuals: Map<Term, ConceptValues>
       roles: Set<Term * Term * Term>
       attributes: Set<Term * Term * Literal> }
 
-let newModel assertions =
-    { assertions = assertions
+let newModel definitions assertions =
+    { definitions = definitions
+      assertions = assertions
       individuals = Map.empty
       roles = Set.empty
       attributes = Set.empty }
@@ -31,6 +33,17 @@ type Interpretation(_definitions, _assertions) =
     let mutable _model: Model option = None
 
     let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Assertions =
+        let tBox' =
+            Set.fold
+                (fun state value ->
+                    match value with
+                    | Definition.Equivalent(left, right) ->
+                        Set.add (Definition.Implies(left, right)) state
+                        |> Set.add (Definition.Implies(right, left))
+                    | d -> Set.add d state)
+                Set.empty
+                tBox
+
         let aBox' =
             if tBox.IsEmpty then
                 aBox
@@ -66,16 +79,21 @@ type Interpretation(_definitions, _assertions) =
                             | ConceptExpr.Bottom -> failwith "Not Implemented"
                             | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
                             | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-                            | ConceptExpr.Not(_) -> failwith "Not Implemented")
-                    aBox
-                    tBox
+                            | ConceptExpr.Not(_) -> failwith "Not Implemented"
+                        | Definition.Implies(_, _) -> failwith "Not Implemented"
+                        | Definition.Equivalent(left, right) ->
 
-        if aBox <> aBox' then handleTBox tBox aBox' else aBox'
+                            failwith "Not Implemented")
+                    aBox
+                    tBox'
+
+        if aBox <> aBox' then handleTBox tBox' aBox' else aBox'
 
     let setAssertions (assertions: Assertions) =
         current <-
             Some
-                { assertions = assertions
+                { definitions = current.Value.definitions
+                  assertions = assertions
                   roles = current.Value.roles
                   individuals = current.Value.individuals
                   attributes = current.Value.attributes }
@@ -86,14 +104,16 @@ type Interpretation(_definitions, _assertions) =
         | [ single ] ->
             current <-
                 Some
-                    { assertions = single
+                    { definitions = current.Value.definitions
+                      assertions = single
                       roles = current.Value.roles
                       individuals = current.Value.individuals
                       attributes = current.Value.attributes }
         | head :: tail ->
             current <-
                 Some
-                    { assertions = head
+                    { definitions = current.Value.definitions
+                      assertions = head
                       roles = current.Value.roles
                       individuals = current.Value.individuals
                       attributes = current.Value.attributes }
@@ -101,7 +121,8 @@ type Interpretation(_definitions, _assertions) =
             List.iter
                 (fun value ->
                     incomplete <-
-                        { assertions = value
+                        { definitions = current.Value.definitions
+                          assertions = value
                           roles = current.Value.roles
                           individuals = current.Value.individuals
                           attributes = current.Value.attributes }
@@ -111,7 +132,8 @@ type Interpretation(_definitions, _assertions) =
     let addRole (i: Term) (r: Term) (t: Term) =
         current <-
             Some
-                { individuals = current.Value.individuals
+                { definitions = current.Value.definitions
+                  individuals = current.Value.individuals
                   assertions = current.Value.assertions
                   roles = Set.add (i, r, t) current.Value.roles
                   attributes = current.Value.attributes }
@@ -119,7 +141,8 @@ type Interpretation(_definitions, _assertions) =
     let addAttribute (i: Term) (a: Term) (l: Literal) =
         current <-
             Some
-                { individuals = current.Value.individuals
+                { definitions = current.Value.definitions
+                  individuals = current.Value.individuals
                   assertions = current.Value.assertions
                   roles = current.Value.roles
                   attributes = Set.add (i, a, l) current.Value.attributes }
@@ -137,7 +160,8 @@ type Interpretation(_definitions, _assertions) =
 
         current <-
             Some
-                { individuals = individuals
+                { definitions = current.Value.definitions
+                  individuals = individuals
                   roles = current.Value.roles
                   attributes = current.Value.attributes
                   assertions = current.Value.assertions }
@@ -279,7 +303,7 @@ type Interpretation(_definitions, _assertions) =
             processCurrent ()
 
     do
-        current <- Some(newModel (handleTBox _definitions _assertions))
+        current <- Some(newModel Set.empty (handleTBox _definitions _assertions))
         processCurrent ()
 
         while _model = None && not incomplete.IsEmpty do
