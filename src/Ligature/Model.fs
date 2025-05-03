@@ -77,6 +77,8 @@ type Definition =
 
 type Definitions = Set<Definition>
 
+type KnowledgeBase = Definitions * Assertions
+
 let printDefinition definition = "def"
 
 let printDefinitions definition = "defs"

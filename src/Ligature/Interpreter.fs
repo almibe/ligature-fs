@@ -14,13 +14,13 @@ type Model =
       attributes: Set<Term * Term * Literal> }
 
 type IncompleteModel =
-    { definitions: Definitions
-      assertions: Assertions
-      individuals: Map<Term, ConceptValues>
-      roles: Set<Term * Term * Term>
-      attributes: Set<Term * Term * Literal> }
+    { mutable definitions: Definitions
+      mutable assertions: Assertions
+      mutable individuals: Map<Term, ConceptValues>
+      mutable roles: Set<Term * Term * Term>
+      mutable attributes: Set<Term * Term * Literal> }
 
-let newModel definitions assertions =
+let newModel ((definitions, assertions): KnowledgeBase) =
     { definitions = definitions
       assertions = assertions
       individuals = Map.empty
@@ -32,8 +32,9 @@ type Interpretation(_definitions, _assertions) =
     let mutable incomplete: List<IncompleteModel> = []
     let mutable _model: Model option = None
 
-    let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Assertions =
-        let tBox' =
+    let rec handleTBox () =
+
+        current.Value.definitions <-
             Set.fold
                 (fun state value ->
                     match value with
@@ -42,11 +43,11 @@ type Interpretation(_definitions, _assertions) =
                         |> Set.add (Definition.Implies(right, left))
                     | d -> Set.add d state)
                 Set.empty
-                tBox
+                current.Value.definitions
 
-        let aBox' =
-            if tBox.IsEmpty then
-                aBox
+        current.Value.assertions <-
+            if current.Value.definitions.IsEmpty then
+                current.Value.assertions
             else
                 Set.fold
                     (fun state definition ->
@@ -61,7 +62,7 @@ type Interpretation(_definitions, _assertions) =
                                             Set.add (Assertion.Instance(ind, ConceptExpr.AtomicConcept c)) state
                                         | _ -> state)
                                     state
-                                    aBox
+                                    current.Value.assertions
                             | ConceptExpr.And conj ->
                                 Set.fold
                                     (fun state value ->
@@ -73,21 +74,18 @@ type Interpretation(_definitions, _assertions) =
                                                 conj
                                         | _ -> state)
                                     state
-                                    aBox
+                                    current.Value.assertions
                             | ConceptExpr.Or(_) -> failwith "Not Implemented"
                             | ConceptExpr.Top -> failwith "Not Implemented"
                             | ConceptExpr.Bottom -> failwith "Not Implemented"
                             | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
                             | ConceptExpr.All(_, _) -> failwith "Not Implemented"
                             | ConceptExpr.Not(_) -> failwith "Not Implemented"
-                        | Definition.Implies(_, _) -> failwith "Not Implemented"
-                        | Definition.Equivalent(left, right) ->
+                        | Definition.Equivalent(_, _) -> failwith "Should never reach.")
+                    current.Value.assertions
+                    current.Value.definitions
 
-                            failwith "Not Implemented")
-                    aBox
-                    tBox'
-
-        if aBox <> aBox' then handleTBox tBox' aBox' else aBox'
+    // if aBox <> aBox' then handleTBox tBox' aBox' else tBox', aBox'
 
     let setAssertions (assertions: Assertions) =
         current <-
@@ -177,6 +175,7 @@ type Interpretation(_definitions, _assertions) =
 
 
     let interpretNextAssertion () =
+        handleTBox ()
         let assertion = current.Value.assertions.MinimumElement
 
         match assertion with
@@ -303,7 +302,7 @@ type Interpretation(_definitions, _assertions) =
             processCurrent ()
 
     do
-        current <- Some(newModel Set.empty (handleTBox _definitions _assertions))
+        current <- Some(newModel (_definitions, _assertions))
         processCurrent ()
 
         while _model = None && not incomplete.IsEmpty do
