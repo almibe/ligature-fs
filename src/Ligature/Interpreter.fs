@@ -25,77 +25,115 @@ let newModel assertions =
       roles = Set.empty
       attributes = Set.empty }
 
+
+let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
+    Set.fold
+        (fun state value ->
+            match value with
+            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if state.Value.ContainsKey a then
+                    None
+                else
+                    Some(Map.add a c state.Value)
+            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+                if state.Value.ContainsKey a then
+                    None
+                else
+                    Some(Map.add a c state.Value)
+            | _ -> None)
+        (Some Map.empty)
+        tBox
+
 let isDefinitorial (definitions: Definitions) : bool =
-    let rec hasCycle (definitions: Definitions) (concept: Term) (definition: ConceptExpr) : bool =
+    let mutable checkedConcepts = Set.empty
+
+    let rec hasCycle (definitionsMap: Map<Term, ConceptExpr>) (concept: Term) (definition: ConceptExpr) : bool =
         match definition with
         | ConceptExpr.AtomicConcept a ->
             if concept = a then
                 true
+            else if checkedConcepts.Contains a then
+                failwith "TODO"
             else
                 let def =
                     Set.filter
                         (fun value ->
                             match value with
-                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) -> if a = a' then true else false
+                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) -> 
+                                if a = a' then 
+                                    true 
+                                else
+                                    false
                             | Definition.Implies(ConceptExpr.AtomicConcept a', c) ->
                                 if a = a' then failwith "TODO" else failwith "TODO"
                             | _ -> failwith "TODO")
                         definitions
 
                 if def.IsEmpty then
+                    checkedConcepts <- Set.add a checkedConcepts
                     false
                 else if def.Count = 1 then
                     match def.MinimumElement with
-                    | Definition.Equivalent(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
-                    | Definition.Implies(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
+                    | Definition.Equivalent(a, c) -> hasCycle definitionsMap concept c
+                    | Definition.Implies(a, c) -> hasCycle definitionsMap concept c
                     | _ -> failwith "TODO"
                 else
-                    false
-        | ConceptExpr.And conj -> List.forall (fun value -> not (hasCycle definitions concept value)) conj
-        | ConceptExpr.Or disj -> List.forall (fun value -> not (hasCycle definitions concept value)) disj
+                    true
+        | ConceptExpr.And conj -> List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
+        | ConceptExpr.Or disj -> List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
         | ConceptExpr.Top -> failwith "Not Implemented"
         | ConceptExpr.Bottom -> failwith "Not Implemented"
         | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
         | ConceptExpr.All(_, _) -> failwith "Not Implemented"
         | ConceptExpr.Not(_) -> failwith "Not Implemented"
 
-    let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : bool =
-        if remaining.IsEmpty then
+    // let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : bool =
+    //     if remaining.IsEmpty then
+    //         true
+    //     else
+    //         let current = remaining.MinimumElement
+    //         let remaining = Set.remove current remaining
+
+    //         match current with
+    //         | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+    //             if checkedTerms.Contains a then false
+    //             else if hasCycle remaining a c then false
+    //             else inner remaining (Set.add a checkedTerms)
+    //         | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+    //             if checkedTerms.Contains a then false
+    //             else if hasCycle remaining a c then false
+    //             else inner remaining (Set.add a checkedTerms)
+    //         | _ -> false
+
+    // inner definitions Set.empty
+    match tBoxToMap definitions with
+    | Some map ->
+        Map.fold
+            (fun state key value ->
+                if state then
+                    if hasCycle map key value then false else true
+                // match value with
+                // | ConceptExpr.AtomicConcept ac ->
+                //     if key = ac then
+                //         true
+                //     else
+                //         match map.TryFind ac with
+                //         | Some(c) -> failwith "TODO"
+                //         | None -> failwith "TODO"
+                // | ConceptExpr.And conj ->
+
+                //     failwith "Not Implemented"
+                // | ConceptExpr.Or(_) -> failwith "Not Implemented"
+                // | ConceptExpr.Top -> failwith "Not Implemented"
+                // | ConceptExpr.Bottom -> failwith "Not Implemented"
+                // | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+                // | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                // | ConceptExpr.Not(_) -> failwith "Not Implemented"
+                else
+                    state)
             true
-        else
-            let current = remaining.MinimumElement
-            let remaining = Set.remove current remaining
-
-            match current with
-            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-                if checkedTerms.Contains a then false
-                else if hasCycle remaining a c then false
-                else inner remaining (Set.add a checkedTerms)
-            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-                if checkedTerms.Contains a then false
-                else if hasCycle remaining a c then false
-                else inner remaining (Set.add a checkedTerms)
-            | _ -> false
-
-    inner definitions Set.empty
-
-let tBoxToMap (tBox: Definitions) : Map<Term, ConceptExpr> =
-    Set.fold
-        (fun state value ->
-            match value with
-            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-                if state.ContainsKey a then
-                    failwith "TODO"
-                else
-                    Map.add a c state
-            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-                if state.ContainsKey a then
-                    failwith "TODO"
-                else
-                    Map.add a c state
-            | _ -> failwith "TODO")
-        Map.empty
-        tBox
+            map
+    | None -> false
 
 let unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: ConceptExpr) : ConceptExpr =
     match expr with
@@ -120,7 +158,7 @@ let unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assert
                 | ConceptExpr.AtomicConcept ac ->
                     match definitions.TryFind ac with
                     | Some c -> Assertion.Instance(i, c)
-                    | None -> failwith "TODO"
+                    | None -> Assertion.Instance(i, c)
                 | ConceptExpr.And(_) -> failwith "Not Implemented"
                 | ConceptExpr.Or(_) -> failwith "Not Implemented"
                 | ConceptExpr.Top -> failwith "Not Implemented"
@@ -135,7 +173,9 @@ let unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assert
 
 let unfold tBox aBox : Result<Assertions, LigatureError> =
     if isDefinitorial tBox then
-        Ok(unfoldTBox (tBoxToMap tBox) aBox)
+        match tBoxToMap tBox with
+        | Some value -> Ok(unfoldTBox value aBox)
+        | None -> failwith "TODO"
     else
         failwith "TODO"
 
@@ -148,7 +188,9 @@ type Interpretation(_definitions, _assertions) =
         if tBox.IsEmpty then
             Ok aBox
         else if isDefinitorial tBox then
-            Ok(unfoldTBox (tBoxToMap tBox) aBox)
+            match tBoxToMap tBox with
+            | Some map -> Ok(unfoldTBox map aBox)
+            | None -> failwith "TODO"
         else
             error "Only definitorial TBoxes are supported currently." None
     // let aBox' =

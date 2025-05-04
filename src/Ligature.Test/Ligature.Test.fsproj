@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Core.Test.fs" />
+    <Compile Include="Interpreter.Test.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
