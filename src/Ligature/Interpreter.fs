@@ -84,42 +84,30 @@ let isDefinitorial (definitions: Definitions) : bool =
             map
     | None -> false
 
-let unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: ConceptExpr) : ConceptExpr =
+let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: ConceptExpr) : ConceptExpr =
     match expr with
-    | ConceptExpr.AtomicConcept c ->
-        match definitions.TryFind c with
-        | Some res -> res
+    | ConceptExpr.AtomicConcept ac ->
+        match definitions.TryFind ac with
+        | Some c -> c
         | None -> expr
-    | ConceptExpr.And(_) -> failwith "Not Implemented"
+    | ConceptExpr.And conj ->
+        let conj = List.map (fun value -> unfoldSingleExpression definitions value) conj
+        ConceptExpr.And conj
     | ConceptExpr.Or(_) -> failwith "Not Implemented"
     | ConceptExpr.Top -> failwith "Not Implemented"
     | ConceptExpr.Bottom -> failwith "Not Implemented"
     | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
     | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-    | ConceptExpr.Not(_) -> failwith "Not Implemented"
+    | ConceptExpr.Not c ->
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.Not c
 
 let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
     let res =
         Set.map
             (fun assertion ->
                 match assertion with
-                | Assertion.Instance(i, c) ->
-                    match c with
-                    | ConceptExpr.AtomicConcept ac ->
-                        match definitions.TryFind ac with
-                        | Some c -> Assertion.Instance(i, c)
-                        | None -> Assertion.Instance(i, c)
-                    | ConceptExpr.And conj ->
-                        let conj = List.map (fun value -> unfoldSingleExpression definitions value) conj
-                        Assertion.Instance(i, ConceptExpr.And conj)
-                    | ConceptExpr.Or(_) -> failwith "Not Implemented"
-                    | ConceptExpr.Top -> failwith "Not Implemented"
-                    | ConceptExpr.Bottom -> failwith "Not Implemented"
-                    | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-                    | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-                    | ConceptExpr.Not c ->
-                        let c = unfoldSingleExpression definitions c
-                        Assertion.Instance(i, ConceptExpr.Not c)
+                | Assertion.Instance(i, c) -> Assertion.Instance(i, unfoldSingleExpression definitions c)
                 | t -> t)
             aBox
 
