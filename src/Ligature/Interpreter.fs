@@ -310,3 +310,65 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
                 | e -> e)
             (Ok true)
             interpretation.individuals
+
+let isDefinitorial (definitions: Definitions) : Result<bool, LigatureError> =
+    let rec hasCycle (definitions: Definitions) (concept: Term) (definition: ConceptExpr) : bool =
+        match definition with
+        | ConceptExpr.AtomicConcept a ->
+            if concept = a then
+                false // don't count immediate cycles as a cycle, ie A ≡ A
+            else
+                let def =
+                    Set.filter
+                        (fun value ->
+                            match value with
+                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) ->
+                                if a = a' then
+                                    true
+                                else
+                                    hasCycle (Set.remove value definitions) concept c
+                            | Definition.Implies(ConceptExpr.AtomicConcept a', c) ->
+                                if a = a' then failwith "TODO" else failwith "TODO"
+                            | _ -> failwith "TODO")
+                        definitions
+
+                if def.IsEmpty then
+                    false
+                else if def.Count = 1 then
+                    match def.MinimumElement with
+                    | Definition.Equivalent(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
+                    | Definition.Implies(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
+                    | _ -> failwith "TODO"
+                else
+                    false
+        | ConceptExpr.And conj ->
+            List.forall
+                (fun value ->
+                    if hasCycle definitions concept value then
+                        failwith "TODO"
+                    else
+                        failwith "TODO")
+                conj
+        | ConceptExpr.Or(_) -> failwith "Not Implemented"
+        | ConceptExpr.Top -> failwith "Not Implemented"
+        | ConceptExpr.Bottom -> failwith "Not Implemented"
+        | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Not(_) -> failwith "Not Implemented"
+
+    let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : Result<bool, LigatureError> =
+        if remaining.IsEmpty then
+            Ok true
+        else
+            let current = remaining.MinimumElement
+            let remaining = Set.remove current remaining
+
+            match current with
+            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if checkedTerms.Contains a then Ok false
+                else if hasCycle remaining a c then Ok false
+                else inner remaining (Set.add a checkedTerms)
+            | Definition.Implies(ConceptExpr.AtomicConcept a, c) -> failwith "TODO"
+            | _ -> Ok false
+
+    inner definitions Set.empty

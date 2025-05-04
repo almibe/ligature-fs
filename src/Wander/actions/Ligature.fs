@@ -113,6 +113,22 @@ let instancesFn: Fn =
             | _ -> failwith "TODO"
     )
 
+let isDefinitorialFn =
+    Fn(
+        { doc = "Check if definitions are definitorial."
+          examples = [ "(is-definitorial (definitions (implies A B)))" ]
+          args = "Definitions"
+          result = "Literal" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definitions def ] ->
+                match isDefinitorial def with
+                | Ok true -> Ok(Any.Term(Term "true"))
+                | Ok false -> Ok(Any.Term(Term "false"))
+                | Error err -> Error err
+            | _ -> error "Invalid call to is-definitorial." None
+    )
+
 let isConsistentFn =
     Fn(
         { doc = "Check if a KB is consistent."
