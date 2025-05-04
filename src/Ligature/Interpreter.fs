@@ -53,82 +53,31 @@ let isDefinitorial (definitions: Definitions) : bool =
             if concept = a then
                 true
             else if checkedConcepts.Contains a then
-                failwith "TODO"
+                false
             else
-                let def =
-                    Set.filter
-                        (fun value ->
-                            match value with
-                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) -> 
-                                if a = a' then 
-                                    true 
-                                else
-                                    false
-                            | Definition.Implies(ConceptExpr.AtomicConcept a', c) ->
-                                if a = a' then failwith "TODO" else failwith "TODO"
-                            | _ -> failwith "TODO")
-                        definitions
-
-                if def.IsEmpty then
+                match Map.tryFind a definitionsMap with
+                | None ->
                     checkedConcepts <- Set.add a checkedConcepts
                     false
-                else if def.Count = 1 then
-                    match def.MinimumElement with
-                    | Definition.Equivalent(a, c) -> hasCycle definitionsMap concept c
-                    | Definition.Implies(a, c) -> hasCycle definitionsMap concept c
-                    | _ -> failwith "TODO"
-                else
-                    true
-        | ConceptExpr.And conj -> List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
-        | ConceptExpr.Or disj -> List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
+                | Some c -> hasCycle definitionsMap concept c
+        | ConceptExpr.And conj ->
+            List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
+            |> not
+        | ConceptExpr.Or disj ->
+            List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
+            |> not
         | ConceptExpr.Top -> failwith "Not Implemented"
         | ConceptExpr.Bottom -> failwith "Not Implemented"
         | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
         | ConceptExpr.All(_, _) -> failwith "Not Implemented"
         | ConceptExpr.Not(_) -> failwith "Not Implemented"
 
-    // let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : bool =
-    //     if remaining.IsEmpty then
-    //         true
-    //     else
-    //         let current = remaining.MinimumElement
-    //         let remaining = Set.remove current remaining
-
-    //         match current with
-    //         | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-    //             if checkedTerms.Contains a then false
-    //             else if hasCycle remaining a c then false
-    //             else inner remaining (Set.add a checkedTerms)
-    //         | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-    //             if checkedTerms.Contains a then false
-    //             else if hasCycle remaining a c then false
-    //             else inner remaining (Set.add a checkedTerms)
-    //         | _ -> false
-
-    // inner definitions Set.empty
     match tBoxToMap definitions with
     | Some map ->
         Map.fold
             (fun state key value ->
                 if state then
                     if hasCycle map key value then false else true
-                // match value with
-                // | ConceptExpr.AtomicConcept ac ->
-                //     if key = ac then
-                //         true
-                //     else
-                //         match map.TryFind ac with
-                //         | Some(c) -> failwith "TODO"
-                //         | None -> failwith "TODO"
-                // | ConceptExpr.And conj ->
-
-                //     failwith "Not Implemented"
-                // | ConceptExpr.Or(_) -> failwith "Not Implemented"
-                // | ConceptExpr.Top -> failwith "Not Implemented"
-                // | ConceptExpr.Bottom -> failwith "Not Implemented"
-                // | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-                // | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-                // | ConceptExpr.Not(_) -> failwith "Not Implemented"
                 else
                     state)
             true

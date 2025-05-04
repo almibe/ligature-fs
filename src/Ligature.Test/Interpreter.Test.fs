@@ -28,6 +28,27 @@ let tests =
               let output = tBoxToMap input
               Expect.equal output (Some(Map.ofList [ Term "a", ConceptExpr.AtomicConcept(Term "A") ])) ""
 
+          testCase "Single Nested Definition to Map test"
+          <| fun _ ->
+              let input =
+                  Set.ofList
+                      [ Definition.Equivalent(
+                            ConceptExpr.AtomicConcept(Term "a"),
+                            ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
+                        ) ]
+
+              let output = tBoxToMap input
+
+              Expect.equal
+                  output
+                  (Some(
+                      Map.ofList
+                          [ Term "a",
+                            ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ] ]
+                  ))
+                  ""
+
+
           testCase "Multiple Definitions to Map test"
           <| fun _ ->
               let input =
