@@ -98,27 +98,32 @@ let unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: ConceptE
     | ConceptExpr.All(_, _) -> failwith "Not Implemented"
     | ConceptExpr.Not(_) -> failwith "Not Implemented"
 
-let unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
-    Set.map
-        (fun assertion ->
-            match assertion with
-            | Assertion.Instance(i, c) ->
-                match c with
-                | ConceptExpr.AtomicConcept ac ->
-                    match definitions.TryFind ac with
-                    | Some c -> Assertion.Instance(i, c)
-                    | None -> Assertion.Instance(i, c)
-                | ConceptExpr.And(_) -> failwith "Not Implemented"
-                | ConceptExpr.Or(_) -> failwith "Not Implemented"
-                | ConceptExpr.Top -> failwith "Not Implemented"
-                | ConceptExpr.Bottom -> failwith "Not Implemented"
-                | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-                | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-                | ConceptExpr.Not c ->
-                    let c = unfoldSingleExpression definitions c
-                    Assertion.Instance(i, c)
-            | t -> t)
-        aBox
+let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
+    let res =
+        Set.map
+            (fun assertion ->
+                match assertion with
+                | Assertion.Instance(i, c) ->
+                    match c with
+                    | ConceptExpr.AtomicConcept ac ->
+                        match definitions.TryFind ac with
+                        | Some c -> Assertion.Instance(i, c)
+                        | None -> Assertion.Instance(i, c)
+                    | ConceptExpr.And conj ->
+                        let conj = List.map (fun value -> unfoldSingleExpression definitions value) conj
+                        Assertion.Instance(i, ConceptExpr.And conj)
+                    | ConceptExpr.Or(_) -> failwith "Not Implemented"
+                    | ConceptExpr.Top -> failwith "Not Implemented"
+                    | ConceptExpr.Bottom -> failwith "Not Implemented"
+                    | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+                    | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                    | ConceptExpr.Not c ->
+                        let c = unfoldSingleExpression definitions c
+                        Assertion.Instance(i, ConceptExpr.Not c)
+                | t -> t)
+            aBox
+
+    if res = aBox then res else unfoldTBox definitions res
 
 let unfold tBox aBox : Result<Assertions, LigatureError> =
     if isDefinitorial tBox then
@@ -139,7 +144,7 @@ type Interpretation(_definitions, _assertions) =
         else if isDefinitorial tBox then
             match tBoxToMap tBox with
             | Some map -> Ok(unfoldTBox map aBox)
-            | None -> failwith "TODO"
+            | None -> error "Only definitorial TBoxes are supported currently." None
         else
             error "Only definitorial TBoxes are supported currently." None
     // let aBox' =
