@@ -113,6 +113,18 @@ let instancesFn: Fn =
             | _ -> failwith "TODO"
     )
 
+let unfoldFn =
+    Fn(
+        { doc = "Unfold a TBox into an ABox."
+          examples = [ "(unfold (definitions (implies A B)) (assertions [a : A]))" ]
+          args = "Definitions Assertions"
+          result = "Assertions" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definitions def; Any.Assertions assertions ] -> unfold def assertions |> Result.map Any.Assertions
+            | _ -> error "Invalid call to unfold." None
+    )
+
 let isDefinitorialFn =
     Fn(
         { doc = "Check if definitions are definitorial."
@@ -122,10 +134,10 @@ let isDefinitorialFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.Definitions def ] ->
-                match isDefinitorial def with
-                | Ok true -> Ok(Any.Term(Term "true"))
-                | Ok false -> Ok(Any.Term(Term "false"))
-                | Error err -> Error err
+                if isDefinitorial def then
+                    Ok(Any.Term(Term "true"))
+                else
+                    Ok(Any.Term(Term "false"))
             | _ -> error "Invalid call to is-definitorial." None
     )
 

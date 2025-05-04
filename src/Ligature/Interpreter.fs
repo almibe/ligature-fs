@@ -25,52 +25,174 @@ let newModel assertions =
       roles = Set.empty
       attributes = Set.empty }
 
+let isDefinitorial (definitions: Definitions) : bool =
+    let rec hasCycle (definitions: Definitions) (concept: Term) (definition: ConceptExpr) : bool =
+        match definition with
+        | ConceptExpr.AtomicConcept a ->
+            if concept = a then
+                true
+            else
+                let def =
+                    Set.filter
+                        (fun value ->
+                            match value with
+                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) -> if a = a' then true else false
+                            | Definition.Implies(ConceptExpr.AtomicConcept a', c) ->
+                                if a = a' then failwith "TODO" else failwith "TODO"
+                            | _ -> failwith "TODO")
+                        definitions
+
+                if def.IsEmpty then
+                    false
+                else if def.Count = 1 then
+                    match def.MinimumElement with
+                    | Definition.Equivalent(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
+                    | Definition.Implies(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
+                    | _ -> failwith "TODO"
+                else
+                    false
+        | ConceptExpr.And conj -> List.forall (fun value -> not (hasCycle definitions concept value)) conj
+        | ConceptExpr.Or disj -> List.forall (fun value -> not (hasCycle definitions concept value)) disj
+        | ConceptExpr.Top -> failwith "Not Implemented"
+        | ConceptExpr.Bottom -> failwith "Not Implemented"
+        | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Not(_) -> failwith "Not Implemented"
+
+    let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : bool =
+        if remaining.IsEmpty then
+            true
+        else
+            let current = remaining.MinimumElement
+            let remaining = Set.remove current remaining
+
+            match current with
+            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if checkedTerms.Contains a then false
+                else if hasCycle remaining a c then false
+                else inner remaining (Set.add a checkedTerms)
+            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+                if checkedTerms.Contains a then false
+                else if hasCycle remaining a c then false
+                else inner remaining (Set.add a checkedTerms)
+            | _ -> false
+
+    inner definitions Set.empty
+
+let tBoxToMap (tBox: Definitions) : Map<Term, ConceptExpr> =
+    Set.fold
+        (fun state value ->
+            match value with
+            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if state.ContainsKey a then
+                    failwith "TODO"
+                else
+                    Map.add a c state
+            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+                if state.ContainsKey a then
+                    failwith "TODO"
+                else
+                    Map.add a c state
+            | _ -> failwith "TODO")
+        Map.empty
+        tBox
+
+let unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: ConceptExpr) : ConceptExpr =
+    match expr with
+    | ConceptExpr.AtomicConcept c ->
+        match definitions.TryFind c with
+        | Some res -> res
+        | None -> expr
+    | ConceptExpr.And(_) -> failwith "Not Implemented"
+    | ConceptExpr.Or(_) -> failwith "Not Implemented"
+    | ConceptExpr.Top -> failwith "Not Implemented"
+    | ConceptExpr.Bottom -> failwith "Not Implemented"
+    | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+    | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+    | ConceptExpr.Not(_) -> failwith "Not Implemented"
+
+let unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
+    Set.map
+        (fun assertion ->
+            match assertion with
+            | Assertion.Instance(i, c) ->
+                match c with
+                | ConceptExpr.AtomicConcept ac ->
+                    match definitions.TryFind ac with
+                    | Some c -> Assertion.Instance(i, c)
+                    | None -> failwith "TODO"
+                | ConceptExpr.And(_) -> failwith "Not Implemented"
+                | ConceptExpr.Or(_) -> failwith "Not Implemented"
+                | ConceptExpr.Top -> failwith "Not Implemented"
+                | ConceptExpr.Bottom -> failwith "Not Implemented"
+                | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+                | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                | ConceptExpr.Not c ->
+                    let c = unfoldSingleExpression definitions c
+                    Assertion.Instance(i, c)
+            | t -> t)
+        aBox
+
+let unfold tBox aBox : Result<Assertions, LigatureError> =
+    if isDefinitorial tBox then
+        Ok(unfoldTBox (tBoxToMap tBox) aBox)
+    else
+        failwith "TODO"
+
 type Interpretation(_definitions, _assertions) =
     let mutable current: IncompleteModel option = None
     let mutable incomplete: List<IncompleteModel> = []
     let mutable _model: Model option = None
 
-    let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Assertions =
-        let aBox' =
-            if tBox.IsEmpty then
-                aBox
-            else
-                Set.fold
-                    (fun state definition ->
-                        match definition with
-                        | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-                            match c with
-                            | ConceptExpr.AtomicConcept c ->
-                                Set.fold
-                                    (fun state value ->
-                                        match value with
-                                        | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-                                            Set.add (Assertion.Instance(ind, ConceptExpr.AtomicConcept c)) state
-                                        | _ -> state)
-                                    state
-                                    aBox
-                            | ConceptExpr.And conj ->
-                                Set.fold
-                                    (fun state value ->
-                                        match value with
-                                        | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-                                            List.fold
-                                                (fun state c -> Set.add (Assertion.Instance(ind, c)) state)
-                                                state
-                                                conj
-                                        | _ -> state)
-                                    state
-                                    aBox
-                            | ConceptExpr.Or(_) -> failwith "Not Implemented"
-                            | ConceptExpr.Top -> failwith "Not Implemented"
-                            | ConceptExpr.Bottom -> failwith "Not Implemented"
-                            | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-                            | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-                            | ConceptExpr.Not(_) -> failwith "Not Implemented")
-                    aBox
-                    tBox
+    let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
+        if tBox.IsEmpty then
+            Ok aBox
+        else if isDefinitorial tBox then
+            Ok(unfoldTBox (tBoxToMap tBox) aBox)
+        else
+            error "Only definitorial TBoxes are supported currently." None
+    // let aBox' =
+    //     if tBox.IsEmpty then
+    //         aBox
+    //     else
+    //         Set.fold
+    //             (fun state definition ->
+    //                 match definition with
+    //                 | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+    //                     match c with
+    //                     | ConceptExpr.AtomicConcept c ->
+    //                         Set.fold
+    //                             (fun state value ->
+    //                                 match value with
+    //                                 | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+    //                                     Set.add (Assertion.Instance(ind, ConceptExpr.AtomicConcept c)) state
+    //                                 | _ -> state)
+    //                             state
+    //                             aBox
+    //                     | ConceptExpr.And conj ->
+    //                         Set.fold
+    //                             (fun state value ->
+    //                                 match value with
+    //                                 | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
+    //                                     List.fold
+    //                                         (fun state c -> Set.add (Assertion.Instance(ind, c)) state)
+    //                                         state
+    //                                         conj
+    //                                 | _ -> state)
+    //                             state
+    //                             aBox
+    //                     | ConceptExpr.Or(_) -> failwith "Not Implemented"
+    //                     | ConceptExpr.Top -> failwith "Not Implemented"
+    //                     | ConceptExpr.Bottom -> failwith "Not Implemented"
+    //                     | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+    //                     | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+    //                     | ConceptExpr.Not(_) -> failwith "Not Implemented"
+    //                 | Definition.Equivalent(a,c) ->
+    //                     failwith "TODO")
+    //             aBox
+    //             tBox
 
-        if aBox <> aBox' then handleTBox tBox aBox' else aBox'
+    // if aBox <> aBox' then handleTBox tBox aBox' else aBox'
 
     let setAssertions (assertions: Assertions) =
         current <-
@@ -279,7 +401,10 @@ type Interpretation(_definitions, _assertions) =
             processCurrent ()
 
     do
-        current <- Some(newModel (handleTBox _definitions _assertions))
+        match handleTBox _definitions _assertions with
+        | Ok assertions -> current <- Some(newModel assertions)
+        | _ -> failwith "TODO"
+
         processCurrent ()
 
         while _model = None && not incomplete.IsEmpty do
@@ -310,65 +435,3 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
                 | e -> e)
             (Ok true)
             interpretation.individuals
-
-let isDefinitorial (definitions: Definitions) : Result<bool, LigatureError> =
-    let rec hasCycle (definitions: Definitions) (concept: Term) (definition: ConceptExpr) : bool =
-        match definition with
-        | ConceptExpr.AtomicConcept a ->
-            if concept = a then
-                false // don't count immediate cycles as a cycle, ie A ≡ A
-            else
-                let def =
-                    Set.filter
-                        (fun value ->
-                            match value with
-                            | Definition.Equivalent(ConceptExpr.AtomicConcept a', c) ->
-                                if a = a' then
-                                    true
-                                else
-                                    hasCycle (Set.remove value definitions) concept c
-                            | Definition.Implies(ConceptExpr.AtomicConcept a', c) ->
-                                if a = a' then failwith "TODO" else failwith "TODO"
-                            | _ -> failwith "TODO")
-                        definitions
-
-                if def.IsEmpty then
-                    false
-                else if def.Count = 1 then
-                    match def.MinimumElement with
-                    | Definition.Equivalent(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
-                    | Definition.Implies(a, c) -> hasCycle (Set.remove def.MinimumElement definitions) concept c
-                    | _ -> failwith "TODO"
-                else
-                    false
-        | ConceptExpr.And conj ->
-            List.forall
-                (fun value ->
-                    if hasCycle definitions concept value then
-                        failwith "TODO"
-                    else
-                        failwith "TODO")
-                conj
-        | ConceptExpr.Or(_) -> failwith "Not Implemented"
-        | ConceptExpr.Top -> failwith "Not Implemented"
-        | ConceptExpr.Bottom -> failwith "Not Implemented"
-        | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-        | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-        | ConceptExpr.Not(_) -> failwith "Not Implemented"
-
-    let rec inner (remaining: Definitions) (checkedTerms: Set<Term>) : Result<bool, LigatureError> =
-        if remaining.IsEmpty then
-            Ok true
-        else
-            let current = remaining.MinimumElement
-            let remaining = Set.remove current remaining
-
-            match current with
-            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-                if checkedTerms.Contains a then Ok false
-                else if hasCycle remaining a c then Ok false
-                else inner remaining (Set.add a checkedTerms)
-            | Definition.Implies(ConceptExpr.AtomicConcept a, c) -> failwith "TODO"
-            | _ -> Ok false
-
-    inner definitions Set.empty
