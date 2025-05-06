@@ -13,18 +13,19 @@ type Model =
       roles: Set<Term * Term * Term>
       attributes: Set<Term * Term * Literal> }
 
-type IncompleteModel =
-    { assertions: Assertions
-      individuals: Map<Term, ConceptValues>
-      roles: Set<Term * Term * Term>
-      attributes: Set<Term * Term * Literal> }
+type PotentialModel =
+    { mutable assertions: Assertions //TODO probably make this a list too
+      mutable later: Assertion list
+      mutable individuals: Map<Term, ConceptValues>
+      mutable roles: Set<Term * Term * Term>
+      mutable attributes: Set<Term * Term * Literal> }
 
 let newModel assertions =
     { assertions = assertions
+      later = []
       individuals = Map.empty
       roles = Set.empty
       attributes = Set.empty }
-
 
 let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
     Set.fold
@@ -121,93 +122,35 @@ let unfold tBox aBox : Result<Assertions, LigatureError> =
     else
         failwith "TODO"
 
+let handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
+    if tBox.IsEmpty then
+        Ok aBox
+    else if isDefinitorial tBox then
+        match tBoxToMap tBox with
+        | Some map -> Ok(unfoldTBox map aBox)
+        | None -> error "Only definitorial TBoxes are supported currently." None
+    else
+        error "Only definitorial TBoxes are supported currently." None
+
 type Interpretation(_definitions, _assertions) =
-    let mutable current: IncompleteModel option = None
-    let mutable incomplete: List<IncompleteModel> = []
+    let mutable current: PotentialModel option = None
+    let mutable incomplete: List<PotentialModel> = []
     let mutable _model: Model option = None
 
-    let rec handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
-        if tBox.IsEmpty then
-            Ok aBox
-        else if isDefinitorial tBox then
-            match tBoxToMap tBox with
-            | Some map -> Ok(unfoldTBox map aBox)
-            | None -> error "Only definitorial TBoxes are supported currently." None
-        else
-            error "Only definitorial TBoxes are supported currently." None
-    // let aBox' =
-    //     if tBox.IsEmpty then
-    //         aBox
-    //     else
-    //         Set.fold
-    //             (fun state definition ->
-    //                 match definition with
-    //                 | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-    //                     match c with
-    //                     | ConceptExpr.AtomicConcept c ->
-    //                         Set.fold
-    //                             (fun state value ->
-    //                                 match value with
-    //                                 | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-    //                                     Set.add (Assertion.Instance(ind, ConceptExpr.AtomicConcept c)) state
-    //                                 | _ -> state)
-    //                             state
-    //                             aBox
-    //                     | ConceptExpr.And conj ->
-    //                         Set.fold
-    //                             (fun state value ->
-    //                                 match value with
-    //                                 | Assertion.Instance(ind, ConceptExpr.AtomicConcept concept) when concept = a ->
-    //                                     List.fold
-    //                                         (fun state c -> Set.add (Assertion.Instance(ind, c)) state)
-    //                                         state
-    //                                         conj
-    //                                 | _ -> state)
-    //                             state
-    //                             aBox
-    //                     | ConceptExpr.Or(_) -> failwith "Not Implemented"
-    //                     | ConceptExpr.Top -> failwith "Not Implemented"
-    //                     | ConceptExpr.Bottom -> failwith "Not Implemented"
-    //                     | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-    //                     | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-    //                     | ConceptExpr.Not(_) -> failwith "Not Implemented"
-    //                 | Definition.Equivalent(a,c) ->
-    //                     failwith "TODO")
-    //             aBox
-    //             tBox
-
-    // if aBox <> aBox' then handleTBox tBox aBox' else aBox'
-
-    let setAssertions (assertions: Assertions) =
-        current <-
-            Some
-                { assertions = assertions
-                  roles = current.Value.roles
-                  individuals = current.Value.individuals
-                  attributes = current.Value.attributes }
+    let setAssertions (assertions: Assertions) = current.Value.assertions <- assertions
 
     let setAlternatives (alternatives: List<Assertions>) =
         match alternatives with
         | [] -> ()
-        | [ single ] ->
-            current <-
-                Some
-                    { assertions = single
-                      roles = current.Value.roles
-                      individuals = current.Value.individuals
-                      attributes = current.Value.attributes }
+        | [ single ] -> current.Value.assertions <- single
         | head :: tail ->
-            current <-
-                Some
-                    { assertions = head
-                      roles = current.Value.roles
-                      individuals = current.Value.individuals
-                      attributes = current.Value.attributes }
+            current.Value.assertions <- head
 
             List.iter
                 (fun value ->
                     incomplete <-
                         { assertions = value
+                          later = current.Value.later
                           roles = current.Value.roles
                           individuals = current.Value.individuals
                           attributes = current.Value.attributes }
@@ -215,20 +158,10 @@ type Interpretation(_definitions, _assertions) =
                 tail
 
     let addRole (i: Term) (r: Term) (t: Term) =
-        current <-
-            Some
-                { individuals = current.Value.individuals
-                  assertions = current.Value.assertions
-                  roles = Set.add (i, r, t) current.Value.roles
-                  attributes = current.Value.attributes }
+        current.Value.roles <- Set.add (i, r, t) current.Value.roles
 
     let addAttribute (i: Term) (a: Term) (l: Literal) =
-        current <-
-            Some
-                { individuals = current.Value.individuals
-                  assertions = current.Value.assertions
-                  roles = current.Value.roles
-                  attributes = Set.add (i, a, l) current.Value.attributes }
+        current.Value.attributes <- Set.add (i, a, l) current.Value.attributes
 
     let addInstance (individual: Term) (isA: Set<Term>) (isNot: Set<Term>) =
         let individuals =
@@ -241,160 +174,165 @@ type Interpretation(_definitions, _assertions) =
                     current.Value.individuals
             | None -> Map.add individual { isA = isA; isNot = isNot } current.Value.individuals
 
-        current <-
-            Some
-                { individuals = individuals
-                  roles = current.Value.roles
-                  attributes = current.Value.attributes
-                  assertions = current.Value.assertions }
+        current.Value.individuals <- individuals
 
-    let succeed () =
-        _model <-
-            Some
-                { individuals = current.Value.individuals
-                  attributes = current.Value.attributes
-                  roles = current.Value.roles }
+    let isConsistent (model: PotentialModel) : bool =
+        Map.fold
+            (fun state _ { isA = isA; isNot = isNot } ->
+                match state with
+                | true -> if (Set.intersect isA isNot).IsEmpty then true else false
+                | e -> e)
+            true
+            model.individuals
 
-        current <- None
+    let complete () =
+        if isConsistent current.Value then
+            _model <-
+                Some
+                    { individuals = current.Value.individuals
+                      attributes = current.Value.attributes
+                      roles = current.Value.roles }
 
+            current <- None
+        else
+            current <- None
 
     let interpretNextAssertion () =
-        let assertion = current.Value.assertions.MinimumElement
-
-        match assertion with
-        | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
-            let assertions = Set.remove assertion current.Value.assertions
-            setAssertions assertions
-
-            if assertions.IsEmpty then
-                addInstance individual (Set.ofList [ concept ]) Set.empty
-                succeed ()
+        if current.Value.assertions.IsEmpty then
+            if incomplete.IsEmpty then
+                current <- None
             else
-                addInstance individual (Set.ofList [ concept ]) Set.empty
+                current <- Some incomplete.Head
+                incomplete <- incomplete.Tail
+        else
+            let assertion = current.Value.assertions.MinimumElement
 
-        | Assertion.Instance(individual, ConceptExpr.And group) ->
-            let mutable assertions = Set.remove assertion current.Value.assertions
-            List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
-            setAssertions assertions
-
-            if assertions.IsEmpty then
-                succeed ()
-        | Assertion.Instance(individual, ConceptExpr.Or group) ->
-            let mutable assertions = Set.remove assertion current.Value.assertions
-
-            let alternatives: List<Assertions> =
-                List.fold
-                    (fun state expr -> Set.add (Assertion.Instance(individual, expr)) assertions :: state)
-                    []
-                    group
-
-            setAlternatives alternatives
-
-            if assertions.IsEmpty then
-                succeed ()
-        | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
-            let assertions = Set.remove assertion current.Value.assertions
-
-            //TODO find all instances of the given role and mark all fillers as being `concept`
-            let assertions =
-                Set.fold
-                    (fun state assertion ->
-                        match assertion with
-                        | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
-                            Set.add (Assertion.Instance(f, concept)) state
-                        | _ -> state)
-                    assertions
-                    assertions
-
-            let assertions =
-                Set.fold
-                    (fun state value ->
-                        match value with
-                        | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
-                        | _ -> state)
-                    assertions
-                    current.Value.roles
-
-            setAssertions assertions
-            //TODO handle inconsistent ConceptExprs
-            if assertions.IsEmpty then
-                succeed ()
-        | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
-            //TODO handle inconsistent ConceptExprs
-            addInstance individual Set.empty Set.empty
-            let assertions = Set.remove assertion current.Value.assertions
-            setAssertions assertions
-
-            if assertions.IsEmpty then
-                succeed ()
-        | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
-            match concept with
-            | ConceptExpr.AtomicConcept concept ->
+            match assertion with
+            | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
                 let assertions = Set.remove assertion current.Value.assertions
                 setAssertions assertions
-                addInstance individual Set.empty (Set.ofList [ concept ])
 
                 if assertions.IsEmpty then
-                    succeed ()
-            | ConceptExpr.And group ->
+                    addInstance individual (Set.ofList [ concept ]) Set.empty
+                    complete ()
+                else
+                    addInstance individual (Set.ofList [ concept ]) Set.empty
+
+            | Assertion.Instance(individual, ConceptExpr.And group) ->
                 let mutable assertions = Set.remove assertion current.Value.assertions
-                let negGroup = List.map (fun value -> ConceptExpr.Not value) group
-                assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
+                List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
                 setAssertions assertions
-            | ConceptExpr.Or group ->
+
+                if assertions.IsEmpty then
+                    complete ()
+            | Assertion.Instance(individual, ConceptExpr.Or group) ->
                 let mutable assertions = Set.remove assertion current.Value.assertions
-                let negGroup = List.map (fun value -> ConceptExpr.Not value) group
-                assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
+
+                let alternatives: List<Assertions> =
+                    List.fold
+                        (fun state expr -> Set.add (Assertion.Instance(individual, expr)) assertions :: state)
+                        []
+                        group
+
+                setAlternatives alternatives
                 setAssertions assertions
-            | ConceptExpr.Top -> failwith "Not Implemented"
-            | ConceptExpr.Bottom -> failwith "Not Implemented"
-            | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-            | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-            | ConceptExpr.Not concept ->
+
+                if assertions.IsEmpty then
+                    complete ()
+            | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
                 let assertions = Set.remove assertion current.Value.assertions
-                let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
+
+                //TODO find all instances of the given role and mark all fillers as being `concept`
+                let assertions =
+                    Set.fold
+                        (fun state assertion ->
+                            match assertion with
+                            | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
+                                Set.add (Assertion.Instance(f, concept)) state
+                            | _ -> state)
+                        assertions
+                        assertions
+
+                let assertions =
+                    Set.fold
+                        (fun state value ->
+                            match value with
+                            | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
+                            | _ -> state)
+                        assertions
+                        current.Value.roles
+
                 setAssertions assertions
-        | Assertion.Triple(i, r, Value.Term t) ->
-            let mutable assertions = Set.remove assertion current.Value.assertions
-            setAssertions assertions
-            addInstance i Set.empty Set.empty
-            addInstance t Set.empty Set.empty
-            addRole i r t
+                //TODO handle inconsistent ConceptExprs
+                if assertions.IsEmpty then
+                    complete ()
+            | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
+                //TODO handle inconsistent ConceptExprs
+                addInstance individual Set.empty Set.empty
+                let assertions = Set.remove assertion current.Value.assertions
+                setAssertions assertions
 
-            if assertions.IsEmpty then
-                succeed ()
-        | Assertion.Triple(i, a, Value.Literal l) ->
-            let mutable assertions = Set.remove assertion current.Value.assertions
-            setAssertions assertions
-            addInstance i Set.empty Set.empty
-            addAttribute i a l
+                if assertions.IsEmpty then
+                    complete ()
+            | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
+                match concept with
+                | ConceptExpr.AtomicConcept concept ->
+                    let assertions = Set.remove assertion current.Value.assertions
+                    setAssertions assertions
+                    addInstance individual Set.empty (Set.ofList [ concept ])
 
-            if assertions.IsEmpty then
-                succeed ()
+                    if assertions.IsEmpty then
+                        complete ()
+                | ConceptExpr.And group ->
+                    let mutable assertions = Set.remove assertion current.Value.assertions
+                    let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
+                    setAssertions assertions
+                | ConceptExpr.Or group ->
+                    let mutable assertions = Set.remove assertion current.Value.assertions
+                    let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
+                    setAssertions assertions
+                | ConceptExpr.Top -> failwith "Not Implemented"
+                | ConceptExpr.Bottom -> failwith "Not Implemented"
+                | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+                | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                | ConceptExpr.Not concept ->
+                    let assertions = Set.remove assertion current.Value.assertions
+                    let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
+                    setAssertions assertions
+            | Assertion.Triple(i, r, Value.Term t) ->
+                let mutable assertions = Set.remove assertion current.Value.assertions
+                setAssertions assertions
+                addInstance i Set.empty Set.empty
+                addInstance t Set.empty Set.empty
+                addRole i r t
 
+                if assertions.IsEmpty then
+                    complete ()
+            | Assertion.Triple(i, a, Value.Literal l) ->
+                let mutable assertions = Set.remove assertion current.Value.assertions
+                setAssertions assertions
+                addInstance i Set.empty Set.empty
+                addAttribute i a l
 
-    let rec processCurrent () =
-        if current.IsNone || current.Value.assertions.IsEmpty then
-            match incomplete with
-            | [] -> current <- None
-            | head :: tail ->
-                current <- Some head
-                incomplete <- tail
-        else
-            interpretNextAssertion ()
-            processCurrent ()
+                if assertions.IsEmpty then
+                    complete ()
 
     do
         match handleTBox _definitions _assertions with
         | Ok assertions -> current <- Some(newModel assertions)
         | _ -> failwith "TODO"
 
-        processCurrent ()
+        interpretNextAssertion ()
 
-        while _model = None && not incomplete.IsEmpty do
-            incomplete <- incomplete.Tail
-            current <- Some incomplete.Head
-            processCurrent ()
+        while _model = None && (current.IsSome || not incomplete.IsEmpty) do
+            if current.IsNone then
+                current <- Some incomplete.Head
+                incomplete <- incomplete.Tail
+                interpretNextAssertion ()
+            else
+                interpretNextAssertion ()
 
     member _.model = _model
 
