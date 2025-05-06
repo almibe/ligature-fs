@@ -234,10 +234,10 @@ type Interpretation(_definitions, _assertions) =
                         []
                         group
 
-                setAlternatives alternatives
-                setAssertions assertions
 
-                if assertions.IsEmpty then
+                setAlternatives alternatives
+
+                if current.Value.assertions.IsEmpty then
                     complete ()
             | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
                 let assertions = Set.remove assertion current.Value.assertions
