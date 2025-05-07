@@ -193,11 +193,11 @@ let impliesFn: Fn =
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(
                     Any.Definition(
-                        Definition.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                        TermAxiom.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(Definition.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+                Ok(Any.Definition(TermAxiom.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -212,11 +212,11 @@ let equivalentFn: Fn =
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(
                     Any.Definition(
-                        Definition.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                        TermAxiom.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(Definition.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+                Ok(Any.Definition(TermAxiom.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to define-concept." None
     )
 

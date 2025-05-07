@@ -31,12 +31,12 @@ let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
     Set.fold
         (fun state value ->
             match value with
-            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+            | TermAxiom.Equivalent(ConceptExpr.AtomicConcept a, c) ->
                 if state.Value.ContainsKey a then
                     None
                 else
                     Some(Map.add a c state.Value)
-            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+            | TermAxiom.Implies(ConceptExpr.AtomicConcept a, c) ->
                 if state.Value.ContainsKey a then
                     None
                 else
@@ -61,6 +61,17 @@ let isDefinitorial (definitions: Definitions) : bool =
                     checkedConcepts <- Set.add a checkedConcepts
                     false
                 | Some c -> hasCycle definitionsMap concept c
+        | ConceptExpr.Not (ConceptExpr.AtomicConcept a) ->
+            if concept = a then
+                true
+            else if checkedConcepts.Contains a then
+                false
+            else
+                match Map.tryFind a definitionsMap with
+                | None ->
+                    checkedConcepts <- Set.add a checkedConcepts
+                    false
+                | Some c -> hasCycle definitionsMap concept c
         | ConceptExpr.And conj ->
             List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
             |> not
@@ -71,7 +82,6 @@ let isDefinitorial (definitions: Definitions) : bool =
         | ConceptExpr.Bottom -> failwith "Not Implemented"
         | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
         | ConceptExpr.All(_, _) -> failwith "Not Implemented"
-        | ConceptExpr.Not(_) -> failwith "Not Implemented"
 
     match tBoxToMap definitions with
     | Some map ->

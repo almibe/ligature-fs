@@ -31,7 +31,7 @@ and [<RequireQualifiedAccess>] Any =
     | Application of Application
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
-    | Definition of Definition
+    | Definition of TermAxiom
     | Definitions of Definitions
 
 and Application = Term * Any list

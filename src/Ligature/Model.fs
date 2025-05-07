@@ -71,11 +71,12 @@ type ILigatureStore =
     abstract ReadAsserts: string -> Result<Assertions, LigatureError>
 
 [<RequireQualifiedAccess>]
-type Definition =
+type TermAxiom =
     | Implies of ConceptExpr * ConceptExpr
     | Equivalent of ConceptExpr * ConceptExpr
+    | ConceptExpr of ConceptExpr
 
-type Definitions = Set<Definition>
+type Definitions = Set<TermAxiom>
 
 type KnowledgeBase = Definitions * Assertions
 

@@ -23,7 +23,7 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ Definition.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A")) ]
+                      [ TermAxiom.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A")) ]
 
               let output = tBoxToMap input
               Expect.equal output (Some(Map.ofList [ Term "a", ConceptExpr.AtomicConcept(Term "A") ])) ""
@@ -32,7 +32,7 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ Definition.Equivalent(
+                      [ TermAxiom.Equivalent(
                             ConceptExpr.AtomicConcept(Term "a"),
                             ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
                         ) ]
@@ -53,12 +53,12 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ Definition.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A"))
-                        Definition.Implies(
+                      [ TermAxiom.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A"))
+                        TermAxiom.Implies(
                             ConceptExpr.AtomicConcept(Term "b"),
                             ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
                         )
-                        Definition.Equivalent(ConceptExpr.AtomicConcept(Term "c"), ConceptExpr.AtomicConcept(Term "A")) ]
+                        TermAxiom.Equivalent(ConceptExpr.AtomicConcept(Term "c"), ConceptExpr.AtomicConcept(Term "A")) ]
 
               let output = tBoxToMap input
 
