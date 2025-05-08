@@ -192,12 +192,12 @@ let impliesFn: Fn =
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(
-                    Any.Definition(
-                        TermAxiom.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                    Any.ConceptExpr(
+                        ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(TermAxiom.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+                Ok(Any.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -211,12 +211,12 @@ let equivalentFn: Fn =
             match arguments with
             | [ Any.Term subconcept; Any.Term concept ] ->
                 Ok(
-                    Any.Definition(
-                        TermAxiom.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                    Any.ConceptExpr(
+                        ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
             | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.Definition(TermAxiom.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+                Ok(Any.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to define-concept." None
     )
 
@@ -378,7 +378,7 @@ let definitionsFn: Fn =
                     match state with
                     | Ok(Any.Definitions state) ->
                         match value with
-                        | Any.Definition def -> Ok(Any.Definitions(Set.add def state))
+                        | Any.ConceptExpr def -> Ok(Any.Definitions(Set.add def state))
                         | _ -> failwith "TODO"
                     | Ok _ -> failwith "Unexpected value."
                     | Error err -> Error err)

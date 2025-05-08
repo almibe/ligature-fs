@@ -195,7 +195,6 @@ and executeExpression
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.Lambda _ -> failwith "Not Implemented"
     | Any.ConceptExpr _ -> failwith "Not Implemented"
-    | Any.Definition _ -> failwith "Not Implemented"
     | Any.Definitions _ -> failwith "Not Implemented"
 //| _ -> failwith "TODO"
 // match lookupFn actions action with

@@ -31,7 +31,6 @@ and [<RequireQualifiedAccess>] Any =
     | Application of Application
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
-    | Definition of TermAxiom
     | Definitions of Definitions
 
 and Application = Term * Any list
@@ -83,7 +82,6 @@ let rec printAny (value: Any) : string =
     | Any.Application _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
-    | Any.Definition def -> printDefinition def
     | Any.Definitions defs -> printDefinitions defs
     | Any.Assertion _ -> "-assertion-"
     | Any.ConceptExpr _ -> "-concept-expr-"

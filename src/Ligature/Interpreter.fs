@@ -31,12 +31,12 @@ let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
     Set.fold
         (fun state value ->
             match value with
-            | TermAxiom.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+            | ConceptExpr.Equivalent(ConceptExpr.AtomicConcept a, c) ->
                 if state.Value.ContainsKey a then
                     None
                 else
                     Some(Map.add a c state.Value)
-            | TermAxiom.Implies(ConceptExpr.AtomicConcept a, c) ->
+            | ConceptExpr.Implies(ConceptExpr.AtomicConcept a, c) ->
                 if state.Value.ContainsKey a then
                     None
                 else
@@ -61,7 +61,7 @@ let isDefinitorial (definitions: Definitions) : bool =
                     checkedConcepts <- Set.add a checkedConcepts
                     false
                 | Some c -> hasCycle definitionsMap concept c
-        | ConceptExpr.Not (ConceptExpr.AtomicConcept a) ->
+        | ConceptExpr.Not(ConceptExpr.AtomicConcept a) ->
             if concept = a then
                 true
             else if checkedConcepts.Contains a then
@@ -104,9 +104,11 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.And conj ->
         let conj = List.map (fun value -> unfoldSingleExpression definitions value) conj
         ConceptExpr.And conj
-    | ConceptExpr.Or(_) -> failwith "Not Implemented"
-    | ConceptExpr.Top -> failwith "Not Implemented"
-    | ConceptExpr.Bottom -> failwith "Not Implemented"
+    | ConceptExpr.Or disj ->
+        let disj = List.map (fun value -> unfoldSingleExpression definitions value) disj
+        ConceptExpr.Or disj
+    | ConceptExpr.Top -> ConceptExpr.Top
+    | ConceptExpr.Bottom -> ConceptExpr.Bottom
     | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
     | ConceptExpr.All(_, _) -> failwith "Not Implemented"
     | ConceptExpr.Not c ->

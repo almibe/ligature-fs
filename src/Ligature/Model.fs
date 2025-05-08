@@ -58,6 +58,8 @@ and [<RequireQualifiedAccess>] ConceptExpr =
     | Exists of Term * ConceptExpr
     | All of Term * ConceptExpr
     | Not of ConceptExpr
+    | Implies of ConceptExpr * ConceptExpr
+    | Equivalent of ConceptExpr * ConceptExpr
 
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>
@@ -70,13 +72,7 @@ type ILigatureStore =
     abstract UnassertStore: string -> Assertions -> unit
     abstract ReadAsserts: string -> Result<Assertions, LigatureError>
 
-[<RequireQualifiedAccess>]
-type TermAxiom =
-    | Implies of ConceptExpr * ConceptExpr
-    | Equivalent of ConceptExpr * ConceptExpr
-    | ConceptExpr of ConceptExpr
-
-type Definitions = Set<TermAxiom>
+type Definitions = Set<ConceptExpr>
 
 type KnowledgeBase = Definitions * Assertions
 
