@@ -88,6 +88,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "count", countFn
           Term "bend.json.instances", bendJsonFn
           Term "unfold", unfoldFn
+          Term "nnf", nnfFn
           Term "is-definitorial", isDefinitorialFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store

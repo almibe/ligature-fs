@@ -141,6 +141,21 @@ let isDefinitorialFn =
             | _ -> error "Invalid call to is-definitorial." None
     )
 
+let nnfFn =
+    Fn(
+        { doc = "Convert definitions to nnf."
+          examples = [ "(nnf (definitions (implies A B)))" ]
+          args = "Definitions"
+          result = "Definitions" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Definitions def ] ->
+                match nnf def with
+                | Error err -> Error err
+            | _ -> error "Invalid call to nnf." None
+    )
+
+
 let isConsistentFn =
     Fn(
         { doc = "Check if a KB is consistent."

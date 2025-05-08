@@ -352,6 +352,8 @@ let findModel definitions assertions : Result<Model option, LigatureError> =
     let interpretation = Interpretation(definitions, assertions)
     Ok interpretation.model
 
+let nnf definitions = failwith "TODO"
+
 let isConsistent definitions assertions : Result<bool, LigatureError> =
     let interpretation = new Interpretation(definitions, assertions)
 
