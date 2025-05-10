@@ -151,10 +151,35 @@ let nnfFn =
             match arguments with
             | [ Any.Definitions def ] ->
                 match nnf def with
+                | Ok resultValue -> Ok(Any.ConceptExpr resultValue)
                 | Error err -> Error err
             | _ -> error "Invalid call to nnf." None
     )
 
+let bottomFn =
+    Fn(
+        { doc = "Constructor for bottom concept."
+          examples = [ "(bottom)" ]
+          args = ""
+          result = "ConceptExpr" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [] -> Ok(Any.ConceptExpr ConceptExpr.Bottom)
+            | _ -> error "Invalid call to bottom." None
+    )
+
+
+let topFn =
+    Fn(
+        { doc = "Constructor for top concept."
+          examples = [ "(top)" ]
+          args = ""
+          result = "ConceptExpr" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [] -> Ok(Any.ConceptExpr ConceptExpr.Top)
+            | _ -> error "Invalid call to bottom." None
+    )
 
 let isConsistentFn =
     Fn(
@@ -290,6 +315,18 @@ let instanceFn: Fn =
             | _ -> error "Improper call to instance." None
     )
 
+let conceptFn: Fn =
+    Fn(
+        { doc = "Convert a term to an atomic concept."
+          examples = [ "(concept A)" ]
+          args = "Term"
+          result = "Concept" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term concept ] -> Ok(Any.ConceptExpr(ConceptExpr.AtomicConcept concept))
+            | _ -> error "Improper call to concept." None
+    )
+
 let allFn: Fn =
     Fn(
         { doc = "Create a ∀ Concept."
@@ -393,10 +430,11 @@ let definitionsFn: Fn =
                     match state with
                     | Ok(Any.Definitions state) ->
                         match value with
-                        | Any.ConceptExpr def -> Ok(Any.Definitions(Set.add def state))
-                        | _ -> failwith "TODO"
+                        | Any.ConceptExpr def -> Ok(Any.Definitions(def :: state))
+                        | Any.Term term -> Ok(Any.Definitions(ConceptExpr.AtomicConcept term :: state))
+                        | _ -> failwith $"Unexpected value."
                     | Ok _ -> failwith "Unexpected value."
                     | Error err -> Error err)
-                (Ok(Any.Definitions Set.empty))
+                (Ok(Any.Definitions []))
                 arguments
     )

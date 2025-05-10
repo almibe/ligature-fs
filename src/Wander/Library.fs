@@ -63,6 +63,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "assertions", assertionsFn
           Term "instance", instanceFn
           Term "find-model", findModelFn
+          Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn
@@ -88,6 +89,8 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "count", countFn
           Term "bend.json.instances", bendJsonFn
           Term "unfold", unfoldFn
+          Term "top", topFn
+          Term "bottom", bottomFn
           Term "nnf", nnfFn
           Term "is-definitorial", isDefinitorialFn
           Term "is-consistent", isConsistentFn ]

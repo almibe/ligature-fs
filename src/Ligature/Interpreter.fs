@@ -28,7 +28,7 @@ let newModel assertions =
       attributes = Set.empty }
 
 let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
-    Set.fold
+    List.fold
         (fun state value ->
             match value with
             | ConceptExpr.Equivalent(ConceptExpr.AtomicConcept a, c) ->
@@ -80,7 +80,9 @@ let isDefinitorial (definitions: Definitions) : bool =
             |> not
         | ConceptExpr.Top -> failwith "Not Implemented"
         | ConceptExpr.Bottom -> failwith "Not Implemented"
-        | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Exists(roleName, concept) ->
+
+            failwith "Not Implemented"
         | ConceptExpr.All(_, _) -> failwith "Not Implemented"
 
     match tBoxToMap definitions with
@@ -352,7 +354,33 @@ let findModel definitions assertions : Result<Model option, LigatureError> =
     let interpretation = Interpretation(definitions, assertions)
     Ok interpretation.model
 
-let nnf definitions = failwith "TODO"
+let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
+    let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
+        match conceptExpr with
+        | ConceptExpr.AtomicConcept c -> ConceptExpr.AtomicConcept c
+        | ConceptExpr.And conj -> List.map (fun value -> nnfConcept value) conj |> ConceptExpr.And
+        | ConceptExpr.Or disj -> List.map (fun value -> nnfConcept value) disj |> ConceptExpr.Or
+        | ConceptExpr.Top -> ConceptExpr.Top
+        | ConceptExpr.Bottom -> ConceptExpr.Bottom
+        | ConceptExpr.All(r, c) -> ConceptExpr.All(r, nnfConcept c)
+        | ConceptExpr.Exists(r, c) -> ConceptExpr.Exists(r, nnfConcept c)
+        | ConceptExpr.Not(ConceptExpr.Not not') -> nnfConcept not'
+        | ConceptExpr.Not(ConceptExpr.And conj) ->
+            List.map (fun value -> ConceptExpr.Not(nnfConcept value)) conj |> ConceptExpr.Or
+        | ConceptExpr.Not(ConceptExpr.Or disj) ->
+            List.map (fun value -> ConceptExpr.Not(nnfConcept value)) disj
+            |> ConceptExpr.And
+        | ConceptExpr.Not c -> ConceptExpr.Not(nnfConcept c)
+        | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
+
+    and nnf (definitions': Definitions) : ConceptExpr =
+        if not definitions'.IsEmpty then
+            List.map (fun value -> nnfConcept value) definitions' |> ConceptExpr.And
+        else
+            ConceptExpr.Top
+
+    Ok(nnf definitions)
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
     let interpretation = new Interpretation(definitions, assertions)

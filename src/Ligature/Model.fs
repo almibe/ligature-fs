@@ -72,10 +72,40 @@ type ILigatureStore =
     abstract UnassertStore: string -> Assertions -> unit
     abstract ReadAsserts: string -> Result<Assertions, LigatureError>
 
-type Definitions = Set<ConceptExpr>
+type Definitions = List<ConceptExpr>
 
 type KnowledgeBase = Definitions * Assertions
 
-let printDefinition definition = "def"
+let rec printConcept (concept: ConceptExpr) : string =
+    match concept with
+    | ConceptExpr.AtomicConcept(Term a) -> a
+    | ConceptExpr.And conj ->
+        List.fold
+            (fun state value ->
+                if state = "" then
+                    printConcept value
+                else
+                    state + $" {printConcept value}")
+            "(and"
+            conj
+        + ")"
+    | ConceptExpr.Or disj ->
+        List.fold
+            (fun state value ->
+                if state = "" then
+                    printConcept value
+                else
+                    state + $" {printConcept value}")
+            "(or"
+            disj
+        + ")"
+    | ConceptExpr.Top -> "(top)"
+    | ConceptExpr.Bottom -> "(bottom)"
+    | ConceptExpr.Exists(Term r, c) -> $"(exists {r} {printConcept c})"
+    | ConceptExpr.All(Term r, c) -> $"(all {r} {printConcept c})"
+    | ConceptExpr.Not c -> "¬" + printConcept c
+    | ConceptExpr.Implies(l, r) -> $"(implies {printConcept l} {printConcept r})"
+    | ConceptExpr.Equivalent(l, r) -> $"(equivalent {printConcept l} {printConcept r})"
 
-let printDefinitions definition = "defs"
+let printDefinitions (definitions: Definitions) =
+    List.fold (fun state value -> state + printConcept value) "(definitions )" definitions

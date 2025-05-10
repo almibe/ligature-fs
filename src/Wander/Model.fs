@@ -84,7 +84,7 @@ let rec printAny (value: Any) : string =
     | Any.Record record -> printRecord record
     | Any.Definitions defs -> printDefinitions defs
     | Any.Assertion _ -> "-assertion-"
-    | Any.ConceptExpr _ -> "-concept-expr-"
+    | Any.ConceptExpr c -> printConcept c
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
