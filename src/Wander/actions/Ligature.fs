@@ -344,11 +344,12 @@ let allFn: Fn =
 let existsFn: Fn =
     Fn(
         { doc = "Create an ∃ Concept."
-          examples = [ "(exists knows Person)" ]
-          args = ""
-          result = "" },
+          examples = [ "(exists name) (exists knows Person)" ]
+          args = "RoleName Concept?"
+          result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
+            | [ Any.Term role ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
             | [ Any.Term role; Any.Term concept ] ->
                 Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
             | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
@@ -425,16 +426,13 @@ let definitionsFn: Fn =
           args = ""
           result = "" },
         fun _ _ _ arguments ->
-            List.fold
-                (fun state value ->
-                    match state with
-                    | Ok(Any.Definitions state) ->
-                        match value with
-                        | Any.ConceptExpr def -> Ok(Any.Definitions(def :: state))
-                        | Any.Term term -> Ok(Any.Definitions(ConceptExpr.AtomicConcept term :: state))
-                        | _ -> failwith $"Unexpected value."
-                    | Ok _ -> failwith "Unexpected value."
-                    | Error err -> Error err)
-                (Ok(Any.Definitions []))
+            List.map
+                (fun value ->
+                    match value with
+                    | Any.ConceptExpr expr -> expr
+                    | Any.Term term -> ConceptExpr.AtomicConcept term
+                    | _ -> failwith "Not suported.")
                 arguments
+            |> Any.Definitions
+            |> Ok
     )

@@ -78,12 +78,10 @@ let isDefinitorial (definitions: Definitions) : bool =
         | ConceptExpr.Or disj ->
             List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
             |> not
-        | ConceptExpr.Top -> failwith "Not Implemented"
-        | ConceptExpr.Bottom -> failwith "Not Implemented"
-        | ConceptExpr.Exists(roleName, concept) ->
-
-            failwith "Not Implemented"
-        | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Top -> false
+        | ConceptExpr.Bottom -> false
+        | ConceptExpr.Exists(roleName, c) -> hasCycle definitionsMap concept c
+        | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
 
     match tBoxToMap definitions with
     | Some map ->
@@ -111,8 +109,8 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
         ConceptExpr.Or disj
     | ConceptExpr.Top -> ConceptExpr.Top
     | ConceptExpr.Bottom -> ConceptExpr.Bottom
-    | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-    | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+    | ConceptExpr.Exists(roleName, c) -> unfoldSingleExpression definitions c
+    | ConceptExpr.All(roleName, c) -> unfoldSingleExpression definitions c
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
@@ -307,8 +305,8 @@ type Interpretation(_definitions, _assertions) =
                     let negGroup = List.map (fun value -> ConceptExpr.Not value) group
                     assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
                     setAssertions assertions
-                | ConceptExpr.Top -> failwith "Not Implemented"
-                | ConceptExpr.Bottom -> failwith "Not Implemented"
+                | ConceptExpr.Top -> setAssertions (Set.remove assertion current.Value.assertions)
+                | ConceptExpr.Bottom -> setAssertions (Set.remove assertion current.Value.assertions)
                 | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
                 | ConceptExpr.All(_, _) -> failwith "Not Implemented"
                 | ConceptExpr.Not concept ->
