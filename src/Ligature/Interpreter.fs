@@ -15,14 +15,12 @@ type Model =
 
 type PotentialModel =
     { mutable assertions: Assertions //TODO probably make this a list too
-      mutable later: Assertion list
       mutable individuals: Map<Term, ConceptValues>
       mutable roles: Set<Term * Term * Term>
       mutable attributes: Set<Term * Term * Literal> }
 
 let newModel assertions =
     { assertions = assertions
-      later = []
       individuals = Map.empty
       roles = Set.empty
       attributes = Set.empty }
@@ -162,7 +160,6 @@ type Interpretation(_definitions, _assertions) =
                 (fun value ->
                     incomplete <-
                         { assertions = value
-                          later = current.Value.later
                           roles = current.Value.roles
                           individuals = current.Value.individuals
                           attributes = current.Value.attributes }
@@ -246,46 +243,51 @@ type Interpretation(_definitions, _assertions) =
                         []
                         group
 
-
                 setAlternatives alternatives
 
                 if current.Value.assertions.IsEmpty then
                     complete ()
             | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
-                let assertions = Set.remove assertion current.Value.assertions
+                if not (Set.exists (fun value -> match value with | Assertion.Triple _ -> true | _ -> false) current.Value.assertions) then
+                    let assertions = Set.remove assertion current.Value.assertions
 
-                //TODO find all instances of the given role and mark all fillers as being `concept`
-                let assertions =
-                    Set.fold
-                        (fun state assertion ->
-                            match assertion with
-                            | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
-                                Set.add (Assertion.Instance(f, concept)) state
-                            | _ -> state)
-                        assertions
-                        assertions
+                    //TODO find all instances of the given role and mark all fillers as being `concept`
+                    let assertions =
+                        Set.fold
+                            (fun state assertion ->
+                                match assertion with
+                                | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
+                                    Set.add (Assertion.Instance(f, concept)) state
+                                | _ -> state)
+                            assertions
+                            assertions
 
-                let assertions =
-                    Set.fold
-                        (fun state value ->
-                            match value with
-                            | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
-                            | _ -> state)
-                        assertions
-                        current.Value.roles
+                    let assertions =
+                        Set.fold
+                            (fun state value ->
+                                match value with
+                                | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
+                                | _ -> state)
+                            assertions
+                            current.Value.roles
 
-                setAssertions assertions
-                //TODO handle inconsistent ConceptExprs
-                if assertions.IsEmpty then
-                    complete ()
+                    setAssertions assertions
+                    //TODO handle inconsistent ConceptExprs
+                    if assertions.IsEmpty then
+                        complete ()
+                else
+                    () //wait to process
             | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
-                //TODO handle inconsistent ConceptExprs
-                addInstance individual Set.empty Set.empty
-                let assertions = Set.remove assertion current.Value.assertions
-                setAssertions assertions
+                if not (Set.exists (fun value -> match value with | Assertion.Triple _ -> true | _ -> false) current.Value.assertions) then
+                    //TODO handle inconsistent ConceptExprs
+                    addInstance individual Set.empty Set.empty
+                    let assertions = Set.remove assertion current.Value.assertions
+                    setAssertions assertions
 
-                if assertions.IsEmpty then
-                    complete ()
+                    if assertions.IsEmpty then
+                        complete ()
+                else
+                    () //wait to process
             | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
                 match concept with
                 | ConceptExpr.AtomicConcept concept ->
