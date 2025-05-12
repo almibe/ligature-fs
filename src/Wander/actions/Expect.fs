@@ -8,12 +8,42 @@ open Ligature.Model
 open Wander.Interpreter
 open Wander.Model
 
+let testGroupFn: Fn =
+    Fn(
+        { doc = "Make a group of tests."
+          examples = []
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            match arguments.Head with
+            | Any.Literal(Literal name) -> printfn $"Running Test Group: {name}"
+            | _ -> failwith "Unexpected value."
+            List.iter (fun arg ->
+                match arg with
+                | Any.Record record -> 
+                    match 
+                        record.TryFind (Any.Literal(Literal "name")),
+                        record.TryFind (Any.Literal(Literal "expect")),
+                        record.TryFind (Any.Literal(Literal "left")),
+                        record.TryFind (Any.Literal(Literal "right")) with
+                    | Some (Any.Literal (Literal name)), Some (Any.Literal (Literal "=")), Some left, Some right -> 
+                        printfn $"  Starting test {name}"
+                        if left = right then
+                            printfn "   - Passed."
+                        else
+                            printfn "   X - Failed"
+                            printfn $"  {left} != {right}"
+                    | _ -> failwith "TODO"
+                | x -> failwith $"Unexpected value, {x}.") arguments.Tail
+            Ok(Any.Record Map.empty)
+    )
+
 let expectEqualFn: Fn =
     Fn(
-        { doc = "Assert that to top two Terms on the Stack are equal."
-          examples = []
-          args = "Any Any"
-          result = "" },
+        { doc = "Create a test record that to top two values are equal."
+          examples = ["(expect-equal \"is A equal to A?\" A A)"]
+          args = "Literal Any Any"
+          result = "Record" },
         fun _ _ _ arguments ->
             match arguments with
             | [ first; second ] ->
@@ -47,7 +77,19 @@ let expectEqualFn: Fn =
                     Ok(Any.Assertions Set.empty)
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
-            | _ -> error $"assert-equal requires two values on stack." None
+            | [ Any.Literal name; left; right ] ->
+                // Any.Record(Map.empty)
+                // if first = second then
+                //     Ok(Any.Assertions Set.empty)
+                // else
+                //     error $"assert-equal failed {printAny first} != {printAny second}" None
+                Any.Record (Map.ofList [
+                    Any.Literal(Literal "name"), Any.Literal name
+                    Any.Literal(Literal "expect"), Any.Literal(Literal "=")
+                    Any.Literal(Literal "left"), left
+                    Any.Literal(Literal "right"), right])
+                |> Ok
+            | _ -> error $"expect-equal requires a name and two values." None
     )
 
 // let assertFailCommand: Command =

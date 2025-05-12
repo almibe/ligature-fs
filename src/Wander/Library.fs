@@ -59,7 +59,8 @@ let docsFn: Fn =
 
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
-        [ Term "expect-equal", expectEqualFn
+        [ Term "test-group", testGroupFn
+          Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
           Term "instance", instanceFn
           Term "find-model", findModelFn

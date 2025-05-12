@@ -371,8 +371,13 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
             List.map (fun value -> ConceptExpr.Not(nnfConcept value)) disj
             |> ConceptExpr.And
         | ConceptExpr.Not c -> ConceptExpr.Not(nnfConcept c)
-        | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
-        | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
+        | ConceptExpr.Implies(lhs, rhs) -> 
+            ConceptExpr.Or [ConceptExpr.Not lhs; rhs]
+        | ConceptExpr.Equivalent(lhs, rhs) -> 
+            ConceptExpr.And [
+                ConceptExpr.Or [ConceptExpr.Not lhs; rhs]
+                ConceptExpr.Or [ConceptExpr.Not rhs; lhs]
+            ]
 
     and nnf (definitions': Definitions) : ConceptExpr =
         if not definitions'.IsEmpty then
