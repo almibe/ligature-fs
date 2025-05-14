@@ -107,11 +107,17 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
         ConceptExpr.Or disj
     | ConceptExpr.Top -> ConceptExpr.Top
     | ConceptExpr.Bottom -> ConceptExpr.Bottom
-    | ConceptExpr.Exists(roleName, c) -> unfoldSingleExpression definitions c
-    | ConceptExpr.All(roleName, c) -> unfoldSingleExpression definitions c
+    | ConceptExpr.Exists(roleName, c) -> 
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.Exists(roleName, c)
+    | ConceptExpr.All(roleName, c) -> 
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.All(roleName, c)
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
+    | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
+    | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
 let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
     let res =
@@ -217,6 +223,8 @@ type Interpretation(_definitions, _assertions) =
             let assertion = current.Value.assertions.MinimumElement
 
             match assertion with
+            | Assertion.Instance(_, ConceptExpr.Top) -> ()
+            | Assertion.Instance(_, ConceptExpr.Bottom) -> failwith "Unexpected value"
             | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
                 let assertions = Set.remove assertion current.Value.assertions
                 setAssertions assertions
@@ -262,6 +270,7 @@ type Interpretation(_definitions, _assertions) =
                             assertions
                             assertions
 
+
                     let assertions =
                         Set.fold
                             (fun state value ->
@@ -277,11 +286,17 @@ type Interpretation(_definitions, _assertions) =
                         complete ()
                 else
                     () //wait to process
-            | Assertion.Instance(individual, ConceptExpr.Exists(_, _)) ->
+            | Assertion.Instance(individual, ConceptExpr.Exists(roleName, concept)) ->
                 if not (Set.exists (fun value -> match value with | Assertion.Triple _ -> true | _ -> false) current.Value.assertions) then
                     //TODO handle inconsistent ConceptExprs
                     addInstance individual Set.empty Set.empty
                     let assertions = Set.remove assertion current.Value.assertions
+
+                    let r = new System.Random()
+                    let newIndividual = Term $"new-{r.NextInt64()}"
+                    let assertions = Set.add (Assertion.Triple(individual, roleName, Value.Term newIndividual)) assertions
+                    let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
+                    
                     setAssertions assertions
 
                     if assertions.IsEmpty then
@@ -309,8 +324,14 @@ type Interpretation(_definitions, _assertions) =
                     setAssertions assertions
                 | ConceptExpr.Top -> setAssertions (Set.remove assertion current.Value.assertions)
                 | ConceptExpr.Bottom -> setAssertions (Set.remove assertion current.Value.assertions)
-                | ConceptExpr.Exists(_, _) -> failwith "Not Implemented"
-                | ConceptExpr.All(_, _) -> failwith "Not Implemented"
+                | ConceptExpr.Exists(roleName, concept) -> 
+                    let mutable assertions = Set.remove assertion current.Value.assertions
+                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept))) assertions
+                    setAssertions assertions
+                | ConceptExpr.All(roleName, concept) -> 
+                    let mutable assertions = Set.remove assertion current.Value.assertions
+                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Exists(roleName, ConceptExpr.Not concept))) assertions
+                    setAssertions assertions
                 | ConceptExpr.Not concept ->
                     let assertions = Set.remove assertion current.Value.assertions
                     let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
@@ -372,11 +393,11 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
             |> ConceptExpr.And
         | ConceptExpr.Not c -> ConceptExpr.Not(nnfConcept c)
         | ConceptExpr.Implies(lhs, rhs) -> 
-            ConceptExpr.Or [ConceptExpr.Not lhs; rhs]
+            ConceptExpr.Or [rhs; ConceptExpr.Not lhs]
         | ConceptExpr.Equivalent(lhs, rhs) -> 
             ConceptExpr.And [
-                ConceptExpr.Or [ConceptExpr.Not lhs; rhs]
-                ConceptExpr.Or [ConceptExpr.Not rhs; lhs]
+                ConceptExpr.Or [rhs; ConceptExpr.Not lhs]
+                ConceptExpr.Or [lhs; ConceptExpr.Not rhs]
             ]
 
     and nnf (definitions': Definitions) : ConceptExpr =
