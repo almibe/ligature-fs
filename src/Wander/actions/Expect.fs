@@ -16,32 +16,41 @@ let testGroupFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments.Head with
-            | Any.Literal(Literal name) -> printfn $"Running Test Group: {name}"
+            | Any.Literal(Literal(name, Term "")) -> printfn $"Running Test Group: {name}"
             | _ -> failwith "Unexpected value."
-            List.iter (fun arg ->
-                match arg with
-                | Any.Record record -> 
-                    match 
-                        record.TryFind (Any.Literal(Literal "name")),
-                        record.TryFind (Any.Literal(Literal "expect")),
-                        record.TryFind (Any.Literal(Literal "left")),
-                        record.TryFind (Any.Literal(Literal "right")) with
-                    | Some (Any.Literal (Literal name)), Some (Any.Literal (Literal "=")), Some left, Some right -> 
-                        printfn $"  Starting test {name}"
-                        if left = right then
-                            printfn "   - Passed."
-                        else
-                            printfn "   X - Failed"
-                            printfn $"  {left} != {right}"
-                    | _ -> failwith "TODO"
-                | x -> failwith $"Unexpected value, {x}.") arguments.Tail
+
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Any.Record record ->
+                        match
+                            record.TryFind(Any.Literal(Literal("name", Term ""))),
+                            record.TryFind(Any.Literal(Literal("expect", Term ""))),
+                            record.TryFind(Any.Literal(Literal("left", Term ""))),
+                            record.TryFind(Any.Literal(Literal("right", Term "")))
+                        with
+                        | Some(Any.Literal(Literal(name, Term ""))),
+                          Some(Any.Literal(Literal("=", Term ""))),
+                          Some left,
+                          Some right ->
+                            printfn $"  Starting test {name}"
+
+                            if left = right then
+                                printfn "   - Passed."
+                            else
+                                printfn "   X - Failed"
+                                printfn $"  {left} != {right}"
+                        | _ -> failwith "TODO"
+                    | x -> failwith $"Unexpected value, {x}.")
+                arguments.Tail
+
             Ok(Any.Record Map.empty)
     )
 
 let expectEqualFn: Fn =
     Fn(
         { doc = "Create a test record that to top two values are equal."
-          examples = ["(expect-equal \"is A equal to A?\" A A)"]
+          examples = [ "(expect-equal \"is A equal to A?\" A A)" ]
           args = "Literal Any Any"
           result = "Record" },
         fun _ _ _ arguments ->
@@ -83,11 +92,13 @@ let expectEqualFn: Fn =
                 //     Ok(Any.Assertions Set.empty)
                 // else
                 //     error $"assert-equal failed {printAny first} != {printAny second}" None
-                Any.Record (Map.ofList [
-                    Any.Literal(Literal "name"), Any.Literal name
-                    Any.Literal(Literal "expect"), Any.Literal(Literal "=")
-                    Any.Literal(Literal "left"), left
-                    Any.Literal(Literal "right"), right])
+                Any.Record(
+                    Map.ofList
+                        [ Any.Literal(Literal("name", Term "")), Any.Literal name
+                          Any.Literal(Literal("expect", Term "")), Any.Literal(Literal("=", Term ""))
+                          Any.Literal(Literal("left", Term "")), left
+                          Any.Literal(Literal("right", Term "")), right ]
+                )
                 |> Ok
             | _ -> error $"expect-equal requires a name and two values." None
     )

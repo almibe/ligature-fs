@@ -32,23 +32,33 @@ let docsFn: Fn =
                         | Fn(doc, _) ->
                             let state =
                                 Set.add
-                                    (Assertion.Triple(name, Term "doc-string", Value.Literal(Literal doc.doc)))
+                                    (Assertion.Triple(
+                                        name,
+                                        Term "doc-string",
+                                        Value.Literal(Literal(doc.doc, Term ""))
+                                    ))
                                     state
 
                             let state = Set.add (Assertion.Triple(name, Term ":", Value.Term(Term "Fn"))) state
 
                             let state =
-                                Set.add (Assertion.Triple(name, Term "args", Value.Literal(Literal doc.args))) state
+                                Set.add
+                                    (Assertion.Triple(name, Term "args", Value.Literal(Literal(doc.args, Term ""))))
+                                    state
 
                             let state =
                                 Set.add
-                                    (Assertion.Triple(name, Term "result", Value.Literal(Literal doc.result)))
+                                    (Assertion.Triple(name, Term "result", Value.Literal(Literal(doc.result, Term ""))))
                                     state
 
                             List.fold
                                 (fun state example ->
                                     Set.add
-                                        (Assertion.Triple(name, Term "doc-example", Value.Literal(Literal example)))
+                                        (Assertion.Triple(
+                                            name,
+                                            Term "doc-example",
+                                            Value.Literal(Literal(example, Term ""))
+                                        ))
                                         state)
                                 state
                                 doc.examples)

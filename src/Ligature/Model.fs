@@ -15,7 +15,7 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
-type Literal = Literal of string
+type Literal = Literal of string * Term
 
 [<RequireQualifiedAccess>]
 type Value = //TODO delete

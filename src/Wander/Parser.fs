@@ -19,7 +19,7 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
 let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Value.Term(Term value))
-    | Ok(Token.Literal value) -> Ok(Value.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(Value.Literal(Literal(value, Term "")))
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -117,7 +117,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     match next with
     | Error err -> Error err
     | Ok(Token.Term value) -> Ok(ValuePattern.Term(Term value))
-    | Ok(Token.Literal value) -> Ok(ValuePattern.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(ValuePattern.Literal(Literal(value, Term "")))
     | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
     | _ -> Error Gaze.GazeError.NoMatch
 
@@ -125,7 +125,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Any.Term(Term value))
     | Ok(Token.Slot value) -> Ok(Any.Slot(Slot value))
-    | Ok(Token.Literal value) -> Ok(Any.Literal(Literal value))
+    | Ok(Token.Literal value) -> Ok(Any.Literal(Literal(value, Term "")))
     | Ok(Token.Variable variable) -> Ok(Any.Variable(Variable variable))
     | _ -> Error Gaze.GazeError.NoMatch
 

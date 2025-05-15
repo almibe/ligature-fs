@@ -60,7 +60,7 @@ let networkToJs (network: Assertions) =
                     value?value <-
                         match v with
                         | Value.Term(Term t) -> t
-                        | Value.Literal(Literal l) -> l
+                        | Value.Literal(Literal(l, Term "")) -> l
 
                     [| element; role; value |]
                 | Assertion.Instance(i, c) -> failwith "TODO")
@@ -103,7 +103,7 @@ and anyToJs (any: Any) =
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Any.Literal(Literal l) ->
+    | Any.Literal(Literal(l, _)) ->
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
@@ -164,11 +164,11 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
                                   Any.Term(Term h) ] -> emitJsStatement (x, y, w, h) "ctx.strokeRect($0, $1, $2, $3)"
 
                     | Any.Tuple [ Any.Term(Term "fill-text")
-                                  Any.Literal(Literal text)
+                                  Any.Literal(Literal(text, Term ""))
                                   Any.Term(Term x)
                                   Any.Term(Term y) ] -> emitJsStatement (text, x, y) "ctx.fillText($0, $1, $2)"
                     | Any.Tuple [ Any.Term(Term "stroke-text")
-                                  Any.Literal(Literal text)
+                                  Any.Literal(Literal(text, Term ""))
                                   Any.Term(Term x)
                                   Any.Term(Term y) ] -> emitJsStatement (text, x, y) "ctx.strokeText($0, $1, $2)"
 
@@ -193,7 +193,7 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
 
                     | Any.Tuple [ Any.Term(Term "font"); Any.Term(Term value) ] ->
                         emitJsStatement (value) "ctx.font($0)"
-                    | Any.Tuple [ Any.Term(Term "font"); Any.Literal(Literal value) ] ->
+                    | Any.Tuple [ Any.Term(Term "font"); Any.Literal(Literal(value, _)) ] ->
                         emitJsStatement (value) "ctx.font($0)"
                     | Any.Tuple [ Any.Term(Term "text-align"); Any.Term(Term value) ] ->
                         emitJsStatement (value) "ctx.textAlign($0)"

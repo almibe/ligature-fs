@@ -107,10 +107,10 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
         ConceptExpr.Or disj
     | ConceptExpr.Top -> ConceptExpr.Top
     | ConceptExpr.Bottom -> ConceptExpr.Bottom
-    | ConceptExpr.Exists(roleName, c) -> 
+    | ConceptExpr.Exists(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Exists(roleName, c)
-    | ConceptExpr.All(roleName, c) -> 
+    | ConceptExpr.All(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.All(roleName, c)
     | ConceptExpr.Not c ->
@@ -256,7 +256,16 @@ type Interpretation(_definitions, _assertions) =
                 if current.Value.assertions.IsEmpty then
                     complete ()
             | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
-                if not (Set.exists (fun value -> match value with | Assertion.Triple _ -> true | _ -> false) current.Value.assertions) then
+                if
+                    not (
+                        Set.exists
+                            (fun value ->
+                                match value with
+                                | Assertion.Triple _ -> true
+                                | _ -> false)
+                            current.Value.assertions
+                    )
+                then
                     let assertions = Set.remove assertion current.Value.assertions
 
                     //TODO find all instances of the given role and mark all fillers as being `concept`
@@ -275,7 +284,8 @@ type Interpretation(_definitions, _assertions) =
                         Set.fold
                             (fun state value ->
                                 match value with
-                                | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
+                                | i, r, f when r = role && i = individual ->
+                                    Set.add (Assertion.Instance(f, concept)) state
                                 | _ -> state)
                             assertions
                             current.Value.roles
@@ -287,16 +297,28 @@ type Interpretation(_definitions, _assertions) =
                 else
                     () //wait to process
             | Assertion.Instance(individual, ConceptExpr.Exists(roleName, concept)) ->
-                if not (Set.exists (fun value -> match value with | Assertion.Triple _ -> true | _ -> false) current.Value.assertions) then
+                if
+                    not (
+                        Set.exists
+                            (fun value ->
+                                match value with
+                                | Assertion.Triple _ -> true
+                                | _ -> false)
+                            current.Value.assertions
+                    )
+                then
                     //TODO handle inconsistent ConceptExprs
                     addInstance individual Set.empty Set.empty
                     let assertions = Set.remove assertion current.Value.assertions
 
                     let r = new System.Random()
-                    let newIndividual = Term $"new-{r.NextInt64()}"
-                    let assertions = Set.add (Assertion.Triple(individual, roleName, Value.Term newIndividual)) assertions
+                    let newIndividual = Term $"new-{r.Next()}"
+
+                    let assertions =
+                        Set.add (Assertion.Triple(individual, roleName, Value.Term newIndividual)) assertions
+
                     let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
-                    
+
                     setAssertions assertions
 
                     if assertions.IsEmpty then
@@ -324,13 +346,23 @@ type Interpretation(_definitions, _assertions) =
                     setAssertions assertions
                 | ConceptExpr.Top -> setAssertions (Set.remove assertion current.Value.assertions)
                 | ConceptExpr.Bottom -> setAssertions (Set.remove assertion current.Value.assertions)
-                | ConceptExpr.Exists(roleName, concept) -> 
+                | ConceptExpr.Exists(roleName, concept) ->
                     let mutable assertions = Set.remove assertion current.Value.assertions
-                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept))) assertions
+
+                    assertions <-
+                        Set.add
+                            (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
+                            assertions
+
                     setAssertions assertions
-                | ConceptExpr.All(roleName, concept) -> 
+                | ConceptExpr.All(roleName, concept) ->
                     let mutable assertions = Set.remove assertion current.Value.assertions
-                    assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Exists(roleName, ConceptExpr.Not concept))) assertions
+
+                    assertions <-
+                        Set.add
+                            (Assertion.Instance(individual, ConceptExpr.Exists(roleName, ConceptExpr.Not concept)))
+                            assertions
+
                     setAssertions assertions
                 | ConceptExpr.Not concept ->
                     let assertions = Set.remove assertion current.Value.assertions
@@ -392,13 +424,11 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
             List.map (fun value -> ConceptExpr.Not(nnfConcept value)) disj
             |> ConceptExpr.And
         | ConceptExpr.Not c -> ConceptExpr.Not(nnfConcept c)
-        | ConceptExpr.Implies(lhs, rhs) -> 
-            ConceptExpr.Or [rhs; ConceptExpr.Not lhs]
-        | ConceptExpr.Equivalent(lhs, rhs) -> 
-            ConceptExpr.And [
-                ConceptExpr.Or [rhs; ConceptExpr.Not lhs]
-                ConceptExpr.Or [lhs; ConceptExpr.Not rhs]
-            ]
+        | ConceptExpr.Implies(lhs, rhs) -> ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
+        | ConceptExpr.Equivalent(lhs, rhs) ->
+            ConceptExpr.And
+                [ ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
+                  ConceptExpr.Or [ lhs; ConceptExpr.Not rhs ] ]
 
     and nnf (definitions': Definitions) : ConceptExpr =
         if not definitions'.IsEmpty then

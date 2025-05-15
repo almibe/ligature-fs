@@ -69,7 +69,11 @@ let encodeString string =
 let rec printAny (value: Any) : string =
     match value with
     | Any.Term(Term value) -> value
-    | Any.Literal(Literal l) -> encodeString l
+    | Any.Literal(Literal(l, Term t)) ->
+        if t <> "" then
+            encodeString l + "^^" + t
+        else
+            encodeString l
     | Any.Variable(Variable v) -> v
     | Any.Tuple tuple -> printTuple tuple
     | Any.Assertions n -> printNetwork n
@@ -98,7 +102,7 @@ and printAnySet (set: AnySet) : string =
 
 and printValue (value: Value) : string =
     match value with
-    | Value.Literal(Literal l) -> encodeString l
+    | Value.Literal(Literal(l, Term t)) -> if t = "" then encodeString l else encodeString l + "^^" + t
     | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =
