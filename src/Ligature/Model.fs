@@ -15,7 +15,10 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
-type Literal = Literal of string * Term
+type Literal =
+    { content: string
+      datatype: Term option
+      langTag: string option }
 
 [<RequireQualifiedAccess>]
 type Value = //TODO delete

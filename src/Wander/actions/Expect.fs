@@ -16,7 +16,7 @@ let testGroupFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments.Head with
-            | Any.Literal(Literal(name, Term "")) -> printfn $"Running Test Group: {name}"
+            | Any.Literal { content = name } -> printfn $"Running Test Group: {name}"
             | _ -> failwith "Unexpected value."
 
             List.iter
@@ -24,13 +24,37 @@ let testGroupFn: Fn =
                     match arg with
                     | Any.Record record ->
                         match
-                            record.TryFind(Any.Literal(Literal("name", Term ""))),
-                            record.TryFind(Any.Literal(Literal("expect", Term ""))),
-                            record.TryFind(Any.Literal(Literal("left", Term ""))),
-                            record.TryFind(Any.Literal(Literal("right", Term "")))
+                            record.TryFind(
+                                Any.Literal
+                                    { content = "name"
+                                      datatype = None
+                                      langTag = None }
+                            ),
+                            record.TryFind(
+                                Any.Literal
+                                    { content = "expect"
+                                      datatype = None
+                                      langTag = None }
+                            ),
+                            record.TryFind(
+                                Any.Literal
+                                    { content = "left"
+                                      datatype = None
+                                      langTag = None }
+                            ),
+                            record.TryFind(
+                                Any.Literal
+                                    { content = "right"
+                                      datatype = None
+                                      langTag = None }
+                            )
                         with
-                        | Some(Any.Literal(Literal(name, Term ""))),
-                          Some(Any.Literal(Literal("=", Term ""))),
+                        | Some(Any.Literal { content = name
+                                             datatype = None
+                                             langTag = None }),
+                          Some(Any.Literal { content = "="
+                                             datatype = None
+                                             langTag = None }),
                           Some left,
                           Some right ->
                             printfn $"  Starting test {name}"
@@ -94,10 +118,29 @@ let expectEqualFn: Fn =
                 //     error $"assert-equal failed {printAny first} != {printAny second}" None
                 Any.Record(
                     Map.ofList
-                        [ Any.Literal(Literal("name", Term "")), Any.Literal name
-                          Any.Literal(Literal("expect", Term "")), Any.Literal(Literal("=", Term ""))
-                          Any.Literal(Literal("left", Term "")), left
-                          Any.Literal(Literal("right", Term "")), right ]
+                        [ Any.Literal
+                              { content = "name"
+                                datatype = None
+                                langTag = None },
+                          Any.Literal name
+                          Any.Literal
+                              { content = "expect"
+                                datatype = None
+                                langTag = None },
+                          Any.Literal
+                              { content = "="
+                                datatype = None
+                                langTag = None }
+                          Any.Literal
+                              { content = "left"
+                                datatype = None
+                                langTag = None },
+                          left
+                          Any.Literal
+                              { content = "right"
+                                datatype = None
+                                langTag = None },
+                          right ]
                 )
                 |> Ok
             | _ -> error $"expect-equal requires a name and two values." None

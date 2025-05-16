@@ -27,7 +27,17 @@ let tests =
         [ testCase "Run empty script"
           <| fun _ -> Expect.equal (runScript "") (Ok(Any.Tuple [])) ""
           testCase "run script with tuple literal"
-          <| fun _ -> Expect.equal (runScript "[\"test\"]") (Ok(Any.Tuple [ Any.Literal(Literal "test") ])) "" ]
+          <| fun _ ->
+              Expect.equal
+                  (runScript "[\"test\"]")
+                  (Ok(
+                      Any.Tuple
+                          [ Any.Literal
+                                { content = "test"
+                                  datatype = None
+                                  langTag = None } ]
+                  ))
+                  "" ]
 //   testCase "read network with attribute"
 //   <| fun _ ->
 //       Expect.equal

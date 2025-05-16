@@ -35,7 +35,10 @@ let docsFn: Fn =
                                     (Assertion.Triple(
                                         name,
                                         Term "doc-string",
-                                        Value.Literal(Literal(doc.doc, Term ""))
+                                        Value.Literal
+                                            { content = doc.doc
+                                              datatype = None
+                                              langTag = None }
                                     ))
                                     state
 
@@ -43,12 +46,26 @@ let docsFn: Fn =
 
                             let state =
                                 Set.add
-                                    (Assertion.Triple(name, Term "args", Value.Literal(Literal(doc.args, Term ""))))
+                                    (Assertion.Triple(
+                                        name,
+                                        Term "args",
+                                        Value.Literal
+                                            { content = doc.args
+                                              datatype = None
+                                              langTag = None }
+                                    ))
                                     state
 
                             let state =
                                 Set.add
-                                    (Assertion.Triple(name, Term "result", Value.Literal(Literal(doc.result, Term ""))))
+                                    (Assertion.Triple(
+                                        name,
+                                        Term "result",
+                                        Value.Literal
+                                            { content = doc.result
+                                              datatype = None
+                                              langTag = None }
+                                    ))
                                     state
 
                             List.fold
@@ -57,7 +74,10 @@ let docsFn: Fn =
                                         (Assertion.Triple(
                                             name,
                                             Term "doc-example",
-                                            Value.Literal(Literal(example, Term ""))
+                                            Value.Literal
+                                                { content = example
+                                                  datatype = None
+                                                  langTag = None }
                                         ))
                                         state)
                                 state

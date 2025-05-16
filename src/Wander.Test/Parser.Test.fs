@@ -25,7 +25,13 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
-                  (Ok [ Any.Tuple [ Any.Term(Term "test"); Any.Literal(Literal "test2") ] ])
+                  (Ok
+                      [ Any.Tuple
+                            [ Any.Term(Term "test")
+                              Any.Literal
+                                  { content = "test2"
+                                    datatype = None
+                                    langTag = None } ] ])
                   ""
           testCase "read empty record"
           <| fun _ -> Expect.equal (parse "{}") (Ok [ Any.Record Map.empty ]) ""

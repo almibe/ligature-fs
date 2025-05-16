@@ -245,7 +245,13 @@ let countFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Assertions n ] -> Ok(Any.Literal(Literal((Set.count n).ToString(), Term "")))
+            | [ Any.Assertions n ] ->
+                Ok(
+                    Any.Literal
+                        { content = (Set.count n).ToString()
+                          datatype = None
+                          langTag = None }
+                )
             | _ -> error "Illegal call to count." None
     )
 

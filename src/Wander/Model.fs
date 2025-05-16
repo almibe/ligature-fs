@@ -69,7 +69,7 @@ let encodeString string =
 let rec printAny (value: Any) : string =
     match value with
     | Any.Term(Term value) -> value
-    | Any.Literal(Literal(l, Term t)) ->
+    | Any.Literal { content = l; datatype = Some(Term t) } ->
         if t <> "" then
             encodeString l + "^^" + t
         else
@@ -102,7 +102,8 @@ and printAnySet (set: AnySet) : string =
 
 and printValue (value: Value) : string =
     match value with
-    | Value.Literal(Literal(l, Term t)) -> if t = "" then encodeString l else encodeString l + "^^" + t
+    | Value.Literal { content = l; datatype = Some(Term t) } ->
+        if t = "" then encodeString l else encodeString l + "^^" + t
     | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =
