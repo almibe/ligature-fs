@@ -89,12 +89,12 @@ let docsFn: Fn =
 
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
-        [ Term "test-group", testGroupFn
-          Term "expect-equal", expectEqualFn
+        [ //Term "test-group", testGroupFn
+          //Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
           Term "literal", literalFn
           Term "instance", instanceFn
-          Term "find-model", findModelFn
+        //   Term "find-model", findModelFn
           Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn
@@ -107,8 +107,8 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "implies", impliesFn
           Term "union", unionFn
           Term "remote", remoteFn
-          Term "extract", extractFn
-          Term "instances", instancesFn
+        //   Term "extract", extractFn
+        //   Term "instances", instancesFn
           Term "docs", docsFn
           //   Term "prepend", prependFn
           Term "set", setFn

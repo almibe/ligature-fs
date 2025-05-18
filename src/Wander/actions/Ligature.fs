@@ -42,76 +42,76 @@ and writeJsonView (view: JsonView) : string =
     res <- res + "}"
     res
 
-let extract (id: Term) (source: Assertions) : Record =
-    let mutable result = Map.empty
-    result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
+// let extract (id: Term) (source: Assertions) : Record =
+//     let mutable result = Map.empty
+//     result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
 
-    Set.iter
-        (fun triple ->
-            match triple with
-            | Assertion.Triple(e, a, Value.Term v) ->
-                if e = id then
-                    result <- Map.add (Any.Term a) (Any.Term v) result
-            | Assertion.Triple(e, a, Value.Literal v) ->
-                if e = id then
-                    result <- Map.add (Any.Term a) (Any.Literal v) result
-            | Assertion.Instance(i, ConceptExpr.AtomicConcept c) ->
-                if i = id then
-                    result <- Map.add (Any.Term(Term ":")) (Any.Term c) result
-            | _ -> failwith "TODO")
-        source
+//     Set.iter
+//         (fun triple ->
+//             match triple with
+//             | Assertion.Triple(e, a, Value.Term v) ->
+//                 if e = id then
+//                     result <- Map.add (Any.Term a) (Any.Term v) result
+//             | Assertion.Triple(e, a, Value.Literal v) ->
+//                 if e = id then
+//                     result <- Map.add (Any.Term a) (Any.Literal v) result
+//             | Assertion.Instance(i, ConceptExpr.AtomicConcept c) ->
+//                 if i = id then
+//                     result <- Map.add (Any.Term(Term ":")) (Any.Term c) result
+//             | _ -> failwith "TODO")
+//         source
 
-    result
+//     result
 
-let extractFn: Fn =
-    Fn(
-        { doc = "Create a Record of a single invidual's relations."
-          examples = [ "extract a (network [a b c])" ]
-          args = "Term Network"
-          result = "Record" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Record(extract id source))
-            | _ -> error "Invalid call to extract." None
-    )
+// let extractFn: Fn =
+//     Fn(
+//         { doc = "Create a Record of a single invidual's relations."
+//           examples = [ "extract a (network [a b c])" ]
+//           args = "Term Network"
+//           result = "Record" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Node(extract id source))
+//             | _ -> error "Invalid call to extract." None
+//     )
 
-let instances (source: Assertions) (concept: Term) : AnySet =
-    Set.fold
-        (fun state triple ->
-            match triple with
-            | Assertion.Triple(element, Term ":", conceptToCheck) ->
-                if conceptToCheck = Value.Term concept then
-                    Set.add (Any.Record(extract element source)) state
-                else
-                    state
-            | _ -> state)
-        Set.empty
-        source
+// let instances (source: Assertions) (concept: Term) : AnySet =
+//     Set.fold
+//         (fun state triple ->
+//             match triple with
+//             | Assertion.Triple(element, Term ":", conceptToCheck) ->
+//                 if conceptToCheck = Value.Term concept then
+//                     Set.add (Any.Node(extract element source)) state
+//                 else
+//                     state
+//             | _ -> state)
+//         Set.empty
+//         source
 
-let instancesFn: Fn =
-    Fn(
-        { doc = "..."
-          examples = []
-          args = ""
-          result = "" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Term concept; Any.Assertions source ] ->
-                let result: AnySet = instances source concept
-                Ok(Any.AnySet result)
-            | [ Any.Tuple concepts; Any.Assertions source ] ->
-                let result: AnySet =
-                    List.fold
-                        (fun state concept ->
-                            match concept with
-                            | Any.Term concept -> instances source concept
-                            | _ -> failwith "TODO")
-                        Set.empty
-                        concepts
+// let instancesFn: Fn =
+//     Fn(
+//         { doc = "..."
+//           examples = []
+//           args = ""
+//           result = "" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Any.Term concept; Any.Assertions source ] ->
+//                 let result: AnySet = instances source concept
+//                 Ok(Any.AnySet result)
+//             | [ Any.Tuple concepts; Any.Assertions source ] ->
+//                 let result: AnySet =
+//                     List.fold
+//                         (fun state concept ->
+//                             match concept with
+//                             | Any.Term concept -> instances source concept
+//                             | _ -> failwith "TODO")
+//                         Set.empty
+//                         concepts
 
-                Ok(Any.AnySet result)
-            | _ -> failwith "TODO"
-    )
+//                 Ok(Any.AnySet result)
+//             | _ -> failwith "TODO"
+//     )
 
 let unfoldFn =
     Fn(
@@ -260,45 +260,45 @@ let equivalentFn: Fn =
             | _ -> error "Improper call to define-concept." None
     )
 
-let findModelFn: Fn =
-    Fn(
-        { doc = "Find the first model that matches the given KB."
-          examples = [ "(find-model (definitions) (assertions))" ]
-          args = "Definitions Assertions"
-          result = "Record" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Definitions definitions; Any.Assertions assertions ] ->
-                match findModel definitions assertions with
-                | Ok None -> Ok(Any.Record Map.empty)
-                | Ok(Some model) ->
+// let findModelFn: Fn =
+//     Fn(
+//         { doc = "Find the first model that matches the given KB."
+//           examples = [ "(find-model (definitions) (assertions))" ]
+//           args = "Definitions Assertions"
+//           result = "Record" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Any.Definitions definitions; Any.Assertions assertions ] ->
+//                 match findModel definitions assertions with
+//                 | Ok None -> Ok(Any.Node Map.empty)
+//                 | Ok(Some model) ->
 
-                    let individuals: Record =
-                        Map.toSeq model.individuals
-                        |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
-                            let isA = Set.map Any.Term isA |> Any.AnySet
-                            let isNot = Set.map Any.Term isNot |> Any.AnySet
+//                     let individuals: Record =
+//                         Map.toSeq model.individuals
+//                         |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
+//                             let isA = Set.map Any.Term isA |> Any.AnySet
+//                             let isNot = Set.map Any.Term isNot |> Any.AnySet
 
-                            Any.Term key,
-                            Any.Record(Map.ofList [ Any.Term(Term "is-a"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
-                        |> Map.ofSeq
+//                             Any.Term key,
+//                             Any.Node(Map.ofList [ Any.Term(Term "is-a"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
+//                         |> Map.ofSeq
 
-                    let roles: AnySet =
-                        Set.map (fun (i, r, t) -> Any.Tuple [ Any.Term i; Any.Term r; Any.Term t ]) model.roles
+//                     let roles: AnySet =
+//                         Set.map (fun (i, r, t) -> Any.Tuple [ Any.Term i; Any.Term r; Any.Term t ]) model.roles
 
-                    let attributes: AnySet =
-                        Set.map (fun (i, a, l) -> Any.Tuple [ Any.Term i; Any.Term a; Any.Literal l ]) model.attributes
+//                     let attributes: AnySet =
+//                         Set.map (fun (i, a, l) -> Any.Tuple [ Any.Term i; Any.Term a; Any.Literal l ]) model.attributes
 
-                    Any.Record(
-                        Map.ofList
-                            [ Any.Term(Term "roles"), Any.AnySet roles
-                              Any.Term(Term "individuals"), Any.Record individuals
-                              Any.Term(Term "attributes"), Any.AnySet attributes ]
-                    )
-                    |> Ok
-                | Error err -> Error err
-            | _ -> error "Improper call to find-model." None
-    )
+//                     Any.Node(
+//                         Map.ofList
+//                             [ Any.Term(Term "roles"), Any.AnySet roles
+//                               Any.Term(Term "individuals"), Any.Node individuals
+//                               Any.Term(Term "attributes"), Any.AnySet attributes ]
+//                     )
+//                     |> Ok
+//                 | Error err -> Error err
+//             | _ -> error "Improper call to find-model." None
+//     )
 
 let literalFn: Fn =
     Fn(

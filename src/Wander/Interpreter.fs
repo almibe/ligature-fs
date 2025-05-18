@@ -34,7 +34,7 @@ let rec evalScript
     (script: Script)
     : Result<Any, LigatureError> =
     match script with
-    | Any.NodeExpression(Term "defn", [], Any.Term name :: Any.Tuple args :: value) :: tail ->
+    | Any.NodeExpression(Term "defn", _, Any.Term name :: Any.Tuple args :: value) :: tail ->
         let args =
             List.map
                 (fun value ->
@@ -49,7 +49,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.NodeExpression(Term "let", [], [ Any.Variable var; value ]) :: tail ->
+    | Any.NodeExpression(Term "let", _, [ Any.Variable var; value ]) :: tail ->
         //TODO process value
         let variables = Map.add var value variables
 
@@ -57,7 +57,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.NodeExpression(Term "->", [], body) :: tail ->
+    | Any.NodeExpression(Term "->", _, body) :: tail ->
         match body with
         | [] -> failwith "Invalid pipe call."
         | initialExpression :: remainingExpressions ->
@@ -68,8 +68,8 @@ let rec evalScript
                         match state with
                         | Ok prevValue ->
                             match currentExpression with
-                            | Any.NodeExpression(name, [], args) ->
-                                let newApp = name, [], List.append args [ prevValue ]
+                            | Any.NodeExpression(name, _, args) ->
+                                let newApp = name, Map.empty, List.append args [ prevValue ]
                                 executeApplication actions bindings variables newApp
                             | _ -> failwith "TODO"
                         | Error err -> Error err)
@@ -97,13 +97,14 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some action -> Some action
     | None -> None
 
-and evalRecord (actions: Fns) (bindings: Bindings) (variables: Variables) (record: Record) : Record =
-    Map.map
-        (fun _ value ->
-            match executeExpression actions bindings variables value with
-            | Ok res -> res
-            | Error err -> failwith $"Error: {err.UserMessage}")
-        record
+and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: NodeExpression) : NodeExpression =
+    failwith "TODO"
+    // Map.map
+    //     (fun _ value ->
+    //         match executeExpression actions bindings variables value with
+    //         | Ok res -> res
+    //         | Error err -> failwith $"Error: {err.UserMessage}")
+    //     record
 
 and evalLambda
     (fns: Fns)
@@ -153,7 +154,7 @@ and executeApplication
                         match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
-                    | Any.Record record -> Any.Record(evalRecord actions bindings variables record)
+                    | Any.Node node -> Any.Node(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
     | _, _, None, None -> error $"Could not find function {fn}" None
@@ -178,7 +179,7 @@ and executeExpression
                 tuple
 
         Ok(Any.Tuple tuple)
-    | Any.Record record -> Ok(Any.Record(evalRecord actions bindings variables record))
+    | Any.Node node -> Ok(Any.Node(evalNode actions bindings variables node))
     | Any.Literal literal -> Ok(Any.Literal literal)
     | Any.Variable variable ->
         match variables.TryFind variable with

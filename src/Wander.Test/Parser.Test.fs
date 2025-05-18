@@ -34,6 +34,6 @@ let tests =
                                     langTag = None } ] ])
                   ""
           testCase "read empty record"
-          <| fun _ -> Expect.equal (parse "{}") (Ok [ Any.Record Map.empty ]) ""
+          <| fun _ -> Expect.equal (parse "{p}") (Ok [ Any.Node (Term "p", Map.empty, []) ]) ""
           testCase "read basic block"
-          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.NodeExpression(Term "2", [], []) ]) "" ]
+          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.NodeExpression(Term "2", Map.empty, []) ]) "" ]

@@ -9,60 +9,61 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let rec recordToNetwork (record: Record) : Result<Assertions, LigatureError> =
-    match Map.tryFind (Any.Term(Term "@")) record with
-    | Some(Any.Term id) ->
-        Seq.fold
-            (fun state (key, value) ->
-                if key = Any.Term(Term "@") then
-                    state
-                else
-                    let role: Term =
-                        match key with
-                        | Any.Term term -> term
-                        | _ -> failwith "TODO"
+let rec nodeToNetwork (node: NodeExpression) : Result<Assertions, LigatureError> =
+    failwith "TODO"
+    // match Map.tryFind (Any.Term(Term "@")) record with
+    // | Some(Any.Term id) ->
+    //     Seq.fold
+    //         (fun state (key, value) ->
+    //             if key = Any.Term(Term "@") then
+    //                 state
+    //             else
+    //                 let role: Term =
+    //                     match key with
+    //                     | Any.Term term -> term
+    //                     | _ -> failwith "TODO"
 
-                    match value with
-                    | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-                    | Any.Term term ->
-                        if role = Term ":" then
-                            Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
-                        else if role = Term "~" then
-                            Set.add (Assertion.Instance(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
-                        else
-                            Set.add (Assertion.Triple(id, role, Value.Term term)) state
-                    | Any.Tuple tuple ->
-                        List.fold
-                            (fun state value ->
-                                match value with
-                                | Any.Literal literal ->
-                                    Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-                                | Any.Term term ->
-                                    if role = Term ":" then
-                                        Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
-                                    else if role = Term "~" then
-                                        failwith "TODO"
-                                    else
-                                        Set.add (Assertion.Triple(id, role, Value.Term term)) state
-                                | _ -> failwith "TODO")
-                            state
-                            tuple
-                    | Any.Record record ->
-                        let state =
-                            match record.TryFind(Any.Term(Term "@")) with
-                            | Some(Any.Term value) -> Set.add (Assertion.Triple(id, role, Value.Term value)) state
-                            | _ -> failwith "TODO"
+    //                 match value with
+    //                 | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
+    //                 | Any.Term term ->
+    //                     if role = Term ":" then
+    //                         Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
+    //                     else if role = Term "~" then
+    //                         Set.add (Assertion.Instance(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
+    //                     else
+    //                         Set.add (Assertion.Triple(id, role, Value.Term term)) state
+    //                 | Any.Tuple tuple ->
+    //                     List.fold
+    //                         (fun state value ->
+    //                             match value with
+    //                             | Any.Literal literal ->
+    //                                 Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
+    //                             | Any.Term term ->
+    //                                 if role = Term ":" then
+    //                                     Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
+    //                                 else if role = Term "~" then
+    //                                     failwith "TODO"
+    //                                 else
+    //                                     Set.add (Assertion.Triple(id, role, Value.Term term)) state
+    //                             | _ -> failwith "TODO")
+    //                         state
+    //                         tuple
+    //                 | Any.Node record ->
+    //                     let state =
+    //                         match record.TryFind(Any.Term(Term "@")) with
+    //                         | Some(Any.Term value) -> Set.add (Assertion.Triple(id, role, Value.Term value)) state
+    //                         | _ -> failwith "TODO"
 
-                        match recordToNetwork record with
-                        | Ok network -> state + network
-                        | _ -> failwith "TODO"
-                    | _ -> failwith "TODO")
-            Set.empty
-            (Map.toSeq record)
-        |> Ok
-    | _ -> error "Record requires valid @ entry." None
+    //                     match recordToNetwork record with
+    //                     | Ok network -> state + network
+    //                     | _ -> failwith "TODO"
+    //                 | _ -> failwith "TODO")
+    //         Set.empty
+    //         (Map.toSeq record)
+    //     |> Ok
+    // | _ -> error "Record requires valid @ entry." None
 
-let rec recordToPattern (record: Record) : Result<Pattern, LigatureError> = failwith "TODO"
+let rec nodeToPattern (node: NodeExpression) : Result<Pattern, LigatureError> = failwith "TODO"
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some id ->
 //     let id =
@@ -149,8 +150,8 @@ let assertionsFn =
                             res <-
                                 Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
                         | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Any.Record record ->
-                        match recordToNetwork record with
+                    | Any.Node record ->
+                        match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
                     | _ -> failwith "Invalid call to assertions.")
