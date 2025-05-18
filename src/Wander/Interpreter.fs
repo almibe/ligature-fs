@@ -34,7 +34,7 @@ let rec evalScript
     (script: Script)
     : Result<Any, LigatureError> =
     match script with
-    | Any.Application(Term "defn", Any.Term name :: Any.Tuple args :: value) :: tail ->
+    | Any.NodeExpression(Term "defn", [], Any.Term name :: Any.Tuple args :: value) :: tail ->
         let args =
             List.map
                 (fun value ->
@@ -49,7 +49,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.Application(Term "let", [ Any.Variable var; value ]) :: tail ->
+    | Any.NodeExpression(Term "let", [], [ Any.Variable var; value ]) :: tail ->
         //TODO process value
         let variables = Map.add var value variables
 
@@ -57,7 +57,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.Application(Term "->", body) :: tail ->
+    | Any.NodeExpression(Term "->", [], body) :: tail ->
         match body with
         | [] -> failwith "Invalid pipe call."
         | initialExpression :: remainingExpressions ->
@@ -68,8 +68,8 @@ let rec evalScript
                         match state with
                         | Ok prevValue ->
                             match currentExpression with
-                            | Any.Application(name, args) ->
-                                let newApp = name, List.append args [ prevValue ]
+                            | Any.NodeExpression(name, [], args) ->
+                                let newApp = name, [], List.append args [ prevValue ]
                                 executeApplication actions bindings variables newApp
                             | _ -> failwith "TODO"
                         | Error err -> Error err)
@@ -126,9 +126,9 @@ and executeApplication
     (actions: Fns)
     (bindings: Bindings)
     (variables: Variables)
-    (application: Application)
+    (application: NodeExpression)
     : Result<Any, LigatureError> =
-    let fn, args = application
+    let fn, attributes, args = application
 
     let args =
         List.map
@@ -149,7 +149,7 @@ and executeApplication
             (List.map
                 (fun value ->
                     match value with
-                    | Any.Application application ->
+                    | Any.NodeExpression application ->
                         match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
@@ -185,7 +185,7 @@ and executeExpression
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
     | Any.Term term -> Ok(Any.Term term)
-    | Any.Application application -> executeApplication actions bindings variables application
+    | Any.NodeExpression application -> executeApplication actions bindings variables application
     | Any.AnySet set -> Ok(Any.AnySet set)
     | Any.Assertion assertion -> failwith "TODO"
     | Any.Slot _ -> failwith "Not Implemented"

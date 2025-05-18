@@ -300,6 +300,24 @@ let findModelFn: Fn =
             | _ -> error "Improper call to find-model." None
     )
 
+let literalFn: Fn =
+    Fn(
+        { doc = "Create a literal."
+          examples = [ "(literal \"# hello\" Markdown en)" ]
+          args = "Literal Term Term"
+          result = "Literal" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Literal { content = content }; Any.Term datatype; Any.Term(Term langTag) ] ->
+                Ok(
+                    Any.Literal
+                        { content = content
+                          datatype = Some datatype
+                          langTag = Some langTag }
+                )
+            | _ -> error "Improper call to literal." None
+    )
+
 let instanceFn: Fn =
     Fn(
         { doc = "Assert an Individual extends a Concept."

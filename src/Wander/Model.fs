@@ -28,12 +28,12 @@ and [<RequireQualifiedAccess>] Any =
     | Comment of string
     | AnySet of AnySet
     | Record of Record
-    | Application of Application
+    | NodeExpression of NodeExpression
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definitions of Definitions
 
-and Application = Term * Any list
+and NodeExpression = Term * (Term * Any) list * Any list
 
 and Script = Any list
 
@@ -69,11 +69,10 @@ let encodeString string =
 let rec printAny (value: Any) : string =
     match value with
     | Any.Term(Term value) -> value
-    | Any.Literal { content = l; datatype = Some(Term t) } ->
-        if t <> "" then
-            encodeString l + "^^" + t
-        else
-            encodeString l
+    | Any.Literal { content = l
+                    datatype = Some(Term t)
+                    langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
+    | Any.Literal { content = content } -> encodeString content
     | Any.Variable(Variable v) -> v
     | Any.Tuple tuple -> printTuple tuple
     | Any.Assertions n -> printNetwork n
@@ -83,7 +82,7 @@ let rec printAny (value: Any) : string =
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.AnySet s -> printAnySet s
     | Any.Pattern _ -> failwith "Not Implemented"
-    | Any.Application _ -> "-app-"
+    | Any.NodeExpression _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.Record record -> printRecord record
     | Any.Definitions defs -> printDefinitions defs
@@ -104,6 +103,7 @@ and printValue (value: Value) : string =
     match value with
     | Value.Literal { content = l; datatype = Some(Term t) } ->
         if t = "" then encodeString l else encodeString l + "^^" + t
+    | Value.Literal { content = l } -> encodeString l
     | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =

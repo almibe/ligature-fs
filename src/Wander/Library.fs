@@ -92,6 +92,7 @@ let stdFns (store: ILigatureStore) : Fns =
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
           Term "assertions", assertionsFn
+          Term "literal", literalFn
           Term "instance", instanceFn
           Term "find-model", findModelFn
           Term "concept", conceptFn

@@ -36,4 +36,4 @@ let tests =
           testCase "read empty record"
           <| fun _ -> Expect.equal (parse "{}") (Ok [ Any.Record Map.empty ]) ""
           testCase "read basic block"
-          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.Application(Term "2", []) ]) "" ]
+          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.NodeExpression(Term "2", [], []) ]) "" ]

@@ -60,10 +60,25 @@ let networkToJs (network: Assertions) =
                     value?value <-
                         match v with
                         | Value.Term(Term t) -> t
-                        | Value.Literal(Literal(l, Term "")) -> l
+                        | Value.Literal { content = l } -> l //TODO add type and lang tag
 
                     [| element; role; value |]
-                | Assertion.Instance(i, c) -> failwith "TODO")
+                | Assertion.Instance(Term i, ConceptExpr.AtomicConcept(Term c)) ->
+                    let element = createEmpty
+                    element?``type`` <- "term"
+                    element?value <- i
+
+                    let role = createEmpty
+                    role?``type`` <- "term"
+                    role?value <- ":"
+
+                    let value = createEmpty
+
+                    value?``type`` <- "term"
+
+                    value?value <- c
+
+                    [| element; role; value |])
             network
 
     let network = Array.ofSeq network
@@ -103,7 +118,7 @@ and anyToJs (any: Any) =
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Any.Literal(Literal(l, _)) ->
+    | Any.Literal { content = l } -> //TODO add datatype and langtag
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
@@ -127,6 +142,30 @@ let resultToJs (res: Result<Any, LigatureError>) =
         obj?value <- err
         obj
     | Ok any -> anyToJs any
+
+let appendHtml element (value: Result<Any, LigatureError>) =
+    match value with
+    | Ok(Any.Record record) ->
+        match record.TryFind(Any.Term(Term "root")) with
+        | Some(Any.Record record) ->
+            match record.TryFind(Any.Term(Term "tag")) with
+            | Some(Any.Term(Term tag)) ->
+                match record.TryFind(Any.Term(Term "children")) with
+                | Some(Any.Tuple children) ->
+                    List.iter
+                        (fun value ->
+                            match value with
+                            | Any.Literal { content = content } ->
+                                let newElement = emitJsExpr () $"document.createElement('{tag}')"
+                                newElement?textContent <- content
+                                //TODO handle children + content + attributes
+                                emitJsStatement () "element.appendChild(newElement)"
+                            | _ -> failwith "TODO")
+                        children
+                | _ -> ()
+            | _ -> () //failwith "TODO3"
+        | _ -> () //failwith "TODO5"
+    | _ -> () //failwith "TODO4"
 
 let appendCanvas element (value: Result<Any, LigatureError>) =
     match value with
@@ -164,11 +203,15 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
                                   Any.Term(Term h) ] -> emitJsStatement (x, y, w, h) "ctx.strokeRect($0, $1, $2, $3)"
 
                     | Any.Tuple [ Any.Term(Term "fill-text")
-                                  Any.Literal(Literal(text, Term ""))
+                                  Any.Literal { content = text
+                                                datatype = None
+                                                langTag = None }
                                   Any.Term(Term x)
                                   Any.Term(Term y) ] -> emitJsStatement (text, x, y) "ctx.fillText($0, $1, $2)"
                     | Any.Tuple [ Any.Term(Term "stroke-text")
-                                  Any.Literal(Literal(text, Term ""))
+                                  Any.Literal { content = text
+                                                datatype = None
+                                                langTag = None }
                                   Any.Term(Term x)
                                   Any.Term(Term y) ] -> emitJsStatement (text, x, y) "ctx.strokeText($0, $1, $2)"
 
@@ -193,7 +236,7 @@ let appendCanvas element (value: Result<Any, LigatureError>) =
 
                     | Any.Tuple [ Any.Term(Term "font"); Any.Term(Term value) ] ->
                         emitJsStatement (value) "ctx.font($0)"
-                    | Any.Tuple [ Any.Term(Term "font"); Any.Literal(Literal(value, _)) ] ->
+                    | Any.Tuple [ Any.Term(Term "font"); Any.Literal { content = value } ] ->
                         emitJsStatement (value) "ctx.font($0)"
                     | Any.Tuple [ Any.Term(Term "text-align"); Any.Term(Term value) ] ->
                         emitJsStatement (value) "ctx.textAlign($0)"
