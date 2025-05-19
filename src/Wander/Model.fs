@@ -25,13 +25,13 @@ and [<RequireQualifiedAccess>] Any =
     | ResultSet of ResultSet
     | Comment of string
     | AnySet of AnySet
-    | Node of NodeExpression
-    | NodeExpression of NodeExpression
+    | NodeLiteral of Node
+    | NodeExpression of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definitions of Definitions
 
-and NodeExpression = Term * Map<Term, Any> * Any list
+and Node = Term * Map<Term, Any> * Any list
 
 and Script = Any list
 
@@ -82,7 +82,7 @@ let rec printAny (value: Any) : string =
     | Any.Pattern _ -> failwith "Not Implemented"
     | Any.NodeExpression _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
-    | Any.Node node -> printNode node
+    | Any.NodeLiteral node -> printNode node
     | Any.Definitions defs -> printDefinitions defs
     | Any.Assertion _ -> "-assertion-"
     | Any.ConceptExpr c -> printConcept c
@@ -90,7 +90,7 @@ let rec printAny (value: Any) : string =
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
 
-and printNode (node: NodeExpression) : string =
+and printNode (node: Node) : string =
     "-node-"
     // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
     // + "}"

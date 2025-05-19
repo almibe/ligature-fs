@@ -9,7 +9,7 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let rec nodeToNetwork (node: NodeExpression) : Result<Assertions, LigatureError> =
+let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> =
     failwith "TODO"
     // match Map.tryFind (Any.Term(Term "@")) record with
     // | Some(Any.Term id) ->
@@ -63,7 +63,7 @@ let rec nodeToNetwork (node: NodeExpression) : Result<Assertions, LigatureError>
     //     |> Ok
     // | _ -> error "Record requires valid @ entry." None
 
-let rec nodeToPattern (node: NodeExpression) : Result<Pattern, LigatureError> = failwith "TODO"
+let rec nodeToPattern (node: Node) : Result<Pattern, LigatureError> = failwith "TODO"
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some id ->
 //     let id =
@@ -150,7 +150,7 @@ let assertionsFn =
                             res <-
                                 Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
                         | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Any.Node record ->
+                    | Any.NodeLiteral record ->
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"

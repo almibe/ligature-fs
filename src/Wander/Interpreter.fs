@@ -97,7 +97,7 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some action -> Some action
     | None -> None
 
-and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: NodeExpression) : NodeExpression =
+and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: Node) : Node =
     failwith "TODO"
     // Map.map
     //     (fun _ value ->
@@ -127,7 +127,7 @@ and executeApplication
     (actions: Fns)
     (bindings: Bindings)
     (variables: Variables)
-    (application: NodeExpression)
+    (application: Node)
     : Result<Any, LigatureError> =
     let fn, attributes, args = application
 
@@ -154,7 +154,7 @@ and executeApplication
                         match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
-                    | Any.Node node -> Any.Node(evalNode actions bindings variables node)
+                    | Any.NodeLiteral node -> Any.NodeLiteral(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
     | _, _, None, None -> error $"Could not find function {fn}" None
@@ -179,7 +179,7 @@ and executeExpression
                 tuple
 
         Ok(Any.Tuple tuple)
-    | Any.Node node -> Ok(Any.Node(evalNode actions bindings variables node))
+    | Any.NodeLiteral node -> Ok(Any.NodeLiteral(evalNode actions bindings variables node))
     | Any.Literal literal -> Ok(Any.Literal literal)
     | Any.Variable variable ->
         match variables.TryFind variable with

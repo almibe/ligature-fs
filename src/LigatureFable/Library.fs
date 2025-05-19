@@ -87,7 +87,7 @@ let networkToJs (network: Assertions) =
     obj?value <- network
     obj
 
-let rec nodeToJs (node: NodeExpression) =
+let rec nodeToJs (node: Node) =
     failwith "TODO"
     // let record =
     //     Seq.fold
@@ -131,7 +131,7 @@ and anyToJs (any: Any) =
         obj?``type`` <- "tuple"
         obj?value <- res
         obj
-    | Any.Node node -> nodeToJs node
+    | Any.NodeLiteral node -> nodeToJs node
     | Any.AnySet set -> setToJs set
     | x -> failwith $"Invalid call to anyToJs: {x}"
 
@@ -146,7 +146,7 @@ let resultToJs (res: Result<Any, LigatureError>) =
 
 let appendHtml element (value: Result<Any, LigatureError>) =
     match value with
-    | Ok(Any.Node node) ->
+    | Ok(Any.NodeLiteral node) ->
         failwith "TODO"
         // match record.TryFind(Any.Term(Term "root")) with
         // | Some(Any.Node record) ->
