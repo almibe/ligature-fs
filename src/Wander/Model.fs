@@ -31,7 +31,10 @@ and [<RequireQualifiedAccess>] Any =
     | ConceptExpr of ConceptExpr
     | Definitions of Definitions
 
-and Node = Term * Map<Term, Any> * Any list
+and Node = 
+    { name: Term
+      attributes: Map<Term, Any>
+      children: Any list }
 
 and Script = Any list
 

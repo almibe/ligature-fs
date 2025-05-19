@@ -34,7 +34,7 @@ let rec evalScript
     (script: Script)
     : Result<Any, LigatureError> =
     match script with
-    | Any.NodeExpression(Term "defn", _, Any.Term name :: Any.Tuple args :: value) :: tail ->
+    | Any.NodeExpression { name = Term "defn"; children = Any.Term name :: Any.Tuple args :: value } :: tail ->
         let args =
             List.map
                 (fun value ->
@@ -49,7 +49,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.NodeExpression(Term "let", _, [ Any.Variable var; value ]) :: tail ->
+    | Any.NodeExpression { name = Term "let"; children = [ Any.Variable var; value ] } :: tail ->
         //TODO process value
         let variables = Map.add var value variables
 
@@ -57,7 +57,7 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.NodeExpression(Term "->", _, body) :: tail ->
+    | Any.NodeExpression { name = Term "->"; children = body } :: tail ->
         match body with
         | [] -> failwith "Invalid pipe call."
         | initialExpression :: remainingExpressions ->
@@ -68,8 +68,8 @@ let rec evalScript
                         match state with
                         | Ok prevValue ->
                             match currentExpression with
-                            | Any.NodeExpression(name, _, args) ->
-                                let newApp = name, Map.empty, List.append args [ prevValue ]
+                            | Any.NodeExpression { name = name; children = args } ->
+                                let newApp = { name = name; attributes = Map.empty; children = List.append args [ prevValue ] }
                                 executeApplication actions bindings variables newApp
                             | _ -> failwith "TODO"
                         | Error err -> Error err)
@@ -129,7 +129,7 @@ and executeApplication
     (variables: Variables)
     (application: Node)
     : Result<Any, LigatureError> =
-    let fn, attributes, args = application
+    let {name = fn; attributes = attributes; children = args} = application
 
     let args =
         List.map

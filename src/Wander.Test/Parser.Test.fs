@@ -34,6 +34,6 @@ let tests =
                                     langTag = None } ] ])
                   ""
           testCase "read empty record"
-          <| fun _ -> Expect.equal (parse "{p}") (Ok [ Any.NodeLiteral (Term "p", Map.empty, []) ]) ""
+          <| fun _ -> Expect.equal (parse "{p}") (Ok [ Any.NodeLiteral { name = Term "p"; attributes = Map.empty; children = [] } ]) ""
           testCase "read basic block"
-          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.NodeExpression(Term "2", Map.empty, []) ]) "" ]
+          <| fun _ -> Expect.equal (parse "(2)") (Ok [ Any.NodeExpression { name = Term "2"; attributes = Map.empty; children = [] } ]) "" ]

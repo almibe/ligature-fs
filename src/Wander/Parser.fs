@@ -54,7 +54,7 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! fn = Gaze.attempt termNib gaze
         let! values = Gaze.attempt scriptNib gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Any.NodeExpression(fn, Map.empty, values)
+        return Any.NodeExpression { name = fn; attributes = Map.empty; children = values}
     }
 
 let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
