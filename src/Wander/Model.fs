@@ -31,7 +31,7 @@ and [<RequireQualifiedAccess>] Any =
     | ConceptExpr of ConceptExpr
     | Definitions of Definitions
 
-and Node = 
+and Node =
     { name: Term
       attributes: Map<Term, Any>
       children: Any list }
@@ -93,10 +93,9 @@ let rec printAny (value: Any) : string =
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
 
-and printNode (node: Node) : string =
-    "-node-"
-    // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
-    // + "}"
+and printNode (node: Node) : string = "-node-"
+// Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
+// + "}"
 
 and printAnySet (set: AnySet) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "set [" set + "]"

@@ -34,7 +34,8 @@ let rec evalScript
     (script: Script)
     : Result<Any, LigatureError> =
     match script with
-    | Any.NodeExpression { name = Term "defn"; children = Any.Term name :: Any.Tuple args :: value } :: tail ->
+    | Any.NodeExpression { name = Term "defn"
+                           children = Any.Term name :: Any.Tuple args :: value } :: tail ->
         let args =
             List.map
                 (fun value ->
@@ -49,7 +50,8 @@ let rec evalScript
             Ok(Any.Tuple [])
         else
             evalScript actions bindings variables tail
-    | Any.NodeExpression { name = Term "let"; children = [ Any.Variable var; value ] } :: tail ->
+    | Any.NodeExpression { name = Term "let"
+                           children = [ Any.Variable var; value ] } :: tail ->
         //TODO process value
         let variables = Map.add var value variables
 
@@ -69,7 +71,11 @@ let rec evalScript
                         | Ok prevValue ->
                             match currentExpression with
                             | Any.NodeExpression { name = name; children = args } ->
-                                let newApp = { name = name; attributes = Map.empty; children = List.append args [ prevValue ] }
+                                let newApp =
+                                    { name = name
+                                      attributes = Map.empty
+                                      children = List.append args [ prevValue ] }
+
                                 executeApplication actions bindings variables newApp
                             | _ -> failwith "TODO"
                         | Error err -> Error err)
@@ -98,13 +104,16 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | None -> None
 
 and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: Node) : Node =
-    failwith "TODO"
-    // Map.map
-    //     (fun _ value ->
-    //         match executeExpression actions bindings variables value with
-    //         | Ok res -> res
-    //         | Error err -> failwith $"Error: {err.UserMessage}")
-    //     record
+    { name = node.name
+      attributes =
+        Map.map
+            (fun _ value ->
+                match executeExpression actions bindings variables value with
+                | Ok res -> res
+                | Error err -> failwith $"Error: {err.UserMessage}")
+            node.attributes
+      children = node.children //TODO eval
+    }
 
 and evalLambda
     (fns: Fns)
@@ -129,7 +138,10 @@ and executeApplication
     (variables: Variables)
     (application: Node)
     : Result<Any, LigatureError> =
-    let {name = fn; attributes = attributes; children = args} = application
+    let { name = fn
+          attributes = attributes
+          children = args } =
+        application
 
     let args =
         List.map

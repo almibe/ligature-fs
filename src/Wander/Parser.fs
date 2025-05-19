@@ -54,7 +54,12 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         let! fn = Gaze.attempt termNib gaze
         let! values = Gaze.attempt scriptNib gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
-        return Any.NodeExpression { name = fn; attributes = Map.empty; children = values}
+
+        return
+            Any.NodeExpression
+                { name = fn
+                  attributes = Map.empty
+                  children = values }
     }
 
 let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
@@ -85,22 +90,21 @@ let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         }
 
     match node with
-    | Ok (name, attributes, children) ->
-        failwith "TODO"
-        //Ok Any.NodeLiteral ()
-        // if res.Length % 2 = 0 then
-        //     let res =
-        //         List.fold
-        //             (fun state value ->
-        //                 match value with
-        //                 | [ first; second ] -> Map.add first second state
-        //                 | _ -> failwith "TODO")
-        //             Map.empty
-        //             (List.chunkBySize 2 res)
+    | Ok(name, attributes, children) -> failwith "TODO"
+    //Ok Any.NodeLiteral ()
+    // if res.Length % 2 = 0 then
+    //     let res =
+    //         List.fold
+    //             (fun state value ->
+    //                 match value with
+    //                 | [ first; second ] -> Map.add first second state
+    //                 | _ -> failwith "TODO")
+    //             Map.empty
+    //             (List.chunkBySize 2 res)
 
-        //     Ok(Any.Node res)
-        // else
-        //     Error Gaze.NoMatch
+    //     Ok(Any.Node res)
+    // else
+    //     Error Gaze.NoMatch
     | Error err -> Error err
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
@@ -151,15 +155,17 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | Ok(Token.Variable variable) -> Ok(Any.Variable(Variable variable))
     | _ -> Error Gaze.GazeError.NoMatch
 
-let attributesNib (gaze: Gaze.Gaze<Token>): Result<(Term * Any) list, Gaze.GazeError> =
+let attributesNib (gaze: Gaze.Gaze<Token>) : Result<(Term * Any) list, Gaze.GazeError> =
     let mutable res = []
     let mutable cont = true
+
     while cont do
         match Gaze.peek gaze with
-        | Ok (Token.Term value) -> 
-            
+        | Ok(Token.Term value) ->
+
             failwith "TODO"
         | _ -> failwith "TODO"
+
     Ok res
 //    takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
 

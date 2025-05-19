@@ -28,28 +28,27 @@ let resultSetFn =
           examples = [ "(result-set [{?a a}])" ]
           args = "Tuple"
           result = "ResultSet" },
-        fun _ _ _ arguments ->
-            failwith "TODO"
-            // match arguments with
-            // | [ Any.Tuple tuple ] ->
-            //     let set =
-            //         Set.ofList tuple
-            //         |> Set.map (fun value ->
-            //             match value with
-            //             | Any.Node record ->
-            //                 let res =
-            //                     Seq.fold
-            //                         (fun state value ->
-            //                             match value with
-            //                             | Any.Slot key, Any.Term value -> Map.add key (Value.Term value) state
-            //                             | Any.Slot key, Any.Literal value -> Map.add key (Value.Literal value) state
-            //                             | _ -> failwith "TODO")
-            //                         Map.empty
-            //                         (Map.toSeq record)
+        fun _ _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Any.Tuple tuple ] ->
+    //     let set =
+    //         Set.ofList tuple
+    //         |> Set.map (fun value ->
+    //             match value with
+    //             | Any.Node record ->
+    //                 let res =
+    //                     Seq.fold
+    //                         (fun state value ->
+    //                             match value with
+    //                             | Any.Slot key, Any.Term value -> Map.add key (Value.Term value) state
+    //                             | Any.Slot key, Any.Literal value -> Map.add key (Value.Literal value) state
+    //                             | _ -> failwith "TODO")
+    //                         Map.empty
+    //                         (Map.toSeq record)
 
-            //                 res
-            //             | _ -> failwith "TODO")
+    //                 res
+    //             | _ -> failwith "TODO")
 
-            //     Ok(Any.ResultSet set)
-            // | _ -> error "Invalid call to set action." None
+    //     Ok(Any.ResultSet set)
+    // | _ -> error "Invalid call to set action." None
     )
