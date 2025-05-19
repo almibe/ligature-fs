@@ -112,8 +112,13 @@ and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: N
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}")
             node.attributes
-      children = node.children //TODO eval
-    }
+      children =
+        List.map
+            (fun value ->
+                match executeExpression actions bindings variables value with
+                | Ok res -> res
+                | Error err -> failwith $"Error: {err.UserMessage}")
+            node.children }
 
 and evalLambda
     (fns: Fns)

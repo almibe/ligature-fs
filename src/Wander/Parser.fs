@@ -150,26 +150,13 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
 let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Any>, Gaze.GazeError> =
     let mutable res = Map.empty
     let mutable cont = true
-    let mutable foundMatch = true
 
     while cont do
-        match Gaze.peek gaze with
-        | Ok(Token.Term name) ->
-            Gaze.next gaze
-
-            match Gaze.peek gaze with
-            | Ok(Token.Term "=") ->
-                match Gaze.attempt anyNib gaze with
-                | Ok value -> res <- Map.add (Term name) value res
-                | _ ->
-                    cont <- false
-                    foundMatch <- false
-            | _ ->
-                cont <- false
-                foundMatch <- false
+        match Gaze.attempt (takeAll [ anyNib; anyNib; anyNib ]) gaze with
+        | Ok([ Any.Term name; Any.Term(Term "="); value ]) -> res <- Map.add name value res
         | _ -> cont <- false
 
-    if foundMatch then Ok res else Error Gaze.NoMatch
+    Ok res
 
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
