@@ -90,21 +90,13 @@ let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
         }
 
     match node with
-    | Ok(name, attributes, children) -> failwith "TODO"
-    //Ok Any.NodeLiteral ()
-    // if res.Length % 2 = 0 then
-    //     let res =
-    //         List.fold
-    //             (fun state value ->
-    //                 match value with
-    //                 | [ first; second ] -> Map.add first second state
-    //                 | _ -> failwith "TODO")
-    //             Map.empty
-    //             (List.chunkBySize 2 res)
-
-    //     Ok(Any.Node res)
-    // else
-    //     Error Gaze.NoMatch
+    | Ok(name, attributes, children) ->
+        Ok(
+            Any.NodeLiteral
+                { name = name
+                  attributes = attributes
+                  children = children }
+        )
     | Error err -> Error err
 
 let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
@@ -155,19 +147,29 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError>
     | Ok(Token.Variable variable) -> Ok(Any.Variable(Variable variable))
     | _ -> Error Gaze.GazeError.NoMatch
 
-let attributesNib (gaze: Gaze.Gaze<Token>) : Result<(Term * Any) list, Gaze.GazeError> =
-    let mutable res = []
+let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Any>, Gaze.GazeError> =
+    let mutable res = Map.empty
     let mutable cont = true
+    let mutable foundMatch = true
 
     while cont do
         match Gaze.peek gaze with
-        | Ok(Token.Term value) ->
+        | Ok(Token.Term name) ->
+            Gaze.next gaze
 
-            failwith "TODO"
-        | _ -> failwith "TODO"
+            match Gaze.peek gaze with
+            | Ok(Token.Term "=") ->
+                match Gaze.attempt anyNib gaze with
+                | Ok value -> res <- Map.add (Term name) value res
+                | _ ->
+                    cont <- false
+                    foundMatch <- false
+            | _ ->
+                cont <- false
+                foundMatch <- false
+        | _ -> cont <- false
 
-    Ok res
-//    takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
+    if foundMatch then Ok res else Error Gaze.NoMatch
 
 let anyNib: Gaze.Nibbler<Token, Any> =
     takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
