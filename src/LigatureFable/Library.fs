@@ -87,22 +87,30 @@ let networkToJs (network: Assertions) =
     obj?value <- network
     obj
 
-let rec nodeToJs (node: Node) = failwith "TODO"
-// let record =
-//     Seq.fold
-//         (fun state (key, value) ->
-//             match key with
-//             | Any.Term(Term t) ->
-//                 emitJsExpr (t, anyToJs value) "state[$0] = $1"
-//                 state
-//             | _ -> failwith "Unsupported record key.")
-//         (emitJsExpr () "{}")
-//         (Map.toSeq record)
+let rec nodeToJs
+    ({ name = Term name
+       attributes = attributes
+       children = children }: Node)
+    =
+    let attributes =
+        Seq.fold
+            (fun state (key, value) ->
+                match key with
+                | Term t ->
+                    emitJsExpr (t, anyToJs value) "state[$0] = $1"
+                    state
+                | _ -> failwith "Unsupported attributes key.")
+            (emitJsExpr () "{}")
+            (Map.toSeq attributes)
 
-// let obj = createEmpty
-// obj?``type`` <- "record"
-// obj?value <- record
-// obj
+    let children = List.map (fun value -> anyToJs value) children
+
+    let obj = createEmpty
+    obj?``type`` <- "node"
+    obj?name <- name
+    obj?attributes <- attributes
+    obj?children <- Array.ofList children
+    obj
 
 and setToJs (set: AnySet) =
     let value = Array.map (fun value -> anyToJs value) (Set.toArray set)
@@ -143,29 +151,45 @@ let resultToJs (res: Result<Any, LigatureError>) =
         obj
     | Ok any -> anyToJs any
 
+let rec createElement
+    { name = Term tag
+      attributes = attributes
+      children = children }
+    =
+    let newElement = emitJsExpr (tag) "document.createElement($0)"
+
+    Map.iter
+        (fun key value ->
+            match key, value with
+            | Term key, Any.Literal { content = content } ->
+                emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
+            | Term key, _ -> failwith $"Invalid attribute - {key}")
+        attributes
+
+    List.iter
+        (fun value ->
+            match value with
+            | Any.Literal { content = content } -> emitJsStatement (content) "newElement.append($0)"
+            | Any.NodeLiteral node ->
+                let childElement = createElement node
+                emitJsStatement (childElement) "newElement.append($0)"
+            | x -> printfn $"ignoring value - {x}")
+        children
+
+    newElement
+
+
 let appendHtml element (value: Result<Any, LigatureError>) =
     match value with
-    | Ok(Any.NodeLiteral node) -> failwith "TODO"
-    // match record.TryFind(Any.Term(Term "root")) with
-    // | Some(Any.Node record) ->
-    //     match record.TryFind(Any.Term(Term "tag")) with
-    //     | Some(Any.Term(Term tag)) ->
-    //         match record.TryFind(Any.Term(Term "children")) with
-    //         | Some(Any.Tuple children) ->
-    //             List.iter
-    //                 (fun value ->
-    //                     match value with
-    //                     | Any.Literal { content = content } ->
-    //                         let newElement = emitJsExpr () $"document.createElement('{tag}')"
-    //                         newElement?textContent <- content
-    //                         //TODO handle children + content + attributes
-    //                         emitJsStatement () "element.appendChild(newElement)"
-    //                     | _ -> failwith "TODO")
-    //                 children
-    //         | _ -> ()
-    //     | _ -> () //failwith "TODO3"
-    // | _ -> () //failwith "TODO5"
-    | _ -> () //failwith "TODO4"
+    | Ok(Any.NodeLiteral { name = Term name
+                           attributes = attributes
+                           children = children }) ->
+        match children with
+        | [ Any.Term(Term "html"); Any.NodeLiteral node ] ->
+            let newElement = createElement node
+            emitJsStatement () "element.append(newElement)"
+        | _ -> failwith "TODO"
+    | _ -> ()
 
 let appendCanvas element (value: Result<Any, LigatureError>) = failwith "TODO"
 // match value with

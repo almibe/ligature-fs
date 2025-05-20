@@ -94,7 +94,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "assertions", assertionsFn
           Term "literal", literalFn
           Term "instance", instanceFn
-          //   Term "find-model", findModelFn
+          Term "find-model", findModelFn
           Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn

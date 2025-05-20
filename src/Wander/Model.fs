@@ -93,7 +93,17 @@ let rec printAny (value: Any) : string =
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
 
-and printNode (node: Node) : string = "-node-"
+and printNode
+    ({ name = Term name
+       attributes = attributes
+       children = children }: Node)
+    : string =
+    let attributes =
+        Map.fold (fun state key value -> $" {state} {key} = {value}") "" attributes
+
+    let children = List.fold (fun state value -> $" {state} {value}") "" children
+
+    $"{{{name}{attributes} {children}}}"
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
 
