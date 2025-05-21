@@ -267,39 +267,40 @@ let findModelFn: Fn =
           args = "Definitions Assertions"
           result = "Record" },
         fun _ _ _ arguments -> failwith "TODO"
-    // match arguments with
-    // | [ Any.Definitions definitions; Any.Assertions assertions ] ->
-    //     match findModel definitions assertions with
-    //     | Ok None -> Ok(Any.Tuple [])
-    //     | Ok(Some model) ->
-
-    //         let individuals: Node =
-
-    //             Map.toSeq model.individuals
-    //             |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
-    //                 let isA = Set.map Any.Term isA |> Any.AnySet
-    //                 let isNot = Set.map Any.Term isNot |> Any.AnySet
-
-    //                 Any.Term key,
-    //                 Any.Node(Map.ofList [ Any.Term(Term "is-a"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
-    //             |> Map.ofSeq
-
-    //         let roles: AnySet =
-    //             Set.map (fun (i, r, t) -> Any.Tuple [ Any.Term i; Any.Term r; Any.Term t ]) model.roles
-
-    //         let attributes: AnySet =
-    //             Set.map (fun (i, a, l) -> Any.Tuple [ Any.Term i; Any.Term a; Any.Literal l ]) model.attributes
-
-    //         Any.Node(
-    //             Map.ofList
-    //                 [ Any.Term(Term "roles"), Any.AnySet roles
-    //                   Any.Term(Term "individuals"), Any.Node individuals
-    //                   Any.Term(Term "attributes"), Any.AnySet attributes ]
-    //         )
-    //         |> Ok
-    //     | Error err -> Error err
-    // | _ -> error "Improper call to find-model." None
     )
+// match arguments with
+// | [ Any.Definitions definitions; Any.Assertions assertions ] ->
+//     match findModel definitions assertions with
+//     | Ok None -> Ok(Any.Tuple [])
+//     | Ok(Some model) ->
+
+//         let individuals: Node =
+
+//             Map.toSeq model.individuals
+//             |> Seq.map (fun (key, { isA = isA; isNot = isNot }) ->
+//                 let isA = Set.map Any.Term isA |> Any.AnySet
+//                 let isNot = Set.map Any.Term isNot |> Any.AnySet
+
+//                 Any.Term key,
+//                 Any.Node(Map.ofList [ Any.Term(Term "is-a"), isA; Any.Term(Term "is-not"), isNot ])) //TODO this is wrong
+//             |> Map.ofSeq
+
+//         let roles: AnySet =
+//             Set.map (fun (i, r, t) -> Any.Tuple [ Any.Term i; Any.Term r; Any.Term t ]) model.roles
+
+//         let attributes: AnySet =
+//             Set.map (fun (i, a, l) -> Any.Tuple [ Any.Term i; Any.Term a; Any.Literal l ]) model.attributes
+
+//         // Any.Node(
+//         //     Map.ofList
+//         //         [ Any.Term(Term "roles"), Any.AnySet roles
+//         //           //Any.Term(Term "individuals"), Any.Node individuals
+//         //           Any.Term(Term "attributes"), Any.AnySet attributes ]
+//         // )
+//         // |> Ok
+//         failwith "TODO"
+//     | Error err -> Error err
+// | _ -> error "Improper call to find-model." None)
 
 let literalFn: Fn =
     Fn(
