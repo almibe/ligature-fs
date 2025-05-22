@@ -103,13 +103,25 @@ let isDefinitorial (definitions: Definitions) : bool =
         | ConceptExpr.And conj ->
             List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
             |> not
+        | ConceptExpr.Not(ConceptExpr.And conj) ->
+            List.forall (fun value -> not (hasCycle definitionsMap concept value)) conj
+            |> not
+
         | ConceptExpr.Or disj ->
             List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
             |> not
+        | ConceptExpr.Not(ConceptExpr.Or disj) ->
+            List.forall (fun value -> not (hasCycle definitionsMap concept value)) disj
+            |> not
+
         | ConceptExpr.Top -> false
         | ConceptExpr.Bottom -> false
+        | ConceptExpr.Not(ConceptExpr.Top) -> false
+        | ConceptExpr.Not(ConceptExpr.Bottom) -> false
         | ConceptExpr.Exists(roleName, c) -> hasCycle definitionsMap concept c
+        | ConceptExpr.Not(ConceptExpr.Exists(roleName, c)) -> hasCycle definitionsMap concept c
         | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
+        | ConceptExpr.Not(ConceptExpr.All(roleName, c)) -> hasCycle definitionsMap concept c
 
     match tBoxToMap definitions with
     | Some map ->
@@ -247,6 +259,8 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         let assertions = Set.remove assertion state.assertions
 
         match assertion with
+        | Assertion.Instance(_, ConceptExpr.Equivalent _) -> failwith "Unexpected value."
+        | Assertion.Instance(_, ConceptExpr.Implies _) -> failwith "Unexpected value."
         | Assertion.Instance(_, ConceptExpr.Top) -> { state with assertions = assertions }, []
         | Assertion.Instance(_, ConceptExpr.Bottom) -> failwith "Unexpected value"
         | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
@@ -259,13 +273,22 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 assertions = Set.remove assertion state.assertions
                 isNot = addInstance individual concept state.isNot },
             []
-        | Assertion.Instance(individual, ConceptExpr.And group) -> failwith "TODO"
-        // let mutable assertions = Set.remove assertion current.Value.assertions
-        // List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
-        // setAssertions assertions
+        | Assertion.Instance(individual, ConceptExpr.And group) ->
+            let mutable assertions = Set.remove assertion state.assertions
+            List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
 
-        // if assertions.IsEmpty then
-        //     complete ()
+            { state with
+                assertions = Set.remove assertion state.assertions },
+            []
+        | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.And group)) ->
+            let mutable assertions = Set.remove assertion state.assertions
+            let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+            assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
+
+            { state with
+                assertions = Set.remove assertion state.assertions },
+            []
+
         | Assertion.Instance(individual, ConceptExpr.Or group) -> failwith "TODO"
         // let mutable assertions = Set.remove assertion current.Value.assertions
 
@@ -359,24 +382,31 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
 
             { state with assertions = assertions }, []
 
+        | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Not(concept))) ->
+            let assertions =
+                Set.remove assertion state.assertions
+                |> Set.add (Assertion.Instance(individual, concept))
+
+            { state with assertions = assertions }, []
+
+
         | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
-            match concept with
-            | ConceptExpr.And group -> failwith "TODO"
-            // let mutable assertions = Set.remove assertion current.Value.assertions
-            // let negGroup = List.map (fun value -> ConceptExpr.Not value) group
-            // assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
-            // setAssertions assertions
-            | ConceptExpr.Or group -> failwith "TODO"
-            // let mutable assertions = Set.remove assertion current.Value.assertions
-            // let negGroup = List.map (fun value -> ConceptExpr.Not value) group
-            // assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
-            // setAssertions assertions
-            | ConceptExpr.Top -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
-            | ConceptExpr.Bottom -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
-            | ConceptExpr.Not concept -> failwith "TODO"
-        // let assertions = Set.remove assertion current.Value.assertions
-        // let assertions = Set.add (Assertion.Instance(individual, concept)) assertions
-        // setAssertions assertions
+            let assertions =
+                Set.remove assertion state.assertions
+                |> Set.add (Assertion.Instance(individual, ConceptExpr.Not(concept)))
+
+            { state with assertions = assertions }, []
+
+
+        // match concept with
+        // | ConceptExpr.Or group -> failwith "TODO"
+        // // let mutable assertions = Set.remove assertion current.Value.assertions
+        // // let negGroup = List.map (fun value -> ConceptExpr.Not value) group
+        // // assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
+        // // setAssertions assertions
+        // | ConceptExpr.Top -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
+        // | ConceptExpr.Bottom -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
+        // | ConceptExpr.Not concept ->
         | Assertion.Triple(i, r, Value.Term t) ->
             { state with
                 assertions = Set.remove assertion state.assertions
