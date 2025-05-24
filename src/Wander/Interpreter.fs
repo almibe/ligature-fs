@@ -185,7 +185,7 @@ and executeExpression
     // let application = rewriteApplication expression
 
     match expression with
-    | Any.Assertions network -> Ok(Any.Assertions network)
+    | Any.ABox network -> Ok(Any.ABox network)
     | Any.Tuple tuple ->
         let tuple =
             List.map
@@ -213,7 +213,7 @@ and executeExpression
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.Lambda _ -> failwith "Not Implemented"
     | Any.ConceptExpr expr -> Ok(Any.ConceptExpr expr)
-    | Any.Definitions _ -> failwith "Not Implemented"
+    | Any.TBox _ -> failwith "Not Implemented"
 //| _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

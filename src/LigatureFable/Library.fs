@@ -36,7 +36,7 @@ let ok value = Ok value
 
 let error value = Error value
 
-let networkToJs (network: Assertions) =
+let networkToJs (network: ABox) =
     let network =
         Set.map
             (fun value ->
@@ -131,7 +131,7 @@ and anyToJs (any: Any) =
         obj?``type`` <- "literal"
         obj?value <- l
         obj
-    | Any.Assertions n -> networkToJs n
+    | Any.ABox n -> networkToJs n
     | Any.Tuple t ->
         let res = List.map (fun any -> anyToJs any) t |> List.toArray
         let obj = createEmpty
@@ -190,6 +190,9 @@ let appendHtml element (value: Result<Any, LigatureError>) =
             emitJsStatement () "element.append(newElement)"
         | _ -> failwith "TODO"
     | _ -> ()
+
+//let tBox definitions =
+
 
 let appendCanvas element (value: Result<Any, LigatureError>) = failwith "TODO"
 // match value with

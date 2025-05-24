@@ -90,7 +90,7 @@ let expectEqualFn: Fn =
                 //     | _ -> second
 
                 if first = second then
-                    Ok(Any.Assertions Set.empty)
+                    Ok(Any.ABox Set.empty)
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
             | [ Any.Literal name; left; right ] ->

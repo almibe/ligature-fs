@@ -44,7 +44,7 @@ and [<RequireQualifiedAccess>] Assertion =
     | Triple of Term * Term * Value
     | Instance of Term * ConceptExpr
 
-and Assertions = Set<Assertion>
+and ABox = Set<Assertion>
 
 and AssertionPattern =
     | TriplePattern of TermPattern * TermPattern * ValuePattern
@@ -74,13 +74,13 @@ type ILigatureStore =
     abstract Stores: unit -> string seq
     abstract AddStore: string -> unit
     abstract RemoveStore: string -> unit
-    abstract AssertStore: string -> Assertions -> unit
-    abstract UnassertStore: string -> Assertions -> unit
-    abstract ReadAsserts: string -> Result<Assertions, LigatureError>
+    abstract AssertStore: string -> ABox -> unit
+    abstract UnassertStore: string -> ABox -> unit
+    abstract ReadAsserts: string -> Result<ABox, LigatureError>
 
-type Definitions = List<ConceptExpr>
+type TBox = List<ConceptExpr>
 
-type KnowledgeBase = Definitions * Assertions
+type KnowledgeBase = TBox * ABox
 
 let rec printConcept (concept: ConceptExpr) : string =
     match concept with
@@ -113,5 +113,5 @@ let rec printConcept (concept: ConceptExpr) : string =
     | ConceptExpr.Implies(l, r) -> $"(implies {printConcept l} {printConcept r})"
     | ConceptExpr.Equivalent(l, r) -> $"(equivalent {printConcept l} {printConcept r})"
 
-let printDefinitions (definitions: Definitions) =
+let printDefinitions (definitions: TBox) =
     List.fold (fun state value -> state + printConcept value) "(definitions )" definitions

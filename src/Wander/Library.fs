@@ -24,7 +24,7 @@ let docsFn: Fn =
           args = "()"
           result = "Assertions" },
         fun actions _ _ _ ->
-            let docs: Assertions =
+            let docs: ABox =
                 Map.toSeq actions
                 |> Seq.fold
                     (fun state (name, action) ->
@@ -84,14 +84,14 @@ let docsFn: Fn =
                                 doc.examples)
                     Set.empty
 
-            Ok(Any.Assertions docs)
+            Ok(Any.ABox docs)
     )
 
 let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
-          Term "assertions", assertionsFn
+          Term "a-box", aBoxFn
           Term "literal", literalFn
           Term "instance", instanceFn
           Term "find-model", findModelFn
@@ -100,7 +100,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "and", andFn
           Term "or", orFn
           //   Term "pattern", patternFn
-          Term "definitions", definitionsFn
+          Term "t-box", tBoxFn
           Term "equivalent", equivalentFn
           Term "all", allFn
           Term "exists", existsFn

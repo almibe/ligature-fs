@@ -36,7 +36,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Any.Term(Term name) ] ->
                     store.AddStore name
-                    Ok(Any.Assertions Set.empty)
+                    Ok(Any.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -50,7 +50,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Any.Term(Term name) ] ->
                     store.RemoveStore(name)
-                    Ok(Any.Assertions Set.empty)
+                    Ok(Any.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -62,9 +62,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term networkName); Any.Assertions network ] ->
+                | [ Any.Term(Term networkName); Any.ABox network ] ->
                     store.AssertStore networkName network
-                    Ok(Any.Assertions Set.empty)
+                    Ok(Any.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -76,9 +76,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term networkName); Any.Assertions network ] ->
+                | [ Any.Term(Term networkName); Any.ABox network ] ->
                     store.UnassertStore networkName network
-                    Ok(Any.Assertions Set.empty)
+                    Ok(Any.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -92,7 +92,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Any.Term(Term networkName) ] ->
                     match store.ReadAsserts networkName with
-                    | Ok network -> Ok(Any.Assertions network)
+                    | Ok network -> Ok(Any.ABox network)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
         ))

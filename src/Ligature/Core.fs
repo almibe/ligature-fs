@@ -52,7 +52,7 @@ let testPattern (pattern: AssertionPattern) (assertion: Assertion) : ValueSet op
 // | Assertion.IsA(element, value) ->
 //     failwith "TODO"
 
-let singleMatch (pattern: AssertionPattern) (network: Assertions) : ResultSet =
+let singleMatch (pattern: AssertionPattern) (network: ABox) : ResultSet =
     Set.fold
         (fun state entry ->
             match testPattern pattern entry with
@@ -89,7 +89,7 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let query (pattern: Pattern) (network: Assertions) : ResultSet =
+let query (pattern: Pattern) (network: ABox) : ResultSet =
     let resultSets =
         Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
 
@@ -98,7 +98,7 @@ let query (pattern: Pattern) (network: Assertions) : ResultSet =
     else
         List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
 
-let applyValueSet (pattern: Pattern) (result: ValueSet) : Assertions = failwith "TODO"
+let applyValueSet (pattern: Pattern) (result: ValueSet) : ABox = failwith "TODO"
 // Set.map
 //     (fun (e, a, v) ->
 //         let element =
@@ -145,10 +145,10 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : Assertions = failwith 
 //             | _ -> any)
 //         pattern
 
-let apply (pattern: Pattern) (resultSet: ResultSet) : Assertions =
+let apply (pattern: Pattern) (resultSet: ResultSet) : ABox =
     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
-let applySeq (pattern: Pattern) (resultSet: ResultSet) : Assertions list =
+let applySeq (pattern: Pattern) (resultSet: ResultSet) : ABox list =
     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
 // let applySeqTupleTemplate (pattern: Tuple) (resultSet: ResultSet) : Tuple list =
@@ -161,7 +161,7 @@ let applySeq (pattern: Pattern) (resultSet: ResultSet) : Assertions list =
 
 let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 
-let filter (pattern: Pattern) (source: Assertions) : Assertions =
+let filter (pattern: Pattern) (source: ABox) : ABox =
     let res = query pattern source
     let res = applySeq pattern res
     Seq.fold (fun state network -> Set.union state network) Set.empty res

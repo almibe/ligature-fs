@@ -121,7 +121,7 @@ let unfoldFn =
           result = "Assertions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Definitions def; Any.Assertions assertions ] -> unfold def assertions |> Result.map Any.Assertions
+            | [ Any.TBox def; Any.ABox assertions ] -> unfold def assertions |> Result.map Any.ABox
             | _ -> error "Invalid call to unfold." None
     )
 
@@ -133,7 +133,7 @@ let isDefinitorialFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Definitions def ] ->
+            | [ Any.TBox def ] ->
                 if isDefinitorial def then
                     Ok(Any.Term(Term "true"))
                 else
@@ -149,7 +149,7 @@ let nnfFn =
           result = "Definitions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Definitions def ] ->
+            | [ Any.TBox def ] ->
                 match nnf def with
                 | Ok resultValue -> Ok(Any.ConceptExpr resultValue)
                 | Error err -> Error err
@@ -189,7 +189,7 @@ let isConsistentFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Definitions def; Any.Assertions n ] ->
+            | [ Any.TBox def; Any.ABox n ] ->
                 match isConsistent def n with
                 | Ok true -> Ok(Any.Term(Term "true"))
                 | Ok false -> Ok(Any.Term(Term "false"))
@@ -503,10 +503,10 @@ let orFn: Fn =
             | Error err -> Error err
     )
 
-let definitionsFn: Fn =
+let tBoxFn: Fn =
     Fn(
         { doc = "Define a TBox."
-          examples = [ "(definitions (implies Dog Animal))" ]
+          examples = [ "(t-box (implies Dog Animal))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
@@ -517,6 +517,6 @@ let definitionsFn: Fn =
                     | Any.Term term -> ConceptExpr.AtomicConcept term
                     | _ -> failwith "Not suported.")
                 arguments
-            |> Any.Definitions
+            |> Any.TBox
             |> Ok
     )

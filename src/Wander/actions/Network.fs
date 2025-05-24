@@ -9,7 +9,7 @@ open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
 
-let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwith "TODO"
+let rec nodeToNetwork (node: Node) : Result<ABox, LigatureError> = failwith "TODO"
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
 //     Seq.fold
@@ -112,14 +112,14 @@ let rec nodeToPattern (node: Node) : Result<Pattern, LigatureError> = failwith "
 //     |> Ok
 // | _ -> error "Record requires valid @ entry." None
 
-let assertionsFn =
+let aBoxFn =
     Fn(
         { doc = "Create an ABox."
-          examples = [ "(assertions (instance betty Cat))" ]
+          examples = [ "(a-box (instance betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
         fun _ _ _ arguments ->
-            let mutable res: Assertions = Set.empty
+            let mutable res: ABox = Set.empty
 
             List.iter
                 (fun arg ->
@@ -129,18 +129,18 @@ let assertionsFn =
                         let e =
                             match e with
                             | Any.Term t -> t
-                            | _ -> failwith "Invalid call to assertions."
+                            | _ -> failwith "Invalid call to a-box."
 
                         let a =
                             match a with
                             | Any.Term t -> t
-                            | _ -> failwith "Invalid call to assertions."
+                            | _ -> failwith "Invalid call to a-box."
 
                         let v =
                             match v with
                             | Any.Term t -> Value.Term t
                             | Any.Literal l -> Value.Literal l
-                            | _ -> failwith "Invalid call to assertions."
+                            | _ -> failwith "Invalid call to a-box."
 
                         match a, v with
                         | Term ":", Value.Term concept ->
@@ -153,10 +153,10 @@ let assertionsFn =
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
-                    | _ -> failwith "Invalid call to assertions.")
+                    | _ -> failwith "Invalid call to a-box.")
                 arguments
 
-            Ok(Any.Assertions res)
+            Ok(Any.ABox res)
     )
 
 // let patternFn =
@@ -210,7 +210,7 @@ let unionFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Assertions left; Any.Assertions right ] ->
+            | [ Any.ABox left; Any.ABox right ] ->
                 // let left =
                 //     match left with
                 //     | Any.Network n -> n
@@ -232,7 +232,7 @@ let unionFn =
                 //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
                 //         | _ -> failwith "TODO"
                 //     | _ -> failwith "TODO"
-                let result = Set.union left right |> Any.Assertions
+                let result = Set.union left right |> Any.ABox
                 Ok result
             | _ -> failwith $"Calls to union requires two Networks on the stack."
     )
@@ -245,7 +245,7 @@ let countFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Assertions n ] ->
+            | [ Any.ABox n ] ->
                 Ok(
                     Any.Literal
                         { content = (Set.count n).ToString()
@@ -272,7 +272,7 @@ let queryFn =
           result = "ResultSet" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Assertions source ] ->
+            | [ Any.Pattern pattern; Any.ABox source ] ->
                 let results = query pattern source
                 Ok(Any.ResultSet results)
             | _ -> error "Invalid call to query" None
@@ -367,7 +367,7 @@ let filterFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Pattern pattern; Any.Assertions source ] ->
+            | [ Any.Pattern pattern; Any.ABox source ] ->
                 // let pattern =
                 //     match pattern with
                 //     | Any.Network n -> n
@@ -401,7 +401,7 @@ let filterFn =
                 //     | _ -> failwith "TODO"
 
                 let results = filter pattern source
-                Ok(Any.Assertions results)
+                Ok(Any.ABox results)
             | _ -> error "Invalid call to filter" None
     )
 

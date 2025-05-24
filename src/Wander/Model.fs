@@ -20,7 +20,7 @@ and [<RequireQualifiedAccess>] Any =
     | Variable of Variable
     | Pattern of Pattern
     | Assertion of Assertion
-    | Assertions of Assertions
+    | ABox of ABox
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Comment of string
@@ -29,7 +29,7 @@ and [<RequireQualifiedAccess>] Any =
     | NodeExpression of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
-    | Definitions of Definitions
+    | TBox of TBox
 
 and Node =
     { name: Term
@@ -76,7 +76,7 @@ let rec printAny (value: Any) : string =
     | Any.Literal { content = content } -> encodeString content
     | Any.Variable(Variable v) -> v
     | Any.Tuple tuple -> printTuple tuple
-    | Any.Assertions n -> printNetwork n
+    | Any.ABox n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet _ -> failwith "Not Implemented"
@@ -86,7 +86,7 @@ let rec printAny (value: Any) : string =
     | Any.NodeExpression _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.NodeLiteral node -> printNode node
-    | Any.Definitions defs -> printDefinitions defs
+    | Any.TBox defs -> printDefinitions defs
     | Any.Assertion _ -> "-assertion-"
     | Any.ConceptExpr c -> printConcept c
 
@@ -153,7 +153,7 @@ and printPattern (network: Pattern) : string =
         network
     + " )"
 
-and printNetwork (network: Assertions) : string =
+and printNetwork (network: ABox) : string =
     let mutable first = true
 
     Seq.fold

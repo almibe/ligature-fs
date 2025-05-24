@@ -7,7 +7,7 @@ module Wander.InMemoryStore
 open Ligature.Model
 
 type InMemoryStore() =
-    let mutable store: Map<string, Assertions> = Map.empty
+    let mutable store: Map<string, ABox> = Map.empty
 
     interface ILigatureStore with
         member this.Stores() : string seq = store.Keys |> seq
@@ -19,21 +19,21 @@ type InMemoryStore() =
 
         member this.RemoveStore(name: string) : unit = store <- store.Remove name
 
-        member this.AssertStore (name: string) (network: Assertions) : unit =
+        member this.AssertStore (name: string) (network: ABox) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb ->
                 let newAsserts = Set.union kb network
                 store <- Map.add name newAsserts store
 
-        member this.UnassertStore (name: string) (network: Assertions) : unit =
+        member this.UnassertStore (name: string) (network: ABox) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb ->
                 let newAsserts = Set.difference kb network
                 store <- Map.add name newAsserts store
 
-        member this.ReadAsserts(name: string) : Result<Assertions, LigatureError> =
+        member this.ReadAsserts(name: string) : Result<ABox, LigatureError> =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb -> Ok kb
