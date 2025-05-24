@@ -197,29 +197,20 @@ let isConsistentFn =
             | _ -> error "Invalid call to is-consistent." None
     )
 
-// let inferFn: Fn =
+// let isInstanceFn =
 //     Fn(
-//         { doc = "..."
-//           examples = []
-//           args = ""
-//           result = "" },
+//         { doc = "Check if an individual is an instance of a concept."
+//           examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
+//           args = "Definitions Assertions Individual Concept"
+//           result = "Term" },
 //         fun _ _ _ arguments ->
 //             match arguments with
-//             | [ description; network ] ->
-//                 let description =
-//                     match description with
-//                     | Any.Definitions n -> n
-//                     | _ -> failwith "TODO"
-
-//                 let network =
-//                     match network with
-//                     | Any.Network n -> n
-//                     | _ -> failwith "TODO"
-
-//                 match infer description network with
-//                 | Ok res -> Ok(Any.Network res)
-//                 | Error err -> error $"Error calling infer: {err}" None
-//             | _ -> error "Improper call to infer." None
+//             | [ Any.Definitions def; Any.Assertions n; Any.Term individual; Any.Term concept ] -> //TODO handle conceptexprs
+//                 match isInstance def n with
+//                 | Ok true -> Ok(Any.Term(Term "true"))
+//                 | Ok false -> Ok(Any.Term(Term "false"))
+//                 | Error err -> Error err
+//             | _ -> error "Invalid call to is-consistent." None
 //     )
 
 let impliesFn: Fn =
@@ -375,6 +366,79 @@ let existsFn: Fn =
             | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
             | _ -> error "Improper call to exists." None
     )
+
+let exactlyFn: Fn =
+    Fn(
+        { doc = "Create a numerical restriction with an exact requirement."
+          examples = [ "(exactly 1 first-name)"; "(exactly 1 first-name Literal)" ]
+          args = "Int RoleName Concept?"
+          result = "Concept" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term (Term number); Any.Term role ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
+                | _ -> error "Improper call to exactly." None
+            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
+                | _ -> error "Improper call to exactly." None
+            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
+                | _ -> error "Improper call to exactly." None
+            | _ -> 
+                error "Improper call to exactly." None
+    )
+
+let atLeastFn: Fn =
+    Fn(
+        { doc = "Create a numerical restriction with an at least requirement."
+          examples = [ "(at-least 1 email)"; "(at-least 1 email EmailAddress)" ]
+          args = "Int RoleName Concept?"
+          result = "Concept" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term (Term number); Any.Term role ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
+                | _ -> error "Improper call to at-least." None
+            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
+                | _ -> error "Improper call to at-least." None
+            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
+                | _ -> error "Improper call to at-least." None
+            | _ -> 
+                error "Improper call to at-least." None
+    )
+
+let atMostFn: Fn =
+    Fn(
+        { doc = "Create a numerical restriction with an at most requirement."
+          examples = [ "(at-most 6 pinned-posts)"; "(at-most 6 pinned-posts Post)" ]
+          args = "Int RoleName Concept?"
+          result = "Concept" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.Term (Term number); Any.Term role ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
+                | _ -> error "Improper call to at-most." None
+            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
+                | _ -> error "Improper call to at-most." None
+            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+                match System.Int64.TryParse number with
+                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
+                | _ -> error "Improper call to at-most." None
+            | _ -> 
+                error "Improper call to at-most." None
+    )
+
 
 let notFn: Fn =
     Fn(

@@ -11,6 +11,8 @@ type PotentialModel =
       skip: Assertions
       isA: Map<Term, Set<Term>>
       isNot: Map<Term, Set<Term>>
+      isEq: Map<Term, Set<Term>>
+      isNotEq: Map<Term, Set<Term>>
       roles: Set<Term * Term * Term>
       attributes: Set<Term * Term * Literal> }
 
@@ -52,6 +54,8 @@ let newModel (assertions: Assertions) : PotentialModel =
       skip = Set.empty
       isA = Map.empty
       isNot = Map.empty
+      isEq = Map.empty
+      isNotEq = Map.empty
       roles = Set.empty
       attributes = Set.empty }
 
@@ -122,6 +126,9 @@ let isDefinitorial (definitions: Definitions) : bool =
         | ConceptExpr.Not(ConceptExpr.Exists(roleName, c)) -> hasCycle definitionsMap concept c
         | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
         | ConceptExpr.Not(ConceptExpr.All(roleName, c)) -> hasCycle definitionsMap concept c
+        | ConceptExpr.Exactly(_, c, _) -> hasCycle definitionsMap concept c
+        | ConceptExpr.AtLeast(_, c, _) -> hasCycle definitionsMap concept c
+        | ConceptExpr.AtMost(_, c, _) -> hasCycle definitionsMap concept c
 
     match tBoxToMap definitions with
     | Some map ->
@@ -158,6 +165,15 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
+    | ConceptExpr.Exactly(roleName, c, number) -> 
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.Exactly(roleName, c, number)
+    | ConceptExpr.AtLeast(roleName, c, number) -> 
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.AtLeast(roleName, c, number)
+    | ConceptExpr.AtMost(roleName, c, number) -> 
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.AtMost(roleName, c, number)
     | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
     | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
@@ -382,6 +398,35 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
 
             { state with assertions = assertions }, []
 
+        | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
+            if
+                not (
+                    Set.exists
+                        (fun value ->
+                            match value with
+                            | Assertion.Triple _ -> true
+                            | _ -> false)
+                        state.assertions
+                )
+            then
+                let matches =
+                    Set.filter (fun (i, r, _) -> i = individual && r = roleName) state.roles
+                let count = int64 matches.Count
+                if count = number then
+                    {state with assertions = assertions}, []
+                else
+                    failwith "TODO"
+            else
+                //add to skip
+                failwith "TODO"
+
+        | Assertion.Instance(individual, ConceptExpr.AtLeast(roleName, concept, number)) ->
+            failwith "TODO"
+
+        | Assertion.Instance(individual, ConceptExpr.AtMost(roleName, concept, number)) ->
+            failwith "TODO"
+
+
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Not(concept))) ->
             let assertions =
                 Set.remove assertion state.assertions
@@ -505,3 +550,7 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok(Some _) -> Ok true
     | Ok None -> Ok false
     | Error err -> Error err
+
+let isInstance definitions assertions individual concept: Result<Term, LigatureError> =
+    
+    failwith "TODO"

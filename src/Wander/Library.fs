@@ -104,6 +104,9 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "equivalent", equivalentFn
           Term "all", allFn
           Term "exists", existsFn
+          Term "exactly", exactlyFn
+          Term "at-least", atLeastFn
+          Term "at-most", atMostFn
           Term "implies", impliesFn
           Term "union", unionFn
           Term "remote", remoteFn
@@ -124,6 +127,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "top", topFn
           Term "bottom", bottomFn
           Term "nnf", nnfFn
+        //   Term "is-instance", isInstanceFn
           Term "is-definitorial", isDefinitorialFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
