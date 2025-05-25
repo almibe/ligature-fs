@@ -165,13 +165,13 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
-    | ConceptExpr.Exactly(roleName, c, number) -> 
+    | ConceptExpr.Exactly(roleName, c, number) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Exactly(roleName, c, number)
-    | ConceptExpr.AtLeast(roleName, c, number) -> 
+    | ConceptExpr.AtLeast(roleName, c, number) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.AtLeast(roleName, c, number)
-    | ConceptExpr.AtMost(roleName, c, number) -> 
+    | ConceptExpr.AtMost(roleName, c, number) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.AtMost(roleName, c, number)
     | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
@@ -411,20 +411,20 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
             then
                 let matches =
                     Set.filter (fun (i, r, _) -> i = individual && r = roleName) state.roles
+
                 let count = int64 matches.Count
+
                 if count = number then
-                    {state with toProcess = assertions}, []
+                    { state with toProcess = assertions }, []
                 else
                     failwith "TODO"
             else
                 //add to skip
                 failwith "TODO"
 
-        | Assertion.Instance(individual, ConceptExpr.AtLeast(roleName, concept, number)) ->
-            failwith "TODO"
+        | Assertion.Instance(individual, ConceptExpr.AtLeast(roleName, concept, number)) -> failwith "TODO"
 
-        | Assertion.Instance(individual, ConceptExpr.AtMost(roleName, concept, number)) ->
-            failwith "TODO"
+        | Assertion.Instance(individual, ConceptExpr.AtMost(roleName, concept, number)) -> failwith "TODO"
 
 
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Not(concept))) ->
@@ -551,6 +551,6 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok None -> Ok false
     | Error err -> Error err
 
-let isInstance definitions assertions individual concept: Result<Term, LigatureError> =
-    
+let isInstance definitions assertions individual concept : Result<Term, LigatureError> =
+
     failwith "TODO"

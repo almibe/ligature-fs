@@ -191,8 +191,30 @@ let appendHtml element (value: Result<Any, LigatureError>) =
         | _ -> failwith "TODO"
     | _ -> ()
 
-//let tBox definitions =
 
+let equivalent left right = ConceptExpr.Equivalent left, right
+
+let concept name = ConceptExpr.AtomicConcept name
+
+[<Emit("() => { if (typeof $0 === 'string') { return concept($0)} else { return $0 } }")>]
+let handleConcept concept = jsNative
+
+let ``and`` left right =
+    ConceptExpr.And [ handleConcept left; handleConcept right ]
+
+let not concept = ConceptExpr.Not(handleConcept concept)
+
+let instance individual concept =
+    Assertion.Instance individual, handleConcept concept
+
+let tBox definitions : TBox = []
+
+let aBox assertions : ABox = Set.empty
+
+let isConsistent tBox aBox : bool =
+    match Ligature.Interpreter.isConsistent tBox aBox with
+    | Ok value -> value
+    | Error err -> failwith err.UserMessage
 
 let appendCanvas element (value: Result<Any, LigatureError>) = failwith "TODO"
 // match value with

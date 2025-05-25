@@ -375,20 +375,20 @@ let exactlyFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term (Term number); Any.Term role ] ->
+            | [ Any.Term(Term number); Any.Term role ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to exactly." None
-            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
+                | true, number ->
+                    Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to exactly." None
-            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
                 | _ -> error "Improper call to exactly." None
-            | _ -> 
-                error "Improper call to exactly." None
+            | _ -> error "Improper call to exactly." None
     )
 
 let atLeastFn: Fn =
@@ -399,20 +399,20 @@ let atLeastFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term (Term number); Any.Term role ] ->
+            | [ Any.Term(Term number); Any.Term role ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to at-least." None
-            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
+                | true, number ->
+                    Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to at-least." None
-            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
                 | _ -> error "Improper call to at-least." None
-            | _ -> 
-                error "Improper call to at-least." None
+            | _ -> error "Improper call to at-least." None
     )
 
 let atMostFn: Fn =
@@ -423,20 +423,20 @@ let atMostFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term (Term number); Any.Term role ] ->
+            | [ Any.Term(Term number); Any.Term role ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to at-most." None
-            | [ Any.Term (Term number); Any.Term role; Any.Term concept ] ->
+            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
+                | true, number ->
+                    Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to at-most." None
-            | [ Any.Term (Term number); Any.Term role; Any.ConceptExpr concept ] -> 
+            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
                 | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
                 | _ -> error "Improper call to at-most." None
-            | _ -> 
-                error "Improper call to at-most." None
+            | _ -> error "Improper call to at-most." None
     )
 
 

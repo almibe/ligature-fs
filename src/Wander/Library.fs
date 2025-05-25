@@ -127,7 +127,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "top", topFn
           Term "bottom", bottomFn
           Term "nnf", nnfFn
-        //   Term "is-instance", isInstanceFn
+          //   Term "is-instance", isInstanceFn
           Term "is-definitorial", isDefinitorialFn
           Term "is-consistent", isConsistentFn ]
     |> createStoreFns store
