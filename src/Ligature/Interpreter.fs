@@ -293,9 +293,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
             let mutable assertions = Set.remove assertion state.toProcess
             List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
 
-            { state with
-                toProcess = Set.remove assertion state.toProcess },
-            []
+            { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.And group)) ->
             let mutable assertions = Set.remove assertion state.toProcess
             let negGroup = List.map (fun value -> ConceptExpr.Not value) group
