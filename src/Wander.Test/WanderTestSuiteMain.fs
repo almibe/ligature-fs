@@ -9,6 +9,8 @@ open FSharpPlus
 open Wander.Main
 open Library
 open InMemoryStore
+open Model
+open Ligature.Model
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -33,7 +35,18 @@ let wanderTestSuite =
             testCase $"Test for {file}"
             <| fun _ ->
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
-                | Ok _ -> ()
+                | Ok(Any.Tuple results) ->
+                    List.iter
+                        (fun result ->
+                            match result with
+                            | Any.NodeLiteral result ->
+                                match result.attributes.TryFind(Term "status") with
+                                | Some(Any.Term(Term "pass")) -> ()
+                                | Some(Any.Term(Term "fail")) -> failwith "TODO"
+                                | _ -> failwith "TODO"
+                            | x -> printfn $"Unexpected value - {printAny x}")
+                        results
+                | Ok(Any.ABox _) -> () //TODO eventually remove
                 | Error err -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"

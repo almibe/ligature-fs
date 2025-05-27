@@ -197,21 +197,20 @@ let isConsistentFn =
             | _ -> error "Invalid call to is-consistent." None
     )
 
-// let isInstanceFn =
-//     Fn(
-//         { doc = "Check if an individual is an instance of a concept."
-//           examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
-//           args = "Definitions Assertions Individual Concept"
-//           result = "Term" },
-//         fun _ _ _ arguments ->
-//             match arguments with
-//             | [ Any.Definitions def; Any.Assertions n; Any.Term individual; Any.Term concept ] -> //TODO handle conceptexprs
-//                 match isInstance def n with
-//                 | Ok true -> Ok(Any.Term(Term "true"))
-//                 | Ok false -> Ok(Any.Term(Term "false"))
-//                 | Error err -> Error err
-//             | _ -> error "Invalid call to is-consistent." None
-//     )
+let isInstanceFn =
+    Fn(
+        { doc = "Check if an individual is an instance of a concept."
+          examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
+          args = "Definitions Assertions Individual Concept"
+          result = "Term" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.TBox tBox; Any.ABox aBox; Any.Term individual; Any.Term concept ] -> //TODO handle conceptexprs
+                match isInstance tBox aBox individual concept with
+                | Ok term -> Ok(Any.Term term)
+                | Error err -> Error err
+            | _ -> error "Invalid call to is-consistent." None
+    )
 
 let impliesFn: Fn =
     Fn(
