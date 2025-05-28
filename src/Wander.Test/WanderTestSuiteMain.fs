@@ -47,6 +47,7 @@ let wanderTestSuite =
                             | x -> printfn $"Unexpected value - {printAny x}")
                         results
                 | Ok(Any.ABox _) -> () //TODO eventually remove
+                | Ok x -> printfn $"Unexpected value - {x}"
                 | Error err -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"

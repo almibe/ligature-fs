@@ -33,7 +33,19 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Ok(Any.ABox Set.empty)
+                    Any.NodeLiteral
+                        { name = Term "Test"
+                          attributes =
+                            Map.ofList
+                                [ Term "name", Any.Literal { content = ""; datatype = None; langTag = None }
+                                  Term "status", Any.Term(Term "pass")
+                                  Term "comment",
+                                  Any.Literal
+                                      { content = $"Result: {printAny first}"
+                                        datatype = None
+                                        langTag = None } ]
+                          children = [] }
+                    |> Ok
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
             | [ Any.Literal name; left; right ] ->
