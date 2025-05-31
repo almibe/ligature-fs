@@ -65,3 +65,7 @@ LigatureHttp starts up an Http server for working with Ligature.
 `dotnet run --project src/LigatureHttp`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
+
+This project includes a ULID implementation from:
+
+https://github.com/lucasschejtman/FSharp.Ulid/blob/master/src/Ulid.fs
