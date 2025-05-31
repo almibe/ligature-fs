@@ -16,6 +16,7 @@ open Wander.Fns.Remote
 open Wander.Fns.Store
 open InMemoryStore
 open Wander.Fns.Bend
+open Wander.Fns.Ulid
 
 let docsFn: Fn =
     Fn(
@@ -91,6 +92,7 @@ let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
+          Term "ulid", ulidFn
           Term "a-box", aBoxFn
           Term "literal", literalFn
           Term "instance", instanceFn
@@ -114,7 +116,6 @@ let stdFns (store: ILigatureStore) : Fns =
           //   Term "instances", instancesFn
           Term "docs", docsFn
           //   Term "prepend", prependFn
-          Term "set", setFn
           Term "result-set", resultSetFn
           Term "id", idFn
           Term "if-empty", ifEmptyFn

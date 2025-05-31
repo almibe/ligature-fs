@@ -8,9 +8,17 @@ open Ligature.Model
 
 type Variable = Variable of string
 
+
 type Tuple = Any list
 
-and AnySet = Set<Any>
+and Source () =
+    member _.next (): Any option = failwith "TODO"
+    
+    // with
+
+    // interface System.IComparable with
+    //     member _.CompareTo (obj: obj): int = 
+    //                 raise (System.NotImplementedException())
 
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
@@ -24,12 +32,13 @@ and [<RequireQualifiedAccess>] Any =
     | ValueSet of ValueSet
     | ResultSet of ResultSet
     | Comment of string
-    | AnySet of AnySet
     | NodeLiteral of Node
     | NodeExpression of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | TBox of TBox
+    | Source of Source
+    | Nothing
 
 and Node =
     { name: Term
@@ -81,7 +90,6 @@ let rec printAny (value: Any) : string =
     | Any.ResultSet rs -> printResultSet rs
     | Any.ValueSet _ -> failwith "Not Implemented"
     | Any.Comment _ -> failwith "Not Implemented"
-    | Any.AnySet s -> printAnySet s
     | Any.Pattern _ -> failwith "Not Implemented"
     | Any.NodeExpression _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
@@ -106,9 +114,6 @@ and printNode
     $"{{{name}{attributes} {children}}}"
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
-
-and printAnySet (set: AnySet) : string =
-    Seq.fold (fun state value -> state + printAny value + " ") "set [" set + "]"
 
 and printValue (value: Value) : string =
     match value with

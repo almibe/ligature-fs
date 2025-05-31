@@ -8,20 +8,6 @@ open Wander.Model
 open Ligature.Model
 
 
-let setFn =
-    Fn(
-        { doc = "Create a Set from a given Tuple."
-          examples = []
-          args = "Tuple"
-          result = "Set" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Tuple tuple ] ->
-                let set = Set.ofList tuple
-                Ok(Any.AnySet set)
-            | _ -> error "Invalid call to set action." None
-    )
-
 let resultSetFn =
     Fn(
         { doc = "Create a ResultSet."
