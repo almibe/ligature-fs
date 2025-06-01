@@ -112,13 +112,6 @@ let rec nodeToJs
     obj?children <- Array.ofList children
     obj
 
-and setToJs (set: AnySet) =
-    let value = Array.map (fun value -> anyToJs value) (Set.toArray set)
-    let obj = createEmpty
-    obj?``type`` <- "set"
-    obj?value <- value
-    obj
-
 and anyToJs (any: Any) =
     match any with
     | Any.Term(Term t) ->
@@ -139,7 +132,6 @@ and anyToJs (any: Any) =
         obj?value <- res
         obj
     | Any.NodeLiteral node -> nodeToJs node
-    | Any.AnySet set -> setToJs set
     | x -> failwith $"Invalid call to anyToJs: {x}"
 
 let resultToJs (res: Result<Any, LigatureError>) =
@@ -178,7 +170,6 @@ let rec createElement
 
     newElement
 
-
 let appendHtml element (value: Result<Any, LigatureError>) =
     match value with
     | Ok(Any.NodeLiteral { name = Term name
@@ -190,7 +181,6 @@ let appendHtml element (value: Result<Any, LigatureError>) =
             emitJsStatement () "element.append(newElement)"
         | _ -> failwith "TODO"
     | _ -> ()
-
 
 let equivalent left right = ConceptExpr.Equivalent left, right
 

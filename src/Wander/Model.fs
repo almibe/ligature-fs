@@ -29,16 +29,12 @@ and [<RequireQualifiedAccess>] Any =
     | Pattern of Pattern
     | Assertion of Assertion
     | ABox of ABox
-    | ValueSet of ValueSet
-    | ResultSet of ResultSet
     | Comment of string
     | NodeLiteral of Node
     | NodeExpression of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | TBox of TBox
-    | Source of Source
-    | Nothing
 
 and Node =
     { name: Term
@@ -87,8 +83,6 @@ let rec printAny (value: Any) : string =
     | Any.Tuple tuple -> printTuple tuple
     | Any.ABox n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
-    | Any.ResultSet rs -> printResultSet rs
-    | Any.ValueSet _ -> failwith "Not Implemented"
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.Pattern _ -> failwith "Not Implemented"
     | Any.NodeExpression _ -> "-app-"

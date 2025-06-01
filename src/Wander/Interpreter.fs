@@ -192,7 +192,7 @@ and executeExpression
                 (fun value ->
                     match executeExpression actions bindings variables value with
                     | Ok res -> res
-                    | Error err -> failwith "TODO")
+                    | Error err -> failwith err.UserMessage)
                 tuple
 
         Ok(Any.Tuple tuple)
@@ -204,12 +204,9 @@ and executeExpression
         | _ -> error $"Could not find {variable}" None
     | Any.Term term -> Ok(Any.Term term)
     | Any.NodeExpression application -> executeApplication actions bindings variables application
-    | Any.AnySet set -> Ok(Any.AnySet set)
     | Any.Assertion assertion -> failwith "TODO"
     | Any.Slot _ -> failwith "Not Implemented"
     | Any.Pattern _ -> failwith "Not Implemented"
-    | Any.ValueSet _ -> failwith "Not Implemented"
-    | Any.ResultSet _ -> failwith "Not Implemented"
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.Lambda _ -> failwith "Not Implemented"
     | Any.ConceptExpr expr -> Ok(Any.ConceptExpr expr)

@@ -270,12 +270,12 @@ let queryFn =
           examples = []
           args = "Pattern Network"
           result = "ResultSet" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Pattern pattern; Any.ABox source ] ->
-                let results = query pattern source
-                Ok(Any.ResultSet results)
-            | _ -> error "Invalid call to query" None
+        fun _ _ _ arguments -> failwith "TODO"
+            // match arguments with
+            // | [ Any.Pattern pattern; Any.ABox source ] ->
+            //     let results = query pattern source
+            //     Ok(Any.ResultSet results)
+            // | _ -> error "Invalid call to query" None
     )
 
 // let matchCommand =
