@@ -11,7 +11,7 @@ let namedSlot (v: Slot) : bool =
     | Slot "?" -> false
     | _ -> true
 
-let testPattern (pattern: AssertionPattern) (assertion: Assertion) : ValueSet option = failwith "TODO"
+//let testPattern (pattern: AssertionPattern) (assertion: Assertion) : ValueSet option = failwith "TODO"
 // let mutable result: ValueSet = Map.empty
 // let mutable isMatch = true
 
@@ -52,14 +52,14 @@ let testPattern (pattern: AssertionPattern) (assertion: Assertion) : ValueSet op
 // | Assertion.IsA(element, value) ->
 //     failwith "TODO"
 
-let singleMatch (pattern: AssertionPattern) (network: ABox) : ResultSet =
-    Set.fold
-        (fun state entry ->
-            match testPattern pattern entry with
-            | Some res -> Set.add res state
-            | None -> state)
-        Set.empty
-        network
+// let singleMatch (pattern: AssertionPattern) (network: ABox) : ResultSet =
+//     Set.fold
+//         (fun state entry ->
+//             match testPattern pattern entry with
+//             | Some res -> Set.add res state
+//             | None -> state)
+//         Set.empty
+//         network
 
 let andSingleResult (left: ValueSet) (right: ValueSet) : Option<ValueSet> =
     let leftKeys = Set.ofSeq left.Keys
@@ -89,16 +89,23 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let query (pattern: Pattern) (network: ABox) : ResultSet =
-    let resultSets =
-        Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
+let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : ABox list =
+    let res = Set.filter (fun value -> failwith "TODO") aBox |> List.ofSeq
 
-    if resultSets.IsEmpty then
-        Set.empty
-    else
-        List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
+    match res with
+    | [] -> []
+    | _ -> failwith "TODO"
 
-let applyValueSet (pattern: Pattern) (result: ValueSet) : ABox = failwith "TODO"
+
+// let resultSets =
+//     Set.map (fun singlePattern -> singleMatch singlePattern network) pattern
+
+// if resultSets.IsEmpty then
+//     Set.empty
+// else
+//     List.reduce (fun state resultSet -> andResultSets state resultSet) (List.ofSeq resultSets)
+
+//let applyValueSet (pattern: Pattern) (result: ValueSet) : ABox = failwith "TODO"
 // Set.map
 //     (fun (e, a, v) ->
 //         let element =
@@ -145,11 +152,11 @@ let applyValueSet (pattern: Pattern) (result: ValueSet) : ABox = failwith "TODO"
 //             | _ -> any)
 //         pattern
 
-let apply (pattern: Pattern) (resultSet: ResultSet) : ABox =
-    Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
+// let apply (pattern: Pattern) (resultSet: ResultSet) : ABox =
+//     Set.fold (fun state result -> Set.union (applyValueSet pattern result) state) Set.empty resultSet
 
-let applySeq (pattern: Pattern) (resultSet: ResultSet) : ABox list =
-    Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
+// let applySeq (pattern: Pattern) (resultSet: ResultSet) : ABox list =
+//     Set.fold (fun state result -> (applyValueSet pattern result) :: state) [] resultSet
 
 // let applySeqTupleTemplate (pattern: Tuple) (resultSet: ResultSet) : Tuple list =
 //     Set.fold (fun state result -> (applyValueSetTupleTemplate pattern result) :: state) [] resultSet
@@ -159,9 +166,9 @@ let applySeq (pattern: Pattern) (resultSet: ResultSet) : ABox list =
 //     applySeqTupleTemplate template rs
 
 
-let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
+// let contains (test: Pattern) (source: Pattern) : bool = Set.isSubset test source
 
-let filter (pattern: Pattern) (source: ABox) : ABox =
-    let res = query pattern source
-    let res = applySeq pattern res
-    Seq.fold (fun state network -> Set.union state network) Set.empty res
+// let filter (pattern: Pattern) (source: ABox) : ABox =
+//     let res = query pattern source
+//     let res = applySeq pattern res
+//     Seq.fold (fun state network -> Set.union state network) Set.empty res

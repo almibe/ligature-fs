@@ -62,7 +62,7 @@ let rec nodeToNetwork (node: Node) : Result<ABox, LigatureError> = failwith "TOD
 //     |> Ok
 // | _ -> error "Record requires valid @ entry." None
 
-let rec nodeToPattern (node: Node) : Result<Pattern, LigatureError> = failwith "TODO"
+//let rec nodeToPattern (node: Node) : Result<Pattern, LigatureError> = failwith "TODO"
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some id ->
 //     let id =
@@ -268,14 +268,14 @@ let queryFn =
     Fn(
         { doc = "Perform a query."
           examples = []
-          args = "Pattern Network"
-          result = "ResultSet" },
-        fun _ _ _ arguments -> failwith "TODO"
-            // match arguments with
-            // | [ Any.Pattern pattern; Any.ABox source ] ->
-            //     let results = query pattern source
-            //     Ok(Any.ResultSet results)
-            // | _ -> error "Invalid call to query" None
+          args = "TBox ABox ConceptExpr"
+          result = "Tuple" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Any.TBox tBox; Any.ABox aBox; Any.ConceptExpr concept ] ->
+                let results = query tBox aBox concept |> List.map Any.ABox
+                Ok(Any.Tuple results)
+            | _ -> error "Invalid call to query" None
     )
 
 // let matchCommand =
@@ -359,51 +359,51 @@ let queryFn =
 //             | args -> failwith $"TODO - unexpected args {args}" }
 
 
-let filterFn =
-    Fn(
-        { doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network."
-          examples = []
-          args = "Pattern Network"
-          result = "Network" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Any.Pattern pattern; Any.ABox source ] ->
-                // let pattern =
-                //     match pattern with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Tuple tuple ->
-                //         match evalTuple networks local modules variables tuple with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+// let filterFn =
+//     Fn(
+//         { doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network."
+//           examples = []
+//           args = "Pattern Network"
+//           result = "Network" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Any.Pattern pattern; Any.ABox source ] ->
+//                 // let pattern =
+//                 //     match pattern with
+//                 //     | Any.Network n -> n
+//                 //     | Any.Slot v ->
+//                 //         if variables.ContainsKey v then
+//                 //             match variables[v] with
+//                 //             | Any.Network n -> n
+//                 //             | _ -> failwith "TODO"
+//                 //         else
+//                 //             failwith "TODO"
+//                 //     | Any.Tuple tuple ->
+//                 //         match evalTuple networks local modules variables tuple with
+//                 //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+//                 //         | _ -> failwith "TODO"
+//                 //     | _ -> failwith "TODO"
 
-                // let source =
-                //     match source with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         if variables.ContainsKey v then
-                //             match variables[v] with
-                //             | Any.Network n -> n
-                //             | _ -> failwith "TODO"
-                //         else
-                //             failwith "TODO"
-                //     | Any.Tuple tuple ->
-                //         match evalTuple networks local modules variables tuple with
-                //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
+//                 // let source =
+//                 //     match source with
+//                 //     | Any.Network n -> n
+//                 //     | Any.Slot v ->
+//                 //         if variables.ContainsKey v then
+//                 //             match variables[v] with
+//                 //             | Any.Network n -> n
+//                 //             | _ -> failwith "TODO"
+//                 //         else
+//                 //             failwith "TODO"
+//                 //     | Any.Tuple tuple ->
+//                 //         match evalTuple networks local modules variables tuple with
+//                 //         | Ok((Some(Any.Network n), networks, local, modules)) -> n
+//                 //         | _ -> failwith "TODO"
+//                 //     | _ -> failwith "TODO"
 
-                let results = filter pattern source
-                Ok(Any.ABox results)
-            | _ -> error "Invalid call to filter" None
-    )
+//                 let results = filter pattern source
+//                 Ok(Any.ABox results)
+//             | _ -> error "Invalid call to filter" None
+//     )
 
 let ifEmptyFn =
     Fn(

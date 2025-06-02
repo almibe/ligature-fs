@@ -21,23 +21,29 @@ let testGroupFn: Fn =
                 | _ -> failwith "Unexpected value."
 
             let testData =
-                List.collect (fun value ->
-                    match value with
-                    | Any.NodeLiteral testResult ->
-                        match 
-                            testResult.attributes.TryFind (Term "name"),
-                            testResult.attributes.TryFind (Term "status"),
-                            testResult.attributes.TryFind (Term "comment") with
-                        | Some (Any.Literal name), Some (Any.Term status), Some (Any.Literal comment) -> 
-                            let testId = Term ("test-" + Ulid.Ulid.Ulid.New.ToString())
-                            [Assertion.Triple(testId, Term "name", Value.Literal name)
-                             Assertion.Triple(testId, Term "state", Value.Term status)
-                             Assertion.Triple(testId, Term "comment", Value.Literal comment)
-                             Assertion.Triple(testId, Term "test-group", Value.Literal groupName) ]
-                        | _ -> failwith "TODO"
-                    | _ -> failwith "TODO") arguments.Tail
+                List.collect
+                    (fun value ->
+                        match value with
+                        | Any.NodeLiteral testResult ->
+                            match
+                                testResult.attributes.TryFind(Term "name"),
+                                testResult.attributes.TryFind(Term "status"),
+                                testResult.attributes.TryFind(Term "comment")
+                            with
+                            | Some(Any.Literal name), Some(Any.Term status), Some(Any.Literal comment) ->
+                                let testId = Term("test-" + Ulid.Ulid.Ulid.New.ToString())
+
+                                [ Assertion.Triple(testId, Term "name", Value.Literal name)
+                                  Assertion.Triple(testId, Term "state", Value.Term status)
+                                  Assertion.Triple(testId, Term "comment", Value.Literal comment)
+                                  Assertion.Triple(testId, Term "test-group", Value.Literal groupName) ]
+                            | _ -> failwith "TODO"
+                        | _ -> failwith "TODO")
+                    arguments.Tail
+
             let testABox: ABox = Set.ofList testData
-            Ok(Any.ABox testABox))
+            Ok(Any.ABox testABox)
+    )
 
 let expectEqualFn: Fn =
     Fn(
@@ -53,7 +59,11 @@ let expectEqualFn: Fn =
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Any.Literal { content = ""; datatype = None; langTag = None }
+                                [ Term "name",
+                                  Any.Literal
+                                      { content = ""
+                                        datatype = None
+                                        langTag = None }
                                   Term "status", Any.Term(Term "pass")
                                   Term "comment",
                                   Any.Literal

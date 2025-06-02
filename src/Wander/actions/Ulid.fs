@@ -12,10 +12,12 @@ open System
 //Source https://github.com/lucasschejtman/FSharp.Ulid
 module internal Extensions =
     type DateTime with
+
         static member UnixTime =
-            Convert.ToInt64 (DateTime.UtcNow.Subtract(DateTime(1970, 1, 1)).TotalSeconds)
+            Convert.ToInt64(DateTime.UtcNow.Subtract(DateTime(1970, 1, 1)).TotalSeconds)
 
     type Random with
+
         member this.GetSequence(min, max) =
             Seq.initInfinite (fun _ -> this.Next(min, max))
 
@@ -30,8 +32,8 @@ module Ulid =
 
     /// Universally Unique Lexicographically Sortable Identifier
     type Ulid private (timestamp) as this =
-        let encoding        = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"    
-        let encodingLength  = 32L
+        let encoding = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+        let encodingLength = 32L
         let mutable value = ""
 
         do
@@ -40,7 +42,9 @@ module Ulid =
             this.Value <- List.append timePart randomPart |> this.ConcatEncoding
             ()
 
-        member this.Value with get() = value and private set(v) = value <- v
+        member this.Value
+            with get () = value
+            and private set (v) = value <- v
 
         override this.ToString() = this.Value
 
@@ -48,27 +52,24 @@ module Ulid =
             List.fold (fun acc char -> acc + (encoding.Chars char).ToString()) "" chars
 
         member private this.Randoms length min max =
-            Random().GetSequence(min, max)
-                |> Seq.take length
-                |> Seq.toList
+            Random().GetSequence(min, max) |> Seq.take length |> Seq.toList
 
         member private this.EncodeTime timestamp length =
             let rec loop ts len chars =
                 match len with
-                | Positive    -> let char = ts % encodingLength
-                                 let acc = (ts - char) / encodingLength
-                                 loop acc (len - 1) ((Convert.ToInt32 char)::chars)
+                | Positive ->
+                    let char = ts % encodingLength
+                    let acc = (ts - char) / encodingLength
+                    loop acc (len - 1) ((Convert.ToInt32 char) :: chars)
                 | NotPositive -> chars
 
-            loop timestamp length [] 
+            loop timestamp length []
 
         /// Creates a new `Ulid` from the specified `int64` timestamp
-        static member FromTimestamp timestamp =
-            timestamp |> Ulid
+        static member FromTimestamp timestamp = timestamp |> Ulid
 
         /// Creates a new `Ulid` from the current Unix timestamp
-        static member New =
-            DateTime.UnixTime |> Ulid
+        static member New = DateTime.UnixTime |> Ulid
 
 
 let ulidFn =
@@ -77,8 +78,9 @@ let ulidFn =
           examples = [ "(ulid)"; "(ulid prefix)" ]
           args = "Term?"
           result = "Term" },
-        fun _ _ _ arguments -> 
+        fun _ _ _ arguments ->
             match arguments with
-            | [] -> Ok(Any.Term (Term (Ulid.New.ToString())))
-            | [ Any.Term (Term prefix) ] -> Ok(Any.Term (Term (prefix + Ulid.New.ToString())))
-            | _ -> failwith "TODO")
+            | [] -> Ok(Any.Term(Term(Ulid.New.ToString())))
+            | [ Any.Term(Term prefix) ] -> Ok(Any.Term(Term(prefix + Ulid.New.ToString())))
+            | _ -> failwith "TODO"
+    )

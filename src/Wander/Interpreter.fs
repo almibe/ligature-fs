@@ -205,8 +205,7 @@ and executeExpression
     | Any.Term term -> Ok(Any.Term term)
     | Any.NodeExpression application -> executeApplication actions bindings variables application
     | Any.Assertion assertion -> failwith "TODO"
-    | Any.Slot _ -> failwith "Not Implemented"
-    | Any.Pattern _ -> failwith "Not Implemented"
+    | Any.Slot _ -> Ok expression
     | Any.Comment _ -> failwith "Not Implemented"
     | Any.Lambda _ -> failwith "Not Implemented"
     | Any.ConceptExpr expr -> Ok(Any.ConceptExpr expr)

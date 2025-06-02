@@ -308,9 +308,9 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
 
             let models: List<PotentialModel> =
                 List.fold
-                    (fun models expr -> 
+                    (fun models expr ->
                         let asserts = Set.add (Assertion.Instance(individual, expr)) assertions
-                        {state with toProcess = asserts} :: models)
+                        { state with toProcess = asserts } :: models)
                     []
                     group
 
@@ -318,8 +318,11 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Or group)) ->
             let assertions = Set.remove assertion state.toProcess
             let negGroup = List.map (fun value -> ConceptExpr.Not value) group
-            let assertions = Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
-            {state with toProcess = assertions}, []
+
+            let assertions =
+                Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
+
+            { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
             if
                 not (

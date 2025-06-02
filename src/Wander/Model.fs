@@ -11,14 +11,14 @@ type Variable = Variable of string
 
 type Tuple = Any list
 
-and Source () =
-    member _.next (): Any option = failwith "TODO"
-    
-    // with
+and Source() =
+    member _.next() : Any option = failwith "TODO"
 
-    // interface System.IComparable with
-    //     member _.CompareTo (obj: obj): int = 
-    //                 raise (System.NotImplementedException())
+// with
+
+// interface System.IComparable with
+//     member _.CompareTo (obj: obj): int =
+//                 raise (System.NotImplementedException())
 
 and [<RequireQualifiedAccess>] Any =
     | Slot of Slot
@@ -26,7 +26,6 @@ and [<RequireQualifiedAccess>] Any =
     | Term of Term
     | Literal of Literal
     | Variable of Variable
-    | Pattern of Pattern
     | Assertion of Assertion
     | ABox of ABox
     | Comment of string
@@ -84,7 +83,6 @@ let rec printAny (value: Any) : string =
     | Any.ABox n -> printNetwork n
     | Any.Slot(Slot variable) -> variable
     | Any.Comment _ -> failwith "Not Implemented"
-    | Any.Pattern _ -> failwith "Not Implemented"
     | Any.NodeExpression _ -> "-app-"
     | Any.Lambda _ -> failwith "TODO"
     | Any.NodeLiteral node -> printNode node
@@ -138,19 +136,19 @@ and printResultSet (rs: ResultSet) =
     res <- res + ")"
     res
 
-and printPattern (network: Pattern) : string =
-    let mutable first = true
+// and printPattern (network: Pattern) : string =
+//     let mutable first = true
 
-    Seq.fold
-        (fun state triple ->
-            if first then
-                first <- false
-                state + " " + printTriplePattern triple + " "
-            else
-                state + "\n  " + printTriplePattern triple + " ")
-        "(pattern "
-        network
-    + " )"
+//     Seq.fold
+//         (fun state triple ->
+//             if first then
+//                 first <- false
+//                 state + " " + printTriplePattern triple + " "
+//             else
+//                 state + "\n  " + printTriplePattern triple + " ")
+//         "(pattern "
+//         network
+//     + " )"
 
 and printNetwork (network: ABox) : string =
     let mutable first = true
@@ -166,7 +164,7 @@ and printNetwork (network: ABox) : string =
         network
     + " )"
 
-and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"
+// and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"
 // let element =
 //     match element with
 //     | TermPattern.Term(Term e) -> e

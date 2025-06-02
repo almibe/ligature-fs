@@ -120,10 +120,10 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "id", idFn
           Term "if-empty", ifEmptyFn
           Term "is-empty", isEmptyFn
-          Term "filter", filterFn
+          //   Term "filter", filterFn
           Term "query", queryFn
           Term "count", countFn
-          Term "bend.json.instances", bendJsonFn
+          //   Term "bend.json.instances", bendJsonFn
           Term "unfold", unfoldFn
           Term "top", topFn
           Term "bottom", bottomFn
