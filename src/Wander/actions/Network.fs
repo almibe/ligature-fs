@@ -7,6 +7,7 @@ module Wander.Fns.Network
 open Ligature.Model
 open Wander.Model
 open Ligature.Core
+open Ligature.Interpreter
 open Wander.Interpreter
 
 let rec nodeToNetwork (node: Node) : Result<ABox, LigatureError> = failwith "TODO"
@@ -264,16 +265,49 @@ let countFn =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
+let aBoxToNode (individual: Term) (aBox: ABox) (selections: Any list) : Node = //TODO also accept a TBox and Concept to control
+    let selectionValues =
+        List.fold
+            (fun state value ->
+                match value with
+                | Any.Term roleName ->
+                    List.ofSeq aBox
+                    |> List.fold
+                        (fun state value ->
+                            match value with
+                            | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
+                                match v with
+                                | Value.Literal l -> Map.add r (Any.Literal l) state
+                                | Value.Term t -> Map.add r (Any.Term t) state
+                            | _ -> state)
+                        state
+                | _ -> failwith "TODO")
+            Map.empty
+            selections
+
+    { name = individual
+      attributes = selectionValues
+      children = [] }
+
 let queryFn =
     Fn(
         { doc = "Perform a query."
           examples = []
-          args = "TBox ABox ConceptExpr"
+          args = "TBox ABox (Term | ConceptExpr) Tuple"
           result = "Tuple" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox tBox; Any.ABox aBox; Any.ConceptExpr concept ] ->
-                let results = query tBox aBox concept |> List.map Any.ABox
+            | [ Any.TBox tBox; Any.ABox aBox; Any.Term concept; Any.Tuple selections ] ->
+                let results =
+                    query tBox aBox (ConceptExpr.AtomicConcept concept)
+                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Any.NodeLiteral)
+
+                Ok(Any.Tuple results)
+            | [ Any.TBox tBox; Any.ABox aBox; Any.ConceptExpr concept; Any.Tuple selections ] ->
+                let results =
+                    query tBox aBox concept
+                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Any.NodeLiteral)
+
                 Ok(Any.Tuple results)
             | _ -> error "Invalid call to query" None
     )

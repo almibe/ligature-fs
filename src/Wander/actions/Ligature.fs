@@ -206,10 +206,14 @@ let isInstanceFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.TBox tBox; Any.ABox aBox; Any.Term individual; Any.Term concept ] -> //TODO handle conceptexprs
+                match isInstance tBox aBox individual (ConceptExpr.AtomicConcept concept) with
+                | Ok term -> Ok(Any.Term term)
+                | Error err -> Error err
+            | [ Any.TBox tBox; Any.ABox aBox; Any.Term individual; Any.ConceptExpr concept ] -> //TODO handle conceptexprs
                 match isInstance tBox aBox individual concept with
                 | Ok term -> Ok(Any.Term term)
                 | Error err -> Error err
-            | _ -> error "Invalid call to is-consistent." None
+            | _ -> error "Invalid call to is-instance." None
     )
 
 let impliesFn: Fn =

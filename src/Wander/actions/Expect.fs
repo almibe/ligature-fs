@@ -90,7 +90,7 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    failwith "TODO"
+                    error $"assert-equal failed {printAny left} != {printAny right}" None
             | _ -> error $"expect-equal requires a name and two values." None
     )
 

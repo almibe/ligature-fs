@@ -89,13 +89,21 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : ABox list =
-    let res = Set.filter (fun value -> failwith "TODO") aBox |> List.ofSeq
+let individuals (aBox: ABox) : Term list =
+    Set.fold
+        (fun state value ->
+            match value with
+            | Assertion.Instance(individual, _) -> //TODO check for nominal concept
+                Set.add individual state
+            | Assertion.Triple(i, _, v) ->
+                let state = Set.add i state
 
-    match res with
-    | [] -> []
-    | _ -> failwith "TODO"
-
+                match v with
+                | Value.Literal _ -> state
+                | Value.Term t -> Set.add t state)
+        Set.empty
+        aBox
+    |> List.ofSeq
 
 // let resultSets =
 //     Set.map (fun singlePattern -> singleMatch singlePattern network) pattern

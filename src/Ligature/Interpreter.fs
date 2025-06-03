@@ -5,6 +5,7 @@
 module Ligature.Interpreter
 
 open Ligature.Model
+open Core
 
 type PotentialModel =
     { toProcess: ABox
@@ -475,6 +476,53 @@ let containsClash (model: PotentialModel) : bool =
         false
         model.isA
 
+let tableauModels
+    definitions
+    assertions
+    : Result<{| clashFree: ABox list
+                containsClash: ABox list |}, LigatureError>
+    =
+    let mutable currentModel: PotentialModel option =
+        match handleTBox definitions assertions with
+        | Ok assertions -> Some(newModel assertions)
+        | _ -> None
+
+    let mutable additionalModels: PotentialModel list = []
+
+    let mutable completedModelsClashFree = []
+    let mutable completedModelsWithClash = []
+
+    while currentModel.IsSome do
+        match currentModel with
+        | Some model ->
+            if model.toProcess.IsEmpty then
+                if model.skip.IsEmpty then
+                    if containsClash model then
+                        completedModelsWithClash <- modelToAssertions model :: completedModelsWithClash
+                    else
+                        completedModelsClashFree <- modelToAssertions model :: completedModelsClashFree
+
+                    match additionalModels with
+                    | head :: tail ->
+                        currentModel <- Some head
+                        additionalModels <- tail
+                    | [] -> currentModel <- None
+                else
+                    currentModel <-
+                        Some
+                            { model with
+                                toProcess = model.skip
+                                skip = Set.empty }
+            else
+                let nextModel, newPotentialModels = interpretNextAssertion model
+                currentModel <- Some nextModel
+                additionalModels <- List.append additionalModels newPotentialModels
+        | None -> failwith "Should never reach"
+
+    Ok
+        {| clashFree = completedModelsClashFree
+           containsClash = completedModelsWithClash |}
+
 let findModel definitions assertions : Result<ABox option, LigatureError> =
     let mutable result = None
 
@@ -551,6 +599,30 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok None -> Ok false
     | Error err -> Error err
 
-let isInstance definitions assertions individual concept : Result<Term, LigatureError> =
+let isInstance (tBox: TBox) (aBox: ABox) (individual: Term) (concept: ConceptExpr) : Result<Term, LigatureError> =
+    let models =
+        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
 
-    failwith "TODO"
+    match models with
+    | Ok models ->
+        if models.containsClash.IsEmpty then Ok(Term "false")
+        else if models.clashFree.IsEmpty then Ok(Term "true")
+        else Ok(Term "unknown")
+    | Error err -> Error err
+
+let expandResult (aBox: ABox) (individual: Term) (concept: ConceptExpr) : ABox =
+
+    Set.ofList [ Assertion.Instance(individual, concept) ]
+
+let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Term * ABox) list =
+    let individuals = individuals aBox
+
+    let res =
+        List.filter
+            (fun value ->
+                match isInstance tBox aBox value concept with
+                | Ok(Term "true") -> true
+                | _ -> false)
+            individuals
+
+    List.map (fun value -> value, expandResult aBox value concept) res
