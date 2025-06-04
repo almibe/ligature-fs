@@ -5,7 +5,6 @@
 module Wander.Fns.Expect
 
 open Ligature.Model
-open Wander.Interpreter
 open Wander.Model
 
 let testGroupFn: Fn =
@@ -67,7 +66,7 @@ let expectEqualFn: Fn =
                                   Term "status", Any.Term(Term "pass")
                                   Term "comment",
                                   Any.Literal
-                                      { content = $"Result: {printAny first}"
+                                      { content = ""
                                         datatype = None
                                         langTag = None } ]
                           children = [] }
@@ -84,7 +83,7 @@ let expectEqualFn: Fn =
                                   Term "status", Any.Term(Term "pass")
                                   Term "comment",
                                   Any.Literal
-                                      { content = $"Result: {printAny left}"
+                                      { content = ""
                                         datatype = None
                                         langTag = None } ]
                           children = [] }
@@ -93,13 +92,3 @@ let expectEqualFn: Fn =
                     error $"assert-equal failed {printAny left} != {printAny right}" None
             | _ -> error $"expect-equal requires a name and two values." None
     )
-
-// let assertFailCommand: Command =
-//     { Eval =
-//         fun networks local (modules: Modules) (arguments: Arguments) ->
-//             match arguments with
-//             | [ Any.Tuple tuple ] ->
-//                 match evalTuple networks local modules tuple with
-//                 | Ok(_) -> error "assert-fail call didn't result in error." None
-//                 | Error _ -> Ok((Some(Any.Network Set.empty), networks, local, modules))
-//             | args -> error $"assert-fail passed illegal arguments - {args}" None }

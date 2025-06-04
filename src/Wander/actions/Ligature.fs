@@ -42,7 +42,7 @@ and writeJsonView (view: JsonView) : string =
     res <- res + "}"
     res
 
-// let extract (id: Term) (source: Assertions) : Record =
+// let extract (id: Term) (source: Assertions) : Node =
 //     let mutable result = Map.empty
 //     result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
 
@@ -65,10 +65,10 @@ and writeJsonView (view: JsonView) : string =
 
 // let extractFn: Fn =
 //     Fn(
-//         { doc = "Create a Record of a single invidual's relations."
+//         { doc = "Create a Node of a single invidual's relations."
 //           examples = [ "extract a (network [a b c])" ]
 //           args = "Term Network"
-//           result = "Record" },
+//           result = "Node" },
 //         fun _ _ _ arguments ->
 //             match arguments with
 //             | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Node(extract id source))
@@ -116,7 +116,7 @@ and writeJsonView (view: JsonView) : string =
 let unfoldFn =
     Fn(
         { doc = "Unfold a TBox into an ABox."
-          examples = [ "(unfold (definitions (implies A B)) (assertions [a : A]))" ]
+          examples = [ "(unfold (t-box (implies A B)) (assertions [a : A]))" ]
           args = "Definitions Assertions"
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -127,8 +127,8 @@ let unfoldFn =
 
 let isDefinitorialFn =
     Fn(
-        { doc = "Check if definitions are definitorial."
-          examples = [ "(is-definitorial (definitions (implies A B)))" ]
+        { doc = "Check if t-box is definitorial."
+          examples = [ "(is-definitorial (t-box (implies A B)))" ]
           args = "Definitions"
           result = "Literal" },
         fun _ _ _ arguments ->
@@ -143,8 +143,8 @@ let isDefinitorialFn =
 
 let nnfFn =
     Fn(
-        { doc = "Convert definitions to nnf."
-          examples = [ "(nnf (definitions (implies A B)))" ]
+        { doc = "Convert t-box to nnf."
+          examples = [ "(nnf (t-box (implies A B)))" ]
           args = "Definitions"
           result = "Definitions" },
         fun _ _ _ arguments ->
@@ -184,7 +184,7 @@ let topFn =
 let isConsistentFn =
     Fn(
         { doc = "Check if a KB is consistent."
-          examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
+          examples = [ "(is-consistent (t-box (implies A B)) (assertions (instance a A)))" ]
           args = "Definitions Assertions"
           result = "Term" },
         fun _ _ _ arguments ->
@@ -200,7 +200,7 @@ let isConsistentFn =
 let isInstanceFn =
     Fn(
         { doc = "Check if an individual is an instance of a concept."
-          examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
+          examples = [ "(is-istance (t-box (implies A B)) (assertions (instance a A)) a B)" ]
           args = "Definitions Assertions Individual Concept"
           result = "Term" },
         fun _ _ _ arguments ->
@@ -254,12 +254,22 @@ let equivalentFn: Fn =
             | _ -> error "Improper call to define-concept." None
     )
 
+let tableauModelsFn: Fn =
+    Fn(
+        { doc =
+            "Find all models using the tableau algorithm and return them based on whether or not they contain clashes."
+          examples = [ "(tableau-models (t-box) (assertions))" ]
+          args = "Definitions Assertions"
+          result = "Node" },
+        fun _ _ _ arguments -> failwith "TODO"
+    )
+
 let findModelFn: Fn =
     Fn(
         { doc = "Find the first model that matches the given KB."
-          examples = [ "(find-model (definitions) (assertions))" ]
+          examples = [ "(find-model (t-box) (assertions))" ]
           args = "Definitions Assertions"
-          result = "Record" },
+          result = "Node" },
         fun _ _ _ arguments -> failwith "TODO"
     )
 // match arguments with

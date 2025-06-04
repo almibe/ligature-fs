@@ -8,14 +8,10 @@ open Ligature.Model
 open Wander.Model
 open Wander.Fns.Expect
 open Wander.Fns.Core
-open Wander.Fns.Tuple
 open Wander.Fns.Network
 open Wander.Fns.Ligature
-open Interpreter
 open Wander.Fns.Remote
 open Wander.Fns.Store
-open InMemoryStore
-open Wander.Fns.Bend
 open Wander.Fns.Ulid
 
 let docsFn: Fn =
@@ -97,11 +93,11 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "literal", literalFn
           Term "instance", instanceFn
           Term "find-model", findModelFn
+          Term "tableau-models", tableauModelsFn
           Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn
-          //   Term "pattern", patternFn
           Term "t-box", tBoxFn
           Term "equivalent", equivalentFn
           Term "all", allFn
@@ -112,18 +108,12 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "implies", impliesFn
           Term "union", unionFn
           Term "remote", remoteFn
-          //   Term "extract", extractFn
-          //   Term "instances", instancesFn
           Term "docs", docsFn
-          //   Term "prepend", prependFn
-          Term "result-set", resultSetFn
           Term "id", idFn
           Term "if-empty", ifEmptyFn
           Term "is-empty", isEmptyFn
-          //   Term "filter", filterFn
           Term "query", queryFn
           Term "count", countFn
-          //   Term "bend.json.instances", bendJsonFn
           Term "unfold", unfoldFn
           Term "top", topFn
           Term "bottom", bottomFn

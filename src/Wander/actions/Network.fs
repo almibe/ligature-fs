@@ -160,49 +160,6 @@ let aBoxFn =
             Ok(Any.ABox res)
     )
 
-// let patternFn =
-//     Fn(
-//         { doc = "Create a Pattern from triples."
-//           examples = [ "pattern [?a b c] [?a e f]" ]
-//           args = "Tuple..."
-//           result = "Pattern" },
-//         fun _ _ _ arguments ->
-//             let mutable res: Pattern = Set.empty
-
-//             List.iter
-//                 (fun arg ->
-//                     match arg with
-//                     | Any.Tuple [ e; a; v ] ->
-//                         let e =
-//                             match e with
-//                             | Any.Term t -> TermPattern.Term t
-//                             | Any.Slot s -> TermPattern.Slot s
-//                             | _ -> failwith "Invalid call to pattern."
-
-//                         let a =
-//                             match a with
-//                             | Any.Term t -> TermPattern.Term t
-//                             | Any.Slot s -> TermPattern.Slot s
-//                             | _ -> failwith "Invalid call to pattern."
-
-//                         let v =
-//                             match v with
-//                             | Any.Term t -> ValuePattern.Term t
-//                             | Any.Slot s -> ValuePattern.Slot s
-//                             | Any.Literal l -> ValuePattern.Literal l
-//                             | _ -> failwith "Invalid call to pattern."
-
-//                         res <- Set.add (e, a, v) res
-//                     | Any.Record record ->
-//                         match recordToPattern record with
-//                         | Ok pattern -> res <- res + pattern
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "Invalid call to pattern.")
-//                 arguments
-
-//             Ok(Any.Pattern res)
-//     )
-
 let unionFn =
     Fn(
         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
@@ -212,30 +169,9 @@ let unionFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Any.ABox left; Any.ABox right ] ->
-                // let left =
-                //     match left with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
-
-                // let right =
-                //     match right with
-                //     | Any.Network n -> n
-                //     | Any.Slot v ->
-                //         match Map.tryFind v variables with
-                //         | Some(Any.Network res) -> res
-                //         | _ -> failwith "TODO"
-                //     | Any.Tuple tuple ->
-                //         match evalTuple networks local modules variables tuple with
-                //         | Ok((Some(Any.Network network), _, _, _, _)) -> network
-                //         | _ -> failwith "TODO"
-                //     | _ -> failwith "TODO"
                 let result = Set.union left right |> Any.ABox
                 Ok result
-            | _ -> failwith $"Calls to union requires two Networks on the stack."
+            | _ -> failwith $"Calls to union requires two ABoxes."
     )
 
 let countFn =

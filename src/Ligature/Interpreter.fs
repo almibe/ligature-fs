@@ -207,61 +207,6 @@ let handleTBox (tBox: TBox) (aBox: ABox) : Result<ABox, LigatureError> =
     else
         error "Only definitorial TBoxes are supported currently." None
 
-//     let setAlternatives (alternatives: List<Assertions>) =
-//         match alternatives with
-//         | [] -> ()
-//         | [ single ] -> current.Value.assertions <- single
-//         | head :: tail ->
-//             current.Value.assertions <- head
-
-//             List.iter
-//                 (fun value ->
-//                     incomplete <-
-//                         { assertions = value
-//                           roles = current.Value.roles
-//                           isA = current.Value.isA
-//                           isNot = current.Value.isNot
-//                           attributes = current.Value.attributes }
-//                         :: incomplete)
-//                 tail
-
-//     // let addInstance (individual: Term) (isA: Set<Term>) (isNot: Set<Term>) =
-//     //     failwith "TODO"
-//     //     // let individuals =
-//     //     //     match current.Value.isA.TryFind individual with
-//     //     //     | Some { isA = isA'; isNot = isNot' } ->
-//     //     //         Map.add
-//     //     //             individual
-//     //     //             { isA = Set.union isA' isA
-//     //     //               isNot = Set.union isNot' isNot }
-//     //     //             current.Value.individuals
-//     //     //     | None -> Map.add individual { isA = isA; isNot = isNot } current.Value.individuals
-
-//     //     // current.Value.individuals <- individuals
-
-//     let isConsistent (model: PotentialModel) : bool =
-//         failwith "TODO"
-//         // Map.fold
-//         //     (fun state _ { isA = isA; isNot = isNot } ->
-//         //         match state with
-//         //         | true -> if (Set.intersect isA isNot).IsEmpty then true else false
-//         //         | e -> e)
-//         //     true
-//         //     model.individuals
-
-//     let complete () =
-//         if isConsistent current.Value then
-//             _model <-
-//                 Some
-//                     { isA = current.Value.isA
-//                       isNot = current.Value.isNot
-//                       attributes = current.Value.attributes
-//                       roles = current.Value.roles }
-
-//             current <- None
-//         else
-//             current <- None
-
 let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialModel list =
     if state.toProcess.IsEmpty then
         if state.skip.IsEmpty then
