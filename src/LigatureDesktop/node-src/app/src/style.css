@@ -1,0 +1,19 @@
+html {
+  color-scheme: light dark;
+  font-family: system-ui;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width:100%;
+}
+
+body {
+  height: 100%;
+  width:100%;
+}
+
+#main-split {
+  height: 100%;
+  width:100%;
+}
