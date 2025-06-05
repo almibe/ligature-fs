@@ -375,22 +375,6 @@ let queryFn =
 //             | _ -> error "Invalid call to filter" None
 //     )
 
-let ifEmptyFn =
-    Fn(
-        { doc = "Takes three Terms..."
-          examples = []
-          args = ""
-          result = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | elseCase :: emptyCase :: Any.Network cond :: tail ->
-    //     if cond = Set.empty then
-    //         Ok(emptyCase :: tail)
-    //     else
-    //         Ok(elseCase :: tail)
-    // | _ -> error "Invalid call to if-empty" None
-    )
-
 let isEmptyFn =
     Fn(
         { doc =
