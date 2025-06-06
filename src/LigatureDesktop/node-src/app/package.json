@@ -23,6 +23,7 @@
 	"dependencies": {
 		"@ligature/ligature": "file:../../../LigatureFable",
 		"@ligature/ligature-components": "file:../../../../../ligature-components/packages/ligature-components",
-		"@shoelace-style/shoelace": "^2.20.1"
+		"@shoelace-style/shoelace": "^2.20.1",
+		"ace-builds": "^1.42.0"
 	}
 }
