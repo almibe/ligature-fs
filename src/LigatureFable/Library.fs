@@ -172,14 +172,9 @@ let rec createElement
 
 let appendHtml element (value: Result<Any, LigatureError>) =
     match value with
-    | Ok(Any.NodeLiteral { name = Term name
-                           attributes = attributes
-                           children = children }) ->
-        match children with
-        | [ Any.Term(Term "html"); Any.NodeLiteral node ] ->
-            let newElement = createElement node
-            emitJsStatement () "element.append(newElement)"
-        | _ -> failwith "TODO"
+    | Ok(Any.NodeLiteral node) ->
+        let newElement = createElement node
+        emitJsStatement () "element.append(newElement)"
     | _ -> ()
 
 let equivalent left right = ConceptExpr.Equivalent left, right

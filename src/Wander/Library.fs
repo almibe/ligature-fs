@@ -110,7 +110,6 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "remote", remoteFn
           Term "docs", docsFn
           Term "id", idFn
-          Term "if-empty", ifEmptyFn
           Term "is-empty", isEmptyFn
           Term "query", queryFn
           Term "count", countFn
