@@ -125,22 +125,22 @@ let aBoxFn =
             List.iter
                 (fun arg ->
                     match arg with
-                    | Any.Assertion assertion -> res <- Set.add assertion res
-                    | Any.Tuple [ e; a; v ] ->
+                    | Expression.Assertion assertion -> res <- Set.add assertion res
+                    | Expression.Tuple [ e; a; v ] ->
                         let e =
                             match e with
-                            | Any.Term t -> t
+                            | Expression.Term t -> t
                             | _ -> failwith "Invalid call to a-box."
 
                         let a =
                             match a with
-                            | Any.Term t -> t
+                            | Expression.Term t -> t
                             | _ -> failwith "Invalid call to a-box."
 
                         let v =
                             match v with
-                            | Any.Term t -> Value.Term t
-                            | Any.Literal l -> Value.Literal l
+                            | Expression.Term t -> Value.Term t
+                            | Expression.Literal l -> Value.Literal l
                             | _ -> failwith "Invalid call to a-box."
 
                         match a, v with
@@ -150,14 +150,14 @@ let aBoxFn =
                             res <-
                                 Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
                         | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Any.NodeLiteral record ->
+                    | Expression.NodeLiteral record ->
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
                     | _ -> failwith "Invalid call to a-box.")
                 arguments
 
-            Ok(Any.ABox res)
+            Ok(Expression.ABox res)
     )
 
 let unionFn =
@@ -168,8 +168,8 @@ let unionFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.ABox left; Any.ABox right ] ->
-                let result = Set.union left right |> Any.ABox
+            | [ Expression.ABox left; Expression.ABox right ] ->
+                let result = Set.union left right |> Expression.ABox
                 Ok result
             | _ -> failwith $"Calls to union requires two ABoxes."
     )
@@ -182,9 +182,9 @@ let countFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.ABox n ] ->
+            | [ Expression.ABox n ] ->
                 Ok(
-                    Any.Literal
+                    Expression.Literal
                         { content = (Set.count n).ToString()
                           datatype = None
                           langTag = None }
@@ -201,20 +201,20 @@ let countFn =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-let aBoxToNode (individual: Term) (aBox: ABox) (selections: Any list) : Node = //TODO also accept a TBox and Concept to control
+let aBoxToNode (individual: Term) (aBox: ABox) (selections: Expression list) : Node = //TODO also accept a TBox and Concept to control
     let selectionValues =
         List.fold
             (fun state value ->
                 match value with
-                | Any.Term roleName ->
+                | Expression.Term roleName ->
                     List.ofSeq aBox
                     |> List.fold
                         (fun state value ->
                             match value with
                             | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
                                 match v with
-                                | Value.Literal l -> Map.add r (Any.Literal l) state
-                                | Value.Term t -> Map.add r (Any.Term t) state
+                                | Value.Literal l -> Map.add r (Expression.Literal l) state
+                                | Value.Term t -> Map.add r (Expression.Term t) state
                             | _ -> state)
                         state
                 | _ -> failwith "TODO")
@@ -233,18 +233,18 @@ let queryFn =
           result = "Tuple" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox tBox; Any.ABox aBox; Any.Term concept; Any.Tuple selections ] ->
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term concept; Expression.Tuple selections ] ->
                 let results =
                     query tBox aBox (ConceptExpr.AtomicConcept concept)
-                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Any.NodeLiteral)
+                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-                Ok(Any.Tuple results)
-            | [ Any.TBox tBox; Any.ABox aBox; Any.ConceptExpr concept; Any.Tuple selections ] ->
+                Ok(Expression.Tuple results)
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.ConceptExpr concept; Expression.Tuple selections ] ->
                 let results =
                     query tBox aBox concept
-                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Any.NodeLiteral)
+                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-                Ok(Any.Tuple results)
+                Ok(Expression.Tuple results)
             | _ -> error "Invalid call to query" None
     )
 

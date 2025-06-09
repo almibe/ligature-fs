@@ -121,7 +121,7 @@ let unfoldFn =
           result = "Assertions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox def; Any.ABox assertions ] -> unfold def assertions |> Result.map Any.ABox
+            | [ Expression.TBox def; Expression.ABox assertions ] -> unfold def assertions |> Result.map Expression.ABox
             | _ -> error "Invalid call to unfold." None
     )
 
@@ -133,11 +133,11 @@ let isDefinitorialFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox def ] ->
+            | [ Expression.TBox def ] ->
                 if isDefinitorial def then
-                    Ok(Any.Term(Term "true"))
+                    Ok(Expression.Term(Term "true"))
                 else
-                    Ok(Any.Term(Term "false"))
+                    Ok(Expression.Term(Term "false"))
             | _ -> error "Invalid call to is-definitorial." None
     )
 
@@ -149,9 +149,9 @@ let nnfFn =
           result = "Definitions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox def ] ->
+            | [ Expression.TBox def ] ->
                 match nnf def with
-                | Ok resultValue -> Ok(Any.ConceptExpr resultValue)
+                | Ok resultValue -> Ok(Expression.ConceptExpr resultValue)
                 | Error err -> Error err
             | _ -> error "Invalid call to nnf." None
     )
@@ -164,7 +164,7 @@ let bottomFn =
           result = "ConceptExpr" },
         fun _ _ _ arguments ->
             match arguments with
-            | [] -> Ok(Any.ConceptExpr ConceptExpr.Bottom)
+            | [] -> Ok(Expression.ConceptExpr ConceptExpr.Bottom)
             | _ -> error "Invalid call to bottom." None
     )
 
@@ -177,7 +177,7 @@ let topFn =
           result = "ConceptExpr" },
         fun _ _ _ arguments ->
             match arguments with
-            | [] -> Ok(Any.ConceptExpr ConceptExpr.Top)
+            | [] -> Ok(Expression.ConceptExpr ConceptExpr.Top)
             | _ -> error "Invalid call to bottom." None
     )
 
@@ -189,10 +189,10 @@ let isConsistentFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox def; Any.ABox n ] ->
+            | [ Expression.TBox def; Expression.ABox n ] ->
                 match isConsistent def n with
-                | Ok true -> Ok(Any.Term(Term "true"))
-                | Ok false -> Ok(Any.Term(Term "false"))
+                | Ok true -> Ok(Expression.Term(Term "true"))
+                | Ok false -> Ok(Expression.Term(Term "false"))
                 | Error err -> Error err
             | _ -> error "Invalid call to is-consistent." None
     )
@@ -205,13 +205,13 @@ let isInstanceFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.TBox tBox; Any.ABox aBox; Any.Term individual; Any.Term concept ] -> //TODO handle conceptexprs
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
                 match isInstance tBox aBox individual (ConceptExpr.AtomicConcept concept) with
-                | Ok term -> Ok(Any.Term term)
+                | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
-            | [ Any.TBox tBox; Any.ABox aBox; Any.Term individual; Any.ConceptExpr concept ] -> //TODO handle conceptexprs
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
                 match isInstance tBox aBox individual concept with
-                | Ok term -> Ok(Any.Term term)
+                | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | _ -> error "Invalid call to is-instance." None
     )
@@ -224,14 +224,14 @@ let impliesFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term subconcept; Any.Term concept ] ->
+            | [ Expression.Term subconcept; Expression.Term concept ] ->
                 Ok(
-                    Any.ConceptExpr(
+                    Expression.ConceptExpr(
                         ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
-            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+            | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -243,14 +243,14 @@ let equivalentFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term subconcept; Any.Term concept ] ->
+            | [ Expression.Term subconcept; Expression.Term concept ] ->
                 Ok(
-                    Any.ConceptExpr(
+                    Expression.ConceptExpr(
                         ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
                     )
                 )
-            | [ Any.Term subconcept; Any.ConceptExpr concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+            | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to define-concept." None
     )
 
@@ -314,9 +314,9 @@ let literalFn: Fn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Literal { content = content }; Any.Term datatype; Any.Term(Term langTag) ] ->
+            | [ Expression.Literal { content = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
-                    Any.Literal
+                    Expression.Literal
                         { content = content
                           datatype = Some datatype
                           langTag = Some langTag }
@@ -332,10 +332,10 @@ let instanceFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term individual; Any.Term concept ] ->
-                Ok(Any.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term individual; Any.ConceptExpr concept ] ->
-                Ok(Any.Assertion(Assertion.Instance(individual, concept)))
+            | [ Expression.Term individual; Expression.Term concept ] ->
+                Ok(Expression.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Term individual; Expression.ConceptExpr concept ] ->
+                Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
             | _ -> error "Improper call to instance." None
     )
 
@@ -347,7 +347,7 @@ let conceptFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term concept ] -> Ok(Any.ConceptExpr(ConceptExpr.AtomicConcept concept))
+            | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.AtomicConcept concept))
             | _ -> error "Improper call to concept." None
     )
 
@@ -359,9 +359,9 @@ let allFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term role; Any.Term concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.All(role, concept)))
+            | [ Expression.Term role; Expression.Term concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Term role; Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.All(role, concept)))
             | _ -> error "Improper call to all." None
     )
 
@@ -373,10 +373,10 @@ let existsFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term role ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
-            | [ Any.Term role; Any.Term concept ] ->
-                Ok(Any.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
-            | [ Any.Term role; Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Exists(role, concept)))
+            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
+            | [ Expression.Term role; Expression.Term concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Term role; Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, concept)))
             | _ -> error "Improper call to exists." None
     )
 
@@ -388,18 +388,18 @@ let exactlyFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term(Term number); Any.Term role ] ->
+            | [ Expression.Term(Term number); Expression.Term role ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to exactly." None
-            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
                 match System.Int64.TryParse number with
                 | true, number ->
-                    Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
+                    Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to exactly." None
-            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
                 | _ -> error "Improper call to exactly." None
             | _ -> error "Improper call to exactly." None
     )
@@ -412,18 +412,18 @@ let atLeastFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term(Term number); Any.Term role ] ->
+            | [ Expression.Term(Term number); Expression.Term role ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to at-least." None
-            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
                 match System.Int64.TryParse number with
                 | true, number ->
-                    Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
+                    Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to at-least." None
-            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
                 | _ -> error "Improper call to at-least." None
             | _ -> error "Improper call to at-least." None
     )
@@ -436,18 +436,18 @@ let atMostFn: Fn =
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term(Term number); Any.Term role ] ->
+            | [ Expression.Term(Term number); Expression.Term role ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
                 | _ -> error "Improper call to at-most." None
-            | [ Any.Term(Term number); Any.Term role; Any.Term concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
                 match System.Int64.TryParse number with
                 | true, number ->
-                    Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
+                    Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
                 | _ -> error "Improper call to at-most." None
-            | [ Any.Term(Term number); Any.Term role; Any.ConceptExpr concept ] ->
+            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
                 match System.Int64.TryParse number with
-                | true, number -> Ok(Any.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
+                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
                 | _ -> error "Improper call to at-most." None
             | _ -> error "Improper call to at-most." None
     )
@@ -461,8 +461,8 @@ let notFn: Fn =
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Any.Term concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
-            | [ Any.ConceptExpr concept ] -> Ok(Any.ConceptExpr(ConceptExpr.Not(concept)))
+            | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
+            | [ Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Not(concept)))
             | _ -> error "Improper call to not." None
     )
 
@@ -479,15 +479,15 @@ let andFn: Fn =
                         match state with
                         | Ok state ->
                             match arg with
-                            | Any.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
-                            | Any.ConceptExpr expr -> Ok(List.append state [ expr ])
+                            | Expression.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
+                            | Expression.ConceptExpr expr -> Ok(List.append state [ expr ])
                             | _ -> error "Invalid argument." None
                         | _ -> state)
                     (Ok [])
                     arguments
 
             match res with
-            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.And value))
+            | Ok value -> Ok(Expression.ConceptExpr(ConceptExpr.And value))
             | Error err -> Error err
     )
 
@@ -504,15 +504,15 @@ let orFn: Fn =
                         match state with
                         | Ok state ->
                             match arg with
-                            | Any.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
-                            | Any.ConceptExpr expr -> Ok(List.append state [ expr ])
+                            | Expression.Term term -> Ok(List.append state [ ConceptExpr.AtomicConcept term ])
+                            | Expression.ConceptExpr expr -> Ok(List.append state [ expr ])
                             | _ -> error "Invalid argument." None
                         | _ -> state)
                     (Ok [])
                     arguments
 
             match res with
-            | Ok value -> Ok(Any.ConceptExpr(ConceptExpr.Or value))
+            | Ok value -> Ok(Expression.ConceptExpr(ConceptExpr.Or value))
             | Error err -> Error err
     )
 
@@ -526,10 +526,10 @@ let tBoxFn: Fn =
             List.map
                 (fun value ->
                     match value with
-                    | Any.ConceptExpr expr -> expr
-                    | Any.Term term -> ConceptExpr.AtomicConcept term
+                    | Expression.ConceptExpr expr -> expr
+                    | Expression.Term term -> ConceptExpr.AtomicConcept term
                     | _ -> failwith "Not suported.")
                 arguments
-            |> Any.TBox
+            |> Expression.TBox
             |> Ok
     )

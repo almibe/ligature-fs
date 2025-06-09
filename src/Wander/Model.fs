@@ -9,10 +9,10 @@ open Ligature.Model
 type Variable = Variable of string
 
 
-type Tuple = Any list
+type Tuple = Expression list
 
 and Source() =
-    member _.next() : Any option = failwith "TODO"
+    member _.next() : Expression option = failwith "TODO"
 
 // with
 
@@ -20,7 +20,7 @@ and Source() =
 //     member _.CompareTo (obj: obj): int =
 //                 raise (System.NotImplementedException())
 
-and [<RequireQualifiedAccess>] Any =
+and [<RequireQualifiedAccess>] Expression =
     | Slot of Slot
     | Tuple of Tuple
     | Term of Term
@@ -37,18 +37,19 @@ and [<RequireQualifiedAccess>] Any =
 
 and Node =
     { name: Term
-      attributes: Map<Term, Any>
-      children: Any list }
+      attributes: Map<Term, Expression>
+      children: Expression list }
 
-and Script = Any list
+//and Script = (Variable * Expression) list * Expression
+and Script = Expression
 
 and Lambda = Variable list * Script
 
-type Arguments = Any list
+type Arguments = Expression list
 
 type Bindings = Map<Term, Lambda>
 
-type Variables = Map<Variable, Any>
+type Variables = Map<Variable, Expression>
 
 and Fns = Map<Term, Fn>
 
@@ -58,9 +59,9 @@ and FnDoc =
       args: string
       result: string }
 
-and Fn = Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Any, LigatureError>)
+and Fn = Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
 
-and Slots = Map<Slot, Any>
+and Slots = Map<Slot, Expression>
 
 let emptySlots: Slots = Map.empty
 
@@ -71,24 +72,24 @@ let encodeString string =
     Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
 #endif
 
-let rec printAny (value: Any) : string =
+let rec printAny (value: Expression) : string =
     match value with
-    | Any.Term(Term value) -> value
-    | Any.Literal { content = l
-                    datatype = Some(Term t)
-                    langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
-    | Any.Literal { content = content } -> encodeString content
-    | Any.Variable(Variable v) -> v
-    | Any.Tuple tuple -> printTuple tuple
-    | Any.ABox n -> printNetwork n
-    | Any.Slot(Slot variable) -> variable
-    | Any.Comment _ -> failwith "Not Implemented"
-    | Any.NodeExpression _ -> "-app-"
-    | Any.Lambda _ -> failwith "TODO"
-    | Any.NodeLiteral node -> printNode node
-    | Any.TBox defs -> printDefinitions defs
-    | Any.Assertion _ -> "-assertion-"
-    | Any.ConceptExpr c -> printConcept c
+    | Expression.Term(Term value) -> value
+    | Expression.Literal { content = l
+                           datatype = Some(Term t)
+                           langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
+    | Expression.Literal { content = content } -> encodeString content
+    | Expression.Variable(Variable v) -> v
+    | Expression.Tuple tuple -> printTuple tuple
+    | Expression.ABox n -> printNetwork n
+    | Expression.Slot(Slot variable) -> variable
+    | Expression.Comment _ -> failwith "Not Implemented"
+    | Expression.NodeExpression _ -> "-app-"
+    | Expression.Lambda _ -> failwith "TODO"
+    | Expression.NodeLiteral node -> printNode node
+    | Expression.TBox defs -> printDefinitions defs
+    | Expression.Assertion _ -> "-assertion-"
+    | Expression.ConceptExpr c -> printConcept c
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"

@@ -25,14 +25,14 @@ let tests =
     testList
         "Interpreter Test"
         [ testCase "Run empty script"
-          <| fun _ -> Expect.equal (runScript "") (Ok(Any.Tuple [])) ""
+          <| fun _ -> Expect.equal (runScript "") (Ok(Expression.Tuple [])) ""
           testCase "run script with tuple literal"
           <| fun _ ->
               Expect.equal
                   (runScript "[\"test\"]")
                   (Ok(
-                      Any.Tuple
-                          [ Any.Literal
+                      Expression.Tuple
+                          [ Expression.Literal
                                 { content = "test"
                                   datatype = None
                                   langTag = None } ]

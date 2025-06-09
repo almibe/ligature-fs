@@ -12,7 +12,7 @@ open Wander.Model
 open Library
 open InMemoryStore
 
-let run (fns: Fns) (bindings: Bindings) (variables: Variables) (input: string) : Result<Any, LigatureError> =
+let run (fns: Fns) (bindings: Bindings) (variables: Variables) (input: string) : Result<Expression, LigatureError> =
     try
         match tokenize input with
         | Ok tokens ->
@@ -29,7 +29,7 @@ let run (fns: Fns) (bindings: Bindings) (variables: Variables) (input: string) :
 let runWithDefaults (script: string) =
     run (stdFns (InMemoryStore())) Map.empty Map.empty script
 
-let printResult (result: Result<Any, LigatureError>) =
+let printResult (result: Result<Expression, LigatureError>) =
     match result with
     | Ok res -> printAny res
     | Error err -> $"Error {err.UserMessage}"

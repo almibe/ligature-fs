@@ -9,16 +9,16 @@ open Model
 open Tokenizer
 open Parser
 
-let parseMatchBody (body: Any list) : Result<(Any * Any) list, LigatureError> =
+let parseMatchBody (body: Expression list) : Result<(Expression * Expression) list, LigatureError> =
     List.chunkBySize 3 body
     |> List.map (fun value ->
         match value with
-        | [ pattern; Any.Term(Term "->"); body ] -> pattern, body
+        | [ pattern; Expression.Term(Term "->"); body ] -> pattern, body
         | _ -> failwith "TODO")
     |> Ok
 
-let handleMatch (value: Any) (body: Any list) : Result<Any, LigatureError> =
-    let rec check (body: (Any * Any) list) =
+let handleMatch (value: Expression) (body: Expression list) : Result<Expression, LigatureError> =
+    let rec check (body: (Expression * Expression) list) =
         match body with
         | [] -> error "No match" None
         | (cond, body) :: tail -> if value = cond then Ok body else check tail
@@ -32,62 +32,64 @@ let rec evalScript
     (bindings: Bindings)
     (variables: Variables)
     (script: Script)
-    : Result<Any, LigatureError> =
-    match script with
-    | Any.NodeExpression { name = Term "defn"
-                           children = Any.Term name :: Any.Tuple args :: value } :: tail ->
-        let args =
-            List.map
-                (fun value ->
-                    match value with
-                    | Any.Variable variable -> variable
-                    | _ -> failwith "Parameters must be Variables.")
-                args
+    : Result<Expression, LigatureError> =
+        executeExpression actions bindings variables script
+    // match script with
+    // | Expression.NodeExpression { name = Term "defn"
+    //                               children = Expression.Term name :: Expression.Tuple args :: value } ->
+    //     let args =
+    //         List.map
+    //             (fun value ->
+    //                 match value with
+    //                 | Expression.Variable variable -> variable
+    //                 | _ -> failwith "Parameters must be Variables.")
+    //             args
 
-        let bindings = Map.add name (args, value) bindings
+    //     let bindings = Map.add name (args, value) bindings
 
-        if tail = [] then
-            Ok(Any.Tuple [])
-        else
-            evalScript actions bindings variables tail
-    | Any.NodeExpression { name = Term "let"
-                           children = [ Any.Variable var; value ] } :: tail ->
+    //     if tail = [] then
+    //         Ok(Expression.Tuple [])
+    //     else
+    //         evalScript actions bindings variables tail
+    // | Expression.NodeExpression { name = Term "let"
+    //                               children = [ Expression.Variable var; value ] } ->
+    //     failwith "TODO"
         //TODO process value
-        let variables = Map.add var value variables
+        // let variables = Map.add var value variables
 
-        if tail = [] then
-            Ok(Any.Tuple [])
-        else
-            evalScript actions bindings variables tail
-    | Any.NodeExpression { name = Term "->"; children = body } :: tail ->
-        match body with
-        | [] -> failwith "Invalid pipe call."
-        | initialExpression :: remainingExpressions ->
-            match executeExpression actions bindings variables initialExpression with
-            | Ok initialValue ->
-                List.fold
-                    (fun state currentExpression ->
-                        match state with
-                        | Ok prevValue ->
-                            match currentExpression with
-                            | Any.NodeExpression { name = name; children = args } ->
-                                let newApp =
-                                    { name = name
-                                      attributes = Map.empty
-                                      children = List.append args [ prevValue ] }
+        // if tail = [] then
+        //     Ok(Expression.Tuple [])
+        // else
+        //     evalScript actions bindings variables tail
+    // | Expression.NodeExpression { name = Term "->"; children = body } :: tail ->
+    //     match body with
+    //     | [] -> failwith "Invalid pipe call."
+    //     | initialExpression :: remainingExpressions ->
+    //         match executeExpression actions bindings variables initialExpression with
+    //         | Ok initialValue ->
+    //             List.fold
+    //                 (fun state currentExpression ->
+    //                     match state with
+    //                     | Ok prevValue ->
+    //                         match currentExpression with
+    //                         | Expression.NodeExpression { name = name; children = args } ->
+    //                             let newApp =
+    //                                 { name = name
+    //                                   attributes = Map.empty
+    //                                   children = List.append args [ prevValue ] }
 
-                                executeApplication actions bindings variables newApp
-                            | _ -> failwith "TODO"
-                        | Error err -> Error err)
-                    (Ok initialValue)
-                    remainingExpressions
-            | _ -> failwith "TODO"
-    | [] -> Ok(Any.Tuple [])
-    | head :: [] -> executeExpression actions bindings variables head
-    | head :: tail ->
-        match executeExpression actions bindings variables head with
-        | Ok _ -> evalScript actions bindings variables tail
-        | Error err -> Error err
+    //                             executeApplication actions bindings variables newApp
+    //                         | _ -> failwith "TODO"
+    //                     | Error err -> Error err)
+    //                 (Ok initialValue)
+    //                 remainingExpressions
+    //         | _ -> failwith "TODO"
+    //| [] -> Ok(Expression.Tuple [])
+    // | head :: [] -> executeExpression actions bindings variables head
+    // | head :: tail ->
+        // match executeExpression actions bindings variables head with
+        // | Ok _ -> evalScript actions bindings variables tail
+        // | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
     Fn(
@@ -124,9 +126,9 @@ and evalLambda
     (fns: Fns)
     (bindings: Bindings)
     (variables: Variables)
-    (args: Any list)
+    (args: Expression list)
     (lambda: Lambda)
-    : Result<Any, LigatureError> =
+    : Result<Expression, LigatureError> =
     let parameters, body = lambda
 
     if args.Length = parameters.Length then
@@ -142,7 +144,7 @@ and executeApplication
     (bindings: Bindings)
     (variables: Variables)
     (application: Node)
-    : Result<Any, LigatureError> =
+    : Result<Expression, LigatureError> =
     let { name = fn
           attributes = attributes
           children = args } =
@@ -167,11 +169,11 @@ and executeApplication
             (List.map
                 (fun value ->
                     match value with
-                    | Any.NodeExpression application ->
+                    | Expression.NodeExpression application ->
                         match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
-                    | Any.NodeLiteral node -> Any.NodeLiteral(evalNode actions bindings variables node)
+                    | Expression.NodeLiteral node -> Expression.NodeLiteral(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
     | _, _, None, None -> error $"Could not find function {fn}" None
@@ -180,13 +182,13 @@ and executeExpression
     (actions: Fns)
     (bindings: Bindings)
     (variables: Variables)
-    (expression: Any)
-    : Result<Any, LigatureError> =
+    (expression: Expression)
+    : Result<Expression, LigatureError> =
     // let application = rewriteApplication expression
 
     match expression with
-    | Any.ABox network -> Ok(Any.ABox network)
-    | Any.Tuple tuple ->
+    | Expression.ABox network -> Ok(Expression.ABox network)
+    | Expression.Tuple tuple ->
         let tuple =
             List.map
                 (fun value ->
@@ -195,21 +197,21 @@ and executeExpression
                     | Error err -> failwith err.UserMessage)
                 tuple
 
-        Ok(Any.Tuple tuple)
-    | Any.NodeLiteral node -> Ok(Any.NodeLiteral(evalNode actions bindings variables node))
-    | Any.Literal literal -> Ok(Any.Literal literal)
-    | Any.Variable variable ->
+        Ok(Expression.Tuple tuple)
+    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
+    | Expression.Literal literal -> Ok(Expression.Literal literal)
+    | Expression.Variable variable ->
         match variables.TryFind variable with
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
-    | Any.Term term -> Ok(Any.Term term)
-    | Any.NodeExpression application -> executeApplication actions bindings variables application
-    | Any.Assertion assertion -> failwith "TODO"
-    | Any.Slot _ -> Ok expression
-    | Any.Comment _ -> failwith "Not Implemented"
-    | Any.Lambda _ -> failwith "Not Implemented"
-    | Any.ConceptExpr expr -> Ok(Any.ConceptExpr expr)
-    | Any.TBox _ -> failwith "Not Implemented"
+    | Expression.Term term -> Ok(Expression.Term term)
+    | Expression.NodeExpression application -> executeApplication actions bindings variables application
+    | Expression.Assertion assertion -> failwith "TODO"
+    | Expression.Slot _ -> Ok expression
+    | Expression.Comment _ -> failwith "Not Implemented"
+    | Expression.Lambda _ -> failwith "Not Implemented"
+    | Expression.ConceptExpr expr -> Ok(Expression.ConceptExpr expr)
+    | Expression.TBox _ -> failwith "Not Implemented"
 //| _ -> failwith "TODO"
 // match lookupFn actions action with
 // | Some(Fn.Full(_, action)) -> action actions stack

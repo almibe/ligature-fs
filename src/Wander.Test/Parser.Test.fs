@@ -18,38 +18,38 @@ let parse input =
 let tests =
     testList
         "Parser Test"
-        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
+        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok (Expression.Tuple [])) ""
           testCase "read empty tuple"
-          <| fun _ -> Expect.equal (parse "[]") (Ok [ Any.Tuple [] ]) ""
+          <| fun _ -> Expect.equal (parse "[]") (Ok (Expression.Tuple [])) ""
           testCase "read tuple"
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
                   (Ok
-                      [ Any.Tuple
-                            [ Any.Term(Term "test")
-                              Any.Literal
+                      ( Expression.Tuple
+                            [ Expression.Term(Term "test")
+                              Expression.Literal
                                   { content = "test2"
                                     datatype = None
-                                    langTag = None } ] ])
+                                    langTag = None } ] ))
                   ""
           testCase "read empty record"
           <| fun _ ->
               Expect.equal
                   (parse "{p}")
                   (Ok
-                      [ Any.NodeLiteral
+                      (Expression.NodeLiteral
                             { name = Term "p"
                               attributes = Map.empty
-                              children = [] } ])
+                              children = [] } ))
                   ""
           testCase "read basic block"
           <| fun _ ->
               Expect.equal
-                  (parse "(2)")
-                  (Ok
-                      [ Any.NodeExpression
-                            { name = Term "2"
-                              attributes = Map.empty
-                              children = [] } ])
+                  (parse "2")
+                  (Ok (Expression.Term (Term "2")))
+                    //   ( Expression.NodeExpression
+                    //         { name = Term "2"
+                    //           attributes = Map.empty
+                    //           children = [] } ))
                   "" ]

@@ -35,18 +35,18 @@ let wanderTestSuite =
             testCase $"Test for {file}"
             <| fun _ ->
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
-                | Ok(Any.Tuple results) ->
+                | Ok(Expression.Tuple results) ->
                     List.iter
                         (fun result ->
                             match result with
-                            | Any.NodeLiteral result ->
+                            | Expression.NodeLiteral result ->
                                 match result.attributes.TryFind(Term "status") with
-                                | Some(Any.Term(Term "pass")) -> ()
-                                | Some(Any.Term(Term "fail")) -> failwith "TODO"
+                                | Some(Expression.Term(Term "pass")) -> ()
+                                | Some(Expression.Term(Term "fail")) -> failwith "TODO"
                                 | _ -> failwith "TODO"
                             | x -> printfn $"Unexpected value - {printAny x}")
                         results
-                | Ok(Any.ABox _) -> () //TODO eventually remove
+                | Ok(Expression.ABox _) -> () //TODO eventually remove
                 | Ok x -> printfn $"Unexpected value - {x}"
                 | Error err -> failwithf "Test failed %A" err)
         |> Seq.toList

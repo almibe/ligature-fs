@@ -8,7 +8,7 @@ open Fable.Core
 open Fable.Core.JsInterop
 open Wander.InMemoryStore
 
-let runWithFns (fns: Dictionary<string, Any array -> Result<Any, LigatureError>>) (script: string) =
+let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, LigatureError>>) (script: string) =
     let mutable resFns = stdFns (new InMemoryStore())
 
     for entry in fns do
@@ -112,29 +112,29 @@ let rec nodeToJs
     obj?children <- Array.ofList children
     obj
 
-and anyToJs (any: Any) =
+and anyToJs (any: Expression) =
     match any with
-    | Any.Term(Term t) ->
+    | Expression.Term(Term t) ->
         let obj = createEmpty
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Any.Literal { content = l } -> //TODO add datatype and langtag
+    | Expression.Literal { content = l } -> //TODO add datatype and langtag
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
         obj
-    | Any.ABox n -> networkToJs n
-    | Any.Tuple t ->
+    | Expression.ABox n -> networkToJs n
+    | Expression.Tuple t ->
         let res = List.map (fun any -> anyToJs any) t |> List.toArray
         let obj = createEmpty
         obj?``type`` <- "tuple"
         obj?value <- res
         obj
-    | Any.NodeLiteral node -> nodeToJs node
+    | Expression.NodeLiteral node -> nodeToJs node
     | x -> failwith $"Invalid call to anyToJs: {x}"
 
-let resultToJs (res: Result<Any, LigatureError>) =
+let resultToJs (res: Result<Expression, LigatureError>) =
     match res with
     | Error err ->
         let obj = createEmpty
@@ -153,7 +153,7 @@ let rec createElement
     Map.iter
         (fun key value ->
             match key, value with
-            | Term key, Any.Literal { content = content } ->
+            | Term key, Expression.Literal { content = content } ->
                 emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
             | Term key, _ -> failwith $"Invalid attribute - {key}")
         attributes
@@ -161,8 +161,8 @@ let rec createElement
     List.iter
         (fun value ->
             match value with
-            | Any.Literal { content = content } -> emitJsStatement (content) "newElement.append($0)"
-            | Any.NodeLiteral node ->
+            | Expression.Literal { content = content } -> emitJsStatement (content) "newElement.append($0)"
+            | Expression.NodeLiteral node ->
                 let childElement = createElement node
                 emitJsStatement (childElement) "newElement.append($0)"
             | x -> printfn $"ignoring value - {x}")
@@ -170,9 +170,9 @@ let rec createElement
 
     newElement
 
-let appendHtml element (value: Result<Any, LigatureError>) =
+let appendHtml element (value: Result<Expression, LigatureError>) =
     match value with
-    | Ok(Any.NodeLiteral node) ->
+    | Ok(Expression.NodeLiteral node) ->
         let newElement = createElement node
         emitJsStatement () "element.append(newElement)"
     | _ -> ()
@@ -201,7 +201,7 @@ let isConsistent tBox aBox : bool =
     | Ok value -> value
     | Error err -> failwith err.UserMessage
 
-let appendCanvas element (value: Result<Any, LigatureError>) = failwith "TODO"
+let appendCanvas element (value: Result<Expression, LigatureError>) = failwith "TODO"
 // match value with
 // | Ok(Any.Node value) ->
 //     let canvas = emitJsExpr () "document.createElement('canvas')"

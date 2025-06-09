@@ -80,7 +80,7 @@ let ulidFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [] -> Ok(Any.Term(Term(Ulid.New.ToString())))
-            | [ Any.Term(Term prefix) ] -> Ok(Any.Term(Term(prefix + Ulid.New.ToString())))
+            | [] -> Ok(Expression.Term(Term(Ulid.New.ToString())))
+            | [ Expression.Term(Term prefix) ] -> Ok(Expression.Term(Term(prefix + Ulid.New.ToString())))
             | _ -> failwith "TODO"
     )

@@ -20,9 +20,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "Tuple" },
             fun _ _ _ _ -> //TODO assert no args were passed
                 store.Stores()
-                |> Seq.map (fun value -> Any.Term(Term value))
+                |> Seq.map (fun value -> Expression.Term(Term value))
                 |> List.ofSeq
-                |> Any.Tuple
+                |> Expression.Tuple
                 |> Ok
         ))
     |> Map.add
@@ -34,9 +34,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term name) ] ->
+                | [ Expression.Term(Term name) ] ->
                     store.AddStore name
-                    Ok(Any.ABox Set.empty)
+                    Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -48,9 +48,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term name) ] ->
+                | [ Expression.Term(Term name) ] ->
                     store.RemoveStore(name)
-                    Ok(Any.ABox Set.empty)
+                    Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -62,9 +62,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term networkName); Any.ABox network ] ->
+                | [ Expression.Term(Term networkName); Expression.ABox network ] ->
                     store.AssertStore networkName network
-                    Ok(Any.ABox Set.empty)
+                    Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -76,9 +76,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term networkName); Any.ABox network ] ->
+                | [ Expression.Term(Term networkName); Expression.ABox network ] ->
                     store.UnassertStore networkName network
-                    Ok(Any.ABox Set.empty)
+                    Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -90,9 +90,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "Network" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Any.Term(Term networkName) ] ->
+                | [ Expression.Term(Term networkName) ] ->
                     match store.ReadAsserts networkName with
-                    | Ok network -> Ok(Any.ABox network)
+                    | Ok network -> Ok(Expression.ABox network)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
         ))

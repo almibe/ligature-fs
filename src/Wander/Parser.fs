@@ -48,26 +48,26 @@ let partialTupleNib (gaze: Gaze.Gaze<Token>) : Result<Tuple, Gaze.GazeError> =
         return values
     }
 
-let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenParen) gaze
         let! fn = Gaze.attempt termNib gaze
-        let! values = Gaze.attempt scriptNib gaze
+        let! values = Gaze.attempt expressionsNib gaze
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
 
         return
-            Any.NodeExpression
+            Expression.NodeExpression
                 { name = fn
                   attributes = Map.empty
                   children = values }
     }
 
-let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Any.Tuple values
+        return Expression.Tuple values
     }
 
 let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
@@ -78,7 +78,7 @@ let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
         return values
     }
 
-let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let node =
         result {
             let! _ = Gaze.attempt (take Token.OpenBrace) gaze
@@ -92,7 +92,7 @@ let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
     match node with
     | Ok(name, attributes, children) ->
         Ok(
-            Any.NodeLiteral
+            Expression.NodeLiteral
                 { name = name
                   attributes = attributes
                   children = children }
@@ -133,40 +133,46 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
     | _ -> Error Gaze.GazeError.NoMatch
 
-let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match Gaze.next gaze with
-    | Ok(Token.Term value) -> Ok(Any.Term(Term value))
-    | Ok(Token.Slot value) -> Ok(Any.Slot(Slot value))
+    | Ok(Token.Term value) -> Ok(Expression.Term(Term value))
+    | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
-            Any.Literal
+            Expression.Literal
                 { content = value
                   datatype = None
                   langTag = None }
         )
-    | Ok(Token.Variable variable) -> Ok(Any.Variable(Variable variable))
+    | Ok(Token.Variable variable) -> Ok(Expression.Variable(Variable variable))
     | _ -> Error Gaze.GazeError.NoMatch
 
-let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Any>, Gaze.GazeError> =
+let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Expression>, Gaze.GazeError> =
     let mutable res = Map.empty
     let mutable cont = true
 
     while cont do
         match Gaze.attempt (takeAll [ anyNib; anyNib; anyNib ]) gaze with
-        | Ok([ Any.Term name; Any.Term(Term "="); value ]) -> res <- Map.add name value res
+        | Ok([ Expression.Term name; Expression.Term(Term "="); value ]) -> res <- Map.add name value res
         | _ -> cont <- false
 
     Ok res
 
-let anyNib: Gaze.Nibbler<Token, Any> =
+let anyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
 
-let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Any, Gaze.GazeError> =
+let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match anyNib gaze with
     | Ok res -> Ok res
     | _ -> Error Gaze.GazeError.NoMatch
 
-let scriptNib: Gaze.Nibbler<Token, Script> = repeatOptional anyNib
+/// <summary></summary>
+/// <returns></returns>
+let expressionsNib: Gaze.Nibbler<Token, Expression list> = repeatOptional anyNib
+
+
+let scriptNib: Gaze.Nibbler<Token, Script> = anyNib
+
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -183,7 +189,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok []
+        Ok (Expression.Tuple [])
     else
         let gaze = Gaze.fromList tokens
 
@@ -198,7 +204,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
 /// <returns>The AST created from the token list of an Error.</returns>
-let read (tokens: Token list) : Result<Any, LigatureError> =
+let read (tokens: Token list) : Result<Expression, LigatureError> =
     let tokens =
         List.filter
             (fun token ->

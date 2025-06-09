@@ -16,20 +16,20 @@ let testGroupFn: Fn =
         fun _ _ _ arguments ->
             let groupName =
                 match arguments.Head with
-                | Any.Literal name -> name
+                | Expression.Literal name -> name
                 | _ -> failwith "Unexpected value."
 
             let testData =
                 List.collect
                     (fun value ->
                         match value with
-                        | Any.NodeLiteral testResult ->
+                        | Expression.NodeLiteral testResult ->
                             match
                                 testResult.attributes.TryFind(Term "name"),
                                 testResult.attributes.TryFind(Term "status"),
                                 testResult.attributes.TryFind(Term "comment")
                             with
-                            | Some(Any.Literal name), Some(Any.Term status), Some(Any.Literal comment) ->
+                            | Some(Expression.Literal name), Some(Expression.Term status), Some(Expression.Literal comment) ->
                                 let testId = Term("test-" + Ulid.Ulid.Ulid.New.ToString())
 
                                 [ Assertion.Triple(testId, Term "name", Value.Literal name)
@@ -41,7 +41,7 @@ let testGroupFn: Fn =
                     arguments.Tail
 
             let testABox: ABox = Set.ofList testData
-            Ok(Any.ABox testABox)
+            Ok(Expression.ABox testABox)
     )
 
 let expectEqualFn: Fn =
@@ -54,18 +54,18 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Any.NodeLiteral
+                    Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
                                 [ Term "name",
-                                  Any.Literal
+                                  Expression.Literal
                                       { content = ""
                                         datatype = None
                                         langTag = None }
-                                  Term "status", Any.Term(Term "pass")
+                                  Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Any.Literal
+                                  Expression.Literal
                                       { content = ""
                                         datatype = None
                                         langTag = None } ]
@@ -73,16 +73,16 @@ let expectEqualFn: Fn =
                     |> Ok
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
-            | [ Any.Literal name; left; right ] ->
+            | [ Expression.Literal name; left; right ] ->
                 if left = right then
-                    Any.NodeLiteral
+                    Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Any.Literal name
-                                  Term "status", Any.Term(Term "pass")
+                                [ Term "name", Expression.Literal name
+                                  Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Any.Literal
+                                  Expression.Literal
                                       { content = ""
                                         datatype = None
                                         langTag = None } ]
