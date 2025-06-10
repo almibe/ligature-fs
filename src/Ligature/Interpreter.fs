@@ -426,28 +426,6 @@ let containsClash (model: PotentialModel) : bool =
             (fun state (left, right) ->
                 let isA =
                     match state.isA.TryFind left with
-                    | _ -> failwith "TODO"
-
-                let isNot =
-                    match state.isNot.TryFind left with
-                    | _ -> failwith "TODO"
-
-                let attributes = Set.map (fun value -> failwith "TODO") state.attributes
-                let roles = Set.map (fun value -> failwith "TODO") state.roles
-
-                { state with
-                    isA = isA
-                    isNot = isNot
-                    roles = roles
-                    attributes = attributes })
-            model
-            model.same
-
-    let model =
-        Set.fold
-            (fun state (left, right) ->
-                let isA =
-                    match state.isA.TryFind left with
                     | Some concepts -> failwith "TODO"
                     | None -> state.isA
 
@@ -458,25 +436,33 @@ let containsClash (model: PotentialModel) : bool =
 
                 let attributes = Set.map (fun value -> failwith "TODO") state.attributes
                 let roles = Set.map (fun value -> failwith "TODO") state.roles
+                let different = Set.map (fun value -> failwith "TODO") state.different
 
                 { state with
                     isA = isA
                     isNot = isNot
                     roles = roles
-                    attributes = attributes })
+                    attributes = attributes
+                    different = different })
             model
-            model.different
+            model.same
 
-    Map.fold
-        (fun state individual concepts ->
-            if state = false then
-                match model.isNot.TryFind individual with
-                | Some notConcepts -> not (Set.intersect concepts notConcepts).IsEmpty
-                | None -> false
-            else
-                state)
-        false
-        model.isA
+    let hasClash =
+        Set.fold (fun hasClash (left, right) -> if hasClash then hasClash else left = right) false model.different
+
+    if hasClash then
+        hasClash
+    else
+        Map.fold
+            (fun state individual concepts ->
+                if state = false then
+                    match model.isNot.TryFind individual with
+                    | Some notConcepts -> not (Set.intersect concepts notConcepts).IsEmpty
+                    | None -> false
+                else
+                    state)
+            false
+            model.isA
 
 let tableauModels
     definitions
