@@ -29,7 +29,9 @@ let testGroupFn: Fn =
                                 testResult.attributes.TryFind(Term "status"),
                                 testResult.attributes.TryFind(Term "comment")
                             with
-                            | Some(Expression.Literal name), Some(Expression.Term status), Some(Expression.Literal comment) ->
+                            | Some(Expression.Literal name),
+                              Some(Expression.Term status),
+                              Some(Expression.Literal comment) ->
                                 let testId = Term("test-" + Ulid.Ulid.Ulid.New.ToString())
 
                                 [ Assertion.Triple(testId, Term "name", Value.Literal name)

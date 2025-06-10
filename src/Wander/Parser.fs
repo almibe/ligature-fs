@@ -189,7 +189,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok (Expression.Tuple [])
+        Ok(Expression.Tuple [])
     else
         let gaze = Gaze.fromList tokens
 

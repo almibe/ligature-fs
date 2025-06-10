@@ -339,6 +339,31 @@ let instanceFn: Fn =
             | _ -> error "Improper call to instance." None
     )
 
+let sameFn: Fn =
+    Fn(
+        { doc = "Assert two names reference the same Individual."
+          examples = [ "(same a b)" ]
+          args = "Term Term"
+          result = "Assertion" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Term left; Expression.Term right ] -> Ok(Expression.Assertion(Assertion.Same(left, right)))
+            | _ -> error "Improper call to same." None
+    )
+
+let differentFn: Fn =
+    Fn(
+        { doc = "Assert two names reference different Individuals."
+          examples = [ "(different a b)" ]
+          args = "Term Term"
+          result = "Assertion" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Term left; Expression.Term right ] ->
+                Ok(Expression.Assertion(Assertion.Different(left, right)))
+            | _ -> error "Improper call to different." None
+    )
+
 let conceptFn: Fn =
     Fn(
         { doc = "Convert a term to an atomic concept."
@@ -361,7 +386,8 @@ let allFn: Fn =
             match arguments with
             | [ Expression.Term role; Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
-            | [ Expression.Term role; Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.All(role, concept)))
+            | [ Expression.Term role; Expression.ConceptExpr concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.All(role, concept)))
             | _ -> error "Improper call to all." None
     )
 
@@ -376,7 +402,8 @@ let existsFn: Fn =
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
             | [ Expression.Term role; Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
-            | [ Expression.Term role; Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, concept)))
+            | [ Expression.Term role; Expression.ConceptExpr concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, concept)))
             | _ -> error "Improper call to exists." None
     )
 
@@ -461,7 +488,8 @@ let notFn: Fn =
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Term concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
             | [ Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Not(concept)))
             | _ -> error "Improper call to not." None
     )

@@ -92,6 +92,8 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "a-box", aBoxFn
           Term "literal", literalFn
           Term "instance", instanceFn
+          Term "same", sameFn
+          Term "different", differentFn
           Term "find-model", findModelFn
           Term "tableau-models", tableauModelsFn
           Term "concept", conceptFn

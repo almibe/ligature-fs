@@ -10,10 +10,10 @@ open Core
 type PotentialModel =
     { toProcess: ABox
       skip: ABox
+      same: Set<Term * Term>
+      different: Set<Term * Term>
       isA: Map<Term, Set<Term>>
       isNot: Map<Term, Set<Term>>
-      isEq: Map<Term, Set<Term>>
-      isNotEq: Map<Term, Set<Term>>
       roles: Set<Term * Term * Term>
       attributes: Set<Term * Term * Literal> }
 
@@ -53,10 +53,10 @@ let modelToAssertions (potentialModel: PotentialModel) : ABox =
 let newModel (aBox: ABox) : PotentialModel =
     { toProcess = aBox
       skip = Set.empty
+      same = Set.empty
+      different = Set.empty
       isA = Map.empty
       isNot = Map.empty
-      isEq = Map.empty
-      isNotEq = Map.empty
       roles = Set.empty
       attributes = Set.empty }
 
@@ -408,8 +408,65 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 toProcess = Set.remove assertion state.toProcess
                 attributes = Set.add (i, a, l) state.attributes },
             []
+        | Assertion.Same(l, r) ->
+            { state with
+                toProcess = Set.remove assertion state.toProcess
+                same = Set.add (l, r) state.same },
+            []
+        | Assertion.Different(l, r) ->
+            { state with
+                toProcess = Set.remove assertion state.toProcess
+                different = Set.add (l, r) state.different },
+            []
 
 let containsClash (model: PotentialModel) : bool =
+    //assert that toProcess and skip are empty
+    let model =
+        Set.fold
+            (fun state (left, right) ->
+                let isA =
+                    match state.isA.TryFind left with
+                    | _ -> failwith "TODO"
+
+                let isNot =
+                    match state.isNot.TryFind left with
+                    | _ -> failwith "TODO"
+
+                let attributes = Set.map (fun value -> failwith "TODO") state.attributes
+                let roles = Set.map (fun value -> failwith "TODO") state.roles
+
+                { state with
+                    isA = isA
+                    isNot = isNot
+                    roles = roles
+                    attributes = attributes })
+            model
+            model.same
+
+    let model =
+        Set.fold
+            (fun state (left, right) ->
+                let isA =
+                    match state.isA.TryFind left with
+                    | Some concepts -> failwith "TODO"
+                    | None -> state.isA
+
+                let isNot =
+                    match state.isNot.TryFind left with
+                    | Some concepts -> failwith "TODO"
+                    | None -> state.isNot
+
+                let attributes = Set.map (fun value -> failwith "TODO") state.attributes
+                let roles = Set.map (fun value -> failwith "TODO") state.roles
+
+                { state with
+                    isA = isA
+                    isNot = isNot
+                    roles = roles
+                    attributes = attributes })
+            model
+            model.different
+
     Map.fold
         (fun state individual concepts ->
             if state = false then

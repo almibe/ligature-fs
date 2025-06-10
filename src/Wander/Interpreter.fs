@@ -33,63 +33,63 @@ let rec evalScript
     (variables: Variables)
     (script: Script)
     : Result<Expression, LigatureError> =
-        executeExpression actions bindings variables script
-    // match script with
-    // | Expression.NodeExpression { name = Term "defn"
-    //                               children = Expression.Term name :: Expression.Tuple args :: value } ->
-    //     let args =
-    //         List.map
-    //             (fun value ->
-    //                 match value with
-    //                 | Expression.Variable variable -> variable
-    //                 | _ -> failwith "Parameters must be Variables.")
-    //             args
+    executeExpression actions bindings variables script
+// match script with
+// | Expression.NodeExpression { name = Term "defn"
+//                               children = Expression.Term name :: Expression.Tuple args :: value } ->
+//     let args =
+//         List.map
+//             (fun value ->
+//                 match value with
+//                 | Expression.Variable variable -> variable
+//                 | _ -> failwith "Parameters must be Variables.")
+//             args
 
-    //     let bindings = Map.add name (args, value) bindings
+//     let bindings = Map.add name (args, value) bindings
 
-    //     if tail = [] then
-    //         Ok(Expression.Tuple [])
-    //     else
-    //         evalScript actions bindings variables tail
-    // | Expression.NodeExpression { name = Term "let"
-    //                               children = [ Expression.Variable var; value ] } ->
-    //     failwith "TODO"
-        //TODO process value
-        // let variables = Map.add var value variables
+//     if tail = [] then
+//         Ok(Expression.Tuple [])
+//     else
+//         evalScript actions bindings variables tail
+// | Expression.NodeExpression { name = Term "let"
+//                               children = [ Expression.Variable var; value ] } ->
+//     failwith "TODO"
+//TODO process value
+// let variables = Map.add var value variables
 
-        // if tail = [] then
-        //     Ok(Expression.Tuple [])
-        // else
-        //     evalScript actions bindings variables tail
-    // | Expression.NodeExpression { name = Term "->"; children = body } :: tail ->
-    //     match body with
-    //     | [] -> failwith "Invalid pipe call."
-    //     | initialExpression :: remainingExpressions ->
-    //         match executeExpression actions bindings variables initialExpression with
-    //         | Ok initialValue ->
-    //             List.fold
-    //                 (fun state currentExpression ->
-    //                     match state with
-    //                     | Ok prevValue ->
-    //                         match currentExpression with
-    //                         | Expression.NodeExpression { name = name; children = args } ->
-    //                             let newApp =
-    //                                 { name = name
-    //                                   attributes = Map.empty
-    //                                   children = List.append args [ prevValue ] }
+// if tail = [] then
+//     Ok(Expression.Tuple [])
+// else
+//     evalScript actions bindings variables tail
+// | Expression.NodeExpression { name = Term "->"; children = body } :: tail ->
+//     match body with
+//     | [] -> failwith "Invalid pipe call."
+//     | initialExpression :: remainingExpressions ->
+//         match executeExpression actions bindings variables initialExpression with
+//         | Ok initialValue ->
+//             List.fold
+//                 (fun state currentExpression ->
+//                     match state with
+//                     | Ok prevValue ->
+//                         match currentExpression with
+//                         | Expression.NodeExpression { name = name; children = args } ->
+//                             let newApp =
+//                                 { name = name
+//                                   attributes = Map.empty
+//                                   children = List.append args [ prevValue ] }
 
-    //                             executeApplication actions bindings variables newApp
-    //                         | _ -> failwith "TODO"
-    //                     | Error err -> Error err)
-    //                 (Ok initialValue)
-    //                 remainingExpressions
-    //         | _ -> failwith "TODO"
-    //| [] -> Ok(Expression.Tuple [])
-    // | head :: [] -> executeExpression actions bindings variables head
-    // | head :: tail ->
-        // match executeExpression actions bindings variables head with
-        // | Ok _ -> evalScript actions bindings variables tail
-        // | Error err -> Error err
+//                             executeApplication actions bindings variables newApp
+//                         | _ -> failwith "TODO"
+//                     | Error err -> Error err)
+//                 (Ok initialValue)
+//                 remainingExpressions
+//         | _ -> failwith "TODO"
+//| [] -> Ok(Expression.Tuple [])
+// | head :: [] -> executeExpression actions bindings variables head
+// | head :: tail ->
+// match executeExpression actions bindings variables head with
+// | Ok _ -> evalScript actions bindings variables tail
+// | Error err -> Error err
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
     Fn(

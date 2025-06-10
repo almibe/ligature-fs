@@ -43,6 +43,8 @@ and [<RequireQualifiedAccess>] ValuePattern =
 and [<RequireQualifiedAccess>] Assertion =
     | Triple of Term * Term * Value
     | Instance of Term * ConceptExpr
+    | Same of Term * Term
+    | Different of Term * Term
 
 and ABox = Set<Assertion>
 
