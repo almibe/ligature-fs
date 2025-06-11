@@ -425,18 +425,40 @@ let containsClash (model: PotentialModel) : bool =
         Set.fold
             (fun state (left, right) ->
                 let isA =
-                    match state.isA.TryFind left with
-                    | Some concepts -> failwith "TODO"
-                    | None -> state.isA
+                    match state.isA.TryFind left, state.isA.TryFind right with
+                    | (Some conceptsL, Some conceptsR) ->
+                        state.isA |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
+                    | _ -> state.isA
 
                 let isNot =
-                    match state.isNot.TryFind left with
-                    | Some concepts -> failwith "TODO"
-                    | None -> state.isNot
+                    match state.isNot.TryFind left, state.isNot.TryFind right with
+                    | Some conceptsL, Some conceptsR ->
+                        state.isNot |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
+                    | _ -> state.isNot
 
-                let attributes = Set.map (fun value -> failwith "TODO") state.attributes
-                let roles = Set.map (fun value -> failwith "TODO") state.roles
-                let different = Set.map (fun value -> failwith "TODO") state.different
+                let attributes =
+                    Set.map
+                        (fun (individual, a, l) -> if individual = left then right, a, l else individual, a, l)
+                        state.attributes
+
+                let roles =
+                    Set.map
+                        (fun (individual, r, filler) ->
+                            let individual = if individual = left then right else individual
+
+                            if filler = left then
+                                individual, r, right
+                            else
+                                individual, r, filler)
+                        state.roles
+
+                let different =
+                    Set.map
+                        (fun (leftD, rightD) ->
+                            let leftD = if leftD = left then right else leftD
+
+                            if rightD = left then leftD, right else leftD, rightD)
+                        state.different
 
                 { state with
                     isA = isA
