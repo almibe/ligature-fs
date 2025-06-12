@@ -104,9 +104,10 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "equivalent", equivalentFn
           Term "all", allFn
           Term "exists", existsFn
-          Term "exactly", exactlyFn
-          Term "at-least", atLeastFn
-          Term "at-most", atMostFn
+          Term "func", funcFn
+          //   Term "exactly", exactlyFn
+          //   Term "at-least", atLeastFn
+          //   Term "at-most", atMostFn
           Term "implies", impliesFn
           Term "union", unionFn
           Term "remote", remoteFn

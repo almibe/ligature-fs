@@ -407,77 +407,94 @@ let existsFn: Fn =
             | _ -> error "Improper call to exists." None
     )
 
-let exactlyFn: Fn =
+let funcFn: Fn =
     Fn(
-        { doc = "Create a numerical restriction with an exact requirement."
-          examples = [ "(exactly 1 first-name)"; "(exactly 1 first-name Literal)" ]
-          args = "Int RoleName Concept?"
+        { doc = "Create a function role definition."
+          examples = [ "(func name) (func name Literal)" ]
+          args = "RoleName Concept?"
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Term(Term number); Expression.Term role ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
-                | _ -> error "Improper call to exactly." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
-                match System.Int64.TryParse number with
-                | true, number ->
-                    Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
-                | _ -> error "Improper call to exactly." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
-                | _ -> error "Improper call to exactly." None
-            | _ -> error "Improper call to exactly." None
+            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.Top)))
+            | [ Expression.Term role; Expression.Term concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Term role; Expression.ConceptExpr concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Func(role, concept)))
+            | _ -> error "Improper call to func." None
     )
 
-let atLeastFn: Fn =
-    Fn(
-        { doc = "Create a numerical restriction with an at least requirement."
-          examples = [ "(at-least 1 email)"; "(at-least 1 email EmailAddress)" ]
-          args = "Int RoleName Concept?"
-          result = "Concept" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term(Term number); Expression.Term role ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
-                | _ -> error "Improper call to at-least." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
-                match System.Int64.TryParse number with
-                | true, number ->
-                    Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
-                | _ -> error "Improper call to at-least." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
-                | _ -> error "Improper call to at-least." None
-            | _ -> error "Improper call to at-least." None
-    )
 
-let atMostFn: Fn =
-    Fn(
-        { doc = "Create a numerical restriction with an at most requirement."
-          examples = [ "(at-most 6 pinned-posts)"; "(at-most 6 pinned-posts Post)" ]
-          args = "Int RoleName Concept?"
-          result = "Concept" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term(Term number); Expression.Term role ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
-                | _ -> error "Improper call to at-most." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
-                match System.Int64.TryParse number with
-                | true, number ->
-                    Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
-                | _ -> error "Improper call to at-most." None
-            | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
-                match System.Int64.TryParse number with
-                | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
-                | _ -> error "Improper call to at-most." None
-            | _ -> error "Improper call to at-most." None
-    )
+// let exactlyFn: Fn =
+//     Fn(
+//         { doc = "Create a numerical restriction with an exact requirement."
+//           examples = [ "(exactly 1 first-name)"; "(exactly 1 first-name Literal)" ]
+//           args = "Int RoleName Concept?"
+//           result = "Concept" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Term(Term number); Expression.Term role ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.Top, number)))
+//                 | _ -> error "Improper call to exactly." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number ->
+//                     Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, ConceptExpr.AtomicConcept concept, number)))
+//                 | _ -> error "Improper call to exactly." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.Exactly(role, concept, number)))
+//                 | _ -> error "Improper call to exactly." None
+//             | _ -> error "Improper call to exactly." None
+//     )
+
+// let atLeastFn: Fn =
+//     Fn(
+//         { doc = "Create a numerical restriction with an at least requirement."
+//           examples = [ "(at-least 1 email)"; "(at-least 1 email EmailAddress)" ]
+//           args = "Int RoleName Concept?"
+//           result = "Concept" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Term(Term number); Expression.Term role ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.Top, number)))
+//                 | _ -> error "Improper call to at-least." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number ->
+//                     Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, ConceptExpr.AtomicConcept concept, number)))
+//                 | _ -> error "Improper call to at-least." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtLeast(role, concept, number)))
+//                 | _ -> error "Improper call to at-least." None
+//             | _ -> error "Improper call to at-least." None
+//     )
+
+// let atMostFn: Fn =
+//     Fn(
+//         { doc = "Create a numerical restriction with an at most requirement."
+//           examples = [ "(at-most 6 pinned-posts)"; "(at-most 6 pinned-posts Post)" ]
+//           args = "Int RoleName Concept?"
+//           result = "Concept" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Term(Term number); Expression.Term role ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.Top, number)))
+//                 | _ -> error "Improper call to at-most." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.Term concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number ->
+//                     Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, ConceptExpr.AtomicConcept concept, number)))
+//                 | _ -> error "Improper call to at-most." None
+//             | [ Expression.Term(Term number); Expression.Term role; Expression.ConceptExpr concept ] ->
+//                 match System.Int64.TryParse number with
+//                 | true, number -> Ok(Expression.ConceptExpr(ConceptExpr.AtMost(role, concept, number)))
+//                 | _ -> error "Improper call to at-most." None
+//             | _ -> error "Improper call to at-most." None
+//     )
 
 
 let notFn: Fn =

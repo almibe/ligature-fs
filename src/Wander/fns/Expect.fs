@@ -91,6 +91,18 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    error $"assert-equal failed {printAny left} != {printAny right}" None
+                    Expression.NodeLiteral
+                        { name = Term "Test"
+                          attributes =
+                            Map.ofList
+                                [ Term "name", Expression.Literal name
+                                  Term "status", Expression.Term(Term "failed")
+                                  Term "comment",
+                                  Expression.Literal
+                                      { content = $"assert-equal failed {printAny left} != {printAny right}"
+                                        datatype = None
+                                        langTag = None } ]
+                          children = [] }
+                    |> Ok
             | _ -> error $"expect-equal requires a name and two values." None
     )

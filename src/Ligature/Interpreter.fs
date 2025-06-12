@@ -15,6 +15,7 @@ type PotentialModel =
       isA: Map<Term, Set<Term>>
       isNot: Map<Term, Set<Term>>
       roles: Set<Term * Term * Term>
+      funcRoles: Set<Term * ConceptExpr>
       attributes: Set<Term * Term * Literal> }
 
 let addInstance (individual: Term) (concept: Term) (map: Map<Term, Set<Term>>) =
@@ -58,6 +59,7 @@ let newModel (aBox: ABox) : PotentialModel =
       isA = Map.empty
       isNot = Map.empty
       roles = Set.empty
+      funcRoles = Set.empty
       attributes = Set.empty }
 
 let tBoxToMap (tBox: TBox) : Option<Map<Term, ConceptExpr>> =
@@ -127,9 +129,10 @@ let isDefinitorial (tBox: TBox) : bool =
         | ConceptExpr.Not(ConceptExpr.Exists(roleName, c)) -> hasCycle definitionsMap concept c
         | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
         | ConceptExpr.Not(ConceptExpr.All(roleName, c)) -> hasCycle definitionsMap concept c
-        | ConceptExpr.Exactly(_, c, _) -> hasCycle definitionsMap concept c
-        | ConceptExpr.AtLeast(_, c, _) -> hasCycle definitionsMap concept c
-        | ConceptExpr.AtMost(_, c, _) -> hasCycle definitionsMap concept c
+        | ConceptExpr.Func(r, c) -> hasCycle definitionsMap concept c
+    // | ConceptExpr.Exactly(_, c, _) -> hasCycle definitionsMap concept c
+    // | ConceptExpr.AtLeast(_, c, _) -> hasCycle definitionsMap concept c
+    // | ConceptExpr.AtMost(_, c, _) -> hasCycle definitionsMap concept c
 
     match tBoxToMap tBox with
     | Some map ->
@@ -160,21 +163,24 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Exists(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Exists(roleName, c)
+    | ConceptExpr.Func(roleName, c) ->
+        let c = unfoldSingleExpression definitions c
+        ConceptExpr.Func(roleName, c)
     | ConceptExpr.All(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.All(roleName, c)
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
-    | ConceptExpr.Exactly(roleName, c, number) ->
-        let c = unfoldSingleExpression definitions c
-        ConceptExpr.Exactly(roleName, c, number)
-    | ConceptExpr.AtLeast(roleName, c, number) ->
-        let c = unfoldSingleExpression definitions c
-        ConceptExpr.AtLeast(roleName, c, number)
-    | ConceptExpr.AtMost(roleName, c, number) ->
-        let c = unfoldSingleExpression definitions c
-        ConceptExpr.AtMost(roleName, c, number)
+    // | ConceptExpr.Exactly(roleName, c, number) ->
+    //     let c = unfoldSingleExpression definitions c
+    //     ConceptExpr.Exactly(roleName, c, number)
+    // | ConceptExpr.AtLeast(roleName, c, number) ->
+    //     let c = unfoldSingleExpression definitions c
+    //     ConceptExpr.AtLeast(roleName, c, number)
+    // | ConceptExpr.AtMost(roleName, c, number) ->
+    //     let c = unfoldSingleExpression definitions c
+    //     ConceptExpr.AtMost(roleName, c, number)
     | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
     | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
@@ -348,34 +354,41 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
 
             { state with toProcess = assertions }, []
+        | Assertion.Instance(individual, ConceptExpr.Func(roleName, concept)) ->
+            failwith "TODO"
+            // let assertions = Set.remove assertion state.toProcess
 
-        | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
-            if
-                not (
-                    Set.exists
-                        (fun value ->
-                            match value with
-                            | Assertion.Triple _ -> true
-                            | _ -> false)
-                        state.toProcess
-                )
-            then
-                let matches =
-                    Set.filter (fun (i, r, _) -> i = individual && r = roleName) state.roles
+            // { state with
+            //     toProcess = assertions
+            //     funcRoles = Set.add (roleName, concept) state.funcRoles },
+            // []
+        // | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
+        //     if
+        //         not (
+        //             Set.exists
+        //                 (fun value ->
+        //                     match value with
+        //                     | Assertion.Triple _ -> true
+        //                     | _ -> false)
+        //                 state.toProcess
+        //         )
+        //     then
+        //         let matches =
+        //             Set.filter (fun (i, r, _) -> i = individual && r = roleName) state.roles
 
-                let count = int64 matches.Count
+        //         let count = int64 matches.Count
 
-                if count = number then
-                    { state with toProcess = assertions }, []
-                else
-                    failwith "TODO"
-            else
-                //add to skip
-                failwith "TODO"
+        //         if count = number then
+        //             { state with toProcess = assertions }, []
+        //         else
+        //             failwith "TODO"
+        //     else
+        //         //add to skip
+        //         failwith "TODO"
 
-        | Assertion.Instance(individual, ConceptExpr.AtLeast(roleName, concept, number)) -> failwith "TODO"
+        // | Assertion.Instance(individual, ConceptExpr.AtLeast(roleName, concept, number)) -> failwith "TODO"
 
-        | Assertion.Instance(individual, ConceptExpr.AtMost(roleName, concept, number)) -> failwith "TODO"
+        // | Assertion.Instance(individual, ConceptExpr.AtMost(roleName, concept, number)) -> failwith "TODO"
 
 
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Not(concept))) ->
