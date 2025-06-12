@@ -261,7 +261,9 @@ let tableauModelsFn: Fn =
           examples = [ "(tableau-models (t-box) (assertions))" ]
           args = "Definitions Assertions"
           result = "Node" },
-        fun _ _ _ arguments -> failwith "TODO"
+        fun _ _ _ arguments ->
+
+            failwith "TODO"
     )
 
 let findModelFn: Fn =
@@ -410,19 +412,14 @@ let existsFn: Fn =
 let funcFn: Fn =
     Fn(
         { doc = "Create a function role definition."
-          examples = [ "(func name) (func name Literal)" ]
-          args = "RoleName Concept?"
+          examples = [ "(func name)" ]
+          args = "RoleName"
           result = "Concept" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.Top)))
-            | [ Expression.Term role; Expression.Term concept ] ->
-                Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.AtomicConcept concept)))
-            | [ Expression.Term role; Expression.ConceptExpr concept ] ->
-                Ok(Expression.ConceptExpr(ConceptExpr.Func(role, concept)))
+            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func role))
             | _ -> error "Improper call to func." None
     )
-
 
 // let exactlyFn: Fn =
 //     Fn(

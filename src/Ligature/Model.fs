@@ -62,7 +62,7 @@ and [<RequireQualifiedAccess>] ConceptExpr =
     // | Exactly of Term * ConceptExpr * int64
     // | AtLeast of Term * ConceptExpr * int64
     // | AtMost of Term * ConceptExpr * int64
-    | Func of Term * ConceptExpr
+    | Func of Term
 
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>

@@ -96,7 +96,7 @@ let expectEqualFn: Fn =
                           attributes =
                             Map.ofList
                                 [ Term "name", Expression.Literal name
-                                  Term "status", Expression.Term(Term "failed")
+                                  Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Literal
                                       { content = $"assert-equal failed {printAny left} != {printAny right}"

@@ -15,7 +15,7 @@ type PotentialModel =
       isA: Map<Term, Set<Term>>
       isNot: Map<Term, Set<Term>>
       roles: Set<Term * Term * Term>
-      funcRoles: Set<Term * ConceptExpr>
+      funcRoles: Set<Term>
       attributes: Set<Term * Term * Literal> }
 
 let addInstance (individual: Term) (concept: Term) (map: Map<Term, Set<Term>>) =
@@ -129,7 +129,7 @@ let isDefinitorial (tBox: TBox) : bool =
         | ConceptExpr.Not(ConceptExpr.Exists(roleName, c)) -> hasCycle definitionsMap concept c
         | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
         | ConceptExpr.Not(ConceptExpr.All(roleName, c)) -> hasCycle definitionsMap concept c
-        | ConceptExpr.Func(r, c) -> hasCycle definitionsMap concept c
+        | ConceptExpr.Func _ -> false
     // | ConceptExpr.Exactly(_, c, _) -> hasCycle definitionsMap concept c
     // | ConceptExpr.AtLeast(_, c, _) -> hasCycle definitionsMap concept c
     // | ConceptExpr.AtMost(_, c, _) -> hasCycle definitionsMap concept c
@@ -163,9 +163,7 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Exists(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Exists(roleName, c)
-    | ConceptExpr.Func(roleName, c) ->
-        let c = unfoldSingleExpression definitions c
-        ConceptExpr.Func(roleName, c)
+    | ConceptExpr.Func roleName -> ConceptExpr.Func roleName
     | ConceptExpr.All(roleName, c) ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.All(roleName, c)
@@ -354,14 +352,22 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
 
             { state with toProcess = assertions }, []
-        | Assertion.Instance(individual, ConceptExpr.Func(roleName, concept)) ->
-            failwith "TODO"
-            // let assertions = Set.remove assertion state.toProcess
+        | Assertion.Instance(individual, ConceptExpr.Func roleName) ->
+            let assertions = Set.remove assertion state.toProcess
 
-            // { state with
-            //     toProcess = assertions
-            //     funcRoles = Set.add (roleName, concept) state.funcRoles },
-            // []
+            { state with
+                toProcess = assertions
+                funcRoles = Set.add roleName state.funcRoles },
+            []
+        | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Func roleName)) ->
+            let assertions = Set.remove assertion state.toProcess
+
+            { state with
+                toProcess = assertions
+                funcRoles = Set.add roleName state.funcRoles },
+            []
+
+
         // | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
         //     if
         //         not (

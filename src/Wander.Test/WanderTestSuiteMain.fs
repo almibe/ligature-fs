@@ -24,7 +24,7 @@ let rec allFiles dirs =
 [<Tests>]
 let wanderTestSuite =
     let ligatureTestSuite =
-        System.Environment.GetEnvironmentVariable("LIGATURE_TEST_SUITE")
+        System.Environment.GetEnvironmentVariable "LIGATURE_TEST_SUITE"
 
     if ligatureTestSuite <> null then
         allFiles [ ligatureTestSuite ]
@@ -35,19 +35,38 @@ let wanderTestSuite =
             testCase $"Test for {file}"
             <| fun _ ->
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
-                | Ok(Expression.Tuple results) ->
-                    List.iter
-                        (fun result ->
-                            match result with
-                            | Expression.NodeLiteral result ->
-                                match result.attributes.TryFind(Term "status") with
-                                | Some(Expression.Term(Term "pass")) -> ()
-                                | Some(Expression.Term(Term "fail")) -> failwith "TODO"
-                                | _ -> failwith "TODO"
-                            | x -> printfn $"Unexpected value - {printAny x}")
-                        results
-                | Ok(Expression.ABox _) -> () //TODO eventually remove
-                | Ok x -> printfn $"Unexpected value - {x}"
+                | Ok(Expression.ABox result) ->
+                    let mutable names = Map.empty
+                    let mutable comments = Map.empty
+
+                    let failures: Set<string> =
+                        Set.fold
+                            (fun state value ->
+                                match value with
+                                | Assertion.Triple(Term testId, Term "name", Value.Literal { content = name }) ->
+                                    names <- Map.add testId name names
+                                    state
+                                | Assertion.Triple(Term testId, Term "state", Value.Term(Term value)) ->
+                                    match value with
+                                    | "pass" -> state
+                                    | "fail" -> Set.add testId state
+                                    | state -> failwith $"Unexpected state value {state}"
+                                | Assertion.Triple(Term testId, Term "comment", Value.Literal comment) ->
+                                    comments <- Map.add testId comment comments
+                                    state
+                                | Assertion.Triple(Term testId, Term "test-group", Value.Literal name) -> state
+                                | x -> failwith $"Unexpected value as test result. {x}")
+                            Set.empty
+                            result
+
+                    let errorMsg: string =
+                        Set.fold
+                            (fun state value -> state + "\"" + Map.find value names + "\"")
+                            "Failed tests: "
+                            failures
+
+                    Expect.isEmpty failures errorMsg
+                | Ok x -> failwith $"Unexpected value - {x}"
                 | Error err -> failwithf "Test failed %A" err)
         |> Seq.toList
         |> testList "Wander tests"
