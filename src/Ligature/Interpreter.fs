@@ -211,14 +211,15 @@ let handleTBox (tBox: TBox) (aBox: ABox) : Result<ABox, LigatureError> =
     else
         error "Only definitorial TBoxes are supported currently." None
 
-let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialModel list =
+let interpretNextAssertion (state: PotentialModel) : PotentialModel option * PotentialModel list =
     if state.toProcess.IsEmpty then
         if state.skip.IsEmpty then
-            state, []
+            Some state, []
         else
-            { state with
-                toProcess = state.skip
-                skip = Set.empty },
+            Some
+                { state with
+                    toProcess = state.skip
+                    skip = Set.empty },
             []
     else
         let assertion = state.toProcess.MinimumElement
@@ -227,30 +228,33 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         match assertion with
         | Assertion.Instance(_, ConceptExpr.Equivalent _) -> failwith "Unexpected value."
         | Assertion.Instance(_, ConceptExpr.Implies _) -> failwith "Unexpected value."
-        | Assertion.Instance(_, ConceptExpr.Top) -> { state with toProcess = assertions }, []
+        | Assertion.Instance(_, ConceptExpr.Top) -> Some { state with toProcess = assertions }, []
         | Assertion.Instance(_, ConceptExpr.Bottom) -> failwith "Unexpected value"
         | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                isA = addInstance individual concept state.isA },
+            Some 
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    isA = addInstance individual concept state.isA },
             []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                isNot = addInstance individual concept state.isNot },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    isNot = addInstance individual concept state.isNot },
             []
         | Assertion.Instance(individual, ConceptExpr.And group) ->
             let mutable assertions = Set.remove assertion state.toProcess
             List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.And group)) ->
             let mutable assertions = Set.remove assertion state.toProcess
             let negGroup = List.map (fun value -> ConceptExpr.Not value) group
             assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
 
-            { state with
-                toProcess = Set.remove assertion state.toProcess },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess },
             []
 
         | Assertion.Instance(individual, ConceptExpr.Or group) ->
@@ -264,7 +268,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                     []
                     group
 
-            models.Head, models.Tail
+            Some models.Head, models.Tail
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Or group)) ->
             let assertions = Set.remove assertion state.toProcess
             let negGroup = List.map (fun value -> ConceptExpr.Not value) group
@@ -272,7 +276,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
             let assertions =
                 Set.add (Assertion.Instance(individual, ConceptExpr.And negGroup)) assertions
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
             if
                 not (
@@ -307,19 +311,19 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                         assertions
                         state.roles
 
-                { state with toProcess = assertions }, []
+                Some { state with toProcess = assertions }, []
             //TODO handle inconsistent ConceptExprs
             // if assertions.IsEmpty then
             //     complete ()
             else
                 failwith "TODO"
-                state, [] //wait to process
+                Some state, [] //wait to process
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.All(roleName, concept))) ->
             let assertions =
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.Exists(roleName, ConceptExpr.Not concept)))
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Exists(roleName, concept)) ->
             if
                 not (
@@ -343,7 +347,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
 
                 let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
 
-                { state with toProcess = assertions }, [] //TODO this isn't complete
+                Some { state with toProcess = assertions }, [] //TODO this isn't complete
             else
                 failwith "TODO" //add assertion to skip
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Exists(roleName, concept))) ->
@@ -351,20 +355,22 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Func roleName) ->
             let assertions = Set.remove assertion state.toProcess
 
-            { state with
-                toProcess = assertions
-                funcRoles = Set.add roleName state.funcRoles },
+            Some
+                { state with
+                    toProcess = assertions
+                    funcRoles = Set.add roleName state.funcRoles },
             []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Func roleName)) ->
             let assertions = Set.remove assertion state.toProcess
 
-            { state with
-                toProcess = assertions
-                funcRoles = Set.add roleName state.funcRoles },
+            Some
+                { state with
+                    toProcess = assertions
+                    funcRoles = Set.add roleName state.funcRoles },
             []
 
 
@@ -402,7 +408,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, concept))
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
 
 
         | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
@@ -410,7 +416,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.Not(concept)))
 
-            { state with toProcess = assertions }, []
+            Some { state with toProcess = assertions }, []
 
 
         // match concept with
@@ -418,98 +424,101 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         // | ConceptExpr.Bottom -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
         // | ConceptExpr.Not concept ->
         | Assertion.Triple(i, r, Value.Term t) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                roles = Set.add (i, r, t) state.roles },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    roles = Set.add (i, r, t) state.roles },
             []
         | Assertion.Triple(i, a, Value.Literal l) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                attributes = Set.add (i, a, l) state.attributes },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    attributes = Set.add (i, a, l) state.attributes },
             []
         | Assertion.Same(l, r) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                same = Set.add (l, r) state.same },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    same = Set.add (l, r) state.same },
             []
         | Assertion.Different(l, r) ->
-            { state with
-                toProcess = Set.remove assertion state.toProcess
-                different = Set.add (l, r) state.different },
+            Some
+                { state with
+                    toProcess = Set.remove assertion state.toProcess
+                    different = Set.add (l, r) state.different },
             []
 
-let containsClash (model: PotentialModel) : bool =
-    //assert that toProcess and skip are empty
-    let model =
-        Set.fold
-            (fun state (left, right) ->
-                let isA =
-                    match state.isA.TryFind left, state.isA.TryFind right with
-                    | (Some conceptsL, Some conceptsR) ->
-                        state.isA |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
-                    | _ -> state.isA
+// let containsClash (model: PotentialModel) : bool =
+//     //assert that toProcess and skip are empty
+//     let model =
+//         Set.fold
+//             (fun state (left, right) ->
+//                 let isA =
+//                     match state.isA.TryFind left, state.isA.TryFind right with
+//                     | (Some conceptsL, Some conceptsR) ->
+//                         state.isA |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
+//                     | _ -> state.isA
 
-                let isNot =
-                    match state.isNot.TryFind left, state.isNot.TryFind right with
-                    | Some conceptsL, Some conceptsR ->
-                        state.isNot |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
-                    | _ -> state.isNot
+//                 let isNot =
+//                     match state.isNot.TryFind left, state.isNot.TryFind right with
+//                     | Some conceptsL, Some conceptsR ->
+//                         state.isNot |> Map.remove left |> Map.add right (Set.union conceptsL conceptsR)
+//                     | _ -> state.isNot
 
-                let attributes =
-                    Set.map
-                        (fun (individual, a, l) -> if individual = left then right, a, l else individual, a, l)
-                        state.attributes
+//                 let attributes =
+//                     Set.map
+//                         (fun (individual, a, l) -> if individual = left then right, a, l else individual, a, l)
+//                         state.attributes
 
-                let roles =
-                    Set.map
-                        (fun (individual, r, filler) ->
-                            let individual = if individual = left then right else individual
+//                 let roles =
+//                     Set.map
+//                         (fun (individual, r, filler) ->
+//                             let individual = if individual = left then right else individual
 
-                            if filler = left then
-                                individual, r, right
-                            else
-                                individual, r, filler)
-                        state.roles
+//                             if filler = left then
+//                                 individual, r, right
+//                             else
+//                                 individual, r, filler)
+//                         state.roles
 
-                let different =
-                    Set.map
-                        (fun (leftD, rightD) ->
-                            let leftD = if leftD = left then right else leftD
+//                 let different =
+//                     Set.map
+//                         (fun (leftD, rightD) ->
+//                             let leftD = if leftD = left then right else leftD
 
-                            if rightD = left then leftD, right else leftD, rightD)
-                        state.different
+//                             if rightD = left then leftD, right else leftD, rightD)
+//                         state.different
 
-                { state with
-                    isA = isA
-                    isNot = isNot
-                    roles = roles
-                    attributes = attributes
-                    different = different })
-            model
-            model.same
+//                 { state with
+//                     isA = isA
+//                     isNot = isNot
+//                     roles = roles
+//                     attributes = attributes
+//                     different = different })
+//             model
+//             model.same
 
-    let hasClash =
-        Set.fold (fun hasClash (left, right) -> if hasClash then hasClash else left = right) false model.different
+//     let hasClash =
+//         Set.fold (fun hasClash (left, right) -> if hasClash then hasClash else left = right) false model.different
 
-    if hasClash then
-        hasClash
-    else
-        Map.fold
-            (fun state individual concepts ->
-                if state = false then
-                    match model.isNot.TryFind individual with
-                    | Some notConcepts -> not (Set.intersect concepts notConcepts).IsEmpty
-                    | None -> false
-                else
-                    state)
-            false
-            model.isA
+//     if hasClash then
+//         hasClash
+//     else
+//         Map.fold
+//             (fun state individual concepts ->
+//                 if state = false then
+//                     match model.isNot.TryFind individual with
+//                     | Some notConcepts -> not (Set.intersect concepts notConcepts).IsEmpty
+//                     | None -> false
+//                 else
+//                     state)
+//             false
+//             model.isA
 
 let tableauModels
     definitions
     assertions
-    : Result<{| clashFree: ABox list
-                containsClash: ABox list |}, LigatureError>
+    : Result<ABox list, LigatureError>
     =
     let mutable currentModel: PotentialModel option =
         match handleTBox definitions assertions with
@@ -519,17 +528,13 @@ let tableauModels
     let mutable additionalModels: PotentialModel list = []
 
     let mutable completedModelsClashFree = []
-    let mutable completedModelsWithClash = []
 
-    while currentModel.IsSome do
+    while currentModel.IsSome || not additionalModels.IsEmpty do
         match currentModel with
         | Some model ->
             if model.toProcess.IsEmpty then
                 if model.skip.IsEmpty then
-                    if containsClash model then
-                        completedModelsWithClash <- modelToAssertions model :: completedModelsWithClash
-                    else
-                        completedModelsClashFree <- modelToAssertions model :: completedModelsClashFree
+                    completedModelsClashFree <- modelToAssertions model :: completedModelsClashFree
 
                     match additionalModels with
                     | head :: tail ->
@@ -544,13 +549,16 @@ let tableauModels
                                 skip = Set.empty }
             else
                 let nextModel, newPotentialModels = interpretNextAssertion model
-                currentModel <- Some nextModel
+                currentModel <- nextModel
                 additionalModels <- List.append additionalModels newPotentialModels
-        | None -> failwith "Should never reach"
+        | None -> 
+            match additionalModels with
+            | head :: tail ->
+                currentModel <- Some head
+                additionalModels <- tail
+            | _ -> failwith "Should never reach"
 
-    Ok
-        {| clashFree = completedModelsClashFree
-           containsClash = completedModelsWithClash |}
+    Ok completedModelsClashFree
 
 let findModel definitions assertions : Result<ABox option, LigatureError> =
     let mutable result = None
@@ -567,14 +575,14 @@ let findModel definitions assertions : Result<ABox option, LigatureError> =
         | Some model ->
             if model.toProcess.IsEmpty then
                 if model.skip.IsEmpty then
-                    if containsClash model then
-                        match additionalModels with
-                        | head :: tail ->
-                            currentModel <- Some head
-                            additionalModels <- tail
-                        | [] -> currentModel <- None
-                    else
-                        result <- Some model
+                    // if containsClash model then
+                    //     match additionalModels with
+                    //     | head :: tail ->
+                    //         currentModel <- Some head
+                    //         additionalModels <- tail
+                    //     | [] -> currentModel <- None
+                    // else
+                    result <- Some model
                 else
                     currentModel <-
                         Some
@@ -583,7 +591,7 @@ let findModel definitions assertions : Result<ABox option, LigatureError> =
                                 skip = Set.empty }
             else
                 let nextModel, newPotentialModels = interpretNextAssertion model
-                currentModel <- Some nextModel
+                currentModel <- nextModel
                 additionalModels <- List.append additionalModels newPotentialModels
         | None -> failwith "TODO"
 
@@ -632,12 +640,13 @@ let isInstance (tBox: TBox) (aBox: ABox) (individual: Term) (concept: ConceptExp
     let models =
         tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
 
-    match models with
-    | Ok models ->
-        if models.containsClash.IsEmpty then Ok(Term "false")
-        else if models.clashFree.IsEmpty then Ok(Term "true")
-        else Ok(Term "unknown")
-    | Error err -> Error err
+    failwith "TODO"
+    // match models with
+    // | Ok models ->
+    //     if models.containsClash.IsEmpty then Ok(Term "false")
+    //     else if models.clashFree.IsEmpty then Ok(Term "true")
+    //     else Ok(Term "unknown")
+    // | Error err -> Error err
 
 let expandResult (aBox: ABox) (individual: Term) (concept: ConceptExpr) : ABox =
 
