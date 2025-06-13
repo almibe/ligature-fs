@@ -428,32 +428,13 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
             Some { state with toProcess = assertions }, []
 
-
-        | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
-            failwith "check for clash"
-
-            let assertions =
-                Set.remove assertion state.toProcess
-                |> Set.add (Assertion.Instance(individual, ConceptExpr.Not(concept)))
-
-            Some { state with toProcess = assertions }, []
-
-
-        // match concept with
-        // | ConceptExpr.Top -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
-        // | ConceptExpr.Bottom -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
-        // | ConceptExpr.Not concept ->
         | Assertion.Triple(i, r, Value.Term t) ->
-            failwith "check for clash"
-
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
                     roles = Set.add (i, r, t) state.roles },
             []
         | Assertion.Triple(i, a, Value.Literal l) ->
-            failwith "check for clash"
-
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
