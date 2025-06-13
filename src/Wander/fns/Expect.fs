@@ -99,7 +99,7 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Literal
-                                      { content = $"assert-equal failed {printAny left} != {printAny right}"
+                                      { content = $"{name} assert-equal failed {printAny left} != {printAny right}"
                                         datatype = None
                                         langTag = None } ]
                           children = [] }

@@ -231,17 +231,31 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
         | Assertion.Instance(_, ConceptExpr.Top) -> Some { state with toProcess = assertions }, []
         | Assertion.Instance(_, ConceptExpr.Bottom) -> failwith "Unexpected value"
         | Assertion.Instance(individual, ConceptExpr.AtomicConcept concept) ->
-            Some 
-                { state with
-                    toProcess = Set.remove assertion state.toProcess
-                    isA = addInstance individual concept state.isA },
-            []
+            let clash = 
+                match state.isNot.TryFind individual with
+                | Some results -> results.Contains concept
+                | None -> false
+            if clash then
+                None, []
+            else
+                Some 
+                    { state with
+                        toProcess = Set.remove assertion state.toProcess
+                        isA = addInstance individual concept state.isA },
+                []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.AtomicConcept concept)) ->
-            Some
-                { state with
-                    toProcess = Set.remove assertion state.toProcess
-                    isNot = addInstance individual concept state.isNot },
-            []
+            let clash = 
+                match state.isA.TryFind individual with
+                | Some results -> results.Contains concept
+                | None -> false
+            if clash then
+                None, []
+            else
+                Some
+                    { state with
+                        toProcess = Set.remove assertion state.toProcess
+                        isNot = addInstance individual concept state.isNot },
+                []
         | Assertion.Instance(individual, ConceptExpr.And group) ->
             let mutable assertions = Set.remove assertion state.toProcess
             List.iter (fun expr -> assertions <- Set.add (Assertion.Instance(individual, expr)) assertions) group
@@ -278,6 +292,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
             Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
+            failwith "check for clash"
             if
                 not (
                     Set.exists
@@ -319,12 +334,14 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                 failwith "TODO"
                 Some state, [] //wait to process
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.All(roleName, concept))) ->
+            failwith "check for clash"
             let assertions =
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.Exists(roleName, ConceptExpr.Not concept)))
 
             Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Exists(roleName, concept)) ->
+            failwith "check for clash"
             if
                 not (
                     Set.exists
@@ -351,12 +368,14 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
             else
                 failwith "TODO" //add assertion to skip
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Exists(roleName, concept))) ->
+            failwith "check for clash"
             let assertions =
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
 
             Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Func roleName) ->
+            failwith "check for clash"
             let assertions = Set.remove assertion state.toProcess
 
             Some
@@ -365,6 +384,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                     funcRoles = Set.add roleName state.funcRoles },
             []
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Func roleName)) ->
+            failwith "check for clash"
             let assertions = Set.remove assertion state.toProcess
 
             Some
@@ -404,6 +424,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
 
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Not(concept))) ->
+            failwith "check for clash"
             let assertions =
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, concept))
@@ -412,6 +433,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
 
         | Assertion.Instance(individual, ConceptExpr.Not(concept)) ->
+            failwith "check for clash"
             let assertions =
                 Set.remove assertion state.toProcess
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.Not(concept)))
@@ -424,24 +446,28 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
         // | ConceptExpr.Bottom -> failwith "TODO" //setAssertions (Set.remove assertion current.Value.assertions)
         // | ConceptExpr.Not concept ->
         | Assertion.Triple(i, r, Value.Term t) ->
+            failwith "check for clash"
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
                     roles = Set.add (i, r, t) state.roles },
             []
         | Assertion.Triple(i, a, Value.Literal l) ->
+            failwith "check for clash"
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
                     attributes = Set.add (i, a, l) state.attributes },
             []
         | Assertion.Same(l, r) ->
+            failwith "check for clash"
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
                     same = Set.add (l, r) state.same },
             []
         | Assertion.Different(l, r) ->
+            failwith "check for clash"
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
