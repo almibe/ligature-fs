@@ -33,8 +33,8 @@ let tests =
                   (Ok(
                       Expression.Tuple
                           [ Expression.Literal
-                                { content = "test"
-                                  datatype = None
+                                { value = "test"
+                                  typeof = None
                                   langTag = None } ]
                   ))
                   "" ]

@@ -55,10 +55,10 @@ type LigatureStore(path: string option) =
                 | 1, name, _, _, _, _ -> store.RemoveStore name
                 | 2, name, e, r, 0, v -> store.AssertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 2, name, e, r, 1, v ->
-                    store.AssertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                    store.AssertStore name (Set.ofList [ Term e, Term r, Value.Literal(Individual v) ])
                 | 4, name, e, r, 0, v -> store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Term(Term v) ])
                 | 4, name, e, r, 1, v ->
-                    store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Literal(Literal v) ])
+                    store.UnassertStore name (Set.ofList [ Term e, Term r, Value.Literal(Individual v) ])
                 | _ -> failwith "Unexpected event type."
             else
                 cont <- false

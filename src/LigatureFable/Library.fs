@@ -60,7 +60,7 @@ let networkToJs (network: ABox) =
                     value?value <-
                         match v with
                         | Value.Term(Term t) -> t
-                        | Value.Literal { content = l } -> l //TODO add type and lang tag
+                        | Value.Literal { id = l } -> l //TODO add type and lang tag
 
                     [| element; role; value |]
                 | Assertion.Instance(Term i, ConceptExpr.AtomicConcept(Term c)) ->
@@ -119,7 +119,7 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Expression.Literal { content = l } -> //TODO add datatype and langtag
+    | Expression.Literal { value = l } -> //TODO add datatype and langtag
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
@@ -153,7 +153,7 @@ let rec createElement
     Map.iter
         (fun key value ->
             match key, value with
-            | Term key, Expression.Literal { content = content } ->
+            | Term key, Expression.Literal { value = content } ->
                 emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
             | Term key, _ -> failwith $"Invalid attribute - {key}")
         attributes
@@ -161,7 +161,7 @@ let rec createElement
     List.iter
         (fun value ->
             match value with
-            | Expression.Literal { content = content } -> emitJsStatement (content) "newElement.append($0)"
+            | Expression.Literal { value = content } -> emitJsStatement (content) "newElement.append($0)"
             | Expression.NodeLiteral node ->
                 let childElement = createElement node
                 emitJsStatement (childElement) "newElement.append($0)"

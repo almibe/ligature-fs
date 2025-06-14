@@ -89,18 +89,15 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let individuals (aBox: ABox) : Term list =
+let individuals (aBox: ABox) : Individual list =
     Set.fold
         (fun state value ->
             match value with
             | Assertion.Instance(individual, _) -> //TODO check for nominal concept
                 Set.add individual state
-            | Assertion.Triple(i, _, v) ->
-                let state = Set.add i state
-
-                match v with
-                | Value.Literal _ -> state
-                | Value.Term t -> Set.add t state)
+            | Assertion.Triple(i, _, f) -> Set.add i state |> Set.add f
+            | Assertion.Same(_, _) -> failwith "Not Implemented"
+            | Assertion.Different(_, _) -> failwith "Not Implemented")
         Set.empty
         aBox
     |> List.ofSeq

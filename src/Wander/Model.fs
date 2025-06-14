@@ -5,6 +5,7 @@
 module Wander.Model
 
 open Ligature.Model
+open Ligature.Model
 
 type Variable = Variable of string
 
@@ -24,7 +25,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Slot of Slot
     | Tuple of Tuple
     | Term of Term
-    | Literal of Literal
+    | Literal of Individual
     | Variable of Variable
     | Assertion of Assertion
     | ABox of ABox
@@ -75,10 +76,10 @@ let encodeString string =
 let rec printAny (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    | Expression.Literal { content = l
-                           datatype = Some(Term t)
+    | Expression.Literal { value = l
+                           typeof = Some(Term t)
                            langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
-    | Expression.Literal { content = content } -> encodeString content
+    | Expression.Literal { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
     | Expression.ABox n -> printNetwork n
@@ -108,12 +109,11 @@ and printNode
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
 
-and printValue (value: Value) : string =
-    match value with
-    | Value.Literal { content = l; datatype = Some(Term t) } ->
-        if t = "" then encodeString l else encodeString l + "^^" + t
-    | Value.Literal { content = l } -> encodeString l
-    | Value.Term(Term t) -> t
+and printIndividual (individual: Individual) : string =
+    match individual with
+    | { value = l; typeof = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
+// | Value.Literal { id = l } -> encodeString l
+// | Value.Term(Term t) -> t
 
 and writeTermPattern (value: TermPattern) =
     match value with
@@ -129,7 +129,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + printValue value + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + printIndividual value + ", ") variables
 
             res <- res + ")")
         rs
@@ -186,6 +186,8 @@ and printNetwork (network: ABox) : string =
 
 and printTriple (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple(Term element, Term attribute, value) -> $"[{element} {attribute} {printValue value}]"
-    | Assertion.Instance(Term i, ConceptExpr.AtomicConcept(Term c)) -> $"[{i} : {c}]"
-    | Assertion.Instance(Term i, c) -> $"[{i} : {c}]"
+    | Assertion.Triple(individual, Term role, filler) -> $"[{individual} {role} {printIndividual filler}]"
+    | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) -> $"[{individual} : {c}]"
+    | Assertion.Instance(individual, c) -> $"[{individual} : {c}]"
+    | Assertion.Same(_, _) -> failwith "Not Implemented"
+    | Assertion.Different(_, _) -> failwith "Not Implemented"

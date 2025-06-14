@@ -10,14 +10,13 @@ open Core
 type PotentialModel =
     { toProcess: ABox
       skip: ABox
-      same: Map<Term, Set<Term>>
-      different: Map<Term, Set<Term>>
-      isA: Map<Term, Set<Term>>
-      isNot: Map<Term, Set<Term>>
-      roles: Set<Term * Term * Term>
-      attributes: Set<Term * Term * Literal> }
+      same: Map<Individual, Set<Individual>>
+      different: Map<Individual, Set<Individual>>
+      isA: Map<Individual, Set<Term>>
+      isNot: Map<Individual, Set<Term>>
+      triples: Set<Triple> }
 
-let addInstance (individual: Term) (concept: Term) (map: Map<Term, Set<Term>>) =
+let addInstance (individual: Individual) (concept: Term) (map: Map<Individual, Set<Term>>) =
     match map.TryFind individual with
     | Some concepts -> Map.add individual (Set.add concept concepts) map
     | None -> Map.add individual (Set.ofList [ concept ]) map
@@ -27,9 +26,7 @@ let modelToAssertions (potentialModel: PotentialModel) : ABox =
         failwith "Invalid call to modelToAssertions."
 
     Set.unionMany
-        [ Set.map (fun (i, a, l) -> Assertion.Triple(i, a, Value.Literal l)) potentialModel.attributes
-
-          Set.map (fun (i, r, t) -> Assertion.Triple(i, r, Value.Term t)) potentialModel.roles
+        [ Set.map (fun (i, r, v) -> Assertion.Triple(i, r, v)) potentialModel.triples
 
           Map.fold
               (fun state key value ->
@@ -57,8 +54,7 @@ let newModel (aBox: ABox) : PotentialModel =
       different = Map.empty
       isA = Map.empty
       isNot = Map.empty
-      roles = Set.empty
-      attributes = Set.empty }
+      triples = Set.empty }
 
 let tBoxToMap (tBox: TBox) : Option<Map<Term, ConceptExpr>> =
     List.fold
@@ -292,8 +288,6 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
             Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.All(role, concept)) ->
-            failwith "check for clash"
-
             if
                 not (
                     Set.exists
@@ -306,31 +300,17 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
             then
                 let assertions = Set.remove assertion state.toProcess
 
-                //TODO find all instances of the given role and mark all fillers as being `concept`
-                // let assertions =
-                //     Set.fold
-                //         (fun state assertion ->
-                //             match assertion with
-                //             | Assertion.Triple(i, r, Value.Term f) when r = role && i = individual ->
-                //                 Set.add (Assertion.Instance(f, concept)) state
-                //             | _ -> state)
-                //         assertions
-                //         assertions
-
-
                 let assertions =
                     Set.fold
-                        (fun state value ->
+                        (fun state (value: Triple) ->
                             match value with
                             | i, r, f when r = role && i = individual -> Set.add (Assertion.Instance(f, concept)) state
                             | _ -> state)
                         assertions
-                        state.roles
+                        state.triples
 
                 Some { state with toProcess = assertions }, []
             //TODO handle inconsistent ConceptExprs
-            // if assertions.IsEmpty then
-            //     complete ()
             else
                 failwith "TODO"
                 Some state, [] //wait to process
@@ -341,8 +321,6 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
             Some { state with toProcess = assertions }, []
         | Assertion.Instance(individual, ConceptExpr.Exists(roleName, concept)) ->
-            failwith "check for clash"
-
             if
                 not (
                     Set.exists
@@ -357,15 +335,30 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                 //addInstance individual Set.empty Set.empty
                 let assertions = Set.remove assertion state.toProcess
 
-                let r = new System.Random()
-                let newIndividual = Term $"new-{r.Next()}"
+                let modelContainsRole =
+                    Set.exists
+                        (fun value ->
+                            match value with
+                            | i, r, v when individual = i && roleName = r -> true
+                            | _ -> false)
+                        state.triples
 
-                let assertions =
-                    Set.add (Assertion.Triple(individual, roleName, Value.Term newIndividual)) assertions
+                if modelContainsRole then
+                    Some { state with toProcess = assertions }, []
+                else
+                    let r = new System.Random()
 
-                let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
+                    let newIndividual =
+                        { value = $"new-{r.Next()}"
+                          typeof = None
+                          langTag = None }
 
-                Some { state with toProcess = assertions }, [] //TODO this isn't complete
+                    let assertions =
+                        Set.add (Assertion.Triple(individual, roleName, newIndividual)) assertions
+
+                    let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
+
+                    Some { state with toProcess = assertions }, []
             else
                 failwith "TODO" //add assertion to skip
         | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Exists(roleName, concept))) ->
@@ -428,17 +421,11 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
             Some { state with toProcess = assertions }, []
 
-        | Assertion.Triple(i, r, Value.Term t) ->
+        | Assertion.Triple(i, r, v) ->
             Some
                 { state with
                     toProcess = Set.remove assertion state.toProcess
-                    roles = Set.add (i, r, t) state.roles },
-            []
-        | Assertion.Triple(i, a, Value.Literal l) ->
-            Some
-                { state with
-                    toProcess = Set.remove assertion state.toProcess
-                    attributes = Set.add (i, a, l) state.attributes },
+                    triples = Set.add (i, r, v) state.triples },
             []
         | Assertion.Same(l, r) ->
             let clash =
@@ -673,7 +660,7 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok None -> Ok false
     | Error err -> Error err
 
-let isInstance (tBox: TBox) (aBox: ABox) (individual: Term) (concept: ConceptExpr) : Result<Term, LigatureError> =
+let isInstance (tBox: TBox) (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : Result<Term, LigatureError> =
     let models =
         tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
 
@@ -685,11 +672,11 @@ let isInstance (tBox: TBox) (aBox: ABox) (individual: Term) (concept: ConceptExp
 //     else Ok(Term "unknown")
 // | Error err -> Error err
 
-let expandResult (aBox: ABox) (individual: Term) (concept: ConceptExpr) : ABox =
+let expandResult (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : ABox =
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Term * ABox) list =
+let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Individual * ABox) list =
     let individuals = individuals aBox
 
     let res =

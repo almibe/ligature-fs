@@ -16,18 +16,18 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
-let valueNib (gaze: Gaze.Gaze<Token>) : Result<Value, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Ok(Token.Term value) -> Ok(Value.Term(Term value))
-    | Ok(Token.Literal value) ->
-        Ok(
-            Value.Literal
-                { content = value
-                  datatype = Some(Term "")
-                  langTag = None }
-        )
-    | Error err -> Error err
-    | _ -> Error Gaze.GazeError.NoMatch
+let individualNib (gaze: Gaze.Gaze<Token>) : Result<Individual, Gaze.GazeError> = failwith "TODO"
+// match Gaze.next gaze with
+// | Ok(Token.Term value) -> Ok(Value.Term(Term value))
+// | Ok(Token.Literal value) ->
+//     Ok(
+//         Value.Literal
+//             { id = value
+//               datatype = Some(Term "")
+//               langTag = None }
+//     )
+// | Error err -> Error err
+// | _ -> Error Gaze.GazeError.NoMatch
 
 let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
     match Gaze.next gaze with
@@ -125,9 +125,9 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     | Ok(Token.Term value) -> Ok(ValuePattern.Term(Term value))
     | Ok(Token.Literal value) ->
         Ok(
-            ValuePattern.Literal
-                { content = value
-                  datatype = None
+            ValuePattern.Individual
+                { value = value
+                  typeof = None
                   langTag = None }
         )
     | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
@@ -140,8 +140,8 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.Gaz
     | Ok(Token.Literal value) ->
         Ok(
             Expression.Literal
-                { content = value
-                  datatype = None
+                { value = value
+                  typeof = None
                   langTag = None }
         )
     | Ok(Token.Variable variable) -> Ok(Expression.Variable(Variable variable))

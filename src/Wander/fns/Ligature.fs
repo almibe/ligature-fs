@@ -203,17 +203,17 @@ let isInstanceFn =
           examples = [ "(is-istance (t-box (implies A B)) (assertions (instance a A)) a B)" ]
           args = "Definitions Assertions Individual Concept"
           result = "Term" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox individual (ConceptExpr.AtomicConcept concept) with
-                | Ok term -> Ok(Expression.Term term)
-                | Error err -> Error err
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox individual concept with
-                | Ok term -> Ok(Expression.Term term)
-                | Error err -> Error err
-            | _ -> error "Invalid call to is-instance." None
+        fun _ _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
+    //     match isInstance tBox aBox individual (ConceptExpr.AtomicConcept concept) with
+    //     | Ok term -> Ok(Expression.Term term)
+    //     | Error err -> Error err
+    // | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
+    //     match isInstance tBox aBox individual concept with
+    //     | Ok term -> Ok(Expression.Term term)
+    //     | Error err -> Error err
+    // | _ -> error "Invalid call to is-instance." None
     )
 
 let impliesFn: Fn =
@@ -316,11 +316,11 @@ let literalFn: Fn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Literal { content = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
+            | [ Expression.Literal { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
                     Expression.Literal
-                        { content = content
-                          datatype = Some datatype
+                        { value = content
+                          typeof = Some datatype
                           langTag = Some langTag }
                 )
             | _ -> error "Improper call to literal." None
@@ -332,13 +332,13 @@ let instanceFn: Fn =
           examples = [ "(instance betty (and Cat (not Dog)))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term individual; Expression.Term concept ] ->
-                Ok(Expression.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
-            | [ Expression.Term individual; Expression.ConceptExpr concept ] ->
-                Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
-            | _ -> error "Improper call to instance." None
+        fun _ _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Expression.Term individual; Expression.Term concept ] ->
+    //     Ok(Expression.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
+    // | [ Expression.Term individual; Expression.ConceptExpr concept ] ->
+    //     Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
+    // | _ -> error "Improper call to instance." None
     )
 
 let sameFn: Fn =
@@ -347,10 +347,10 @@ let sameFn: Fn =
           examples = [ "(same a b)" ]
           args = "Term Term"
           result = "Assertion" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term left; Expression.Term right ] -> Ok(Expression.Assertion(Assertion.Same(left, right)))
-            | _ -> error "Improper call to same." None
+        fun _ _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Expression.Term left; Expression.Term right ] -> Ok(Expression.Assertion(Assertion.Same(left, right)))
+    // | _ -> error "Improper call to same." None
     )
 
 let differentFn: Fn =
@@ -359,11 +359,11 @@ let differentFn: Fn =
           examples = [ "(different a b)" ]
           args = "Term Term"
           result = "Assertion" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Different(left, right)))
-            | _ -> error "Improper call to different." None
+        fun _ _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Expression.Term left; Expression.Term right ] ->
+    //     Ok(Expression.Assertion(Assertion.Different(left, right)))
+    // | _ -> error "Improper call to different." None
     )
 
 let conceptFn: Fn =

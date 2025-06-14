@@ -15,21 +15,16 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
-type Literal =
-    { content: string
-      datatype: Term option
+type Individual =
+    { value: string
+      typeof: Term option
       langTag: string option }
-
-[<RequireQualifiedAccess>]
-type Value = //TODO delete
-    | Term of Term
-    | Literal of Literal
 
 type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, Value>
+and ValueSet = Map<Slot, Individual>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term
@@ -37,14 +32,16 @@ and [<RequireQualifiedAccess>] TermPattern =
 
 and [<RequireQualifiedAccess>] ValuePattern =
     | Term of Term
-    | Literal of Literal
+    | Individual of Individual
     | Slot of Slot
 
+and Triple = Individual * Term * Individual
+
 and [<RequireQualifiedAccess>] Assertion =
-    | Triple of Term * Term * Value
-    | Instance of Term * ConceptExpr
-    | Same of Term * Term
-    | Different of Term * Term
+    | Triple of Triple
+    | Instance of Individual * ConceptExpr
+    | Same of Individual * Individual
+    | Different of Individual * Individual
 
 and ABox = Set<Assertion>
 

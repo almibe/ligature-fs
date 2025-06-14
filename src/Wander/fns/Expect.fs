@@ -32,12 +32,16 @@ let testGroupFn: Fn =
                             | Some(Expression.Literal name),
                               Some(Expression.Term status),
                               Some(Expression.Literal comment) ->
-                                let testId = Term("test-" + Ulid.Ulid.Ulid.New.ToString())
+                                let testId =
+                                    { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
+                                      typeof = None
+                                      langTag = None }
 
-                                [ Assertion.Triple(testId, Term "name", Value.Literal name)
-                                  Assertion.Triple(testId, Term "state", Value.Term status)
-                                  Assertion.Triple(testId, Term "comment", Value.Literal comment)
-                                  Assertion.Triple(testId, Term "test-group", Value.Literal groupName) ]
+                                failwith "TODO"
+                            // [ Assertion.Triple(testId, Term "name", Value.Literal name)
+                            //   Assertion.Triple(testId, Term "state", Value.Term status)
+                            //   Assertion.Triple(testId, Term "comment", Value.Literal comment)
+                            //   Assertion.Triple(testId, Term "test-group", Value.Literal groupName) ]
                             | _ -> failwith "TODO"
                         | _ -> failwith "TODO")
                     arguments.Tail
@@ -62,14 +66,14 @@ let expectEqualFn: Fn =
                             Map.ofList
                                 [ Term "name",
                                   Expression.Literal
-                                      { content = ""
-                                        datatype = None
+                                      { value = ""
+                                        typeof = None
                                         langTag = None }
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
                                   Expression.Literal
-                                      { content = ""
-                                        datatype = None
+                                      { value = ""
+                                        typeof = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
@@ -85,8 +89,8 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
                                   Expression.Literal
-                                      { content = ""
-                                        datatype = None
+                                      { value = ""
+                                        typeof = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
@@ -99,8 +103,8 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Literal
-                                      { content = $"{name} assert-equal failed {printAny left} != {printAny right}"
-                                        datatype = None
+                                      { value = $"{name} assert-equal failed {printAny left} != {printAny right}"
+                                        typeof = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok

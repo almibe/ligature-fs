@@ -20,68 +20,68 @@ let docsFn: Fn =
           examples = []
           args = "()"
           result = "Assertions" },
-        fun actions _ _ _ ->
-            let docs: ABox =
-                Map.toSeq actions
-                |> Seq.fold
-                    (fun state (name, action) ->
-                        match action with
-                        | Fn(doc, _) ->
-                            let state =
-                                Set.add
-                                    (Assertion.Triple(
-                                        name,
-                                        Term "doc-string",
-                                        Value.Literal
-                                            { content = doc.doc
-                                              datatype = None
-                                              langTag = None }
-                                    ))
-                                    state
+        fun actions _ _ _ -> failwith "TODO"
+    // let docs: ABox =
+    //     Map.toSeq actions
+    //     |> Seq.fold
+    //         (fun state (name, action) ->
+    //             match action with
+    //             | Fn(doc, _) ->
+    //                 let state =
+    //                     Set.add
+    //                         (Assertion.Triple(
+    //                             name,
+    //                             Term "doc-string",
+    //                             Value.Literal
+    //                                 { id = doc.doc
+    //                                   datatype = None
+    //                                   langTag = None }
+    //                         ))
+    //                         state
 
-                            let state = Set.add (Assertion.Triple(name, Term ":", Value.Term(Term "Fn"))) state
+    //                 let state = Set.add (Assertion.Triple(name, Term ":", Value.Term(Term "Fn"))) state
 
-                            let state =
-                                Set.add
-                                    (Assertion.Triple(
-                                        name,
-                                        Term "args",
-                                        Value.Literal
-                                            { content = doc.args
-                                              datatype = None
-                                              langTag = None }
-                                    ))
-                                    state
+    //                 let state =
+    //                     Set.add
+    //                         (Assertion.Triple(
+    //                             name,
+    //                             Term "args",
+    //                             Value.Literal
+    //                                 { id = doc.args
+    //                                   datatype = None
+    //                                   langTag = None }
+    //                         ))
+    //                         state
 
-                            let state =
-                                Set.add
-                                    (Assertion.Triple(
-                                        name,
-                                        Term "result",
-                                        Value.Literal
-                                            { content = doc.result
-                                              datatype = None
-                                              langTag = None }
-                                    ))
-                                    state
+    //                 let state =
+    //                     Set.add
+    //                         (Assertion.Triple(
+    //                             name,
+    //                             Term "result",
+    //                             Value.Literal
+    //                                 { id = doc.result
+    //                                   datatype = None
+    //                                   langTag = None }
+    //                         ))
+    //                         state
 
-                            List.fold
-                                (fun state example ->
-                                    Set.add
-                                        (Assertion.Triple(
-                                            name,
-                                            Term "doc-example",
-                                            Value.Literal
-                                                { content = example
-                                                  datatype = None
-                                                  langTag = None }
-                                        ))
-                                        state)
-                                state
-                                doc.examples)
-                    Set.empty
+    //                 List.fold
+    //                     (fun state example ->
+    //                         Set.add
+    //                             (Assertion.Triple(
+    //                                 name,
+    //                                 Term "doc-example",
+    //                                 Value.Literal
+    //                                     { id = example
+    //                                       datatype = None
+    //                                       langTag = None }
+    //                             ))
+    //                             state)
+    //                     state
+    //                     doc.examples)
+    //         Set.empty
 
-            Ok(Expression.ABox docs)
+    // Ok(Expression.ABox docs)
     )
 
 let stdFns (store: ILigatureStore) : Fns =

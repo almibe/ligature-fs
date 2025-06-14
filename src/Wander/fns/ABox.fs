@@ -139,17 +139,18 @@ let aBoxFn =
 
                         let v =
                             match v with
-                            | Expression.Term t -> Value.Term t
-                            | Expression.Literal l -> Value.Literal l
+                            | Expression.Term t -> failwith "TODO" //Value.Term t
+                            | Expression.Literal l -> failwith "TODO" //Value.Literal l
                             | _ -> failwith "Invalid call to a-box."
 
-                        match a, v with
-                        | Term ":", Value.Term concept ->
-                            res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept concept)) res
-                        | Term "~", Value.Term concept ->
-                            res <-
-                                Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
-                        | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
+                        failwith "TODO"
+                    // match a, v with
+                    // | Term ":", Value.Term concept ->
+                    //     res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept concept)) res
+                    // | Term "~", Value.Term concept ->
+                    //     res <-
+                    //         Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
+                    // | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Expression.NodeLiteral record ->
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
@@ -185,8 +186,8 @@ let countFn =
             | [ Expression.ABox n ] ->
                 Ok(
                     Expression.Literal
-                        { content = (Set.count n).ToString()
-                          datatype = None
+                        { value = (Set.count n).ToString()
+                          typeof = None
                           langTag = None }
                 )
             | _ -> error "Illegal call to count." None
@@ -211,11 +212,11 @@ let aBoxToNode (individual: Term) (aBox: ABox) (selections: Expression list) : N
                     |> List.fold
                         (fun state value ->
                             match value with
-                            | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
-                                match v with
-                                | Value.Literal l -> Map.add r (Expression.Literal l) state
-                                | Value.Term t -> Map.add r (Expression.Term t) state
-                            | _ -> state)
+                            // | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
+                            //     match v with
+                            //     | Value.Literal l -> Map.add r (Expression.Literal l) state
+                            //     | Value.Term t -> Map.add r (Expression.Term t) state
+                            | _ -> failwith "TODO") //state)
                         state
                 | _ -> failwith "TODO")
             Map.empty
@@ -234,17 +235,19 @@ let queryFn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term concept; Expression.Tuple selections ] ->
-                let results =
-                    query tBox aBox (ConceptExpr.AtomicConcept concept)
-                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+                failwith "TODO"
+            // let results =
+            //     query tBox aBox (ConceptExpr.AtomicConcept concept)
+            //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-                Ok(Expression.Tuple results)
+            // Ok(Expression.Tuple results)
             | [ Expression.TBox tBox; Expression.ABox aBox; Expression.ConceptExpr concept; Expression.Tuple selections ] ->
-                let results =
-                    query tBox aBox concept
-                    |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+                failwith "TODO"
+            // let results =
+            //     query tBox aBox concept
+            //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-                Ok(Expression.Tuple results)
+            // Ok(Expression.Tuple results)
             | _ -> error "Invalid call to query" None
     )
 

@@ -30,8 +30,8 @@ let tests =
                       Expression.Tuple
                           [ Expression.Term(Term "test")
                             Expression.Literal
-                                { content = "test2"
-                                  datatype = None
+                                { value = "test2"
+                                  typeof = None
                                   langTag = None } ]
                   ))
                   ""
