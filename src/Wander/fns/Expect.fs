@@ -30,18 +30,23 @@ let testGroupFn: Fn =
                                 testResult.attributes.TryFind(Term "comment")
                             with
                             | Some(Expression.Individual name),
-                              Some(Expression.Term status),
+                              Some(Expression.Term(Term status)),
                               Some(Expression.Individual comment) ->
                                 let testId =
                                     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
                                       space = None
                                       langTag = None }
 
-                                failwith "TODO"
-                            // [ Assertion.Triple(testId, Term "name", Value.Literal name)
-                            //   Assertion.Triple(testId, Term "state", Value.Term status)
-                            //   Assertion.Triple(testId, Term "comment", Value.Literal comment)
-                            //   Assertion.Triple(testId, Term "test-group", Value.Literal groupName) ]
+                                [ Assertion.Triple(testId, Term "name", name)
+                                  Assertion.Triple(
+                                      testId,
+                                      Term "state",
+                                      { value = status
+                                        space = None
+                                        langTag = None }
+                                  )
+                                  Assertion.Triple(testId, Term "comment", comment)
+                                  Assertion.Triple(testId, Term "test-group", groupName) ]
                             | _ -> failwith "TODO"
                         | _ -> failwith "TODO")
                     arguments.Tail

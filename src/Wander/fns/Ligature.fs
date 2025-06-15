@@ -345,8 +345,17 @@ let instanceFn: Fn =
                         )
                     )
                 )
-            | [ Expression.Term individual; Expression.ConceptExpr concept ] -> failwith "TODO"
-            //Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
+            | [ Expression.Term(Term individual); Expression.ConceptExpr concept ] ->
+                Ok(
+                    Expression.Assertion(
+                        Assertion.Instance(
+                            { value = individual
+                              space = None
+                              langTag = None },
+                            concept
+                        )
+                    )
+                )
             | _ -> error "Improper call to instance." None
     )
 

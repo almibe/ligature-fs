@@ -129,7 +129,10 @@ let aBoxFn =
                     | Expression.Tuple [ e; a; v ] ->
                         let e =
                             match e with
-                            | Expression.Term t -> t
+                            | Expression.Term(Term t) ->
+                                { value = t
+                                  space = None
+                                  langTag = None }
                             | _ -> failwith "Invalid call to a-box."
 
                         let a =
@@ -139,18 +142,22 @@ let aBoxFn =
 
                         let v =
                             match v with
-                            | Expression.Term t -> failwith "TODO" //Value.Term t
-                            | Expression.Individual l -> failwith "TODO" //Value.Literal l
+                            | Expression.Term(Term t) ->
+                                { value = t
+                                  space = None
+                                  langTag = None }
+                            | Expression.Individual l -> l
                             | _ -> failwith "Invalid call to a-box."
 
-                        failwith "TODO"
-                    // match a, v with
-                    // | Term ":", Value.Term concept ->
-                    //     res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept concept)) res
-                    // | Term "~", Value.Term concept ->
-                    //     res <-
-                    //         Set.add (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept concept))) res
-                    // | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
+                        match a, v with
+                        | Term ":", { value = concept } ->
+                            res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept(Term concept))) res
+                        | Term "~", { value = concept } ->
+                            res <-
+                                Set.add
+                                    (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept(Term concept))))
+                                    res
+                        | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Expression.NodeLiteral record ->
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network

@@ -36,26 +36,26 @@ let wanderTestSuite =
             <| fun _ ->
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
                 | Ok(Expression.ABox result) ->
-                    let mutable names = Map.empty
+                    let mutable names: Map<string, string> = Map.empty
                     let mutable comments = Map.empty
 
                     let failures: Set<string> =
                         Set.fold
-                            (fun state value -> failwith "TODO")
-                            // match value with
-                            // | Assertion.Triple(Term testId, Term "name", Value.Literal { id = name }) ->
-                            //     names <- Map.add testId name names
-                            //     state
-                            // | Assertion.Triple(Term testId, Term "state", Value.Term(Term value)) ->
-                            //     match value with
-                            //     | "pass" -> state
-                            //     | "fail" -> Set.add testId state
-                            //     | state -> failwith $"Unexpected state value {state}"
-                            // | Assertion.Triple(Term testId, Term "comment", Value.Literal comment) ->
-                            //     comments <- Map.add testId comment comments
-                            //     state
-                            // | Assertion.Triple(Term testId, Term "test-group", Value.Literal name) -> state
-                            // | x -> failwith $"Unexpected value as test result. {x}")
+                            (fun state value ->
+                                match value with
+                                | Assertion.Triple({ value = testId }, Term "name", { value = name }) ->
+                                    names <- Map.add testId name names
+                                    state
+                                | Assertion.Triple({ value = testId }, Term "state", value) ->
+                                    match value with
+                                    | { value = "pass" } -> state
+                                    | { value = "fail" } -> Set.add testId state
+                                    | state -> failwith $"Unexpected state value {state}"
+                                | Assertion.Triple(testId, Term "comment", comment) ->
+                                    comments <- Map.add testId comment comments
+                                    state
+                                | Assertion.Triple(testId, Term "test-group", name) -> state
+                                | x -> failwith $"Unexpected value as test result. {x}")
                             Set.empty
                             result
 
