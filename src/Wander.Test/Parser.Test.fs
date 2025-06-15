@@ -29,9 +29,9 @@ let tests =
                   (Ok(
                       Expression.Tuple
                           [ Expression.Term(Term "test")
-                            Expression.Literal
+                            Expression.Individual
                                 { value = "test2"
-                                  typeof = None
+                                  space = None
                                   langTag = None } ]
                   ))
                   ""

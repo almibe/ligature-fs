@@ -199,7 +199,7 @@ and executeExpression
 
         Ok(Expression.Tuple tuple)
     | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
-    | Expression.Literal literal -> Ok(Expression.Literal literal)
+    | Expression.Individual literal -> Ok(Expression.Individual literal)
     | Expression.Variable variable ->
         match variables.TryFind variable with
         | Some value -> Ok value

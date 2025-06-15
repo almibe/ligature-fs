@@ -308,22 +308,22 @@ let findModelFn: Fn =
 //     | Error err -> Error err
 // | _ -> error "Improper call to find-model." None)
 
-let literalFn: Fn =
+let individualFn: Fn =
     Fn(
-        { doc = "Create a literal."
-          examples = [ "(literal \"# hello\" Markdown en)" ]
+        { doc = "Create an individual."
+          examples = [ "(individual \"# hello\" Markdown en)" ]
           args = "Literal Term Term"
-          result = "Literal" },
+          result = "Individual" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Literal { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
+            | [ Expression.Individual { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
-                    Expression.Literal
+                    Expression.Individual
                         { value = content
-                          typeof = Some datatype
+                          space = Some datatype
                           langTag = Some langTag }
                 )
-            | _ -> error "Improper call to literal." None
+            | _ -> error "Improper call to individual." None
     )
 
 let instanceFn: Fn =
@@ -332,38 +332,48 @@ let instanceFn: Fn =
           examples = [ "(instance betty (and Cat (not Dog)))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments -> failwith "TODO"
-    // match arguments with
-    // | [ Expression.Term individual; Expression.Term concept ] ->
-    //     Ok(Expression.Assertion(Assertion.Instance(individual, ConceptExpr.AtomicConcept concept)))
-    // | [ Expression.Term individual; Expression.ConceptExpr concept ] ->
-    //     Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
-    // | _ -> error "Improper call to instance." None
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Term(Term individual); Expression.Term concept ] ->
+                Ok(
+                    Expression.Assertion(
+                        Assertion.Instance(
+                            { value = individual
+                              space = None
+                              langTag = None },
+                            ConceptExpr.AtomicConcept concept
+                        )
+                    )
+                )
+            | [ Expression.Term individual; Expression.ConceptExpr concept ] -> failwith "TODO"
+            //Ok(Expression.Assertion(Assertion.Instance(individual, concept)))
+            | _ -> error "Improper call to instance." None
     )
 
 let sameFn: Fn =
     Fn(
         { doc = "Assert two names reference the same Individual."
           examples = [ "(same a b)" ]
-          args = "Term Term"
+          args = "Individual Individual"
           result = "Assertion" },
-        fun _ _ _ arguments -> failwith "TODO"
-    // match arguments with
-    // | [ Expression.Term left; Expression.Term right ] -> Ok(Expression.Assertion(Assertion.Same(left, right)))
-    // | _ -> error "Improper call to same." None
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Individual left; Expression.Individual right ] ->
+                Ok(Expression.Assertion(Assertion.Same(left, right)))
+            | _ -> error "Improper call to same." None
     )
 
 let differentFn: Fn =
     Fn(
         { doc = "Assert two names reference different Individuals."
           examples = [ "(different a b)" ]
-          args = "Term Term"
+          args = "Individual Individual"
           result = "Assertion" },
-        fun _ _ _ arguments -> failwith "TODO"
-    // match arguments with
-    // | [ Expression.Term left; Expression.Term right ] ->
-    //     Ok(Expression.Assertion(Assertion.Different(left, right)))
-    // | _ -> error "Improper call to different." None
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Individual left; Expression.Individual right ] ->
+                Ok(Expression.Assertion(Assertion.Different(left, right)))
+            | _ -> error "Improper call to different." None
     )
 
 let conceptFn: Fn =

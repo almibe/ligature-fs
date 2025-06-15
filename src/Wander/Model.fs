@@ -25,7 +25,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Slot of Slot
     | Tuple of Tuple
     | Term of Term
-    | Literal of Individual
+    | Individual of Individual
     | Variable of Variable
     | Assertion of Assertion
     | ABox of ABox
@@ -76,10 +76,10 @@ let encodeString string =
 let rec printAny (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    | Expression.Literal { value = l
-                           typeof = Some(Term t)
-                           langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
-    | Expression.Literal { value = content } -> encodeString content
+    | Expression.Individual { value = l
+                              space = Some(Term t)
+                              langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
+    | Expression.Individual { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
     | Expression.ABox n -> printNetwork n
@@ -111,7 +111,7 @@ and printNode
 
 and printIndividual (individual: Individual) : string =
     match individual with
-    | { value = l; typeof = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
+    | { value = l; space = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
 // | Value.Literal { id = l } -> encodeString l
 // | Value.Term(Term t) -> t
 

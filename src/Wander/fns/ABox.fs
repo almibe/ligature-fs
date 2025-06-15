@@ -140,7 +140,7 @@ let aBoxFn =
                         let v =
                             match v with
                             | Expression.Term t -> failwith "TODO" //Value.Term t
-                            | Expression.Literal l -> failwith "TODO" //Value.Literal l
+                            | Expression.Individual l -> failwith "TODO" //Value.Literal l
                             | _ -> failwith "Invalid call to a-box."
 
                         failwith "TODO"
@@ -185,9 +185,9 @@ let countFn =
             match arguments with
             | [ Expression.ABox n ] ->
                 Ok(
-                    Expression.Literal
+                    Expression.Individual
                         { value = (Set.count n).ToString()
-                          typeof = None
+                          space = None
                           langTag = None }
                 )
             | _ -> error "Illegal call to count." None

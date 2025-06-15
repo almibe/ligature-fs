@@ -90,7 +90,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "expect-equal", expectEqualFn
           Term "ulid", ulidFn
           Term "a-box", aBoxFn
-          Term "literal", literalFn
+          Term "individual", individualFn
           Term "instance", instanceFn
           Term "same", sameFn
           Term "different", differentFn

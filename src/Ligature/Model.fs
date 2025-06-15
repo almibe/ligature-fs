@@ -17,7 +17,7 @@ type Term = Term of string
 
 type Individual =
     { value: string
-      typeof: Term option
+      space: Term option
       langTag: string option }
 
 type Slot = Slot of string

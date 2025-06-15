@@ -127,7 +127,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
         Ok(
             ValuePattern.Individual
                 { value = value
-                  typeof = None
+                  space = None
                   langTag = None }
         )
     | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
@@ -139,9 +139,9 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.Gaz
     | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
-            Expression.Literal
+            Expression.Individual
                 { value = value
-                  typeof = None
+                  space = None
                   langTag = None }
         )
     | Ok(Token.Variable variable) -> Ok(Expression.Variable(Variable variable))

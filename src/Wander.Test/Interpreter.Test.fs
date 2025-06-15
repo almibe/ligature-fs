@@ -32,9 +32,9 @@ let tests =
                   (runScript "[\"test\"]")
                   (Ok(
                       Expression.Tuple
-                          [ Expression.Literal
+                          [ Expression.Individual
                                 { value = "test"
-                                  typeof = None
+                                  space = None
                                   langTag = None } ]
                   ))
                   "" ]

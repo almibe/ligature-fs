@@ -350,7 +350,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 
                     let newIndividual =
                         { value = $"new-{r.Next()}"
-                          typeof = None
+                          space = None
                           langTag = None }
 
                     let assertions =

@@ -16,7 +16,7 @@ let testGroupFn: Fn =
         fun _ _ _ arguments ->
             let groupName =
                 match arguments.Head with
-                | Expression.Literal name -> name
+                | Expression.Individual name -> name
                 | _ -> failwith "Unexpected value."
 
             let testData =
@@ -29,12 +29,12 @@ let testGroupFn: Fn =
                                 testResult.attributes.TryFind(Term "status"),
                                 testResult.attributes.TryFind(Term "comment")
                             with
-                            | Some(Expression.Literal name),
+                            | Some(Expression.Individual name),
                               Some(Expression.Term status),
-                              Some(Expression.Literal comment) ->
+                              Some(Expression.Individual comment) ->
                                 let testId =
                                     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
-                                      typeof = None
+                                      space = None
                                       langTag = None }
 
                                 failwith "TODO"
@@ -65,32 +65,32 @@ let expectEqualFn: Fn =
                           attributes =
                             Map.ofList
                                 [ Term "name",
-                                  Expression.Literal
+                                  Expression.Individual
                                       { value = ""
-                                        typeof = None
+                                        space = None
                                         langTag = None }
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Expression.Literal
+                                  Expression.Individual
                                       { value = ""
-                                        typeof = None
+                                        space = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
                 else
                     error $"assert-equal failed {printAny first} != {printAny second}" None
-            | [ Expression.Literal name; left; right ] ->
+            | [ Expression.Individual name; left; right ] ->
                 if left = right then
                     Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Expression.Literal name
+                                [ Term "name", Expression.Individual name
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Expression.Literal
+                                  Expression.Individual
                                       { value = ""
-                                        typeof = None
+                                        space = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
@@ -99,12 +99,12 @@ let expectEqualFn: Fn =
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Expression.Literal name
+                                [ Term "name", Expression.Individual name
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
-                                  Expression.Literal
+                                  Expression.Individual
                                       { value = $"{name} assert-equal failed {printAny left} != {printAny right}"
-                                        typeof = None
+                                        space = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
