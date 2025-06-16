@@ -475,6 +475,8 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                         toProcess = Set.remove assertion state.toProcess
                         different = different },
                 []
+        | Assertion.Instance(i, ConceptExpr.Not ConceptExpr.Top) -> None, []
+        | Assertion.Instance(i, c) -> failwith $"Not Implemented: instance {i} {c}"
 
 // let containsClash (model: PotentialModel) : bool =
 //     //assert that toProcess and skip are empty

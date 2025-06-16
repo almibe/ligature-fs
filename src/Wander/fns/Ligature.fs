@@ -367,6 +367,8 @@ let sameFn: Fn =
           result = "Assertion" },
         fun _ _ _ arguments ->
             match arguments with
+            | [ Expression.Term left; Expression.Term right ] ->
+                Ok(Expression.Assertion(Assertion.Same(termToIndividual left, termToIndividual right)))
             | [ Expression.Individual left; Expression.Individual right ] ->
                 Ok(Expression.Assertion(Assertion.Same(left, right)))
             | _ -> error "Improper call to same." None
@@ -380,6 +382,8 @@ let differentFn: Fn =
           result = "Assertion" },
         fun _ _ _ arguments ->
             match arguments with
+            | [ Expression.Term left; Expression.Term right ] ->
+                Ok(Expression.Assertion(Assertion.Different(termToIndividual left, termToIndividual right)))
             | [ Expression.Individual left; Expression.Individual right ] ->
                 Ok(Expression.Assertion(Assertion.Different(left, right)))
             | _ -> error "Improper call to different." None

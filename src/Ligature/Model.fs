@@ -20,6 +20,11 @@ type Individual =
       space: Term option
       langTag: string option }
 
+let termToIndividual (Term term) : Individual =
+    { value = term
+      space = None
+      langTag = None }
+
 type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
