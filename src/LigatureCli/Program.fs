@@ -9,16 +9,26 @@ open Wander.Library
 open Wander.Model
 open Wander.InMemoryStore
 open System
+open Wander.Parser
+open Wander.Tokenizer
 
 [<EntryPoint>]
 let main (args: string[]) =
     let script =
         if args[0] = "-i" then
+            printfn "Input: "
             Console.ReadLine()
         else
             let dir = IO.Directory.GetCurrentDirectory()
             let file = $"{dir}/{args[0]}"
             System.IO.File.ReadAllText file
+
+    match tokenize script with
+    | Ok script ->
+        printfn "Tokens: %A\n\n" script
+
+        match parse script with
+        | Ok res -> printfn $"AST:\n{res}\n\n"
 
     match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
     | Ok res -> printfn $"{printAny res}"

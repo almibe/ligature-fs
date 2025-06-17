@@ -48,20 +48,6 @@ let partialTupleNib (gaze: Gaze.Gaze<Token>) : Result<Tuple, Gaze.GazeError> =
         return values
     }
 
-let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenParen) gaze
-        let! fn = Gaze.attempt termNib gaze
-        let! values = Gaze.attempt expressionsNib gaze
-        let! _ = Gaze.attempt (take Token.CloseParen) gaze
-
-        return
-            Expression.Node
-                { name = fn
-                  attributes = Map.empty
-                  children = values }
-    }
-
 let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
@@ -152,14 +138,22 @@ let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Expression>, Gaze.
     let mutable cont = true
 
     while cont do
-        match Gaze.attempt (takeAll [ anyNib; anyNib; anyNib ]) gaze with
-        | Ok([ Expression.Term name; Expression.Term(Term "="); value ]) -> res <- Map.add name value res
+        match Gaze.attempt (takeAll [ termAnyNib; equalAnyNib; anyNib ]) gaze with
+        | Ok [ Expression.Term name; Expression.Term(Term "="); value ] -> res <- Map.add name value res
         | _ -> cont <- false
 
     Ok res
 
+let equalAnyNib gaze : Result<Expression, Gaze.GazeError> =
+    match Gaze.attempt termNib gaze with
+    | Ok(Term "=") -> Ok(Expression.Term(Term "="))
+    | _ -> Error Gaze.NoMatch
+
+let termAnyNib: Gaze.Nibbler<Token, Expression> =
+    takeFirst [ elementLiteralSlotNib ]
+
 let anyNib: Gaze.Nibbler<Token, Expression> =
-    takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
+    takeFirst [ tupleAnyNib; nodeNib; elementLiteralSlotNib ]
 
 let lineNib (gaze: Gaze.Gaze<Token>) : Result<Variable option * Expression, Gaze.GazeError> =
     match Gaze.attempt variableNib gaze with

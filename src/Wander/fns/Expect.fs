@@ -62,8 +62,6 @@ let expectEqualFn: Fn =
           args = "Literal Any Any"
           result = "Record" },
         fun _ _ _ arguments ->
-            printfn $"in ee = {arguments}"
-
             match arguments with
             | [ first; second ] ->
                 if first = second then

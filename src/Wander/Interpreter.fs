@@ -34,22 +34,15 @@ let rec evalScript
     (script: Script)
     : Result<Expression, LigatureError> =
     let mutable variables = variables
-    printfn $"eval script: {script}"
 
     List.fold
         (fun state value ->
-            match state with
-            | Ok state -> printfn $"evaling: {state} {value}"
-            | Error state -> printfn $"evaling: {state} {value}"
-
             if Result.isError state then
                 state
             else
                 match value with
                 | None, expression -> executeExpression actions bindings variables expression
                 | Some variable, expression ->
-                    printfn "evalingIN: {variable} {expression}"
-
                     match executeExpression actions bindings variables expression with
                     | Ok res ->
                         variables <- Map.add variable res variables
@@ -224,8 +217,6 @@ and executeExpression
         Ok(Expression.Tuple tuple)
     | Expression.Individual literal -> Ok(Expression.Individual literal)
     | Expression.Variable variable ->
-        printfn $"{variables}"
-
         match variables.TryFind variable with
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
