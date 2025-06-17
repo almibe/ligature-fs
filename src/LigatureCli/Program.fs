@@ -8,12 +8,17 @@ open Wander.Main
 open Wander.Library
 open Wander.Model
 open Wander.InMemoryStore
+open System
 
 [<EntryPoint>]
 let main (args: string[]) =
-    let dir = System.IO.Directory.GetCurrentDirectory()
-    let file = $"{dir}/{args[0]}"
-    let script = System.IO.File.ReadAllText file
+    let script =
+        if args[0] = "-i" then
+            Console.ReadLine()
+        else
+            let dir = IO.Directory.GetCurrentDirectory()
+            let file = $"{dir}/{args[0]}"
+            System.IO.File.ReadAllText file
 
     match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
     | Ok res -> printfn $"{printAny res}"

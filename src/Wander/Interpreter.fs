@@ -33,8 +33,31 @@ let rec evalScript
     (variables: Variables)
     (script: Script)
     : Result<Expression, LigatureError> =
-    failwith "TODO"
-//        executeExpression actions bindings variables script
+    let mutable variables = variables
+    printfn $"eval script: {script}"
+
+    List.fold
+        (fun state value ->
+            match state with
+            | Ok state -> printfn $"evaling: {state} {value}"
+            | Error state -> printfn $"evaling: {state} {value}"
+
+            if Result.isError state then
+                state
+            else
+                match value with
+                | None, expression -> executeExpression actions bindings variables expression
+                | Some variable, expression ->
+                    printfn "evalingIN: {variable} {expression}"
+
+                    match executeExpression actions bindings variables expression with
+                    | Ok res ->
+                        variables <- Map.add variable res variables
+                        Ok res
+                    | Error err -> Error err)
+        (Ok(Expression.Tuple []))
+        script
+//
 // match script with
 // | Expression.NodeExpression { name = Term "defn"
 //                               children = Expression.Term name :: Expression.Tuple args :: value } ->
@@ -170,11 +193,11 @@ and executeApplication
             (List.map
                 (fun value ->
                     match value with
-                    | Expression.NodeExpression application ->
+                    | Expression.Node application ->
                         match executeApplication actions bindings variables application with
                         | Ok res -> res
                         | Error err -> failwith $"Error: {err.UserMessage}"
-                    | Expression.NodeLiteral node -> Expression.NodeLiteral(evalNode actions bindings variables node)
+                    //| Expression.Node node -> Expression.Node(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
     | _, _, None, None -> error $"Could not find function {fn}" None
@@ -199,14 +222,16 @@ and executeExpression
                 tuple
 
         Ok(Expression.Tuple tuple)
-    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
     | Expression.Individual literal -> Ok(Expression.Individual literal)
     | Expression.Variable variable ->
+        printfn $"{variables}"
+
         match variables.TryFind variable with
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
     | Expression.Term term -> Ok(Expression.Term term)
-    | Expression.NodeExpression application -> executeApplication actions bindings variables application
+    | Expression.Node application -> executeApplication actions bindings variables application
+    //    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
     | Expression.Assertion assertion -> failwith "TODO"
     | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"

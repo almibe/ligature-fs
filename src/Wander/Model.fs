@@ -30,8 +30,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Assertion of Assertion
     | ABox of ABox
     | Comment of string
-    | NodeLiteral of Node
-    | NodeExpression of Node
+    | Node of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | TBox of TBox
@@ -41,7 +40,7 @@ and Node =
       attributes: Map<Term, Expression>
       children: Expression list }
 
-and Script = (Variable option * Expression) list * Expression
+and Script = (Variable option * Expression) list
 
 and Lambda = Variable list * Script
 
@@ -84,9 +83,8 @@ let rec printAny (value: Expression) : string =
     | Expression.ABox n -> printNetwork n
     | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
-    | Expression.NodeExpression _ -> "-app-"
+    | Expression.Node node -> printNode node
     | Expression.Lambda _ -> failwith "TODO"
-    | Expression.NodeLiteral node -> printNode node
     | Expression.TBox defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c

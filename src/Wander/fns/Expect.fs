@@ -23,7 +23,7 @@ let testGroupFn: Fn =
                 List.collect
                     (fun value ->
                         match value with
-                        | Expression.NodeLiteral testResult ->
+                        | Expression.Node testResult ->
                             match
                                 testResult.attributes.TryFind(Term "name"),
                                 testResult.attributes.TryFind(Term "status"),
@@ -62,10 +62,12 @@ let expectEqualFn: Fn =
           args = "Literal Any Any"
           result = "Record" },
         fun _ _ _ arguments ->
+            printfn $"in ee = {arguments}"
+
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Expression.NodeLiteral
+                    Expression.Node
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -86,7 +88,7 @@ let expectEqualFn: Fn =
                     error $"assert-equal failed {printAny first} != {printAny second}" None
             | [ Expression.Individual name; left; right ] ->
                 if left = right then
-                    Expression.NodeLiteral
+                    Expression.Node
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -100,7 +102,7 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    Expression.NodeLiteral
+                    Expression.Node
                         { name = Term "Test"
                           attributes =
                             Map.ofList

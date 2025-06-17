@@ -56,7 +56,7 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
         let! _ = Gaze.attempt (take Token.CloseParen) gaze
 
         return
-            Expression.NodeExpression
+            Expression.Node
                 { name = fn
                   attributes = Map.empty
                   children = values }
@@ -81,10 +81,10 @@ let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
 let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let node =
         result {
-            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! name = Gaze.attempt termNib gaze
+            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
             let! attributes = Gaze.attempt attributesNib gaze
-            let! children = Gaze.attempt (optional (repeat anyNib)) gaze
+            let! children = Gaze.attempt (repeatOptional anyNib) gaze
             let! _ = Gaze.attempt (take Token.CloseBrace) gaze
             return name, attributes, children
         }
@@ -92,7 +92,7 @@ let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match node with
     | Ok(name, attributes, children) ->
         Ok(
-            Expression.NodeLiteral
+            Expression.Node
                 { name = name
                   attributes = attributes
                   children = children }
@@ -161,22 +161,27 @@ let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Expression>, Gaze.
 let anyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
 
-let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> = anyNib gaze
-// match anyNib gaze with
-// | Ok res -> Ok res
-// | _ -> Error Gaze.GazeError.NoMatch
+let lineNib (gaze: Gaze.Gaze<Token>) : Result<Variable option * Expression, Gaze.GazeError> =
+    match Gaze.attempt variableNib gaze with
+    | Ok variable ->
+        match Gaze.attempt termNib gaze with
+        | Ok(Term "=") ->
+            match Gaze.attempt anyNib gaze with
+            | Ok res -> Ok(Some variable, res)
+            | _ -> Error Gaze.NoMatch
+        | Ok _ -> Error Gaze.NoMatch
+        | Error Gaze.NoMatch -> Ok(None, Expression.Variable variable)
+    | Error Gaze.NoMatch ->
+        match Gaze.attempt anyNib gaze with
+        | Ok res -> Ok(None, res)
+        | _ -> Error Gaze.NoMatch
 
 /// <summary></summary>
 /// <returns></returns>
 let expressionsNib: Gaze.Nibbler<Token, Expression list> = repeatOptional anyNib
 
 
-let scriptNib: Gaze.Nibbler<Token, Script> =
-    repeatOptional (takeFirst [ anyNib ])
-    |> Gaze.map (fun value ->
-
-        failwith "TODO")
-
+let scriptNib: Gaze.Nibbler<Token, Script> = repeatOptional (takeFirst [ lineNib ])
 
 /// <summary></summary>
 /// <param name="tokens">The list of Tokens to be parsered.</param>
@@ -186,14 +191,14 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
         List.filter
             (fun token ->
                 match token with
-                | Token.WhiteSpace(_)
+                | Token.WhiteSpace _
                 | Token.Comment
-                | Token.NewLine(_) -> false
+                | Token.NewLine _ -> false
                 | _ -> true)
             tokens
 
     if tokens.IsEmpty then
-        Ok([], Expression.Tuple [])
+        Ok []
     else
         let gaze = Gaze.fromList tokens
 
@@ -213,8 +218,8 @@ let read (tokens: Token list) : Result<Expression, LigatureError> =
         List.filter
             (fun token ->
                 match token with
-                | Token.WhiteSpace(_)
-                | Token.NewLine(_) -> false
+                | Token.WhiteSpace _
+                | Token.NewLine _ -> false
                 | _ -> true)
             tokens
 
@@ -226,7 +231,6 @@ let read (tokens: Token list) : Result<Expression, LigatureError> =
         match Gaze.attempt anyNib gaze with
         | Ok res ->
             if Gaze.isComplete gaze then
-                //failwith "TODO"
                 Ok res
             else
                 error $"Failed to read completely. {Gaze.remaining gaze}" None
@@ -236,4 +240,4 @@ let read (tokens: Token list) : Result<Expression, LigatureError> =
 let parseString (input: string) =
     match tokenize input with
     | Ok tokens -> parse tokens
-    | Error err -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated
+    | Error _ -> error "Could not parse input." None //error $"Could not match from {gaze.offset} - {(Gaze.remaining gaze)}." None //TODO this error message needs updated

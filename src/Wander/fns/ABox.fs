@@ -158,7 +158,7 @@ let aBoxFn =
                                     (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept(Term concept))))
                                     res
                         | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Expression.NodeLiteral record ->
+                    | Expression.Node record ->
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"

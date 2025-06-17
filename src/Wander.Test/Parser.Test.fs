@@ -18,41 +18,39 @@ let parse input =
 let tests =
     testList
         "Parser Test"
-        [ testCase "Parse empty script"
-          <| fun _ -> Expect.equal (parse "") (Ok([], Expression.Tuple [])) ""
+        [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
           testCase "read empty tuple"
-          <| fun _ -> Expect.equal (parse "[]") (Ok([], Expression.Tuple [])) ""
+          <| fun _ -> Expect.equal (parse "[]") (Ok [ None, Expression.Tuple [] ]) ""
           testCase "read tuple"
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
-                  (Ok(
-                      [],
-                      Expression.Tuple
-                          [ Expression.Term(Term "test")
-                            Expression.Individual
-                                { value = "test2"
-                                  space = None
-                                  langTag = None } ]
-                  ))
+                  (Ok
+                      [ None,
+                        Expression.Tuple
+                            [ Expression.Term(Term "test")
+                              Expression.Individual
+                                  { value = "test2"
+                                    space = None
+                                    langTag = None } ] ])
                   ""
           testCase "read empty record"
           <| fun _ ->
               Expect.equal
-                  (parse "{p}")
+                  (parse "p {}")
                   (Ok(
-                      [],
-                      Expression.NodeLiteral
-                          { name = Term "p"
-                            attributes = Map.empty
-                            children = [] }
+                      [ None,
+                        Expression.Node
+                            { name = Term "p"
+                              attributes = Map.empty
+                              children = [] } ]
                   ))
                   ""
           testCase "read basic block"
           <| fun _ ->
               Expect.equal
                   (parse "2")
-                  (Ok([], Expression.Term(Term "2")))
+                  (Ok [ None, Expression.Term(Term "2") ])
                   //   ( Expression.NodeExpression
                   //         { name = Term "2"
                   //           attributes = Map.empty
