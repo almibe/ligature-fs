@@ -19,14 +19,15 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script"
-          <| fun _ -> Expect.equal (parse "") (Ok(Expression.Tuple [])) ""
+          <| fun _ -> Expect.equal (parse "") (Ok([], Expression.Tuple [])) ""
           testCase "read empty tuple"
-          <| fun _ -> Expect.equal (parse "[]") (Ok(Expression.Tuple [])) ""
+          <| fun _ -> Expect.equal (parse "[]") (Ok([], Expression.Tuple [])) ""
           testCase "read tuple"
           <| fun _ ->
               Expect.equal
                   (parse "[test \"test2\"]")
                   (Ok(
+                      [],
                       Expression.Tuple
                           [ Expression.Term(Term "test")
                             Expression.Individual
@@ -40,6 +41,7 @@ let tests =
               Expect.equal
                   (parse "{p}")
                   (Ok(
+                      [],
                       Expression.NodeLiteral
                           { name = Term "p"
                             attributes = Map.empty
@@ -50,7 +52,7 @@ let tests =
           <| fun _ ->
               Expect.equal
                   (parse "2")
-                  (Ok(Expression.Term(Term "2")))
+                  (Ok([], Expression.Term(Term "2")))
                   //   ( Expression.NodeExpression
                   //         { name = Term "2"
                   //           attributes = Map.empty

@@ -587,14 +587,14 @@ let tBoxFn: Fn =
           examples = [ "(t-box (implies Dog Animal))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
-            List.map
-                (fun value ->
-                    match value with
-                    | Expression.ConceptExpr expr -> expr
-                    | Expression.Term term -> ConceptExpr.AtomicConcept term
-                    | _ -> failwith "Not suported.")
-                arguments
-            |> Expression.TBox
-            |> Ok
+        fun _ _ _ arguments -> failwith "TODO"
+    // List.map
+    //     (fun value ->
+    //         match value with
+    //         | Expression.ConceptExpr expr -> expr
+    //         | Expression.Term term -> ConceptExpr.AtomicConcept term
+    //         | _ -> failwith "Not suported.")
+    //     arguments
+    // |> Expression.TBox
+    // |> Ok
     )

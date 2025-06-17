@@ -21,6 +21,30 @@ let idFn: Fn =
             | _ -> failwith "TODO"
     )
 
+let doFn: Fn =
+    Fn(
+        { doc = ""
+          examples = []
+          args = ""
+          result = "" },
+        fun _ _ _ arguments ->
+            let mutable kb = []
+
+            List.fold
+                (fun state value ->
+                    match value with
+                    | _ ->
+
+                        failwith "TODO")
+                (Expression.Tuple [])
+                arguments
+            |> Ok
+    // match arguments with
+    // | [ value ] -> Ok value
+    // | _ -> failwith "TODO"
+    )
+
+
 // let importCommand: Command =
 //     { Eval =
 //         fun networks local modules arguments ->

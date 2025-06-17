@@ -24,7 +24,7 @@ let rec allFiles dirs =
 [<Tests>]
 let wanderTestSuite =
     let ligatureTestSuite =
-        System.Environment.GetEnvironmentVariable "LIGATURE_TEST_SUITE"
+        System.Environment.GetEnvironmentVariable "LIGATURE_TEST_SUITE" + "/experiment/"
 
     if ligatureTestSuite <> null then
         allFiles [ ligatureTestSuite ]

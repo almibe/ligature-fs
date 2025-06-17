@@ -161,17 +161,21 @@ let attributesNib (gaze: Gaze.Gaze<Token>) : Result<Map<Term, Expression>, Gaze.
 let anyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ applicationNib; tupleAnyNib; nodeNib; elementLiteralSlotNib ]
 
-let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    match anyNib gaze with
-    | Ok res -> Ok res
-    | _ -> Error Gaze.GazeError.NoMatch
+let expressionNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> = anyNib gaze
+// match anyNib gaze with
+// | Ok res -> Ok res
+// | _ -> Error Gaze.GazeError.NoMatch
 
 /// <summary></summary>
 /// <returns></returns>
 let expressionsNib: Gaze.Nibbler<Token, Expression list> = repeatOptional anyNib
 
 
-let scriptNib: Gaze.Nibbler<Token, Script> = anyNib
+let scriptNib: Gaze.Nibbler<Token, Script> =
+    repeatOptional (takeFirst [ anyNib ])
+    |> Gaze.map (fun value ->
+
+        failwith "TODO")
 
 
 /// <summary></summary>
@@ -189,7 +193,7 @@ let parse (tokens: Token list) : Result<Script, LigatureError> =
             tokens
 
     if tokens.IsEmpty then
-        Ok(Expression.Tuple [])
+        Ok([], Expression.Tuple [])
     else
         let gaze = Gaze.fromList tokens
 

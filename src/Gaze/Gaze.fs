@@ -59,7 +59,7 @@ let attempt (nibbler: Nibbler<_, _>) (gaze: Gaze<_>) =
 
 let offset (gaze: Gaze<_>) = gaze.offset
 
-let map (nibbler: Nibbler<_, _>) mapper (gaze: Gaze<_>) =
+let map mapper (nibbler: Nibbler<_, _>) (gaze: Gaze<_>) =
     match attempt nibbler gaze with
     | Ok(result) -> Ok(mapper (result))
     | Error(err) -> Error(err)

@@ -41,8 +41,7 @@ and Node =
       attributes: Map<Term, Expression>
       children: Expression list }
 
-//and Script = (Variable * Expression) list * Expression
-and Script = Expression
+and Script = (Variable option * Expression) list * Expression
 
 and Lambda = Variable list * Script
 

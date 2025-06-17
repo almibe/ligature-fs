@@ -33,7 +33,8 @@ let rec evalScript
     (variables: Variables)
     (script: Script)
     : Result<Expression, LigatureError> =
-    executeExpression actions bindings variables script
+    failwith "TODO"
+//        executeExpression actions bindings variables script
 // match script with
 // | Expression.NodeExpression { name = Term "defn"
 //                               children = Expression.Term name :: Expression.Tuple args :: value } ->

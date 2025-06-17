@@ -20,24 +20,24 @@ let parseString (input: string) =
 let stringContentNibbler: Gaze.Nibbler<char, string> =
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
     Gaze.map
+        (fun (chars: char list) -> parseString("\"" + System.String.Concat chars + "\"").ToString())
         (Nibblers.takeWhileAccum (fun (input, result) ->
             if input <> '"' then
                 true
             else
                 try
-                    let s = "\"" + System.String.Concat((List.append result [ input ]))
+                    let s = "\"" + System.String.Concat(List.append result [ input ])
                     ignore <| parseString s
                     false
                 with _ ->
                     true))
-        (fun chars -> parseString("\"" + System.String.Concat(chars) + "\"").ToString())
 
 /// A Nibbler that reads Strings as defined by lig.
 /// TODO: this parser is incomplete and just used for testing currently.
 let stringNibbler =
     Nibblers.takeFirst
         [ Nibblers.between '"' stringContentNibbler '"'
-          Gaze.map (Nibblers.takeList [ '"'; '"' ]) (fun _ -> "") ]
+          Gaze.map (fun _ -> "") (Nibblers.takeList [ '"'; '"' ]) ]
 
 let charInRange char start stop = char >= start && char <= stop
 
@@ -66,10 +66,10 @@ let implode (chars: char list) =
     chars |> Array.ofList |> System.String.Concat
 
 let takeAndMap toTake toMap =
-    Gaze.map (Nibblers.takeString toTake) (fun _ -> toMap)
+    Gaze.map (fun _ -> toMap) (Nibblers.takeString toTake)
 
 let stringLiteralTokenNibbler =
-    Gaze.map stringNibbler (fun string -> Token.Literal(string))
+    Gaze.map (fun string -> Token.Literal(string)) stringNibbler
 
 // let multiLineStringLiteralTokenNibbler =
 //     Gaze.map multiLineStringNibbler (fun string -> Token.StringLiteral(string))
@@ -120,16 +120,17 @@ let newLineNibbler =
     Nibblers.takeFirst [ Nibblers.takeString "\r\n"; Nibblers.takeString "\n" ]
 
 let newLineTokenNibbler =
-    Gaze.map (Nibblers.repeat newLineNibbler) (fun text -> text |> List.concat |> implode |> Token.NewLine)
+    Gaze.map (fun text -> text |> List.concat |> implode |> Token.NewLine) (Nibblers.repeat newLineNibbler)
 
 let commentNibbler =
-    Gaze.map (Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ]) (fun _ -> Token.Comment)
+    Gaze.map (fun _ -> Token.Comment) (Nibblers.takeAll [ Nibblers.takeString "--"; Nibblers.takeUntil newLineNibbler ])
 
 let whiteSpaceNibbler =
-    Gaze.map (Nibblers.repeat (Nibblers.take ' ')) (fun ws -> ws |> implode |> Token.WhiteSpace)
+    Gaze.map (fun ws -> ws |> implode |> Token.WhiteSpace) (Nibblers.repeat (Nibblers.take ' '))
 
 let elementTokenNibbler =
-    Gaze.map nameNibbler (fun chars ->
+    nameNibbler
+    |> Gaze.map (fun chars ->
         chars
         |> List.concat
         |> implode
