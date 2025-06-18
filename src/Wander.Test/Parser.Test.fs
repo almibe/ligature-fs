@@ -34,13 +34,13 @@ let tests =
                                     space = None
                                     langTag = None } ] ])
                   ""
-          testCase "read empty record"
+          testCase "read empty node"
           <| fun _ ->
               Expect.equal
                   (parse "p {}")
                   (Ok(
                       [ None,
-                        Expression.Node
+                        Expression.NodeLiteral
                             { name = Term "p"
                               attributes = Map.empty
                               children = [] } ]

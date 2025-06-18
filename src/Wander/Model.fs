@@ -30,7 +30,8 @@ and [<RequireQualifiedAccess>] Expression =
     | Assertion of Assertion
     | ABox of ABox
     | Comment of string
-    | Node of Node
+    | Application of Node
+    | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | TBox of TBox
@@ -83,7 +84,8 @@ let rec printAny (value: Expression) : string =
     | Expression.ABox n -> printNetwork n
     | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
-    | Expression.Node node -> printNode node
+    | Expression.NodeLiteral node -> printNode node
+    | Expression.Application _ -> failwith "Not Implemented"
     | Expression.Lambda _ -> failwith "TODO"
     | Expression.TBox defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
@@ -109,6 +111,7 @@ and printNode
 and printIndividual (individual: Individual) : string =
     match individual with
     | { value = l; space = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
+    | { value = l } -> encodeString l
 // | Value.Literal { id = l } -> encodeString l
 // | Value.Term(Term t) -> t
 

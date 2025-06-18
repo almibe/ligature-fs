@@ -64,6 +64,27 @@ let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
         return values
     }
 
+let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+    let node =
+        result {
+            let! name = Gaze.attempt termNib gaze
+            let! _ = Gaze.attempt (take Token.OpenParen) gaze
+            let! attributes = Gaze.attempt attributesNib gaze
+            let! children = Gaze.attempt (repeatOptional anyNib) gaze
+            let! _ = Gaze.attempt (take Token.CloseParen) gaze
+            return name, attributes, children
+        }
+
+    match node with
+    | Ok(name, attributes, children) ->
+        Ok(
+            Expression.Application
+                { name = name
+                  attributes = attributes
+                  children = children }
+        )
+    | Error err -> Error err
+
 let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     let node =
         result {
@@ -78,7 +99,7 @@ let nodeNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match node with
     | Ok(name, attributes, children) ->
         Ok(
-            Expression.Node
+            Expression.NodeLiteral
                 { name = name
                   attributes = attributes
                   children = children }
@@ -153,7 +174,7 @@ let termAnyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ elementLiteralSlotNib ]
 
 let anyNib: Gaze.Nibbler<Token, Expression> =
-    takeFirst [ tupleAnyNib; nodeNib; elementLiteralSlotNib ]
+    takeFirst [ tupleAnyNib; applicationNib; nodeNib; elementLiteralSlotNib ]
 
 let lineNib (gaze: Gaze.Gaze<Token>) : Result<Variable option * Expression, Gaze.GazeError> =
     match Gaze.attempt variableNib gaze with

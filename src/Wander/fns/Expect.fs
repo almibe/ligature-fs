@@ -23,7 +23,7 @@ let testGroupFn: Fn =
                 List.collect
                     (fun value ->
                         match value with
-                        | Expression.Node testResult ->
+                        | Expression.Application testResult ->
                             match
                                 testResult.attributes.TryFind(Term "name"),
                                 testResult.attributes.TryFind(Term "status"),
@@ -65,7 +65,7 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Expression.Node
+                    Expression.Application
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -86,7 +86,7 @@ let expectEqualFn: Fn =
                     error $"assert-equal failed {printAny first} != {printAny second}" None
             | [ Expression.Individual name; left; right ] ->
                 if left = right then
-                    Expression.Node
+                    Expression.Application
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -100,7 +100,7 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    Expression.Node
+                    Expression.Application
                         { name = Term "Test"
                           attributes =
                             Map.ofList

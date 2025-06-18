@@ -186,11 +186,11 @@ and executeApplication
             (List.map
                 (fun value ->
                     match value with
-                    | Expression.Node application ->
-                        match executeApplication actions bindings variables application with
-                        | Ok res -> res
-                        | Error err -> failwith $"Error: {err.UserMessage}"
-                    //| Expression.Node node -> Expression.Node(evalNode actions bindings variables node)
+                    // | Expression.Node application ->
+                    //     match executeApplication actions bindings variables application with
+                    //     | Ok res -> res
+                    //     | Error err -> failwith $"Error: {err.UserMessage}"
+                    | Expression.Application node -> Expression.Application(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
     | _, _, None, None -> error $"Could not find function {fn}" None
@@ -221,8 +221,8 @@ and executeExpression
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
     | Expression.Term term -> Ok(Expression.Term term)
-    | Expression.Node application -> executeApplication actions bindings variables application
-    //    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
+    | Expression.Application application -> executeApplication actions bindings variables application
+    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
     | Expression.Assertion assertion -> failwith "TODO"
     | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"
