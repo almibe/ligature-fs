@@ -663,10 +663,10 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Error err -> Error err
 
 let isInstance (tBox: TBox) (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : Result<Term, LigatureError> =
-    let models =
-        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
-
     failwith "TODO"
+// let models =
+//     tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
+
 // match models with
 // | Ok models ->
 //     if models.containsClash.IsEmpty then Ok(Term "false")

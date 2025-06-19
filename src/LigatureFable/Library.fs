@@ -1,5 +1,4 @@
 ﻿open Wander.Main
-open Wander.Interpreter
 open Ligature.Model
 open Wander.Model
 open System.Collections.Generic
@@ -41,10 +40,10 @@ let networkToJs (network: ABox) =
         Set.map
             (fun value ->
                 match value with
-                | Assertion.Triple(Term e, Term a, v) ->
+                | Assertion.Triple(individual, Term a, filler) ->
                     let element = createEmpty
                     element?``type`` <- "term"
-                    element?value <- e
+                    element?value <- individual.value
 
                     let role = createEmpty
                     role?``type`` <- "term"
@@ -52,21 +51,21 @@ let networkToJs (network: ABox) =
 
                     let value = createEmpty
 
-                    value?``type`` <-
-                        match v with
-                        | Value.Term _ -> "term"
-                        | Value.Literal _ -> "literal"
+                    value?``type`` <- "term"
+                    // match v with
+                    // | Value.Term _ -> "term"
+                    // | Value.Literal _ -> "literal"
 
-                    value?value <-
-                        match v with
-                        | Value.Term(Term t) -> t
-                        | Value.Literal { id = l } -> l //TODO add type and lang tag
+                    value?value <- filler.value
+                    // match v with
+                    // | Value.Term(Term t) -> t
+                    // | Value.Literal { id = l } -> l //TODO add type and lang tag
 
                     [| element; role; value |]
-                | Assertion.Instance(Term i, ConceptExpr.AtomicConcept(Term c)) ->
+                | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) ->
                     let element = createEmpty
                     element?``type`` <- "term"
-                    element?value <- i
+                    element?value <- individual.value
 
                     let role = createEmpty
                     role?``type`` <- "term"
@@ -119,7 +118,7 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Expression.Literal { value = l } -> //TODO add datatype and langtag
+    | Expression.Individual { value = l } -> //TODO add datatype and langtag
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
@@ -153,7 +152,7 @@ let rec createElement
     Map.iter
         (fun key value ->
             match key, value with
-            | Term key, Expression.Literal { value = content } ->
+            | Term key, Expression.Individual { value = content } ->
                 emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
             | Term key, _ -> failwith $"Invalid attribute - {key}")
         attributes
@@ -161,10 +160,10 @@ let rec createElement
     List.iter
         (fun value ->
             match value with
-            | Expression.Literal { value = content } -> emitJsStatement (content) "newElement.append($0)"
+            | Expression.Individual { value = content } -> emitJsStatement content "newElement.append($0)"
             | Expression.NodeLiteral node ->
                 let childElement = createElement node
-                emitJsStatement (childElement) "newElement.append($0)"
+                emitJsStatement childElement "newElement.append($0)"
             | x -> printfn $"ignoring value - {x}")
         children
 
@@ -191,10 +190,6 @@ let not concept = ConceptExpr.Not(handleConcept concept)
 
 let instance individual concept =
     Assertion.Instance individual, handleConcept concept
-
-let tBox definitions : TBox = []
-
-let aBox assertions : ABox = Set.empty
 
 let isConsistent tBox aBox : bool =
     match Ligature.Interpreter.isConsistent tBox aBox with

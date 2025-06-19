@@ -203,17 +203,17 @@ let isInstanceFn =
           examples = [ "(is-istance (t-box (implies A B)) (assertions (instance a A)) a B)" ]
           args = "Definitions Assertions Individual Concept"
           result = "Term" },
-        fun _ _ _ arguments -> failwith "TODO"
-    // match arguments with
-    // | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
-    //     match isInstance tBox aBox individual (ConceptExpr.AtomicConcept concept) with
-    //     | Ok term -> Ok(Expression.Term term)
-    //     | Error err -> Error err
-    // | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
-    //     match isInstance tBox aBox individual concept with
-    //     | Ok term -> Ok(Expression.Term term)
-    //     | Error err -> Error err
-    // | _ -> error "Invalid call to is-instance." None
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
+                match isInstance tBox aBox (termToIndividual individual) (ConceptExpr.AtomicConcept concept) with
+                | Ok term -> Ok(Expression.Term term)
+                | Error err -> Error err
+            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
+                match isInstance tBox aBox (termToIndividual individual) concept with
+                | Ok term -> Ok(Expression.Term term)
+                | Error err -> Error err
+            | _ -> error "Invalid call to is-instance." None
     )
 
 let impliesFn: Fn =
@@ -587,14 +587,14 @@ let tBoxFn: Fn =
           examples = [ "(t-box (implies Dog Animal))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments -> failwith "TODO"
-    // List.map
-    //     (fun value ->
-    //         match value with
-    //         | Expression.ConceptExpr expr -> expr
-    //         | Expression.Term term -> ConceptExpr.AtomicConcept term
-    //         | _ -> failwith "Not suported.")
-    //     arguments
-    // |> Expression.TBox
-    // |> Ok
+        fun _ _ _ arguments ->
+            List.map
+                (fun value ->
+                    match value with
+                    | Expression.ConceptExpr expr -> expr
+                    | Expression.Term term -> ConceptExpr.AtomicConcept term
+                    | _ -> failwith "Not suported.")
+                arguments
+            |> Expression.TBox
+            |> Ok
     )
