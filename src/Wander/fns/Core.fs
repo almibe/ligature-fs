@@ -4,10 +4,8 @@
 
 module Wander.Fns.Core
 
-open Ligature.Model
 open Wander.Model
 open Wander.Interpreter
-
 
 let idFn: Fn =
     Fn(
@@ -23,27 +21,25 @@ let idFn: Fn =
 
 let doFn: Fn =
     Fn(
-        { doc = ""
-          examples = []
-          args = ""
-          result = "" },
-        fun _ _ _ arguments ->
-            let mutable kb = []
-
+        { doc = "Create a new scope and execute a series of expressions."
+          examples = [ "do (test)" ]
+          args = "Any"
+          result = "Any" },
+        fun actions bindings variables arguments ->
             List.fold
-                (fun state value ->
-                    match value with
-                    | _ ->
-
-                        failwith "TODO")
-                (Expression.Tuple [])
+                (fun state expression -> executeExpression actions bindings variables expression)
+                (Ok(Expression.Tuple []))
                 arguments
-            |> Ok
-    // match arguments with
-    // | [ value ] -> Ok value
-    // | _ -> failwith "TODO"
     )
 
+let setFn: Fn =
+    Fn(
+        { doc = "Create a set."
+          examples = [ "set (test)" ]
+          args = "Any"
+          result = "Set" },
+        fun _ _ _ arguments -> Ok(Expression.Set(Set.ofList arguments))
+    )
 
 // let importCommand: Command =
 //     { Eval =

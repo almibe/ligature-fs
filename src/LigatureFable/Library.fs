@@ -35,7 +35,7 @@ let ok value = Ok value
 
 let error value = Error value
 
-let networkToJs (network: ABox) =
+let aBoxToJs (aBox: ABox) =
     let network =
         Set.map
             (fun value ->
@@ -78,11 +78,11 @@ let networkToJs (network: ABox) =
                     value?value <- c
 
                     [| element; role; value |])
-            network
+            aBox
 
     let network = Array.ofSeq network
     let obj = createEmpty
-    obj?``type`` <- "network"
+    obj?``type`` <- "assertions"
     obj?value <- network
     obj
 
@@ -123,7 +123,7 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "literal"
         obj?value <- l
         obj
-    | Expression.ABox n -> networkToJs n
+    | Expression.ABox n -> aBoxToJs n
     | Expression.Tuple t ->
         let res = List.map (fun any -> anyToJs any) t |> List.toArray
         let obj = createEmpty
@@ -131,6 +131,12 @@ and anyToJs (any: Expression) =
         obj?value <- res
         obj
     | Expression.NodeLiteral node -> nodeToJs node
+    | Expression.Set set ->
+        let res = List.map (fun any -> anyToJs any) (List.ofSeq set) |> List.toArray
+        let obj = createEmpty
+        obj?``type`` <- "set"
+        obj?value <- res
+        obj
     | x -> failwith $"Invalid call to anyToJs: {x}"
 
 let resultToJs (res: Result<Expression, LigatureError>) =

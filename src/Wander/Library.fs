@@ -99,12 +99,14 @@ let stdFns (store: ILigatureStore) : Fns =
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
           Term "ulid", ulidFn
+          Term "do", doFn
+          Term "set", setFn
           Term "a-box", aBoxFn
           Term "individual", individualFn
           Term "instance", instanceFn
           Term "same", sameFn
           Term "different", differentFn
-          Term "find-model", findModelFn
+          //   Term "find-model", findModelFn
           Term "tableau-models", tableauModelsFn
           Term "concept", conceptFn
           Term "not", notFn

@@ -367,24 +367,48 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                 |> Set.add (Assertion.Instance(individual, ConceptExpr.All(roleName, ConceptExpr.Not concept)))
 
             Some { state with toProcess = assertions }, []
-        | Assertion.Instance(individual, ConceptExpr.Func roleName) -> failwith "check for clash"
-        // let assertions = Set.remove assertion state.toProcess
+        | Assertion.Instance(individual, ConceptExpr.Func roleName) ->
+            let assertions = Set.remove assertion state.toProcess
 
-        // Some
-        //     { state with
-        //         toProcess = assertions
-        //         funcRoles = Set.add roleName state.funcRoles },
-        // []
-        | Assertion.Instance(individual, ConceptExpr.Not(ConceptExpr.Func roleName)) -> failwith "check for clash"
-        // let assertions = Set.remove assertion state.toProcess
+            let triplesMatches: Set<Individual> =
+                Set.filter
+                    (fun value ->
+                        match value with
+                        | i, r, _ when i = individual && r = roleName -> true
+                        | _ -> false)
+                    state.triples
+                |> Set.map (fun (_, _, filler) -> filler)
 
-        // Some
-        //     { state with
-        //         toProcess = assertions
-        //         funcRoles = Set.add roleName state.funcRoles },
-        // []
+            let assertionsMatches: Set<Individual> =
+                Set.fold
+                    (fun state value ->
+                        match value with
+                        | Assertion.Triple(i, r, filler) when i = individual && r = roleName -> Set.add filler state
+                        | _ -> state)
+                    Set.empty
+                    (Set.union state.skip state.toProcess)
 
+            let allMatches = Set.union triplesMatches assertionsMatches
 
+            let assertions =
+                Set.fold
+                    (fun state value ->
+                        Set.fold
+                            (fun statei valuei ->
+                                if value < valuei then
+                                    Set.add (Assertion.Same(value, valuei)) statei
+                                else
+                                    statei)
+                            state
+                            allMatches)
+                    assertions
+                    allMatches
+
+            Some { state with toProcess = assertions }, []
+        | Assertion.Instance(_, ConceptExpr.Not(ConceptExpr.Func _)) ->
+            //no chance of clash here, just remove the assertion
+            let assertions = Set.remove assertion state.toProcess
+            Some { state with toProcess = assertions }, []
         // | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
         //     if
         //         not (

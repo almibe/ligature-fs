@@ -24,6 +24,7 @@ and Source() =
 and [<RequireQualifiedAccess>] Expression =
     | Slot of Slot
     | Tuple of Tuple
+    | Set of Set<Expression>
     | Term of Term
     | Individual of Individual
     | Variable of Variable
@@ -81,7 +82,7 @@ let rec printAny (value: Expression) : string =
     | Expression.Individual { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
-    | Expression.ABox n -> printNetwork n
+    | Expression.ABox n -> printABox n
     | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.NodeLiteral node -> printNode node
@@ -90,6 +91,7 @@ let rec printAny (value: Expression) : string =
     | Expression.TBox defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
+    | Expression.Set s -> $"{s}"
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
@@ -151,7 +153,7 @@ and printResultSet (rs: ResultSet) =
 //         network
 //     + " )"
 
-and printNetwork (network: ABox) : string =
+and printABox (aBox: ABox) : string =
     let mutable first = true
 
     Seq.fold
@@ -161,8 +163,8 @@ and printNetwork (network: ABox) : string =
                 state + " " + printTriple triple + " "
             else
                 state + "\n  " + printTriple triple + " ")
-        "(network "
-        network
+        "a-box( "
+        aBox
     + " )"
 
 // and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"

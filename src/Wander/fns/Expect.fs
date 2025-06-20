@@ -83,7 +83,8 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    error $"assert-equal failed {printAny first} != {printAny second}" None
+                    failwith "TODO"
+            //error $"assert-equal failed {printAny first} != {printAny second}" None
             | [ Expression.Individual name; left; right ] ->
                 if left = right then
                     Expression.Application
@@ -108,7 +109,7 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Individual
-                                      { value = $"{name} assert-equal failed {printAny left} != {printAny right}"
+                                      { value = $"assert-equal failed {printAny left} != {printAny right}"
                                         space = None
                                         langTag = None } ]
                           children = [] }
