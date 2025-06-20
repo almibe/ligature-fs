@@ -260,20 +260,28 @@ let tableauModelsFn: Fn =
             "Find all models using the tableau algorithm and return them based on whether or not they contain clashes."
           examples = [ "(tableau-models (t-box) (assertions))" ]
           args = "Definitions Assertions"
-          result = "Node" },
+          result = "Set" },
         fun _ _ _ arguments ->
-
-            failwith "TODO"
+            match arguments with
+            | [ Expression.TBox tBox; Expression.ABox aBox ] ->
+                match tableauModels tBox aBox with
+                | Ok res ->
+                    List.map (fun value -> Expression.ABox value) res
+                    |> Set.ofList
+                    |> Expression.Set
+                    |> Ok
+                | Error err -> Error err
+            | _ -> error "Invalid call to tableau-model." None
     )
 
-let findModelFn: Fn =
-    Fn(
-        { doc = "Find the first model that matches the given KB."
-          examples = [ "(find-model (t-box) (assertions))" ]
-          args = "Definitions Assertions"
-          result = "Node" },
-        fun _ _ _ arguments -> failwith "TODO"
-    )
+// let findModelFn: Fn =
+//     Fn(
+//         { doc = "Find the first model that matches the given KB."
+//           examples = [ "(find-model (t-box) (assertions))" ]
+//           args = "Definitions Assertions"
+//           result = "Node" },
+//         fun _ _ _ arguments -> failwith "TODO"
+//     )
 // match arguments with
 // | [ Any.Definitions definitions; Any.Assertions assertions ] ->
 //     match findModel definitions assertions with

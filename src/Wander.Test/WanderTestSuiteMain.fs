@@ -37,7 +37,7 @@ let wanderTestSuite =
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
                 | Ok(Expression.ABox result) ->
                     let mutable names: Map<string, string> = Map.empty
-                    let mutable comments = Map.empty
+                    let mutable comments: Map<string, string> = Map.empty
 
                     let failures: Set<string> =
                         Set.fold
@@ -51,7 +51,7 @@ let wanderTestSuite =
                                     | { value = "pass" } -> state
                                     | { value = "fail" } -> Set.add testId state
                                     | state -> failwith $"Unexpected state value {state}"
-                                | Assertion.Triple(testId, Term "comment", comment) ->
+                                | Assertion.Triple({ value = testId }, Term "comment", { value = comment }) ->
                                     comments <- Map.add testId comment comments
                                     state
                                 | Assertion.Triple(testId, Term "test-group", name) -> state
@@ -61,8 +61,9 @@ let wanderTestSuite =
 
                     let errorMsg: string =
                         Set.fold
-                            (fun state value -> state + "\"" + Map.find value names + "\"")
-                            "Failed tests: "
+                            (fun state value ->
+                                state + " - " + Map.find value names + " - " + Map.find value comments + "\n")
+                            "Failed tests:\n"
                             failures
 
                     Expect.isEmpty failures errorMsg
