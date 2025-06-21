@@ -113,10 +113,10 @@ let rec nodeToNetwork (node: Node) : Result<ABox, LigatureError> = failwith "TOD
 //     |> Ok
 // | _ -> error "Record requires valid @ entry." None
 
-let aBoxFn =
+let assertionsFn =
     Fn(
         { doc = "Create an ABox."
-          examples = [ "(a-box (instance betty Cat))" ]
+          examples = [ "(assertions (instance betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -133,12 +133,12 @@ let aBoxFn =
                                 { value = t
                                   space = None
                                   langTag = None }
-                            | _ -> failwith "Invalid call to a-box."
+                            | _ -> failwith "Invalid call to assertions."
 
                         let a =
                             match a with
                             | Expression.Term t -> t
-                            | _ -> failwith "Invalid call to a-box."
+                            | _ -> failwith "Invalid call to assertions."
 
                         let v =
                             match v with
@@ -147,7 +147,7 @@ let aBoxFn =
                                   space = None
                                   langTag = None }
                             | Expression.Individual l -> l
-                            | _ -> failwith "Invalid call to a-box."
+                            | _ -> failwith "Invalid call to assertions."
 
                         match a, v with
                         | Term ":", { value = concept } ->
@@ -162,7 +162,7 @@ let aBoxFn =
                         match nodeToNetwork record with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
-                    | _ -> failwith "Invalid call to a-box.")
+                    | _ -> failwith "Invalid call to assertions.")
                 arguments
 
             Ok(Expression.ABox res)

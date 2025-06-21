@@ -101,7 +101,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "ulid", ulidFn
           Term "do", doFn
           Term "set", setFn
-          Term "a-box", aBoxFn
+          Term "assertions", assertionsFn
           Term "individual", individualFn
           Term "instance", instanceFn
           Term "same", sameFn
@@ -112,7 +112,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn
-          Term "t-box", tBoxFn
+          Term "definitions", definitionsFn
           Term "equivalent", equivalentFn
           Term "all", allFn
           Term "exists", existsFn

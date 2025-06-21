@@ -163,7 +163,7 @@ and printABox (aBox: ABox) : string =
                 state + " " + printTriple triple + " "
             else
                 state + "\n  " + printTriple triple + " ")
-        "a-box( "
+        "assertions( "
         aBox
     + " )"
 

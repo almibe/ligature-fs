@@ -116,7 +116,7 @@ and writeJsonView (view: JsonView) : string =
 let unfoldFn =
     Fn(
         { doc = "Unfold a TBox into an ABox."
-          examples = [ "(unfold (t-box (implies A B)) (assertions [a : A]))" ]
+          examples = [ "(unfold (definitions (implies A B)) (assertions [a : A]))" ]
           args = "Definitions Assertions"
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -128,7 +128,7 @@ let unfoldFn =
 let isDefinitorialFn =
     Fn(
         { doc = "Check if t-box is definitorial."
-          examples = [ "(is-definitorial (t-box (implies A B)))" ]
+          examples = [ "(is-definitorial (definitions (implies A B)))" ]
           args = "Definitions"
           result = "Literal" },
         fun _ _ _ arguments ->
@@ -143,8 +143,8 @@ let isDefinitorialFn =
 
 let nnfFn =
     Fn(
-        { doc = "Convert t-box to nnf."
-          examples = [ "(nnf (t-box (implies A B)))" ]
+        { doc = "Convert definitions to nnf."
+          examples = [ "(nnf (definitions (implies A B)))" ]
           args = "Definitions"
           result = "Definitions" },
         fun _ _ _ arguments ->
@@ -184,7 +184,7 @@ let topFn =
 let isConsistentFn =
     Fn(
         { doc = "Check if a KB is consistent."
-          examples = [ "(is-consistent (t-box (implies A B)) (assertions (instance a A)))" ]
+          examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
           args = "Definitions Assertions"
           result = "Term" },
         fun _ _ _ arguments ->
@@ -200,7 +200,7 @@ let isConsistentFn =
 let isInstanceFn =
     Fn(
         { doc = "Check if an individual is an instance of a concept."
-          examples = [ "(is-istance (t-box (implies A B)) (assertions (instance a A)) a B)" ]
+          examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
           args = "Definitions Assertions Individual Concept"
           result = "Term" },
         fun _ _ _ arguments ->
@@ -258,7 +258,7 @@ let tableauModelsFn: Fn =
     Fn(
         { doc =
             "Find all models using the tableau algorithm and return them based on whether or not they contain clashes."
-          examples = [ "(tableau-models (t-box) (assertions))" ]
+          examples = [ "(tableau-models (definitions) (assertions))" ]
           args = "Definitions Assertions"
           result = "Set" },
         fun _ _ _ arguments ->
@@ -277,7 +277,7 @@ let tableauModelsFn: Fn =
 // let findModelFn: Fn =
 //     Fn(
 //         { doc = "Find the first model that matches the given KB."
-//           examples = [ "(find-model (t-box) (assertions))" ]
+//           examples = [ "(find-model (definitions) (assertions))" ]
 //           args = "Definitions Assertions"
 //           result = "Node" },
 //         fun _ _ _ arguments -> failwith "TODO"
@@ -589,10 +589,10 @@ let orFn: Fn =
             | Error err -> Error err
     )
 
-let tBoxFn: Fn =
+let definitionsFn: Fn =
     Fn(
         { doc = "Define a TBox."
-          examples = [ "(t-box (implies Dog Animal))" ]
+          examples = [ "(definitions (implies Dog Animal))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
