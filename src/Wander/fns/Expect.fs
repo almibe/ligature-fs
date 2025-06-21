@@ -23,7 +23,7 @@ let testGroupFn: Fn =
                 List.collect
                     (fun value ->
                         match value with
-                        | Expression.Application testResult ->
+                        | Expression.NodeLiteral testResult ->
                             match
                                 testResult.attributes.TryFind(Term "name"),
                                 testResult.attributes.TryFind(Term "status"),
@@ -65,7 +65,7 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Expression.Application
+                    Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -83,11 +83,26 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    failwith "TODO"
-            //error $"assert-equal failed {printAny first} != {printAny second}" None
+                    Expression.NodeLiteral
+                        { name = Term "Test"
+                          attributes =
+                            Map.ofList
+                                [ Term "name",
+                                  Expression.Individual
+                                      { value = ""
+                                        space = None
+                                        langTag = None }
+                                  Term "status", Expression.Term(Term "fail")
+                                  Term "comment",
+                                  Expression.Individual
+                                      { value = $"assert-equal failed {printAny first} != {printAny second}"
+                                        space = None
+                                        langTag = None } ]
+                          children = [] }
+                    |> Ok
             | [ Expression.Individual name; left; right ] ->
                 if left = right then
-                    Expression.Application
+                    Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
@@ -101,7 +116,7 @@ let expectEqualFn: Fn =
                           children = [] }
                     |> Ok
                 else
-                    Expression.Application
+                    Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList

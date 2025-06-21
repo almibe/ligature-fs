@@ -262,10 +262,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
             let negGroup = List.map (fun value -> ConceptExpr.Not value) group
             assertions <- Set.add (Assertion.Instance(individual, ConceptExpr.Or negGroup)) assertions
 
-            Some
-                { state with
-                    toProcess = Set.remove assertion state.toProcess },
-            []
+            Some { state with toProcess = assertions }, []
 
         | Assertion.Instance(individual, ConceptExpr.Or group) ->
             let mutable assertions = Set.remove assertion state.toProcess
@@ -610,45 +607,6 @@ let tableauModels definitions assertions : Result<ABox list, LigatureError> =
 
     Ok completedModelsClashFree
 
-let findModel definitions assertions : Result<ABox option, LigatureError> =
-    let mutable result = None
-
-    let mutable currentModel: PotentialModel option =
-        match handleTBox definitions assertions with
-        | Ok assertions -> Some(newModel assertions)
-        | _ -> None
-
-    let mutable additionalModels: PotentialModel list = []
-
-    while result.IsNone && currentModel.IsSome do
-        match currentModel with
-        | Some model ->
-            if model.toProcess.IsEmpty then
-                if model.skip.IsEmpty then
-                    // if containsClash model then
-                    //     match additionalModels with
-                    //     | head :: tail ->
-                    //         currentModel <- Some head
-                    //         additionalModels <- tail
-                    //     | [] -> currentModel <- None
-                    // else
-                    result <- Some model
-                else
-                    currentModel <-
-                        Some
-                            { model with
-                                toProcess = model.skip
-                                skip = Set.empty }
-            else
-                let nextModel, newPotentialModels = interpretNextAssertion model
-                currentModel <- nextModel
-                additionalModels <- List.append additionalModels newPotentialModels
-        | None -> failwith "TODO"
-
-    match result with
-    | Some result -> Ok(Some(modelToAssertions result))
-    | None -> Ok None
-
 let nnf (definitions: TBox) : Result<ConceptExpr, LigatureError> =
     let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
         match conceptExpr with
@@ -681,9 +639,9 @@ let nnf (definitions: TBox) : Result<ConceptExpr, LigatureError> =
     Ok(nnf definitions)
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
-    match findModel definitions assertions with
-    | Ok(Some _) -> Ok true
-    | Ok None -> Ok false
+    match tableauModels definitions assertions with
+    | Ok [] -> Ok false
+    | Ok _ -> Ok true
     | Error err -> Error err
 
 let isInstance (tBox: TBox) (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : Result<Term, LigatureError> =
