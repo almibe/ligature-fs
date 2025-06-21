@@ -251,7 +251,7 @@ let equivalentFn: Fn =
                 )
             | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
-            | _ -> error "Improper call to define-concept." None
+            | _ -> error "Improper call to equivalent." None
     )
 
 let tableauModelsFn: Fn =
@@ -601,7 +601,7 @@ let tBoxFn: Fn =
                     match value with
                     | Expression.ConceptExpr expr -> expr
                     | Expression.Term term -> ConceptExpr.AtomicConcept term
-                    | _ -> failwith "Not suported.")
+                    | x -> failwith $"Not suported - {x}.")
                 arguments
             |> Expression.TBox
             |> Ok
