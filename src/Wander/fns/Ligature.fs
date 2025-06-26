@@ -199,18 +199,18 @@ let isConsistentFn =
 
 let isInstanceFn =
     Fn(
-        { doc = "Check if an individual is an instance of a concept."
-          examples = [ "(is-istance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
+        { doc = "Check if an instance is a concept."
+          examples = [ "(is-instance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
           args = "Definitions Assertions Individual Concept"
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToIndividual individual) (ConceptExpr.AtomicConcept concept) with
+                match isInstance tBox aBox (termToInstance individual) (ConceptExpr.AtomicConcept concept) with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToIndividual individual) concept with
+                match isInstance tBox aBox (termToInstance individual) concept with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | _ -> error "Invalid call to is-instance." None
@@ -324,9 +324,9 @@ let individualFn: Fn =
           result = "Individual" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Individual { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
+            | [ Expression.Instance { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
-                    Expression.Individual
+                    Expression.Instance
                         { value = content
                           space = Some datatype
                           langTag = Some langTag }
@@ -376,8 +376,8 @@ let sameFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Same(termToIndividual left, termToIndividual right)))
-            | [ Expression.Individual left; Expression.Individual right ] ->
+                Ok(Expression.Assertion(Assertion.Same(termToInstance left, termToInstance right)))
+            | [ Expression.Instance left; Expression.Instance right ] ->
                 Ok(Expression.Assertion(Assertion.Same(left, right)))
             | _ -> error "Improper call to same." None
     )
@@ -391,8 +391,8 @@ let differentFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Different(termToIndividual left, termToIndividual right)))
-            | [ Expression.Individual left; Expression.Individual right ] ->
+                Ok(Expression.Assertion(Assertion.Different(termToInstance left, termToInstance right)))
+            | [ Expression.Instance left; Expression.Instance right ] ->
                 Ok(Expression.Assertion(Assertion.Different(left, right)))
             | _ -> error "Improper call to different." None
     )

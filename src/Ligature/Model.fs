@@ -15,12 +15,12 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
-type Individual =
+type Instance =
     { value: string
       space: Term option
       langTag: string option }
 
-let termToIndividual (Term term) : Individual =
+let termToInstance (Term term) : Instance =
     { value = term
       space = None
       langTag = None }
@@ -29,7 +29,7 @@ type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, Individual>
+and ValueSet = Map<Slot, Instance>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term
@@ -37,16 +37,16 @@ and [<RequireQualifiedAccess>] TermPattern =
 
 and [<RequireQualifiedAccess>] ValuePattern =
     | Term of Term
-    | Individual of Individual
+    | Instance of Instance
     | Slot of Slot
 
-and Triple = Individual * Term * Individual
+and Triple = Instance * Term * Instance
 
 and [<RequireQualifiedAccess>] Assertion =
     | Triple of Triple
-    | Instance of Individual * ConceptExpr
-    | Same of Individual * Individual
-    | Different of Individual * Individual
+    | Instance of Instance * ConceptExpr
+    | Same of Instance * Instance
+    | Different of Instance * Instance
 
 and ABox = Set<Assertion>
 

@@ -146,7 +146,7 @@ let assertionsFn =
                                 { value = t
                                   space = None
                                   langTag = None }
-                            | Expression.Individual l -> l
+                            | Expression.Instance l -> l
                             | _ -> failwith "Invalid call to assertions."
 
                         match a, v with
@@ -192,7 +192,7 @@ let countFn =
             match arguments with
             | [ Expression.ABox n ] ->
                 Ok(
-                    Expression.Individual
+                    Expression.Instance
                         { value = (Set.count n).ToString()
                           space = None
                           langTag = None }

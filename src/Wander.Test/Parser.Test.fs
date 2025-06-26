@@ -29,7 +29,7 @@ let tests =
                       [ None,
                         Expression.Tuple
                             [ Expression.Term(Term "test")
-                              Expression.Individual
+                              Expression.Instance
                                   { value = "test2"
                                     space = None
                                     langTag = None } ] ])

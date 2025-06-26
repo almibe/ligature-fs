@@ -26,7 +26,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Tuple of Tuple
     | Set of Set<Expression>
     | Term of Term
-    | Individual of Individual
+    | Instance of Instance
     | Variable of Variable
     | Assertion of Assertion
     | ABox of ABox
@@ -76,10 +76,10 @@ let encodeString string =
 let rec printAny (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    | Expression.Individual { value = l
-                              space = Some(Term t)
-                              langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
-    | Expression.Individual { value = content } -> encodeString content
+    | Expression.Instance { value = l
+                            space = Some(Term t)
+                            langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
+    | Expression.Instance { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
     | Expression.ABox n -> printABox n
@@ -110,8 +110,8 @@ and printNode
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
 
-and printIndividual (individual: Individual) : string =
-    match individual with
+and printInstance (instance: Instance) : string =
+    match instance with
     | { value = l; space = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
     | { value = l } -> encodeString l
 // | Value.Literal { id = l } -> encodeString l
@@ -131,7 +131,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + printIndividual value + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + printInstance value + ", ") variables
 
             res <- res + ")")
         rs
@@ -188,7 +188,7 @@ and printABox (aBox: ABox) : string =
 
 and printTriple (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple(individual, Term role, filler) -> $"[{individual} {role} {printIndividual filler}]"
+    | Assertion.Triple(individual, Term role, filler) -> $"[{individual} {role} {printInstance filler}]"
     | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) -> $"[{individual} : {c}]"
     | Assertion.Instance(individual, c) -> $"[{individual} : {c}]"
     | Assertion.Same(_, _) -> failwith "Not Implemented"

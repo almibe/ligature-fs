@@ -118,7 +118,7 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "term"
         obj?value <- t
         obj
-    | Expression.Individual { value = l } -> //TODO add datatype and langtag
+    | Expression.Instance { value = l } -> //TODO add datatype and langtag
         let obj = createEmpty
         obj?``type`` <- "literal"
         obj?value <- l
@@ -158,7 +158,7 @@ let rec createElement
     Map.iter
         (fun key value ->
             match key, value with
-            | Term key, Expression.Individual { value = content } ->
+            | Term key, Expression.Instance { value = content } ->
                 emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
             | Term key, _ -> failwith $"Invalid attribute - {key}")
         attributes
@@ -166,7 +166,7 @@ let rec createElement
     List.iter
         (fun value ->
             match value with
-            | Expression.Individual { value = content } -> emitJsStatement content "newElement.append($0)"
+            | Expression.Instance { value = content } -> emitJsStatement content "newElement.append($0)"
             | Expression.NodeLiteral node ->
                 let childElement = createElement node
                 emitJsStatement childElement "newElement.append($0)"

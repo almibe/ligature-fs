@@ -215,7 +215,7 @@ and executeExpression
                 tuple
 
         Ok(Expression.Tuple tuple)
-    | Expression.Individual literal -> Ok(Expression.Individual literal)
+    | Expression.Instance literal -> Ok(Expression.Instance literal)
     | Expression.Variable variable ->
         match variables.TryFind variable with
         | Some value -> Ok value

@@ -10,13 +10,13 @@ open Core
 type PotentialModel =
     { toProcess: ABox
       skip: ABox
-      same: Map<Individual, Set<Individual>>
-      different: Map<Individual, Set<Individual>>
-      isA: Map<Individual, Set<Term>>
-      isNot: Map<Individual, Set<Term>>
+      same: Map<Instance, Set<Instance>>
+      different: Map<Instance, Set<Instance>>
+      isA: Map<Instance, Set<Term>>
+      isNot: Map<Instance, Set<Term>>
       triples: Set<Triple> }
 
-let addInstance (individual: Individual) (concept: Term) (map: Map<Individual, Set<Term>>) =
+let addInstance (individual: Instance) (concept: Term) (map: Map<Instance, Set<Term>>) =
     match map.TryFind individual with
     | Some concepts -> Map.add individual (Set.add concept concepts) map
     | None -> Map.add individual (Set.ofList [ concept ]) map
@@ -345,15 +345,15 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                 else
                     let r = new System.Random()
 
-                    let newIndividual =
+                    let newInstance =
                         { value = $"new-{r.Next()}"
                           space = None
                           langTag = None }
 
                     let assertions =
-                        Set.add (Assertion.Triple(individual, roleName, newIndividual)) assertions
+                        Set.add (Assertion.Triple(individual, roleName, newInstance)) assertions
 
-                    let assertions = Set.add (Assertion.Instance(newIndividual, concept)) assertions
+                    let assertions = Set.add (Assertion.Instance(newInstance, concept)) assertions
 
                     Some { state with toProcess = assertions }, []
             else
@@ -367,7 +367,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
         | Assertion.Instance(individual, ConceptExpr.Func roleName) ->
             let assertions = Set.remove assertion state.toProcess
 
-            let triplesMatches: Set<Individual> =
+            let triplesMatches: Set<Instance> =
                 Set.filter
                     (fun value ->
                         match value with
@@ -376,7 +376,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                     state.triples
                 |> Set.map (fun (_, _, filler) -> filler)
 
-            let assertionsMatches: Set<Individual> =
+            let assertionsMatches: Set<Instance> =
                 Set.fold
                     (fun state value ->
                         match value with
@@ -644,7 +644,7 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok _ -> Ok true
     | Error err -> Error err
 
-let isInstance (tBox: TBox) (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : Result<Term, LigatureError> =
+let isInstance (tBox: TBox) (aBox: ABox) (individual: Instance) (concept: ConceptExpr) : Result<Term, LigatureError> =
     failwith "TODO"
 // let models =
 //     tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
@@ -656,11 +656,11 @@ let isInstance (tBox: TBox) (aBox: ABox) (individual: Individual) (concept: Conc
 //     else Ok(Term "unknown")
 // | Error err -> Error err
 
-let expandResult (aBox: ABox) (individual: Individual) (concept: ConceptExpr) : ABox =
+let expandResult (aBox: ABox) (individual: Instance) (concept: ConceptExpr) : ABox =
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Individual * ABox) list =
+let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Instance * ABox) list =
     let individuals = individuals aBox
 
     let res =

@@ -16,7 +16,7 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
-let individualNib (gaze: Gaze.Gaze<Token>) : Result<Individual, Gaze.GazeError> = failwith "TODO"
+let individualNib (gaze: Gaze.Gaze<Token>) : Result<Instance, Gaze.GazeError> = failwith "TODO"
 // match Gaze.next gaze with
 // | Ok(Token.Term value) -> Ok(Value.Term(Term value))
 // | Ok(Token.Literal value) ->
@@ -132,7 +132,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
     | Ok(Token.Term value) -> Ok(ValuePattern.Term(Term value))
     | Ok(Token.Literal value) ->
         Ok(
-            ValuePattern.Individual
+            ValuePattern.Instance
                 { value = value
                   space = None
                   langTag = None }
@@ -146,7 +146,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.Gaz
     | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
-            Expression.Individual
+            Expression.Instance
                 { value = value
                   space = None
                   langTag = None }
