@@ -29,13 +29,13 @@ and [<RequireQualifiedAccess>] Expression =
     | Instance of Instance
     | Variable of Variable
     | Assertion of Assertion
-    | ABox of ABox
+    | ABox of Assertions
     | Comment of string
     | Application of Node
     | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
-    | TBox of TBox
+    | TBox of Definitions
 
 and Node =
     { name: Term
@@ -153,7 +153,7 @@ and printResultSet (rs: ResultSet) =
 //         network
 //     + " )"
 
-and printABox (aBox: ABox) : string =
+and printABox (aBox: Assertions) : string =
     let mutable first = true
 
     Seq.fold

@@ -35,7 +35,7 @@ let ok value = Ok value
 
 let error value = Error value
 
-let aBoxToJs (aBox: ABox) =
+let aBoxToJs (aBox: Assertions) =
     let network =
         Set.map
             (fun value ->

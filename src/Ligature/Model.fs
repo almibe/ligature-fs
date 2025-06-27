@@ -48,7 +48,7 @@ and [<RequireQualifiedAccess>] Assertion =
     | Same of Instance * Instance
     | Different of Instance * Instance
 
-and ABox = Set<Assertion>
+and Assertions = Set<Assertion>
 
 and [<RequireQualifiedAccess>] ConceptExpr =
     | AtomicConcept of Term
@@ -69,17 +69,20 @@ and [<RequireQualifiedAccess>] ConceptExpr =
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>
 
+type Definitions = Set<ConceptExpr>
+
+type KnowledgeBase = Definitions * Assertions
+
 type ILigatureStore =
-    abstract Stores: unit -> string seq
-    abstract AddStore: string -> unit
-    abstract RemoveStore: string -> unit
-    abstract AssertStore: string -> ABox -> unit
-    abstract UnassertStore: string -> ABox -> unit
-    abstract ReadAsserts: string -> Result<ABox, LigatureError>
-
-type TBox = List<ConceptExpr>
-
-type KnowledgeBase = TBox * ABox
+    abstract KBs: unit -> string seq
+    abstract AddKB: string -> unit
+    abstract RemoveKB: string -> unit
+    abstract AssertKB: string -> Assertions -> unit
+    abstract UnassertKB: string -> Assertions -> unit
+    abstract ReadAssertsKB: string -> Result<Assertions, LigatureError>
+    abstract DefineKB: string -> Definitions -> unit
+    abstract UndefineKB: string -> Definitions -> unit
+    abstract ReadDefinitionsKB: string -> Result<Definitions, LigatureError>
 
 let rec printConcept (concept: ConceptExpr) : string =
     match concept with
@@ -112,5 +115,6 @@ let rec printConcept (concept: ConceptExpr) : string =
     | ConceptExpr.Implies(l, r) -> $"(implies {printConcept l} {printConcept r})"
     | ConceptExpr.Equivalent(l, r) -> $"(equivalent {printConcept l} {printConcept r})"
 
-let printDefinitions (definitions: TBox) =
-    List.fold (fun state value -> state + printConcept value) "(definitions )" definitions
+let printDefinitions (definitions: Definitions) =
+    Set.fold (fun state value -> state + printConcept value) "definitions (" definitions
+    + ")"

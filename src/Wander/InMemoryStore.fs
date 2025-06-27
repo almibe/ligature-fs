@@ -7,33 +7,42 @@ module Wander.InMemoryStore
 open Ligature.Model
 
 type InMemoryStore() =
-    let mutable store: Map<string, ABox> = Map.empty
+    let mutable store: Map<string, Assertions> = Map.empty
 
     interface ILigatureStore with
-        member this.Stores() : string seq = store.Keys |> seq
+        member this.KBs() : string seq = store.Keys |> seq
 
-        member this.AddStore(name: string) : unit =
+        member this.AddKB(name: string) : unit =
             match store.TryFind name with
             | None -> store <- Map.add name Set.empty store
             | _ -> ()
 
-        member this.RemoveStore(name: string) : unit = store <- store.Remove name
+        member this.RemoveKB(name: string) : unit = store <- store.Remove name
 
-        member this.AssertStore (name: string) (network: ABox) : unit =
+        member this.AssertKB (name: string) (network: Assertions) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb ->
                 let newAsserts = Set.union kb network
                 store <- Map.add name newAsserts store
 
-        member this.UnassertStore (name: string) (network: ABox) : unit =
+        member this.UnassertKB (name: string) (network: Assertions) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb ->
                 let newAsserts = Set.difference kb network
                 store <- Map.add name newAsserts store
 
-        member this.ReadAsserts(name: string) : Result<ABox, LigatureError> =
+        member this.ReadAssertsKB(name: string) : Result<Assertions, LigatureError> =
             match store.TryFind name with
             | None -> failwith "Not found"
             | Some kb -> Ok kb
+
+        member this.ReadDefinitionsKB(arg: string) : Result<Definitions, LigatureError> =
+            raise (System.NotImplementedException())
+
+        member this.DefineKB (arg: string) (arg_1: Definitions) : unit =
+            raise (System.NotImplementedException())
+
+        member this.UndefineKB (arg: string) (arg_1: Definitions) : unit =
+            raise (System.NotImplementedException())

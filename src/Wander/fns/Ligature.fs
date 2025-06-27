@@ -603,6 +603,7 @@ let definitionsFn: Fn =
                     | Expression.Term term -> ConceptExpr.AtomicConcept term
                     | x -> failwith $"Not suported - {x}.")
                 arguments
+            |> Set.ofList
             |> Expression.TBox
             |> Ok
     )

@@ -8,8 +8,8 @@ open Ligature.Model
 open Core
 
 type PotentialModel =
-    { toProcess: ABox
-      skip: ABox
+    { toProcess: Assertions
+      skip: Assertions
       same: Map<Instance, Set<Instance>>
       different: Map<Instance, Set<Instance>>
       isA: Map<Instance, Set<Term>>
@@ -21,7 +21,7 @@ let addInstance (individual: Instance) (concept: Term) (map: Map<Instance, Set<T
     | Some concepts -> Map.add individual (Set.add concept concepts) map
     | None -> Map.add individual (Set.ofList [ concept ]) map
 
-let modelToAssertions (potentialModel: PotentialModel) : ABox =
+let modelToAssertions (potentialModel: PotentialModel) : Assertions =
     if not potentialModel.toProcess.IsEmpty then
         failwith "Invalid call to modelToAssertions."
 
@@ -47,7 +47,7 @@ let modelToAssertions (potentialModel: PotentialModel) : ABox =
               Set.empty
               potentialModel.isNot ]
 
-let newModel (aBox: ABox) : PotentialModel =
+let newModel (aBox: Assertions) : PotentialModel =
     { toProcess = aBox
       skip = Set.empty
       same = Map.empty
@@ -56,8 +56,8 @@ let newModel (aBox: ABox) : PotentialModel =
       isNot = Map.empty
       triples = Set.empty }
 
-let tBoxToMap (tBox: TBox) : Option<Map<Term, ConceptExpr>> =
-    List.fold
+let tBoxToMap (tBox: Definitions) : Option<Map<Term, ConceptExpr>> =
+    Set.fold
         (fun state value ->
             match value with
             | ConceptExpr.Equivalent(ConceptExpr.AtomicConcept a, c) ->
@@ -74,7 +74,7 @@ let tBoxToMap (tBox: TBox) : Option<Map<Term, ConceptExpr>> =
         (Some Map.empty)
         tBox
 
-let isDefinitorial (tBox: TBox) : bool =
+let isDefinitorial (tBox: Definitions) : bool =
     let mutable checkedConcepts = Set.empty
 
     let rec hasCycle (definitionsMap: Map<Term, ConceptExpr>) (concept: Term) (definition: ConceptExpr) : bool =
@@ -176,7 +176,7 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
     | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
-let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: ABox) : ABox =
+let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
     let res =
         Set.map
             (fun assertion ->
@@ -187,7 +187,7 @@ let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: ABox) : ABox =
 
     if res = aBox then res else unfoldTBox definitions res
 
-let unfold tBox aBox : Result<ABox, LigatureError> =
+let unfold tBox aBox : Result<Assertions, LigatureError> =
     if isDefinitorial tBox then
         match tBoxToMap tBox with
         | Some value -> Ok(unfoldTBox value aBox)
@@ -195,7 +195,7 @@ let unfold tBox aBox : Result<ABox, LigatureError> =
     else
         failwith "TODO"
 
-let handleTBox (tBox: TBox) (aBox: ABox) : Result<ABox, LigatureError> =
+let handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
     if tBox.IsEmpty then
         Ok aBox
     else if isDefinitorial tBox then
@@ -566,7 +566,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
 //             false
 //             model.isA
 
-let tableauModels definitions assertions : Result<ABox list, LigatureError> =
+let tableauModels definitions assertions : Result<Assertions list, LigatureError> =
     let mutable currentModel: PotentialModel option =
         match handleTBox definitions assertions with
         | Ok assertions -> Some(newModel assertions)
@@ -607,7 +607,7 @@ let tableauModels definitions assertions : Result<ABox list, LigatureError> =
 
     Ok completedModelsClashFree
 
-let nnf (definitions: TBox) : Result<ConceptExpr, LigatureError> =
+let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
         match conceptExpr with
         | ConceptExpr.AtomicConcept c -> ConceptExpr.AtomicConcept c
@@ -630,9 +630,11 @@ let nnf (definitions: TBox) : Result<ConceptExpr, LigatureError> =
                 [ ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
                   ConceptExpr.Or [ lhs; ConceptExpr.Not rhs ] ]
 
-    and nnf (definitions': TBox) : ConceptExpr =
+    and nnf (definitions': Definitions) : ConceptExpr =
         if not definitions'.IsEmpty then
-            List.map (fun value -> nnfConcept value) definitions' |> ConceptExpr.And
+            Set.map (fun value -> nnfConcept value) definitions'
+            |> List.ofSeq
+            |> ConceptExpr.And
         else
             ConceptExpr.Top
 
@@ -644,7 +646,12 @@ let isConsistent definitions assertions : Result<bool, LigatureError> =
     | Ok _ -> Ok true
     | Error err -> Error err
 
-let isInstance (tBox: TBox) (aBox: ABox) (individual: Instance) (concept: ConceptExpr) : Result<Term, LigatureError> =
+let isInstance
+    (tBox: Definitions)
+    (aBox: Assertions)
+    (individual: Instance)
+    (concept: ConceptExpr)
+    : Result<Term, LigatureError> =
     failwith "TODO"
 // let models =
 //     tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
@@ -656,11 +663,11 @@ let isInstance (tBox: TBox) (aBox: ABox) (individual: Instance) (concept: Concep
 //     else Ok(Term "unknown")
 // | Error err -> Error err
 
-let expandResult (aBox: ABox) (individual: Instance) (concept: ConceptExpr) : ABox =
+let expandResult (aBox: Assertions) (individual: Instance) (concept: ConceptExpr) : Assertions =
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: TBox) (aBox: ABox) (concept: ConceptExpr) : (Instance * ABox) list =
+let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : (Instance * Assertions) list =
     let individuals = individuals aBox
 
     let res =

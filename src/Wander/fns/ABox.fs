@@ -10,7 +10,7 @@ open Ligature.Core
 open Ligature.Interpreter
 open Wander.Interpreter
 
-let rec nodeToNetwork (node: Node) : Result<ABox, LigatureError> = failwith "TODO"
+let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwith "TODO"
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
 //     Seq.fold
@@ -120,7 +120,7 @@ let assertionsFn =
           args = "Assertion..."
           result = "Assertions" },
         fun _ _ _ arguments ->
-            let mutable res: ABox = Set.empty
+            let mutable res: Assertions = Set.empty
 
             List.iter
                 (fun arg ->
@@ -209,7 +209,7 @@ let countFn =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-let aBoxToNode (individual: Term) (aBox: ABox) (selections: Expression list) : Node = //TODO also accept a TBox and Concept to control
+let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression list) : Node = //TODO also accept a TBox and Concept to control
     let selectionValues =
         List.fold
             (fun state value ->

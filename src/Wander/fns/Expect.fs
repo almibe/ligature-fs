@@ -51,7 +51,7 @@ let testGroupFn: Fn =
                         | _ -> failwith "TODO")
                     arguments.Tail
 
-            let testABox: ABox = Set.ofList testData
+            let testABox: Assertions = Set.ofList testData
             Ok(Expression.ABox testABox)
     )
 

@@ -21,7 +21,7 @@ let docsFn: Fn =
           args = "()"
           result = "Assertions" },
         fun actions _ _ _ ->
-            let docs: ABox =
+            let docs: Assertions =
                 Map.toSeq actions
                 |> Seq.fold
                     (fun state (Term name, action) ->

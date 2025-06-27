@@ -19,7 +19,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               args = ""
               result = "Tuple" },
             fun _ _ _ _ -> //TODO assert no args were passed
-                store.Stores()
+                store.KBs()
                 |> Seq.map (fun value -> Expression.Term(Term value))
                 |> List.ofSeq
                 |> Expression.Tuple
@@ -35,7 +35,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Expression.Term(Term name) ] ->
-                    store.AddStore name
+                    store.AddKB name
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
@@ -49,7 +49,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Expression.Term(Term name) ] ->
-                    store.RemoveStore(name)
+                    store.RemoveKB(name)
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
@@ -63,7 +63,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Expression.Term(Term networkName); Expression.ABox network ] ->
-                    store.AssertStore networkName network
+                    store.AssertKB networkName network
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
@@ -77,7 +77,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Expression.Term(Term networkName); Expression.ABox network ] ->
-                    store.UnassertStore networkName network
+                    store.UnassertKB networkName network
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
@@ -91,7 +91,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ arguments ->
                 match arguments with
                 | [ Expression.Term(Term networkName) ] ->
-                    match store.ReadAsserts networkName with
+                    match store.ReadAssertsKB networkName with
                     | Ok network -> Ok(Expression.ABox network)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
