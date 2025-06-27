@@ -74,15 +74,15 @@ type Definitions = Set<ConceptExpr>
 type KnowledgeBase = Definitions * Assertions
 
 type ILigatureStore =
-    abstract KBs: unit -> string seq
-    abstract AddKB: string -> unit
-    abstract RemoveKB: string -> unit
-    abstract AssertKB: string -> Assertions -> unit
-    abstract UnassertKB: string -> Assertions -> unit
-    abstract ReadAssertsKB: string -> Result<Assertions, LigatureError>
-    abstract DefineKB: string -> Definitions -> unit
-    abstract UndefineKB: string -> Definitions -> unit
-    abstract ReadDefinitionsKB: string -> Result<Definitions, LigatureError>
+    abstract KBs: unit -> Term seq
+    abstract AddKB: Term -> unit
+    abstract RemoveKB: Term -> unit
+    abstract AssertKB: Term -> Assertions -> unit
+    abstract UnassertKB: Term -> Assertions -> unit
+    abstract ReadAssertsKB: Term -> Result<Assertions, LigatureError>
+    abstract DefineKB: Term -> Definitions -> unit
+    abstract UndefineKB: Term -> Definitions -> unit
+    abstract ReadDefinitionsKB: Term -> Result<Definitions, LigatureError>
 
 let rec printConcept (concept: ConceptExpr) : string =
     match concept with

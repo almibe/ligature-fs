@@ -12,85 +12,86 @@ open Wander.Interpreter
 let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     baseFns
     |> Map.add
-        (Term "stores")
+        (Term "kbs")
         (Fn(
-            { doc = "Returns a tuple of all the existing KBs."
-              examples = [ "stores" ]
+            { doc = "Returns a set of all the existing KBs."
+              examples = [ "kbs()" ]
               args = ""
-              result = "Tuple" },
+              result = "Set" },
             fun _ _ _ _ -> //TODO assert no args were passed
                 store.KBs()
-                |> Seq.map (fun value -> Expression.Term(Term value))
-                |> List.ofSeq
-                |> Expression.Tuple
+                |> Seq.map (fun value -> Expression.Term value)
+                |> Set.ofSeq
+                |> Expression.Set
                 |> Ok
         ))
     |> Map.add
-        (Term "add-store")
+        (Term "add-kb")
         (Fn(
-            { doc = "Reads a Network name and creates a Network in the Store."
-              examples = [ "add-store test" ]
+            { doc = "Reads a name and creates a KB in the Store."
+              examples = [ "add-kb(test)" ]
               args = "Term"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term(Term name) ] ->
+                | [ Expression.Term name ] ->
                     store.AddKB name
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "remove-store")
+        (Term "remove-kb")
         (Fn(
             { doc = "Removes the given KB name from the store."
-              examples = [ "remove-store test" ]
+              examples = [ "remove-kb(test)" ]
               args = "Term"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term(Term name) ] ->
-                    store.RemoveKB(name)
+                | [ Expression.Term name ] ->
+                    store.RemoveKB name
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "assert-store")
+        (Term "assert-kb")
         (Fn(
-            { doc = "Given a KB name and a Network merge the network into the ABox for given KB."
-              examples = [ "assert-store test {a b c}" ]
-              args = "Literal Network"
+            { doc = "Given a KB name and a set of assertions, merge the assertions into the assertions for given KB."
+              examples = [ "assert-kb(test assertions([a b c]))" ]
+              args = "Literal Assertions"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term(Term networkName); Expression.ABox network ] ->
+                | [ Expression.Term networkName; Expression.ABox network ] ->
                     store.AssertKB networkName network
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "unassert-store")
+        (Term "unassert-kb")
         (Fn(
-            { doc = "Given a KB name and a Network remove the network into the ABox for given KB."
-              examples = [ "unassert-store test {a b c}" ]
-              args = "Term Network"
+            { doc =
+                "Given a KB name and a set of assertions, remove the assertions from the assertions for the given KB."
+              examples = [ "unassert-kb(test assertions([a b c]))" ]
+              args = "Term Assertions"
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term(Term networkName); Expression.ABox network ] ->
+                | [ Expression.Term networkName; Expression.ABox network ] ->
                     store.UnassertKB networkName network
                     Ok(Expression.ABox Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "read-assert-store")
+        (Term "read-assertions-kb")
         (Fn(
             { doc = "Read only the asserts in a KB."
-              examples = [ "read-assert-store test" ]
+              examples = [ "read-assertions-kb(test)" ]
               args = "Term"
-              result = "Network" },
+              result = "Assertions" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term(Term networkName) ] ->
+                | [ Expression.Term networkName ] ->
                     match store.ReadAssertsKB networkName with
                     | Ok network -> Ok(Expression.ABox network)
                     | _ -> failwith "TODO"

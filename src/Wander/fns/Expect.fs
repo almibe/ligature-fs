@@ -48,7 +48,7 @@ let testGroupFn: Fn =
                                   Assertion.Triple(testId, Term "comment", comment)
                                   Assertion.Triple(testId, Term "test-group", groupName) ]
                             | _ -> failwith "TODO"
-                        | _ -> failwith "TODO")
+                        | _ -> []) // ignore expressions that don't return test results
                     arguments.Tail
 
             let testABox: Assertions = Set.ofList testData
