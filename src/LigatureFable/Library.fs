@@ -123,7 +123,7 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "literal"
         obj?value <- l
         obj
-    | Expression.ABox n -> aBoxToJs n
+    | Expression.Assertions n -> aBoxToJs n
     | Expression.Tuple t ->
         let res = List.map (fun any -> anyToJs any) t |> List.toArray
         let obj = createEmpty

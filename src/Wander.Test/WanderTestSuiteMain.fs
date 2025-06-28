@@ -35,7 +35,7 @@ let wanderTestSuite =
             testCase $"Test for {file}"
             <| fun _ ->
                 match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
-                | Ok(Expression.ABox result) ->
+                | Ok(Expression.Assertions result) ->
                     let mutable names: Map<string, string> = Map.empty
                     let mutable comments: Map<string, string> = Map.empty
 

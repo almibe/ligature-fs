@@ -121,7 +121,8 @@ let unfoldFn =
           result = "Assertions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox def; Expression.ABox assertions ] -> unfold def assertions |> Result.map Expression.ABox
+            | [ Expression.Definitions def; Expression.Assertions assertions ] ->
+                unfold def assertions |> Result.map Expression.Assertions
             | _ -> error "Invalid call to unfold." None
     )
 
@@ -133,7 +134,7 @@ let isDefinitorialFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox def ] ->
+            | [ Expression.Definitions def ] ->
                 if isDefinitorial def then
                     Ok(Expression.Term(Term "true"))
                 else
@@ -149,7 +150,7 @@ let nnfFn =
           result = "Definitions" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox def ] ->
+            | [ Expression.Definitions def ] ->
                 match nnf def with
                 | Ok resultValue -> Ok(Expression.ConceptExpr resultValue)
                 | Error err -> Error err
@@ -189,7 +190,7 @@ let isConsistentFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox def; Expression.ABox n ] ->
+            | [ Expression.Definitions def; Expression.Assertions n ] ->
                 match isConsistent def n with
                 | Ok true -> Ok(Expression.Term(Term "true"))
                 | Ok false -> Ok(Expression.Term(Term "false"))
@@ -205,11 +206,17 @@ let isInstanceFn =
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.Term concept ] -> //TODO handle conceptexprs
+            | [ Expression.Definitions tBox
+                Expression.Assertions aBox
+                Expression.Term individual
+                Expression.Term concept ] -> //TODO handle conceptexprs
                 match isInstance tBox aBox (termToInstance individual) (ConceptExpr.AtomicConcept concept) with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term individual; Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
+            | [ Expression.Definitions tBox
+                Expression.Assertions aBox
+                Expression.Term individual
+                Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
                 match isInstance tBox aBox (termToInstance individual) concept with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
@@ -263,10 +270,10 @@ let tableauModelsFn: Fn =
           result = "Set" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox tBox; Expression.ABox aBox ] ->
+            | [ Expression.Definitions tBox; Expression.Assertions aBox ] ->
                 match tableauModels tBox aBox with
                 | Ok res ->
-                    List.map (fun value -> Expression.ABox value) res
+                    List.map (fun value -> Expression.Assertions value) res
                     |> Set.ofList
                     |> Expression.Set
                     |> Ok
@@ -604,6 +611,6 @@ let definitionsFn: Fn =
                     | x -> failwith $"Not suported - {x}.")
                 arguments
             |> Set.ofList
-            |> Expression.TBox
+            |> Expression.Definitions
             |> Ok
     )

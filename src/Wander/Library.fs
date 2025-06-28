@@ -91,7 +91,7 @@ let docsFn: Fn =
                                 doc.examples)
                     Set.empty
 
-            Ok(Expression.ABox docs)
+            Ok(Expression.Assertions docs)
     )
 
 let stdFns (store: ILigatureStore) : Fns =

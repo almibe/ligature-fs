@@ -36,7 +36,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Expression.Term name ] ->
                     store.AddKB name
-                    Ok(Expression.ABox Set.empty)
+                    Ok(Expression.Assertions Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -50,7 +50,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Expression.Term name ] ->
                     store.RemoveKB name
-                    Ok(Expression.ABox Set.empty)
+                    Ok(Expression.Assertions Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -62,9 +62,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term networkName; Expression.ABox network ] ->
+                | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.AssertKB networkName network
-                    Ok(Expression.ABox Set.empty)
+                    Ok(Expression.Assertions Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -77,9 +77,9 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               result = "" },
             fun _ _ _ arguments ->
                 match arguments with
-                | [ Expression.Term networkName; Expression.ABox network ] ->
+                | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.UnassertKB networkName network
-                    Ok(Expression.ABox Set.empty)
+                    Ok(Expression.Assertions Set.empty)
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -93,18 +93,51 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 match arguments with
                 | [ Expression.Term networkName ] ->
                     match store.ReadAssertsKB networkName with
-                    | Ok network -> Ok(Expression.ABox network)
+                    | Ok network -> Ok(Expression.Assertions network)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
         ))
-
-// |> Map.add
-//     (Term "delete")
-//     (Fn.Stack(
-//         { doc =
-//             "Reads a Network off the Stack and removes all of the Triples in that Network from the target Network."
-//           examples = []
-//           pre = "Network"
-//           post = "" },
-//         fun stack -> failwith "TODO"
-//     ))
+    |> Map.add
+        (Term "define-kb")
+        (Fn(
+            { doc = "Given a KB name and a set of definitions, merge the definitions into the definitions for given KB."
+              examples = [ "define-kb(test definitions(equilavlent(A B)))" ]
+              args = "Term Definitions"
+              result = "" },
+            fun _ _ _ arguments ->
+                match arguments with
+                | [ Expression.Term networkName; Expression.Definitions definitions ] ->
+                    store.DefineKB networkName definitions
+                    Ok(Expression.Assertions Set.empty)
+                | _ -> failwith "TODO"
+        ))
+    |> Map.add
+        (Term "undefine-kb")
+        (Fn(
+            { doc =
+                "Given a KB name and a set of definitions, remove the definitions from the definitions for the given KB."
+              examples = [ "undefine-kb(test definitions((equivalent A B)))" ]
+              args = "Term Definitions"
+              result = "" },
+            fun _ _ _ arguments ->
+                match arguments with
+                | [ Expression.Term networkName; Expression.Definitions definitions ] ->
+                    store.UndefineKB networkName definitions
+                    Ok(Expression.Assertions Set.empty)
+                | _ -> failwith "TODO"
+        ))
+    |> Map.add
+        (Term "read-definitions-kb")
+        (Fn(
+            { doc = "Read only the definitions in a KB."
+              examples = [ "read-definitions-kb(test)" ]
+              args = "Term"
+              result = "Definitions" },
+            fun _ _ _ arguments ->
+                match arguments with
+                | [ Expression.Term networkName ] ->
+                    match store.ReadDefinitionsKB networkName with
+                    | Ok definitions -> Ok(Expression.Definitions definitions)
+                    | _ -> failwith "TODO"
+                | _ -> failwith "TODO"
+        ))

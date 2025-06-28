@@ -157,7 +157,7 @@ let assertionsFn =
                     | x -> failwith $"Invalid call to assertions: {x}")
                 arguments
 
-            Ok(Expression.ABox res)
+            Ok(Expression.Assertions res)
     )
 
 let unionFn =
@@ -168,8 +168,8 @@ let unionFn =
           result = "Network" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.ABox left; Expression.ABox right ] ->
-                let result = Set.union left right |> Expression.ABox
+            | [ Expression.Assertions left; Expression.Assertions right ] ->
+                let result = Set.union left right |> Expression.Assertions
                 Ok result
             | _ -> failwith $"Calls to union requires two ABoxes."
     )
@@ -182,7 +182,7 @@ let countFn =
           result = "Literal" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.ABox n ] ->
+            | [ Expression.Assertions n ] ->
                 Ok(
                     Expression.Instance
                         { value = (Set.count n).ToString()
@@ -233,15 +233,19 @@ let queryFn =
           result = "Tuple" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.Term concept; Expression.Tuple selections ] ->
-                failwith "TODO"
+            | [ Expression.Definitions tBox
+                Expression.Assertions aBox
+                Expression.Term concept
+                Expression.Tuple selections ] -> failwith "TODO"
             // let results =
             //     query tBox aBox (ConceptExpr.AtomicConcept concept)
             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
             // Ok(Expression.Tuple results)
-            | [ Expression.TBox tBox; Expression.ABox aBox; Expression.ConceptExpr concept; Expression.Tuple selections ] ->
-                failwith "TODO"
+            | [ Expression.Definitions tBox
+                Expression.Assertions aBox
+                Expression.ConceptExpr concept
+                Expression.Tuple selections ] -> failwith "TODO"
             // let results =
             //     query tBox aBox concept
             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)

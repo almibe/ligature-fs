@@ -52,7 +52,7 @@ let testGroupFn: Fn =
                     arguments.Tail
 
             let testABox: Assertions = Set.ofList testData
-            Ok(Expression.ABox testABox)
+            Ok(Expression.Assertions testABox)
     )
 
 let expectEqualFn: Fn =

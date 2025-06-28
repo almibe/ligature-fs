@@ -29,13 +29,13 @@ and [<RequireQualifiedAccess>] Expression =
     | Instance of Instance
     | Variable of Variable
     | Assertion of Assertion
-    | ABox of Assertions
+    | Assertions of Assertions
     | Comment of string
     | Application of Node
     | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
-    | TBox of Definitions
+    | Definitions of Definitions
 
 and Node =
     { name: Term
@@ -82,13 +82,13 @@ let rec printAny (value: Expression) : string =
     | Expression.Instance { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
-    | Expression.ABox n -> printABox n
+    | Expression.Assertions n -> printABox n
     | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.NodeLiteral node -> printNode node
     | Expression.Application _ -> failwith "Not Implemented"
     | Expression.Lambda _ -> failwith "TODO"
-    | Expression.TBox defs -> printDefinitions defs
+    | Expression.Definitions defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Set s -> $"{s}"
