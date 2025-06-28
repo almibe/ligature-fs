@@ -8,9 +8,9 @@ open Expecto
 open FSharpPlus
 open Wander.Main
 open Library
-open InMemoryStore
 open Model
 open Ligature.Model
+open Ligature.InMemoryStore
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then

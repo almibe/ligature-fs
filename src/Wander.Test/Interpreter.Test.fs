@@ -5,12 +5,12 @@
 module Wander.Interpreter.Test
 
 open Expecto
-open Wander.Tokenizer
 open Ligature.Model
+open Ligature.InMemoryStore
+open Wander.Tokenizer
 open Wander.Model
 open Wander.Parser
 open Wander.Library
-open Wander.InMemoryStore
 
 let runScript input =
     match tokenize input with

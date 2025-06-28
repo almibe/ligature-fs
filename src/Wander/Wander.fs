@@ -10,7 +10,7 @@ open Ligature.Model
 open Interpreter
 open Wander.Model
 open Library
-open InMemoryStore
+open Ligature.InMemoryStore
 
 let run (fns: Fns) (bindings: Bindings) (variables: Variables) (input: string) : Result<Expression, LigatureError> =
     try

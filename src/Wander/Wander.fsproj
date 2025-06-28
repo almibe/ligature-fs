@@ -15,7 +15,6 @@
     <Compile Include="fns/Core.fs" />
     <Compile Include="fns/ABox.fs" />
     <Compile Include="fns/Ligature.fs" />
-    <Compile Include="InMemoryStore.fs" />
     <Compile Include="fns/Store.fs" />
     <Compile Include="fns/DateTime.fs" />
     <Compile Include="fns/Ulid.fs" />
