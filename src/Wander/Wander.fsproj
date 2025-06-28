@@ -13,7 +13,7 @@
     <Compile Include="fns/IO.fs" />
     <Compile Include="fns/Bool.fs" />
     <Compile Include="fns/Core.fs" />
-    <Compile Include="fns/ABox.fs" />
+    <Compile Include="fns/Assertions.fs" />
     <Compile Include="fns/Ligature.fs" />
     <Compile Include="fns/Store.fs" />
     <Compile Include="fns/DateTime.fs" />

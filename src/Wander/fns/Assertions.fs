@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-module Wander.Fns.Network
+module Wander.Fns.Assertions
 
 open Ligature.Model
 open Wander.Model
@@ -133,7 +133,7 @@ let assertionsFn =
                                 { value = t
                                   space = None
                                   langTag = None }
-                            | _ -> failwith "Invalid call to assertions."
+                            | x -> failwith $"Invalid call to assertions: {x}"
 
                         let a =
                             match a with
@@ -154,7 +154,7 @@ let assertionsFn =
                         match nodeToNetwork node with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
-                    | _ -> failwith "Invalid call to assertions.")
+                    | x -> failwith $"Invalid call to assertions: {x}")
                 arguments
 
             Ok(Expression.ABox res)

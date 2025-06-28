@@ -8,7 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Wander.Fns.Expect
 open Wander.Fns.Core
-open Wander.Fns.Network
+open Wander.Fns.Assertions
 open Wander.Fns.Ligature
 open Wander.Fns.Remote
 open Wander.Fns.Store

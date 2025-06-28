@@ -364,7 +364,7 @@ let instanceFn: Fn =
                         )
                     )
                 )
-            | _ -> error "Improper call to instance." None
+            | x -> error $"Improper call to instance: {x}" None
     )
 
 let sameFn: Fn =
