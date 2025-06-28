@@ -149,17 +149,9 @@ let assertionsFn =
                             | Expression.Instance l -> l
                             | _ -> failwith "Invalid call to assertions."
 
-                        match a, v with
-                        | Term ":", { value = concept } ->
-                            res <- Set.add (Assertion.Instance(e, ConceptExpr.AtomicConcept(Term concept))) res
-                        | Term "~", { value = concept } ->
-                            res <-
-                                Set.add
-                                    (Assertion.Instance(e, ConceptExpr.Not(ConceptExpr.AtomicConcept(Term concept))))
-                                    res
-                        | _ -> res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Expression.Application record ->
-                        match nodeToNetwork record with
+                        res <- Set.add (Assertion.Triple(e, a, v)) res
+                    | Expression.NodeLiteral node ->
+                        match nodeToNetwork node with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
                     | _ -> failwith "Invalid call to assertions.")
