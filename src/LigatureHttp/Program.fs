@@ -5,29 +5,23 @@
 module Ligature.Http
 
 open Wander.Main
-open System
-open Ligature.Model
 open Wander.Fns
 open Wander.Model
+open System
+open Ligature.Model
+open Ligature.InMemoryStore
 open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Builder
-open Wander.InMemoryStore
-
-let readPrelude () =
-    let scriptPath = Environment.GetEnvironmentVariable "WANDER_LIBS" + "/lib.wander"
-    System.IO.File.ReadAllText scriptPath
+open Store
 
 let createEndpoints (store: ILigatureStore) =
     [ post "/" (fun ctx ->
-          let route = Request.getRoute ctx
-          let prelude = readPrelude ()
-
           task {
               let! body = Request.getBodyString ctx
 
               return!
-                  match run (Wander.Library.stdFns store) Map.empty Map.empty (prelude + body) with
+                  match run (Wander.Library.stdFns store) Map.empty Map.empty body with
                   | Ok result -> Response.ofPlainText (printAny result) ctx
                   | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
@@ -35,7 +29,6 @@ let createEndpoints (store: ILigatureStore) =
 let wapp = WebApplication.Create()
 
 let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
-let store = new Store.LigatureStore(Some path) //InMemoryStore()
-store.Init()
+let store = InMemoryStore() //new LigatureStore(Some path) 
 
 wapp.UseRouting().UseFalco(createEndpoints store).Run()

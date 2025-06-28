@@ -1,11 +1,11 @@
 ﻿open Wander.Main
+open Ligature.InMemoryStore
 open Ligature.Model
 open Wander.Model
 open System.Collections.Generic
 open Wander.Library
 open Fable.Core
 open Fable.Core.JsInterop
-open Wander.InMemoryStore
 
 let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, LigatureError>>) (script: string) =
     let mutable resFns = stdFns (new InMemoryStore())
