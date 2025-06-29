@@ -23,3 +23,22 @@ type LigatureStore(path: string option) =
         member this.RemoveKB(arg1: Term) : unit = failwith "Not Implemented"
         member this.UnassertKB (arg1: Term) (arg2: Assertions) : unit = failwith "Not Implemented"
         member this.UndefineKB (arg1: Term) (arg2: Definitions) : unit = failwith "Not Implemented"
+        member this.IsConsistent(arg1: Term) : Result<bool, LigatureError> = failwith "Not Implemented"
+
+        member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsInstance (arg1: Term) (arg2: Instance) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsSatisfiable (arg1: Term) (arg2: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Instance, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.ReadKB(arg1: Term) : Result<KnowledgeBase, LigatureError> = failwith "Not Implemented"
+        member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"

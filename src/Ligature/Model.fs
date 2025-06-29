@@ -83,6 +83,14 @@ type ILigatureStore =
     abstract DefineKB: Term -> Definitions -> unit
     abstract UndefineKB: Term -> Definitions -> unit
     abstract ReadDefinitionsKB: Term -> Result<Definitions, LigatureError>
+    abstract ReadKB: Term -> Result<KnowledgeBase, LigatureError>
+    abstract IsConsistent: Term -> Result<bool, LigatureError>
+    abstract IsSatisfiable: Term -> ConceptExpr -> Result<bool, LigatureError>
+    abstract IsInstance: Term -> Instance -> ConceptExpr -> Result<bool, LigatureError>
+    abstract IsSubsumedBy: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
+    abstract IsEquivalent: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
+    abstract Query: Term -> ConceptExpr -> Result<Instance, LigatureError>
+    abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
 let rec printConcept (concept: ConceptExpr) : string =
     match concept with
@@ -114,6 +122,7 @@ let rec printConcept (concept: ConceptExpr) : string =
     | ConceptExpr.Not c -> "¬" + printConcept c
     | ConceptExpr.Implies(l, r) -> $"(implies {printConcept l} {printConcept r})"
     | ConceptExpr.Equivalent(l, r) -> $"(equivalent {printConcept l} {printConcept r})"
+    | ConceptExpr.Func r -> failwith "TODO"
 
 let printDefinitions (definitions: Definitions) =
     Set.fold (fun state value -> state + printConcept value) "definitions (" definitions

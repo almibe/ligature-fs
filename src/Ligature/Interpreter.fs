@@ -617,6 +617,7 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
         | ConceptExpr.Bottom -> ConceptExpr.Bottom
         | ConceptExpr.All(r, c) -> ConceptExpr.All(r, nnfConcept c)
         | ConceptExpr.Exists(r, c) -> ConceptExpr.Exists(r, nnfConcept c)
+        | ConceptExpr.Func r -> ConceptExpr.Func r
         | ConceptExpr.Not(ConceptExpr.Not not') -> nnfConcept not'
         | ConceptExpr.Not(ConceptExpr.And conj) ->
             List.map (fun value -> ConceptExpr.Not(nnfConcept value)) conj |> ConceptExpr.Or

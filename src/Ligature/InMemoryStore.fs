@@ -46,3 +46,26 @@ type InMemoryStore() =
 
         member this.UndefineKB (arg: Term) (arg_1: Definitions) : unit =
             raise (System.NotImplementedException())
+
+        member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> =
+            raise (System.NotImplementedException())
+
+        member this.IsConsistent(arg: Term) : Result<bool, LigatureError> =
+            raise (System.NotImplementedException())
+
+        member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsInstance (arg1: Term) (arg2: Instance) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsSatisfiable (arg1: Term) (arg2: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Instance, LigatureError> =
+            failwith "Not Implemented"
+
+        member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"

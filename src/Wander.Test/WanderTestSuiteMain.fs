@@ -11,6 +11,7 @@ open Library
 open Model
 open Ligature.Model
 open Ligature.InMemoryStore
+open Ligature.Store
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -34,41 +35,45 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                match run (stdFns (new InMemoryStore())) Map.empty Map.empty script with
-                | Ok(Expression.Assertions result) ->
-                    let mutable names: Map<string, string> = Map.empty
-                    let mutable comments: Map<string, string> = Map.empty
+                let stores: ILigatureStore list = [ new InMemoryStore(); new LigatureStore(None) ]
 
-                    let failures: Set<string> =
-                        Set.fold
-                            (fun state value ->
-                                match value with
-                                | Assertion.Triple({ value = testId }, Term "name", { value = name }) ->
-                                    names <- Map.add testId name names
-                                    state
-                                | Assertion.Triple({ value = testId }, Term "state", value) ->
+                stores
+                |> List.iter (fun store ->
+                    match run (stdFns store) Map.empty Map.empty script with
+                    | Ok(Expression.Assertions result) ->
+                        let mutable names: Map<string, string> = Map.empty
+                        let mutable comments: Map<string, string> = Map.empty
+
+                        let failures: Set<string> =
+                            Set.fold
+                                (fun state value ->
                                     match value with
-                                    | { value = "pass" } -> state
-                                    | { value = "fail" } -> Set.add testId state
-                                    | state -> failwith $"Unexpected state value {state}"
-                                | Assertion.Triple({ value = testId }, Term "comment", { value = comment }) ->
-                                    comments <- Map.add testId comment comments
-                                    state
-                                | Assertion.Triple(testId, Term "test-group", name) -> state
-                                | x -> failwith $"Unexpected value as test result. {x}")
-                            Set.empty
-                            result
+                                    | Assertion.Triple({ value = testId }, Term "name", { value = name }) ->
+                                        names <- Map.add testId name names
+                                        state
+                                    | Assertion.Triple({ value = testId }, Term "state", value) ->
+                                        match value with
+                                        | { value = "pass" } -> state
+                                        | { value = "fail" } -> Set.add testId state
+                                        | state -> failwith $"Unexpected state value {state}"
+                                    | Assertion.Triple({ value = testId }, Term "comment", { value = comment }) ->
+                                        comments <- Map.add testId comment comments
+                                        state
+                                    | Assertion.Triple(testId, Term "test-group", name) -> state
+                                    | x -> failwith $"Unexpected value as test result. {x}")
+                                Set.empty
+                                result
 
-                    let errorMsg: string =
-                        Set.fold
-                            (fun state value ->
-                                state + " - " + Map.find value names + " - " + Map.find value comments + "\n")
-                            "Failed tests:\n"
-                            failures
+                        let errorMsg: string =
+                            Set.fold
+                                (fun state value ->
+                                    state + " - " + Map.find value names + " - " + Map.find value comments + "\n")
+                                "Failed tests:\n"
+                                failures
 
-                    Expect.isEmpty failures errorMsg
-                | Ok x -> failwith $"Unexpected value - {x}"
-                | Error err -> failwithf "Test failed %A" err)
+                        Expect.isEmpty failures errorMsg
+                    | Ok x -> failwith $"Unexpected value - {x}"
+                    | Error err -> failwithf "Test failed %A" err))
         |> Seq.toList
         |> testList "Wander tests"
     else
