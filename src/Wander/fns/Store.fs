@@ -54,10 +54,10 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "assert-kb")
+        (Term "assert")
         (Fn(
             { doc = "Given a KB name and a set of assertions, merge the assertions into the assertions for given KB."
-              examples = [ "assert-kb(test assertions([a b c]))" ]
+              examples = [ "assert(test assertions([a b c]))" ]
               args = "Literal Assertions"
               result = "" },
             fun _ _ _ arguments ->
@@ -68,11 +68,11 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "unassert-kb")
+        (Term "unassert")
         (Fn(
             { doc =
                 "Given a KB name and a set of assertions, remove the assertions from the assertions for the given KB."
-              examples = [ "unassert-kb(test assertions([a b c]))" ]
+              examples = [ "unassert(test assertions([a b c]))" ]
               args = "Term Assertions"
               result = "" },
             fun _ _ _ arguments ->
@@ -83,10 +83,10 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "read-assertions-kb")
+        (Term "read-assertions")
         (Fn(
             { doc = "Read only the asserts in a KB."
-              examples = [ "read-assertions-kb(test)" ]
+              examples = [ "read-assertions(test)" ]
               args = "Term"
               result = "Assertions" },
             fun _ _ _ arguments ->
@@ -98,10 +98,10 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "define-kb")
+        (Term "define")
         (Fn(
             { doc = "Given a KB name and a set of definitions, merge the definitions into the definitions for given KB."
-              examples = [ "define-kb(test definitions(equilavlent(A B)))" ]
+              examples = [ "define(test definitions(equilavlent(A B)))" ]
               args = "Term Definitions"
               result = "" },
             fun _ _ _ arguments ->
@@ -112,11 +112,11 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "undefine-kb")
+        (Term "undefine")
         (Fn(
             { doc =
                 "Given a KB name and a set of definitions, remove the definitions from the definitions for the given KB."
-              examples = [ "undefine-kb(test definitions((equivalent A B)))" ]
+              examples = [ "undefine(test definitions((equivalent A B)))" ]
               args = "Term Definitions"
               result = "" },
             fun _ _ _ arguments ->
@@ -127,10 +127,10 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | _ -> failwith "TODO"
         ))
     |> Map.add
-        (Term "read-definitions-kb")
+        (Term "read-definitions")
         (Fn(
             { doc = "Read only the definitions in a KB."
-              examples = [ "read-definitions-kb(test)" ]
+              examples = [ "read-definitions(test)" ]
               args = "Term"
               result = "Definitions" },
             fun _ _ _ arguments ->
