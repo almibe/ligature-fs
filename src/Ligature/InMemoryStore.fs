@@ -7,45 +7,55 @@ module Ligature.InMemoryStore
 open Ligature.Model
 
 type InMemoryStore() =
-    let mutable store: Map<Term, Assertions> = Map.empty
+    let mutable store: Map<Term, Assertions * Definitions> = Map.empty
 
     interface ILigatureStore with
         member this.KBs() : Term seq = store.Keys |> seq
 
         member this.AddKB(name: Term) : unit =
             match store.TryFind name with
-            | None -> store <- Map.add name Set.empty store
+            | None -> store <- Map.add name (Set.empty, Set.empty) store
             | _ -> ()
 
         member this.RemoveKB(name: Term) : unit = store <- store.Remove name
 
-        member this.AssertKB (name: Term) (network: Assertions) : unit =
+        member this.AssertKB (name: Term) (newAssertions: Assertions) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
-            | Some kb ->
-                let newAsserts = Set.union kb network
-                store <- Map.add name newAsserts store
+            | Some(assertions, defintions) ->
+                let newAsserts = Set.union assertions newAssertions
+                store <- Map.add name (newAsserts, defintions) store
 
         member this.UnassertKB (name: Term) (network: Assertions) : unit =
             match store.TryFind name with
             | None -> failwith "Not found"
-            | Some kb ->
-                let newAsserts = Set.difference kb network
-                store <- Map.add name newAsserts store
+            | Some(assertions, definitions) ->
+                let newAsserts = Set.difference assertions network
+                store <- Map.add name (newAsserts, definitions) store
 
         member this.ReadAssertsKB(name: Term) : Result<Assertions, LigatureError> =
             match store.TryFind name with
             | None -> failwith "Not found"
-            | Some kb -> Ok kb
+            | Some(assertions, _) -> Ok assertions
 
-        member this.ReadDefinitionsKB(arg: Term) : Result<Definitions, LigatureError> =
-            raise (System.NotImplementedException())
+        member this.ReadDefinitionsKB(name: Term) : Result<Definitions, LigatureError> =
+            match store.TryFind name with
+            | None -> failwith "Not found"
+            | Some(_, definitions) -> Ok definitions
 
-        member this.DefineKB (arg: Term) (arg_1: Definitions) : unit =
-            raise (System.NotImplementedException())
+        member this.DefineKB (name: Term) (newDefinitions: Definitions) : unit =
+            match store.TryFind name with
+            | None -> failwith "Not found"
+            | Some(assertions, definitions) ->
+                let newDefs = Set.union definitions newDefinitions
+                store <- Map.add name (assertions, newDefs) store
 
-        member this.UndefineKB (arg: Term) (arg_1: Definitions) : unit =
-            raise (System.NotImplementedException())
+        member this.UndefineKB (name: Term) (toRemove: Definitions) : unit =
+            match store.TryFind name with
+            | None -> failwith "Not found"
+            | Some(assertions, definitions) ->
+                let newDefs = Set.difference definitions toRemove
+                store <- Map.add name (assertions, newDefs) store
 
         member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> =
             raise (System.NotImplementedException())

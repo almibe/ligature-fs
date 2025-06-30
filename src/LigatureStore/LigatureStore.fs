@@ -5,22 +5,36 @@
 module Ligature.Store
 
 open Ligature.Model
+open LiteDB
+open System.Collections.Concurrent
+open System.Collections.Generic
 
-type LigatureStore(path: string option) =
-
-    let path =
-        match path with
-        | None -> null
-        | Some value -> value
-
+type LigatureStore(db: LiteDatabase) =
     interface ILigatureStore with
-        member this.AddKB(arg1: Term) : unit = failwith "Not Implemented"
+        member this.AddKB(name: Term) : unit =
+            let kbs = db.GetCollection "kb"
+            ignore <| kbs.Insert(new BsonDocument(dict [ "name", new BsonValue "test" ]))
+
         member this.AssertKB (arg1: Term) (arg2: Assertions) : unit = failwith "Not Implemented"
         member this.DefineKB (arg1: Term) (arg2: Definitions) : unit = failwith "Not Implemented"
-        member this.KBs() : Term seq = failwith "Not Implemented"
-        member this.ReadAssertsKB(arg1: Term) : Result<Assertions, LigatureError> = failwith "Not Implemented"
+
+        member this.KBs() : Term seq =
+            let kbs = db.GetCollection "kb"
+            []
+
+        member this.ReadAssertsKB(arg1: Term) : Result<Assertions, LigatureError> =
+            let asserts = db.GetCollection "asserts"
+            failwith "Not Implemented"
+
         member this.ReadDefinitionsKB(arg1: Term) : Result<Definitions, LigatureError> = failwith "Not Implemented"
-        member this.RemoveKB(arg1: Term) : unit = failwith "Not Implemented"
+
+        member this.RemoveKB(name: Term) : unit =
+            let kbs = db.GetCollection "kb"
+
+            kbs.DeleteMany(fun value -> false)
+            //value.Contains(KeyValuePair("name", new BsonValue "test")))
+            |> ignore
+
         member this.UnassertKB (arg1: Term) (arg2: Assertions) : unit = failwith "Not Implemented"
         member this.UndefineKB (arg1: Term) (arg2: Definitions) : unit = failwith "Not Implemented"
         member this.IsConsistent(arg1: Term) : Result<bool, LigatureError> = failwith "Not Implemented"
