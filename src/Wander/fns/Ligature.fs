@@ -182,22 +182,6 @@ let topFn =
             | _ -> error "Invalid call to bottom." None
     )
 
-let isConsistentFn =
-    Fn(
-        { doc = "Check if a KB is consistent."
-          examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
-          args = "Definitions Assertions"
-          result = "Term" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Definitions def; Expression.Assertions n ] ->
-                match isConsistent def n with
-                | Ok true -> Ok(Expression.Term(Term "true"))
-                | Ok false -> Ok(Expression.Term(Term "false"))
-                | Error err -> Error err
-            | _ -> error "Invalid call to is-consistent." None
-    )
-
 let isInstanceFn =
     Fn(
         { doc = "Check if an instance is a concept."
@@ -371,6 +355,10 @@ let instanceFn: Fn =
                         )
                     )
                 )
+            | [ Expression.Instance instance; Expression.Term concept ] ->
+                Ok(Expression.Assertion(Assertion.Instance(instance, ConceptExpr.AtomicConcept concept)))
+            | [ Expression.Instance instance; Expression.ConceptExpr concept ] ->
+                Ok(Expression.Assertion(Assertion.Instance(instance, concept)))
             | x -> error $"Improper call to instance: {x}" None
     )
 

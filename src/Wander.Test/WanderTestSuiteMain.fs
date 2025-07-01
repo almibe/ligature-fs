@@ -12,7 +12,6 @@ open Model
 open Ligature.Model
 open Ligature.InMemoryStore
 open Ligature.Store
-open LiteDB
 
 let rec allFiles dirs =
     if Seq.isEmpty dirs then
@@ -36,8 +35,7 @@ let wanderTestSuite =
 
             testCase $"Test for {file}"
             <| fun _ ->
-                let stores: ILigatureStore list =
-                    [ new InMemoryStore(); new LigatureStore(new LiteDatabase ":memory:") ]
+                let stores: ILigatureStore list = [ new InMemoryStore(); inMemoryStore () ]
 
                 stores
                 |> List.iter (fun store ->

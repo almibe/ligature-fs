@@ -5,6 +5,7 @@
 module Ligature.InMemoryStore
 
 open Ligature.Model
+open Interpreter
 
 type InMemoryStore() =
     let mutable store: Map<Term, Assertions * Definitions> = Map.empty
@@ -60,8 +61,10 @@ type InMemoryStore() =
         member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> =
             raise (System.NotImplementedException())
 
-        member this.IsConsistent(arg: Term) : Result<bool, LigatureError> =
-            raise (System.NotImplementedException())
+        member this.IsConsistent(name: Term) : Result<bool, LigatureError> =
+            match store.TryFind name with
+            | Some(assertions, definitions) -> isConsistent definitions assertions
+            | _ -> error $"Knowledge Base {name} doesn't exist." None
 
         member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"

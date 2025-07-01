@@ -82,7 +82,7 @@ let rec printAny (value: Expression) : string =
     | Expression.Instance { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
-    | Expression.Assertions n -> printABox n
+    | Expression.Assertions n -> printAssertions n
     | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.NodeLiteral node -> printNode node
@@ -153,16 +153,16 @@ and printResultSet (rs: ResultSet) =
 //         network
 //     + " )"
 
-and printABox (aBox: Assertions) : string =
+and printAssertions (aBox: Assertions) : string =
     let mutable first = true
 
     Seq.fold
         (fun state triple ->
             if first then
                 first <- false
-                state + " " + printTriple triple + " "
+                state + " " + printAssertion triple + " "
             else
-                state + "\n  " + printTriple triple + " ")
+                state + "\n  " + printAssertion triple + " ")
         "assertions( "
         aBox
     + " )"
@@ -186,10 +186,9 @@ and printABox (aBox: Assertions) : string =
 
 // $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
-and printTriple (assertion: Assertion) : string =
+and printAssertion (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple(individual, Term role, filler) -> $"[{individual} {role} {printInstance filler}]"
-    | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) -> $"[{individual} : {c}]"
-    | Assertion.Instance(individual, c) -> $"[{individual} : {c}]"
-    | Assertion.Same(_, _) -> failwith "Not Implemented"
-    | Assertion.Different(_, _) -> failwith "Not Implemented"
+    | Assertion.Triple(individual, Term role, filler) -> $"[{printInstance individual} {role} {printInstance filler}]"
+    | Assertion.Instance(individual, c) -> $"instance({printInstance individual} {printConcept c})"
+    | Assertion.Same(l, r) -> failwith "Not Implemented"
+    | Assertion.Different(l, r) -> failwith "Not Implemented"

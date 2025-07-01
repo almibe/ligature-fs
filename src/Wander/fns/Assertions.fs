@@ -115,7 +115,7 @@ let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwit
 
 let assertionsFn =
     Fn(
-        { doc = "Create an ABox."
+        { doc = "Create a set of assertions."
           examples = [ "(assertions (instance betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
@@ -129,6 +129,7 @@ let assertionsFn =
                     | Expression.Tuple [ e; a; v ] ->
                         let e =
                             match e with
+                            | Expression.Instance instance -> instance
                             | Expression.Term(Term t) ->
                                 { value = t
                                   space = None
@@ -142,11 +143,11 @@ let assertionsFn =
 
                         let v =
                             match v with
+                            | Expression.Instance instance -> instance
                             | Expression.Term(Term t) ->
                                 { value = t
                                   space = None
                                   langTag = None }
-                            | Expression.Instance l -> l
                             | _ -> failwith "Invalid call to assertions."
 
                         res <- Set.add (Assertion.Triple(e, a, v)) res

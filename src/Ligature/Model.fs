@@ -102,7 +102,7 @@ let rec printConcept (concept: ConceptExpr) : string =
                     printConcept value
                 else
                     state + $" {printConcept value}")
-            "(and"
+            "and("
             conj
         + ")"
     | ConceptExpr.Or disj ->
@@ -112,18 +112,18 @@ let rec printConcept (concept: ConceptExpr) : string =
                     printConcept value
                 else
                     state + $" {printConcept value}")
-            "(or"
+            "or("
             disj
         + ")"
-    | ConceptExpr.Top -> "(top)"
-    | ConceptExpr.Bottom -> "(bottom)"
-    | ConceptExpr.Exists(Term r, c) -> $"(exists {r} {printConcept c})"
-    | ConceptExpr.All(Term r, c) -> $"(all {r} {printConcept c})"
-    | ConceptExpr.Not c -> "¬" + printConcept c
-    | ConceptExpr.Implies(l, r) -> $"(implies {printConcept l} {printConcept r})"
-    | ConceptExpr.Equivalent(l, r) -> $"(equivalent {printConcept l} {printConcept r})"
-    | ConceptExpr.Func r -> failwith "TODO"
+    | ConceptExpr.Top -> "top()"
+    | ConceptExpr.Bottom -> "bottom()"
+    | ConceptExpr.Exists(Term r, c) -> $"exists({r} {printConcept c})"
+    | ConceptExpr.All(Term r, c) -> $"all({r} {printConcept c})"
+    | ConceptExpr.Not c -> $"not({printConcept c})"
+    | ConceptExpr.Implies(l, r) -> $"implies({printConcept l} {printConcept r})"
+    | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
+    | ConceptExpr.Func(Term r) -> $"func({r})"
 
 let printDefinitions (definitions: Definitions) =
-    Set.fold (fun state value -> state + printConcept value) "definitions (" definitions
+    Set.fold (fun state value -> state + printConcept value) "definitions(" definitions
     + ")"

@@ -8,6 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Ligature.Core
 open Wander.Interpreter
+open Ligature.Interpreter
 
 let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     baseFns
@@ -94,7 +95,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | [ Expression.Term networkName ] ->
                     match store.ReadAssertsKB networkName with
                     | Ok network -> Ok(Expression.Assertions network)
-                    | _ -> failwith "TODO"
+                    | Error err -> Error err
                 | _ -> failwith "TODO"
         ))
     |> Map.add
@@ -140,4 +141,27 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                     | Ok definitions -> Ok(Expression.Definitions definitions)
                     | _ -> failwith "TODO"
                 | _ -> failwith "TODO"
+        ))
+    |> Map.add
+        (Term "is-consistent")
+
+        (Fn(
+            { doc = "Check if a KB is consistent."
+              examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
+              args = "Definitions Assertions"
+              result = "Term" },
+            fun _ _ _ arguments ->
+                match arguments with
+                | [ Expression.Term kbName ] ->
+                    store.IsConsistent kbName
+                    |> Result.map (fun value ->
+                        match value with
+                        | true -> Expression.Term(Term "true")
+                        | false -> Expression.Term(Term "false"))
+                | [ Expression.Definitions def; Expression.Assertions n ] ->
+                    match isConsistent def n with
+                    | Ok true -> Ok(Expression.Term(Term "true"))
+                    | Ok false -> Ok(Expression.Term(Term "false"))
+                    | Error err -> Error err
+                | _ -> error "Invalid call to is-consistent." None
         ))

@@ -133,8 +133,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "bottom", bottomFn
           Term "nnf", nnfFn
           Term "is-instance", isInstanceFn
-          Term "is-definitorial", isDefinitorialFn
-          Term "is-consistent", isConsistentFn ]
+          Term "is-definitorial", isDefinitorialFn ]
     |> createStoreFns store
 
 let mergeLibraries first second =
