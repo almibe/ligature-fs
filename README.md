@@ -30,8 +30,6 @@ test suite for the other project.
 | Ligature           | Main code base including the main logic and types.                 |
 | LigatureCli        | A simple Cli for running Wander scripts.                           |
 | LigatureHttp       | An Http backend for Ligature.                                      |
-| LigaturePad        | A simple desktop app for Ligature for testing¹.                    |
-| LigatureStore      | A prototype persisted store for Ligature.                          |
 | Wander             | The Wander scripting language.                                     |
 
 ¹ See (https://github.com/almibe/ligature-desktop) for a more robust desktop application.

@@ -17,7 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
     <ProjectReference Include="..\Wander\Wander.fsproj" />
-    <ProjectReference Include="..\LigatureStore\LigatureStore.fsproj" />
   </ItemGroup>
 
 </Project>
