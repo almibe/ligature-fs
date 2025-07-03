@@ -15,12 +15,12 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
-type Instance =
+type Element =
     { value: string
       space: Term option
       langTag: string option }
 
-let termToInstance (Term term) : Instance =
+let termToElement (Term term) : Element =
     { value = term
       space = None
       langTag = None }
@@ -29,7 +29,7 @@ type Slot = Slot of string
 
 type ResultSet = Set<ValueSet>
 
-and ValueSet = Map<Slot, Instance>
+and ValueSet = Map<Slot, Element>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term
@@ -37,16 +37,16 @@ and [<RequireQualifiedAccess>] TermPattern =
 
 and [<RequireQualifiedAccess>] ValuePattern =
     | Term of Term
-    | Instance of Instance
+    | Instance of Element
     | Slot of Slot
 
-and Triple = Instance * Term * Instance
+and Triple = Element * Term * Element
 
 and [<RequireQualifiedAccess>] Assertion =
     | Triple of Triple
-    | Instance of Instance * ConceptExpr
-    | Same of Instance * Instance
-    | Different of Instance * Instance
+    | Instance of Element * ConceptExpr
+    | Same of Element * Element
+    | Different of Element * Element
 
 and Assertions = Set<Assertion>
 
@@ -59,8 +59,6 @@ and [<RequireQualifiedAccess>] ConceptExpr =
     | Exists of Term * ConceptExpr
     | All of Term * ConceptExpr
     | Not of ConceptExpr
-    | Implies of ConceptExpr * ConceptExpr
-    | Equivalent of ConceptExpr * ConceptExpr
     // | Exactly of Term * ConceptExpr * int64
     // | AtLeast of Term * ConceptExpr * int64
     // | AtMost of Term * ConceptExpr * int64
@@ -69,7 +67,11 @@ and [<RequireQualifiedAccess>] ConceptExpr =
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>
 
-type Definitions = Set<ConceptExpr>
+and [<RequireQualifiedAccessAttribute>] Definition =
+    | Implies of ConceptExpr * ConceptExpr
+    | Equivalent of ConceptExpr * ConceptExpr
+
+type Definitions = Set<Definition>
 
 type KnowledgeBase = Definitions * Assertions
 
@@ -86,10 +88,10 @@ type ILigatureStore =
     abstract ReadKB: Term -> Result<KnowledgeBase, LigatureError>
     abstract IsConsistent: Term -> Result<bool, LigatureError>
     abstract IsSatisfiable: Term -> ConceptExpr -> Result<bool, LigatureError>
-    abstract IsInstance: Term -> Instance -> ConceptExpr -> Result<bool, LigatureError>
+    abstract IsInstance: Term -> Element -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsSubsumedBy: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsEquivalent: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
-    abstract Query: Term -> ConceptExpr -> Result<Instance, LigatureError>
+    abstract Query: Term -> ConceptExpr -> Result<Element, LigatureError>
     abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
 let rec printConcept (concept: ConceptExpr) : string =
@@ -120,10 +122,14 @@ let rec printConcept (concept: ConceptExpr) : string =
     | ConceptExpr.Exists(Term r, c) -> $"exists({r} {printConcept c})"
     | ConceptExpr.All(Term r, c) -> $"all({r} {printConcept c})"
     | ConceptExpr.Not c -> $"not({printConcept c})"
-    | ConceptExpr.Implies(l, r) -> $"implies({printConcept l} {printConcept r})"
-    | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
+    // | ConceptExpr.Implies(l, r) -> $"implies({printConcept l} {printConcept r})"
+    // | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
     | ConceptExpr.Func(Term r) -> $"func({r})"
 
+let printDefinition (definition: Definition) =
+    failwith "TODO"
+
 let printDefinitions (definitions: Definitions) =
-    Set.fold (fun state value -> state + printConcept value) "definitions(" definitions
-    + ")"
+    failwith "TODO"
+    // Set.fold (fun state value -> state + printConcept value) "definitions(" definitions
+    // + ")"

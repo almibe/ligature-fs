@@ -89,7 +89,7 @@ let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
 
     result
 
-let individuals (aBox: Assertions) : Instance list =
+let individuals (aBox: Assertions) : Element list =
     Set.fold
         (fun state value ->
             match value with

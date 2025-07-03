@@ -26,7 +26,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Tuple of Tuple
     | Set of Set<Expression>
     | Term of Term
-    | Instance of Instance
+    | Instance of Element
     | Variable of Variable
     | Assertion of Assertion
     | Assertions of Assertions
@@ -110,7 +110,7 @@ and printNode
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
 
-and printInstance (instance: Instance) : string =
+and printInstance (instance: Element) : string =
     match instance with
     | { value = l; space = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
     | { value = l } -> encodeString l

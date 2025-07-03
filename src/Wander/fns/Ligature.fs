@@ -194,14 +194,14 @@ let isInstanceFn =
                 Expression.Assertions aBox
                 Expression.Term individual
                 Expression.Term concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToInstance individual) (ConceptExpr.AtomicConcept concept) with
+                match isInstance tBox aBox (termToElement individual) (ConceptExpr.AtomicConcept concept) with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | [ Expression.Definitions tBox
                 Expression.Assertions aBox
                 Expression.Term individual
                 Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToInstance individual) concept with
+                match isInstance tBox aBox (termToElement individual) concept with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | _ -> error "Invalid call to is-instance." None
@@ -216,13 +216,15 @@ let impliesFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term subconcept; Expression.Term concept ] ->
-                Ok(
-                    Expression.ConceptExpr(
-                        ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
-                    )
-                )
+                failwith "TODO"
+                // Ok(
+                //     Expression.ConceptExpr(
+                //         ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                //     )
+                // )
             | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
-                Ok(Expression.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+                failwith "TODO"
+                // Ok(Expression.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -235,13 +237,15 @@ let equivalentFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term subconcept; Expression.Term concept ] ->
-                Ok(
-                    Expression.ConceptExpr(
-                        ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
-                    )
-                )
+                failwith "TODO"
+                // Ok(
+                //     Expression.ConceptExpr(
+                //         ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                //     )
+                // )
             | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
-                Ok(Expression.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+                failwith "TODO"
+                // Ok(Expression.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to equivalent." None
     )
 
@@ -371,7 +375,7 @@ let sameFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Same(termToInstance left, termToInstance right)))
+                Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
             | [ Expression.Instance left; Expression.Instance right ] ->
                 Ok(Expression.Assertion(Assertion.Same(left, right)))
             | _ -> error "Improper call to same." None
@@ -386,7 +390,7 @@ let differentFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Different(termToInstance left, termToInstance right)))
+                Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
             | [ Expression.Instance left; Expression.Instance right ] ->
                 Ok(Expression.Assertion(Assertion.Different(left, right)))
             | _ -> error "Improper call to different." None
@@ -591,14 +595,15 @@ let definitionsFn: Fn =
           args = ""
           result = "" },
         fun _ _ _ arguments ->
-            List.map
-                (fun value ->
-                    match value with
-                    | Expression.ConceptExpr expr -> expr
-                    | Expression.Term term -> ConceptExpr.AtomicConcept term
-                    | x -> failwith $"Not suported - {x}.")
-                arguments
-            |> Set.ofList
-            |> Expression.Definitions
-            |> Ok
+            failwith "TODO"
+            // List.map
+            //     (fun value ->
+            //         match value with
+            //         | Expression.ConceptExpr expr -> expr
+            //         | Expression.Term term -> ConceptExpr.AtomicConcept term
+            //         | x -> failwith $"Not suported - {x}.")
+            //     arguments
+            // |> Set.ofList
+            // |> Expression.Definitions
+            // |> Ok
     )

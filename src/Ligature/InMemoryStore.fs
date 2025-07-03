@@ -69,7 +69,7 @@ type InMemoryStore() =
         member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"
 
-        member this.IsInstance (arg1: Term) (arg2: Instance) (arg3: ConceptExpr) : Result<bool, LigatureError> =
+        member this.IsInstance (arg1: Term) (arg2: Element) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"
 
         member this.IsSatisfiable (arg1: Term) (arg2: ConceptExpr) : Result<bool, LigatureError> =
@@ -78,7 +78,7 @@ type InMemoryStore() =
         member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"
 
-        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Instance, LigatureError> =
+        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Element, LigatureError> =
             failwith "Not Implemented"
 
         member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"

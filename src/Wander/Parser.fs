@@ -16,7 +16,7 @@ let termNib (gaze: Gaze.Gaze<Token>) : Result<Term, Gaze.GazeError> =
     | Error err -> Error err
     | _ -> Error Gaze.GazeError.NoMatch
 
-let individualNib (gaze: Gaze.Gaze<Token>) : Result<Instance, Gaze.GazeError> = failwith "TODO"
+let individualNib (gaze: Gaze.Gaze<Token>) : Result<Element, Gaze.GazeError> = failwith "TODO"
 // match Gaze.next gaze with
 // | Ok(Token.Term value) -> Ok(Value.Term(Term value))
 // | Ok(Token.Literal value) ->

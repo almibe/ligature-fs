@@ -16,7 +16,7 @@ let tests =
         [ testCase "Empty Definitions to Map test"
           <| fun _ ->
               let input = Set.empty
-              let output = tBoxToMap input
+              let output = definitionsToMap input
               Expect.equal output (Some Map.empty) ""
 
           testCase "Single Definition to Map test"
@@ -25,7 +25,7 @@ let tests =
                   Set.ofList
                       [ ConceptExpr.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A")) ]
 
-              let output = tBoxToMap input
+              let output = definitionsToMap input
               Expect.equal output (Some(Map.ofList [ Term "a", ConceptExpr.AtomicConcept(Term "A") ])) ""
 
           testCase "Single Nested Definition to Map test"
@@ -37,7 +37,7 @@ let tests =
                             ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
                         ) ]
 
-              let output = tBoxToMap input
+              let output = definitionsToMap input
 
               Expect.equal
                   output
@@ -60,7 +60,7 @@ let tests =
                         )
                         ConceptExpr.Equivalent(ConceptExpr.AtomicConcept(Term "c"), ConceptExpr.AtomicConcept(Term "A")) ]
 
-              let output = tBoxToMap input
+              let output = definitionsToMap input
 
               Expect.equal
                   output
