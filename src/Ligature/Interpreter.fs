@@ -57,23 +57,22 @@ let newModel (aBox: Assertions) : PotentialModel =
       triples = Set.empty }
 
 let definitionsToMap (definitions: Definitions) : Option<Map<Term, ConceptExpr>> =
-    failwith "TODO"
-    // Set.fold
-    //     (fun state value ->
-    //         match value with
-    //         | ConceptExpr.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-    //             if state.Value.ContainsKey a then
-    //                 None
-    //             else
-    //                 Some(Map.add a c state.Value)
-    //         | ConceptExpr.Implies(ConceptExpr.AtomicConcept a, c) ->
-    //             if state.Value.ContainsKey a then
-    //                 None
-    //             else
-    //                 Some(Map.add a c state.Value)
-    //         | _ -> None)
-    //     (Some Map.empty)
-    //     tBox
+    Set.fold
+        (fun state value ->
+            match value with
+            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if state.Value.ContainsKey a then
+                    None
+                else
+                    Some(Map.add a c state.Value)
+            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+                if state.Value.ContainsKey a then
+                    None
+                else
+                    Some(Map.add a c state.Value)
+            | _ -> None)
+        (Some Map.empty)
+        definitions
 
 let isDefinitorial (tBox: Definitions) : bool =
     let mutable checkedConcepts = Set.empty
@@ -165,17 +164,17 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
-    // | ConceptExpr.Exactly(roleName, c, number) ->
-    //     let c = unfoldSingleExpression definitions c
-    //     ConceptExpr.Exactly(roleName, c, number)
-    // | ConceptExpr.AtLeast(roleName, c, number) ->
-    //     let c = unfoldSingleExpression definitions c
-    //     ConceptExpr.AtLeast(roleName, c, number)
-    // | ConceptExpr.AtMost(roleName, c, number) ->
-    //     let c = unfoldSingleExpression definitions c
-    //     ConceptExpr.AtMost(roleName, c, number)
-    // | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
-    // | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
+// | ConceptExpr.Exactly(roleName, c, number) ->
+//     let c = unfoldSingleExpression definitions c
+//     ConceptExpr.Exactly(roleName, c, number)
+// | ConceptExpr.AtLeast(roleName, c, number) ->
+//     let c = unfoldSingleExpression definitions c
+//     ConceptExpr.AtLeast(roleName, c, number)
+// | ConceptExpr.AtMost(roleName, c, number) ->
+//     let c = unfoldSingleExpression definitions c
+//     ConceptExpr.AtMost(roleName, c, number)
+// | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
+// | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
 let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
     let res =
@@ -626,20 +625,22 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
             List.map (fun value -> ConceptExpr.Not(nnfConcept value)) disj
             |> ConceptExpr.And
         | ConceptExpr.Not c -> ConceptExpr.Not(nnfConcept c)
-        // | ConceptExpr.Implies(lhs, rhs) -> ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
-        // | ConceptExpr.Equivalent(lhs, rhs) ->
-        //     ConceptExpr.And
-        //         [ ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
-        //           ConceptExpr.Or [ lhs; ConceptExpr.Not rhs ] ]
 
     and nnf (definitions': Definitions) : ConceptExpr =
-        failwith "TODO"
-        // if not definitions'.IsEmpty then
-        //     Set.map (fun value -> nnfConcept value) definitions'
-        //     |> List.ofSeq
-        //     |> ConceptExpr.And
-        // else
-        //     ConceptExpr.Top
+        if not definitions'.IsEmpty then
+            Set.map
+                (fun value ->
+                    match value with
+                    | Definition.Implies(lhs, rhs) -> ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
+                    | Definition.Equivalent(lhs, rhs) ->
+                        ConceptExpr.And
+                            [ ConceptExpr.Or [ rhs; ConceptExpr.Not lhs ]
+                              ConceptExpr.Or [ lhs; ConceptExpr.Not rhs ] ])
+                definitions'
+            |> List.ofSeq
+            |> ConceptExpr.And
+        else
+            ConceptExpr.Top
 
     Ok(nnf definitions)
 

@@ -216,15 +216,13 @@ let impliesFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term subconcept; Expression.Term concept ] ->
-                failwith "TODO"
-                // Ok(
-                //     Expression.ConceptExpr(
-                //         ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
-                //     )
-                // )
+                Ok(
+                    Expression.Definition(
+                        Definition.Implies(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
+                    )
+                )
             | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
-                failwith "TODO"
-                // Ok(Expression.ConceptExpr(ConceptExpr.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+                Ok(Expression.Definition(Definition.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -236,16 +234,17 @@ let equivalentFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Term subconcept; Expression.Term concept ] ->
-                failwith "TODO"
-                // Ok(
-                //     Expression.ConceptExpr(
-                //         ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, ConceptExpr.AtomicConcept concept)
-                //     )
-                // )
-            | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
-                failwith "TODO"
-                // Ok(Expression.ConceptExpr(ConceptExpr.Equivalent(ConceptExpr.AtomicConcept subconcept, concept)))
+            | [ Expression.Term leftConcept; Expression.Term rightConcept ] ->
+                Ok(
+                    Expression.Definition(
+                        Definition.Equivalent(
+                            ConceptExpr.AtomicConcept leftConcept,
+                            ConceptExpr.AtomicConcept rightConcept
+                        )
+                    )
+                )
+            | [ Expression.Term leftConcept; Expression.ConceptExpr rightConcept ] ->
+                Ok(Expression.Definition(Definition.Equivalent(ConceptExpr.AtomicConcept leftConcept, rightConcept)))
             | _ -> error "Improper call to equivalent." None
     )
 
@@ -590,20 +589,18 @@ let orFn: Fn =
 
 let definitionsFn: Fn =
     Fn(
-        { doc = "Define a TBox."
+        { doc = "Create a set of definitions."
           examples = [ "(definitions (implies Dog Animal))" ]
-          args = ""
-          result = "" },
+          args = "Definition..."
+          result = "Definitions" },
         fun _ _ _ arguments ->
-            failwith "TODO"
-            // List.map
-            //     (fun value ->
-            //         match value with
-            //         | Expression.ConceptExpr expr -> expr
-            //         | Expression.Term term -> ConceptExpr.AtomicConcept term
-            //         | x -> failwith $"Not suported - {x}.")
-            //     arguments
-            // |> Set.ofList
-            // |> Expression.Definitions
-            // |> Ok
+            List.map
+                (fun value ->
+                    match value with
+                    | Expression.Definition def -> def
+                    | x -> failwith $"Not suported - {x}.")
+                arguments
+            |> Set.ofList
+            |> Expression.Definitions
+            |> Ok
     )

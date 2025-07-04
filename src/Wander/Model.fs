@@ -35,6 +35,7 @@ and [<RequireQualifiedAccess>] Expression =
     | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
+    | Definition of Definition
     | Definitions of Definitions
 
 and Node =

@@ -126,10 +126,8 @@ let rec printConcept (concept: ConceptExpr) : string =
     // | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
     | ConceptExpr.Func(Term r) -> $"func({r})"
 
-let printDefinition (definition: Definition) =
-    failwith "TODO"
+let printDefinition (definition: Definition) = failwith "TODO"
 
-let printDefinitions (definitions: Definitions) =
-    failwith "TODO"
-    // Set.fold (fun state value -> state + printConcept value) "definitions(" definitions
-    // + ")"
+let printDefinitions (definitions: Definitions) = failwith "TODO"
+// Set.fold (fun state value -> state + printConcept value) "definitions(" definitions
+// + ")"
