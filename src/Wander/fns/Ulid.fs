@@ -7,7 +7,6 @@ module Wander.Fns.Ulid
 open Wander.Model
 open Ligature.Model
 open System
-open System
 
 //Source https://github.com/lucasschejtman/FSharp.Ulid
 module internal Extensions =
@@ -75,7 +74,7 @@ module Ulid =
 let ulidFn =
     Fn(
         { doc = "Generate a ULID with an optional prefix."
-          examples = [ "(ulid)"; "(ulid prefix)" ]
+          examples = [ "ulid()"; "ulid(prefix)" ]
           args = "Term?"
           result = "Term" },
         fun _ _ _ arguments ->

@@ -115,8 +115,8 @@ and writeJsonView (view: JsonView) : string =
 
 let unfoldFn =
     Fn(
-        { doc = "Unfold a TBox into an ABox."
-          examples = [ "(unfold (definitions (implies A B)) (assertions [a : A]))" ]
+        { doc = "Unfold a definitions into a set of assertions."
+          examples = [ "unfold(definitions(implies(A B)) assertions(instance(a A)))" ]
           args = "Definitions Assertions"
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -128,8 +128,8 @@ let unfoldFn =
 
 let isDefinitorialFn =
     Fn(
-        { doc = "Check if t-box is definitorial."
-          examples = [ "(is-definitorial (definitions (implies A B)))" ]
+        { doc = "Check if definitions are definitorial."
+          examples = [ "is-definitorial(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Literal" },
         fun _ _ _ arguments ->
@@ -145,7 +145,7 @@ let isDefinitorialFn =
 let nnfFn =
     Fn(
         { doc = "Convert definitions to nnf."
-          examples = [ "(nnf (definitions (implies A B)))" ]
+          examples = [ "nnf(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Definitions" },
         fun _ _ _ arguments ->
@@ -159,8 +159,8 @@ let nnfFn =
 
 let bottomFn =
     Fn(
-        { doc = "Constructor for bottom concept."
-          examples = [ "(bottom)" ]
+        { doc = "Constructor for the bottom concept."
+          examples = [ "bottom()" ]
           args = ""
           result = "ConceptExpr" },
         fun _ _ _ arguments ->
@@ -172,21 +172,21 @@ let bottomFn =
 
 let topFn =
     Fn(
-        { doc = "Constructor for top concept."
-          examples = [ "(top)" ]
+        { doc = "Constructor for the top concept."
+          examples = [ "top()" ]
           args = ""
           result = "ConceptExpr" },
         fun _ _ _ arguments ->
             match arguments with
             | [] -> Ok(Expression.ConceptExpr ConceptExpr.Top)
-            | _ -> error "Invalid call to bottom." None
+            | _ -> error "Invalid call to top." None
     )
 
 let isInstanceFn =
     Fn(
         { doc = "Check if an instance is a concept."
-          examples = [ "(is-instance (definitions (implies A B)) (assertions (instance a A)) a B)" ]
-          args = "Definitions Assertions Individual Concept"
+          examples = [ "is-instance(definitions(implies(A B)) assertions(instance(a A)) a B)" ]
+          args = "Definitions Assertions Element Concept"
           result = "Term" },
         fun _ _ _ arguments ->
             match arguments with
@@ -210,7 +210,7 @@ let isInstanceFn =
 let impliesFn: Fn =
     Fn(
         { doc = "Create a subconcept axiom."
-          examples = [ "(implies Dog Animal)" ]
+          examples = [ "implies(Dog Animal)" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
@@ -229,7 +229,7 @@ let impliesFn: Fn =
 let equivalentFn: Fn =
     Fn(
         { doc = "State two Concepts are equivs."
-          examples = [ "(equiv Named (exists name))" ]
+          examples = [ "equiv(Named exists(name))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
@@ -252,7 +252,7 @@ let tableauModelsFn: Fn =
     Fn(
         { doc =
             "Find all models using the tableau algorithm and return them based on whether or not they contain clashes."
-          examples = [ "(tableau-models (definitions) (assertions))" ]
+          examples = [ "tableau-models(definitions() assertions())" ]
           args = "Definitions Assertions"
           result = "Set" },
         fun _ _ _ arguments ->
@@ -313,9 +313,9 @@ let tableauModelsFn: Fn =
 let elementFn: Fn =
     Fn(
         { doc = "Create an element."
-          examples = [ "(element \"# hello\" Markdown en)" ]
+          examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term"
-          result = "Individual" },
+          result = "Element" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
@@ -330,8 +330,8 @@ let elementFn: Fn =
 
 let instanceFn: Fn =
     Fn(
-        { doc = "Assert an Individual extends a Concept."
-          examples = [ "(instance betty (and Cat (not Dog)))" ]
+        { doc = "Assert an Element extends a Concept."
+          examples = [ "instance(betty and(Cat not(Dog)))" ]
           args = ""
           result = "" },
         fun _ _ _ arguments ->
@@ -367,9 +367,9 @@ let instanceFn: Fn =
 
 let sameFn: Fn =
     Fn(
-        { doc = "Assert two names reference the same Individual."
-          examples = [ "(same a b)" ]
-          args = "Individual Individual"
+        { doc = "Assert two names reference the same Element."
+          examples = [ "same(a b)" ]
+          args = "Element Element"
           result = "Assertion" },
         fun _ _ _ arguments ->
             match arguments with
@@ -382,9 +382,9 @@ let sameFn: Fn =
 
 let differentFn: Fn =
     Fn(
-        { doc = "Assert two names reference different Individuals."
-          examples = [ "(different a b)" ]
-          args = "Individual Individual"
+        { doc = "Assert two names reference different Elements."
+          examples = [ "different(a b)" ]
+          args = "Element Element"
           result = "Assertion" },
         fun _ _ _ arguments ->
             match arguments with
@@ -395,24 +395,24 @@ let differentFn: Fn =
             | _ -> error "Improper call to different." None
     )
 
-let conceptFn: Fn =
-    Fn(
-        { doc = "Convert a term to an atomic concept."
-          examples = [ "(concept A)" ]
-          args = "Term"
-          result = "Concept" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.AtomicConcept concept))
-            | _ -> error "Improper call to concept." None
-    )
+// let conceptFn: Fn =
+//     Fn(
+//         { doc = "Convert a term to an atomic concept."
+//           examples = [ "(concept A)" ]
+//           args = "Term"
+//           result = "Concept" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.AtomicConcept concept))
+//             | _ -> error "Improper call to concept." None
+//     )
 
 let allFn: Fn =
     Fn(
         { doc = "Create a ∀ Concept."
-          examples = [ "(all knows Person)" ]
-          args = ""
-          result = "" },
+          examples = [ "all(knows Person)" ]
+          args = "Term ConceptExpr"
+          result = "ConceptExpr" },
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.Term role; Expression.Term concept ] ->
@@ -425,7 +425,7 @@ let allFn: Fn =
 let existsFn: Fn =
     Fn(
         { doc = "Create an ∃ Concept."
-          examples = [ "(exists name) (exists knows Person)" ]
+          examples = [ "exists(name)"; "exists(knows Person)" ]
           args = "RoleName Concept?"
           result = "Concept" },
         fun _ _ _ arguments ->
@@ -440,8 +440,8 @@ let existsFn: Fn =
 
 let funcFn: Fn =
     Fn(
-        { doc = "Create a function role definition."
-          examples = [ "(func name)" ]
+        { doc = "Create a functional role definition."
+          examples = [ "func(name)" ]
           args = "RoleName"
           result = "Concept" },
         fun _ _ _ arguments ->
@@ -526,7 +526,7 @@ let funcFn: Fn =
 let notFn: Fn =
     Fn(
         { doc = "Negate a Concept Expression."
-          examples = [ "(not Dog)"; "(not (and Cat Dog))" ]
+          examples = [ "not(Dog)"; "not(and(Cat Dog))" ]
           args = "ConceptExpression"
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
@@ -539,9 +539,9 @@ let notFn: Fn =
 
 let andFn: Fn =
     Fn(
-        { doc = "And multiple Concept Expressions."
-          examples = [ "(and Cat Dog Ferret)"; "(and Cat (not (and Ferret Dog))))" ]
-          args = "ConceptExpression"
+        { doc = "Create a conjunction of multiple Concept Expressions."
+          examples = [ "and(Cat Dog Ferret)" ]
+          args = "ConceptExpression..."
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             let res =
@@ -564,9 +564,9 @@ let andFn: Fn =
 
 let orFn: Fn =
     Fn(
-        { doc = "Or multiple Concept Expressions."
-          examples = [ "(or Cat Dog Ferret)" ]
-          args = "ConceptExpression"
+        { doc = "Create a disjunction of multiple Concept Expressions."
+          examples = [ "or(Cat Dog Ferret)" ]
+          args = "ConceptExpression..."
           result = "ConceptExpression" },
         fun _ _ _ arguments ->
             let res =
@@ -590,7 +590,7 @@ let orFn: Fn =
 let definitionsFn: Fn =
     Fn(
         { doc = "Create a set of definitions."
-          examples = [ "(definitions (implies Dog Animal))" ]
+          examples = [ "definitions(implies(Dog Animal))" ]
           args = "Definition..."
           result = "Definitions" },
         fun _ _ _ arguments ->

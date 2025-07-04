@@ -107,7 +107,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "different", differentFn
           //   Term "find-model", findModelFn
           Term "tableau-models", tableauModelsFn
-          Term "concept", conceptFn
+          //   Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn

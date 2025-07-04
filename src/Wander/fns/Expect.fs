@@ -58,7 +58,7 @@ let testGroupFn: Fn =
 let expectEqualFn: Fn =
     Fn(
         { doc = "Create a test record that to top two values are equal."
-          examples = [ "(expect-equal \"is A equal to A?\" A A)" ]
+          examples = [ "expect-equal(\"is A equal to A?\" A A)" ]
           args = "Literal Any Any"
           result = "Record" },
         fun _ _ _ arguments ->
