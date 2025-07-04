@@ -116,7 +116,7 @@ let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwit
 let assertionsFn =
     Fn(
         { doc = "Create a set of assertions."
-          examples = [ "(assertions (instance betty Cat))" ]
+          examples = [ "assertions(instance(betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
         fun _ _ _ arguments ->
@@ -129,7 +129,7 @@ let assertionsFn =
                     | Expression.Tuple [ e; a; v ] ->
                         let e =
                             match e with
-                            | Expression.Instance instance -> instance
+                            | Expression.Element instance -> instance
                             | Expression.Term(Term t) ->
                                 { value = t
                                   space = None
@@ -143,7 +143,7 @@ let assertionsFn =
 
                         let v =
                             match v with
-                            | Expression.Instance instance -> instance
+                            | Expression.Element instance -> instance
                             | Expression.Term(Term t) ->
                                 { value = t
                                   space = None
@@ -161,37 +161,37 @@ let assertionsFn =
             Ok(Expression.Assertions res)
     )
 
-let unionFn =
-    Fn(
-        { doc = "Combine the top two Networks on the Stack and push the resulting Network."
-          examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
-          args = "Network Network"
-          result = "Network" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Assertions left; Expression.Assertions right ] ->
-                let result = Set.union left right |> Expression.Assertions
-                Ok result
-            | _ -> failwith $"Calls to union requires two ABoxes."
-    )
+// let unionFn =
+//     Fn(
+//         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
+//           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
+//           args = "Network Network"
+//           result = "Network" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Assertions left; Expression.Assertions right ] ->
+//                 let result = Set.union left right |> Expression.Assertions
+//                 Ok result
+//             | _ -> failwith $"Calls to union requires two ABoxes."
+//     )
 
-let countFn =
-    Fn(
-        { doc = "Count the assertions in a given ABox."
-          examples = [ "(count (assertions [a b c]))" ]
-          args = "Assertions"
-          result = "Literal" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Assertions n ] ->
-                Ok(
-                    Expression.Instance
-                        { value = (Set.count n).ToString()
-                          space = None
-                          langTag = None }
-                )
-            | _ -> error "Illegal call to count." None
-    )
+// let countFn =
+//     Fn(
+//         { doc = "Count the assertions in a given ABox."
+//           examples = [ "(count (assertions [a b c]))" ]
+//           args = "Assertions"
+//           result = "Literal" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Assertions n ] ->
+//                 Ok(
+//                     Expression.Instance
+//                         { value = (Set.count n).ToString()
+//                           space = None
+//                           langTag = None }
+//                 )
+//             | _ -> error "Illegal call to count." None
+//     )
 
 // let minusCommand =
 //     { Eval =
@@ -226,34 +226,34 @@ let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression lis
       attributes = selectionValues
       children = [] }
 
-let queryFn =
-    Fn(
-        { doc = "Perform a query."
-          examples = []
-          args = "TBox ABox (Term | ConceptExpr) Tuple"
-          result = "Tuple" },
-        fun _ _ _ arguments ->
-            match arguments with
-            | [ Expression.Definitions tBox
-                Expression.Assertions aBox
-                Expression.Term concept
-                Expression.Tuple selections ] -> failwith "TODO"
-            // let results =
-            //     query tBox aBox (ConceptExpr.AtomicConcept concept)
-            //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+// let queryFn =
+//     Fn(
+//         { doc = "Perform a query."
+//           examples = []
+//           args = "TBox ABox (Term | ConceptExpr) Tuple"
+//           result = "Tuple" },
+//         fun _ _ _ arguments ->
+//             match arguments with
+//             | [ Expression.Definitions tBox
+//                 Expression.Assertions aBox
+//                 Expression.Term concept
+//                 Expression.Tuple selections ] -> failwith "TODO"
+//             // let results =
+//             //     query tBox aBox (ConceptExpr.AtomicConcept concept)
+//             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-            // Ok(Expression.Tuple results)
-            | [ Expression.Definitions tBox
-                Expression.Assertions aBox
-                Expression.ConceptExpr concept
-                Expression.Tuple selections ] -> failwith "TODO"
-            // let results =
-            //     query tBox aBox concept
-            //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+//             // Ok(Expression.Tuple results)
+//             | [ Expression.Definitions tBox
+//                 Expression.Assertions aBox
+//                 Expression.ConceptExpr concept
+//                 Expression.Tuple selections ] -> failwith "TODO"
+//             // let results =
+//             //     query tBox aBox concept
+//             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
 
-            // Ok(Expression.Tuple results)
-            | _ -> error "Invalid call to query" None
-    )
+//             // Ok(Expression.Tuple results)
+//             | _ -> error "Invalid call to query" None
+//     )
 
 // let matchCommand =
 //     { Eval =
@@ -382,24 +382,24 @@ let queryFn =
 //             | _ -> error "Invalid call to filter" None
 //     )
 
-let isEmptyFn =
-    Fn(
-        { doc =
-            "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
-          examples = []
-          args = ""
-          result = "" },
-        fun actions variables arguments -> failwith "TODO"
-    // match stack with
-    // | Any.Network cond :: tail ->
-    //     if cond = Set.empty then
-    //         Ok(Any.Term(Term "true") :: tail)
-    //     else
-    //         Ok(Any.Term(Term "false") :: tail)
-    // | Any.Tuple q :: tail ->
-    //     if q.IsEmpty then
-    //         Ok(Any.Term(Term "true") :: tail)
-    //     else
-    //         Ok(Any.Term(Term "false") :: tail)
-    // | _ -> error "Invalid call to is-empty" None
-    )
+// let isEmptyFn =
+//     Fn(
+//         { doc =
+//             "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
+//           examples = []
+//           args = ""
+//           result = "" },
+//         fun actions variables arguments -> failwith "TODO"
+//     // match stack with
+//     // | Any.Network cond :: tail ->
+//     //     if cond = Set.empty then
+//     //         Ok(Any.Term(Term "true") :: tail)
+//     //     else
+//     //         Ok(Any.Term(Term "false") :: tail)
+//     // | Any.Tuple q :: tail ->
+//     //     if q.IsEmpty then
+//     //         Ok(Any.Term(Term "true") :: tail)
+//     //     else
+//     //         Ok(Any.Term(Term "false") :: tail)
+//     // | _ -> error "Invalid call to is-empty" None
+//     )

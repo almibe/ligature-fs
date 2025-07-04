@@ -192,16 +192,16 @@ let isInstanceFn =
             match arguments with
             | [ Expression.Definitions tBox
                 Expression.Assertions aBox
-                Expression.Term individual
+                Expression.Term element
                 Expression.Term concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToElement individual) (ConceptExpr.AtomicConcept concept) with
+                match isInstance tBox aBox (termToElement element) (ConceptExpr.AtomicConcept concept) with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | [ Expression.Definitions tBox
                 Expression.Assertions aBox
-                Expression.Term individual
+                Expression.Term element
                 Expression.ConceptExpr concept ] -> //TODO handle conceptexprs
-                match isInstance tBox aBox (termToElement individual) concept with
+                match isInstance tBox aBox (termToElement element) concept with
                 | Ok term -> Ok(Expression.Term term)
                 | Error err -> Error err
             | _ -> error "Invalid call to is-instance." None
@@ -310,22 +310,22 @@ let tableauModelsFn: Fn =
 //     | Error err -> Error err
 // | _ -> error "Improper call to find-model." None)
 
-let individualFn: Fn =
+let elementFn: Fn =
     Fn(
-        { doc = "Create an individual."
-          examples = [ "(individual \"# hello\" Markdown en)" ]
+        { doc = "Create an element."
+          examples = [ "(element \"# hello\" Markdown en)" ]
           args = "Literal Term Term"
           result = "Individual" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Instance { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
+            | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
-                    Expression.Instance
+                    Expression.Element
                         { value = content
                           space = Some datatype
                           langTag = Some langTag }
                 )
-            | _ -> error "Improper call to individual." None
+            | _ -> error "Improper call to element." None
     )
 
 let instanceFn: Fn =
@@ -336,31 +336,31 @@ let instanceFn: Fn =
           result = "" },
         fun _ _ _ arguments ->
             match arguments with
-            | [ Expression.Term(Term individual); Expression.Term concept ] ->
+            | [ Expression.Term(Term element); Expression.Term concept ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Instance(
-                            { value = individual
+                            { value = element
                               space = None
                               langTag = None },
                             ConceptExpr.AtomicConcept concept
                         )
                     )
                 )
-            | [ Expression.Term(Term individual); Expression.ConceptExpr concept ] ->
+            | [ Expression.Term(Term element); Expression.ConceptExpr concept ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Instance(
-                            { value = individual
+                            { value = element
                               space = None
                               langTag = None },
                             concept
                         )
                     )
                 )
-            | [ Expression.Instance instance; Expression.Term concept ] ->
+            | [ Expression.Element instance; Expression.Term concept ] ->
                 Ok(Expression.Assertion(Assertion.Instance(instance, ConceptExpr.AtomicConcept concept)))
-            | [ Expression.Instance instance; Expression.ConceptExpr concept ] ->
+            | [ Expression.Element instance; Expression.ConceptExpr concept ] ->
                 Ok(Expression.Assertion(Assertion.Instance(instance, concept)))
             | x -> error $"Improper call to instance: {x}" None
     )
@@ -375,7 +375,7 @@ let sameFn: Fn =
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
-            | [ Expression.Instance left; Expression.Instance right ] ->
+            | [ Expression.Element left; Expression.Element right ] ->
                 Ok(Expression.Assertion(Assertion.Same(left, right)))
             | _ -> error "Improper call to same." None
     )
@@ -390,7 +390,7 @@ let differentFn: Fn =
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
-            | [ Expression.Instance left; Expression.Instance right ] ->
+            | [ Expression.Element left; Expression.Element right ] ->
                 Ok(Expression.Assertion(Assertion.Different(left, right)))
             | _ -> error "Improper call to different." None
     )

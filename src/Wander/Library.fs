@@ -10,7 +10,6 @@ open Wander.Fns.Expect
 open Wander.Fns.Core
 open Wander.Fns.Assertions
 open Wander.Fns.Ligature
-open Wander.Fns.Remote
 open Wander.Fns.Store
 open Wander.Fns.Ulid
 
@@ -102,7 +101,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "do", doFn
           Term "set", setFn
           Term "assertions", assertionsFn
-          Term "individual", individualFn
+          Term "element", elementFn
           Term "instance", instanceFn
           Term "same", sameFn
           Term "different", differentFn
@@ -121,13 +120,12 @@ let stdFns (store: ILigatureStore) : Fns =
           //   Term "at-least", atLeastFn
           //   Term "at-most", atMostFn
           Term "implies", impliesFn
-          Term "union", unionFn
-          Term "remote", remoteFn
+          //   Term "union", unionFn
           Term "docs", docsFn
           Term "id", idFn
-          Term "is-empty", isEmptyFn
-          Term "query", queryFn
-          Term "count", countFn
+          //   Term "is-empty", isEmptyFn
+          //   Term "query", queryFn
+          //   Term "count", countFn
           Term "unfold", unfoldFn
           Term "top", topFn
           Term "bottom", bottomFn

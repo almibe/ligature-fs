@@ -16,7 +16,7 @@ let testGroupFn: Fn =
         fun _ _ _ arguments ->
             let groupName =
                 match arguments.Head with
-                | Expression.Instance name -> name
+                | Expression.Element name -> name
                 | _ -> failwith "Unexpected value."
 
             let testData =
@@ -29,9 +29,9 @@ let testGroupFn: Fn =
                                 testResult.attributes.TryFind(Term "status"),
                                 testResult.attributes.TryFind(Term "comment")
                             with
-                            | Some(Expression.Instance name),
+                            | Some(Expression.Element name),
                               Some(Expression.Term(Term status)),
-                              Some(Expression.Instance comment) ->
+                              Some(Expression.Element comment) ->
                                 let testId =
                                     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
                                       space = None
@@ -70,13 +70,13 @@ let expectEqualFn: Fn =
                           attributes =
                             Map.ofList
                                 [ Term "name",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = ""
                                         space = None
                                         langTag = None }
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = ""
                                         space = None
                                         langTag = None } ]
@@ -88,28 +88,28 @@ let expectEqualFn: Fn =
                           attributes =
                             Map.ofList
                                 [ Term "name",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = ""
                                         space = None
                                         langTag = None }
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = $"assert-equal failed {printAny first} != {printAny second}"
                                         space = None
                                         langTag = None } ]
                           children = [] }
                     |> Ok
-            | [ Expression.Instance name; left; right ] ->
+            | [ Expression.Element name; left; right ] ->
                 if left = right then
                     Expression.NodeLiteral
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Expression.Instance name
+                                [ Term "name", Expression.Element name
                                   Term "status", Expression.Term(Term "pass")
                                   Term "comment",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = ""
                                         space = None
                                         langTag = None } ]
@@ -120,10 +120,10 @@ let expectEqualFn: Fn =
                         { name = Term "Test"
                           attributes =
                             Map.ofList
-                                [ Term "name", Expression.Instance name
+                                [ Term "name", Expression.Element name
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
-                                  Expression.Instance
+                                  Expression.Element
                                       { value = $"assert-equal failed {printAny left} != {printAny right}"
                                         space = None
                                         langTag = None } ]

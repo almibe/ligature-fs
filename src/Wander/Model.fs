@@ -26,7 +26,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Tuple of Tuple
     | Set of Set<Expression>
     | Term of Term
-    | Instance of Element
+    | Element of Element
     | Variable of Variable
     | Assertion of Assertion
     | Assertions of Assertions
@@ -77,10 +77,8 @@ let encodeString string =
 let rec printAny (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    | Expression.Instance { value = l
-                            space = Some(Term t)
-                            langTag = Some langTag } -> $"(literal {encodeString l} {t} {langTag})"
-    | Expression.Instance { value = content } -> encodeString content
+    | Expression.Element element -> printElement element
+    //| Expression.Element { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Tuple tuple -> printTuple tuple
     | Expression.Assertions n -> printAssertions n
@@ -93,6 +91,7 @@ let rec printAny (value: Expression) : string =
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Set s -> $"{s}"
+    | Expression.Definition d -> printDefinition d
 
 and printTuple (tuple: Tuple) : string =
     Seq.fold (fun state value -> state + printAny value + " ") "[" tuple + "]"
@@ -107,14 +106,18 @@ and printNode
 
     let children = List.fold (fun state value -> $" {state} {value}") "" children
 
-    $"{{{name}{attributes} {children}}}"
+    $"{name} {{{attributes} {children}}}"
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
 
-and printInstance (instance: Element) : string =
-    match instance with
-    | { value = l; space = Some(Term t) } -> if t = "" then encodeString l else encodeString l + "^^" + t
-    | { value = l } -> encodeString l
+and printElement (element: Element) : string =
+    match element with
+    | { value = l
+        space = Some(Term t)
+        langTag = Some langTag } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
+    | { value = l
+        space = None
+        langTag = None } -> encodeString l
 // | Value.Literal { id = l } -> encodeString l
 // | Value.Term(Term t) -> t
 
@@ -132,7 +135,7 @@ and printResultSet (rs: ResultSet) =
         (fun variables ->
             res <- res + "("
 
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + printInstance value + ", ") variables
+            Map.iter (fun (Slot var) value -> res <- res + var + " " + printElement value + ", ") variables
 
             res <- res + ")")
         rs
@@ -189,7 +192,7 @@ and printAssertions (aBox: Assertions) : string =
 
 and printAssertion (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple(individual, Term role, filler) -> $"[{printInstance individual} {role} {printInstance filler}]"
-    | Assertion.Instance(individual, c) -> $"instance({printInstance individual} {printConcept c})"
+    | Assertion.Triple(element, Term role, filler) -> $"[{printElement element} {role} {printElement filler}]"
+    | Assertion.Instance(element, c) -> $"instance({printElement element} {printConcept c})"
     | Assertion.Same(l, r) -> failwith "Not Implemented"
     | Assertion.Different(l, r) -> failwith "Not Implemented"

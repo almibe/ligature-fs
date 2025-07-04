@@ -146,7 +146,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.Gaz
     | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
-            Expression.Instance
+            Expression.Element
                 { value = value
                   space = None
                   langTag = None }

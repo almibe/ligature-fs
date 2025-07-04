@@ -168,7 +168,7 @@ and executeExpression
                 set
 
         Ok(Expression.Set set)
-    | Expression.Instance literal -> Ok(Expression.Instance literal)
+    | Expression.Element literal -> Ok(Expression.Element literal)
     | Expression.Variable variable ->
         match variables.TryFind variable with
         | Some value -> Ok value
