@@ -31,5 +31,5 @@ let runWithDefaults (script: string) =
 
 let printResult (result: Result<Expression, LigatureError>) =
     match result with
-    | Ok res -> printAny res
+    | Ok res -> printExpression res
     | Error err -> $"Error {err.UserMessage}"

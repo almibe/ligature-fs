@@ -95,7 +95,7 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Element
-                                      { value = $"assert-equal failed {printAny first} != {printAny second}"
+                                      { value = $"assert-equal failed {printExpression first} != {printExpression second}"
                                         space = None
                                         langTag = None } ]
                           children = [] }
@@ -124,7 +124,7 @@ let expectEqualFn: Fn =
                                   Term "status", Expression.Term(Term "fail")
                                   Term "comment",
                                   Expression.Element
-                                      { value = $"assert-equal failed {printAny left} != {printAny right}"
+                                      { value = $"assert-equal failed {printExpression left} != {printExpression right}"
                                         space = None
                                         langTag = None } ]
                           children = [] }

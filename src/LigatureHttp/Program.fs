@@ -22,7 +22,7 @@ let createEndpoints (store: ILigatureStore) =
 
               return!
                   match run (Wander.Library.stdFns store) Map.empty Map.empty body with
-                  | Ok result -> Response.ofPlainText (printAny result) ctx
+                  | Ok result -> Response.ofPlainText (printExpression result) ctx
                   | Error err -> Response.ofPlainText err.UserMessage ctx
           }) ]
 
