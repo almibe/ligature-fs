@@ -25,11 +25,11 @@ let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, L
 
     run resFns Map.empty Map.empty script
 
-let run = runWithDefaults
+let runAndPrint = runWithDefaults >> printResult
 
 let printResult = printResult
 
-let printAny = printAny
+let printAny = printExpression
 
 let ok value = Ok value
 
@@ -137,7 +137,15 @@ and anyToJs (any: Expression) =
         obj?``type`` <- "set"
         obj?value <- res
         obj
-    | x -> failwith $"Invalid call to anyToJs: {x}"
+    | Expression.Application _ -> failwith "Unsupported"
+    | Expression.Slot(_) -> failwith "Not Implemented"
+    | Expression.Variable(_) -> failwith "Not Implemented"
+    | Expression.Assertion(_) -> failwith "Not Implemented"
+    | Expression.Comment(_) -> failwith "Not Implemented"
+    | Expression.Lambda(_) -> failwith "Not Implemented"
+    | Expression.ConceptExpr(_) -> failwith "Not Implemented"
+    | Expression.Definition(_) -> failwith "Not Implemented"
+    | Expression.Definitions(_) -> failwith "Not Implemented"
 
 let resultToJs (res: Result<Expression, LigatureError>) =
     match res with
@@ -201,6 +209,10 @@ let isConsistent tBox aBox : bool =
     match Ligature.Interpreter.isConsistent tBox aBox with
     | Ok value -> value
     | Error err -> failwith err.UserMessage
+
+let run (script: string) = 
+    runWithDefaults script
+    |> resultToJs
 
 let appendCanvas element (value: Result<Expression, LigatureError>) = failwith "TODO"
 // match value with
