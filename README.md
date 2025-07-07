@@ -29,10 +29,9 @@ test suite for the other project.
 | Gaze               | A parsing library.                                                 |
 | Ligature           | Main code base including the main logic and types.                 |
 | LigatureCli        | A simple Cli for running Wander scripts.                           |
+| LigatureFable      | Fable support for Ligature.                                        |
 | LigatureHttp       | An Http backend for Ligature.                                      |
 | Wander             | The Wander scripting language.                                     |
-
-¹ See (https://github.com/almibe/ligature-desktop) for a more robust desktop application.
 
 ## Setup
 

@@ -1,5 +1,3 @@
-import { run as _run } from './Library.fs.js'
-
 export type Namespace = string
 export type LangTag = string
 export type Elem = {
@@ -98,7 +96,3 @@ export type Equivalent = {
 }
 
 export type Definition = Implies | Equivalent
-
-export function run(script: string) {
-    return _run(script)
-}
