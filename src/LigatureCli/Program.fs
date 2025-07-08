@@ -11,7 +11,6 @@ open Ligature.InMemoryStore
 open System
 open Wander.Parser
 open Wander.Tokenizer
-open Store
 
 [<EntryPoint>]
 let main (args: string[]) =
@@ -31,7 +30,7 @@ let main (args: string[]) =
         match parse script with
         | Ok res -> printfn $"AST:\n{res}\n\n"
 
-    let store = inMemoryStore () //new InMemoryStore()
+    let store = new InMemoryStore()
 
     match run (stdFns store) Map.empty Map.empty script with
     | Ok res -> printfn $"{printExpression res}"
