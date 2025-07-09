@@ -22,8 +22,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
             fun _ _ _ _ -> //TODO assert no args were passed
                 store.KBs()
                 |> Seq.map (fun value -> Expression.Term value)
-                |> Set.ofSeq
-                |> Expression.Set
+                |> List.ofSeq
+                |> Expression.Seq
                 |> Ok
         ))
     |> Map.add

@@ -6,6 +6,7 @@ module Wander.Fns.Core
 
 open Wander.Model
 open Wander.Interpreter
+open Ligature.Model
 
 let idFn: Fn =
     Fn(
@@ -28,17 +29,17 @@ let doFn: Fn =
         fun actions bindings variables arguments ->
             List.fold
                 (fun state expression -> executeExpression actions bindings variables expression)
-                (Ok(Expression.Tuple []))
+                (Ok(Expression.Term (Term "")))
                 arguments
     )
 
-let setFn: Fn =
+let seqFn: Fn =
     Fn(
-        { doc = "Create a set."
-          examples = [ "set (test)" ]
+        { doc = "Create a seq."
+          examples = [ "seq (test)" ]
           args = "Any"
-          result = "Set" },
-        fun _ _ _ arguments -> Ok(Expression.Set(Set.ofList arguments))
+          result = "Seq" },
+        fun _ _ _ arguments -> Ok(Expression.Seq arguments)
     )
 
 // let importCommand: Command =

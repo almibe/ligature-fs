@@ -126,31 +126,31 @@ let assertionsFn =
                 (fun arg ->
                     match arg with
                     | Expression.Assertion assertion -> res <- Set.add assertion res
-                    | Expression.Tuple [ e; a; v ] ->
-                        let e =
-                            match e with
-                            | Expression.Element instance -> instance
-                            | Expression.Term(Term t) ->
-                                { value = t
-                                  space = None
-                                  langTag = None }
-                            | x -> failwith $"Invalid call to assertions: {x}"
+                    // | Expression.Tuple [ e; a; v ] ->
+                    //     let e =
+                    //         match e with
+                    //         | Expression.Element instance -> instance
+                    //         | Expression.Term(Term t) ->
+                    //             { value = t
+                    //               space = None
+                    //               langTag = None }
+                    //         | x -> failwith $"Invalid call to assertions: {x}"
 
-                        let a =
-                            match a with
-                            | Expression.Term t -> t
-                            | _ -> failwith "Invalid call to assertions."
+                    //     let a =
+                    //         match a with
+                    //         | Expression.Term t -> t
+                    //         | _ -> failwith "Invalid call to assertions."
 
-                        let v =
-                            match v with
-                            | Expression.Element instance -> instance
-                            | Expression.Term(Term t) ->
-                                { value = t
-                                  space = None
-                                  langTag = None }
-                            | _ -> failwith "Invalid call to assertions."
+                    //     let v =
+                    //         match v with
+                    //         | Expression.Element instance -> instance
+                    //         | Expression.Term(Term t) ->
+                    //             { value = t
+                    //               space = None
+                    //               langTag = None }
+                    //         | _ -> failwith "Invalid call to assertions."
 
-                        res <- Set.add (Assertion.Triple(e, a, v)) res
+                    //     res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Expression.NodeLiteral node ->
                         match nodeToNetwork node with
                         | Ok network -> res <- res + network

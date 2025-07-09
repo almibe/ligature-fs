@@ -99,10 +99,11 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "expect-equal", expectEqualFn
           Term "ulid", ulidFn
           Term "do", doFn
-          Term "set", setFn
+          Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "element", elementFn
           Term "instance", instanceFn
+          Term "rel", relFn
           Term "same", sameFn
           Term "different", differentFn
           //   Term "find-model", findModelFn

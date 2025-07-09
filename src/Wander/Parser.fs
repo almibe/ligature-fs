@@ -48,13 +48,13 @@ let partialTupleNib (gaze: Gaze.Gaze<Token>) : Result<Tuple, Gaze.GazeError> =
         return values
     }
 
-let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    result {
-        let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return Expression.Tuple values
-    }
+// let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
+//     result {
+//         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
+//         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
+//         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
+//         return Expression.Tuple values
+//     }
 
 let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
     result {
@@ -143,7 +143,7 @@ let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeErr
 let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Expression.Term(Term value))
-    | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
+    // | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
             Expression.Element
@@ -174,7 +174,7 @@ let termAnyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ elementLiteralSlotNib ]
 
 let anyNib: Gaze.Nibbler<Token, Expression> =
-    takeFirst [ tupleAnyNib; applicationNib; nodeNib; elementLiteralSlotNib ]
+    takeFirst [ applicationNib; nodeNib; elementLiteralSlotNib ]
 
 let lineNib (gaze: Gaze.Gaze<Token>) : Result<Variable option * Expression, Gaze.GazeError> =
     match Gaze.attempt variableNib gaze with

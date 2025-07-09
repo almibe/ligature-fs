@@ -19,21 +19,21 @@ let tests =
     testList
         "Parser Test"
         [ testCase "Parse empty script" <| fun _ -> Expect.equal (parse "") (Ok []) ""
-          testCase "read empty tuple"
-          <| fun _ -> Expect.equal (parse "[]") (Ok [ None, Expression.Tuple [] ]) ""
-          testCase "read tuple"
-          <| fun _ ->
-              Expect.equal
-                  (parse "[test \"test2\"]")
-                  (Ok
-                      [ None,
-                        Expression.Tuple
-                            [ Expression.Term(Term "test")
-                              Expression.Element
-                                  { value = "test2"
-                                    space = None
-                                    langTag = None } ] ])
-                  ""
+        //   testCase "read empty tuple"
+        //   <| fun _ -> Expect.equal (parse "[]") (Ok [ None, Expression.Tuple [] ]) ""
+        //   testCase "read tuple"
+        //   <| fun _ ->
+        //       Expect.equal
+        //           (parse "[test \"test2\"]")
+        //           (Ok
+        //               [ None,
+        //                 Expression.Tuple
+        //                     [ Expression.Term(Term "test")
+        //                       Expression.Element
+        //                           { value = "test2"
+        //                             space = None
+        //                             langTag = None } ] ])
+        //           ""
           testCase "read empty node"
           <| fun _ ->
               Expect.equal

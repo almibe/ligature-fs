@@ -261,8 +261,7 @@ let tableauModelsFn: Fn =
                 match tableauModels tBox aBox with
                 | Ok res ->
                     List.map (fun value -> Expression.Assertions value) res
-                    |> Set.ofList
-                    |> Expression.Set
+                    |> Expression.Seq
                     |> Ok
                 | Error err -> Error err
             | _ -> error "Invalid call to tableau-model." None
@@ -326,6 +325,31 @@ let elementFn: Fn =
                           langTag = Some langTag }
                 )
             | _ -> error "Improper call to element." None
+    )
+
+let relFn: Fn =
+    Fn(
+        { doc = "Create a triple assertion."
+          examples = [ "rel(betty sibling don)" ]
+          args = "Element Role Element"
+          result = "Assertion" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Term(Term element); Expression.Term role; Expression.Term(Term filler) ] ->
+                Ok(
+                    Expression.Assertion(
+                        Assertion.Triple(
+                            { value = element
+                              space = None
+                              langTag = None },
+                            role,
+                            { value = filler
+                              space = None
+                              langTag = None }
+                        )
+                    )
+                )
+            | x -> error $"Improper call to rel: {x}" None
     )
 
 let instanceFn: Fn =

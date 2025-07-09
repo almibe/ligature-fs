@@ -48,7 +48,7 @@ let rec evalScript
                         variables <- Map.add variable res variables
                         Ok res
                     | Error err -> Error err)
-        (Ok(Expression.Tuple []))
+        (Ok(Expression.Term (Term "")))
         script
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
@@ -148,26 +148,26 @@ and executeExpression
 
     match expression with
     | Expression.Assertions network -> Ok(Expression.Assertions network)
-    | Expression.Tuple tuple ->
-        let tuple =
-            List.map
-                (fun value ->
-                    match executeExpression actions bindings variables value with
-                    | Ok res -> res
-                    | Error err -> failwith err.UserMessage)
-                tuple
+    // | Expression.Tuple tuple ->
+    //     let tuple =
+    //         List.map
+    //             (fun value ->
+    //                 match executeExpression actions bindings variables value with
+    //                 | Ok res -> res
+    //                 | Error err -> failwith err.UserMessage)
+    //             tuple
 
-        Ok(Expression.Tuple tuple)
-    | Expression.Set set ->
-        let set =
-            Set.map
-                (fun value ->
-                    match executeExpression actions bindings variables value with
-                    | Ok res -> res
-                    | Error err -> failwith err.UserMessage)
-                set
+    //     Ok(Expression.Tuple tuple)
+    // | Expression.Set set ->
+    //     let set =
+    //         Set.map
+    //             (fun value ->
+    //                 match executeExpression actions bindings variables value with
+    //                 | Ok res -> res
+    //                 | Error err -> failwith err.UserMessage)
+    //             set
 
-        Ok(Expression.Set set)
+    //     Ok(Expression.Set set)
     | Expression.Element literal -> Ok(Expression.Element literal)
     | Expression.Variable variable ->
         match variables.TryFind variable with
@@ -177,7 +177,7 @@ and executeExpression
     | Expression.Application application -> executeApplication actions bindings variables application
     | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
     | Expression.Assertion assertion -> failwith "TODO"
-    | Expression.Slot _ -> Ok expression
+    // | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.Lambda _ -> failwith "Not Implemented"
     | Expression.ConceptExpr expr -> Ok(Expression.ConceptExpr expr)

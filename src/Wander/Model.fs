@@ -21,10 +21,16 @@ and Source() =
 //     member _.CompareTo (obj: obj): int =
 //                 raise (System.NotImplementedException())
 
+and [<RequireQualifiedAccess>] WanderExpression =
+    | Term of Term
+    | Variable of Variable
+    | Comment of string
+    | Application of Node
+    | NodeLiteral of Node
+    | Seq of List<WanderExpression>
+
 and [<RequireQualifiedAccess>] Expression =
-    | Slot of Slot
-    | Tuple of Tuple
-    | Set of Set<Expression>
+    | Seq of List<Expression>
     | Term of Term
     | Element of Element
     | Variable of Variable
@@ -77,12 +83,12 @@ let encodeString string =
 let rec printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    | Expression.Element element -> printElement element
+    // | Expression.Element element -> printElement element
     //| Expression.Element { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
-    | Expression.Tuple tuple -> printTuple tuple
+    // | Expression.Tuple tuple -> printTuple tuple
     | Expression.Assertions n -> printAssertions n
-    | Expression.Slot(Slot variable) -> variable
+    // | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.NodeLiteral node -> printNode node
     | Expression.Application _ -> failwith "Not Implemented"
@@ -90,7 +96,7 @@ let rec printExpression (value: Expression) : string =
     | Expression.Definitions defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
-    | Expression.Set s -> printSet s
+    // | Expression.Set s -> printSet s
     | Expression.Definition d -> printDefinition d
 
 and printSet (set: Set<Expression>): string =
