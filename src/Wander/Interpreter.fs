@@ -48,7 +48,7 @@ let rec evalScript
                         variables <- Map.add variable res variables
                         Ok res
                     | Error err -> Error err)
-        (Ok(Expression.Term (Term "")))
+        (Ok(Expression.Term(Term "")))
         script
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =

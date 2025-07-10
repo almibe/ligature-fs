@@ -29,7 +29,7 @@ let doFn: Fn =
         fun actions bindings variables arguments ->
             List.fold
                 (fun state expression -> executeExpression actions bindings variables expression)
-                (Ok(Expression.Term (Term "")))
+                (Ok(Expression.Term(Term "")))
                 arguments
     )
 

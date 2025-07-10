@@ -25,20 +25,20 @@ let tests =
     testList
         "Interpreter Test"
         [ testCase "Run empty script"
-          <| fun _ -> Expect.equal (runScript "") (Ok(Expression.Term (Term ""))) ""
-        //   testCase "run script with tuple literal"
-        //   <| fun _ ->
-        //       Expect.equal
-        //           (runScript "[\"test\"]")
-        //           (Ok(
-        //               Expression.Tuple
-        //                   [ Expression.Element
-        //                         { value = "test"
-        //                           space = None
-        //                           langTag = None } ]
-        //           ))
-                //   "" 
-                  ]
+          <| fun _ -> Expect.equal (runScript "") (Ok(Expression.Term(Term ""))) ""
+          //   testCase "run script with tuple literal"
+          //   <| fun _ ->
+          //       Expect.equal
+          //           (runScript "[\"test\"]")
+          //           (Ok(
+          //               Expression.Tuple
+          //                   [ Expression.Element
+          //                         { value = "test"
+          //                           space = None
+          //                           langTag = None } ]
+          //           ))
+          //   ""
+          ]
 //   testCase "read network with attribute"
 //   <| fun _ ->
 //       Expect.equal

@@ -1,3 +1,3 @@
-import { run } from "./model.js"
+// import { run } from "./model.js"
 
-console.log(run("test"))
+// console.log(run("test"))

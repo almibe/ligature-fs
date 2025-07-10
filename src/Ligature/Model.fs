@@ -128,11 +128,9 @@ let rec printConcept (concept: ConceptExpr) : string =
 
 let printDefinition (definition: Definition) =
     match definition with
-    | Definition.Implies(left, right) -> 
-        $"implies({printConcept left} {printConcept right})"
-    | Definition.Equivalent(left, right) -> 
-        $"equivalent({printConcept left} {printConcept right})"
+    | Definition.Implies(left, right) -> $"implies({printConcept left} {printConcept right})"
+    | Definition.Equivalent(left, right) -> $"equivalent({printConcept left} {printConcept right})"
 
 let printDefinitions (definitions: Definitions) =
     Set.fold (fun state value -> state + printDefinition value) "definitions(" definitions
-        + ")"
+    + ")"

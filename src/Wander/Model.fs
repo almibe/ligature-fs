@@ -83,12 +83,11 @@ let encodeString string =
 let rec printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
-    // | Expression.Element element -> printElement element
-    //| Expression.Element { value = content } -> encodeString content
+    | Expression.Element element -> printElement element
+    | Expression.Element { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
-    // | Expression.Tuple tuple -> printTuple tuple
+    | Expression.Seq seq -> printSeq seq
     | Expression.Assertions n -> printAssertions n
-    // | Expression.Slot(Slot variable) -> variable
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.NodeLiteral node -> printNode node
     | Expression.Application _ -> failwith "Not Implemented"
@@ -96,14 +95,11 @@ let rec printExpression (value: Expression) : string =
     | Expression.Definitions defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
-    // | Expression.Set s -> printSet s
     | Expression.Definition d -> printDefinition d
 
-and printSet (set: Set<Expression>): string =
-    Set.fold (fun state value -> $"{state} {printExpression value}") "set(" set + ")"
-
-and printTuple (tuple: Tuple) : string =
-    Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple + "]"
+and printSeq (tuple: List<Expression>) : string =
+    Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple
+    + "]"
 
 and printNode
     ({ name = Term name
@@ -113,7 +109,8 @@ and printNode
     let attributes =
         Map.fold (fun state (Term key) value -> $" {state} {key} = {printExpression value}") "" attributes
 
-    let children = List.fold (fun state value -> $" {state} {printExpression value}") "" children
+    let children =
+        List.fold (fun state value -> $" {state} {printExpression value}") "" children
 
     $"{name} {{{attributes} {children}}}"
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)

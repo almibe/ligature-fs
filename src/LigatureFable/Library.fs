@@ -86,82 +86,76 @@ let aBoxToJs (aBox: Assertions) =
     obj?value <- network
     obj
 
-let rec nodeToJs
-    ({ name = Term name
-       attributes = attributes
-       children = children }: Node)
-    =
-    let attributes =
-        Seq.fold
-            (fun state (key, value) ->
-                match key with
-                | Term t ->
-                    emitJsExpr (t, anyToJs value) "state[$0] = $1"
-                    state
-                | _ -> failwith "Unsupported attributes key.")
-            (emitJsExpr () "{}")
-            (Map.toSeq attributes)
+// let rec nodeToJs
+//     ({ name = Term name
+//        attributes = attributes
+//        children = children }: Node)
+//     =
+//     let attributes =
+//         Seq.fold
+//             (fun state (key, value) ->
+//                 match key with
+//                 | Term t ->
+//                     emitJsExpr (t, anyToJs value) "state[$0] = $1"
+//                     state
+//                 | _ -> failwith "Unsupported attributes key.")
+//             (emitJsExpr () "{}")
+//             (Map.toSeq attributes)
 
-    let children = List.map (fun value -> anyToJs value) children
+//     let children = List.map (fun value -> anyToJs value) children
 
-    let obj = createEmpty
-    obj?``type`` <- "node"
-    obj?name <- name
-    obj?attributes <- attributes
-    obj?children <- Array.ofList children
-    obj
+//     let obj = createEmpty
+//     obj?``type`` <- "node"
+//     obj?name <- name
+//     obj?attributes <- attributes
+//     obj?children <- Array.ofList children
+//     obj
 
-and anyToJs (any: Expression) =
-    match any with
-    | Expression.Term(Term t) ->
-        let obj = createEmpty
-        obj?``type`` <- "term"
-        obj?value <- t
-        obj
-    | Expression.Element { value = l } -> //TODO add datatype and langtag
-        let obj = createEmpty
-        obj?``type`` <- "literal"
-        obj?value <- l
-        obj
-    | Expression.Assertions n -> aBoxToJs n
-    | Expression.Tuple t ->
-        let res = List.map (fun any -> anyToJs any) t |> List.toArray
-        let obj = createEmpty
-        obj?``type`` <- "tuple"
-        obj?value <- res
-        obj
-    | Expression.NodeLiteral node -> nodeToJs node
-    | Expression.Set set ->
-        let res = List.map (fun any -> anyToJs any) (List.ofSeq set) |> List.toArray
-        let obj = createEmpty
-        obj?``type`` <- "set"
-        obj?value <- res
-        obj
-    | Expression.Application _ -> failwith "Unsupported"
-    | Expression.Slot(_) -> failwith "Not Implemented"
-    | Expression.Variable(_) -> failwith "Not Implemented"
-    | Expression.Assertion(_) -> failwith "Not Implemented"
-    | Expression.Comment(_) -> failwith "Not Implemented"
-    | Expression.Lambda(_) -> failwith "Not Implemented"
-    | Expression.ConceptExpr(_) -> failwith "Not Implemented"
-    | Expression.Definition(_) -> failwith "Not Implemented"
-    | Expression.Definitions(_) -> failwith "Not Implemented"
+// and anyToJs (any: Expression) =
+//     match any with
+//     | Expression.Term(Term t) ->
+//         let obj = createEmpty
+//         obj?``type`` <- "term"
+//         obj?value <- t
+//         obj
+//     | Expression.Element { value = l } -> //TODO add datatype and langtag
+//         let obj = createEmpty
+//         obj?``type`` <- "literal"
+//         obj?value <- l
+//         obj
+//     | Expression.Assertions n -> aBoxToJs n
+//     | Expression.Seq t ->
+//         let res = List.map (fun any -> anyToJs any) t |> List.toArray
+//         let obj = createEmpty
+//         obj?``type`` <- "seq"
+//         obj?value <- res
+//         obj
+//     | Expression.NodeLiteral node -> nodeToJs node
+//     | Expression.Application _ -> failwith "Unsupported"
+//     | Expression.Variable(_) -> failwith "Not Implemented"
+//     | Expression.Assertion(_) -> failwith "Not Implemented"
+//     | Expression.Comment(_) -> failwith "Not Implemented"
+//     | Expression.Lambda(_) -> failwith "Not Implemented"
+//     | Expression.ConceptExpr(_) -> failwith "Not Implemented"
+//     | Expression.Definition(_) -> failwith "Not Implemented"
+//     | Expression.Definitions(_) -> failwith "Not Implemented"
 
-let resultToJs (res: Result<Expression, LigatureError>) =
-    match res with
-    | Error err ->
-        let obj = createEmpty
-        obj?``type`` <- "error"
-        obj?value <- err
-        obj
-    | Ok any -> anyToJs any
+// let resultToJs (res: Result<Expression, LigatureError>) =
+//     match res with
+//     | Error err ->
+//         let obj = createEmpty
+//         obj?``type`` <- "error"
+//         obj?value <- err
+//         obj
+//     | Ok any -> anyToJs any
 
 let rec createElement
     { name = Term tag
       attributes = attributes
       children = children }
     =
-    let newElement = emitJsExpr (tag) "document.createElement($0)"
+    printfn "in createElement"
+    let newElement = emitJsExpr tag "document.createElement($0)"
 
     Map.iter
         (fun key value ->
@@ -188,7 +182,11 @@ let appendHtml element (value: Result<Expression, LigatureError>) =
     | Ok(Expression.NodeLiteral node) ->
         let newElement = createElement node
         emitJsStatement () "element.append(newElement)"
-    | _ -> ()
+    | x -> failwith $"Unexpected value passed to appendHtml {printResult x}"
+
+let runAndAppendHtml element script =
+    let res = runWithDefaults script
+    appendHtml element res
 
 let equivalent left right = Definition.Equivalent left, right
 
@@ -210,9 +208,7 @@ let isConsistent tBox aBox : bool =
     | Ok value -> value
     | Error err -> failwith err.UserMessage
 
-let run (script: string) = 
-    runWithDefaults script
-    |> resultToJs
+// let run (script: string) = runWithDefaults script |> resultToJs
 
 let appendCanvas element (value: Result<Expression, LigatureError>) = failwith "TODO"
 // match value with
