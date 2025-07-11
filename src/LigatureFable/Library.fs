@@ -188,6 +188,11 @@ let runAndAppendHtml element script =
     let res = runWithDefaults script
     appendHtml element res
 
+let runAndGenerateHtml script =
+    match runWithDefaults script with
+    | Ok(Expression.NodeLiteral html) -> Wander.Fns.Html.generateHtml html
+    | x -> failwith $"Unexpected value passed to runAndGenerateHtml {x}"
+
 let equivalent left right = Definition.Equivalent left, right
 
 let concept name = ConceptExpr.AtomicConcept name

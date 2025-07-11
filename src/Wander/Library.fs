@@ -9,6 +9,7 @@ open Wander.Model
 open Wander.Fns.Expect
 open Wander.Fns.Core
 open Wander.Fns.Assertions
+open Wander.Fns.Html
 open Wander.Fns.Ligature
 open Wander.Fns.Store
 open Wander.Fns.Ulid
@@ -132,7 +133,8 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "bottom", bottomFn
           Term "nnf", nnfFn
           Term "is-instance", isInstanceFn
-          Term "is-definitorial", isDefinitorialFn ]
+          Term "is-definitorial", isDefinitorialFn
+          Term "generate-html", generateHtmlFn ]
     |> createStoreFns store
 
 let mergeLibraries first second =
