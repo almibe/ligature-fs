@@ -30,7 +30,7 @@ test suite for the other project.
 | Ligature           | Main code base including the main logic and types.                 |
 | LigatureCli        | A simple Cli for running Wander scripts.                           |
 | LigatureFable      | Fable support for Ligature.                                        |
-| LigatureHttp       | An Http backend for Ligature.                                      |
+| LigatureDevServer  | An Http backend for Ligature.                                      |
 | Wander             | The Wander scripting language.                                     |
 
 ## Setup
