@@ -27,23 +27,45 @@ let store = InMemoryStore() //new LigatureStore(Some path)
 let httpRootPath = Environment.GetEnvironmentVariable "LIGATURE_HTTP_ROOT"
 
 let rec allFiles dirs =
-    if Seq.isEmpty dirs then Seq.empty else
-        seq { yield! dirs |> Seq.collect Directory.EnumerateFiles
-              yield! dirs |> Seq.collect Directory.EnumerateDirectories |> allFiles }
+    if Seq.isEmpty dirs then
+        Seq.empty
+    else
+        seq {
+            yield! dirs |> Seq.collect Directory.EnumerateFiles
+            yield! dirs |> Seq.collect Directory.EnumerateDirectories |> allFiles
+        }
 
-let wanderHandler : HttpHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+let wanderHandler: HttpHandler =
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         if HttpMethods.IsGet ctx.Request.Method then
             task {
                 let path = ctx.Request.Path
                 let file = httpRootPath + path
+
                 if not (file.Contains "..") && file.EndsWith ".wander" then
                     let! script = System.IO.File.ReadAllTextAsync file
+
                     return!
                         match run (Wander.Library.stdFns store) Map.empty Map.empty script with
-                        | Ok (Expression.NodeLiteral result) -> 
-                            ctx.WriteHtmlStringAsync (generateHtml result)
-                        | Ok result -> ctx.WriteTextAsync (printExpression result)
+                        | Ok(Expression.NodeLiteral result) -> ctx.WriteHtmlStringAsync(generateHtml result)
+                        | Ok(Expression.Seq seq) ->
+                            let nodes: Option<Node list> =
+                                List.fold
+                                    (fun state value ->
+                                        match state with
+                                        | Some nodes ->
+                                            match value with
+                                            | Expression.NodeLiteral node -> Some(List.append nodes [ node ])
+                                            | _ -> None
+                                        | None -> None)
+                                    (Some [])
+                                    seq
+
+                            match nodes with
+                            | Some []
+                            | None -> ctx.WriteTextAsync(printExpression (Expression.Seq seq))
+                            | Some nodes -> ctx.WriteHtmlStringAsync(generateHtmlSeq nodes)
+                        | Ok result -> ctx.WriteTextAsync(printExpression result)
                         | Error err -> ctx.WriteTextAsync err.UserMessage
                 else
                     return! ctx.WriteTextAsync "Unexpected value."
@@ -51,40 +73,31 @@ let wanderHandler : HttpHandler =
         else
             failwith "TODO"
 
-let indexHandler : HttpHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+let indexHandler: HttpHandler =
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         if HttpMethods.IsGet ctx.Request.Method then
             task {
-                let filesList = 
-                    allFiles [httpRootPath] 
+                let filesList =
+                    allFiles [ httpRootPath ]
                     |> List.ofSeq
                     |> List.filter (fun file -> file.EndsWith ".wander")
-                    |> List.map (fun file -> 
+                    |> List.map (fun file ->
                         let name = (file.Substring httpRootPath.Length).Replace("\\", "/")
-                        li [] [
-                            a [attr "href" name] [ str name ]
-                        ])
-                
+                        li [] [ a [ attr "href" name ] [ str name ] ])
+
                 let indexView =
-                    html [] [
-                        head [] [
-                            title [] [ str "LigatureDevServer" ]
-                        ]
-                        body [] [
-                            h1 [] [ str "Files:" ]
-                            ul [] filesList
-                        ]
-                    ]
-                
-                return! ctx.WriteHtmlStringAsync (RenderView.AsString.htmlDocument indexView)
+                    html
+                        []
+                        [ head [] [ title [] [ str "LigatureDevServer" ] ]
+                          body [] [ h1 [] [ str "Files:" ]; ul [] filesList ] ]
+
+                return! ctx.WriteHtmlStringAsync(RenderView.AsString.htmlDocument indexView)
             }
         else
             failwith "TODO"
 
 let createEndpoints (store: ILigatureStore) =
-    choose [ 
-        GET >=> route "/" >=> indexHandler
-        GET >=> wanderHandler ]
+    choose [ GET >=> route "/" >=> indexHandler; GET >=> wanderHandler ]
 
 let wapp = WebApplication.Create()
 

@@ -41,6 +41,9 @@ let generateHtml (node: Node) : string =
 
     innerGen node |> Render.htmlView
 
+let generateHtmlSeq (nodes: Node list) : string =
+    List.fold (fun state value -> state + generateHtml value) "" nodes
+
 let generateHtmlFn: Fn =
     Fn(
         { doc = "Convert a node into html."
@@ -50,5 +53,30 @@ let generateHtmlFn: Fn =
         fun _ _ _ arguments ->
             match arguments with
             | [ Expression.NodeLiteral node ] -> Ok(Expression.Term(Term(generateHtml node)))
+            | [ Expression.Seq nodes ] -> failwith "TODO"
             | _ -> failwith "Invalid call to generate-html."
+    )
+
+let assertionsTableFn: Fn =
+    Fn(
+        { doc = "Write out assertions as an html table."
+          examples = [ "assertions-table(assertions(a {rel(b c)}))" ]
+          args = "Assertions"
+          result = "Node" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Assertions assertions ] -> failwith "TODO"
+            | _ -> failwith "Invalid call to assertions-table."
+    )
+
+let forceDirectedLayoutFn: Fn =
+    Fn(
+        { doc = "Generate a force directed layout for the given set of assertions."
+          examples = [ "force-directed-layout(assertions(a {rel(b c)}))" ]
+          args = "Assertions"
+          result = "Node" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Assertions assertions ] -> failwith "TODO"
+            | _ -> failwith "Invalid call to force-directed-layout."
     )
