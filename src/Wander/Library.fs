@@ -134,7 +134,9 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "nnf", nnfFn
           Term "is-instance", isInstanceFn
           Term "is-definitorial", isDefinitorialFn
-          Term "generate-html", generateHtmlFn ]
+          Term "generate-html", generateHtmlFn
+          Term "force-directed-layout", forceDirectedLayoutFn
+          Term "assertions-table", assertionsTableFn ]
     |> createStoreFns store
 
 let mergeLibraries first second =
