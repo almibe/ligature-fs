@@ -56,6 +56,13 @@ let wanderHandler: HttpHandler =
                                         | Some nodes ->
                                             match value with
                                             | Expression.NodeLiteral node -> Some(List.append nodes [ node ])
+                                            | Expression.Seq seq -> 
+                                                let newNodes: List<Node> = 
+                                                    List.map (fun value -> 
+                                                        match value with
+                                                        | Expression.NodeLiteral node -> node
+                                                        | _ -> failwith "TODO") seq
+                                                Some(List.append nodes newNodes)
                                             | _ -> None
                                         | None -> None)
                                     (Some [])
