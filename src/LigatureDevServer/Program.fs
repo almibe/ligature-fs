@@ -35,6 +35,16 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect Directory.EnumerateDirectories |> allFiles
         }
 
+let rec handleSeq (seq: List<Expression>) (nodes: List<Node>): List<Node> =
+    let newNodes: List<Node> = 
+        List.collect (fun value -> 
+            match value with
+            | Expression.NodeLiteral node -> [node]
+            | Expression.Seq seq -> 
+                handleSeq seq nodes
+            | _ -> failwith "TODO") seq
+    List.append nodes newNodes
+
 let wanderHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         if HttpMethods.IsGet ctx.Request.Method then
@@ -49,24 +59,7 @@ let wanderHandler: HttpHandler =
                         match run (Wander.Library.stdFns store) Map.empty Map.empty script with
                         | Ok(Expression.NodeLiteral result) -> ctx.WriteHtmlStringAsync(generateHtml result)
                         | Ok(Expression.Seq seq) ->
-                            let nodes: Option<Node list> =
-                                List.fold
-                                    (fun state value ->
-                                        match state with
-                                        | Some nodes ->
-                                            match value with
-                                            | Expression.NodeLiteral node -> Some(List.append nodes [ node ])
-                                            | Expression.Seq seq -> 
-                                                let newNodes: List<Node> = 
-                                                    List.map (fun value -> 
-                                                        match value with
-                                                        | Expression.NodeLiteral node -> node
-                                                        | _ -> failwith "TODO") seq
-                                                Some(List.append nodes newNodes)
-                                            | _ -> None
-                                        | None -> None)
-                                    (Some [])
-                                    seq
+                            let nodes: Option<Node list> = Some(handleSeq seq [])
 
                             match nodes with
                             | Some []
