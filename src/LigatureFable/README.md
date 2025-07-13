@@ -1,22 +1,9 @@
-# Ligature JS
+# @ligature/ligature
 
-## Dev
+This project is generated using [Fable](https://fable.io) and provides a minimal interface currently.
 
-```bash
-dotnet fable watch --run npx vite
-```
+The main functions are
 
-## Setup
-
-After checking out this project run.
-
-`dotnet tool restore`
-
-This is will setup tools used by this project.
-
-## Build
-
-```bash
-dotnet fable
-pnpm run build
-```
+ * `runAndAppendHtml(element, script)` - run a script and append the resulting HTML to the element passed
+ * `runAndGenerateHtml(script)` - run a script and return HTML text
+ * `runAndPrint(script)` - run a script and return a result as Wander text

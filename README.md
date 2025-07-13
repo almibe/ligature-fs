@@ -55,14 +55,37 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
-## Running LigatureHttp
+## Running LigatureDevServer
 
-LigatureHttp starts up an Http server for working with Ligature.
+LigatureDevServer starts up an Http server for working with Ligature.
 
-`dotnet run --project src/LigatureHttp`
+`dotnet run --project src/LigatureDevServer`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
 
 This project includes a ULID implementation from:
 
 https://github.com/lucasschejtman/FSharp.Ulid/blob/master/src/Ulid.fs
+
+## Ligature JS
+
+### Dev
+
+```bash
+dotnet fable watch --run npx vite
+```
+
+### Setup
+
+After checking out this project run.
+
+`dotnet tool restore`
+
+This is will setup tools used by this project.
+
+### Build
+
+```bash
+dotnet fable
+pnpm run build
+```
