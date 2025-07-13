@@ -64,7 +64,7 @@ let printDataColumn (elements: Set<Element>) : string =
             (fun state { value = value } ->
                 match state with
                 | "" -> value
-                | state -> $"{state}, {value}")
+                | _ -> $"{state}, {value}")
             ""
             multi
 
@@ -78,6 +78,7 @@ let assertionsTableFn: Fn =
             match arguments with
             | [ Expression.Assertions assertions ] ->
                 let mutable headers = Set.empty
+                //                let mutable concepts:  = Map.empty
 
                 let data: Map<Element, Map<Term, Set<Element>>> =
                     Set.fold
@@ -89,15 +90,39 @@ let assertionsTableFn: Fn =
                                 match state.TryFind e with
                                 | Some values ->
                                     match values.TryFind r with
-                                    | Some values -> failwith "TODO"
-                                    | None -> failwith "TODO"
+                                    | Some innerValues ->
+                                        let values = Map.add r (Set.add f innerValues) values
+                                        Map.add e values state
+                                    | None ->
+                                        let values = Map.add r (Set.ofList [ f ]) values
+                                        Map.add e values state
                                 | None ->
                                     let values = Map.ofList [ r, Set.ofList [ f ] ]
                                     Map.add e values state
                             | Assertion.Instance(e, c) ->
+                                //TODO store concepts in a separate map to avoid issues with roles named "Concepts"
+                                let concept: Element =
+                                    match c with
+                                    | ConceptExpr.AtomicConcept(Term c) ->
+                                        { value = c
+                                          space = None
+                                          langTag = None }
+                                    | _ -> failwith "TODO"
+
                                 match state.TryFind e with
-                                | Some values -> failwith "TODO"
-                                | None -> failwith "TODO"
+                                | Some values ->
+                                    match values.TryFind(Term "Concepts") with
+                                    | Some existingConcepts ->
+                                        let values =
+                                            Map.add (Term "Concepts") (Set.add concept existingConcepts) values
+
+                                        Map.add e values state
+                                    | None ->
+                                        let values = Map.add (Term "Concepts") (Set.ofList [ concept ]) values
+                                        Map.add e values state
+                                | None ->
+                                    let values = Map.ofList [ Term "Concepts", Set.ofList [ concept ] ]
+                                    Map.add e values state
                             | Assertion.Same(_, _) -> failwith "Not Implemented"
                             | Assertion.Different(_, _) -> failwith "Not Implemented")
                         Map.empty

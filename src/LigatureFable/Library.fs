@@ -154,7 +154,6 @@ let rec createElement
       attributes = attributes
       children = children }
     =
-    printfn "in createElement"
     let newElement = emitJsExpr tag "document.createElement($0)"
 
     Map.iter
@@ -172,7 +171,7 @@ let rec createElement
             | Expression.NodeLiteral node ->
                 let childElement = createElement node
                 emitJsStatement childElement "newElement.append($0)"
-            | x -> printfn $"ignoring value - {x}")
+            | x -> failwith $"ignoring value - {x}")
         children
 
     newElement
