@@ -171,6 +171,7 @@ let rec createElement
             | Expression.NodeLiteral node ->
                 let childElement = createElement node
                 emitJsStatement childElement "newElement.append($0)"
+            | Expression.Term (Term t) -> emitJsStatement t "newElement.append($0)"
             | x -> failwith $"ignoring value - {x}")
         children
 
