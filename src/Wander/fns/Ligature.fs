@@ -324,10 +324,10 @@ let elementFn: Fn =
             | _ -> error "Improper call to element." None
     )
 
-let relFn: Fn =
+let tripleFn: Fn =
     Fn(
         { doc = "Create a triple assertion."
-          examples = [ "rel(betty sibling don)" ]
+          examples = [ "triple(betty sibling don)" ]
           args = "Element Role Element"
           result = "Assertion" },
         fun _ _ _ arguments ->

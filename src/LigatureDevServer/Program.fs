@@ -35,14 +35,16 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect Directory.EnumerateDirectories |> allFiles
         }
 
-let rec handleSeq (seq: List<Expression>) (nodes: List<Node>): List<Node> =
-    let newNodes: List<Node> = 
-        List.collect (fun value -> 
-            match value with
-            | Expression.NodeLiteral node -> [node]
-            | Expression.Seq seq -> 
-                handleSeq seq nodes
-            | _ -> failwith "TODO") seq
+let rec handleSeq (seq: List<Expression>) (nodes: List<Node>) : List<Node> =
+    let newNodes: List<Node> =
+        List.collect
+            (fun value ->
+                match value with
+                | Expression.NodeLiteral node -> [ node ]
+                | Expression.Seq seq -> handleSeq seq nodes
+                | _ -> failwith "TODO")
+            seq
+
     List.append nodes newNodes
 
 let wanderHandler: HttpHandler =

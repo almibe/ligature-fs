@@ -104,7 +104,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "assertions", assertionsFn
           Term "element", elementFn
           Term "instance", instanceFn
-          Term "rel", relFn
+          Term "triple", tripleFn
           Term "same", sameFn
           Term "different", differentFn
           //   Term "find-model", findModelFn
@@ -127,7 +127,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "id", idFn
           //   Term "is-empty", isEmptyFn
           //   Term "query", queryFn
-          //   Term "count", countFn
+          Term "count", countFn
           Term "unfold", unfoldFn
           Term "top", topFn
           Term "bottom", bottomFn

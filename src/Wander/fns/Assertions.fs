@@ -175,23 +175,30 @@ let assertionsFn =
 //             | _ -> failwith $"Calls to union requires two ABoxes."
 //     )
 
-// let countFn =
-//     Fn(
-//         { doc = "Count the assertions in a given ABox."
-//           examples = [ "(count (assertions [a b c]))" ]
-//           args = "Assertions"
-//           result = "Literal" },
-//         fun _ _ _ arguments ->
-//             match arguments with
-//             | [ Expression.Assertions n ] ->
-//                 Ok(
-//                     Expression.Instance
-//                         { value = (Set.count n).ToString()
-//                           space = None
-//                           langTag = None }
-//                 )
-//             | _ -> error "Illegal call to count." None
-//     )
+let countFn =
+    Fn(
+        { doc = "Count the number of items in a seq."
+          examples = [ "count(assertions(triple(a b c)))" ]
+          args = "Assertions"
+          result = "Term" },
+        fun _ _ _ arguments ->
+            match arguments with
+            | [ Expression.Assertions n ] ->
+                Ok(
+                    Expression.Element
+                        { value = (Set.count n).ToString()
+                          space = None
+                          langTag = None }
+                )
+            | [ Expression.Seq seq ] ->
+                Ok(
+                    Expression.Element
+                        { value = (List.length seq).ToString()
+                          space = None
+                          langTag = None }
+                )
+            | _ -> error "Illegal call to count." None
+    )
 
 // let minusCommand =
 //     { Eval =
