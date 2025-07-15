@@ -72,7 +72,7 @@ module Ulid =
 
 
 let ulidFn =
-    Fn(
+    Fn.Fn(
         { doc = "Generate a ULID with an optional prefix."
           examples = [ "ulid()"; "ulid(prefix)" ]
           args = "Term?"

@@ -43,7 +43,7 @@ let generateHtmlSeq (nodes: Node list) : string =
     List.fold (fun state value -> state + generateHtml value) "" nodes
 
 let generateHtmlFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Convert a node into html."
           examples = [ "generate-html(p { \"Test\" })" ]
           args = "Node"
@@ -69,7 +69,7 @@ let printDataColumn (elements: Set<Element>) : string =
             multi
 
 let assertionsTableFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Write out assertions as an html table encoded in Wander nodes."
           examples = [ "assertions-table(assertions(rel(a b c)))" ]
           args = "Assertions"
@@ -198,7 +198,7 @@ let assertionsTableFn: Fn =
     )
 
 let forceDirectedLayoutFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Generate a force directed layout for the given set of assertions."
           examples = [ "force-directed-layout(assertions(a {rel(b c)}))" ]
           args = "Assertions"

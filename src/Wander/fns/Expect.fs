@@ -8,7 +8,7 @@ open Ligature.Model
 open Wander.Model
 
 let testGroupFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Make a group of tests."
           examples = []
           args = ""
@@ -56,7 +56,7 @@ let testGroupFn: Fn =
     )
 
 let expectEqualFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a test record that to top two values are equal."
           examples = [ "expect-equal(\"is A equal to A?\" A A)" ]
           args = "Literal Any Any"

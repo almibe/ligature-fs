@@ -114,7 +114,7 @@ let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwit
 // | _ -> error "Record requires valid @ entry." None
 
 let assertionsFn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a set of assertions."
           examples = [ "assertions(instance(betty Cat))" ]
           args = "Assertion..."
@@ -162,7 +162,7 @@ let assertionsFn =
     )
 
 // let unionFn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
 //           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
 //           args = "Network Network"
@@ -176,7 +176,7 @@ let assertionsFn =
 //     )
 
 let countFn =
-    Fn(
+    Fn.Fn(
         { doc = "Count the number of items in a seq."
           examples = [ "count(assertions(triple(a b c)))" ]
           args = "Assertions"
@@ -234,7 +234,7 @@ let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression lis
       children = [] }
 
 // let queryFn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Perform a query."
 //           examples = []
 //           args = "TBox ABox (Term | ConceptExpr) Tuple"
@@ -344,7 +344,7 @@ let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression lis
 
 
 // let filterFn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Accepts two Networks. First a Pattern and then a Network to search. Pushes the matching Network."
 //           examples = []
 //           args = "Pattern Network"
@@ -390,7 +390,7 @@ let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression lis
 //     )
 
 // let isEmptyFn =
-//     Fn(
+//     Fn.Fn(
 //         { doc =
 //             "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
 //           examples = []

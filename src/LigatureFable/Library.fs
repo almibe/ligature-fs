@@ -14,7 +14,7 @@ let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, L
         resFns <-
             Map.add
                 (Term entry.Key)
-                (Fn(
+                (Fn.Fn(
                     { doc = ""
                       examples = []
                       args = ""

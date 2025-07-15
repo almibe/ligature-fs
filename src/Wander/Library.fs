@@ -15,7 +15,7 @@ open Wander.Fns.Store
 open Wander.Fns.Ulid
 
 let docsFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Push the docs Network on the Stack."
           examples = []
           args = "()"
@@ -31,7 +31,7 @@ let docsFn: Fn =
                               langTag = None }
 
                         match action with
-                        | Fn(doc, _) ->
+                        | Fn.Fn(doc, _) ->
                             let state =
                                 Set.add
                                     (Assertion.Triple(
@@ -99,7 +99,10 @@ let stdFns (store: ILigatureStore) : Fns =
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
           Term "ulid", ulidFn
+          Term "fn", fnFn
           Term "do", doFn
+          Term "pipe", pipeFn
+          Term "map", mapFn
           Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "element", elementFn

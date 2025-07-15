@@ -52,7 +52,7 @@ let rec evalScript
         script
 
 and createFn (doc: string) (script: Script) examples pre post : Fn =
-    Fn(
+    Fn.Fn(
         { doc = doc
           examples = examples
           args = pre
@@ -99,6 +99,36 @@ and evalLambda
     else
         error "Invalid number of arguments." None
 
+and vaToLambda variableApplication : Lambda = failwith "TODO"
+
+and executeVariableApplication
+    (actions: Fns)
+    (bindings: Bindings)
+    (variables: Variables)
+    (application: VariableApplication)
+    : Result<Expression, LigatureError> =
+    let { variable = fn
+          attributes = attributes
+          children = args } =
+        application
+
+    printfn $"Variable: {fn}\nVariables: {variables}"
+
+    let args =
+        List.map
+            (fun arg ->
+                match executeExpression actions bindings variables arg with
+                | Ok value -> value
+                | Error err -> failwith $"Error: {err.UserMessage}")
+            args
+
+    match variables.TryFind fn with
+    | Some(Expression.VariableApplication lambda) -> evalLambda actions bindings variables args (vaToLambda lambda)
+    | Some(Expression.Term t) -> Ok(Expression.Term t)
+    | Some(Expression.Lambda lambda) -> evalLambda actions bindings variables args lambda
+    | Some x -> failwith $"Unexpected value {x}"
+    | None -> error $"Could not find function {fn}" None
+
 and executeApplication
     (actions: Fns)
     (bindings: Bindings)
@@ -110,18 +140,18 @@ and executeApplication
           children = args } =
         application
 
-    let args =
-        List.map
-            (fun arg ->
-                match executeExpression actions bindings variables arg with
-                | Ok value -> value
-                | Error err -> failwith $"Error: {err.UserMessage}")
-            args
-
     match fn, args, bindings.TryFind fn, actions.TryFind fn with
     | Term "match", value :: body, _, _ -> handleMatch value body
     | _, _, Some lambda, _ -> evalLambda actions bindings variables args lambda
-    | _, _, _, Some(Fn(_, fn)) ->
+    | _, _, _, Some(Fn.Fn(_, fn)) ->
+        let args =
+            List.map
+                (fun arg ->
+                    match executeExpression actions bindings variables arg with
+                    | Ok value -> value
+                    | Error err -> failwith $"Error: {err.UserMessage}")
+                args
+
         fn
             actions
             bindings
@@ -129,13 +159,10 @@ and executeApplication
             (List.map
                 (fun value ->
                     match value with
-                    // | Expression.Node application ->
-                    //     match executeApplication actions bindings variables application with
-                    //     | Ok res -> res
-                    //     | Error err -> failwith $"Error: {err.UserMessage}"
                     | Expression.Application node -> Expression.Application(evalNode actions bindings variables node)
                     | _ -> value)
                 args)
+    | _, _, _, Some(Fn.Macro(_, fn)) -> fn actions bindings variables args
     | _, _, None, None -> error $"Could not find function {fn}" None
 
 and executeExpression
@@ -175,6 +202,7 @@ and executeExpression
         | _ -> error $"Could not find {variable}" None
     | Expression.Term term -> Ok(Expression.Term term)
     | Expression.Application application -> executeApplication actions bindings variables application
+    | Expression.VariableApplication application -> executeVariableApplication actions bindings variables application
     | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
     | Expression.Assertion assertion -> failwith "TODO"
     // | Expression.Slot _ -> Ok expression

@@ -14,7 +14,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     baseFns
     |> Map.add
         (Term "kbs")
-        (Fn(
+        (Fn.Fn(
             { doc = "Returns a set of all the existing KBs."
               examples = [ "kbs()" ]
               args = ""
@@ -28,7 +28,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "add-kb")
-        (Fn(
+        (Fn.Fn(
             { doc = "Reads a name and creates a KB in the Store."
               examples = [ "add-kb(test)" ]
               args = "Term"
@@ -42,7 +42,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "remove-kb")
-        (Fn(
+        (Fn.Fn(
             { doc = "Removes the given KB name from the store."
               examples = [ "remove-kb(test)" ]
               args = "Term"
@@ -56,7 +56,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "assert")
-        (Fn(
+        (Fn.Fn(
             { doc = "Given a KB name and a set of assertions, merge the assertions into the assertions for given KB."
               examples = [ "assert(test assertions([a b c]))" ]
               args = "Literal Assertions"
@@ -70,7 +70,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "unassert")
-        (Fn(
+        (Fn.Fn(
             { doc =
                 "Given a KB name and a set of assertions, remove the assertions from the assertions for the given KB."
               examples = [ "unassert(test assertions([a b c]))" ]
@@ -85,7 +85,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "read-assertions")
-        (Fn(
+        (Fn.Fn(
             { doc = "Read only the asserts in a KB."
               examples = [ "read-assertions(test)" ]
               args = "Term"
@@ -100,7 +100,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "define")
-        (Fn(
+        (Fn.Fn(
             { doc = "Given a KB name and a set of definitions, merge the definitions into the definitions for given KB."
               examples = [ "define(test definitions(equilavlent(A B)))" ]
               args = "Term Definitions"
@@ -114,7 +114,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "undefine")
-        (Fn(
+        (Fn.Fn(
             { doc =
                 "Given a KB name and a set of definitions, remove the definitions from the definitions for the given KB."
               examples = [ "undefine(test definitions((equivalent A B)))" ]
@@ -129,7 +129,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         ))
     |> Map.add
         (Term "read-definitions")
-        (Fn(
+        (Fn.Fn(
             { doc = "Read only the definitions in a KB."
               examples = [ "read-definitions(test)" ]
               args = "Term"
@@ -145,7 +145,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
     |> Map.add
         (Term "is-consistent")
 
-        (Fn(
+        (Fn.Fn(
             { doc = "Check if a KB is consistent."
               examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
               args = "Definitions Assertions"

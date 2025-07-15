@@ -64,7 +64,7 @@ and writeJsonView (view: JsonView) : string =
 //     result
 
 // let extractFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Create a Node of a single invidual's relations."
 //           examples = [ "extract a (network [a b c])" ]
 //           args = "Term Network"
@@ -89,7 +89,7 @@ and writeJsonView (view: JsonView) : string =
 //         source
 
 // let instancesFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "..."
 //           examples = []
 //           args = ""
@@ -114,7 +114,7 @@ and writeJsonView (view: JsonView) : string =
 //     )
 
 let unfoldFn =
-    Fn(
+    Fn.Fn(
         { doc = "Unfold a definitions into a set of assertions."
           examples = [ "unfold(definitions(implies(A B)) assertions(instance(a A)))" ]
           args = "Definitions Assertions"
@@ -127,7 +127,7 @@ let unfoldFn =
     )
 
 let isDefinitorialFn =
-    Fn(
+    Fn.Fn(
         { doc = "Check if definitions are definitorial."
           examples = [ "is-definitorial(definitions(implies(A B)))" ]
           args = "Definitions"
@@ -143,7 +143,7 @@ let isDefinitorialFn =
     )
 
 let nnfFn =
-    Fn(
+    Fn.Fn(
         { doc = "Convert definitions to nnf."
           examples = [ "nnf(definitions(implies(A B)))" ]
           args = "Definitions"
@@ -158,7 +158,7 @@ let nnfFn =
     )
 
 let bottomFn =
-    Fn(
+    Fn.Fn(
         { doc = "Constructor for the bottom concept."
           examples = [ "bottom()" ]
           args = ""
@@ -171,7 +171,7 @@ let bottomFn =
 
 
 let topFn =
-    Fn(
+    Fn.Fn(
         { doc = "Constructor for the top concept."
           examples = [ "top()" ]
           args = ""
@@ -183,7 +183,7 @@ let topFn =
     )
 
 let isInstanceFn =
-    Fn(
+    Fn.Fn(
         { doc = "Check if an instance is a concept."
           examples = [ "is-instance(definitions(implies(A B)) assertions(instance(a A)) a B)" ]
           args = "Definitions Assertions Element Concept"
@@ -208,7 +208,7 @@ let isInstanceFn =
     )
 
 let impliesFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a subconcept axiom."
           examples = [ "implies(Dog Animal)" ]
           args = ""
@@ -227,7 +227,7 @@ let impliesFn: Fn =
     )
 
 let equivalentFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "State two Concepts are equivs."
           examples = [ "equiv(Named exists(name))" ]
           args = ""
@@ -249,7 +249,7 @@ let equivalentFn: Fn =
     )
 
 let tableauModelsFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc =
             "Find all models using the tableau algorithm and return them based on whether or not they contain clashes."
           examples = [ "tableau-models(definitions() assertions())" ]
@@ -265,7 +265,7 @@ let tableauModelsFn: Fn =
     )
 
 // let findModelFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Find the first model that matches the given KB."
 //           examples = [ "(find-model (definitions) (assertions))" ]
 //           args = "Definitions Assertions"
@@ -307,7 +307,7 @@ let tableauModelsFn: Fn =
 // | _ -> error "Improper call to find-model." None)
 
 let elementFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create an element."
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term"
@@ -325,7 +325,7 @@ let elementFn: Fn =
     )
 
 let tripleFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a triple assertion."
           examples = [ "triple(betty sibling don)" ]
           args = "Element Role Element"
@@ -350,7 +350,7 @@ let tripleFn: Fn =
     )
 
 let instanceFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Assert an Element extends a Concept."
           examples = [ "instance(betty and(Cat not(Dog)))" ]
           args = ""
@@ -387,7 +387,7 @@ let instanceFn: Fn =
     )
 
 let sameFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Assert two names reference the same Element."
           examples = [ "same(a b)" ]
           args = "Element Element"
@@ -402,7 +402,7 @@ let sameFn: Fn =
     )
 
 let differentFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Assert two names reference different Elements."
           examples = [ "different(a b)" ]
           args = "Element Element"
@@ -417,7 +417,7 @@ let differentFn: Fn =
     )
 
 // let conceptFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Convert a term to an atomic concept."
 //           examples = [ "(concept A)" ]
 //           args = "Term"
@@ -429,7 +429,7 @@ let differentFn: Fn =
 //     )
 
 let allFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a ∀ Concept."
           examples = [ "all(knows Person)" ]
           args = "Term ConceptExpr"
@@ -444,7 +444,7 @@ let allFn: Fn =
     )
 
 let existsFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create an ∃ Concept."
           examples = [ "exists(name)"; "exists(knows Person)" ]
           args = "RoleName Concept?"
@@ -460,7 +460,7 @@ let existsFn: Fn =
     )
 
 let funcFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a functional role definition."
           examples = [ "func(name)" ]
           args = "RoleName"
@@ -472,7 +472,7 @@ let funcFn: Fn =
     )
 
 // let exactlyFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Create a numerical restriction with an exact requirement."
 //           examples = [ "(exactly 1 first-name)"; "(exactly 1 first-name Literal)" ]
 //           args = "Int RoleName Concept?"
@@ -496,7 +496,7 @@ let funcFn: Fn =
 //     )
 
 // let atLeastFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Create a numerical restriction with an at least requirement."
 //           examples = [ "(at-least 1 email)"; "(at-least 1 email EmailAddress)" ]
 //           args = "Int RoleName Concept?"
@@ -520,7 +520,7 @@ let funcFn: Fn =
 //     )
 
 // let atMostFn: Fn =
-//     Fn(
+//     Fn.Fn(
 //         { doc = "Create a numerical restriction with an at most requirement."
 //           examples = [ "(at-most 6 pinned-posts)"; "(at-most 6 pinned-posts Post)" ]
 //           args = "Int RoleName Concept?"
@@ -545,7 +545,7 @@ let funcFn: Fn =
 
 
 let notFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Negate a Concept Expression."
           examples = [ "not(Dog)"; "not(and(Cat Dog))" ]
           args = "ConceptExpression"
@@ -559,7 +559,7 @@ let notFn: Fn =
     )
 
 let andFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a conjunction of multiple Concept Expressions."
           examples = [ "and(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
@@ -584,7 +584,7 @@ let andFn: Fn =
     )
 
 let orFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a disjunction of multiple Concept Expressions."
           examples = [ "or(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
@@ -609,7 +609,7 @@ let orFn: Fn =
     )
 
 let definitionsFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a set of definitions."
           examples = [ "definitions(implies(Dog Animal))" ]
           args = "Definition..."

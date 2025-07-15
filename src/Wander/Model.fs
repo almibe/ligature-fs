@@ -37,12 +37,18 @@ and [<RequireQualifiedAccess>] Expression =
     | Assertion of Assertion
     | Assertions of Assertions
     | Comment of string
+    | VariableApplication of VariableApplication
     | Application of Node
     | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definition of Definition
     | Definitions of Definitions
+
+and VariableApplication =
+    { variable: Variable
+      attributes: Map<Term, Expression>
+      children: Expression list }
 
 and Node =
     { name: Term
@@ -67,7 +73,9 @@ and FnDoc =
       args: string
       result: string }
 
-and Fn = Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
+and [<RequireQualifiedAccess>] Fn =
+    | Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
+    | Macro of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
 
 and Slots = Map<Slot, Expression>
 

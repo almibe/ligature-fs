@@ -9,7 +9,7 @@ open Wander.Interpreter
 open Ligature.Model
 
 let idFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Return the value passed."
           examples = []
           args = "Any"
@@ -20,8 +20,17 @@ let idFn: Fn =
             | _ -> failwith "TODO"
     )
 
+let fnFn: Fn =
+    Fn.Macro(
+        { doc = "Create a lambda."
+          examples = [ "Fn.Fn(test)"; "Fn.Fn($arg -> count($arg))" ]
+          args = "Any"
+          result = "Any" },
+        fun actions bindings variables arguments -> Ok(Expression.Lambda([], []))
+    )
+
 let doFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a new scope and execute a series of expressions."
           examples = [ "do (test)" ]
           args = "Any"
@@ -33,12 +42,35 @@ let doFn: Fn =
                 arguments
     )
 
+let pipeFn: Fn =
+    Fn.Fn(
+        { doc =
+            "Execute a sequence of function calls passing the result of the first as the last argument to the next and returning the final result."
+          examples = [ "pipe(assertions(triple(a b c)) count())" ]
+          args = "Any..."
+          result = "Any" },
+        fun actions bindings variables arguments ->
+            List.fold
+                (fun state expression -> executeExpression actions bindings variables expression)
+                (Ok(Expression.Term(Term "")))
+                arguments
+    )
+
 let seqFn: Fn =
-    Fn(
+    Fn.Fn(
         { doc = "Create a seq."
           examples = [ "seq (test)" ]
           args = "Any"
           result = "Seq" },
+        fun _ _ _ arguments -> Ok(Expression.Seq arguments)
+    )
+
+let mapFn: Fn =
+    Fn.Fn(
+        { doc = ""
+          examples = [ "" ]
+          args = ""
+          result = "" },
         fun _ _ _ arguments -> Ok(Expression.Seq arguments)
     )
 
