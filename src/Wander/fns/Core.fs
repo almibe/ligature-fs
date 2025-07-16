@@ -26,7 +26,39 @@ let fnFn: Fn =
           examples = [ "Fn.Fn(test)"; "Fn.Fn($arg -> count($arg))" ]
           args = "Any"
           result = "Any" },
-        fun actions bindings variables arguments -> Ok(Expression.Lambda([], []))
+        fun actions bindings variables arguments ->
+            let readArrow, variables, (body: Option<Script>) =
+                List.fold
+                    (fun (readArrow, variables, body) value ->
+                        if readArrow then
+                            match value with
+                            | Expression.Term(Term "->") -> failwith "Error multiple -> in fn definition."
+                            | ex ->
+                                match body with
+                                | None -> readArrow, variables, Some [ None, ex ]
+                                | Some body -> readArrow, variables, Some(List.append body [ None, ex ])
+                        else
+                            match value with
+                            | Expression.Term(Term "->") -> true, variables, body
+                            | Expression.Variable variable ->
+                                match variables with
+                                | None -> readArrow, Some [ variable ], body
+                                | Some variables -> readArrow, Some(List.append variables [ variable ]), body
+                            | _ -> failwith "Error expected variable or ->.")
+                    (false, None, None)
+                    arguments
+
+            let variables =
+                match variables with
+                | Some values -> values
+                | None -> []
+
+            let body =
+                match body with
+                | Some values -> values
+                | None -> []
+
+            Ok(Expression.Lambda(variables, body))
     )
 
 let doFn: Fn =

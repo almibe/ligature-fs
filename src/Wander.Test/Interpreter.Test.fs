@@ -26,6 +26,16 @@ let tests =
         "Interpreter Test"
         [ testCase "Run empty script"
           <| fun _ -> Expect.equal (runScript "") (Ok(Expression.Term(Term ""))) ""
+
+          testCase "fn function tests"
+          <| fun _ ->
+              Expect.equal (runScript "fn()") (Ok(Expression.Lambda([], []))) ""
+
+              Expect.equal
+                  (runScript "fn($value -> $value)")
+                  (Ok(Expression.Lambda([ Variable "$value" ], [ None, Expression.Variable(Variable "$value") ])))
+                  ""
+
           //   testCase "run script with tuple literal"
           //   <| fun _ ->
           //       Expect.equal
