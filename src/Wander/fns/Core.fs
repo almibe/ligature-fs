@@ -91,7 +91,7 @@ let pipeFn: Fn =
 let seqFn: Fn =
     Fn.Fn(
         { doc = "Create a seq."
-          examples = [ "seq (test)" ]
+          examples = [ "seq(test)" ]
           args = "Any"
           result = "Seq" },
         fun _ _ arguments -> Ok(Expression.Seq arguments)
@@ -99,13 +99,26 @@ let seqFn: Fn =
 
 let mapFn: Fn =
     Fn.Fn(
-        { doc = ""
-          examples = [ "" ]
-          args = ""
-          result = "" },
+        { doc = "Map over a seq."
+          examples = [ "map(id seq(1 2 3))" ]
+          args = "Mapper Seq"
+          result = "Seq" },
         fun fns variables arguments ->
+            match arguments with
+            | [ Expression.Term mapper; Expression.Seq seq ] ->
+                match fns.TryFind mapper with
+                | Some(Fn.Fn(_, fn)) ->
+                    let values =
+                        List.map
+                            (fun value ->
+                                match fn fns variables [ value ] with
+                                | Ok res -> res
+                                | _ -> failwith "TODO")
+                            seq
 
-            Ok(Expression.Seq arguments)
+                    Ok(Expression.Seq values)
+                | _ -> failwith "TODO"
+            | _ -> failwith "TODO"
     )
 
 // let importCommand: Command =
