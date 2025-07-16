@@ -13,7 +13,7 @@ let testGroupFn: Fn =
           examples = []
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             let groupName =
                 match arguments.Head with
                 | Expression.Element name -> name
@@ -61,7 +61,7 @@ let expectEqualFn: Fn =
           examples = [ "expect-equal(\"is A equal to A?\" A A)" ]
           args = "Literal Any Any"
           result = "Record" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ first; second ] ->
                 if first = second then

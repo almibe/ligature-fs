@@ -20,7 +20,7 @@ let docsFn: Fn =
           examples = []
           args = "()"
           result = "Assertions" },
-        fun actions _ _ _ ->
+        fun actions _ _ ->
             let docs: Assertions =
                 Map.toSeq actions
                 |> Seq.fold

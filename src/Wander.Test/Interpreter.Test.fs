@@ -16,7 +16,7 @@ let runScript input =
     match tokenize input with
     | Ok res ->
         match parse res with
-        | Ok script -> evalScript (stdFns (new InMemoryStore())) Map.empty Map.empty script
+        | Ok script -> evalScript (stdFns (new InMemoryStore())) Map.empty script
         | _ -> failwith "TODO"
     | _ -> failwith "Error tokenizing."
 

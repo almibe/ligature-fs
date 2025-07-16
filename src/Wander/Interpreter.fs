@@ -27,12 +27,7 @@ let handleMatch (value: Expression) (body: Expression list) : Result<Expression,
     | Ok body -> check body
     | Error e -> Error e
 
-let rec evalScript
-    (actions: Fns)
-    (bindings: Bindings)
-    (variables: Variables)
-    (script: Script)
-    : Result<Expression, LigatureError> =
+let rec evalScript (actions: Fns) (variables: Variables) (script: Script) : Result<Expression, LigatureError> =
     let mutable variables = variables
 
     List.fold
@@ -41,9 +36,9 @@ let rec evalScript
                 state
             else
                 match value with
-                | None, expression -> executeExpression actions bindings variables expression
+                | None, expression -> executeExpression actions variables expression
                 | Some variable, expression ->
-                    match executeExpression actions bindings variables expression with
+                    match executeExpression actions variables expression with
                     | Ok res ->
                         variables <- Map.add variable res variables
                         Ok res
@@ -57,7 +52,7 @@ and createFn (doc: string) (script: Script) examples pre post : Fn =
           examples = examples
           args = pre
           result = post },
-        (fun actions bindings variables args -> evalScript actions bindings variables script)
+        (fun actions variables args -> evalScript actions variables script)
     )
 
 and lookupFn (actions: Fns) (action: Term) : Fn option =
@@ -65,26 +60,25 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some action -> Some action
     | None -> None
 
-and evalNode (actions: Fns) (bindings: Bindings) (variables: Variables) (node: Node) : Node =
+and evalNode (actions: Fns) (variables: Variables) (node: Node) : Node =
     { name = node.name
       attributes =
         Map.map
             (fun _ value ->
-                match executeExpression actions bindings variables value with
+                match executeExpression actions variables value with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}")
             node.attributes
       children =
         List.map
             (fun value ->
-                match executeExpression actions bindings variables value with
+                match executeExpression actions variables value with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}")
             node.children }
 
 and evalLambda
     (fns: Fns)
-    (bindings: Bindings)
     (variables: Variables)
     (args: Expression list)
     (lambda: Lambda)
@@ -95,7 +89,7 @@ and evalLambda
         let variables =
             Seq.fold (fun state (name, value) -> Map.add name value state) variables (Seq.zip parameters args)
 
-        evalScript fns bindings variables body
+        evalScript fns variables body
     else
         error "Invalid number of arguments." None
 
@@ -103,7 +97,6 @@ and vaToLambda variableApplication : Lambda = failwith "TODO"
 
 and executeVariableApplication
     (actions: Fns)
-    (bindings: Bindings)
     (variables: Variables)
     (application: VariableApplication)
     : Result<Expression, LigatureError> =
@@ -112,62 +105,53 @@ and executeVariableApplication
           children = args } =
         application
 
-    printfn $"Variable: {fn}\nVariables: {variables}"
-
     let args =
         List.map
             (fun arg ->
-                match executeExpression actions bindings variables arg with
+                match executeExpression actions variables arg with
                 | Ok value -> value
                 | Error err -> failwith $"Error: {err.UserMessage}")
             args
 
     match variables.TryFind fn with
-    | Some(Expression.VariableApplication lambda) -> evalLambda actions bindings variables args (vaToLambda lambda)
+    | Some(Expression.VariableApplication lambda) -> evalLambda actions variables args (vaToLambda lambda)
     | Some(Expression.Term t) -> Ok(Expression.Term t)
-    | Some(Expression.Lambda lambda) -> evalLambda actions bindings variables args lambda
+    | Some(Expression.Lambda lambda) -> evalLambda actions variables args lambda
     | Some x -> failwith $"Unexpected value {x}"
     | None -> error $"Could not find function {fn}" None
 
-and executeApplication
-    (actions: Fns)
-    (bindings: Bindings)
-    (variables: Variables)
-    (application: Node)
-    : Result<Expression, LigatureError> =
+and executeApplication (actions: Fns) (variables: Variables) (application: Node) : Result<Expression, LigatureError> =
     let { name = fn
           attributes = attributes
           children = args } =
         application
 
-    match fn, args, bindings.TryFind fn, actions.TryFind fn with
-    | Term "match", value :: body, _, _ -> handleMatch value body
-    | _, _, Some lambda, _ -> evalLambda actions bindings variables args lambda
-    | _, _, _, Some(Fn.Fn(_, fn)) ->
+    match fn, args, actions.TryFind fn with
+    //| Term "match", value :: body, _ -> handleMatch value body
+    // | _, _, Some lambda, _ -> evalLambda actions variables args lambda
+    | _, _, Some(Fn.Fn(_, fn)) ->
         let args =
             List.map
                 (fun arg ->
-                    match executeExpression actions bindings variables arg with
+                    match executeExpression actions variables arg with
                     | Ok value -> value
                     | Error err -> failwith $"Error: {err.UserMessage}")
                 args
 
         fn
             actions
-            bindings
             variables
             (List.map
                 (fun value ->
                     match value with
-                    | Expression.Application node -> Expression.Application(evalNode actions bindings variables node)
+                    | Expression.Application node -> Expression.Application(evalNode actions variables node)
                     | _ -> value)
                 args)
-    | _, _, _, Some(Fn.Macro(_, fn)) -> fn actions bindings variables args
-    | _, _, None, None -> error $"Could not find function {fn}" None
+    | _, _, Some(Fn.Macro(_, fn)) -> fn actions variables args
+    | _, _, None -> error $"Could not find function {fn}" None
 
 and executeExpression
     (actions: Fns)
-    (bindings: Bindings)
     (variables: Variables)
     (expression: Expression)
     : Result<Expression, LigatureError> =
@@ -201,9 +185,9 @@ and executeExpression
         | Some value -> Ok value
         | _ -> error $"Could not find {variable}" None
     | Expression.Term term -> Ok(Expression.Term term)
-    | Expression.Application application -> executeApplication actions bindings variables application
-    | Expression.VariableApplication application -> executeVariableApplication actions bindings variables application
-    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions bindings variables node))
+    | Expression.Application application -> executeApplication actions variables application
+    | Expression.VariableApplication application -> executeVariableApplication actions variables application
+    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions variables node))
     | Expression.Assertion assertion -> failwith "TODO"
     // | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"

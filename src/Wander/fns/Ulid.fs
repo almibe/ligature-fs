@@ -77,7 +77,7 @@ let ulidFn =
           examples = [ "ulid()"; "ulid(prefix)" ]
           args = "Term?"
           result = "Term" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [] -> Ok(Expression.Term(Term(Ulid.New.ToString())))
             | [ Expression.Term(Term prefix) ] -> Ok(Expression.Term(Term(prefix + Ulid.New.ToString())))

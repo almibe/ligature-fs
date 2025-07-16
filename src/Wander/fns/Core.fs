@@ -14,7 +14,7 @@ let idFn: Fn =
           examples = []
           args = "Any"
           result = "Any" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ value ] -> Ok value
             | _ -> failwith "TODO"
@@ -26,7 +26,7 @@ let fnFn: Fn =
           examples = [ "Fn.Fn(test)"; "Fn.Fn($arg -> count($arg))" ]
           args = "Any"
           result = "Any" },
-        fun actions bindings variables arguments ->
+        fun actions variables arguments ->
             let readArrow, variables, (body: Option<Script>) =
                 List.fold
                     (fun (readArrow, variables, body) value ->
@@ -67,9 +67,9 @@ let doFn: Fn =
           examples = [ "do (test)" ]
           args = "Any"
           result = "Any" },
-        fun actions bindings variables arguments ->
+        fun actions variables arguments ->
             List.fold
-                (fun state expression -> executeExpression actions bindings variables expression)
+                (fun state expression -> executeExpression actions variables expression)
                 (Ok(Expression.Term(Term "")))
                 arguments
     )
@@ -81,9 +81,9 @@ let pipeFn: Fn =
           examples = [ "pipe(assertions(triple(a b c)) count())" ]
           args = "Any..."
           result = "Any" },
-        fun actions bindings variables arguments ->
+        fun actions variables arguments ->
             List.fold
-                (fun state expression -> executeExpression actions bindings variables expression)
+                (fun state expression -> executeExpression actions variables expression)
                 (Ok(Expression.Term(Term "")))
                 arguments
     )
@@ -94,7 +94,7 @@ let seqFn: Fn =
           examples = [ "seq (test)" ]
           args = "Any"
           result = "Seq" },
-        fun _ _ _ arguments -> Ok(Expression.Seq arguments)
+        fun _ _ arguments -> Ok(Expression.Seq arguments)
     )
 
 let mapFn: Fn =
@@ -103,7 +103,9 @@ let mapFn: Fn =
           examples = [ "" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments -> Ok(Expression.Seq arguments)
+        fun fns variables arguments ->
+
+            Ok(Expression.Seq arguments)
     )
 
 // let importCommand: Command =

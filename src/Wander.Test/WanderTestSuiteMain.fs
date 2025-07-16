@@ -38,7 +38,7 @@ let wanderTestSuite =
 
                 stores
                 |> List.iter (fun store ->
-                    match run (stdFns store) Map.empty Map.empty script with
+                    match run (stdFns store) Map.empty script with
                     | Ok(Expression.Assertions result) ->
                         let mutable names: Map<string, string> = Map.empty
                         let mutable comments: Map<string, string> = Map.empty

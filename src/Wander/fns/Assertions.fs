@@ -119,7 +119,7 @@ let assertionsFn =
           examples = [ "assertions(instance(betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             let mutable res: Assertions = Set.empty
 
             List.iter
@@ -181,7 +181,7 @@ let countFn =
           examples = [ "count(assertions(triple(a b c)))" ]
           args = "Assertions"
           result = "Term" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Assertions n ] ->
                 Ok(

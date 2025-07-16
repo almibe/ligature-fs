@@ -19,7 +19,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "kbs()" ]
               args = ""
               result = "Set" },
-            fun _ _ _ _ -> //TODO assert no args were passed
+            fun _ _ _ -> //TODO assert no args were passed
                 store.KBs()
                 |> Seq.map (fun value -> Expression.Term value)
                 |> List.ofSeq
@@ -33,7 +33,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "add-kb(test)" ]
               args = "Term"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term name ] ->
                     store.AddKB name
@@ -47,7 +47,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "remove-kb(test)" ]
               args = "Term"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term name ] ->
                     store.RemoveKB name
@@ -61,7 +61,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "assert(test assertions([a b c]))" ]
               args = "Literal Assertions"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.AssertKB networkName network
@@ -76,7 +76,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "unassert(test assertions([a b c]))" ]
               args = "Term Assertions"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.UnassertKB networkName network
@@ -90,7 +90,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-assertions(test)" ]
               args = "Term"
               result = "Assertions" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName ] ->
                     match store.ReadAssertsKB networkName with
@@ -105,7 +105,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "define(test definitions(equilavlent(A B)))" ]
               args = "Term Definitions"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName; Expression.Definitions definitions ] ->
                     store.DefineKB networkName definitions
@@ -120,7 +120,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "undefine(test definitions((equivalent A B)))" ]
               args = "Term Definitions"
               result = "" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName; Expression.Definitions definitions ] ->
                     store.UndefineKB networkName definitions
@@ -134,7 +134,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-definitions(test)" ]
               args = "Term"
               result = "Definitions" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term networkName ] ->
                     match store.ReadDefinitionsKB networkName with
@@ -150,7 +150,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
               args = "Definitions Assertions"
               result = "Term" },
-            fun _ _ _ arguments ->
+            fun _ _ arguments ->
                 match arguments with
                 | [ Expression.Term kbName ] ->
                     store.IsConsistent kbName

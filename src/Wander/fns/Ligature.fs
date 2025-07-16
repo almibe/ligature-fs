@@ -69,7 +69,7 @@ and writeJsonView (view: JsonView) : string =
 //           examples = [ "extract a (network [a b c])" ]
 //           args = "Term Network"
 //           result = "Node" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Any.Term id; Any.Assertions source ] -> Ok(Any.Node(extract id source))
 //             | _ -> error "Invalid call to extract." None
@@ -94,7 +94,7 @@ and writeJsonView (view: JsonView) : string =
 //           examples = []
 //           args = ""
 //           result = "" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Any.Term concept; Any.Assertions source ] ->
 //                 let result: AnySet = instances source concept
@@ -119,7 +119,7 @@ let unfoldFn =
           examples = [ "unfold(definitions(implies(A B)) assertions(instance(a A)))" ]
           args = "Definitions Assertions"
           result = "Assertions" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Definitions def; Expression.Assertions assertions ] ->
                 unfold def assertions |> Result.map Expression.Assertions
@@ -132,7 +132,7 @@ let isDefinitorialFn =
           examples = [ "is-definitorial(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Literal" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Definitions def ] ->
                 if isDefinitorial def then
@@ -148,7 +148,7 @@ let nnfFn =
           examples = [ "nnf(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Definitions" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Definitions def ] ->
                 match nnf def with
@@ -163,7 +163,7 @@ let bottomFn =
           examples = [ "bottom()" ]
           args = ""
           result = "ConceptExpr" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [] -> Ok(Expression.ConceptExpr ConceptExpr.Bottom)
             | _ -> error "Invalid call to bottom." None
@@ -176,7 +176,7 @@ let topFn =
           examples = [ "top()" ]
           args = ""
           result = "ConceptExpr" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [] -> Ok(Expression.ConceptExpr ConceptExpr.Top)
             | _ -> error "Invalid call to top." None
@@ -188,7 +188,7 @@ let isInstanceFn =
           examples = [ "is-instance(definitions(implies(A B)) assertions(instance(a A)) a B)" ]
           args = "Definitions Assertions Element Concept"
           result = "Term" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Definitions tBox
                 Expression.Assertions aBox
@@ -213,7 +213,7 @@ let impliesFn: Fn =
           examples = [ "implies(Dog Animal)" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term subconcept; Expression.Term concept ] ->
                 Ok(
@@ -232,7 +232,7 @@ let equivalentFn: Fn =
           examples = [ "equiv(Named exists(name))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term leftConcept; Expression.Term rightConcept ] ->
                 Ok(
@@ -255,7 +255,7 @@ let tableauModelsFn: Fn =
           examples = [ "tableau-models(definitions() assertions())" ]
           args = "Definitions Assertions"
           result = "Set" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Definitions tBox; Expression.Assertions aBox ] ->
                 match tableauModels tBox aBox with
@@ -270,7 +270,7 @@ let tableauModelsFn: Fn =
 //           examples = [ "(find-model (definitions) (assertions))" ]
 //           args = "Definitions Assertions"
 //           result = "Node" },
-//         fun _ _ _ arguments -> failwith "TODO"
+//         fun _ _ arguments -> failwith "TODO"
 //     )
 // match arguments with
 // | [ Any.Definitions definitions; Any.Assertions assertions ] ->
@@ -312,7 +312,7 @@ let elementFn: Fn =
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term"
           result = "Element" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
@@ -330,7 +330,7 @@ let tripleFn: Fn =
           examples = [ "triple(betty sibling don)" ]
           args = "Element Role Element"
           result = "Assertion" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term(Term element); Expression.Term role; Expression.Term(Term filler) ] ->
                 Ok(
@@ -355,7 +355,7 @@ let instanceFn: Fn =
           examples = [ "instance(betty and(Cat not(Dog)))" ]
           args = ""
           result = "" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term(Term element); Expression.Term concept ] ->
                 Ok(
@@ -392,7 +392,7 @@ let sameFn: Fn =
           examples = [ "same(a b)" ]
           args = "Element Element"
           result = "Assertion" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
@@ -407,7 +407,7 @@ let differentFn: Fn =
           examples = [ "different(a b)" ]
           args = "Element Element"
           result = "Assertion" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
@@ -422,7 +422,7 @@ let differentFn: Fn =
 //           examples = [ "(concept A)" ]
 //           args = "Term"
 //           result = "Concept" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Expression.Term concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.AtomicConcept concept))
 //             | _ -> error "Improper call to concept." None
@@ -434,7 +434,7 @@ let allFn: Fn =
           examples = [ "all(knows Person)" ]
           args = "Term ConceptExpr"
           result = "ConceptExpr" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term role; Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
@@ -449,7 +449,7 @@ let existsFn: Fn =
           examples = [ "exists(name)"; "exists(knows Person)" ]
           args = "RoleName Concept?"
           result = "Concept" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
             | [ Expression.Term role; Expression.Term concept ] ->
@@ -465,7 +465,7 @@ let funcFn: Fn =
           examples = [ "func(name)" ]
           args = "RoleName"
           result = "Concept" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func role))
             | _ -> error "Improper call to func." None
@@ -477,7 +477,7 @@ let funcFn: Fn =
 //           examples = [ "(exactly 1 first-name)"; "(exactly 1 first-name Literal)" ]
 //           args = "Int RoleName Concept?"
 //           result = "Concept" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Expression.Term(Term number); Expression.Term role ] ->
 //                 match System.Int64.TryParse number with
@@ -501,7 +501,7 @@ let funcFn: Fn =
 //           examples = [ "(at-least 1 email)"; "(at-least 1 email EmailAddress)" ]
 //           args = "Int RoleName Concept?"
 //           result = "Concept" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Expression.Term(Term number); Expression.Term role ] ->
 //                 match System.Int64.TryParse number with
@@ -525,7 +525,7 @@ let funcFn: Fn =
 //           examples = [ "(at-most 6 pinned-posts)"; "(at-most 6 pinned-posts Post)" ]
 //           args = "Int RoleName Concept?"
 //           result = "Concept" },
-//         fun _ _ _ arguments ->
+//         fun _ _ arguments ->
 //             match arguments with
 //             | [ Expression.Term(Term number); Expression.Term role ] ->
 //                 match System.Int64.TryParse number with
@@ -550,7 +550,7 @@ let notFn: Fn =
           examples = [ "not(Dog)"; "not(and(Cat Dog))" ]
           args = "ConceptExpression"
           result = "ConceptExpression" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             match arguments with
             | [ Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
@@ -564,7 +564,7 @@ let andFn: Fn =
           examples = [ "and(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
           result = "ConceptExpression" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             let res =
                 List.fold
                     (fun state arg ->
@@ -589,7 +589,7 @@ let orFn: Fn =
           examples = [ "or(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
           result = "ConceptExpression" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             let res =
                 List.fold
                     (fun state arg ->
@@ -614,7 +614,7 @@ let definitionsFn: Fn =
           examples = [ "definitions(implies(Dog Animal))" ]
           args = "Definition..."
           result = "Definitions" },
-        fun _ _ _ arguments ->
+        fun _ _ arguments ->
             List.map
                 (fun value ->
                     match value with

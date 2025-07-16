@@ -61,8 +61,6 @@ and Lambda = Variable list * Script
 
 type Arguments = Expression list
 
-type Bindings = Map<Term, Lambda>
-
 type Variables = Map<Variable, Expression>
 
 and Fns = Map<Term, Fn>
@@ -74,8 +72,8 @@ and FnDoc =
       result: string }
 
 and [<RequireQualifiedAccess>] Fn =
-    | Fn of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
-    | Macro of FnDoc * (Fns -> Bindings -> Variables -> Arguments -> Result<Expression, LigatureError>)
+    | Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
+    | Macro of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
 
 and Slots = Map<Slot, Expression>
 
