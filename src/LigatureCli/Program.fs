@@ -32,7 +32,7 @@ let main (args: string[]) =
 
     let store = new InMemoryStore()
 
-    match run (stdFns store) Map.empty Map.empty script with
+    match run (stdFns store) Map.empty script with
     | Ok res -> printfn $"{printExpression res}"
     | Error err -> printfn $"{err.UserMessage}"
 

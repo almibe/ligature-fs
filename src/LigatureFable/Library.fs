@@ -19,11 +19,11 @@ let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, L
                       examples = []
                       args = ""
                       result = "" },
-                    fun _ _ _ args -> entry.Value(List.toArray args)
+                    fun _ _ args -> entry.Value(List.toArray args)
                 ))
                 resFns
 
-    run resFns Map.empty Map.empty script
+    run resFns Map.empty script
 
 let runAndPrint = runWithDefaults >> printResult
 

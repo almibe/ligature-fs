@@ -58,7 +58,7 @@ let wanderHandler: HttpHandler =
                     let! script = System.IO.File.ReadAllTextAsync file
 
                     return!
-                        match run (Wander.Library.stdFns store) Map.empty Map.empty script with
+                        match run (Wander.Library.stdFns store) Map.empty script with
                         | Ok(Expression.NodeLiteral result) -> ctx.WriteHtmlStringAsync(generateHtml result)
                         | Ok(Expression.Seq seq) ->
                             let nodes: Option<Node list> = Some(handleSeq seq [])
