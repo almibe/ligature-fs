@@ -346,7 +346,20 @@ let tripleFn: Fn =
                         )
                     )
                 )
-            | x -> error $"Improper call to rel: {x}" None
+            | [ Expression.Term(Term element); Expression.Term role; Expression.Element filler ] ->
+                Ok(
+                    Expression.Assertion(
+                        Assertion.Triple(
+                            { value = element
+                              space = None
+                              langTag = None },
+                            role,
+                            filler
+                        )
+                    )
+                )
+
+            | x -> error $"Improper call to triple: {x}" None
     )
 
 let instanceFn: Fn =

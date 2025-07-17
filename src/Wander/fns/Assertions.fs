@@ -209,58 +209,55 @@ let countFn =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-let aBoxToNode (individual: Term) (aBox: Assertions) (selections: Expression list) : Node = //TODO also accept a TBox and Concept to control
-    let selectionValues =
-        List.fold
-            (fun state value ->
-                match value with
-                | Expression.Term roleName ->
-                    List.ofSeq aBox
-                    |> List.fold
-                        (fun state value ->
-                            match value with
-                            // | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
-                            //     match v with
-                            //     | Value.Literal l -> Map.add r (Expression.Literal l) state
-                            //     | Value.Term t -> Map.add r (Expression.Term t) state
-                            | _ -> failwith "TODO") //state)
-                        state
-                | _ -> failwith "TODO")
-            Map.empty
-            selections
-
+let aBoxToNode (individual: Term) (aBox: Assertions) : Node = //TODO also accept a TBox and Concept to control
     { name = individual
-      attributes = selectionValues
+      attributes = Map.empty
       children = [] }
+// let selectionValues =
+//     List.fold
+//         (fun state value ->
+//             match value with
+//             | Expression.Term roleName ->
+//                 List.ofSeq aBox
+//                 |> List.fold
+//                     (fun state value ->
+//                         match value with
+//                         // | Assertion.Triple(i, r, v) when i = individual && r = roleName ->
+//                         //     match v with
+//                         //     | Value.Literal l -> Map.add r (Expression.Literal l) state
+//                         //     | Value.Term t -> Map.add r (Expression.Term t) state
+//                         | _ -> failwith "TODO") //state)
+//                     state
+//             | _ -> failwith "TODO")
+//         Map.empty
+//         selections
 
-// let queryFn =
-//     Fn.Fn(
-//         { doc = "Perform a query."
-//           examples = []
-//           args = "TBox ABox (Term | ConceptExpr) Tuple"
-//           result = "Tuple" },
-//         fun _ _ _ arguments ->
-//             match arguments with
-//             | [ Expression.Definitions tBox
-//                 Expression.Assertions aBox
-//                 Expression.Term concept
-//                 Expression.Tuple selections ] -> failwith "TODO"
-//             // let results =
-//             //     query tBox aBox (ConceptExpr.AtomicConcept concept)
-//             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+// { name = individual
+//   attributes = selectionValues
+//   children = [] }
 
-//             // Ok(Expression.Tuple results)
-//             | [ Expression.Definitions tBox
-//                 Expression.Assertions aBox
-//                 Expression.ConceptExpr concept
-//                 Expression.Tuple selections ] -> failwith "TODO"
-//             // let results =
-//             //     query tBox aBox concept
-//             //     |> List.map (fun (i, a) -> aBoxToNode i aBox selections |> Expression.NodeLiteral)
+let queryFn =
+    Fn.Fn(
+        { doc = "Perform a query."
+          examples = []
+          args = "Definitions Assertions (Term | ConceptExpr)"
+          result = "Seq" },
+        fun _ _ arguments ->
+            match arguments with
+            | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Term concept ] ->
+                let results =
+                    query tBox aBox (ConceptExpr.AtomicConcept concept)
+                    |> List.map (fun ({ value = i }, a) -> aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
-//             // Ok(Expression.Tuple results)
-//             | _ -> error "Invalid call to query" None
-//     )
+                Ok(Expression.Seq results)
+            | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.ConceptExpr concept ] ->
+                let results =
+                    query tBox aBox concept
+                    |> List.map (fun ({ value = i }, a) -> aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
+
+                Ok(Expression.Seq results)
+            | _ -> error "Invalid call to query" None
+    )
 
 // let matchCommand =
 //     { Eval =

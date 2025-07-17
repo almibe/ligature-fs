@@ -129,7 +129,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "docs", docsFn
           Term "id", idFn
           //   Term "is-empty", isEmptyFn
-          //   Term "query", queryFn
+          Term "query", queryFn
           Term "count", countFn
           Term "unfold", unfoldFn
           Term "top", topFn

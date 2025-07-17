@@ -589,16 +589,12 @@ let isInstance
     (individual: Element)
     (concept: ConceptExpr)
     : Result<Term, LigatureError> =
-    failwith "TODO"
-// let models =
-//     tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
+    let models =
+        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
 
-// match models with
-// | Ok models ->
-//     if models.containsClash.IsEmpty then Ok(Term "false")
-//     else if models.clashFree.IsEmpty then Ok(Term "true")
-//     else Ok(Term "unknown")
-// | Error err -> Error err
+    match models with
+    | Ok models -> if models.IsEmpty then Ok(Term "true") else Ok(Term "false")
+    | Error err -> Error err
 
 let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr) : Assertions =
 
