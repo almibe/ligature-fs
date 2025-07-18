@@ -67,17 +67,21 @@ and [<RequireQualifiedAccessAttribute>] Definition =
     | Equivalent of ConceptExpr * ConceptExpr
 
 [<RequireQualifiedAccessAttribute>]
-type Links =
-    | LinkSet of Set<Element>
+type Link =
+    | Link of Element
     | LinkSeq of List<Element>
+
+type Links = Link list
 
 type ObjectView =
     { root: Element
       concepts: Set<ConceptExpr>
       links: Map<Term, ViewLinks> }
 
-and [<RequireQualifiedAccessAttribute>] ViewLinks =
-    | LinkSet of Set<ObjectView>
+and ViewLinks = ViewLink list
+
+and [<RequireQualifiedAccessAttribute>] ViewLink =
+    | Link of ObjectView
     | LinkSeq of List<ObjectView>
 
 type ElementNode =
