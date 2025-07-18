@@ -1,3 +1,4 @@
 // import { run } from "./model.js"
+import { runAndAppendHtml } from "./dist/ligature.es"
 
-// console.log(run("test"))
+runAndAppendHtml("p { children { \"test\" } }")

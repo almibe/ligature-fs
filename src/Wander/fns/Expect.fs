@@ -29,9 +29,7 @@ let testGroupFn: Fn =
                                 testResult.links.TryFind(Term "status"),
                                 testResult.links.TryFind(Term "comment")
                             with
-                            | Some [ ViewLink.LinkSeq [ { root = name } ] ],
-                              Some [ ViewLink.LinkSeq [ { root = status } ] ],
-                              Some [ ViewLink.LinkSeq [ { root = comment } ] ] ->
+                            | Some [ { root = name } ], Some [ { root = status } ], Some [ { root = comment } ] ->
 
                                 let testId =
                                     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
@@ -64,9 +62,9 @@ let expectEqualFn: Fn =
                         { root = el "Test"
                           links =
                             Map.ofList
-                                [ Term "name", [ ViewLink.LinkSeq [ emptyObjectView (el "") ] ]
-                                  Term "status", [ ViewLink.LinkSeq [ emptyObjectView (el "pass") ] ]
-                                  Term "comment", [ ViewLink.LinkSeq [ emptyObjectView (el "") ] ] ]
+                                [ Term "name", [ emptyObjectView (el "") ]
+                                  Term "status", [ emptyObjectView (el "pass") ]
+                                  Term "comment", [ emptyObjectView (el "") ] ]
                           concepts = Set.empty }
                     |> Ok
                 else
@@ -74,14 +72,13 @@ let expectEqualFn: Fn =
                         { root = el "Test"
                           links =
                             Map.ofList
-                                [ Term "name", [ ViewLink.LinkSeq [ emptyObjectView (el "") ] ]
-                                  Term "status", [ ViewLink.LinkSeq [ emptyObjectView (el "fail") ] ]
+                                [ Term "name", [ emptyObjectView (el "") ]
+                                  Term "status", [ emptyObjectView (el "fail") ]
                                   Term "comment",
-                                  [ ViewLink.LinkSeq
-                                        [ emptyObjectView (
-                                              el
-                                                  $"assert-equal failed {printExpression first} != {printExpression second}"
-                                          ) ] ] ]
+
+                                  [ emptyObjectView (
+                                        el $"assert-equal failed {printExpression first} != {printExpression second}"
+                                    ) ] ]
                           concepts = Set.empty }
                     |> Ok
             | [ Expression.Element name; left; right ] ->
@@ -90,9 +87,9 @@ let expectEqualFn: Fn =
                         { root = el "Test"
                           links =
                             Map.ofList
-                                [ Term "name", [ ViewLink.LinkSeq [ emptyObjectView name ] ]
-                                  Term "status", [ ViewLink.LinkSeq [ emptyObjectView (el "pass") ] ]
-                                  Term "comment", [ ViewLink.LinkSeq [ emptyObjectView (el "") ] ] ]
+                                [ Term "name", [ emptyObjectView name ]
+                                  Term "status", [ emptyObjectView (el "pass") ]
+                                  Term "comment", [ emptyObjectView (el "") ] ]
                           concepts = Set.empty }
                     |> Ok
                 else

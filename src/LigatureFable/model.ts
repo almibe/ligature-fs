@@ -1,15 +1,17 @@
-export type Term = string
-export type Variable = string
-export type Application = {
-    type: "application",
-    name: string,
-    attributes: any,//Map<string, string>,
-    body: any,
+export type Element = {
+    type: "Element",
+    value: string,
+    namespace: string | null,
+    langTag: any | null,
 }
 
-export type Node = {
-    type: "node",
-    name: string,
-    attributes: any,//Map<string, string>,
-    body: any,
+export type ObjectView = {
+    type: "ObjectView"
+    root: Element,
+    links: Map<string, ObjectView[]>
+}
+
+export type Error = {
+    type: "Error",
+    message: string,
 }

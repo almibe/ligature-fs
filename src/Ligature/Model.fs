@@ -66,28 +66,15 @@ and [<RequireQualifiedAccessAttribute>] Definition =
     | Implies of ConceptExpr * ConceptExpr
     | Equivalent of ConceptExpr * ConceptExpr
 
-[<RequireQualifiedAccessAttribute>]
-type Link =
-    | Link of Element
-    | LinkSeq of List<Element>
-
-type Links = Link list
-
 type ObjectView =
     { root: Element
       concepts: Set<ConceptExpr>
-      links: Map<Term, ViewLinks> }
-
-and ViewLinks = ViewLink list
-
-and [<RequireQualifiedAccessAttribute>] ViewLink =
-    | Link of ObjectView
-    | LinkSeq of List<ObjectView>
+      links: Map<Term, List<ObjectView>> }
 
 type ElementNode =
     { root: Element
       concepts: Set<ConceptExpr>
-      links: Map<Term, Links> }
+      links: Map<Term, List<Element>> }
 
 let objectView root concepts links : ObjectView =
     { root = root
