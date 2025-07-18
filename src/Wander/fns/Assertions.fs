@@ -14,13 +14,13 @@ let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureE
     let element: Element = view.root
     let mutable results = Set.empty
 
-    Map.iter
-        (fun (role: Term) values ->
-            List.iter
-                (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
-                values)
-        view.roles
-
+    // Map.iter
+    //     (fun (role: Term) values ->
+    //         List.iter
+    //             (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
+    //             values)
+    //     view.links
+    failwith "TODO"
     Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->

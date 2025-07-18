@@ -46,7 +46,7 @@ let tests =
                                   space = None
                                   langTag = None }
                               concepts = Set.empty
-                              roles = Map.empty } ])
+                              links = Map.empty } ])
                   ""
           testCase "read basic block"
           <| fun _ ->

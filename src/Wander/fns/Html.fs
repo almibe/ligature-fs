@@ -139,15 +139,16 @@ let assertionsTableFn: Fn =
                                       space = None
                                       langTag = None }
                                   concepts = Set.empty
-                                  roles =
+                                  links =
                                     Map.ofList
                                         [ Term "body",
-                                          [ { root =
-                                                { value = value
-                                                  space = None
-                                                  langTag = None }
-                                              concepts = Set.empty
-                                              roles = Map.empty } ] ] })
+                                          ViewLinks.LinkSeq
+                                              [ { root =
+                                                    { value = value
+                                                      space = None
+                                                      langTag = None }
+                                                  concepts = Set.empty
+                                                  links = Map.empty } ] ] })
                         headers
 
                 failwith "TODO"

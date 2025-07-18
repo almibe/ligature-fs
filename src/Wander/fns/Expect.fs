@@ -25,11 +25,13 @@ let testGroupFn: Fn =
                         match value with
                         | Expression.ObjectView testResult ->
                             match
-                                testResult.roles.TryFind(Term "name"),
-                                testResult.roles.TryFind(Term "status"),
-                                testResult.roles.TryFind(Term "comment")
+                                testResult.links.TryFind(Term "name"),
+                                testResult.links.TryFind(Term "status"),
+                                testResult.links.TryFind(Term "comment")
                             with
-                            | Some [ { root = name } ], Some [ { root = status } ], Some [ { root = comment } ] ->
+                            | Some(ViewLinks.LinkSeq [ { root = name } ]),
+                              Some(ViewLinks.LinkSeq [ { root = status } ]),
+                              Some(ViewLinks.LinkSeq [ { root = comment } ]) ->
 
                                 let testId =
                                     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
@@ -60,35 +62,37 @@ let expectEqualFn: Fn =
                 if first = second then
                     Expression.ObjectView
                         { root = el "Test"
-                          roles =
+                          links =
                             Map.ofList
-                                [ Term "name", [ emptyObjectView (el "") ]
-                                  Term "status", [ emptyObjectView (el "pass") ]
-                                  Term "comment", [ emptyObjectView (el "") ] ]
+                                [ Term "name", ViewLinks.LinkSeq [ emptyObjectView (el "") ]
+                                  Term "status", ViewLinks.LinkSeq [ emptyObjectView (el "pass") ]
+                                  Term "comment", ViewLinks.LinkSeq [ emptyObjectView (el "") ] ]
                           concepts = Set.empty }
                     |> Ok
                 else
                     Expression.ObjectView
                         { root = el "Test"
-                          roles =
+                          links =
                             Map.ofList
-                                [ Term "name", [ emptyObjectView (el "") ]
-                                  Term "status", [ emptyObjectView (el "fail") ]
+                                [ Term "name", ViewLinks.LinkSeq [ emptyObjectView (el "") ]
+                                  Term "status", ViewLinks.LinkSeq [ emptyObjectView (el "fail") ]
                                   Term "comment",
-                                  [ emptyObjectView (
-                                        el $"assert-equal failed {printExpression first} != {printExpression second}"
-                                    ) ] ]
+                                  ViewLinks.LinkSeq
+                                      [ emptyObjectView (
+                                            el
+                                                $"assert-equal failed {printExpression first} != {printExpression second}"
+                                        ) ] ]
                           concepts = Set.empty }
                     |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
                     Expression.ObjectView
                         { root = el "Test"
-                          roles =
+                          links =
                             Map.ofList
-                                [ Term "name", [ emptyObjectView name ]
-                                  Term "status", [ emptyObjectView (el "pass") ]
-                                  Term "comment", [ emptyObjectView (el "") ] ]
+                                [ Term "name", ViewLinks.LinkSeq [ emptyObjectView name ]
+                                  Term "status", ViewLinks.LinkSeq [ emptyObjectView (el "pass") ]
+                                  Term "comment", ViewLinks.LinkSeq [ emptyObjectView (el "") ] ]
                           concepts = Set.empty }
                     |> Ok
                 else

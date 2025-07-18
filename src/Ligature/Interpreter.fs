@@ -616,5 +616,5 @@ let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Object
             // value, expandResult aBox value concept
             { root = value
               concepts = Set.empty
-              roles = Map.empty })
+              links = Map.empty })
         res
