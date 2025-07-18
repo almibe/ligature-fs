@@ -74,56 +74,6 @@ let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureE
 //     |> Ok
 // | _ -> error "Record requires valid @ entry." None
 
-//let rec nodeToPattern (node: Node) : Result<Pattern, LigatureError> = failwith "TODO"
-// match Map.tryFind (Any.Term(Term "@")) record with
-// | Some id ->
-//     let id =
-//         match id with
-//         | Any.Term term -> TermPattern.Term term
-//         | Any.Slot slot -> TermPattern.Slot slot
-//         | _ -> failwith "TODO"
-
-//     Seq.fold
-//         (fun state (key, value) ->
-//             if key = Any.Term(Term "@") then
-//                 state
-//             else
-//                 let role: TermPattern =
-//                     match key with
-//                     | Any.Term term -> TermPattern.Term term
-//                     | Any.Slot slot -> TermPattern.Slot slot
-//                     | _ -> failwith "TODO"
-
-//                 match value with
-//                 | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
-//                 | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
-//                 | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
-//                 | Any.Tuple tuple ->
-//                     List.fold
-//                         (fun state value ->
-//                             match value with
-//                             | Any.Literal literal -> Set.add (id, role, ValuePattern.Literal literal) state
-//                             | Any.Term term -> Set.add (id, role, ValuePattern.Term term) state
-//                             | Any.Slot slot -> Set.add (id, role, ValuePattern.Slot slot) state
-//                             | _ -> failwith "TODO")
-//                         state
-//                         tuple
-//                 | Any.Record record ->
-//                     let state =
-//                         match record.TryFind(Any.Term(Term "@")) with
-//                         | Some(Any.Term value) -> Set.add (id, role, ValuePattern.Term value) state
-//                         | Some(Any.Slot slot) -> Set.add (id, role, ValuePattern.Slot slot) state
-//                         | _ -> failwith "TODO"
-
-//                     match recordToPattern record with
-//                     | Ok pattern -> state + pattern
-//                     | _ -> failwith "TODO"
-//                 | _ -> failwith "TODO")
-//         Set.empty
-//         (Map.toSeq record)
-//     |> Ok
-// | _ -> error "Record requires valid @ entry." None
-
 let assertionsFn =
     Fn.Fn(
         { doc = "Create a set of assertions."
@@ -137,31 +87,6 @@ let assertionsFn =
                 (fun arg ->
                     match arg with
                     | Expression.Assertion assertion -> res <- Set.add assertion res
-                    // | Expression.Tuple [ e; a; v ] ->
-                    //     let e =
-                    //         match e with
-                    //         | Expression.Element instance -> instance
-                    //         | Expression.Term(Term t) ->
-                    //             { value = t
-                    //               space = None
-                    //               langTag = None }
-                    //         | x -> failwith $"Invalid call to assertions: {x}"
-
-                    //     let a =
-                    //         match a with
-                    //         | Expression.Term t -> t
-                    //         | _ -> failwith "Invalid call to assertions."
-
-                    //     let v =
-                    //         match v with
-                    //         | Expression.Element instance -> instance
-                    //         | Expression.Term(Term t) ->
-                    //             { value = t
-                    //               space = None
-                    //               langTag = None }
-                    //         | _ -> failwith "Invalid call to assertions."
-
-                    //     res <- Set.add (Assertion.Triple(e, a, v)) res
                     | Expression.ObjectView node ->
                         match objectViewToAssertions node with
                         | Ok network -> res <- res + network

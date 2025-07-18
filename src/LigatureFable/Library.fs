@@ -150,36 +150,37 @@ let aBoxToJs (aBox: Assertions) =
 //     | Ok any -> anyToJs any
 
 let rec createElement
-    { name = Term tag
-      attributes = attributes
-      children = children }
+    ({ root = root
+       links = links
+       concepts = concepts }: ObjectView)
     =
-    let newElement = emitJsExpr tag "document.createElement($0)"
+    failwith "TODO"
+// let newElement = emitJsExpr tag "document.createElement($0)"
 
-    Map.iter
-        (fun key value ->
-            match key, value with
-            | Term key, Expression.Element { value = content } ->
-                emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
-            | Term key, _ -> failwith $"Invalid attribute - {key}")
-        attributes
+// Map.iter
+//     (fun key value ->
+//         match key, value with
+//         | Term key, Expression.Element { value = content } ->
+//             emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
+//         | Term key, _ -> failwith $"Invalid attribute - {key}")
+//     attributes
 
-    List.iter
-        (fun value ->
-            match value with
-            | Expression.Element { value = content } -> emitJsStatement content "newElement.append($0)"
-            | Expression.NodeLiteral node ->
-                let childElement = createElement node
-                emitJsStatement childElement "newElement.append($0)"
-            | Expression.Term(Term t) -> emitJsStatement t "newElement.append($0)"
-            | x -> failwith $"ignoring value - {x}")
-        children
+// List.iter
+//     (fun value ->
+//         match value with
+//         | Expression.Element { value = content } -> emitJsStatement content "newElement.append($0)"
+//         | Expression.NodeLiteral node ->
+//             let childElement = createElement node
+//             emitJsStatement childElement "newElement.append($0)"
+//         | Expression.Term(Term t) -> emitJsStatement t "newElement.append($0)"
+//         | x -> failwith $"ignoring value - {x}")
+//     children
 
-    newElement
+// newElement
 
 let appendHtml element (value: Result<Expression, LigatureError>) =
     match value with
-    | Ok(Expression.NodeLiteral node) ->
+    | Ok(Expression.ObjectView node) ->
         let newElement = createElement node
         emitJsStatement () "element.append(newElement)"
     | x -> failwith $"Unexpected value passed to appendHtml {printResult x}"
@@ -190,7 +191,7 @@ let runAndAppendHtml element script =
 
 let runAndGenerateHtml script =
     match runWithDefaults script with
-    | Ok(Expression.NodeLiteral html) -> Wander.Fns.Html.generateHtml html
+    | Ok(Expression.ObjectView html) -> Wander.Fns.Html.generateHtml html
     | x -> failwith $"Unexpected value passed to runAndGenerateHtml {x}"
 
 let equivalent left right = Definition.Equivalent left, right

@@ -8,7 +8,7 @@ open Ligature.Model
 open Wander.Model
 open Feliz.ViewEngine
 
-let generateHtml (node: Node) : string =
+let generateHtml (view: ObjectView) : string =
     let rec innerGen
         { name = Term tag
           attributes = attributes
@@ -37,9 +37,10 @@ let generateHtml (node: Node) : string =
 
         Interop.createElement tag properties
 
-    innerGen node |> Render.htmlView
+    failwith "TODO"
+//    innerGen node |> Render.htmlView
 
-let generateHtmlSeq (nodes: Node list) : string =
+let generateHtmlSeq (nodes: ObjectView list) : string =
     List.fold (fun state value -> state + generateHtml value) "" nodes
 
 let generateHtmlFn: Fn =

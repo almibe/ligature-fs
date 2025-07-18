@@ -5,29 +5,8 @@
 module Wander.Model
 
 open Ligature.Model
-open Ligature.Model
 
 type Variable = Variable of string
-
-
-type Tuple = Expression list
-
-and Source() =
-    member _.next() : Expression option = failwith "TODO"
-
-// with
-
-// interface System.IComparable with
-//     member _.CompareTo (obj: obj): int =
-//                 raise (System.NotImplementedException())
-
-and [<RequireQualifiedAccess>] WanderExpression =
-    | Term of Term
-    | Variable of Variable
-    | Comment of string
-    | Application of Node
-    | NodeLiteral of Node
-    | Seq of List<WanderExpression>
 
 and [<RequireQualifiedAccess>] Expression =
     | Seq of List<Expression>
@@ -40,7 +19,6 @@ and [<RequireQualifiedAccess>] Expression =
     | Comment of string
     | VariableApplication of VariableApplication
     | Application of Node
-    // | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definition of Definition
@@ -137,20 +115,6 @@ and printElement (element: Element) : string =
 
 and writeTerm (Term t) = t
 
-// and printPattern (network: Pattern) : string =
-//     let mutable first = true
-
-//     Seq.fold
-//         (fun state triple ->
-//             if first then
-//                 first <- false
-//                 state + " " + printTriplePattern triple + " "
-//             else
-//                 state + "\n  " + printTriplePattern triple + " ")
-//         "(pattern "
-//         network
-//     + " )"
-
 and printAssertions (aBox: Assertions) : string =
     let mutable first = true
 
@@ -164,25 +128,6 @@ and printAssertions (aBox: Assertions) : string =
         "assertions( "
         aBox
     + " )"
-
-// and printTriplePattern (pattern: AssertionPattern) : string = failwith "TODO"
-// let element =
-//     match element with
-//     | TermPattern.Term(Term e) -> e
-//     | TermPattern.Slot(Slot v) -> v
-
-// let attribute =
-//     match attribute with
-//     | TermPattern.Term(Term e) -> e
-//     | TermPattern.Slot(Slot v) -> v
-
-// let value =
-//     match value with
-//     | ValuePattern.Term(Term e) -> e
-//     | ValuePattern.Slot(Slot v) -> v
-//     | ValuePattern.Literal(Literal l) -> l
-
-// $"[{encodeString element} {encodeString attribute} {encodeString value}]"
 
 and printAssertion (assertion: Assertion) : string =
     match assertion with

@@ -35,21 +35,6 @@ let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
     | Ok(Token.Variable value) -> Ok(Variable value)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let partialTupleNib (gaze: Gaze.Gaze<Token>) : Result<Tuple, Gaze.GazeError> =
-    result {
-        let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-        let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-        return values
-    }
-
-// let tupleAnyNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-//     result {
-//         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
-//         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
-//         let! _ = Gaze.attempt (take Token.CloseSquare) gaze
-//         return Expression.Tuple values
-//     }
-
 let argsNib (gaze: Gaze.Gaze<Token>) : Result<Variable list, Gaze.GazeError> =
     result {
         let! _ = Gaze.attempt (take Token.OpenSquare) gaze
