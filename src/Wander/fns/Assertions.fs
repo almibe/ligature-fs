@@ -10,7 +10,25 @@ open Ligature.Core
 open Ligature.Interpreter
 open Wander.Interpreter
 
-let rec nodeToNetwork (node: Node) : Result<Assertions, LigatureError> = failwith "TODO"
+let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> = failwith "TODO"
+// let element: Element = { value = node; space = None; langTag = None }
+// let mutable results = Set.empty
+
+// List.iter (fun role ->
+//     match role with
+//     | Expression.NodeLiteral role ->
+//         List.iter (fun filler ->
+//             match filler with
+//             | Expression.Element filler -> results <- Set.add (Assertion.Triple(element, role.name, filler)) results
+//             | Expression.Term (Term t) ->
+//                 let filler: Element = { value = t; space = None; langTag = None }
+//                 results <- Set.add (Assertion.Triple(element, role.name, filler)) results
+//             | x -> failwith $"Unhandled value - {x}") role.children
+//     | Expression.Term t -> failwith "TODO"
+//     | Expression.ConceptExpr c -> failwith "TODO"
+//     | _ -> failwith "TODO") roles
+
+// Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
 //     Seq.fold
@@ -151,8 +169,8 @@ let assertionsFn =
                     //         | _ -> failwith "Invalid call to assertions."
 
                     //     res <- Set.add (Assertion.Triple(e, a, v)) res
-                    | Expression.NodeLiteral node ->
-                        match nodeToNetwork node with
+                    | Expression.ObjectView node ->
+                        match objectViewToAssertions node with
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
                     | x -> failwith $"Invalid call to assertions: {x}")
@@ -247,13 +265,14 @@ let queryFn =
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Term concept ] ->
                 let results =
                     query tBox aBox (ConceptExpr.AtomicConcept concept)
-                    |> List.map (fun ({ value = i }, a) -> aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
+                    |> List.map (fun value -> Expression.ObjectView value)
+                //aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.ConceptExpr concept ] ->
                 let results =
-                    query tBox aBox concept
-                    |> List.map (fun ({ value = i }, a) -> aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
+                    query tBox aBox concept |> List.map (fun value -> Expression.ObjectView value)
+                // aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)
             | _ -> error "Invalid call to query" None

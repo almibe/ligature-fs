@@ -71,6 +71,16 @@ and [<RequireQualifiedAccessAttribute>] Definition =
     | Implies of ConceptExpr * ConceptExpr
     | Equivalent of ConceptExpr * ConceptExpr
 
+type ElementNode =
+    { root: Element
+      concepts: Set<ConceptExpr>
+      roles: Map<Term, Element>}
+
+type ObjectView =
+    { root: Element
+      concepts: Set<ConceptExpr>
+      roles: Map<Term, ObjectView seq> }
+
 type Definitions = Set<Definition>
 
 type KnowledgeBase = Definitions * Assertions
@@ -91,7 +101,9 @@ type ILigatureStore =
     abstract IsInstance: Term -> Element -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsSubsumedBy: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsEquivalent: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
-    abstract Query: Term -> ConceptExpr -> Result<Element, LigatureError>
+    abstract ReadElement: Term -> Element -> Result<ElementNode, LigatureError>
+    abstract ReadElements: Term -> ConceptExpr -> Result<ElementNode seq, LigatureError>
+    abstract Query: Term -> ConceptExpr -> Result<ObjectView seq, LigatureError>
     abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
 let rec printConcept (concept: ConceptExpr) : string =

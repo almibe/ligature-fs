@@ -34,17 +34,19 @@ let tests =
           //                             space = None
           //                             langTag = None } ] ])
           //           ""
-          testCase "read empty node"
+          testCase "read empty object view"
           <| fun _ ->
               Expect.equal
                   (parse "p {}")
-                  (Ok(
+                  (Ok
                       [ None,
-                        Expression.NodeLiteral
-                            { name = Term "p"
-                              attributes = Map.empty
-                              children = [] } ]
-                  ))
+                        Expression.ObjectView
+                            { root =
+                                { value = "p"
+                                  space = None
+                                  langTag = None }
+                              concepts = Set.empty
+                              roles = Map.empty } ])
                   ""
           testCase "read basic block"
           <| fun _ ->

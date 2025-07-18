@@ -23,30 +23,28 @@ let testGroupFn: Fn =
                 List.collect
                     (fun value ->
                         match value with
-                        | Expression.NodeLiteral testResult ->
+                        | Expression.ObjectView testResult ->
                             match
-                                testResult.attributes.TryFind(Term "name"),
-                                testResult.attributes.TryFind(Term "status"),
-                                testResult.attributes.TryFind(Term "comment")
+                                testResult.roles.TryFind(Term "name"),
+                                testResult.roles.TryFind(Term "status"),
+                                testResult.roles.TryFind(Term "comment")
                             with
-                            | Some(Expression.Element name),
-                              Some(Expression.Term(Term status)),
-                              Some(Expression.Element comment) ->
-                                let testId =
-                                    { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
-                                      space = None
-                                      langTag = None }
+                            | Some(name), Some(state), Some(comment) -> failwith "TODO"
+                            // let testId =
+                            //     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
+                            //       space = None
+                            //       langTag = None }
 
-                                [ Assertion.Triple(testId, Term "name", name)
-                                  Assertion.Triple(
-                                      testId,
-                                      Term "state",
-                                      { value = status
-                                        space = None
-                                        langTag = None }
-                                  )
-                                  Assertion.Triple(testId, Term "comment", comment)
-                                  Assertion.Triple(testId, Term "test-group", groupName) ]
+                            // [ Assertion.Triple(testId, Term "name", name)
+                            //   Assertion.Triple(
+                            //       testId,
+                            //       Term "state",
+                            //       { value = status
+                            //         space = None
+                            //         langTag = None }
+                            //   )
+                            //   Assertion.Triple(testId, Term "comment", comment)
+                            //   Assertion.Triple(testId, Term "test-group", groupName) ]
                             | _ -> failwith "TODO"
                         | _ -> []) // ignore expressions that don't return test results
                     arguments.Tail
@@ -65,70 +63,74 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    Expression.NodeLiteral
-                        { name = Term "Test"
-                          attributes =
-                            Map.ofList
-                                [ Term "name",
-                                  Expression.Element
-                                      { value = ""
-                                        space = None
-                                        langTag = None }
-                                  Term "status", Expression.Term(Term "pass")
-                                  Term "comment",
-                                  Expression.Element
-                                      { value = ""
-                                        space = None
-                                        langTag = None } ]
-                          children = [] }
-                    |> Ok
+                    failwith "TODO"
+                // Expression.ObjectView
+                //     { name = Term "Test"
+                //       attributes =
+                //         Map.ofList
+                //             [ Term "name",
+                //               Expression.Element
+                //                   { value = ""
+                //                     space = None
+                //                     langTag = None }
+                //               Term "status", Expression.Term(Term "pass")
+                //               Term "comment",
+                //               Expression.Element
+                //                   { value = ""
+                //                     space = None
+                //                     langTag = None } ]
+                //       children = [] }
+                // |> Ok
                 else
-                    Expression.NodeLiteral
-                        { name = Term "Test"
-                          attributes =
-                            Map.ofList
-                                [ Term "name",
-                                  Expression.Element
-                                      { value = ""
-                                        space = None
-                                        langTag = None }
-                                  Term "status", Expression.Term(Term "fail")
-                                  Term "comment",
-                                  Expression.Element
-                                      { value =
-                                          $"assert-equal failed {printExpression first} != {printExpression second}"
-                                        space = None
-                                        langTag = None } ]
-                          children = [] }
-                    |> Ok
+                    failwith "TODO"
+            // Expression.NodeLiteral
+            //     { name = Term "Test"
+            //       attributes =
+            //         Map.ofList
+            //             [ Term "name",
+            //               Expression.Element
+            //                   { value = ""
+            //                     space = None
+            //                     langTag = None }
+            //               Term "status", Expression.Term(Term "fail")
+            //               Term "comment",
+            //               Expression.Element
+            //                   { value =
+            //                       $"assert-equal failed {printExpression first} != {printExpression second}"
+            //                     space = None
+            //                     langTag = None } ]
+            //       children = [] }
+            // |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
-                    Expression.NodeLiteral
-                        { name = Term "Test"
-                          attributes =
-                            Map.ofList
-                                [ Term "name", Expression.Element name
-                                  Term "status", Expression.Term(Term "pass")
-                                  Term "comment",
-                                  Expression.Element
-                                      { value = ""
-                                        space = None
-                                        langTag = None } ]
-                          children = [] }
-                    |> Ok
+                    failwith "TODO"
+                // Expression.NodeLiteral
+                //     { name = Term "Test"
+                //       attributes =
+                //         Map.ofList
+                //             [ Term "name", Expression.Element name
+                //               Term "status", Expression.Term(Term "pass")
+                //               Term "comment",
+                //               Expression.Element
+                //                   { value = ""
+                //                     space = None
+                //                     langTag = None } ]
+                //       children = [] }
+                // |> Ok
                 else
-                    Expression.NodeLiteral
-                        { name = Term "Test"
-                          attributes =
-                            Map.ofList
-                                [ Term "name", Expression.Element name
-                                  Term "status", Expression.Term(Term "fail")
-                                  Term "comment",
-                                  Expression.Element
-                                      { value = $"assert-equal failed {printExpression left} != {printExpression right}"
-                                        space = None
-                                        langTag = None } ]
-                          children = [] }
-                    |> Ok
+                    failwith "TODO"
+            // Expression.NodeLiteral
+            //     { name = Term "Test"
+            //       attributes =
+            //         Map.ofList
+            //             [ Term "name", Expression.Element name
+            //               Term "status", Expression.Term(Term "fail")
+            //               Term "comment",
+            //               Expression.Element
+            //                   { value = $"assert-equal failed {printExpression left} != {printExpression right}"
+            //                     space = None
+            //                     langTag = None } ]
+            //       children = [] }
+            // |> Ok
             | _ -> error $"expect-equal requires a name and two values." None
     )

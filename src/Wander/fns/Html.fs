@@ -30,8 +30,8 @@ let generateHtml (node: Node) : string =
                 | Expression.Term(Term t) -> properties <- List.append [ IReactProperty.Text t ] properties
                 | Expression.Element { value = content } ->
                     properties <- List.append [ IReactProperty.Text content ] properties
-                | Expression.NodeLiteral node ->
-                    properties <- List.append [ IReactProperty.Children [ innerGen node ] ] properties
+                // | Expression.NodeLiteral node ->
+                //     properties <- List.append [ IReactProperty.Children [ innerGen node ] ] properties
                 | x -> failwith $"ignoring value - {x}")
             children
 
@@ -50,7 +50,7 @@ let generateHtmlFn: Fn =
           result = "Term" },
         fun _ _ arguments ->
             match arguments with
-            | [ Expression.NodeLiteral node ] -> Ok(Expression.Term(Term(generateHtml node)))
+            // | [ Expression.NodeLiteral node ] -> Ok(Expression.Term(Term(generateHtml node)))
             | [ Expression.Seq nodes ] -> failwith "TODO"
             | _ -> failwith "Invalid call to generate-html."
     )
@@ -132,68 +132,80 @@ let assertionsTableFn: Fn =
 
                 let headerColumns =
                     List.map
-                        (fun value ->
-                            Expression.NodeLiteral
-                                { name = Term "th"
-                                  attributes = Map.empty
-                                  children = [ Expression.Term value ] })
+                        (fun (Term value) ->
+                            Expression.ObjectView
+                                { root =
+                                    { value = "th"
+                                      space = None
+                                      langTag = None }
+                                  concepts = Set.empty
+                                  roles =
+                                    Map.ofList
+                                        [ Term "body",
+                                          [ { root =
+                                                { value = value
+                                                  space = None
+                                                  langTag = None }
+                                              concepts = Set.empty
+                                              roles = Map.empty } ] ] })
                         headers
 
-                let headerRow =
-                    Expression.NodeLiteral
-                        { name = Term "tr"
-                          attributes = Map.empty
-                          children = headerColumns }
+                failwith "TODO"
+            // let headerRow =
+            //     Expression.ObjectView
+            //         { root = { value = "tr"; space = None; langTag = None}
+            //           concepts = Set.empty
+            //           roles = headerColumns }
 
-                let tableEntries: Expression list =
-                    Map.fold
-                        (fun state element (valueMap: Map<Term, Set<Element>>) ->
-                            let firstColumn =
-                                Expression.NodeLiteral
-                                    { name = Term "td"
-                                      attributes = Map.empty
-                                      children = [ Expression.Element element ] }
+            // let tableEntries: Expression list =
+            //     Map.fold
+            //         (fun state element (valueMap: Map<Term, Set<Element>>) ->
+            //             let firstColumn =
+            //                 Expression.NodeLiteral
+            //                     { name = Term "td"
+            //                       attributes = Map.empty
+            //                       children = [ Expression.Element element ] }
 
-                            let dataColumns: Expression list =
-                                List.fold
-                                    (fun state headerValue ->
-                                        match valueMap.TryFind headerValue with
-                                        | Some value ->
-                                            let node =
-                                                Expression.NodeLiteral
-                                                    { name = Term "td"
-                                                      attributes = Map.empty
-                                                      children = [ Expression.Term(Term $"{printDataColumn value}") ] }
+            //             let dataColumns: Expression list =
+            //                 List.fold
+            //                     (fun state headerValue ->
+            //                         match valueMap.TryFind headerValue with
+            //                         | Some value ->
+            //                             let node =
+            //                                 Expression.NodeLiteral
+            //                                     { name = Term "td"
+            //                                       attributes = Map.empty
+            //                                       children = [ Expression.Term(Term $"{printDataColumn value}") ] }
 
-                                            List.append state [ node ]
-                                        | None ->
-                                            let node =
-                                                Expression.NodeLiteral
-                                                    { name = Term "td"
-                                                      attributes = Map.empty
-                                                      children = [ Expression.Term(Term "") ] }
+            //                             List.append state [ node ]
+            //                         | None ->
+            //                             let node =
+            //                                 Expression.NodeLiteral
+            //                                     { name = Term "td"
+            //                                       attributes = Map.empty
+            //                                       children = [ Expression.Term(Term "") ] }
 
-                                            List.append state [ node ])
-                                    [ firstColumn ]
-                                    headers.Tail
+            //                             List.append state [ node ])
+            //                     [ firstColumn ]
+            //                     headers.Tail
 
-                            let node =
-                                Expression.NodeLiteral
-                                    { name = Term "tr"
-                                      attributes = Map.empty
-                                      children = dataColumns }
+            //             let node =
+            //                 Expression.NodeLiteral
+            //                     { name = Term "tr"
+            //                       attributes = Map.empty
+            //                       children = dataColumns }
 
-                            List.append state [ node ])
-                        [ headerRow ]
-                        data
+            //             List.append state [ node ])
+            //         [ headerRow ]
+            //         data
 
-                let table =
-                    Expression.NodeLiteral
-                        { name = Term "table"
-                          attributes = Map.empty
-                          children = tableEntries }
+            // let table =
+            //     Expression.NodeLiteral
+            //         { name = Term "table"
+            //           attributes = Map.empty
+            //           children = tableEntries }
 
-                Ok table
+            // Ok table
             | _ -> failwith "Invalid call to assertions-table."
     )
 

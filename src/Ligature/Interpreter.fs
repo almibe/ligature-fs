@@ -600,7 +600,7 @@ let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr)
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : (Element * Assertions) list =
+let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : ObjectView list =
     let individuals = individuals aBox
 
     let res =
@@ -611,4 +611,10 @@ let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : (Eleme
                 | _ -> false)
             individuals
 
-    List.map (fun value -> value, expandResult aBox value concept) res
+    List.map
+        (fun value ->
+            // value, expandResult aBox value concept
+            { root = value
+              concepts = Set.empty
+              roles = Map.empty })
+        res

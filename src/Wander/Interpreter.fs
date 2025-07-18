@@ -187,7 +187,7 @@ and executeExpression
     | Expression.Term term -> Ok(Expression.Term term)
     | Expression.Application application -> executeApplication actions variables application
     | Expression.VariableApplication application -> executeVariableApplication actions variables application
-    | Expression.NodeLiteral node -> Ok(Expression.NodeLiteral(evalNode actions variables node))
+    | Expression.ObjectView view -> failwith "TODO" //Ok(Expression.NodeLiteral(evalNode actions variables node))
     | Expression.Assertion assertion -> failwith "TODO"
     // | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"

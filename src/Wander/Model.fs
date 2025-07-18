@@ -36,10 +36,11 @@ and [<RequireQualifiedAccess>] Expression =
     | Variable of Variable
     | Assertion of Assertion
     | Assertions of Assertions
+    | ObjectView of ObjectView
     | Comment of string
     | VariableApplication of VariableApplication
     | Application of Node
-    | NodeLiteral of Node
+    // | NodeLiteral of Node
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definition of Definition
@@ -90,18 +91,22 @@ let rec printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
     | Expression.Element element -> printElement element
-    | Expression.Element { value = content } -> encodeString content
     | Expression.Variable(Variable v) -> v
     | Expression.Seq seq -> printSeq seq
     | Expression.Assertions n -> printAssertions n
     | Expression.Comment _ -> failwith "Not Implemented"
-    | Expression.NodeLiteral node -> printNode node
     | Expression.Application _ -> failwith "Not Implemented"
+    | Expression.VariableApplication _ -> failwith "Not implemented."
     | Expression.Lambda _ -> failwith "TODO"
     | Expression.Definitions defs -> printDefinitions defs
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Definition d -> printDefinition d
+    | Expression.ObjectView view -> printObjectView view
+
+and printObjectView (view: ObjectView) : string =
+    //TODO finish printing concept and roles
+    printElement view.root + "{}"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple

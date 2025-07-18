@@ -23,7 +23,7 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ ConceptExpr.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A")) ]
+                      [ Definition.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A")) ]
 
               let output = definitionsToMap input
               Expect.equal output (Some(Map.ofList [ Term "a", ConceptExpr.AtomicConcept(Term "A") ])) ""
@@ -32,7 +32,7 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ ConceptExpr.Equivalent(
+                      [ Definition.Equivalent(
                             ConceptExpr.AtomicConcept(Term "a"),
                             ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
                         ) ]
@@ -53,12 +53,12 @@ let tests =
           <| fun _ ->
               let input =
                   Set.ofList
-                      [ ConceptExpr.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A"))
-                        ConceptExpr.Implies(
+                      [ Definition.Equivalent(ConceptExpr.AtomicConcept(Term "a"), ConceptExpr.AtomicConcept(Term "A"))
+                        Definition.Implies(
                             ConceptExpr.AtomicConcept(Term "b"),
                             ConceptExpr.And [ ConceptExpr.AtomicConcept(Term "A"); ConceptExpr.AtomicConcept(Term "B") ]
                         )
-                        ConceptExpr.Equivalent(ConceptExpr.AtomicConcept(Term "c"), ConceptExpr.AtomicConcept(Term "A")) ]
+                        Definition.Equivalent(ConceptExpr.AtomicConcept(Term "c"), ConceptExpr.AtomicConcept(Term "A")) ]
 
               let output = definitionsToMap input
 
