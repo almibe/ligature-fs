@@ -10,25 +10,18 @@ open Ligature.Core
 open Ligature.Interpreter
 open Wander.Interpreter
 
-let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> = failwith "TODO"
-// let element: Element = { value = node; space = None; langTag = None }
-// let mutable results = Set.empty
+let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> =
+    let element: Element = view.root
+    let mutable results = Set.empty
 
-// List.iter (fun role ->
-//     match role with
-//     | Expression.NodeLiteral role ->
-//         List.iter (fun filler ->
-//             match filler with
-//             | Expression.Element filler -> results <- Set.add (Assertion.Triple(element, role.name, filler)) results
-//             | Expression.Term (Term t) ->
-//                 let filler: Element = { value = t; space = None; langTag = None }
-//                 results <- Set.add (Assertion.Triple(element, role.name, filler)) results
-//             | x -> failwith $"Unhandled value - {x}") role.children
-//     | Expression.Term t -> failwith "TODO"
-//     | Expression.ConceptExpr c -> failwith "TODO"
-//     | _ -> failwith "TODO") roles
+    Map.iter
+        (fun (role: Term) values ->
+            List.iter
+                (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
+                values)
+        view.roles
 
-// Ok results
+    Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
 //     Seq.fold

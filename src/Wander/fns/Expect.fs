@@ -68,25 +68,18 @@ let expectEqualFn: Fn =
                           concepts = Set.empty }
                     |> Ok
                 else
-                    failwith "TODO"
-            // Expression.NodeLiteral
-            //     { name = Term "Test"
-            //       attributes =
-            //         Map.ofList
-            //             [ Term "name",
-            //               Expression.Element
-            //                   { value = ""
-            //                     space = None
-            //                     langTag = None }
-            //               Term "status", Expression.Term(Term "fail")
-            //               Term "comment",
-            //               Expression.Element
-            //                   { value =
-            //                       $"assert-equal failed {printExpression first} != {printExpression second}"
-            //                     space = None
-            //                     langTag = None } ]
-            //       children = [] }
-            // |> Ok
+                    Expression.ObjectView
+                        { root = el "Test"
+                          roles =
+                            Map.ofList
+                                [ Term "name", [ emptyObjectView (el "") ]
+                                  Term "status", [ emptyObjectView (el "fail") ]
+                                  Term "comment",
+                                  [ emptyObjectView (
+                                        el $"assert-equal failed {printExpression first} != {printExpression second}"
+                                    ) ] ]
+                          concepts = Set.empty }
+                    |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
                     Expression.ObjectView
