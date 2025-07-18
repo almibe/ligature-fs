@@ -76,10 +76,6 @@ and [<RequireQualifiedAccess>] Fn =
     | Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
     | Macro of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
 
-and Slots = Map<Slot, Expression>
-
-let emptySlots: Slots = Map.empty
-
 let encodeString string =
 #if !FABLE_COMPILER
     System.Web.HttpUtility.JavaScriptStringEncode(string, true)
@@ -138,27 +134,8 @@ and printElement (element: Element) : string =
 // | Value.Literal { id = l } -> encodeString l
 // | Value.Term(Term t) -> t
 
-and writeTermPattern (value: TermPattern) =
-    match value with
-    | TermPattern.Term(Term e) -> e
-    | TermPattern.Slot(Slot v) -> v
 
 and writeTerm (Term t) = t
-
-and printResultSet (rs: ResultSet) =
-    let mutable res = "ResultSet("
-
-    Set.iter
-        (fun variables ->
-            res <- res + "("
-
-            Map.iter (fun (Slot var) value -> res <- res + var + " " + printElement value + ", ") variables
-
-            res <- res + ")")
-        rs
-
-    res <- res + ")"
-    res
 
 // and printPattern (network: Pattern) : string =
 //     let mutable first = true

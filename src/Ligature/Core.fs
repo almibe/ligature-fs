@@ -6,10 +6,6 @@ module Ligature.Core
 
 open Ligature.Model
 
-let namedSlot (v: Slot) : bool =
-    match v with
-    | Slot "?" -> false
-    | _ -> true
 
 //let testPattern (pattern: AssertionPattern) (assertion: Assertion) : ValueSet option = failwith "TODO"
 // let mutable result: ValueSet = Map.empty
@@ -61,33 +57,33 @@ let namedSlot (v: Slot) : bool =
 //         Set.empty
 //         network
 
-let andSingleResult (left: ValueSet) (right: ValueSet) : Option<ValueSet> =
-    let leftKeys = Set.ofSeq left.Keys
-    let rightKeys = Set.ofSeq right.Keys
-    let intersection = Set.intersect leftKeys rightKeys
+// let andSingleResult (left: ValueSet) (right: ValueSet) : Option<ValueSet> =
+//     let leftKeys = Set.ofSeq left.Keys
+//     let rightKeys = Set.ofSeq right.Keys
+//     let intersection = Set.intersect leftKeys rightKeys
 
-    let res =
-        Set.forall (fun sharedKey -> left[sharedKey] = right[sharedKey]) intersection
+//     let res =
+//         Set.forall (fun sharedKey -> left[sharedKey] = right[sharedKey]) intersection
 
-    if res then
-        Map.fold (fun state key value -> Map.add key value state) left right |> Some
-    else
-        None
+//     if res then
+//         Map.fold (fun state key value -> Map.add key value state) left right |> Some
+//     else
+//         None
 
-let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
-    let mutable result = Set.empty
+// let andResultSets (left: ResultSet) (right: ResultSet) : ResultSet =
+//     let mutable result = Set.empty
 
-    Set.iter
-        (fun leftResult ->
-            Set.iter
-                (fun rightRight ->
-                    match andSingleResult leftResult rightRight with
-                    | Some res -> result <- Set.add res result
-                    | None -> ())
-                right)
-        left
+//     Set.iter
+//         (fun leftResult ->
+//             Set.iter
+//                 (fun rightRight ->
+//                     match andSingleResult leftResult rightRight with
+//                     | Some res -> result <- Set.add res result
+//                     | None -> ())
+//                 right)
+//         left
 
-    result
+//     result
 
 let individuals (aBox: Assertions) : Element list =
     Set.fold

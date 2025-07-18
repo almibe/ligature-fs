@@ -20,27 +20,22 @@ type Element =
       space: Term option
       langTag: string option }
 
+let element value space langTag =
+    { value = value
+      space = space
+      langTag = langTag }
+
+let el value =
+    { value = value
+      space = None
+      langTag = None }
+
 let termToElement (Term term) : Element =
     { value = term
       space = None
       langTag = None }
 
-type Slot = Slot of string
-
-type ResultSet = Set<ValueSet>
-
-and ValueSet = Map<Slot, Element>
-
-and [<RequireQualifiedAccess>] TermPattern =
-    | Term of Term
-    | Slot of Slot
-
-and [<RequireQualifiedAccess>] ValuePattern =
-    | Term of Term
-    | Instance of Element
-    | Slot of Slot
-
-and Triple = Element * Term * Element
+type Triple = Element * Term * Element
 
 and [<RequireQualifiedAccess>] Assertion =
     | Triple of Triple
@@ -74,12 +69,22 @@ and [<RequireQualifiedAccessAttribute>] Definition =
 type ElementNode =
     { root: Element
       concepts: Set<ConceptExpr>
-      roles: Map<Term, Element>}
+      roles: Map<Term, Element> }
 
 type ObjectView =
     { root: Element
       concepts: Set<ConceptExpr>
-      roles: Map<Term, ObjectView seq> }
+      roles: Map<Term, ObjectView list> }
+
+let objectView root concepts roles =
+    { root = root
+      concepts = concepts
+      roles = roles }
+
+let emptyObjectView element =
+    { root = element
+      concepts = Set.empty
+      roles = Map.empty }
 
 type Definitions = Set<Definition>
 

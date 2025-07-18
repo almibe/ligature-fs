@@ -29,22 +29,17 @@ let testGroupFn: Fn =
                                 testResult.roles.TryFind(Term "status"),
                                 testResult.roles.TryFind(Term "comment")
                             with
-                            | Some(name), Some(state), Some(comment) -> failwith "TODO"
-                            // let testId =
-                            //     { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
-                            //       space = None
-                            //       langTag = None }
+                            | Some [ { root = name } ], Some [ { root = status } ], Some [ { root = comment } ] ->
 
-                            // [ Assertion.Triple(testId, Term "name", name)
-                            //   Assertion.Triple(
-                            //       testId,
-                            //       Term "state",
-                            //       { value = status
-                            //         space = None
-                            //         langTag = None }
-                            //   )
-                            //   Assertion.Triple(testId, Term "comment", comment)
-                            //   Assertion.Triple(testId, Term "test-group", groupName) ]
+                                let testId =
+                                    { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
+                                      space = None
+                                      langTag = None }
+
+                                [ Assertion.Triple(testId, Term "name", name)
+                                  Assertion.Triple(testId, Term "state", status)
+                                  Assertion.Triple(testId, Term "comment", comment)
+                                  Assertion.Triple(testId, Term "test-group", groupName) ]
                             | _ -> failwith "TODO"
                         | _ -> []) // ignore expressions that don't return test results
                     arguments.Tail
@@ -63,24 +58,15 @@ let expectEqualFn: Fn =
             match arguments with
             | [ first; second ] ->
                 if first = second then
-                    failwith "TODO"
-                // Expression.ObjectView
-                //     { name = Term "Test"
-                //       attributes =
-                //         Map.ofList
-                //             [ Term "name",
-                //               Expression.Element
-                //                   { value = ""
-                //                     space = None
-                //                     langTag = None }
-                //               Term "status", Expression.Term(Term "pass")
-                //               Term "comment",
-                //               Expression.Element
-                //                   { value = ""
-                //                     space = None
-                //                     langTag = None } ]
-                //       children = [] }
-                // |> Ok
+                    Expression.ObjectView
+                        { root = el "Test"
+                          roles =
+                            Map.ofList
+                                [ Term "name", [ emptyObjectView (el "") ]
+                                  Term "status", [ emptyObjectView (el "pass") ]
+                                  Term "comment", [ emptyObjectView (el "") ] ]
+                          concepts = Set.empty }
+                    |> Ok
                 else
                     failwith "TODO"
             // Expression.NodeLiteral
@@ -103,20 +89,15 @@ let expectEqualFn: Fn =
             // |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
-                    failwith "TODO"
-                // Expression.NodeLiteral
-                //     { name = Term "Test"
-                //       attributes =
-                //         Map.ofList
-                //             [ Term "name", Expression.Element name
-                //               Term "status", Expression.Term(Term "pass")
-                //               Term "comment",
-                //               Expression.Element
-                //                   { value = ""
-                //                     space = None
-                //                     langTag = None } ]
-                //       children = [] }
-                // |> Ok
+                    Expression.ObjectView
+                        { root = el "Test"
+                          roles =
+                            Map.ofList
+                                [ Term "name", [ emptyObjectView name ]
+                                  Term "status", [ emptyObjectView (el "pass") ]
+                                  Term "comment", [ emptyObjectView (el "") ] ]
+                          concepts = Set.empty }
+                    |> Ok
                 else
                     failwith "TODO"
             // Expression.NodeLiteral

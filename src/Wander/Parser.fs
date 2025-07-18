@@ -35,12 +35,6 @@ let variableNib (gaze: Gaze.Gaze<Token>) : Result<Variable, Gaze.GazeError> =
     | Ok(Token.Variable value) -> Ok(Variable value)
     | _ -> Error Gaze.GazeError.NoMatch
 
-let slotNib (gaze: Gaze.Gaze<Token>) : Result<Slot, Gaze.GazeError> =
-    match Gaze.next gaze with
-    | Error err -> Error err
-    | Ok(Token.Slot value) -> Ok(Slot value)
-    | _ -> Error Gaze.GazeError.NoMatch
-
 let partialTupleNib (gaze: Gaze.Gaze<Token>) : Result<Tuple, Gaze.GazeError> =
     result {
         let! values = Gaze.attempt (optional (repeat anyNib)) gaze
@@ -133,40 +127,6 @@ let objectNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
         //   children = children }
         )
     | Error err -> Error err
-
-let symbolNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Error err -> Error err
-    | Ok(Token.Term value) -> Ok(TermPattern.Term(Term value))
-    | Ok(Token.Literal value) -> Ok(TermPattern.Term(Term value))
-    | _ -> Error Gaze.GazeError.NoMatch
-
-let elementPatternNib (gaze: Gaze.Gaze<Token>) : Result<TermPattern, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Error err -> Error err
-    | Ok(Token.Term value) -> Ok(TermPattern.Term(Term value))
-    | Ok(Token.Slot value) -> Ok(TermPattern.Slot(Slot value))
-    | _ -> Error Gaze.GazeError.NoMatch
-
-let valuePatternNib (gaze: Gaze.Gaze<Token>) : Result<ValuePattern, Gaze.GazeError> =
-    let next = Gaze.next gaze
-
-    match next with
-    | Error err -> Error err
-    | Ok(Token.Term value) -> Ok(ValuePattern.Term(Term value))
-    | Ok(Token.Literal value) ->
-        Ok(
-            ValuePattern.Instance
-                { value = value
-                  space = None
-                  langTag = None }
-        )
-    | Ok(Token.Slot value) -> Ok(ValuePattern.Slot(Slot value))
-    | _ -> Error Gaze.GazeError.NoMatch
 
 let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match Gaze.next gaze with
