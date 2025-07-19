@@ -69,7 +69,9 @@ and [<RequireQualifiedAccessAttribute>] Definition =
 type ObjectView =
     { root: Element
       concepts: Set<ConceptExpr>
-      links: Map<Term, List<ObjectView>> }
+      links: Links }
+
+and Links = Map<Term, List<ObjectView>>
 
 type ElementNode =
     { root: Element

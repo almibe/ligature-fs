@@ -106,6 +106,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "element", elementFn
+          Term "links", linksFn
           Term "instance", instanceFn
           Term "triple", tripleFn
           Term "same", sameFn

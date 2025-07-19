@@ -13,6 +13,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Term of Term
     | Element of Element
     | Variable of Variable
+    | Links of Links
     | Assertion of Assertion
     | Assertions of Assertions
     | ObjectView of ObjectView

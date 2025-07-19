@@ -120,16 +120,19 @@ and executeVariableApplication
     | Some x -> failwith $"Unexpected value {x}"
     | None -> error $"Could not find function {fn}" None
 
-and executeApplication (actions: Fns) (variables: Variables) (application: Application) : Result<Expression, LigatureError> =
+and executeApplication
+    (actions: Fns)
+    (variables: Variables)
+    (application: Application)
+    : Result<Expression, LigatureError> =
     let { name = fn
           attributes = attributes
           arguments = args } =
         application
 
-    match fn, args, actions.TryFind fn with
-    //| Term "match", value :: body, _ -> handleMatch value body
+    match actions.TryFind fn with
     // | _, _, Some lambda, _ -> evalLambda actions variables args lambda
-    | _, _, Some(Fn.Fn(_, fn)) ->
+    | Some(Fn.Fn(_, fn)) ->
         let args =
             List.map
                 (fun arg ->
@@ -142,15 +145,27 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Appli
             List.map
                 (fun value ->
                     match value with
-                    | Expression.Application application -> Expression.Application(evalApplication actions variables application)
+                    | Expression.Application application ->
+                        Expression.Application(evalApplication actions variables application)
                     | _ -> value)
                 args
+
+        let attributes =
+            Map.map
+                (fun key value ->
+                    match executeExpression actions variables value with
+                    | Ok value -> value
+                    | _ -> failwith "TODO")
+                attributes
+
         fn
             actions
             variables
-            { application with arguments = args}
-    | _, _, Some(Fn.Macro(_, fn)) -> fn actions variables application
-    | _, _, None -> error $"Could not find function {fn}" None
+            { application with
+                arguments = args
+                attributes = attributes }
+    | Some(Fn.Macro(_, fn)) -> fn actions variables application
+    | None -> error $"Could not find function {fn}" None
 
 and executeExpression
     (actions: Fns)

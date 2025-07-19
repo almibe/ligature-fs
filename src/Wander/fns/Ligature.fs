@@ -306,6 +306,23 @@ let tableauModelsFn: Fn =
 //     | Error err -> Error err
 // | _ -> error "Improper call to find-model." None)
 
+let linksFn: Fn =
+    Fn.Fn(
+        { doc = "Create a set of links."
+          examples = [ "links(a = b c = d)" ]
+          args = "Role = Element"
+          result = "Links" },
+        fun _ _ application ->
+            let links =
+                Map.map
+                    (fun key value ->
+
+                        failwith "TODO")
+                    application.attributes
+
+            Ok(Expression.Links links)
+    )
+
 let elementFn: Fn =
     Fn.Fn(
         { doc = "Create an element."
@@ -313,15 +330,37 @@ let elementFn: Fn =
           args = "Literal Term Term"
           result = "Element" },
         fun _ _ application ->
-            match application.arguments with
-            | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
-                Ok(
-                    Expression.Element
-                        { value = content
-                          space = Some datatype
-                          langTag = Some langTag }
-                )
-            | _ -> error "Improper call to element." None
+            let name =
+                match application.attributes.TryFind(Term "name") with
+                | Some(Expression.Term(Term t)) -> t
+                | _ -> failwith "TODO"
+
+            let links =
+                match application.attributes.TryFind(Term "links") with
+                | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
+                | x -> failwith $"Unexpected value: {x}"
+
+            let root: Element =
+                { value = name
+                  space = None
+                  langTag = None }
+
+            Ok(
+                Expression.ObjectView
+                    { root = root
+                      concepts = Set.empty
+                      links = links }
+            )
+
+    // match application.arguments with
+    // | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
+    //     Ok(
+    //         Expression.Element
+    //             { value = content
+    //               space = Some datatype
+    //               langTag = Some langTag }
+    //     )
+    // | _ -> error "Improper call to element." None
     )
 
 let tripleFn: Fn =

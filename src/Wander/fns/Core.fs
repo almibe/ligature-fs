@@ -111,7 +111,14 @@ let mapFn: Fn =
                     let values =
                         List.map
                             (fun value ->
-                                match fn fns variables {name = Term ""; attributes = Map.empty; arguments = [ value ]} with
+                                match
+                                    fn
+                                        fns
+                                        variables
+                                        { name = Term ""
+                                          attributes = Map.empty
+                                          arguments = [ value ] }
+                                with
                                 | Ok res -> res
                                 | _ -> failwith "TODO")
                             seq
