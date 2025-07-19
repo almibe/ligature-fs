@@ -18,7 +18,7 @@ and [<RequireQualifiedAccess>] Expression =
     | ObjectView of ObjectView
     | Comment of string
     | VariableApplication of VariableApplication
-    | Application of Node
+    | Application of Application
     | Lambda of Lambda
     | ConceptExpr of ConceptExpr
     | Definition of Definition
@@ -29,10 +29,10 @@ and VariableApplication =
       attributes: Map<Term, Expression>
       children: Expression list }
 
-and Node =
+and Application =
     { name: Term
       attributes: Map<Term, Expression>
-      children: Expression list }
+      arguments: Expression list }
 
 and Script = (Variable option * Expression) list
 
@@ -51,8 +51,8 @@ and FnDoc =
       result: string }
 
 and [<RequireQualifiedAccess>] Fn =
-    | Fn of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
-    | Macro of FnDoc * (Fns -> Variables -> Arguments -> Result<Expression, LigatureError>)
+    | Fn of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
+    | Macro of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
 
 let encodeString string =
 #if !FABLE_COMPILER
@@ -89,7 +89,7 @@ and printSeq (tuple: List<Expression>) : string =
 and printNode
     ({ name = Term name
        attributes = attributes
-       children = children }: Node)
+       arguments = children }: Application)
     : string =
     let attributes =
         Map.fold (fun state (Term key) value -> $" {state} {key} = {printExpression value}") "" attributes

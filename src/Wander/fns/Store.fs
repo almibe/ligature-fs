@@ -33,8 +33,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "add-kb(test)" ]
               args = "Term"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term name ] ->
                     store.AddKB name
                     Ok(Expression.Assertions Set.empty)
@@ -47,8 +47,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "remove-kb(test)" ]
               args = "Term"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term name ] ->
                     store.RemoveKB name
                     Ok(Expression.Assertions Set.empty)
@@ -61,8 +61,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "assert(test assertions([a b c]))" ]
               args = "Literal Assertions"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.AssertKB networkName network
                     Ok(Expression.Assertions Set.empty)
@@ -76,8 +76,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "unassert(test assertions([a b c]))" ]
               args = "Term Assertions"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName; Expression.Assertions network ] ->
                     store.UnassertKB networkName network
                     Ok(Expression.Assertions Set.empty)
@@ -90,8 +90,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-assertions(test)" ]
               args = "Term"
               result = "Assertions" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName ] ->
                     match store.ReadAssertsKB networkName with
                     | Ok network -> Ok(Expression.Assertions network)
@@ -105,8 +105,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "define(test definitions(equilavlent(A B)))" ]
               args = "Term Definitions"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName; Expression.Definitions definitions ] ->
                     store.DefineKB networkName definitions
                     Ok(Expression.Assertions Set.empty)
@@ -120,8 +120,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "undefine(test definitions((equivalent A B)))" ]
               args = "Term Definitions"
               result = "" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName; Expression.Definitions definitions ] ->
                     store.UndefineKB networkName definitions
                     Ok(Expression.Assertions Set.empty)
@@ -134,8 +134,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "read-definitions(test)" ]
               args = "Term"
               result = "Definitions" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term networkName ] ->
                     match store.ReadDefinitionsKB networkName with
                     | Ok definitions -> Ok(Expression.Definitions definitions)
@@ -150,8 +150,8 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
               examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
               args = "Definitions Assertions"
               result = "Term" },
-            fun _ _ arguments ->
-                match arguments with
+            fun _ _ application ->
+                match application.arguments with
                 | [ Expression.Term kbName ] ->
                     store.IsConsistent kbName
                     |> Result.map (fun value ->

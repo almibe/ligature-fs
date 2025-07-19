@@ -82,7 +82,7 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
             Expression.Application
                 { name = name
                   attributes = attributes
-                  children = children }
+                  arguments = children }
         )
     | Error err -> Error err
 

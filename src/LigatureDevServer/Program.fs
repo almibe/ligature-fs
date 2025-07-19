@@ -35,8 +35,8 @@ let rec allFiles dirs =
             yield! dirs |> Seq.collect Directory.EnumerateDirectories |> allFiles
         }
 
-let rec handleSeq (seq: List<Expression>) (nodes: List<Node>) : List<Node> =
-    let newNodes: List<Node> =
+let rec handleSeq (seq: List<Expression>) (nodes: List<Application>) : List<Application> =
+    let newNodes: List<Application> =
         List.collect
             (fun value ->
                 match value with
@@ -61,7 +61,7 @@ let wanderHandler: HttpHandler =
                         match run (Wander.Library.stdFns store) Map.empty script with
                         | Ok(Expression.NodeLiteral result) -> ctx.WriteHtmlStringAsync(generateHtml result)
                         | Ok(Expression.Seq seq) ->
-                            let nodes: Option<Node list> = Some(handleSeq seq [])
+                            let nodes: Option<Application list> = Some(handleSeq seq [])
 
                             match nodes with
                             | Some []

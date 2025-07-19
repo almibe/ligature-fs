@@ -60,7 +60,7 @@ and lookupFn (actions: Fns) (action: Term) : Fn option =
     | Some action -> Some action
     | None -> None
 
-and evalNode (actions: Fns) (variables: Variables) (node: Node) : Node =
+and evalApplication (actions: Fns) (variables: Variables) (node: Application) : Application =
     { name = node.name
       attributes =
         Map.map
@@ -69,13 +69,13 @@ and evalNode (actions: Fns) (variables: Variables) (node: Node) : Node =
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}")
             node.attributes
-      children =
+      arguments =
         List.map
             (fun value ->
                 match executeExpression actions variables value with
                 | Ok res -> res
                 | Error err -> failwith $"Error: {err.UserMessage}")
-            node.children }
+            node.arguments }
 
 and evalLambda
     (fns: Fns)
@@ -120,10 +120,10 @@ and executeVariableApplication
     | Some x -> failwith $"Unexpected value {x}"
     | None -> error $"Could not find function {fn}" None
 
-and executeApplication (actions: Fns) (variables: Variables) (application: Node) : Result<Expression, LigatureError> =
+and executeApplication (actions: Fns) (variables: Variables) (application: Application) : Result<Expression, LigatureError> =
     let { name = fn
           attributes = attributes
-          children = args } =
+          arguments = args } =
         application
 
     match fn, args, actions.TryFind fn with
@@ -138,16 +138,18 @@ and executeApplication (actions: Fns) (variables: Variables) (application: Node)
                     | Error err -> failwith $"Error: {err.UserMessage}")
                 args
 
+        let args =
+            List.map
+                (fun value ->
+                    match value with
+                    | Expression.Application application -> Expression.Application(evalApplication actions variables application)
+                    | _ -> value)
+                args
         fn
             actions
             variables
-            (List.map
-                (fun value ->
-                    match value with
-                    | Expression.Application node -> Expression.Application(evalNode actions variables node)
-                    | _ -> value)
-                args)
-    | _, _, Some(Fn.Macro(_, fn)) -> fn actions variables args
+            { application with arguments = args}
+    | _, _, Some(Fn.Macro(_, fn)) -> fn actions variables application
     | _, _, None -> error $"Could not find function {fn}" None
 
 and executeExpression

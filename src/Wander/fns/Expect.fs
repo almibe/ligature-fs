@@ -13,9 +13,9 @@ let testGroupFn: Fn =
           examples = []
           args = ""
           result = "" },
-        fun _ _ arguments ->
+        fun _ _ application ->
             let groupName =
-                match arguments.Head with
+                match application.arguments.Head with
                 | Expression.Element name -> name
                 | _ -> failwith "Unexpected value."
 
@@ -42,7 +42,7 @@ let testGroupFn: Fn =
                                   Assertion.Triple(testId, Term "test-group", groupName) ]
                             | _ -> failwith "TODO"
                         | _ -> []) // ignore expressions that don't return test results
-                    arguments.Tail
+                    application.arguments.Tail
 
             let testABox: Assertions = Set.ofList testData
             Ok(Expression.Assertions testABox)
@@ -54,8 +54,8 @@ let expectEqualFn: Fn =
           examples = [ "expect-equal(\"is A equal to A?\" A A)" ]
           args = "Literal Any Any"
           result = "Record" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ first; second ] ->
                 if first = second then
                     Expression.ObjectView

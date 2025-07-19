@@ -12,7 +12,7 @@ let generateHtml (view: ObjectView) : string =
     let rec innerGen
         { name = Term tag
           attributes = attributes
-          children = children }
+          arguments = children }
         : ReactElement =
         let mutable properties = []
 
@@ -49,8 +49,8 @@ let generateHtmlFn: Fn =
           examples = [ "generate-html(p { \"Test\" })" ]
           args = "Node"
           result = "Term" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             // | [ Expression.NodeLiteral node ] -> Ok(Expression.Term(Term(generateHtml node)))
             | [ Expression.Seq nodes ] -> failwith "TODO"
             | _ -> failwith "Invalid call to generate-html."
@@ -75,8 +75,8 @@ let assertionsTableFn: Fn =
           examples = [ "assertions-table(assertions(rel(a b c)))" ]
           args = "Assertions"
           result = "Node" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Assertions assertions ] ->
                 let mutable headers = Set.empty
                 //                let mutable concepts:  = Map.empty
@@ -217,8 +217,8 @@ let forceDirectedLayoutFn: Fn =
           examples = [ "force-directed-layout(assertions(a {rel(b c)}))" ]
           args = "Assertions"
           result = "Node" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Assertions assertions ] -> failwith "TODO"
             | _ -> failwith "Invalid call to force-directed-layout."
     )

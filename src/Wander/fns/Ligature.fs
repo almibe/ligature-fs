@@ -119,8 +119,8 @@ let unfoldFn =
           examples = [ "unfold(definitions(implies(A B)) assertions(instance(a A)))" ]
           args = "Definitions Assertions"
           result = "Assertions" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions def; Expression.Assertions assertions ] ->
                 unfold def assertions |> Result.map Expression.Assertions
             | _ -> error "Invalid call to unfold." None
@@ -132,8 +132,8 @@ let isDefinitorialFn =
           examples = [ "is-definitorial(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Literal" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions def ] ->
                 if isDefinitorial def then
                     Ok(Expression.Term(Term "true"))
@@ -148,8 +148,8 @@ let nnfFn =
           examples = [ "nnf(definitions(implies(A B)))" ]
           args = "Definitions"
           result = "Definitions" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions def ] ->
                 match nnf def with
                 | Ok resultValue -> Ok(Expression.ConceptExpr resultValue)
@@ -163,8 +163,8 @@ let bottomFn =
           examples = [ "bottom()" ]
           args = ""
           result = "ConceptExpr" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [] -> Ok(Expression.ConceptExpr ConceptExpr.Bottom)
             | _ -> error "Invalid call to bottom." None
     )
@@ -176,8 +176,8 @@ let topFn =
           examples = [ "top()" ]
           args = ""
           result = "ConceptExpr" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [] -> Ok(Expression.ConceptExpr ConceptExpr.Top)
             | _ -> error "Invalid call to top." None
     )
@@ -188,8 +188,8 @@ let isInstanceFn =
           examples = [ "is-instance(definitions(implies(A B)) assertions(instance(a A)) a B)" ]
           args = "Definitions Assertions Element Concept"
           result = "Term" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions tBox
                 Expression.Assertions aBox
                 Expression.Term element
@@ -213,8 +213,8 @@ let impliesFn: Fn =
           examples = [ "implies(Dog Animal)" ]
           args = ""
           result = "" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term subconcept; Expression.Term concept ] ->
                 Ok(
                     Expression.Definition(
@@ -232,8 +232,8 @@ let equivalentFn: Fn =
           examples = [ "equiv(Named exists(name))" ]
           args = ""
           result = "" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term leftConcept; Expression.Term rightConcept ] ->
                 Ok(
                     Expression.Definition(
@@ -255,8 +255,8 @@ let tableauModelsFn: Fn =
           examples = [ "tableau-models(definitions() assertions())" ]
           args = "Definitions Assertions"
           result = "Set" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions tBox; Expression.Assertions aBox ] ->
                 match tableauModels tBox aBox with
                 | Ok res -> List.map (fun value -> Expression.Assertions value) res |> Expression.Seq |> Ok
@@ -312,8 +312,8 @@ let elementFn: Fn =
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term"
           result = "Element" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
                 Ok(
                     Expression.Element
@@ -330,8 +330,8 @@ let tripleFn: Fn =
           examples = [ "triple(betty sibling don)" ]
           args = "Element Role Element"
           result = "Assertion" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term(Term element); Expression.Term role; Expression.Term(Term filler) ] ->
                 Ok(
                     Expression.Assertion(
@@ -368,8 +368,8 @@ let instanceFn: Fn =
           examples = [ "instance(betty and(Cat not(Dog)))" ]
           args = ""
           result = "" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term(Term element); Expression.Term concept ] ->
                 Ok(
                     Expression.Assertion(
@@ -405,8 +405,8 @@ let sameFn: Fn =
           examples = [ "same(a b)" ]
           args = "Element Element"
           result = "Assertion" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
             | [ Expression.Element left; Expression.Element right ] ->
@@ -420,8 +420,8 @@ let differentFn: Fn =
           examples = [ "different(a b)" ]
           args = "Element Element"
           result = "Assertion" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term left; Expression.Term right ] ->
                 Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
             | [ Expression.Element left; Expression.Element right ] ->
@@ -447,8 +447,8 @@ let allFn: Fn =
           examples = [ "all(knows Person)" ]
           args = "Term ConceptExpr"
           result = "ConceptExpr" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term role; Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.All(role, ConceptExpr.AtomicConcept concept)))
             | [ Expression.Term role; Expression.ConceptExpr concept ] ->
@@ -462,8 +462,8 @@ let existsFn: Fn =
           examples = [ "exists(name)"; "exists(knows Person)" ]
           args = "RoleName Concept?"
           result = "Concept" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.Top)))
             | [ Expression.Term role; Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.Exists(role, ConceptExpr.AtomicConcept concept)))
@@ -478,8 +478,8 @@ let funcFn: Fn =
           examples = [ "func(name)" ]
           args = "RoleName"
           result = "Concept" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func role))
             | _ -> error "Improper call to func." None
     )
@@ -563,8 +563,8 @@ let notFn: Fn =
           examples = [ "not(Dog)"; "not(and(Cat Dog))" ]
           args = "ConceptExpression"
           result = "ConceptExpression" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Term concept ] ->
                 Ok(Expression.ConceptExpr(ConceptExpr.Not(ConceptExpr.AtomicConcept concept)))
             | [ Expression.ConceptExpr concept ] -> Ok(Expression.ConceptExpr(ConceptExpr.Not(concept)))
@@ -577,7 +577,7 @@ let andFn: Fn =
           examples = [ "and(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
           result = "ConceptExpression" },
-        fun _ _ arguments ->
+        fun _ _ application ->
             let res =
                 List.fold
                     (fun state arg ->
@@ -589,7 +589,7 @@ let andFn: Fn =
                             | _ -> error "Invalid argument." None
                         | _ -> state)
                     (Ok [])
-                    arguments
+                    application.arguments
 
             match res with
             | Ok value -> Ok(Expression.ConceptExpr(ConceptExpr.And value))
@@ -602,7 +602,7 @@ let orFn: Fn =
           examples = [ "or(Cat Dog Ferret)" ]
           args = "ConceptExpression..."
           result = "ConceptExpression" },
-        fun _ _ arguments ->
+        fun _ _ application ->
             let res =
                 List.fold
                     (fun state arg ->
@@ -614,7 +614,7 @@ let orFn: Fn =
                             | _ -> error "Invalid argument." None
                         | _ -> state)
                     (Ok [])
-                    arguments
+                    application.arguments
 
             match res with
             | Ok value -> Ok(Expression.ConceptExpr(ConceptExpr.Or value))
@@ -627,13 +627,13 @@ let definitionsFn: Fn =
           examples = [ "definitions(implies(Dog Animal))" ]
           args = "Definition..."
           result = "Definitions" },
-        fun _ _ arguments ->
+        fun _ _ application ->
             List.map
                 (fun value ->
                     match value with
                     | Expression.Definition def -> def
                     | x -> failwith $"Not suported - {x}.")
-                arguments
+                application.arguments
             |> Set.ofList
             |> Expression.Definitions
             |> Ok

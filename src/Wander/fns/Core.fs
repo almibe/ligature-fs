@@ -14,8 +14,8 @@ let idFn: Fn =
           examples = []
           args = "Any"
           result = "Any" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ value ] -> Ok value
             | _ -> failwith "TODO"
     )
@@ -26,7 +26,7 @@ let fnFn: Fn =
           examples = [ "Fn.Fn(test)"; "Fn.Fn($arg -> count($arg))" ]
           args = "Any"
           result = "Any" },
-        fun actions variables arguments ->
+        fun actions variables application ->
             let readArrow, variables, (body: Option<Script>) =
                 List.fold
                     (fun (readArrow, variables, body) value ->
@@ -46,7 +46,7 @@ let fnFn: Fn =
                                 | Some variables -> readArrow, Some(List.append variables [ variable ]), body
                             | _ -> failwith "Error expected variable or ->.")
                     (false, None, None)
-                    arguments
+                    application.arguments
 
             let variables =
                 match variables with
@@ -67,11 +67,11 @@ let doFn: Fn =
           examples = [ "do (test)" ]
           args = "Any"
           result = "Any" },
-        fun actions variables arguments ->
+        fun actions variables application ->
             List.fold
                 (fun state expression -> executeExpression actions variables expression)
                 (Ok(Expression.Term(Term "")))
-                arguments
+                application.arguments
     )
 
 let pipeFn: Fn =
@@ -81,11 +81,11 @@ let pipeFn: Fn =
           examples = [ "pipe(assertions(triple(a b c)) count())" ]
           args = "Any..."
           result = "Any" },
-        fun actions variables arguments ->
+        fun actions variables application ->
             List.fold
                 (fun state expression -> executeExpression actions variables expression)
                 (Ok(Expression.Term(Term "")))
-                arguments
+                application.arguments
     )
 
 let seqFn: Fn =
@@ -94,7 +94,7 @@ let seqFn: Fn =
           examples = [ "seq(test)" ]
           args = "Any"
           result = "Seq" },
-        fun _ _ arguments -> Ok(Expression.Seq arguments)
+        fun _ _ application -> Ok(Expression.Seq application.arguments)
     )
 
 let mapFn: Fn =
@@ -103,15 +103,15 @@ let mapFn: Fn =
           examples = [ "map(id seq(1 2 3))" ]
           args = "Mapper Seq"
           result = "Seq" },
-        fun fns variables arguments ->
-            match arguments with
+        fun fns variables application ->
+            match application.arguments with
             | [ Expression.Term mapper; Expression.Seq seq ] ->
                 match fns.TryFind mapper with
                 | Some(Fn.Fn(_, fn)) ->
                     let values =
                         List.map
                             (fun value ->
-                                match fn fns variables [ value ] with
+                                match fn fns variables {name = Term ""; attributes = Map.empty; arguments = [ value ]} with
                                 | Ok res -> res
                                 | _ -> failwith "TODO")
                             seq
