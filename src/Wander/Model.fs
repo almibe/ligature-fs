@@ -104,10 +104,10 @@ and printNode
 
 and printElement (element: Element) : string =
     match element with
-    | { value = l
+    | { value = Term l
         space = Some(Term t)
-        langTag = Some langTag } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
-    | { value = l
+        langTag = Some (Term langTag) } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
+    | { value = Term l
         space = None
         langTag = None } -> encodeString l
 // | Value.Literal { id = l } -> encodeString l

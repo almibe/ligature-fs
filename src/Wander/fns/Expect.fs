@@ -32,7 +32,7 @@ let testGroupFn: Fn =
                             | Some [ { root = name } ], Some [ { root = status } ], Some [ { root = comment } ] ->
 
                                 let testId =
-                                    { value = "test-" + Ulid.Ulid.Ulid.New.ToString()
+                                    { value = Term $"test-{Ulid.Ulid.Ulid.New}"
                                       space = None
                                       langTag = None }
 

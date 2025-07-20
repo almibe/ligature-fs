@@ -316,8 +316,9 @@ let linksFn: Fn =
             let links =
                 Map.map
                     (fun key value ->
-
-                        failwith "TODO")
+                        match value with
+                        | Expression.Term(Term t) -> [ emptyObjectView (el t) ]
+                        | _ -> failwith "TODO")
                     application.attributes
 
             Ok(Expression.Links links)
@@ -327,40 +328,48 @@ let elementFn: Fn =
     Fn.Fn(
         { doc = "Create an element."
           examples = [ "element(\"# hello\" Markdown en)" ]
-          args = "Literal Term Term"
+          args = "Literal Term Term Seq Links"
           result = "Element" },
         fun _ _ application ->
-            let name =
-                match application.attributes.TryFind(Term "name") with
-                | Some(Expression.Term(Term t)) -> t
-                | _ -> failwith "TODO"
 
-            let links =
-                match application.attributes.TryFind(Term "links") with
-                | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
-                | x -> failwith $"Unexpected value: {x}"
+            // let name =
+            //     match application.attributes.TryFind(Term "name") with
+            //     | Some(Expression.Term(Term t)) -> t
+            //     | _ -> failwith "TODO"
 
-            let root: Element =
-                { value = name
-                  space = None
-                  langTag = None }
+            // let links =
+            //     match application.attributes.TryFind(Term "links") with
+            //     | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
+            //     | x -> failwith $"Unexpected value: {x}"
 
-            Ok(
-                Expression.ObjectView
-                    { root = root
-                      concepts = Set.empty
-                      links = links }
-            )
+            // let root: Element =
+            //     { value = name
+            //       space = None
+            //       langTag = None }
 
-    // match application.arguments with
-    // | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term(Term langTag) ] ->
-    //     Ok(
-    //         Expression.Element
-    //             { value = content
-    //               space = Some datatype
-    //               langTag = Some langTag }
-    //     )
-    // | _ -> error "Improper call to element." None
+            // Ok(
+            //     Expression.ObjectView
+            //         { root = root
+            //           concepts = Set.empty
+            //           links = links }
+            // )
+
+            match application.arguments with
+            | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term langTag ] ->
+                Ok(
+                    Expression.Element
+                        { value = content
+                          space = Some datatype
+                          langTag = Some langTag }
+                )
+            | [ Expression.Term(Term t); Expression.Links links ] ->
+                Ok(
+                    Expression.ObjectView
+                        { root = el t
+                          concepts = Set.empty
+                          links = links }
+                )
+            | _ -> error "Improper call to element." None
     )
 
 let tripleFn: Fn =
@@ -371,7 +380,7 @@ let tripleFn: Fn =
           result = "Assertion" },
         fun _ _ application ->
             match application.arguments with
-            | [ Expression.Term(Term element); Expression.Term role; Expression.Term(Term filler) ] ->
+            | [ Expression.Term element; Expression.Term role; Expression.Term filler ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Triple(
@@ -385,7 +394,7 @@ let tripleFn: Fn =
                         )
                     )
                 )
-            | [ Expression.Term(Term element); Expression.Term role; Expression.Element filler ] ->
+            | [ Expression.Term element; Expression.Term role; Expression.Element filler ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Triple(
@@ -409,7 +418,7 @@ let instanceFn: Fn =
           result = "" },
         fun _ _ application ->
             match application.arguments with
-            | [ Expression.Term(Term element); Expression.Term concept ] ->
+            | [ Expression.Term element; Expression.Term concept ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Instance(
@@ -420,7 +429,7 @@ let instanceFn: Fn =
                         )
                     )
                 )
-            | [ Expression.Term(Term element); Expression.ConceptExpr concept ] ->
+            | [ Expression.Term element; Expression.ConceptExpr concept ] ->
                 Ok(
                     Expression.Assertion(
                         Assertion.Instance(

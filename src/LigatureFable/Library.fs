@@ -19,7 +19,7 @@ let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, L
                       examples = []
                       args = ""
                       result = "" },
-                    fun _ _ args -> entry.Value(List.toArray args)
+                    fun _ _ application -> entry.Value(List.toArray application.arguments)
                 ))
                 resFns
 
@@ -351,3 +351,39 @@ let appendCanvas element (value: Result<Expression, LigatureError>) = failwith "
 //     emitJsStatement () "element.appendChild(canvas)"
 // | Ok value -> failwith $"Unexpected value passed to appendCanvas {value}"
 // | Error err -> failwith err.UserMessage
+
+let termToJs (Term term) =
+    let obj = createEmpty
+    obj?``type`` <- "Term"
+    obj?value <- term
+    obj
+
+let elementToJs (element: Element) =
+    let obj = createEmpty
+    obj?``type`` <- "Element"
+    obj?value <- element.value
+
+    match element.space with
+    | Some(Term t) -> obj?``namespace`` <- t
+    | _ -> ()
+
+    match element.langTag with
+    | Some(Term t) -> 
+
+    obj
+
+
+let objectViewToJs (view: ObjectView) =
+    let obj = createEmpty
+    //         obj?``type`` <- "term"
+    //         obj?value <- t
+    //         obj
+
+    obj
+
+let run script =
+    match runWithDefaults script with
+    | Ok(Expression.ObjectView view) -> objectViewToJs view
+    | Ok(Expression.Term t) -> termToJs t
+    |
+    | _ -> failwith "TODO"

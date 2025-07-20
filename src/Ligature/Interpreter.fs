@@ -346,7 +346,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                     let r = new System.Random()
 
                     let newInstance =
-                        { value = $"new-{r.Next()}"
+                        { value = Term $"new-{r.Next()}"
                           space = None
                           langTag = None }
 

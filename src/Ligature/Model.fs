@@ -16,21 +16,21 @@ let error userMessage debugMessage =
 type Term = Term of string
 
 type Element =
-    { value: string
+    { value: Term
       space: Term option
-      langTag: string option }
+      langTag: Term option }
 
 let element value space langTag =
     { value = value
       space = space
       langTag = langTag }
 
-let el value =
-    { value = value
+let el (value: string) =
+    { value = Term value
       space = None
       langTag = None }
 
-let termToElement (Term term) : Element =
+let termToElement (term: Term) : Element =
     { value = term
       space = None
       langTag = None }

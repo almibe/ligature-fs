@@ -102,7 +102,7 @@ let objectNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
         Ok(
             Expression.ObjectView
                 { root =
-                    { value = name
+                    { value = Term name
                       space = None
                       langTag = None }
                   concepts = Set.empty
@@ -120,7 +120,7 @@ let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.Gaz
     | Ok(Token.Literal value) ->
         Ok(
             Expression.Element
-                { value = value
+                { value = Term value
                   space = None
                   langTag = None }
         )

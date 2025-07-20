@@ -28,7 +28,7 @@ let generateHtml (view: ObjectView) : string =
             (fun value ->
                 match value with
                 | Expression.Term(Term t) -> properties <- List.append [ IReactProperty.Text t ] properties
-                | Expression.Element { value = content } ->
+                | Expression.Element { value = Term content } ->
                     properties <- List.append [ IReactProperty.Text content ] properties
                 // | Expression.NodeLiteral node ->
                 //     properties <- List.append [ IReactProperty.Children [ innerGen node ] ] properties
@@ -59,10 +59,10 @@ let generateHtmlFn: Fn =
 let printDataColumn (elements: Set<Element>) : string =
     match List.ofSeq elements with
     | [] -> ""
-    | [ { value = single } ] -> single
+    | [ { value = Term single } ] -> single
     | multi ->
         List.fold
-            (fun state { value = value } ->
+            (fun state { value = Term value } ->
                 match state with
                 | "" -> value
                 | _ -> $"{state}, {value}")
@@ -104,7 +104,7 @@ let assertionsTableFn: Fn =
                                 //TODO store concepts in a separate map to avoid issues with roles named "Concepts"
                                 let concept: Element =
                                     match c with
-                                    | ConceptExpr.AtomicConcept(Term c) ->
+                                    | ConceptExpr.AtomicConcept c ->
                                         { value = c
                                           space = None
                                           langTag = None }
@@ -133,10 +133,10 @@ let assertionsTableFn: Fn =
 
                 let headerColumns =
                     List.map
-                        (fun (Term value) ->
+                        (fun (value: Term) ->
                             Expression.ObjectView
                                 { root =
-                                    { value = "th"
+                                    { value = Term "th"
                                       space = None
                                       langTag = None }
                                   concepts = Set.empty

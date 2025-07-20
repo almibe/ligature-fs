@@ -14,13 +14,13 @@ let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureE
     let element: Element = view.root
     let mutable results = Set.empty
 
-    // Map.iter
-    //     (fun (role: Term) values ->
-    //         List.iter
-    //             (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
-    //             values)
-    //     view.links
-    failwith "TODO"
+    Map.iter
+        (fun (role: Term) values ->
+            List.iter
+                (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
+                values)
+        view.links
+
     Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
@@ -80,7 +80,7 @@ let assertionsFn =
           examples = [ "assertions(instance(betty Cat))" ]
           args = "Assertion..."
           result = "Assertions" },
-        fun _ _ arguments ->
+        fun _ _ application ->
             let mutable res: Assertions = Set.empty
 
             List.iter
@@ -92,7 +92,7 @@ let assertionsFn =
                         | Ok network -> res <- res + network
                         | _ -> failwith "TODO"
                     | x -> failwith $"Invalid call to assertions: {x}")
-                arguments
+                application.arguments
 
             Ok(Expression.Assertions res)
     )
@@ -117,19 +117,19 @@ let countFn =
           examples = [ "count(assertions(triple(a b c)))" ]
           args = "Assertions"
           result = "Term" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Assertions n ] ->
                 Ok(
                     Expression.Element
-                        { value = (Set.count n).ToString()
+                        { value = Term ((Set.count n).ToString())
                           space = None
                           langTag = None }
                 )
             | [ Expression.Seq seq ] ->
                 Ok(
                     Expression.Element
-                        { value = (List.length seq).ToString()
+                        { value = Term ((List.length seq).ToString())
                           space = None
                           langTag = None }
                 )
@@ -145,10 +145,10 @@ let countFn =
 //                 Ok(networks, local, modules)
 //             | _ -> failwith "TODO" }
 
-let aBoxToNode (individual: Term) (aBox: Assertions) : Node = //TODO also accept a TBox and Concept to control
+let aBoxToNode (individual: Term) (aBox: Assertions) : Application = //TODO also accept a TBox and Concept to control
     { name = individual
       attributes = Map.empty
-      children = [] }
+      arguments = [] }
 // let selectionValues =
 //     List.fold
 //         (fun state value ->
@@ -178,8 +178,8 @@ let queryFn =
           examples = []
           args = "Definitions Assertions (Term | ConceptExpr)"
           result = "Seq" },
-        fun _ _ arguments ->
-            match arguments with
+        fun _ _ application ->
+            match application.arguments with
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Term concept ] ->
                 let results =
                     query tBox aBox (ConceptExpr.AtomicConcept concept)

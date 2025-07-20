@@ -40,10 +40,10 @@ let wanderTestSuite =
                 |> List.iter (fun store ->
                     match run (stdFns store) Map.empty script with
                     | Ok(Expression.Assertions result) ->
-                        let mutable names: Map<string, string> = Map.empty
-                        let mutable comments: Map<string, string> = Map.empty
+                        let mutable names: Map<Term, Term> = Map.empty
+                        let mutable comments: Map<Term, Term> = Map.empty
 
-                        let failures: Set<string> =
+                        let failures: Set<Term> =
                             Set.fold
                                 (fun state value ->
                                     match value with
@@ -52,8 +52,8 @@ let wanderTestSuite =
                                         state
                                     | Assertion.Triple({ value = testId }, Term "state", value) ->
                                         match value with
-                                        | { value = "pass" } -> state
-                                        | { value = "fail" } -> Set.add testId state
+                                        | { value = Term "pass" } -> state
+                                        | { value = Term "fail" } -> Set.add testId state
                                         | state -> failwith $"Unexpected state value {state}"
                                     | Assertion.Triple({ value = testId }, Term "comment", { value = comment }) ->
                                         comments <- Map.add testId comment comments
@@ -65,8 +65,10 @@ let wanderTestSuite =
 
                         let errorMsg: string =
                             Set.fold
-                                (fun state value ->
-                                    state + " - " + Map.find value names + " - " + Map.find value comments + "\n")
+                                (fun state (value: Term) ->
+                                    let (Term name) = Map.find value names
+                                    let (Term comment) = Map.find value comments
+                                    state + " - " + name + " - " + comment + "\n")
                                 "Failed tests:\n"
                                 failures
 

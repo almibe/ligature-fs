@@ -24,7 +24,7 @@ let docsFn: Fn =
             let docs: Assertions =
                 Map.toSeq actions
                 |> Seq.fold
-                    (fun state (Term name, action) ->
+                    (fun state (name: Term, action) ->
                         let name =
                             { value = name
                               space = None
@@ -37,7 +37,7 @@ let docsFn: Fn =
                                     (Assertion.Triple(
                                         name,
                                         Term "doc-string",
-                                        { value = doc.doc
+                                        { value = Term doc.doc
                                           space = None
                                           langTag = None }
                                     ))
@@ -48,7 +48,7 @@ let docsFn: Fn =
                                     (Assertion.Triple(
                                         name,
                                         Term ":",
-                                        { value = "Fn"
+                                        { value = Term "Fn"
                                           space = None
                                           langTag = None }
                                     ))
@@ -59,7 +59,7 @@ let docsFn: Fn =
                                     (Assertion.Triple(
                                         name,
                                         Term "args",
-                                        { value = doc.args
+                                        { value = Term doc.args
                                           space = None
                                           langTag = None }
                                     ))
@@ -70,7 +70,7 @@ let docsFn: Fn =
                                     (Assertion.Triple(
                                         name,
                                         Term "result",
-                                        { value = doc.result
+                                        { value = Term doc.result
                                           space = None
                                           langTag = None }
                                     ))
@@ -82,7 +82,7 @@ let docsFn: Fn =
                                         (Assertion.Triple(
                                             name,
                                             Term "doc-example",
-                                            { value = example
+                                            { value = Term example
                                               space = None
                                               langTag = None }
                                         ))

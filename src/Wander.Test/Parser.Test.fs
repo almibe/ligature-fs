@@ -42,7 +42,7 @@ let tests =
                       [ None,
                         Expression.ObjectView
                             { root =
-                                { value = "p"
+                                { value = Term "p"
                                   space = None
                                   langTag = None }
                               concepts = Set.empty
