@@ -21,6 +21,8 @@ let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureE
                 values)
         view.links
 
+    Set.iter (fun conceptExpr -> results <- Set.add (Assertion.Instance(element, conceptExpr)) results) view.concepts
+
     Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->

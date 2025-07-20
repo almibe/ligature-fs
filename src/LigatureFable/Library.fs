@@ -376,9 +376,8 @@ let elementToJs (element: Element) =
 
 let objectViewToJs (view: ObjectView) =
     let obj = createEmpty
-    //         obj?``type`` <- "term"
-    //         obj?value <- t
-    //         obj
+    obj?``type`` <- "ObjectView"
+    obj?root <- elementToJs view.root
 
     obj
 
@@ -387,4 +386,4 @@ let run script =
     | Ok(Expression.ObjectView view) -> objectViewToJs view
     | Ok(Expression.Term t) -> termToJs t
     | Ok(Expression.Element element) -> elementToJs element
-    | _ -> failwith "TODO"
+    | x -> failwith $"Unexpected value {x}"

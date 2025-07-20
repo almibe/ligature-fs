@@ -8,3 +8,7 @@ test('basic term', () => {
 test('basic element', () => {
   expect(run("\"test\"")).toStrictEqual({type:"Element",value:"test"})
 })
+
+test('basic object view', () => {
+  expect(run("element(a)")).toStrictEqual({type:"ObjectView",root:{type:"Element",value:"a"}})
+})

@@ -362,6 +362,30 @@ let elementFn: Fn =
                           space = Some datatype
                           langTag = Some langTag }
                 )
+            | [ Expression.Term(Term t) ] ->
+                Ok(
+                    Expression.ObjectView
+                        { root = el t
+                          concepts = Set.empty
+                          links = Map.empty }
+                )
+            | [ Expression.Term(Term t); Expression.Seq concepts ] ->
+                let concepts =
+                    List.map
+                        (fun value ->
+                            match value with
+                            | Expression.ConceptExpr expr -> expr
+                            | Expression.Term t -> ConceptExpr.AtomicConcept t
+                            | _ -> failwith "TODO")
+                        concepts
+                    |> Set.ofList
+
+                Ok(
+                    Expression.ObjectView
+                        { root = el t
+                          concepts = concepts
+                          links = Map.empty }
+                )
             | [ Expression.Term(Term t); Expression.Links links ] ->
                 Ok(
                     Expression.ObjectView
