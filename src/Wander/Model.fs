@@ -106,7 +106,7 @@ and printElement (element: Element) : string =
     match element with
     | { value = Term l
         space = Some(Term t)
-        langTag = Some (Term langTag) } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
+        langTag = Some(Term langTag) } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
     | { value = Term l
         space = None
         langTag = None } -> encodeString l

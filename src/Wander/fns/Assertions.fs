@@ -122,14 +122,14 @@ let countFn =
             | [ Expression.Assertions n ] ->
                 Ok(
                     Expression.Element
-                        { value = Term ((Set.count n).ToString())
+                        { value = Term((Set.count n).ToString())
                           space = None
                           langTag = None }
                 )
             | [ Expression.Seq seq ] ->
                 Ok(
                     Expression.Element
-                        { value = Term ((List.length seq).ToString())
+                        { value = Term((List.length seq).ToString())
                           space = None
                           langTag = None }
                 )

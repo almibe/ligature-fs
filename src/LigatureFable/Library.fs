@@ -361,17 +361,18 @@ let termToJs (Term term) =
 let elementToJs (element: Element) =
     let obj = createEmpty
     obj?``type`` <- "Element"
-    obj?value <- element.value
+    let (Term value) = element.value
+    obj?value <- value
 
     match element.space with
     | Some(Term t) -> obj?``namespace`` <- t
     | _ -> ()
 
     match element.langTag with
-    | Some(Term t) -> 
+    | Some(Term t) -> obj?langTag <- t
+    | _ -> ()
 
     obj
-
 
 let objectViewToJs (view: ObjectView) =
     let obj = createEmpty
@@ -385,5 +386,5 @@ let run script =
     match runWithDefaults script with
     | Ok(Expression.ObjectView view) -> objectViewToJs view
     | Ok(Expression.Term t) -> termToJs t
-    |
+    | Ok(Expression.Element element) -> elementToJs element
     | _ -> failwith "TODO"
