@@ -93,19 +93,14 @@ let expectEqualFn: Fn =
                           concepts = Set.empty }
                     |> Ok
                 else
-                    failwith "TODO"
-            // Expression.NodeLiteral
-            //     { name = Term "Test"
-            //       attributes =
-            //         Map.ofList
-            //             [ Term "name", Expression.Element name
-            //               Term "status", Expression.Term(Term "fail")
-            //               Term "comment",
-            //               Expression.Element
-            //                   { value = $"assert-equal failed {printExpression left} != {printExpression right}"
-            //                     space = None
-            //                     langTag = None } ]
-            //       children = [] }
-            // |> Ok
+                    Expression.ObjectView
+                        { root = el "Test"
+                          links =
+                            Map.ofList
+                                [ Term "name", [ emptyObjectView name]
+                                  Term "status", [ emptyObjectView (el "fail")]
+                                  Term "comment", [ emptyObjectView (el $"assert-equal failed {printExpression left} != {printExpression right}") ] ]
+                          concepts = Set.empty }
+                    |> Ok
             | _ -> error $"expect-equal requires a name and two values." None
     )
