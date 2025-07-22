@@ -14,26 +14,31 @@ open Wander.Tokenizer
 
 [<EntryPoint>]
 let main (args: string[]) =
-    let script =
-        if args[0] = "-i" then
-            printfn "Input: "
-            Console.ReadLine()
-        else
-            let dir = IO.Directory.GetCurrentDirectory()
-            let file = $"{dir}/{args[0]}"
-            System.IO.File.ReadAllText file
+    let interactive = args[0] = "-i"
+    let mutable cont = true
 
-    match tokenize script with
-    | Ok script ->
-        printfn "Tokens: %A\n\n" script
+    while cont do
+        let script =
+            if interactive then
+                printfn "Input: "
+                Console.ReadLine()
+            else
+                cont <- false
+                let dir = IO.Directory.GetCurrentDirectory()
+                let file = $"{dir}/{args[0]}"
+                System.IO.File.ReadAllText file
 
-        match parse script with
-        | Ok res -> printfn $"AST:\n{res}\n\n"
+        match tokenize script with
+        | Ok script ->
+            printfn "Tokens: %A\n\n" script
 
-    let store = new InMemoryStore()
+            match parse script with
+            | Ok res -> printfn $"AST:\n{res}\n\n"
 
-    match run (stdFns store) Map.empty script with
-    | Ok res -> printfn $"{printExpression res}"
-    | Error err -> printfn $"{err.UserMessage}"
+        let store = new InMemoryStore()
+
+        match run (stdFns store) Map.empty script with
+        | Ok res -> printfn $"{printExpression res}"
+        | Error err -> printfn $"{err.UserMessage}"
 
     0
