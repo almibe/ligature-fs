@@ -97,9 +97,12 @@ let expectEqualFn: Fn =
                         { root = el "Test"
                           links =
                             Map.ofList
-                                [ Term "name", [ emptyObjectView name]
-                                  Term "status", [ emptyObjectView (el "fail")]
-                                  Term "comment", [ emptyObjectView (el $"assert-equal failed {printExpression left} != {printExpression right}") ] ]
+                                [ Term "name", [ emptyObjectView name ]
+                                  Term "status", [ emptyObjectView (el "fail") ]
+                                  Term "comment",
+                                  [ emptyObjectView (
+                                        el $"assert-equal failed {printExpression left} != {printExpression right}"
+                                    ) ] ]
                           concepts = Set.empty }
                     |> Ok
             | _ -> error $"expect-equal requires a name and two values." None

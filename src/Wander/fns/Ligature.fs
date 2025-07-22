@@ -259,7 +259,8 @@ let tableauModelsFn: Fn =
             match application.arguments with
             | [ Expression.Definitions tBox; Expression.Assertions aBox ] ->
                 match tableauModels tBox aBox with
-                | Ok res -> List.map (fun value -> Expression.Assertions value) res |> Expression.Seq |> Ok
+                | Ok { consistent = res } ->
+                    List.map (fun value -> Expression.Assertions value) res |> Expression.Seq |> Ok
                 | Error err -> Error err
             | _ -> error "Invalid call to tableau-model." None
     )

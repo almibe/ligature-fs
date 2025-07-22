@@ -499,7 +499,11 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
         | Assertion.Instance(i, ConceptExpr.Not ConceptExpr.Top) -> None, []
         | Assertion.Instance(i, c) -> failwith $"Not Implemented: instance {i} {c}"
 
-let tableauModels definitions assertions : Result<Assertions list, LigatureError> =
+type ModelResult =
+    { consistent: Assertions list
+      numberOfInconsistentModels: int }
+
+let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel option =
         match handleTBox definitions assertions with
         | Ok assertions -> Some(newModel assertions)
@@ -508,6 +512,7 @@ let tableauModels definitions assertions : Result<Assertions list, LigatureError
     let mutable additionalModels: PotentialModel list = []
 
     let mutable completedModelsClashFree = []
+    let mutable numberOfmodelsWithClashes = 0
 
     while currentModel.IsSome || not additionalModels.IsEmpty do
         match currentModel with
@@ -529,6 +534,10 @@ let tableauModels definitions assertions : Result<Assertions list, LigatureError
                                 skip = Set.empty }
             else
                 let nextModel, newPotentialModels = interpretNextAssertion model
+
+                if nextModel.IsNone then
+                    numberOfmodelsWithClashes <- numberOfmodelsWithClashes + 1
+
                 currentModel <- nextModel
                 additionalModels <- List.append additionalModels newPotentialModels
         | None ->
@@ -538,7 +547,9 @@ let tableauModels definitions assertions : Result<Assertions list, LigatureError
                 additionalModels <- tail
             | _ -> failwith "Should never reach"
 
-    Ok completedModelsClashFree
+    Ok
+        { consistent = completedModelsClashFree
+          numberOfInconsistentModels = numberOfmodelsWithClashes }
 
 let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
@@ -579,7 +590,7 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
     match tableauModels definitions assertions with
-    | Ok [] -> Ok false
+    | Ok { consistent = [] } -> Ok false
     | Ok _ -> Ok true
     | Error err -> Error err
 
@@ -589,12 +600,15 @@ let isInstance
     (individual: Element)
     (concept: ConceptExpr)
     : Result<Term, LigatureError> =
-    let models =
+    let modelResults =
         tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
 
-    match models with
-    | Ok models -> if models.IsEmpty then Ok(Term "true") else Ok(Term "false")
-    | Error err -> Error err
+    match modelResults with
+    | Ok { consistent = [] } -> Ok(Term "true")
+    | Ok { consistent = _
+           numberOfInconsistentModels = 0 } -> Ok(Term "false")
+    | Ok _ -> Ok(Term "unknown")
+    | Error err -> error err.UserMessage None
 
 let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr) : Assertions =
 
