@@ -88,7 +88,9 @@ let assertionsFn =
             List.iter
                 (fun arg ->
                     match arg with
+                    | Expression.Assertions assertions -> res <- Set.union assertions res
                     | Expression.Assertion assertion -> res <- Set.add assertion res
+                    | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
                     // | Expression.ObjectView node ->
                     //     match objectViewToAssertions node with
                     //     | Ok network -> res <- res + network

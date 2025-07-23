@@ -338,7 +338,13 @@ let elementFn: Fn =
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term Seq Links"
           result = "Element" },
-        fun _ _ application -> failwith "TODO"
+        fun _ _ application ->
+            let mutable remaining = application.arguments
+
+            match remaining.Head with
+            | Expression.Term(Term t) -> Ok(Expression.Element(el t))
+            | x -> failwith $"TODO - {x}"
+
     // // let name =
     // //     match application.attributes.TryFind(Term "name") with
     // //     | Some(Expression.Term(Term t)) -> t

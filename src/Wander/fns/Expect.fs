@@ -57,20 +57,24 @@ let expectEqualFn: Fn =
                     )
                     |> Ok
                 else
-                    failwith "TODO"
-            // Expression.ObjectView
-            //     { root = el "Test"
-            //       links =
-            //         Map.ofList
-            //             [ Term "name", [ emptyObjectView (el "") ]
-            //               Term "status", [ emptyObjectView (el "fail") ]
-            //               Term "comment",
+                    let testId =
+                        { value = Term $"test-{Ulid.Ulid.Ulid.New}"
+                          space = None
+                          langTag = None }
 
-            //               [ emptyObjectView (
-            //                     el $"assert-equal failed {printExpression first} != {printExpression second}"
-            //                 ) ] ]
-            //       concepts = Set.empty }
-            // |> Ok
+                    Expression.Assertions(
+                        Set.ofList
+                            [ Assertion.Triple(testId, Term "name", el "Unnamed")
+                              Assertion.Triple(testId, Term "state", el "fail")
+                              Assertion.Triple(
+                                  testId,
+                                  Term "comment",
+                                  el $"assert-equal failed {printExpression first} != {printExpression second}"
+                              )
+                              //Assertion.Triple(testId, Term "test-group", groupName)
+                              ]
+                    )
+                    |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
                     let testId =
