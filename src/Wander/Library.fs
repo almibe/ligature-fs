@@ -31,6 +31,7 @@ let docsFn: Fn =
                               langTag = None }
 
                         match action with
+                        | Fn.Macro _ -> state //TODO handle Macro docs correctly
                         | Fn.Fn(doc, _) ->
                             let state =
                                 Set.add
@@ -106,14 +107,11 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "element", elementFn
-          Term "links", linksFn
           Term "instance", instanceFn
           Term "triple", tripleFn
           Term "same", sameFn
           Term "different", differentFn
-          //   Term "find-model", findModelFn
           Term "tableau-models", tableauModelsFn
-          //   Term "concept", conceptFn
           Term "not", notFn
           Term "and", andFn
           Term "or", orFn

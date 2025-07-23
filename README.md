@@ -30,7 +30,7 @@ test suite for the other project.
 | Ligature           | Main code base including the main logic and types.                 |
 | LigatureCli        | A simple Cli for running Wander scripts.                           |
 | LigatureFable      | Fable support for Ligature.                                        |
-| LigatureDevServer  | An Http backend for Ligature.                                      |
+| LigatureHttp       | An Http backend for Ligature.                                      |
 | Wander             | The Wander scripting language.                                     |
 
 ## Setup
@@ -55,11 +55,11 @@ Examples running the linter
 
 `dotnet fsharplint lint ./src/Ligature/Ligature.fs`
 
-## Running LigatureDevServer
+## Running LigatureHttp
 
-LigatureDevServer starts up an Http server for working with Ligature.
+LigatureHttp starts up an Http server for working with Ligature.
 
-`dotnet run --project src/LigatureDevServer`
+`dotnet run --project src/LigatureHttp`
 
 See https://learn.microsoft.com/en-us/dotnet/core/deploying/ for more information.
 

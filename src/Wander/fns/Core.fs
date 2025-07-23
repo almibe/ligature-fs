@@ -17,7 +17,7 @@ let idFn: Fn =
         fun _ _ application ->
             match application.arguments with
             | [ value ] -> Ok value
-            | _ -> failwith "TODO"
+            | _ -> failwith "Unexpected value passed to id."
     )
 
 let fnFn: Fn =

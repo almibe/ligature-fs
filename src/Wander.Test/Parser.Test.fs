@@ -34,20 +34,6 @@ let tests =
           //                             space = None
           //                             langTag = None } ] ])
           //           ""
-          testCase "read empty object view"
-          <| fun _ ->
-              Expect.equal
-                  (parse "p {}")
-                  (Ok
-                      [ None,
-                        Expression.ObjectView
-                            { root =
-                                { value = Term "p"
-                                  space = None
-                                  langTag = None }
-                              concepts = Set.empty
-                              links = Map.empty } ])
-                  ""
           testCase "read basic block"
           <| fun _ ->
               Expect.equal

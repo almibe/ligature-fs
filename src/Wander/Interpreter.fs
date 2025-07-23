@@ -176,26 +176,6 @@ and executeExpression
 
     match expression with
     | Expression.Assertions network -> Ok(Expression.Assertions network)
-    // | Expression.Tuple tuple ->
-    //     let tuple =
-    //         List.map
-    //             (fun value ->
-    //                 match executeExpression actions bindings variables value with
-    //                 | Ok res -> res
-    //                 | Error err -> failwith err.UserMessage)
-    //             tuple
-
-    //     Ok(Expression.Tuple tuple)
-    // | Expression.Set set ->
-    //     let set =
-    //         Set.map
-    //             (fun value ->
-    //                 match executeExpression actions bindings variables value with
-    //                 | Ok res -> res
-    //                 | Error err -> failwith err.UserMessage)
-    //             set
-
-    //     Ok(Expression.Set set)
     | Expression.Element literal -> Ok(Expression.Element literal)
     | Expression.Variable variable ->
         match variables.TryFind variable with
@@ -204,21 +184,11 @@ and executeExpression
     | Expression.Term term -> Ok(Expression.Term term)
     | Expression.Application application -> executeApplication actions variables application
     | Expression.VariableApplication application -> executeVariableApplication actions variables application
-    | Expression.ObjectView view -> Ok(Expression.ObjectView view)
     | Expression.Assertion assertion -> failwith "TODO"
-    // | Expression.Slot _ -> Ok expression
     | Expression.Comment _ -> failwith "Not Implemented"
     | Expression.Lambda _ -> failwith "Not Implemented"
     | Expression.ConceptExpr expr -> Ok(Expression.ConceptExpr expr)
     | Expression.Definitions _ -> failwith "Not Implemented"
-//| _ -> failwith "TODO"
-// match lookupFn actions action with
-// | Some(Fn.Full(_, action)) -> action actions stack
-// | Some(Fn.Stack(_, action)) ->
-//     match action stack with
-//     | Ok stack -> Ok(stack)
-//     | Error err -> Error err
-// | None -> error $"Could not find action {action}." None
 
 let read (input: string) : Result<Script, LigatureError> =
     try

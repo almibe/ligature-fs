@@ -307,94 +307,100 @@ let tableauModelsFn: Fn =
 //     | Error err -> Error err
 // | _ -> error "Improper call to find-model." None)
 
-let linksFn: Fn =
-    Fn.Fn(
-        { doc = "Create a set of links."
-          examples = [ "links(a = b c = d)" ]
-          args = "Role = Element"
-          result = "Links" },
-        fun _ _ application ->
-            let links =
-                Map.map
-                    (fun key value ->
-                        match value with
-                        | Expression.Term(Term t) -> [ emptyObjectView (el t) ]
-                        | _ -> failwith "TODO")
-                    application.attributes
+// let linksFn: Fn =
+//     Fn.Fn(
+//         { doc = "Create a set of links."
+//           examples = [ "links(a = b c = d)" ]
+//           args = "Role = Element"
+//           result = "Links" },
+//         fun _ _ application ->
+//             failwith "TODO"
+//             // let links =
+//             //     Map.map
+//             //         (fun key value ->
+//             //             match value with
+//             //             | Expression.Term(Term t) -> [ emptyObjectView (el t) ]
+//             //             | Expression.Seq values ->
+//             //                 List.map (fun value ->
+//             //                     match value with
+//             //                     | Expression.Term(Term t) -> emptyObjectView (el t)
+//             //                     | Expression.ObjectView view -> view
+//             //                     | x -> failwith $"Unexpected value {x}") values
+//             //             | _ -> failwith "TODO")
+//             //         application.attributes
 
-            Ok(Expression.Links links)
-    )
+//             // Ok(Expression.Links links)
+//     )
 
 let elementFn: Fn =
-    Fn.Fn(
+    Fn.Macro(
         { doc = "Create an element."
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term Seq Links"
           result = "Element" },
-        fun _ _ application ->
+        fun _ _ application -> failwith "TODO"
+    // // let name =
+    // //     match application.attributes.TryFind(Term "name") with
+    // //     | Some(Expression.Term(Term t)) -> t
+    // //     | _ -> failwith "TODO"
 
-            // let name =
-            //     match application.attributes.TryFind(Term "name") with
-            //     | Some(Expression.Term(Term t)) -> t
-            //     | _ -> failwith "TODO"
+    // // let links =
+    // //     match application.attributes.TryFind(Term "links") with
+    // //     | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
+    // //     | x -> failwith $"Unexpected value: {x}"
 
-            // let links =
-            //     match application.attributes.TryFind(Term "links") with
-            //     | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
-            //     | x -> failwith $"Unexpected value: {x}"
+    // // let root: Element =
+    // //     { value = name
+    // //       space = None
+    // //       langTag = None }
 
-            // let root: Element =
-            //     { value = name
-            //       space = None
-            //       langTag = None }
+    // // Ok(
+    // //     Expression.ObjectView
+    // //         { root = root
+    // //           concepts = Set.empty
+    // //           links = links }
+    // // )
 
-            // Ok(
-            //     Expression.ObjectView
-            //         { root = root
-            //           concepts = Set.empty
-            //           links = links }
-            // )
+    // match application.arguments with
+    // | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term langTag ] ->
+    //     Ok(
+    //         Expression.Element
+    //             { value = content
+    //               space = Some datatype
+    //               langTag = Some langTag }
+    //     )
+    // | [ Expression.Term(Term t) ] ->
+    //     Ok(
+    //         Expression.ObjectView
+    //             { root = el t
+    //               concepts = Set.empty
+    //               links = Map.empty }
+    //     )
+    // | [ Expression.Term(Term t); Expression.Seq concepts ] ->
+    //     let concepts =
+    //         List.map
+    //             (fun value ->
+    //                 match value with
+    //                 | Expression.ConceptExpr expr -> expr
+    //                 | Expression.Term t -> ConceptExpr.AtomicConcept t
+    //                 | _ -> failwith "TODO")
+    //             concepts
+    //         |> Set.ofList
 
-            match application.arguments with
-            | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term langTag ] ->
-                Ok(
-                    Expression.Element
-                        { value = content
-                          space = Some datatype
-                          langTag = Some langTag }
-                )
-            | [ Expression.Term(Term t) ] ->
-                Ok(
-                    Expression.ObjectView
-                        { root = el t
-                          concepts = Set.empty
-                          links = Map.empty }
-                )
-            | [ Expression.Term(Term t); Expression.Seq concepts ] ->
-                let concepts =
-                    List.map
-                        (fun value ->
-                            match value with
-                            | Expression.ConceptExpr expr -> expr
-                            | Expression.Term t -> ConceptExpr.AtomicConcept t
-                            | _ -> failwith "TODO")
-                        concepts
-                    |> Set.ofList
-
-                Ok(
-                    Expression.ObjectView
-                        { root = el t
-                          concepts = concepts
-                          links = Map.empty }
-                )
-            | [ Expression.Term(Term t); Expression.Links links ] ->
-                Ok(
-                    Expression.ObjectView
-                        { root = el t
-                          concepts = Set.empty
-                          links = links }
-                )
-            | _ -> error "Improper call to element." None
+    //     Ok(
+    //         Expression.ObjectView
+    //             { root = el t
+    //               concepts = concepts
+    //               links = Map.empty }
+    //     )
+    // | [ Expression.Term(Term t); Expression.Links links ] ->
+    //     Ok(
+    //         Expression.ObjectView
+    //             { root = el t
+    //               concepts = Set.empty
+    //               links = links }
+    //     )
+    // | _ -> error "Improper call to element." None
     )
 
 let tripleFn: Fn =

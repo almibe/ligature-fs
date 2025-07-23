@@ -86,33 +86,6 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
         )
     | Error err -> Error err
 
-let objectNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
-    let node =
-        result {
-            let! name = Gaze.attempt termNib gaze
-            let! _ = Gaze.attempt (take Token.OpenBrace) gaze
-            let! attributes = Gaze.attempt attributesNib gaze
-            let! children = Gaze.attempt (repeatOptional anyNib) gaze
-            let! _ = Gaze.attempt (take Token.CloseBrace) gaze
-            return name, attributes, children
-        }
-
-    match node with
-    | Ok(Term name, attributes, children) ->
-        Ok(
-            Expression.ObjectView
-                { root =
-                    { value = Term name
-                      space = None
-                      langTag = None }
-                  concepts = Set.empty
-                  links = Map.empty }
-        // { name = name
-        //   attributes = attributes
-        //   children = children }
-        )
-    | Error err -> Error err
-
 let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Expression.Term(Term value))
@@ -147,7 +120,7 @@ let termAnyNib: Gaze.Nibbler<Token, Expression> =
     takeFirst [ elementLiteralSlotNib ]
 
 let anyNib: Gaze.Nibbler<Token, Expression> =
-    takeFirst [ variableApplicationNib; applicationNib; objectNib; elementLiteralSlotNib ]
+    takeFirst [ variableApplicationNib; applicationNib; elementLiteralSlotNib ]
 
 let lineNib (gaze: Gaze.Gaze<Token>) : Result<Variable option * Expression, Gaze.GazeError> =
     match Gaze.attempt variableNib gaze with

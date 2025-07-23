@@ -7,7 +7,6 @@ module Ligature.DevServer
 open Wander.Main
 open Wander.Fns
 open Wander.Model
-open System
 open Ligature.Model
 open Ligature.InMemoryStore
 open Microsoft.AspNetCore.Builder
@@ -17,9 +16,6 @@ open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Microsoft.AspNetCore.Http
-open System.IO
-open Giraffe.ViewEngine
-open Wander.Fns.Html
 
 //let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
 let store = InMemoryStore() //new LigatureStore(Some path)
@@ -38,8 +34,7 @@ let wanderHandler: HttpHandler =
         else
             failwith "TODO"
 
-let createEndpoints (store: ILigatureStore) =
-    choose [ POST >=> wanderHandler ]
+let createEndpoints (store: ILigatureStore) = choose [ POST >=> wanderHandler ]
 
 let wapp = WebApplication.Create()
 

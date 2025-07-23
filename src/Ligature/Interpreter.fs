@@ -614,21 +614,23 @@ let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr)
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : ObjectView list =
+let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Element list =
     let individuals = individuals aBox
 
-    let res =
-        List.filter
-            (fun value ->
-                match isInstance tBox aBox value concept with
-                | Ok(Term "true") -> true
-                | _ -> false)
-            individuals
-
-    List.map
+    // let res =
+    List.filter
         (fun value ->
-            // value, expandResult aBox value concept
-            { root = value
-              concepts = Set.empty
-              links = Map.empty })
-        res
+            match isInstance tBox aBox value concept with
+            | Ok(Term "true") -> true
+            | _ -> false)
+        individuals
+
+// List.map
+//     (fun (value: Element) ->
+//         // value, expandResult aBox value concept
+//         { value = value.value
+//           space = None
+//           langTag = None
+//           concepts = Set.empty
+//           links = Map.empty })
+//     res

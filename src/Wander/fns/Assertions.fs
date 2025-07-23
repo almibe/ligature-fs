@@ -10,20 +10,20 @@ open Ligature.Core
 open Ligature.Interpreter
 open Wander.Interpreter
 
-let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> =
-    let element: Element = view.root
-    let mutable results = Set.empty
+// let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> =
+//     let element: Element = view.root
+//     let mutable results = Set.empty
 
-    Map.iter
-        (fun (role: Term) values ->
-            List.iter
-                (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
-                values)
-        view.links
+//     Map.iter
+//         (fun (role: Term) values ->
+//             List.iter
+//                 (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
+//                 values)
+//         view.links
 
-    Set.iter (fun conceptExpr -> results <- Set.add (Assertion.Instance(element, conceptExpr)) results) view.concepts
+//     Set.iter (fun conceptExpr -> results <- Set.add (Assertion.Instance(element, conceptExpr)) results) view.concepts
 
-    Ok results
+//     Ok results
 // match Map.tryFind (Any.Term(Term "@")) record with
 // | Some(Any.Term id) ->
 //     Seq.fold
@@ -89,10 +89,10 @@ let assertionsFn =
                 (fun arg ->
                     match arg with
                     | Expression.Assertion assertion -> res <- Set.add assertion res
-                    | Expression.ObjectView node ->
-                        match objectViewToAssertions node with
-                        | Ok network -> res <- res + network
-                        | _ -> failwith "TODO"
+                    // | Expression.ObjectView node ->
+                    //     match objectViewToAssertions node with
+                    //     | Ok network -> res <- res + network
+                    //     | _ -> failwith "TODO"
                     | x -> failwith $"Invalid call to assertions: {x}")
                 application.arguments
 
@@ -185,13 +185,13 @@ let queryFn =
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Term concept ] ->
                 let results =
                     query tBox aBox (ConceptExpr.AtomicConcept concept)
-                    |> List.map (fun value -> Expression.ObjectView value)
+                    |> List.map (fun value -> Expression.Element value)
                 //aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.ConceptExpr concept ] ->
                 let results =
-                    query tBox aBox concept |> List.map (fun value -> Expression.ObjectView value)
+                    query tBox aBox concept |> List.map (fun value -> Expression.Element value)
                 // aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)

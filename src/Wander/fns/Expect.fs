@@ -20,31 +20,15 @@ let testGroupFn: Fn =
                 | _ -> failwith "Unexpected value."
 
             let testData =
-                List.collect
-                    (fun value ->
+                List.fold
+                    (fun state value ->
                         match value with
-                        | Expression.ObjectView testResult ->
-                            match
-                                testResult.links.TryFind(Term "name"),
-                                testResult.links.TryFind(Term "status"),
-                                testResult.links.TryFind(Term "comment")
-                            with
-                            | Some [ { root = name } ], Some [ { root = status } ], Some [ { root = comment } ] ->
-
-                                let testId =
-                                    { value = Term $"test-{Ulid.Ulid.Ulid.New}"
-                                      space = None
-                                      langTag = None }
-
-                                [ Assertion.Triple(testId, Term "name", name)
-                                  Assertion.Triple(testId, Term "state", status)
-                                  Assertion.Triple(testId, Term "comment", comment)
-                                  Assertion.Triple(testId, Term "test-group", groupName) ]
-                            | _ -> failwith "TODO"
-                        | _ -> []) // ignore expressions that don't return test results
+                        | Expression.Assertions testResult -> Set.union state testResult
+                        | _ -> failwith "TODO") // ignore expressions that don't return test results
+                    Set.empty
                     application.arguments.Tail
 
-            let testABox: Assertions = Set.ofList testData
+            let testABox: Assertions = testData
             Ok(Expression.Assertions testABox)
     )
 
@@ -53,57 +37,69 @@ let expectEqualFn: Fn =
         { doc = "Create a test record that to top two values are equal."
           examples = [ "expect-equal(\"is A equal to A?\" A A)" ]
           args = "Literal Any Any"
-          result = "Record" },
+          result = "Assertions" },
         fun _ _ application ->
             match application.arguments with
             | [ first; second ] ->
                 if first = second then
-                    Expression.ObjectView
-                        { root = el "Test"
-                          links =
-                            Map.ofList
-                                [ Term "name", [ emptyObjectView (el "") ]
-                                  Term "status", [ emptyObjectView (el "pass") ]
-                                  Term "comment", [ emptyObjectView (el "") ] ]
-                          concepts = Set.empty }
+                    let testId =
+                        { value = Term $"test-{Ulid.Ulid.Ulid.New}"
+                          space = None
+                          langTag = None }
+
+                    Expression.Assertions(
+                        Set.ofList
+                            [ Assertion.Triple(testId, Term "name", el "Unnamed")
+                              Assertion.Triple(testId, Term "state", el "pass")
+                              Assertion.Triple(testId, Term "comment", el "")
+                              //Assertion.Triple(testId, Term "test-group", groupName)
+                              ]
+                    )
                     |> Ok
                 else
-                    Expression.ObjectView
-                        { root = el "Test"
-                          links =
-                            Map.ofList
-                                [ Term "name", [ emptyObjectView (el "") ]
-                                  Term "status", [ emptyObjectView (el "fail") ]
-                                  Term "comment",
+                    failwith "TODO"
+            // Expression.ObjectView
+            //     { root = el "Test"
+            //       links =
+            //         Map.ofList
+            //             [ Term "name", [ emptyObjectView (el "") ]
+            //               Term "status", [ emptyObjectView (el "fail") ]
+            //               Term "comment",
 
-                                  [ emptyObjectView (
-                                        el $"assert-equal failed {printExpression first} != {printExpression second}"
-                                    ) ] ]
-                          concepts = Set.empty }
-                    |> Ok
+            //               [ emptyObjectView (
+            //                     el $"assert-equal failed {printExpression first} != {printExpression second}"
+            //                 ) ] ]
+            //       concepts = Set.empty }
+            // |> Ok
             | [ Expression.Element name; left; right ] ->
                 if left = right then
-                    Expression.ObjectView
-                        { root = el "Test"
-                          links =
-                            Map.ofList
-                                [ Term "name", [ emptyObjectView name ]
-                                  Term "status", [ emptyObjectView (el "pass") ]
-                                  Term "comment", [ emptyObjectView (el "") ] ]
-                          concepts = Set.empty }
+                    let testId =
+                        { value = Term $"test-{Ulid.Ulid.Ulid.New}"
+                          space = None
+                          langTag = None }
+
+                    Expression.Assertions(
+                        Set.ofList
+                            [ Assertion.Triple(testId, Term "name", name)
+                              Assertion.Triple(testId, Term "state", el "pass")
+                              Assertion.Triple(testId, Term "comment", el "")
+                              //Assertion.Triple(testId, Term "test-group", groupName)
+                              ]
+                    )
                     |> Ok
                 else
-                    Expression.ObjectView
-                        { root = el "Test"
-                          links =
-                            Map.ofList
-                                [ Term "name", [ emptyObjectView name ]
-                                  Term "status", [ emptyObjectView (el "fail") ]
-                                  Term "comment",
-                                  [ emptyObjectView (
-                                        el $"assert-equal failed {printExpression left} != {printExpression right}"
-                                    ) ] ]
-                          concepts = Set.empty }
-                    |> Ok
+                    failwith "TODO"
+            // Expression.ObjectView
+            //     { root = el "Test"
+            //       links =
+            //         Map.ofList
+            //             [ Term "name", [ emptyObjectView name ]
+            //               Term "status", [ emptyObjectView (el "fail") ]
+            //               Term "comment",
+            //               [ emptyObjectView (
+            //                     el $"assert-equal failed {printExpression left} != {printExpression right}"
+            //                 ) ] ]
+            //       concepts = Set.empty }
+            // |> Ok
             | _ -> error $"expect-equal requires a name and two values." None
     )

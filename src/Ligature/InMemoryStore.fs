@@ -78,13 +78,7 @@ type InMemoryStore() =
         member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"
 
-        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<ObjectView seq, LigatureError> =
+        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> =
             failwith "Not Implemented"
 
         member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"
-
-        member this.ReadElement (arg1: Term) (arg2: Element) : Result<ElementNode, LigatureError> =
-            failwith "Not Implemented"
-
-        member this.ReadElements (arg1: Term) (arg2: ConceptExpr) : Result<ElementNode seq, LigatureError> =
-            failwith "Not Implemented"

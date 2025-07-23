@@ -13,10 +13,8 @@ and [<RequireQualifiedAccess>] Expression =
     | Term of Term
     | Element of Element
     | Variable of Variable
-    | Links of Links
     | Assertion of Assertion
     | Assertions of Assertions
-    | ObjectView of ObjectView
     | Comment of string
     | VariableApplication of VariableApplication
     | Application of Application
@@ -77,11 +75,6 @@ let rec printExpression (value: Expression) : string =
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Definition d -> printDefinition d
-    | Expression.ObjectView view -> printObjectView view
-
-and printObjectView (view: ObjectView) : string =
-    //TODO finish printing concept and roles
-    printElement view.root + "{}"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple
