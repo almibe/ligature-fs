@@ -10,72 +10,6 @@ open Ligature.Core
 open Ligature.Interpreter
 open Wander.Interpreter
 
-// let rec objectViewToAssertions (view: ObjectView) : Result<Assertions, LigatureError> =
-//     let element: Element = view.root
-//     let mutable results = Set.empty
-
-//     Map.iter
-//         (fun (role: Term) values ->
-//             List.iter
-//                 (fun (filler: ObjectView) -> results <- Set.add (Assertion.Triple(element, role, filler.root)) results)
-//                 values)
-//         view.links
-
-//     Set.iter (fun conceptExpr -> results <- Set.add (Assertion.Instance(element, conceptExpr)) results) view.concepts
-
-//     Ok results
-// match Map.tryFind (Any.Term(Term "@")) record with
-// | Some(Any.Term id) ->
-//     Seq.fold
-//         (fun state (key, value) ->
-//             if key = Any.Term(Term "@") then
-//                 state
-//             else
-//                 let role: Term =
-//                     match key with
-//                     | Any.Term term -> term
-//                     | _ -> failwith "TODO"
-
-//                 match value with
-//                 | Any.Literal literal -> Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-//                 | Any.Term term ->
-//                     if role = Term ":" then
-//                         Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
-//                     else if role = Term "~" then
-//                         Set.add (Assertion.Instance(id, ConceptExpr.Not(ConceptExpr.AtomicConcept term))) state
-//                     else
-//                         Set.add (Assertion.Triple(id, role, Value.Term term)) state
-//                 | Any.Tuple tuple ->
-//                     List.fold
-//                         (fun state value ->
-//                             match value with
-//                             | Any.Literal literal ->
-//                                 Set.add (Assertion.Triple(id, role, Value.Literal literal)) state
-//                             | Any.Term term ->
-//                                 if role = Term ":" then
-//                                     Set.add (Assertion.Instance(id, ConceptExpr.AtomicConcept term)) state
-//                                 else if role = Term "~" then
-//                                     failwith "TODO"
-//                                 else
-//                                     Set.add (Assertion.Triple(id, role, Value.Term term)) state
-//                             | _ -> failwith "TODO")
-//                         state
-//                         tuple
-//                 | Any.Node record ->
-//                     let state =
-//                         match record.TryFind(Any.Term(Term "@")) with
-//                         | Some(Any.Term value) -> Set.add (Assertion.Triple(id, role, Value.Term value)) state
-//                         | _ -> failwith "TODO"
-
-//                     match recordToNetwork record with
-//                     | Ok network -> state + network
-//                     | _ -> failwith "TODO"
-//                 | _ -> failwith "TODO")
-//         Set.empty
-//         (Map.toSeq record)
-//     |> Ok
-// | _ -> error "Record requires valid @ entry." None
-
 let assertionsFn =
     Fn.Fn(
         { doc = "Create a set of assertions."
@@ -91,10 +25,6 @@ let assertionsFn =
                     | Expression.Assertions assertions -> res <- Set.union assertions res
                     | Expression.Assertion assertion -> res <- Set.add assertion res
                     | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
-                    // | Expression.ObjectView node ->
-                    //     match objectViewToAssertions node with
-                    //     | Ok network -> res <- res + network
-                    //     | _ -> failwith "TODO"
                     | x -> failwith $"Invalid call to assertions: {x}")
                 application.arguments
 

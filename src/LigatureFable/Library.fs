@@ -35,101 +35,57 @@ let ok value = Ok value
 
 let error value = Error value
 
-let aBoxToJs (aBox: Assertions) =
-    let network =
+let termToJs (Term term) =
+    let obj = createEmpty
+    obj?``type`` <- "Element"
+    obj?value <- term
+    obj
+
+let elementToJs (element: Element) =
+    let obj = createEmpty
+    obj?``type`` <- "Element"
+    let (Term value) = element.value
+    obj?value <- value
+
+    match element.space with
+    | Some(Term t) -> obj?``namespace`` <- t
+    | _ -> ()
+
+    match element.langTag with
+    | Some(Term t) -> obj?langTag <- t
+    | _ -> ()
+
+    obj
+
+let assertionsToJs (assertions: Assertions) =
+    let assertions =
         Set.map
             (fun value ->
                 match value with
-                | Assertion.Triple(individual, Term a, filler) ->
-                    let element = createEmpty
-                    element?``type`` <- "term"
-                    element?value <- individual.value
+                | Assertion.Triple(individual, Term role, filler) ->
+                    let triple = createEmpty
+                    triple?``type`` <- "Triple"
 
-                    let role = createEmpty
-                    role?``type`` <- "term"
-                    role?value <- a
+                    triple?element <- elementToJs individual
+                    triple?role <- role
+                    triple?filler <- elementToJs filler
 
-                    let value = createEmpty
-
-                    value?``type`` <- "term"
-                    // match v with
-                    // | Value.Term _ -> "term"
-                    // | Value.Literal _ -> "literal"
-
-                    value?value <- filler.value
-                    // match v with
-                    // | Value.Term(Term t) -> t
-                    // | Value.Literal { id = l } -> l //TODO add type and lang tag
-
-                    [| element; role; value |]
+                    triple
                 | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) ->
-                    let element = createEmpty
-                    element?``type`` <- "term"
-                    element?value <- individual.value
+                    let instance = createEmpty
+                    instance?``type`` <- "Instance"
 
-                    let role = createEmpty
-                    role?``type`` <- "term"
-                    role?value <- ":"
+                    instance?element <- elementToJs individual
+                    instance?concept <- c
 
-                    let value = createEmpty
+                    instance)
+            assertions
 
-                    value?``type`` <- "term"
-
-                    value?value <- c
-
-                    [| element; role; value |])
-            aBox
-
-    let network = Array.ofSeq network
+    let assertions = Array.ofSeq assertions
     let obj = createEmpty
-    obj?``type`` <- "assertions"
-    obj?value <- network
+    obj?``type`` <- "Assertions"
+    obj?assertions <- emitJsExpr assertions "new Set($0)"
     obj
-
-let rec createElement
-    ({ root = root
-       links = links
-       concepts = concepts }: ObjectView)
-    =
-    failwith "TODO"
-// let newElement = emitJsExpr tag "document.createElement($0)"
-
-// Map.iter
-//     (fun key value ->
-//         match key, value with
-//         | Term key, Expression.Element { value = content } ->
-//             emitJsStatement (key, content) "newElement.setAttribute($0, $1)"
-//         | Term key, _ -> failwith $"Invalid attribute - {key}")
-//     attributes
-
-// List.iter
-//     (fun value ->
-//         match value with
-//         | Expression.Element { value = content } -> emitJsStatement content "newElement.append($0)"
-//         | Expression.NodeLiteral node ->
-//             let childElement = createElement node
-//             emitJsStatement childElement "newElement.append($0)"
-//         | Expression.Term(Term t) -> emitJsStatement t "newElement.append($0)"
-//         | x -> failwith $"ignoring value - {x}")
-//     children
-
-// newElement
-
-let appendHtml element (value: Result<Expression, LigatureError>) =
-    match value with
-    | Ok(Expression.ObjectView node) ->
-        let newElement = createElement node
-        emitJsStatement () "element.append(newElement)"
-    | x -> failwith $"Unexpected value passed to appendHtml {printResult x}"
-
-let runAndAppendHtml element script =
-    let res = runWithDefaults script
-    appendHtml element res
-
-let runAndGenerateHtml script =
-    match runWithDefaults script with
-    | Ok(Expression.ObjectView html) -> Wander.Fns.Html.generateHtml html
-    | x -> failwith $"Unexpected value passed to runAndGenerateHtml {x}"
 
 let equivalent left right = Definition.Equivalent left, right
 
@@ -151,49 +107,9 @@ let isConsistent tBox aBox : bool =
     | Ok value -> value
     | Error err -> failwith err.UserMessage
 
-let termToJs (Term term) =
-    let obj = createEmpty
-    obj?``type`` <- "Term"
-    obj?value <- term
-    obj
-
-let elementToJs (element: Element) =
-    let obj = createEmpty
-    obj?``type`` <- "Element"
-    let (Term value) = element.value
-    obj?value <- value
-
-    match element.space with
-    | Some(Term t) -> obj?``namespace`` <- t
-    | _ -> ()
-
-    match element.langTag with
-    | Some(Term t) -> obj?langTag <- t
-    | _ -> ()
-
-    obj
-
-let rec objectViewToJs (view: ObjectView) =
-    let obj = elementToJs view.root
-
-    if view.links.IsEmpty then
-        ()
-    else
-        let links = createEmpty
-
-        Map.iter
-            (fun (Term role) fillers ->
-                let fillers = List.map (fun value -> objectViewToJs value) fillers |> Array.ofList
-                links?(role) <- fillers)
-            view.links
-
-        obj?links <- links
-
-    obj
-
 let run script =
     match runWithDefaults script with
-    | Ok(Expression.ObjectView view) -> objectViewToJs view
     | Ok(Expression.Term t) -> termToJs t
     | Ok(Expression.Element element) -> elementToJs element
+    | Ok(Expression.Assertions assertions) -> assertionsToJs assertions
     | x -> failwith $"Unexpected value {x}"

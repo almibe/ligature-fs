@@ -1,11 +1,28 @@
-export type Links = Record<string, Element[]>
-
 export type Element = {
     type: "Element",
     value: string,
     namespace?: string,
     langTag?: string,
-    links?: Links
+}
+
+export type Triple = {
+    type: "Triple",
+    element: Element,
+    role: string,
+    filler: Element
+}
+
+export type Instance = {
+    type: "Instance",
+    element: Element,
+    concept: string
+}
+
+export type Assertion = Triple | Instance
+
+export type Assertions = {
+    type: "Assertions",
+    assertions: Set<Assertion>
 }
 
 export type Error = {
@@ -13,21 +30,13 @@ export type Error = {
     message: string,
 }
 
-export function element(value: string, links?: Links): Element {
-    if (links) {
-        return {
-            type: "Element",
-            value: value,
-            links: links
-        }
-    } else {
-        return {
-            type: "Element",
-            value: value,
-        }
+export function element(value: string): Element {
+    return {
+        type: "Element",
+        value: value,
     }
 }
 
 export interface Wander {
-    run(script: string): Error | (Element[])
+    run(script: string): Error | Assertions
 }

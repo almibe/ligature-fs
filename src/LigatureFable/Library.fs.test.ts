@@ -9,59 +9,94 @@ let wander: Wander = {
 }
 
 test('basic term', () => {
-  expect(wander.run("test")).toStrictEqual({type:"Term",value:"test"})
+  expect(wander.run("test")).toStrictEqual({type:"Element",value:"test"})
 })
 
 test('basic element', () => {
   expect(wander.run("\"test\"")).toStrictEqual({type:"Element",value:"test"})
 })
 
-test('basic object view', () => {
+test('basic element', () => {
   expect(wander.run("element(a)")).toStrictEqual({type:"Element",value:"a"})
 })
 
-test('basic object view with single link', () => {
-  expect(wander.run("element(a links(b = c))")).toStrictEqual(
+test('basic element with single link', () => {
+  expect(wander.run("element(a b -> c)")).toStrictEqual(
     {
-      type:"Element",
-      value:"a",
-      links: {"b": [element("c")]}
+      type:"Assertions",
+      assertions: new Set([
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "b",
+          filler: element("c")
+        }
+      ])
     })
 })
 
-test('basic object view with multiple links', () => {
-  expect(wander.run("element(a links(b = c d = seq(e f)))")).toStrictEqual(
+test('basic element with multiple links', () => {
+  expect(wander.run("element(a b -> c d -> e)")).toStrictEqual(
     {
-      type:"Element",
-      value:"a",
-      links: {
-        "b": [element("c")],
-        "d": [element("e"), element("f")]
-      }
-    })
+      type:"Assertions",
+      assertions: new Set([
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "b",
+          filler: element("c")
+        },
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "d",
+          filler: element("e")
+        }])
+  })
 })
 
-test('basic object view with multiple links', () => {
-  expect(wander.run("element(a links(b = c d = seq(e f)))")).toStrictEqual(
+test('basic element with link with seq', () => {
+  expect(wander.run("element(a b -> seq(c d))")).toStrictEqual(
     {
-      type:"Element",
-      value:"a",
-      links: {
-        "b": [element("c")],
-        "d": [element("e"), element("f")]
-      }
-    })
+      type:"Assertions",
+      assertions: new Set([
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "b",
+          filler: element("c")
+        },
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "b",
+          filler: element("d")
+        }])
+  })
 })
 
-test('nested object view', () => {
-  expect(wander.run("element(a links(b = c d = seq(e element(f links(g = h)))))")).toStrictEqual(
+test('basic element with multiple links', () => {
+  expect(wander.run("element(a b -> c d -> seq(e f))")).toStrictEqual(
     {
-      type:"Element",
-      value:"a",
-      links: {
-        "b": [element("c")],
-        "d": [element("e"), 
-            element("f", { "g": [element("h")] })]
-      }
-    })
+      type:"Assertions",
+      assertions: new Set([
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "b",
+          filler: element("c")
+        },
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "d",
+          filler: element("e")
+        },
+        {
+          type: "Triple",
+          element: element("a"),
+          role: "d",
+          filler: element("f")
+        }])
+  })
 })

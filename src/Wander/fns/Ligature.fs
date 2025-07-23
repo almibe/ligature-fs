@@ -307,65 +307,81 @@ let tableauModelsFn: Fn =
 //     | Error err -> Error err
 // | _ -> error "Improper call to find-model." None)
 
-// let linksFn: Fn =
-//     Fn.Fn(
-//         { doc = "Create a set of links."
-//           examples = [ "links(a = b c = d)" ]
-//           args = "Role = Element"
-//           result = "Links" },
-//         fun _ _ application ->
-//             failwith "TODO"
-//             // let links =
-//             //     Map.map
-//             //         (fun key value ->
-//             //             match value with
-//             //             | Expression.Term(Term t) -> [ emptyObjectView (el t) ]
-//             //             | Expression.Seq values ->
-//             //                 List.map (fun value ->
-//             //                     match value with
-//             //                     | Expression.Term(Term t) -> emptyObjectView (el t)
-//             //                     | Expression.ObjectView view -> view
-//             //                     | x -> failwith $"Unexpected value {x}") values
-//             //             | _ -> failwith "TODO")
-//             //         application.attributes
-
-//             // Ok(Expression.Links links)
-//     )
-
 let elementFn: Fn =
     Fn.Macro(
         { doc = "Create an element."
           examples = [ "element(\"# hello\" Markdown en)" ]
           args = "Literal Term Term Seq Links"
           result = "Element" },
-        fun _ _ application ->
+        fun fns vars application ->
             let mutable remaining = application.arguments
+            let mutable assertions = []
 
-            match remaining.Head with
-            | Expression.Term(Term t) -> Ok(Expression.Element(el t))
-            | x -> failwith $"TODO - {x}"
+            let elem =
+                match remaining with
+                | Expression.Term(Term t) :: _ ->
+                    remaining <- remaining.Tail
+                    el t
+                | x -> failwith $"TODO - {x}"
 
-    // // let name =
-    // //     match application.attributes.TryFind(Term "name") with
-    // //     | Some(Expression.Term(Term t)) -> t
-    // //     | _ -> failwith "TODO"
+            assertions <-
+                match remaining with
+                | Expression.Application concepts :: tail ->
+                    let newAssertions =
+                        match executeApplication fns vars concepts with
+                        | Ok(Expression.Seq concepts) ->
+                            List.map
+                                (fun value ->
+                                    match value with
+                                    | Expression.ConceptExpr concept -> Assertion.Instance(elem, concept)
+                                    | Expression.Term t -> Assertion.Instance(elem, ConceptExpr.AtomicConcept t)
+                                    | x -> failwith $"TODO - Unexpected value - {x}")
+                                concepts
+                        | _ -> failwith "TODO"
 
-    // // let links =
-    // //     match application.attributes.TryFind(Term "links") with
-    // //     | Some(Expression.Seq links) -> List.map (fun value -> failwith "TODO") links |> Map.ofList
-    // //     | x -> failwith $"Unexpected value: {x}"
+                    remaining <- tail
+                    List.append assertions newAssertions
+                | _ -> assertions
 
-    // // let root: Element =
-    // //     { value = name
-    // //       space = None
-    // //       langTag = None }
+            assertions <-
+                match remaining with
+                | [] -> assertions
+                | _ ->
+                    let mutable cont = true
+                    let mutable newAssertions = []
 
-    // // Ok(
-    // //     Expression.ObjectView
-    // //         { root = root
-    // //           concepts = Set.empty
-    // //           links = links }
-    // // )
+                    while cont do
+                        match remaining with
+                        | [] -> cont <- false
+                        | Expression.Term role :: Expression.Term(Term "->") :: tail ->
+                            match tail with
+                            | Expression.Term(Term t) :: tail ->
+                                remaining <- tail
+                                newAssertions <- Assertion.Triple(elem, role, el t) :: newAssertions
+                            | Expression.Application concepts :: tail ->
+                                remaining <- tail
+
+                                match executeApplication fns vars concepts with
+                                | Ok(Expression.Seq concepts) ->
+                                    List.iter
+                                        (fun value ->
+                                            match value with
+                                            | Expression.Term(Term t) ->
+                                                newAssertions <- Assertion.Triple(elem, role, el t) :: newAssertions
+                                            | Expression.Element e ->
+                                                newAssertions <- Assertion.Triple(elem, role, e) :: newAssertions
+                                            | x -> failwith $"TODO - Unexpected value - {x}")
+                                        concepts
+                                | _ -> failwith "TODO"
+                            | _ -> failwith "TODO"
+                        | x -> failwith $"TODO - Unexpected value {x}"
+
+                    List.append assertions newAssertions
+
+            match remaining, assertions with
+            | [], [] -> Ok(Expression.Element elem)
+            | [], assertions -> Ok(Expression.Assertions(Set.ofList assertions))
+            | _ -> failwith "TODO"
 
     // match application.arguments with
     // | [ Expression.Element { value = content }; Expression.Term datatype; Expression.Term langTag ] ->
@@ -374,13 +390,6 @@ let elementFn: Fn =
     //             { value = content
     //               space = Some datatype
     //               langTag = Some langTag }
-    //     )
-    // | [ Expression.Term(Term t) ] ->
-    //     Ok(
-    //         Expression.ObjectView
-    //             { root = el t
-    //               concepts = Set.empty
-    //               links = Map.empty }
     //     )
     // | [ Expression.Term(Term t); Expression.Seq concepts ] ->
     //     let concepts =
