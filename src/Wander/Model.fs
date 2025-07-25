@@ -22,6 +22,7 @@ and [<RequireQualifiedAccess>] Expression =
     | ConceptExpr of ConceptExpr
     | Definition of Definition
     | Definitions of Definitions
+    | Unit
 
 and VariableApplication =
     { variable: Variable

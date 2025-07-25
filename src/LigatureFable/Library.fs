@@ -7,24 +7,6 @@ open Wander.Library
 open Fable.Core
 open Fable.Core.JsInterop
 
-let runWithFns (fns: Dictionary<string, Expression array -> Result<Expression, LigatureError>>) (script: string) =
-    let mutable resFns = stdFns (new InMemoryStore())
-
-    for entry in fns do
-        resFns <-
-            Map.add
-                (Term entry.Key)
-                (Fn.Fn(
-                    { doc = ""
-                      examples = []
-                      args = ""
-                      result = "" },
-                    fun _ _ application -> entry.Value(List.toArray application.arguments)
-                ))
-                resFns
-
-    run resFns Map.empty script
-
 let runAndPrint = runWithDefaults >> printResult
 
 let printResult = printResult
@@ -86,6 +68,30 @@ let assertionsToJs (assertions: Assertions) =
     obj?``type`` <- "Assertions"
     obj?assertions <- emitJsExpr assertions "new Set($0)"
     obj
+
+let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
+    let mutable resFns = stdFns (new InMemoryStore())
+
+    for entry in fns do
+        resFns <-
+            Map.add
+                (Term entry.Key)
+                (Fn.Fn(
+                    { doc = ""
+                      examples = []
+                      args = ""
+                      result = "" },
+                    fun _ _ application ->
+                        match application.arguments with
+                        | [ Expression.Assertions assertions ] ->
+                            let assertions = assertionsToJs assertions
+                            entry.Value assertions |> ignore
+                            Ok Expression.Unit
+                        | x -> failwith $"Unexpected value passed to {entry.Key} - {x}"
+                ))
+                resFns
+
+    run resFns Map.empty script
 
 let equivalent left right = Definition.Equivalent left, right
 

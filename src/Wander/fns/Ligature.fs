@@ -10,38 +10,6 @@ open Ligature.Core
 open Wander.Model
 open Wander.Interpreter
 
-[<RequireQualifiedAccess>]
-type JsonViewValue =
-    | Literal of string
-    | Term of JsonView
-
-and JsonView =
-    { Id: string
-      Attrs: Map<string, Set<JsonViewValue>> }
-
-let rec writeValues (values: Set<JsonViewValue>) : string =
-    Set.fold
-        (fun state value ->
-            let value =
-                match value with
-                | JsonViewValue.Term element -> writeJsonView element
-                | JsonViewValue.Literal literal -> encodeString literal
-
-            if state = "[" then state + value else state + "," + value)
-        "["
-        values
-    + "]"
-
-and writeJsonView (view: JsonView) : string =
-    let mutable res = "{"
-
-    res <- res + $"\"id\":{encodeString view.Id}"
-
-    Map.iter (fun key values -> res <- res + $",{encodeString key}:{writeValues values}") view.Attrs
-
-    res <- res + "}"
-    res
-
 // let extract (id: Term) (source: Assertions) : Node =
 //     let mutable result = Map.empty
 //     result <- Map.add (Any.Term(Term "@")) (Any.Term id) result
@@ -372,7 +340,9 @@ let elementFn: Fn =
                                                 newAssertions <- Assertion.Triple(elem, role, e) :: newAssertions
                                             | x -> failwith $"TODO - Unexpected value - {x}")
                                         concepts
-                                | _ -> failwith "TODO"
+                                | Ok(Expression.Element filler) ->
+                                    newAssertions <- Assertion.Triple(elem, role, filler) :: newAssertions
+                                | Ok x -> failwith $"TODO - unexpected value {x}"
                             | _ -> failwith "TODO"
                         | x -> failwith $"TODO - Unexpected value {x}"
 

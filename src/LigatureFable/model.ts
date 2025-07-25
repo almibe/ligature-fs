@@ -38,5 +38,5 @@ export function element(value: string): Element {
 }
 
 export interface Wander {
-    run(script: string): Error | Assertions
+    run(script: string, fns?: Map<string, (Assertions) => void>): Error | Assertions
 }
