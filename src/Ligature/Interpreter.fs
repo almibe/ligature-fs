@@ -625,12 +625,11 @@ let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Elemen
             | _ -> false)
         individuals
 
-// List.map
-//     (fun (value: Element) ->
-//         // value, expandResult aBox value concept
-//         { value = value.value
-//           space = None
-//           langTag = None
-//           concepts = Set.empty
-//           links = Map.empty })
-//     res
+let select (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : (Element * Assertions) list =
+    List.fold
+        (fun state value ->
+            match isInstance tBox aBox value concept with
+            | Ok(Term "true") -> (value, aBox) :: state
+            | _ -> state)
+        []
+        (individuals aBox)

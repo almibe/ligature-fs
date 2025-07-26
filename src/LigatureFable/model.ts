@@ -3,6 +3,7 @@ export type Element = {
     value: string,
     namespace?: string,
     langTag?: string,
+    links?: Record<string, Element[]>
 }
 
 export type Triple = {
@@ -38,5 +39,5 @@ export function element(value: string): Element {
 }
 
 export interface Wander {
-    run(script: string, fns?: Map<string, (Assertions) => void>): Error | Assertions
+    run(script: string, fns?: Map<string, (arg: Assertions) => void>): Error | Assertions | Element
 }

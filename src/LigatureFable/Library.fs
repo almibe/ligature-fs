@@ -1,6 +1,7 @@
 ﻿open Wander.Main
 open Ligature.InMemoryStore
 open Ligature.Model
+open Ligature.Interpreter
 open Wander.Model
 open System.Collections.Generic
 open Wander.Library
@@ -69,6 +70,13 @@ let assertionsToJs (assertions: Assertions) =
     obj?assertions <- emitJsExpr assertions "new Set($0)"
     obj
 
+let resultToJs result =
+    match result with
+    | Ok(Expression.Term t) -> termToJs t
+    | Ok(Expression.Element element) -> elementToJs element
+    | Ok(Expression.Assertions assertions) -> assertionsToJs assertions
+    | x -> failwith $"Unexpected value {x}"
+
 let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
     let mutable resFns = stdFns (new InMemoryStore())
 
@@ -91,7 +99,7 @@ let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
                 ))
                 resFns
 
-    run resFns Map.empty script
+    run resFns Map.empty script |> resultToJs
 
 let equivalent left right = Definition.Equivalent left, right
 
@@ -113,9 +121,39 @@ let isConsistent tBox aBox : bool =
     | Ok value -> value
     | Error err -> failwith err.UserMessage
 
-let run script =
+let run script = runWithDefaults script |> resultToJs
+
+let select (assertions: Assertions) (element: Element) : Assertions =
+    let result = elementToJs element
+    let links: Dictionary<string, System.Collections.Generic.List<obj>> = Dictionary()
+
+    Set.iter
+        (fun assertion ->
+            match assertion with
+            | Assertion.Triple(condValue, (Term role), filler) when element = condValue ->
+                if links.ContainsKey(role) then
+                    let _, values = links.TryGetValue role
+                    values.Add(elementToJs filler)
+                else
+                    let values = System.Collections.Generic.List()
+                    values.Add(elementToJs filler)
+                    links.Add(role, values)
+            | Assertion.Instance(condValue, concept) when element = condValue -> failwith "TODO"
+            | _ -> failwith "TODO")
+        assertions
+
+    result?links <- links
+    result
+
+let runAndSelectElement script element =
     match runWithDefaults script with
-    | Ok(Expression.Term t) -> termToJs t
-    | Ok(Expression.Element element) -> elementToJs element
-    | Ok(Expression.Assertions assertions) -> assertionsToJs assertions
-    | x -> failwith $"Unexpected value {x}"
+    | Ok(Expression.Assertions assertions) ->
+        printfn "TEST"
+        select assertions (el element)
+    | _ -> failwith "TODO"
+
+let runAndSelectConcept script concept = failwith "TODO"
+// let concept = ConceptExpr.AtomicConcept (Term concept)
+// match runWithDefaults script with
+// | Ok(Expression.Assertions assertions) -> select assertions concept
+// | _ -> failwith "TODO"
