@@ -40,41 +40,59 @@ let elementToJs (element: Element) =
 
     obj
 
-let assertionsToJs (assertions: Assertions) =
-    let assertions =
-        Set.map
-            (fun value ->
-                match value with
-                | Assertion.Triple(individual, Term role, filler) ->
-                    let triple = createEmpty
-                    triple?``type`` <- "Triple"
+type ElementView =
+    { root: Element
+      links: Map<string, Element seq> }
 
-                    triple?element <- elementToJs individual
-                    triple?role <- role
-                    triple?filler <- elementToJs filler
+let elementViewsToJs (views: ElementView seq) : obj array =
+    Seq.map
+        (fun view ->
+            let result = elementToJs view.root
+            result?``type`` <- "ElementView"
+            let mutable links: Map<string, obj> = Map.empty
 
-                    triple
-                | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) ->
-                    let instance = createEmpty
-                    instance?``type`` <- "Instance"
+            Map.iter
+                (fun key value ->
+                    let values = Seq.map (fun value -> elementToJs value) value |> Array.ofSeq
 
-                    instance?element <- elementToJs individual
-                    instance?concept <- c
+                    links <- links.Add(key, values))
+                view.links
 
-                    instance)
-            assertions
+            let finalLinks = createEmpty
 
-    let assertions = Array.ofSeq assertions
-    let obj = createEmpty
-    obj?``type`` <- "Assertions"
-    obj?assertions <- emitJsExpr assertions "new Set($0)"
-    obj
+            Map.iter (fun key value -> finalLinks?(key) <- value) links
+
+            result?links <- finalLinks
+            result)
+        views
+    |> Seq.toArray
+
+let assertionsToElementViews (assertions: Assertions) : ElementView seq =
+    let mutable processing: Map<Element, ElementView> = Map.empty
+
+    Set.iter
+        (fun value ->
+            match value with
+            | Assertion.Triple(individual, Term role, filler) ->
+                match processing.TryFind individual with
+                | Some value -> failwith "TODO"
+                | None ->
+                    let newView =
+                        { root = individual
+                          links = Map.ofList [ role, [ filler ] ] }
+
+                    processing <- Map.add individual newView processing
+            | Assertion.Instance(individual, ConceptExpr.AtomicConcept(Term c)) -> ()
+            | _ -> ())
+        assertions
+
+    processing.Values
 
 let resultToJs result =
     match result with
     | Ok(Expression.Term t) -> termToJs t
     | Ok(Expression.Element element) -> elementToJs element
-    | Ok(Expression.Assertions assertions) -> assertionsToJs assertions
+    | Ok(Expression.Assertions assertions) -> assertionsToElementViews assertions |> elementViewsToJs
     | x -> failwith $"Unexpected value {x}"
 
 let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
@@ -92,8 +110,8 @@ let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
                     fun _ _ application ->
                         match application.arguments with
                         | [ Expression.Assertions assertions ] ->
-                            let assertions = assertionsToJs assertions
-                            entry.Value assertions |> ignore
+                            let elementViews = assertionsToElementViews assertions |> elementViewsToJs
+                            entry.Value elementViews |> ignore
                             Ok Expression.Unit
                         | x -> failwith $"Unexpected value passed to {entry.Key} - {x}"
                 ))
