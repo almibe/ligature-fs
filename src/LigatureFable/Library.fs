@@ -42,7 +42,7 @@ let elementToJs (element: Element) =
 
 type ElementView =
     { root: Element
-      links: Map<string, Element seq> }
+      links: Map<string, Element list> }
 
 let elementViewsToJs (views: ElementView seq) : obj array =
     Seq.map
@@ -75,7 +75,14 @@ let assertionsToElementViews (assertions: Assertions) : ElementView seq =
             match value with
             | Assertion.Triple(individual, Term role, filler) ->
                 match processing.TryFind individual with
-                | Some value -> failwith "TODO"
+                | Some view ->
+                    let newFillers =
+                        match view.links.TryFind role with
+                        | Some fillers -> List.append fillers [filler]
+                        | None -> [ filler ]
+                    let newView =
+                        { view with links = Map.add role newFillers view.links }
+                    processing <- Map.add individual newView processing
                 | None ->
                     let newView =
                         { root = individual
