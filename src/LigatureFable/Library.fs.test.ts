@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { run as _run, runAndSelectElement } from './Library.fs.js'
+import { run as _run } from './Library.fs.js'
 import { element, Wander } from './model.js'
 
 let wander: Wander = {
@@ -95,19 +95,4 @@ test('basic element with single link', () => {
 //           filler: element("f")
 //         }])
 //   })
-// })
-
-// test('call to runAndSelect', () => {
-//   expect(runAndSelectElement("assertions(element(a b -> c))", "a")).toStrictEqual(
-//     {
-//       "type": "Element",
-//       "value": "a",
-//       "links": 
-//         new Map([["b", [
-//           { 
-//             "type": "Element", 
-//             "value": "c"
-//           }
-//         ]]])
-//     })
 // })
