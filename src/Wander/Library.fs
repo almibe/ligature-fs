@@ -109,8 +109,6 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "element", elementFn
           Term "instance", instanceFn
           Term "triple", tripleFn
-          Term "same", sameFn
-          Term "different", differentFn
           Term "tableau-models", tableauModelsFn
           Term "not", notFn
           Term "and", andFn
@@ -121,6 +119,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "exists", existsFn
           Term "func", funcFn
           Term "nominal", nominalFn
+          Term "nominals", nominalsFn
           //   Term "exactly", exactlyFn
           //   Term "at-least", atLeastFn
           //   Term "at-most", atMostFn

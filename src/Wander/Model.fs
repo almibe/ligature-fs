@@ -108,7 +108,5 @@ and printAssertions (aBox: Assertions) : string =
 
 and printAssertion (assertion: Assertion) : string =
     match assertion with
-    | Assertion.Triple(element, Term role, filler) -> $"[{printElement element} {role} {printElement filler}]"
+    | Assertion.Triple(element, Term role, filler) -> $"triple({printElement element} {role} {printElement filler})"
     | Assertion.Instance(element, c) -> $"instance({printElement element} {printConcept c})"
-    | Assertion.Same(l, r) -> failwith "Not Implemented"
-    | Assertion.Different(l, r) -> failwith "Not Implemented"

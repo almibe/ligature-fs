@@ -465,35 +465,35 @@ let instanceFn: Fn =
             | x -> error $"Improper call to instance: {x}" None
     )
 
-let sameFn: Fn =
-    Fn.Fn(
-        { doc = "Assert two names reference the same Element."
-          examples = [ "same(a b)" ]
-          args = "Element Element"
-          result = "Assertion" },
-        fun _ _ application ->
-            match application.arguments with
-            | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
-            | [ Expression.Element left; Expression.Element right ] ->
-                Ok(Expression.Assertion(Assertion.Same(left, right)))
-            | _ -> error "Improper call to same." None
-    )
+// let sameFn: Fn =
+//     Fn.Fn(
+//         { doc = "Assert two names reference the same Element."
+//           examples = [ "same(a b)" ]
+//           args = "Element Element"
+//           result = "Assertion" },
+//         fun _ _ application ->
+//             match application.arguments with
+//             | [ Expression.Term left; Expression.Term right ] ->
+//                 Ok(Expression.Assertion(Assertion.Same(termToElement left, termToElement right)))
+//             | [ Expression.Element left; Expression.Element right ] ->
+//                 Ok(Expression.Assertion(Assertion.Same(left, right)))
+//             | _ -> error "Improper call to same." None
+//     )
 
-let differentFn: Fn =
-    Fn.Fn(
-        { doc = "Assert two names reference different Elements."
-          examples = [ "different(a b)" ]
-          args = "Element Element"
-          result = "Assertion" },
-        fun _ _ application ->
-            match application.arguments with
-            | [ Expression.Term left; Expression.Term right ] ->
-                Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
-            | [ Expression.Element left; Expression.Element right ] ->
-                Ok(Expression.Assertion(Assertion.Different(left, right)))
-            | _ -> error "Improper call to different." None
-    )
+// let differentFn: Fn =
+//     Fn.Fn(
+//         { doc = "Assert two names reference different Elements."
+//           examples = [ "different(a b)" ]
+//           args = "Element Element"
+//           result = "Assertion" },
+//         fun _ _ application ->
+//             match application.arguments with
+//             | [ Expression.Term left; Expression.Term right ] ->
+//                 Ok(Expression.Assertion(Assertion.Different(termToElement left, termToElement right)))
+//             | [ Expression.Element left; Expression.Element right ] ->
+//                 Ok(Expression.Assertion(Assertion.Different(left, right)))
+//             | _ -> error "Improper call to different." None
+//     )
 
 // let conceptFn: Fn =
 //     Fn.Fn(
@@ -546,7 +546,9 @@ let funcFn: Fn =
           result = "Concept" },
         fun _ _ application ->
             match application.arguments with
-            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func role))
+            | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.Top)))
+            | [ Expression.Term role; Expression.Term concept ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Func(role, ConceptExpr.AtomicConcept concept)))
             | _ -> error "Improper call to func." None
     )
 
@@ -558,10 +560,28 @@ let nominalFn: Fn =
           result = "ConceptExpression" },
         fun _ _ application ->
             match application.arguments with
-            | [ Expression.Term term ] ->
-                Ok(Expression.ConceptExpr(ConceptExpr.Nominal(termToElement term)))
+            | [ Expression.Term term ] -> Ok(Expression.ConceptExpr(ConceptExpr.Nominal(termToElement term)))
             | [ Expression.Element element ] -> Ok(Expression.ConceptExpr(ConceptExpr.Nominal element))
-            | _ -> error "Improper call to not." None
+            | _ -> error "Improper call to nominal." None
+    )
+
+let nominalsFn: Fn =
+    Fn.Fn(
+        { doc = "Create a or'd group of nominial concept expressions."
+          examples = [ "nominals(a b c)"; "nominals(element(a test) b c)" ]
+          args = "Term | Element"
+          result = "ConceptExpression" },
+        fun _ _ application ->
+            let conceptExprs: ConceptExpr list =
+                List.map
+                    (fun value ->
+                        match value with
+                        | Expression.Term term -> ConceptExpr.Nominal(termToElement term)
+                        | Expression.Element element -> ConceptExpr.Nominal element
+                        | _ -> failwith "Improper call to nominals.")
+                    application.arguments
+
+            Ok(Expression.ConceptExpr(ConceptExpr.Or conceptExprs))
     )
 
 // let exactlyFn: Fn =

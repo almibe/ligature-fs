@@ -92,7 +92,24 @@ let expectEqualFn: Fn =
                     )
                     |> Ok
                 else
-                    failwith "TODO"
+                    let testId =
+                        { value = Term $"test-{Ulid.Ulid.Ulid.New}"
+                          space = None
+                          langTag = None }
+
+                    Expression.Assertions(
+                        Set.ofList
+                            [ Assertion.Triple(testId, Term "name", name)
+                              Assertion.Triple(testId, Term "state", el "fail")
+                              Assertion.Triple(
+                                  testId,
+                                  Term "comment",
+                                  el $"assert-equal failed {printExpression left} != {printExpression right}"
+                              )
+                              //Assertion.Triple(testId, Term "test-group", groupName)
+                              ]
+                    )
+                    |> Ok
             // Expression.ObjectView
             //     { root = el "Test"
             //       links =

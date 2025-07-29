@@ -12,9 +12,7 @@ let individuals (aBox: Assertions) : Element list =
             match value with
             | Assertion.Instance(individual, _) -> //TODO check for nominal concept
                 Set.add individual state
-            | Assertion.Triple(i, _, f) -> Set.add i state |> Set.add f
-            | Assertion.Same(_, _) -> failwith "Not Implemented"
-            | Assertion.Different(_, _) -> failwith "Not Implemented")
+            | Assertion.Triple(i, _, f) -> Set.add i state |> Set.add f)
         Set.empty
         aBox
     |> List.ofSeq

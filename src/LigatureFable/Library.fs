@@ -78,10 +78,13 @@ let assertionsToElementViews (assertions: Assertions) : ElementView seq =
                 | Some view ->
                     let newFillers =
                         match view.links.TryFind role with
-                        | Some fillers -> List.append fillers [filler]
+                        | Some fillers -> List.append fillers [ filler ]
                         | None -> [ filler ]
+
                     let newView =
-                        { view with links = Map.add role newFillers view.links }
+                        { view with
+                            links = Map.add role newFillers view.links }
+
                     processing <- Map.add individual newView processing
                 | None ->
                     let newView =
@@ -121,7 +124,7 @@ let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) =
                             entry.Value elementViews |> ignore
                             Ok Expression.Unit
                         | [ Expression.Element element ] ->
-                            entry.Value (elementToJs element) |> ignore
+                            entry.Value(elementToJs element) |> ignore
                             Ok Expression.Unit
                         | x -> failwith $"Unexpected value passed to {entry.Key} - {x}"
                 ))

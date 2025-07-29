@@ -35,13 +35,10 @@ let termToElement (term: Term) : Element =
       space = None
       langTag = None }
 
-type Triple = Element * Term * Element
-
-and [<RequireQualifiedAccess>] Assertion =
-    | Triple of Triple
+[<RequireQualifiedAccess>]
+type Assertion =
+    | Triple of Element * Term * Element
     | Instance of Element * ConceptExpr
-    | Same of Element * Element
-    | Different of Element * Element
 
 and Assertions = Set<Assertion>
 
@@ -57,7 +54,7 @@ and [<RequireQualifiedAccess>] ConceptExpr =
     // | Exactly of Term * ConceptExpr * int64
     // | AtLeast of Term * ConceptExpr * int64
     // | AtMost of Term * ConceptExpr * int64
-    | Func of Term
+    | Func of Term * ConceptExpr
     | Nominal of Element
 
 // type INetwork =
@@ -136,10 +133,9 @@ let rec printConcept (concept: ConceptExpr) : string =
     | ConceptExpr.Exists(Term r, c) -> $"exists({r} {printConcept c})"
     | ConceptExpr.All(Term r, c) -> $"all({r} {printConcept c})"
     | ConceptExpr.Not c -> $"not({printConcept c})"
-    // | ConceptExpr.Implies(l, r) -> $"implies({printConcept l} {printConcept r})"
-    // | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
-    | ConceptExpr.Func(Term r) -> $"func({r})"
-    | ConceptExpr.Nominal e -> $"func({printElement e})"
+    | ConceptExpr.Func(Term r, c) -> $"func({r} {printConcept c})"
+    | ConceptExpr.Nominal e -> $"nominal({printElement e})"
+
 let printDefinition (definition: Definition) =
     match definition with
     | Definition.Implies(left, right) -> $"implies({printConcept left} {printConcept right})"
