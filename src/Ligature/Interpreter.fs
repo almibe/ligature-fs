@@ -59,17 +59,17 @@ let newModel (aBox: Assertions) : PotentialModel =
 let definitionsToMap (definitions: Definitions) : Option<Map<Term, ConceptExpr>> =
     Set.fold
         (fun state value ->
-            match value with
-            | Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
-                if state.Value.ContainsKey a then
+            match state, value with
+            | Some state, Definition.Equivalent(ConceptExpr.AtomicConcept a, c) ->
+                if state.ContainsKey a then
                     None
                 else
-                    Some(Map.add a c state.Value)
-            | Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
-                if state.Value.ContainsKey a then
+                    Some(Map.add a c state)
+            | Some state, Definition.Implies(ConceptExpr.AtomicConcept a, c) ->
+                if state.ContainsKey a then
                     None
                 else
-                    Some(Map.add a c state.Value)
+                    Some(Map.add a c state)
             | _ -> None)
         (Some Map.empty)
         definitions
@@ -124,6 +124,7 @@ let isDefinitorial (tBox: Definitions) : bool =
         | ConceptExpr.All(roleName, c) -> hasCycle definitionsMap concept c
         | ConceptExpr.Not(ConceptExpr.All(roleName, c)) -> hasCycle definitionsMap concept c
         | ConceptExpr.Func _ -> false
+        | ConceptExpr.Nominal _ -> false
     // | ConceptExpr.Exactly(_, c, _) -> hasCycle definitionsMap concept c
     // | ConceptExpr.AtLeast(_, c, _) -> hasCycle definitionsMap concept c
     // | ConceptExpr.AtMost(_, c, _) -> hasCycle definitionsMap concept c
@@ -164,6 +165,7 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
     | ConceptExpr.Not c ->
         let c = unfoldSingleExpression definitions c
         ConceptExpr.Not c
+    | ConceptExpr.Nominal element -> ConceptExpr.Nominal element
 // | ConceptExpr.Exactly(roleName, c, number) ->
 //     let c = unfoldSingleExpression definitions c
 //     ConceptExpr.Exactly(roleName, c, number)
@@ -448,6 +450,7 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel option * Pot
                     toProcess = Set.remove assertion state.toProcess
                     triples = Set.add (i, r, v) state.triples },
             []
+        | Assertion.Instance(l, ConceptExpr.Nominal r)
         | Assertion.Same(l, r) ->
             let clash =
                 match state.different.TryFind l with
@@ -507,7 +510,7 @@ let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel option =
         match handleTBox definitions assertions with
         | Ok assertions -> Some(newModel assertions)
-        | _ -> None
+        | Error err -> failwith err.UserMessage
 
     let mutable additionalModels: PotentialModel list = []
 

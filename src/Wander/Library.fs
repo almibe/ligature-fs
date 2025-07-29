@@ -120,6 +120,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "all", allFn
           Term "exists", existsFn
           Term "func", funcFn
+          Term "nominal", nominalFn
           //   Term "exactly", exactlyFn
           //   Term "at-least", atLeastFn
           //   Term "at-most", atMostFn

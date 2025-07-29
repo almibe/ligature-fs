@@ -14,7 +14,7 @@ open Wander.Tokenizer
 
 [<EntryPoint>]
 let main (args: string[]) =
-    let interactive = args[0] = "-i"
+    let interactive = args.Length = 0
     let mutable cont = true
 
     while cont do
@@ -28,12 +28,12 @@ let main (args: string[]) =
                 let file = $"{dir}/{args[0]}"
                 System.IO.File.ReadAllText file
 
-        match tokenize script with
-        | Ok script ->
-            printfn "Tokens: %A\n\n" script
+        // match tokenize script with
+        // | Ok script ->
+        //     printfn "Tokens: %A\n\n" script
 
-            match parse script with
-            | Ok res -> printfn $"AST:\n{res}\n\n"
+        //     match parse script with
+        //     | Ok res -> printfn $"AST:\n{res}\n\n"
 
         let store = new InMemoryStore()
 

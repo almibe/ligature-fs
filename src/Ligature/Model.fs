@@ -58,6 +58,7 @@ and [<RequireQualifiedAccess>] ConceptExpr =
     // | AtLeast of Term * ConceptExpr * int64
     // | AtMost of Term * ConceptExpr * int64
     | Func of Term
+    | Nominal of Element
 
 // type INetwork =
 //     abstract Triples: unit -> Async<Network>
@@ -90,6 +91,23 @@ type ILigatureStore =
     abstract Query: Term -> ConceptExpr -> Result<Element seq, LigatureError>
     abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
+let encodeString string =
+#if !FABLE_COMPILER
+    System.Web.HttpUtility.JavaScriptStringEncode(string, true)
+#else
+    Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
+#endif
+
+let printElement (element: Element) : string =
+    match element with
+    | { value = Term l
+        space = Some(Term t)
+        langTag = Some(Term langTag) } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
+    | { value = Term l
+        space = None
+        langTag = None } -> encodeString l
+
+
 let rec printConcept (concept: ConceptExpr) : string =
     match concept with
     | ConceptExpr.AtomicConcept(Term a) -> a
@@ -121,7 +139,7 @@ let rec printConcept (concept: ConceptExpr) : string =
     // | ConceptExpr.Implies(l, r) -> $"implies({printConcept l} {printConcept r})"
     // | ConceptExpr.Equivalent(l, r) -> $"equivalent({printConcept l} {printConcept r})"
     | ConceptExpr.Func(Term r) -> $"func({r})"
-
+    | ConceptExpr.Nominal e -> $"func({printElement e})"
 let printDefinition (definition: Definition) =
     match definition with
     | Definition.Implies(left, right) -> $"implies({printConcept left} {printConcept right})"

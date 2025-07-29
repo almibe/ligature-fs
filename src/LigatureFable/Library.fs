@@ -102,7 +102,7 @@ let resultToJs result =
     | Ok(Expression.Assertions assertions) -> assertionsToElementViews assertions |> elementViewsToJs
     | x -> failwith $"Unexpected value {x}"
 
-let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
+let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) =
     let mutable resFns = stdFns (new InMemoryStore())
 
     for entry in fns do
@@ -119,6 +119,9 @@ let runWithFns (fns: Dictionary<string, obj -> obj>) (script: string) =
                         | [ Expression.Assertions assertions ] ->
                             let elementViews = assertionsToElementViews assertions |> elementViewsToJs
                             entry.Value elementViews |> ignore
+                            Ok Expression.Unit
+                        | [ Expression.Element element ] ->
+                            entry.Value (elementToJs element) |> ignore
                             Ok Expression.Unit
                         | x -> failwith $"Unexpected value passed to {entry.Key} - {x}"
                 ))

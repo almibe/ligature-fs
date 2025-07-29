@@ -54,13 +54,6 @@ and [<RequireQualifiedAccess>] Fn =
     | Fn of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
     | Macro of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
 
-let encodeString string =
-#if !FABLE_COMPILER
-    System.Web.HttpUtility.JavaScriptStringEncode(string, true)
-#else
-    Fable.Core.JsInterop.emitJsExpr string "JSON.stringify($0)"
-#endif
-
 let rec printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
@@ -95,17 +88,6 @@ and printNode
     $"{name} {{{attributes} {children}}}"
 // Seq.fold (fun state (key, value) -> state + printAny key + " " + printAny value + " ") "{" (Map.toSeq record)
 // + "}"
-
-and printElement (element: Element) : string =
-    match element with
-    | { value = Term l
-        space = Some(Term t)
-        langTag = Some(Term langTag) } -> $"element({encodeString l} {encodeString t} {encodeString langTag})"
-    | { value = Term l
-        space = None
-        langTag = None } -> encodeString l
-// | Value.Literal { id = l } -> encodeString l
-// | Value.Term(Term t) -> t
 
 
 and writeTerm (Term t) = t

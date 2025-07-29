@@ -191,6 +191,8 @@ let impliesFn: Fn =
                 )
             | [ Expression.Term subconcept; Expression.ConceptExpr concept ] ->
                 Ok(Expression.Definition(Definition.Implies(ConceptExpr.AtomicConcept subconcept, concept)))
+            | [ Expression.ConceptExpr subconcept; Expression.ConceptExpr concept ] ->
+                Ok(Expression.Definition(Definition.Implies(subconcept, concept)))
             | _ -> error "Improper call to implies." None
     )
 
@@ -546,6 +548,20 @@ let funcFn: Fn =
             match application.arguments with
             | [ Expression.Term role ] -> Ok(Expression.ConceptExpr(ConceptExpr.Func role))
             | _ -> error "Improper call to func." None
+    )
+
+let nominalFn: Fn =
+    Fn.Fn(
+        { doc = "Create a nominial concept expression."
+          examples = [ "nominal(a)"; "nominal(element(a test))" ]
+          args = "Term | Element"
+          result = "ConceptExpression" },
+        fun _ _ application ->
+            match application.arguments with
+            | [ Expression.Term term ] ->
+                Ok(Expression.ConceptExpr(ConceptExpr.Nominal(termToElement term)))
+            | [ Expression.Element element ] -> Ok(Expression.ConceptExpr(ConceptExpr.Nominal element))
+            | _ -> error "Improper call to not." None
     )
 
 // let exactlyFn: Fn =
