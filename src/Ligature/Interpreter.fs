@@ -492,16 +492,29 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         //             toProcess = Set.remove assertion state.toProcess
         //             different = different },
         //     []
-        | Assertion.Instance(i, ConceptExpr.Not ConceptExpr.Top) -> failwith "TODO"
-        //None, []
+        | Assertion.Instance(i, ConceptExpr.Not ConceptExpr.Top) ->
+            { state with
+                toProcess = Set.remove assertion state.toProcess
+                isA = addInstance i SimpleConcept.Top state.isA
+                isNot = addInstance i SimpleConcept.Top state.isNot },
+            []
         | Assertion.Instance(i, c) -> failwith $"Not Implemented: instance {i} {c}"
 
 type ModelResult =
     { consistent: Assertions list
-      numberOfInconsistentModels: int }
+      clashed: Assertions list }
 
-let containsClash (model: PotentialModel): bool =
-    failwith "TODO"
+let containsClash (model: PotentialModel) : bool =
+    Map.fold
+        (fun state key value ->
+            if not state then
+                match model.isNot.TryFind key with
+                | None -> false
+                | Some isNot -> not (Set.intersect value isNot).IsEmpty
+            else
+                state)
+        false
+        model.isA
 
 let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel =
@@ -512,46 +525,36 @@ let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable additionalModels: PotentialModel list = []
 
     let mutable completedModelsClashFree = []
-    let mutable numberOfmodelsWithClashes = 0
+    let mutable completedModelsWithClash = []
+    let mutable cont = true
 
-    while not additionalModels.IsEmpty do
-        match currentModel with
-        | model ->
-            if model.toProcess.IsEmpty then
-                if model.skip.IsEmpty then
-                    if containsClash model then
-                        failwith "TODO"
-                    else
-                        failwith "TODO"
-                    // failwith "Check for clash"
-                    // completedModelsClashFree <- modelToAssertions model :: completedModelsClashFree
-
-                    // match additionalModels with
-                    // | head :: tail ->
-                    //     currentModel <- head
-                    //     additionalModels <- tail
-                    // | [] -> failwith "TODO"
-                //currentModel <- None
+    while cont do
+        if currentModel.toProcess.IsEmpty then
+            if currentModel.skip.IsEmpty then
+                if containsClash currentModel then
+                    completedModelsWithClash <- modelToAssertions currentModel :: completedModelsWithClash
                 else
-                    currentModel <-
-                        { model with
-                            toProcess = model.skip
-                            skip = Set.empty }
-            else
-                let nextModel, newPotentialModels = interpretNextAssertion model
+                    completedModelsClashFree <- modelToAssertions currentModel :: completedModelsClashFree
 
-                currentModel <- nextModel
-                additionalModels <- List.append additionalModels newPotentialModels
-    // | None ->
-    //     match additionalModels with
-    //     | head :: tail ->
-    //         currentModel <- Some head
-    //         additionalModels <- tail
-    //     | _ -> failwith "Should never reach"
+                match additionalModels with
+                | head :: tail ->
+                    currentModel <- head
+                    additionalModels <- tail
+                | [] -> cont <- false
+            else
+                currentModel <-
+                    { currentModel with
+                        toProcess = currentModel.skip
+                        skip = Set.empty }
+        else
+            let nextModel, newPotentialModels = interpretNextAssertion currentModel
+
+            currentModel <- nextModel
+            additionalModels <- List.append additionalModels newPotentialModels
 
     Ok
         { consistent = completedModelsClashFree
-          numberOfInconsistentModels = numberOfmodelsWithClashes }
+          clashed = completedModelsWithClash }
 
 let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
@@ -607,8 +610,7 @@ let isInstance
 
     match modelResults with
     | Ok { consistent = [] } -> Ok(Term "true")
-    | Ok { consistent = _
-           numberOfInconsistentModels = 0 } -> Ok(Term "false")
+    | Ok { consistent = _; clashed = [] } -> Ok(Term "false")
     | Ok _ -> Ok(Term "unknown")
     | Error err -> error err.UserMessage None
 
