@@ -202,8 +202,6 @@ let rec unfoldSingleExpression (definitions: Map<Term, ConceptExpr>) (expr: Conc
 // | ConceptExpr.AtMost(roleName, c, number) ->
 //     let c = unfoldSingleExpression definitions c
 //     ConceptExpr.AtMost(roleName, c, number)
-// | ConceptExpr.Implies(_, _) -> failwith "Not Implemented"
-// | ConceptExpr.Equivalent(_, _) -> failwith "Not Implemented"
 
 let rec unfoldTBox (definitions: Map<Term, ConceptExpr>) (aBox: Assertions) : Assertions =
     let res =
@@ -224,15 +222,51 @@ let unfold tBox aBox : Result<Assertions, LigatureError> =
     else
         failwith "TODO"
 
+let extractElements (definitions: Definitions) (assertions: Assertions): Set<Element> =
+    Set.union
+        (Set.fold (fun state value -> 
+            //TODO not sure if I need this at all?
+            state) Set.empty definitions)
+        (Set.fold (fun state value -> 
+            match value with
+            | Assertion.Instance(e, _) -> Set.add e state
+            | Assertion.Triple(e, _, f) -> 
+                Set.add e state
+                |> Set.add f) Set.empty assertions)
+
+let definitionToConceptExpr (definition: Definition): ConceptExpr =
+    match definition with
+    | Definition.Equivalent(l, r) -> 
+        ConceptExpr.Or [r; ConceptExpr.Not l]
+    | Definition.Implies(l, r) ->
+        ConceptExpr.And [
+            ConceptExpr.Or [r; ConceptExpr.Not l]
+            ConceptExpr.Or [l; ConceptExpr.Not r]
+        ]
+
+let handleCyclicDefinitions (definitions: Definitions) (assertions: Assertions): Result<Assertions, LigatureError> =
+    let expr =
+        Set.map definitionToConceptExpr definitions
+        |> Set.toList
+        |> ConceptExpr.And
+    
+    let elements = extractElements definitions assertions
+
+    //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
+    Set.fold (fun state value -> 
+        Set.add (Assertion.Instance(value, expr)) state) assertions elements
+    |> Ok
+
 let handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
     if tBox.IsEmpty then
         Ok aBox
     else if isDefinitorial tBox then
         match definitionsToMap tBox with
         | Some map -> Ok(unfoldTBox map aBox)
-        | None -> error "Only definitorial TBoxes are supported currently." None
+        | None -> error "Error processing TBox definitions." None
     else
-        error "Only definitorial TBoxes are supported currently." None
+        //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
+        handleCyclicDefinitions tBox aBox
 
 let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialModel list =
     if state.toProcess.IsEmpty then
@@ -536,6 +570,7 @@ let containsClash (model: PotentialModel) : bool =
 
 let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel =
+        //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
         match handleTBox definitions assertions with
         | Ok assertions -> newModel assertions
         | Error err -> failwith err.UserMessage
