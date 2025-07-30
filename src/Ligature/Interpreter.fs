@@ -417,10 +417,13 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
         //         allMatches
 
         // Some { state with toProcess = assertions }, []
-        | Assertion.Instance(_, ConceptExpr.Not(ConceptExpr.Func _)) ->
-            //no chance of clash here, just remove the assertion
+        | Assertion.Instance(i, ConceptExpr.Not(ConceptExpr.Func(r, c))) ->
             let assertions = Set.remove assertion state.toProcess
-            { state with toProcess = assertions }, []
+
+            { state with
+                toProcess = assertions
+                isNot = addInstance i (SimpleConcept.Func(r, c)) state.isNot },
+            []
         // | Assertion.Instance(individual, ConceptExpr.Exactly(roleName, concept, number)) ->
         //     if
         //         not (
@@ -467,7 +470,11 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
                 toProcess = Set.remove assertion state.toProcess
                 isA = addInstance l (SimpleConcept.Nominal r) state.isA },
             []
-        | Assertion.Instance(l, ConceptExpr.Not(ConceptExpr.Nominal r)) -> failwith "TODO"
+        | Assertion.Instance(l, ConceptExpr.Not(ConceptExpr.Nominal r)) ->
+            { state with
+                toProcess = Set.remove assertion state.toProcess
+                isNot = addInstance l (SimpleConcept.Nominal r) state.isNot },
+            []
         // | Assertion.Different(l, r) ->
         // let clash =
         //     match state.same.TryFind l with
@@ -505,6 +512,17 @@ type ModelResult =
       clashed: Assertions list }
 
 let containsClash (model: PotentialModel) : bool =
+    let model =
+        { model with
+            isA =
+                Seq.fold
+                    (fun state value ->
+                        match state.TryFind value with
+                        | Some concepts -> Map.add value (Set.add (SimpleConcept.Nominal value) concepts) state
+                        | None -> Map.add value (Set.ofList [ SimpleConcept.Nominal value ]) state)
+                    model.isA
+                    model.isNot.Keys }
+
     Map.fold
         (fun state key value ->
             if not state then
