@@ -69,6 +69,7 @@ let rec printExpression (value: Expression) : string =
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Definition d -> printDefinition d
+    | Expression.Unit -> "()"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple

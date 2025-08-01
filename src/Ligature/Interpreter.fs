@@ -222,39 +222,38 @@ let unfold tBox aBox : Result<Assertions, LigatureError> =
     else
         failwith "TODO"
 
-let extractElements (definitions: Definitions) (assertions: Assertions): Set<Element> =
+let extractElements (definitions: Definitions) (assertions: Assertions) : Set<Element> =
     Set.union
-        (Set.fold (fun state value -> 
-            //TODO not sure if I need this at all?
-            state) Set.empty definitions)
-        (Set.fold (fun state value -> 
-            match value with
-            | Assertion.Instance(e, _) -> Set.add e state
-            | Assertion.Triple(e, _, f) -> 
-                Set.add e state
-                |> Set.add f) Set.empty assertions)
+        (Set.fold
+            (fun state value ->
+                //TODO not sure if I need this at all?
+                state)
+            Set.empty
+            definitions)
+        (Set.fold
+            (fun state value ->
+                match value with
+                | Assertion.Instance(e, _) -> Set.add e state
+                | Assertion.Triple(e, _, f) -> Set.add e state |> Set.add f)
+            Set.empty
+            assertions)
 
-let definitionToConceptExpr (definition: Definition): ConceptExpr =
+let definitionToConceptExpr (definition: Definition) : ConceptExpr =
     match definition with
-    | Definition.Equivalent(l, r) -> 
-        ConceptExpr.Or [r; ConceptExpr.Not l]
+    | Definition.Equivalent(l, r) -> ConceptExpr.Or [ r; ConceptExpr.Not l ]
     | Definition.Implies(l, r) ->
-        ConceptExpr.And [
-            ConceptExpr.Or [r; ConceptExpr.Not l]
-            ConceptExpr.Or [l; ConceptExpr.Not r]
-        ]
+        ConceptExpr.And
+            [ ConceptExpr.Or [ r; ConceptExpr.Not l ]
+              ConceptExpr.Or [ l; ConceptExpr.Not r ] ]
 
-let handleCyclicDefinitions (definitions: Definitions) (assertions: Assertions): Result<Assertions, LigatureError> =
+let handleCyclicDefinitions (definitions: Definitions) (assertions: Assertions) : Result<Assertions, LigatureError> =
     let expr =
-        Set.map definitionToConceptExpr definitions
-        |> Set.toList
-        |> ConceptExpr.And
-    
+        Set.map definitionToConceptExpr definitions |> Set.toList |> ConceptExpr.And
+
     let elements = extractElements definitions assertions
 
     //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
-    Set.fold (fun state value -> 
-        Set.add (Assertion.Instance(value, expr)) state) assertions elements
+    Set.fold (fun state value -> Set.add (Assertion.Instance(value, expr)) state) assertions elements
     |> Ok
 
 let handleTBox (tBox: Definitions) (aBox: Assertions) : Result<Assertions, LigatureError> =
@@ -568,7 +567,13 @@ let containsClash (model: PotentialModel) : bool =
         false
         model.isA
 
-let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
+type TableDebugState =
+    { currentModel: PotentialModel
+      additionModels: PotentialModel list
+      completedModelsClashFree: Assertions list
+      completedModelWithClash: Assertions list }
+
+let tableauModels definitions assertions (debug: Option<TableDebugState -> unit>) : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel =
         //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
         match handleTBox definitions assertions with
@@ -582,6 +587,15 @@ let tableauModels definitions assertions : Result<ModelResult, LigatureError> =
     let mutable cont = true
 
     while cont do
+        match debug with
+        | Some cb ->
+            cb
+                { currentModel = currentModel
+                  additionModels = additionalModels
+                  completedModelsClashFree = completedModelsClashFree
+                  completedModelWithClash = completedModelsWithClash }
+        | None -> ()
+
         if currentModel.toProcess.IsEmpty then
             if currentModel.skip.IsEmpty then
                 if containsClash currentModel then
@@ -647,7 +661,7 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     Ok(nnf definitions)
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
-    match tableauModels definitions assertions with
+    match tableauModels definitions assertions None with
     | Ok { consistent = [] } -> Ok false
     | Ok _ -> Ok true
     | Error err -> Error err
@@ -659,7 +673,7 @@ let isInstance
     (concept: ConceptExpr)
     : Result<Term, LigatureError> =
     let modelResults =
-        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox)
+        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox) None
 
     match modelResults with
     | Ok { consistent = [] } -> Ok(Term "true")
