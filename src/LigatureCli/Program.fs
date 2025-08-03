@@ -13,10 +13,12 @@ open Model
 open Spectre.Console
 open Interpreter
 open System.Threading
+open System.Collections
+open Spectre.Console.Rendering
 
 let store = new InMemoryStore()
 
-let assertionsToTableList (assertions: Assertions) : Table * Table =
+let assertionsToTableList (assertions: Assertions) : Rows =
     let tripleTable = new Table()
 
     tripleTable.AddColumn "Element" |> ignore
@@ -32,14 +34,14 @@ let assertionsToTableList (assertions: Assertions) : Table * Table =
         (fun assertion ->
             match assertion with
             | Assertion.Instance(e, c) ->
-                tripleTable.AddRow(Markup.Escape(printElement e), Markup.Escape(printConcept c))
+                instanceTable.AddRow(Markup.Escape(printElement e), Markup.Escape(printConcept c))
                 |> ignore
             | Assertion.Triple(e, Term r, f) ->
-                instanceTable.AddRow(Markup.Escape(printElement e), Markup.Escape r, Markup.Escape(printElement f))
+                tripleTable.AddRow(Markup.Escape(printElement e), Markup.Escape r, Markup.Escape(printElement f))
                 |> ignore)
         assertions
 
-    tripleTable, instanceTable
+    new Rows(tripleTable, instanceTable)
 
 let printSimpleConcept (concept: SimpleConcept) : string =
     match concept with
@@ -79,9 +81,19 @@ let triplesToTableList (triples: Set<Element * Term * Element>) =
     table
 
 let writeAssertionsList (assertions: Assertions) =
-    let triplesTable, instanceTable = assertionsToTableList assertions
-    AnsiConsole.Write triplesTable
-    AnsiConsole.Write instanceTable
+    AnsiConsole.Write(assertionsToTableList assertions)
+
+let modelsToPanel (models: PotentialModel list) =
+    let models: Generic.IEnumerable<IRenderable> =
+        List.map (fun (value: PotentialModel) -> assertionsToTableList value.toProcess) models
+
+    new Rows(models)
+
+let assertionsToPanel (assertions: Assertions list) =
+    let models: Generic.IEnumerable<IRenderable> =
+        List.map (fun (value: Assertions) -> assertionsToTableList value) assertions
+
+    new Rows(models)
 
 let tableauDebug (result: ModelResult) (layout: Layout) (ctx: LiveDisplayContext) =
     let data = result.debug.Value
@@ -90,45 +102,56 @@ let tableauDebug (result: ModelResult) (layout: Layout) (ctx: LiveDisplayContext
     let mutable cont = true
 
     while cont do
-        let table = new Table()
-        table.AddColumn "Steps" |> ignore
-        table.AddColumn "Current Model" |> ignore
-        table.AddColumn "Additional Models" |> ignore
-        table.AddColumn "CCF" |> ignore
-        table.AddColumn "CWC" |> ignore
+        let table: IRenderable =
+            if step < totalSteps then
+                let table = new Table()
+                table.AddColumn "Steps" |> ignore
+                table.AddColumn "Current Model" |> ignore
+                table.AddColumn "Additional Models" |> ignore
+                table.AddColumn "Complete Clash Free" |> ignore
+                table.AddColumn "Contains Clash" |> ignore
 
-        let currentModel = data[step].currentModel
+                let currentModel = data[step].currentModel
 
-        let currentModelPanel =
-            new Rows(
-                new Text "To Process",
-                assertionsToTableList currentModel.toProcess,
-                new Text "Skipped",
-                assertionsToTableList currentModel.skip,
-                new Text "Instances",
-                instancesToTableList currentModel.isA,
-                new Text "Not",
-                instancesToTableList currentModel.isNot,
-                new Text "Triple"
+                let currentModelPanel =
+                    new Rows(
+                        new Text "To Process",
+                        assertionsToTableList currentModel.toProcess,
+                        new Text "Skipped",
+                        assertionsToTableList currentModel.skip,
+                        new Text "Instances",
+                        instancesToTableList currentModel.isA,
+                        new Text "Not",
+                        instancesToTableList currentModel.isNot,
+                        new Text "Triple",
+                        triplesToTableList currentModel.triples
+                    )
 
-                triplesToTableList currentModel.triples
-            )
+                table.AddRow(
+                    new Text $"{step + 1}/{totalSteps}",
+                    currentModelPanel,
+                    modelsToPanel data[step].additionModels,
+                    assertionsToPanel data[step].completedModelsClashFree,
+                    assertionsToPanel data[step].completedModelWithClash
+                )
+            else
+                let table = new Table()
+                table.AddColumn "Steps" |> ignore
+                table.AddColumn "Complete Clash Free" |> ignore
+                table.AddColumn "Contains Clash" |> ignore
 
-        table.AddRow(
-            new Text $"{step + 1}/{totalSteps}",
-            currentModelPanel,
-            new Text $"{data[step].additionModels.Length}",
-            new Text $"{data[step].completedModelsClashFree.Length}",
-            new Text $"{data[step].completedModelWithClash.Length}"
-        )
-        |> ignore
+                table.AddRow(
+                    new Text $"Complete",
+                    assertionsToPanel result.consistent,
+                    assertionsToPanel result.clashed
+                )
 
         layout.Update table |> ignore
         ctx.Refresh()
         let key = Console.ReadKey()
 
         if key.Key = ConsoleKey.DownArrow then
-            if step + 1 < totalSteps then
+            if step < totalSteps then
                 step <- step + 1
         else if key.Key = ConsoleKey.UpArrow then
             if step > 0 then
