@@ -540,9 +540,16 @@ let interpretNextAssertion (state: PotentialModel) : PotentialModel * PotentialM
             []
         | Assertion.Instance(i, c) -> failwith $"Not Implemented: instance {i} {c}"
 
+type TableauDebugState =
+    { currentModel: PotentialModel
+      additionModels: PotentialModel list
+      completedModelsClashFree: Assertions list
+      completedModelWithClash: Assertions list }
+
 type ModelResult =
     { consistent: Assertions list
-      clashed: Assertions list }
+      clashed: Assertions list
+      debug: Option<TableauDebugState list> }
 
 let containsClash (model: PotentialModel) : bool =
     let model =
@@ -567,13 +574,9 @@ let containsClash (model: PotentialModel) : bool =
         false
         model.isA
 
-type TableDebugState =
-    { currentModel: PotentialModel
-      additionModels: PotentialModel list
-      completedModelsClashFree: Assertions list
-      completedModelWithClash: Assertions list }
+let tableauModels definitions assertions (debug: bool) : Result<ModelResult, LigatureError> =
+    let mutable debugModels = new System.Collections.Generic.List<TableauDebugState>()
 
-let tableauModels definitions assertions (debug: Option<TableDebugState -> unit>) : Result<ModelResult, LigatureError> =
     let mutable currentModel: PotentialModel =
         //TODO INCOMPLETE this doesn't handle the case of when you have to create a new element
         match handleTBox definitions assertions with
@@ -587,14 +590,12 @@ let tableauModels definitions assertions (debug: Option<TableDebugState -> unit>
     let mutable cont = true
 
     while cont do
-        match debug with
-        | Some cb ->
-            cb
+        if debug then
+            debugModels.Add
                 { currentModel = currentModel
                   additionModels = additionalModels
                   completedModelsClashFree = completedModelsClashFree
                   completedModelWithClash = completedModelsWithClash }
-        | None -> ()
 
         if currentModel.toProcess.IsEmpty then
             if currentModel.skip.IsEmpty then
@@ -619,9 +620,12 @@ let tableauModels definitions assertions (debug: Option<TableDebugState -> unit>
             currentModel <- nextModel
             additionalModels <- List.append additionalModels newPotentialModels
 
+    let debugResult = if debug then Some(List.ofSeq debugModels) else None
+
     Ok
         { consistent = completedModelsClashFree
-          clashed = completedModelsWithClash }
+          clashed = completedModelsWithClash
+          debug = debugResult }
 
 let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     let rec nnfConcept (conceptExpr: ConceptExpr) : ConceptExpr =
@@ -661,7 +665,7 @@ let nnf (definitions: Definitions) : Result<ConceptExpr, LigatureError> =
     Ok(nnf definitions)
 
 let isConsistent definitions assertions : Result<bool, LigatureError> =
-    match tableauModels definitions assertions None with
+    match tableauModels definitions assertions false with
     | Ok { consistent = [] } -> Ok false
     | Ok _ -> Ok true
     | Error err -> Error err
@@ -673,7 +677,7 @@ let isInstance
     (concept: ConceptExpr)
     : Result<Term, LigatureError> =
     let modelResults =
-        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox) None
+        tableauModels tBox (Set.add (Assertion.Instance(individual, ConceptExpr.Not concept)) aBox) false
 
     match modelResults with
     | Ok { consistent = [] } -> Ok(Term "true")
