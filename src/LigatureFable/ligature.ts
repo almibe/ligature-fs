@@ -1,3 +1,5 @@
+import { runWithFns } from "./Library.fs.js"
+
 export type Element = {
     type: "Element",
     value: string,
@@ -25,6 +27,6 @@ export function element(value: string): Element {
     }
 }
 
-export interface Wander {
-    run(script: string, fns?: Map<string, (arg: ElementView[]) => void>): Error | ElementView[]
+export function run(script: string, fns?: Map<string, (arg: ElementView[]) => void>) {
+    runWithFns(script, fns)
 }

@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite'
 import path from "path"
+import dts from 'vite-plugin-dts'
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,9 +15,10 @@ export default defineConfig({
     },
     build: {
         lib: {
-            entry: path.resolve(__dirname, 'Library.fs.js'),
+            entry: path.resolve(__dirname, 'ligature.ts'),
             name: 'ligature',
             fileName: (format) => `ligature.${format}.js`
         }
-    }
+    },
+    plugins: [dts({ bundleTypes: true })],
 })

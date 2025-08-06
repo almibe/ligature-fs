@@ -44,9 +44,16 @@ let assertionsToTableList (assertions: Assertions) : Rows =
     new Rows(tripleTable, instanceTable)
 
 let printSimpleConcept (concept: SimpleConcept) : string =
-    match concept with
-    | SimpleConcept.AtomicConcept(Term c) -> c
-    | _ -> failwith "TODO"
+    let expr =
+        match concept with
+        | SimpleConcept.AtomicConcept ac -> ConceptExpr.AtomicConcept ac
+        | SimpleConcept.Top -> ConceptExpr.Top
+        | SimpleConcept.Bottom -> ConceptExpr.Bottom
+        | SimpleConcept.Exists(r, c) -> ConceptExpr.Exists(r, c)
+        | SimpleConcept.All(r, c) -> ConceptExpr.All(r, c)
+        | SimpleConcept.Func(r, c) -> ConceptExpr.Func(r, c)
+        | SimpleConcept.Nominal e -> ConceptExpr.Nominal e
+    printConcept expr
 
 let instancesToTableList (instances: Map<Element, Set<SimpleConcept>>) =
     let table = new Table()
