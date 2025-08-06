@@ -28,5 +28,5 @@ export function element(value: string): Element {
 }
 
 export function run(script: string, fns?: Map<string, (arg: ElementView[]) => void>) {
-    runWithFns(script, fns)
+    runWithFns(fns, script)
 }
