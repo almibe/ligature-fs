@@ -24,6 +24,11 @@ let termToJs (Term term) =
     obj?value <- term
     obj
 
+let unitToJs () =
+    let obj = createEmpty
+    obj?``type`` <- "Unit"
+    obj
+
 let elementToJs (element: Element) =
     let obj = createEmpty
     obj?``type`` <- "Element"
@@ -103,9 +108,22 @@ let resultToJs result =
     | Ok(Expression.Term t) -> termToJs t
     | Ok(Expression.Element element) -> elementToJs element
     | Ok(Expression.Assertions assertions) -> assertionsToElementViews assertions |> elementViewsToJs
+    | Ok Expression.Unit -> unitToJs ()
     | x -> failwith $"Unexpected value {x}"
 
-let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) =
+let appendText (text: string) htmlElement =
+    let codeEl = emitJsExpr () "document.createElement('code')"
+    let preEl = emitJsExpr () "document.createElement('pre')"
+
+    emitJsStatement
+        (htmlElement, codeEl, preEl, text)
+        "
+        $2.appendChild($1)
+        $0.appendChild($2)
+        $1.textContent = $3
+    "
+
+let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) htmlElement =
     let mutable resFns = stdFns (new InMemoryStore())
 
     for entry in fns do
@@ -129,6 +147,23 @@ let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) =
                         | x -> failwith $"Unexpected value passed to {entry.Key} - {x}"
                 ))
                 resFns
+
+    resFns <-
+        Map.add
+            (Term "print")
+            (Fn.Fn(
+                { doc = "Print a value."
+                  examples = []
+                  args = ""
+                  result = "" },
+                fun _ _ application ->
+                    match application.arguments with
+                    | [ arg ] ->
+                        appendText $"{printExpression arg}" htmlElement
+                        Ok Expression.Unit
+                    | _ -> failwith "Unexpected arguments to print."
+            ))
+            resFns
 
     run resFns Map.empty script |> resultToJs
 

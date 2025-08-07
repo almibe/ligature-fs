@@ -27,6 +27,6 @@ export function element(value: string): Element {
     }
 }
 
-export function run(script: string, fns?: Map<string, (arg: ElementView[]) => void>) {
-    runWithFns(fns, script)
+export function run(script: string, htmlElement, fns?: Map<string, (arg: any[]) => void>) {
+    runWithFns(fns, script, htmlElement)
 }

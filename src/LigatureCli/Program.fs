@@ -53,6 +53,7 @@ let printSimpleConcept (concept: SimpleConcept) : string =
         | SimpleConcept.All(r, c) -> ConceptExpr.All(r, c)
         | SimpleConcept.Func(r, c) -> ConceptExpr.Func(r, c)
         | SimpleConcept.Nominal e -> ConceptExpr.Nominal e
+
     printConcept expr
 
 let instancesToTableList (instances: Map<Element, Set<SimpleConcept>>) =
