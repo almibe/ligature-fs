@@ -11,11 +11,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.FASTER.Core" Version="2.6.5" />
-    <PackageReference Include="Mikodev.Binary.FSharp" Version="5.8.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Ligature\Ligature.fsproj" />
+    <ProjectReference Include="..\Wander\Wander.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,7 @@ open Ligature.Model
 open Ligature.InMemoryStore
 open FASTER.core
 open System.IO
+open Wander.Model
 
 type LogStore(path: Option<string>) =
 
@@ -21,7 +22,7 @@ type LogStore(path: Option<string>) =
             let settings = new FasterLogSettings(path)
             new FasterLog(settings)
 
-    let inmem =
+    let inmem: ILigatureStore =
         match path with
         | Some _ ->
             let inmem = new InMemoryStore()
@@ -38,41 +39,107 @@ type LogStore(path: Option<string>) =
         | None -> new InMemoryStore()
 
     interface ILigatureStore with
-        member this.KBs() : Term seq = failwith "TODO"
+        member this.KBs() : Term seq = inmem.KBs()
 
-        member this.AddKB(name: Term) : unit = failwith "TODO"
+        member this.AddKB(name: Term) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "add-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name ] }
+                )
 
-        member this.RemoveKB(name: Term) : unit = failwith "TODO"
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes(encoded)) |> ignore
+            store.Commit()
+            inmem.AddKB name
 
-        member this.AssertKB (name: Term) (newAssertions: Assertions) : unit = failwith "TODO"
+        member this.RemoveKB(name: Term) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "remove-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name ] }
+                )
 
-        member this.UnassertKB (name: Term) (network: Assertions) : unit = failwith "TODO"
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes encoded) |> ignore
+            store.Commit()
+            inmem.RemoveKB name
 
-        member this.ReadAssertsKB(name: Term) : Result<Assertions, LigatureError> = failwith "TODO"
 
-        member this.ReadDefinitionsKB(name: Term) : Result<Definitions, LigatureError> = failwith "TODO"
+        member this.AssertKB (name: Term) (newAssertions: Assertions) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "assert-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name; Expression.Assertions newAssertions ] }
+                )
 
-        member this.DefineKB (name: Term) (newDefinitions: Definitions) : unit = failwith "TODO"
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes encoded) |> ignore
+            store.Commit()
+            inmem.AssertKB name newAssertions
 
-        member this.UndefineKB (name: Term) (toRemove: Definitions) : unit = failwith "TODO"
+        member this.UnassertKB (name: Term) (network: Assertions) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "unassert-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name; Expression.Assertions network ] }
+                )
 
-        member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> = failwith "TODO"
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes encoded) |> ignore
+            store.Commit()
+            inmem.UnassertKB name network
 
-        member this.IsConsistent(name: Term) : Result<bool, LigatureError> = failwith "TODO"
+        member this.ReadAssertsKB(name: Term) : Result<Assertions, LigatureError> = inmem.ReadAssertsKB name
+
+        member this.ReadDefinitionsKB(name: Term) : Result<Definitions, LigatureError> = inmem.ReadDefinitionsKB name
+
+        member this.DefineKB (name: Term) (newDefinitions: Definitions) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "define-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name; Expression.Definitions newDefinitions ] }
+                )
+
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes encoded) |> ignore
+            store.Commit()
+            inmem.DefineKB name newDefinitions
+
+        member this.UndefineKB (name: Term) (toRemove: Definitions) : unit =
+            let encoded =
+                printExpression (
+                    Expression.Application
+                        { name = Term "undefine-kb"
+                          attributes = Map.empty
+                          arguments = [ Expression.Term name; Expression.Definitions toRemove ] }
+                )
+
+            store.Enqueue(System.Text.Encoding.UTF8.GetBytes encoded) |> ignore
+            store.Commit()
+            inmem.UndefineKB name toRemove
+
+        member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> = inmem.ReadKB arg
+
+        member this.IsConsistent(name: Term) : Result<bool, LigatureError> = inmem.IsConsistent name
 
         member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
-            failwith "Not Implemented"
+            inmem.IsEquivalent arg1 arg2 arg3
 
         member this.IsInstance (arg1: Term) (arg2: Element) (arg3: ConceptExpr) : Result<bool, LigatureError> =
-            failwith "Not Implemented"
+            inmem.IsInstance arg1 arg2 arg3
 
         member this.IsSatisfiable (arg1: Term) (arg2: ConceptExpr) : Result<bool, LigatureError> =
-            failwith "Not Implemented"
+            inmem.IsSatisfiable arg1 arg2
 
         member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
-            failwith "Not Implemented"
+            inmem.IsSubsumedBy arg1 arg2 arg3
 
-        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> =
-            failwith "Not Implemented"
+        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> = inmem.Query arg1 arg2
 
-        member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"
+        member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = inmem.TableauModels arg1

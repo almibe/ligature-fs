@@ -54,7 +54,18 @@ and [<RequireQualifiedAccess>] Fn =
     | Fn of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
     | Macro of FnDoc * (Fns -> Variables -> Application -> Result<Expression, LigatureError>)
 
-let rec printExpression (value: Expression) : string =
+let rec printApplication (application: Application) : string =
+    let (Term name) = application.name
+
+    let atts =
+        Map.fold (fun state (Term key) value -> state + $"{key} = {printExpression value} ") "" application.attributes
+
+    let args =
+        List.fold (fun state value -> state + $"{printExpression value} ") "" application.arguments
+
+    $"{name}({atts}{args})"
+
+and printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
     | Expression.Element element -> printElement element
@@ -62,7 +73,7 @@ let rec printExpression (value: Expression) : string =
     | Expression.Seq seq -> printSeq seq
     | Expression.Assertions n -> printAssertions n
     | Expression.Comment _ -> failwith "Not Implemented"
-    | Expression.Application _ -> failwith "Not Implemented"
+    | Expression.Application a -> printApplication a
     | Expression.VariableApplication _ -> failwith "Not implemented."
     | Expression.Lambda _ -> failwith "TODO"
     | Expression.Definitions defs -> printDefinitions defs
