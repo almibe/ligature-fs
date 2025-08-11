@@ -6,42 +6,59 @@ module Ligature.Log
 
 open Ligature.Model
 open Ligature.InMemoryStore
+open FASTER.core
+open System.IO
 
-type LogStore() =
-    let inmem = new InMemoryStore()
+type LogStore(path: Option<string>) =
+
+    let store =
+        match path with
+        | None ->
+            let tempDir = Directory.CreateTempSubdirectory()
+            let settings = new FasterLogSettings(tempDir.FullName, true)
+            new FasterLog(settings)
+        | Some path ->
+            let settings = new FasterLogSettings(path)
+            new FasterLog(settings)
+
+    let inmem =
+        match path with
+        | Some _ ->
+            let inmem = new InMemoryStore()
+            let iter = store.Scan(store.BeginAddress, store.TailAddress)
+            let mutable cont = true
+
+            while cont do
+                cont <-
+                    iter.TryConsumeNext
+                        { new ILogEntryConsumer with
+                            member _.Consume(e, _, _) = failwith "TODO" }
+
+            inmem
+        | None -> new InMemoryStore()
 
     interface ILigatureStore with
         member this.KBs() : Term seq = failwith "TODO"
 
-        member this.AddKB(name: Term) : unit =
-            failwith "TODO"
+        member this.AddKB(name: Term) : unit = failwith "TODO"
 
-        member this.RemoveKB(name: Term) : unit =
-            failwith "TODO"
+        member this.RemoveKB(name: Term) : unit = failwith "TODO"
 
-        member this.AssertKB (name: Term) (newAssertions: Assertions) : unit =
-            failwith "TODO"
+        member this.AssertKB (name: Term) (newAssertions: Assertions) : unit = failwith "TODO"
 
-        member this.UnassertKB (name: Term) (network: Assertions) : unit =
-            failwith "TODO"
+        member this.UnassertKB (name: Term) (network: Assertions) : unit = failwith "TODO"
 
-        member this.ReadAssertsKB(name: Term) : Result<Assertions, LigatureError> =
-            failwith "TODO"
+        member this.ReadAssertsKB(name: Term) : Result<Assertions, LigatureError> = failwith "TODO"
 
-        member this.ReadDefinitionsKB(name: Term) : Result<Definitions, LigatureError> =
-            failwith "TODO"
+        member this.ReadDefinitionsKB(name: Term) : Result<Definitions, LigatureError> = failwith "TODO"
 
-        member this.DefineKB (name: Term) (newDefinitions: Definitions) : unit =
-            failwith "TODO"
+        member this.DefineKB (name: Term) (newDefinitions: Definitions) : unit = failwith "TODO"
 
-        member this.UndefineKB (name: Term) (toRemove: Definitions) : unit =
-            failwith "TODO"
+        member this.UndefineKB (name: Term) (toRemove: Definitions) : unit = failwith "TODO"
 
-        member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> =
-            failwith "TODO"
+        member this.ReadKB(arg: Term) : Result<KnowledgeBase, LigatureError> = failwith "TODO"
 
-        member this.IsConsistent(name: Term) : Result<bool, LigatureError> =
-            failwith "TODO"
+        member this.IsConsistent(name: Term) : Result<bool, LigatureError> = failwith "TODO"
 
         member this.IsEquivalent (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             failwith "Not Implemented"
