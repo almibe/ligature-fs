@@ -37,6 +37,7 @@ type LogStore(path: Option<string>) =
                         { new ILogEntryConsumer with
                             member _.Consume(e, _, _) =
                                 let command = System.Text.Encoding.UTF8.GetString e
+
                                 match run (stdFns inmem) Map.empty command with
                                 | Ok _ -> ()
                                 | Error err -> failwith err.UserMessage }

@@ -58,7 +58,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Term "assert")
         (Fn.Fn(
             { doc = "Given a KB name and a set of assertions, merge the assertions into the assertions for given KB."
-              examples = [ "assert(test assertions([a b c]))" ]
+              examples = [ "assert(test assertions(triple(a b c)))" ]
               args = "Literal Assertions"
               result = "" },
             fun _ _ application ->
@@ -73,7 +73,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Fn.Fn(
             { doc =
                 "Given a KB name and a set of assertions, remove the assertions from the assertions for the given KB."
-              examples = [ "unassert(test assertions([a b c]))" ]
+              examples = [ "unassert(test assertions(triple(a b c)))" ]
               args = "Term Assertions"
               result = "" },
             fun _ _ application ->
@@ -102,7 +102,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
         (Term "define")
         (Fn.Fn(
             { doc = "Given a KB name and a set of definitions, merge the definitions into the definitions for given KB."
-              examples = [ "define(test definitions(equilavlent(A B)))" ]
+              examples = [ "define(test definitions(equivalent(A B)))" ]
               args = "Term Definitions"
               result = "" },
             fun _ _ application ->
@@ -110,14 +110,14 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
                 | [ Expression.Term networkName; Expression.Definitions definitions ] ->
                     store.DefineKB networkName definitions
                     Ok(Expression.Assertions Set.empty)
-                | _ -> failwith "TODO"
+                | _ -> error "Invalid call to define." None
         ))
     |> Map.add
         (Term "undefine")
         (Fn.Fn(
             { doc =
                 "Given a KB name and a set of definitions, remove the definitions from the definitions for the given KB."
-              examples = [ "undefine(test definitions((equivalent A B)))" ]
+              examples = [ "undefine(test definitions(equivalent(A B)))" ]
               args = "Term Definitions"
               result = "" },
             fun _ _ application ->
@@ -147,7 +147,7 @@ let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =
 
         (Fn.Fn(
             { doc = "Check if a KB is consistent."
-              examples = [ "(is-consistent (definitions (implies A B)) (assertions (instance a A)))" ]
+              examples = [ "is-consistent(definitions(implies(A B)) assertions(instance(a A)))" ]
               args = "Definitions Assertions"
               result = "Term" },
             fun _ _ application ->
