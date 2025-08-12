@@ -9,6 +9,8 @@ open Ligature.InMemoryStore
 open FASTER.core
 open System.IO
 open Wander.Model
+open Wander.Main
+open Wander.Library
 
 type LogStore(path: Option<string>) =
 
@@ -33,7 +35,11 @@ type LogStore(path: Option<string>) =
                 cont <-
                     iter.TryConsumeNext
                         { new ILogEntryConsumer with
-                            member _.Consume(e, _, _) = failwith "TODO" }
+                            member _.Consume(e, _, _) =
+                                let command = System.Text.Encoding.UTF8.GetString e
+                                match run (stdFns inmem) Map.empty command with
+                                | Ok _ -> ()
+                                | Error err -> failwith err.UserMessage }
 
             inmem
         | None -> new InMemoryStore()
@@ -72,7 +78,7 @@ type LogStore(path: Option<string>) =
             let encoded =
                 printExpression (
                     Expression.Application
-                        { name = Term "assert-kb"
+                        { name = Term "assert"
                           attributes = Map.empty
                           arguments = [ Expression.Term name; Expression.Assertions newAssertions ] }
                 )
@@ -85,7 +91,7 @@ type LogStore(path: Option<string>) =
             let encoded =
                 printExpression (
                     Expression.Application
-                        { name = Term "unassert-kb"
+                        { name = Term "unassert"
                           attributes = Map.empty
                           arguments = [ Expression.Term name; Expression.Assertions network ] }
                 )
@@ -102,7 +108,7 @@ type LogStore(path: Option<string>) =
             let encoded =
                 printExpression (
                     Expression.Application
-                        { name = Term "define-kb"
+                        { name = Term "define"
                           attributes = Map.empty
                           arguments = [ Expression.Term name; Expression.Definitions newDefinitions ] }
                 )
@@ -115,7 +121,7 @@ type LogStore(path: Option<string>) =
             let encoded =
                 printExpression (
                     Expression.Application
-                        { name = Term "undefine-kb"
+                        { name = Term "undefine"
                           attributes = Map.empty
                           arguments = [ Expression.Term name; Expression.Definitions toRemove ] }
                 )

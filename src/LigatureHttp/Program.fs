@@ -8,7 +8,6 @@ open Wander.Main
 open Wander.Fns
 open Wander.Model
 open Ligature.Model
-open Ligature.InMemoryStore
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
@@ -16,9 +15,11 @@ open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Microsoft.AspNetCore.Http
+open System
+open Log
 
-//let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
-let store = InMemoryStore() //new LigatureStore(Some path)
+let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
+let store = new LogStore(Some path)
 
 let wanderHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
@@ -34,18 +35,18 @@ let wanderHandler: HttpHandler =
         else
             failwith "TODO"
 
-let createEndpoints (store: ILigatureStore) = choose [ POST >=> wanderHandler ]
+let createEndpoints () = choose [ POST >=> wanderHandler ]
 
 let wapp = WebApplication.Create()
 
 type Startup() =
-    member __.ConfigureServices(services: IServiceCollection) =
+    member _.ConfigureServices(services: IServiceCollection) =
         // Register default Giraffe dependencies
         services.AddGiraffe() |> ignore
 
-    member __.Configure (app: IApplicationBuilder) (env: IHostEnvironment) (loggerFactory: ILoggerFactory) =
+    member _.Configure (app: IApplicationBuilder) (env: IHostEnvironment) (loggerFactory: ILoggerFactory) =
         // Add Giraffe to the ASP.NET Core pipeline
-        app.UseGiraffe(createEndpoints (InMemoryStore()))
+        app.UseGiraffe(createEndpoints ())
 
 [<EntryPoint>]
 let main _ =

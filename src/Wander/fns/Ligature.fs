@@ -425,6 +425,10 @@ let tripleFn: Fn =
                     )
                 )
 
+            | [ Expression.Element element; Expression.Term role; Expression.Element filler ] ->
+                Ok(Expression.Assertion(Assertion.Triple(element, role, filler)))
+
+
             | x -> error $"Improper call to triple: {x}" None
     )
 
