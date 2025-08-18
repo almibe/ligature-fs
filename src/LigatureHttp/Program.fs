@@ -8,52 +8,64 @@ open Wander.Main
 open Wander.Fns
 open Wander.Model
 open Ligature.Model
-open Microsoft.AspNetCore.Builder
-open Microsoft.AspNetCore.Hosting
-open Microsoft.Extensions.Hosting
-open Microsoft.Extensions.Logging
-open Microsoft.Extensions.DependencyInjection
-open Giraffe
-open Microsoft.AspNetCore.Http
 open System
 open Log
+open Suave
+open Suave.Sockets
+open Suave.Sockets.Control
+open Suave.WebSocket
+open Suave.Filters
+open Suave.Operators
+open Suave.Successful
 
-let path = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
-let store = new LogStore(Some path)
+let storePath = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
+let store = new LogStore(Some storePath)
 
-let wanderHandler: HttpHandler =
-    fun (next: HttpFunc) (ctx: HttpContext) ->
-        if HttpMethods.IsPost ctx.Request.Method then
-            task {
-                let! script = ctx.ReadBodyFromRequestAsync false
+let ws (webSocket : WebSocket) (context: HttpContext) =
+    socket {
+        let mutable loop = true
 
-                return!
-                    match run (Wander.Library.stdFns store) Map.empty script with
-                    | Ok result -> ctx.WriteTextAsync(printExpression result)
-                    | Error err -> ctx.WriteTextAsync err.UserMessage
-            }
-        else
-            failwith "TODO"
+        while loop do
+            let! msg = webSocket.read()
 
-let createEndpoints () = choose [ POST >=> wanderHandler ]
+            match msg with
+            | Text, data, true ->
+                let str = UTF8.toString data
+                let response = sprintf "response to %s" str
+                let byteResponse =
+                    response
+                    |> System.Text.Encoding.ASCII.GetBytes
+                    |> ByteSegment
+                do! webSocket.send Text byteResponse true
 
-let wapp = WebApplication.Create()
+            | Close, _, _ ->
+                let emptyResponse = [||] |> ByteSegment
+                do! webSocket.send Close emptyResponse true
+                loop <- false
 
-type Startup() =
-    member _.ConfigureServices(services: IServiceCollection) =
-        // Register default Giraffe dependencies
-        services.AddGiraffe() |> ignore
+            | _ -> ()
+    }
 
-    member _.Configure (app: IApplicationBuilder) (env: IHostEnvironment) (loggerFactory: ILoggerFactory) =
-        // Add Giraffe to the ASP.NET Core pipeline
-        app.UseGiraffe(createEndpoints ())
+// let wanderHandler: HttpHandler =
+//     fun (next: HttpFunc) (ctx: HttpContext) ->
+//         if HttpMethods.IsPost ctx.Request.Method then
+//             task {
+//                 let! script = ctx.ReadBodyFromRequestAsync false
+
+//                 return!
+//                     match run (Wander.Library.stdFns store) Map.empty script with
+//                     | Ok result -> ctx.WriteTextAsync(printExpression result)
+//                     | Error err -> ctx.WriteTextAsync err.UserMessage
+//             }
+//         else
+//             failwith "TODO"
+
+let app : WebPart =
+    choose [
+        path "/ws" >=> handShake ws ]
 
 [<EntryPoint>]
 let main _ =
-    Host
-        .CreateDefaultBuilder()
-        .ConfigureWebHostDefaults(fun webHostBuilder -> webHostBuilder.UseStartup<Startup>() |> ignore)
-        .Build()
-        .Run()
+    startWebServer defaultConfig app
 
     0

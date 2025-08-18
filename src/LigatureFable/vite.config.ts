@@ -20,5 +20,5 @@ export default defineConfig({
             fileName: (format) => `ligature.${format}.js`
         }
     },
-    plugins: [dts({ bundleTypes: true })],
+    plugins: [dts()],
 })
