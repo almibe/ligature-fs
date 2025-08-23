@@ -147,6 +147,10 @@ type LogStore(path: Option<string>) =
         member this.IsSubsumedBy (arg1: Term) (arg2: ConceptExpr) (arg3: ConceptExpr) : Result<bool, LigatureError> =
             inmem.IsSubsumedBy arg1 arg2 arg3
 
-        member this.Query (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> = inmem.Query arg1 arg2
+        member this.Instances (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> =
+            inmem.Instances arg1 arg2
+
+        member this.Query (arg: Term) (arg_1: Pattern) : Result<Map<Slot, Element>, LigatureError> =
+            raise (System.NotImplementedException())
 
         member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = inmem.TableauModels arg1

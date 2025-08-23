@@ -10,11 +10,14 @@ type Variable = Variable of string
 
 and [<RequireQualifiedAccess>] Expression =
     | Seq of List<Expression>
+    | Map of Map<Term, Expression>
+    | Slot of Slot
     | Term of Term
     | Element of Element
     | Variable of Variable
     | Assertion of Assertion
     | Assertions of Assertions
+    | Pattern of Pattern
     | Comment of string
     | VariableApplication of VariableApplication
     | Application of Application

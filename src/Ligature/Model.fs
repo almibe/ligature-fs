@@ -15,6 +15,8 @@ let error userMessage debugMessage =
 
 type Term = Term of string
 
+type Slot = Slot of string
+
 type Element =
     { value: Term
       space: Term option
@@ -64,6 +66,17 @@ and [<RequireQualifiedAccessAttribute>] Definition =
     | Implies of ConceptExpr * ConceptExpr
     | Equivalent of ConceptExpr * ConceptExpr
 
+and [<RequireQualifiedAccess>] Pattern =
+    | Triple of ElementPattern * TermPattern * ElementPattern
+    | Instance of ElementPattern * ConceptExpr
+
+and [<RequireQualifiedAccess>] TermPattern =
+    | Term of Term
+    | Slot of Slot
+
+and [<RequireQualifiedAccess>] ElementPattern =
+    | Element of Element
+    | Slot of Slot
 
 type Definitions = Set<Definition>
 
@@ -85,7 +98,8 @@ type ILigatureStore =
     abstract IsInstance: Term -> Element -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsSubsumedBy: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsEquivalent: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
-    abstract Query: Term -> ConceptExpr -> Result<Element seq, LigatureError>
+    abstract Instances: Term -> ConceptExpr -> Result<Element seq, LigatureError>
+    abstract Query: Term -> Pattern -> Result<Map<Slot, Element>, LigatureError>
     abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
 let encodeString string =
