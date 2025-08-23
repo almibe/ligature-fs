@@ -82,6 +82,8 @@ type Definitions = Set<Definition>
 
 type KnowledgeBase = Definitions * Assertions
 
+type ResultSet = Set<Map<Slot, Element>>
+
 type ILigatureStore =
     abstract KBs: unit -> Term seq
     abstract AddKB: Term -> unit
@@ -99,7 +101,7 @@ type ILigatureStore =
     abstract IsSubsumedBy: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
     abstract IsEquivalent: Term -> ConceptExpr -> ConceptExpr -> Result<bool, LigatureError>
     abstract Instances: Term -> ConceptExpr -> Result<Element seq, LigatureError>
-    abstract Query: Term -> Pattern -> Result<Map<Slot, Element>, LigatureError>
+    abstract Query: Term -> Pattern -> Result<ResultSet, LigatureError>
     abstract TableauModels: Term -> Result<Set<Assertions>, LigatureError>
 
 let encodeString string =

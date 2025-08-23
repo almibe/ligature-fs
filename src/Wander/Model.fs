@@ -10,7 +10,7 @@ type Variable = Variable of string
 
 and [<RequireQualifiedAccess>] Expression =
     | Seq of List<Expression>
-    | Map of Map<Term, Expression>
+    | ResultSet of ResultSet
     | Slot of Slot
     | Term of Term
     | Element of Element

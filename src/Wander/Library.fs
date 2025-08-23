@@ -106,6 +106,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "map", mapFn
           Term "seq", seqFn
           Term "assertions", assertionsFn
+          Term "pattern", patternFn
           Term "element", elementFn
           Term "instance", instanceFn
           Term "triple", tripleFn
@@ -128,6 +129,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "docs", docsFn
           Term "id", idFn
           //   Term "is-empty", isEmptyFn
+          Term "instances", instancesFn
           Term "query", queryFn
           Term "count", countFn
           Term "unfold", unfoldFn

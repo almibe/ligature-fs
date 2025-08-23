@@ -81,7 +81,7 @@ type InMemoryStore() =
         member this.Instances (arg: Term) (arg_1: ConceptExpr) : Result<Element seq, LigatureError> =
             raise (System.NotImplementedException())
 
-        member this.Query (arg1: Term) (arg2: Pattern) : Result<Map<Slot, Element>, LigatureError> =
+        member this.Query (arg1: Term) (arg2: Pattern) : Result<ResultSet, LigatureError> =
             failwith "Not Implemented"
 
         member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = failwith "Not Implemented"

@@ -689,7 +689,7 @@ let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr)
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
 
-let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Element list =
+let instances (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Element list =
     let individuals = individuals aBox
 
     // let res =
@@ -699,3 +699,15 @@ let query (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Elemen
             | Ok(Term "true") -> true
             | _ -> false)
         individuals
+
+let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet =
+    failwith "TODO"
+    // let individuals = individuals aBox
+
+    // // let res =
+    // List.filter
+    //     (fun value ->
+    //         match isInstance tBox aBox value concept with
+    //         | Ok(Term "true") -> true
+    //         | _ -> false)
+    //     individuals

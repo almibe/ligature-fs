@@ -31,6 +31,27 @@ let assertionsFn =
             Ok(Expression.Assertions res)
     )
 
+let patternFn =
+    Fn.Fn(
+        { doc = "Create a pattern."
+          examples = [ "pattern(instance(?cat Cat))" ]
+          args = "Patterns..."
+          result = "Pattern" },
+        fun _ _ application ->
+            let mutable res: Assertions = Set.empty
+
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Expression.Assertions assertions -> res <- Set.union assertions res
+                    | Expression.Assertion assertion -> res <- Set.add assertion res
+                    | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
+                    | x -> failwith $"Invalid call to assertions: {x}")
+                application.arguments
+
+            Ok(Expression.Assertions res)
+    )
+
 // let unionFn =
 //     Fn.Fn(
 //         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
@@ -110,24 +131,38 @@ let queryFn =
     Fn.Fn(
         { doc = "Perform a query."
           examples = []
+          args = "Definitions Assertions Pattern"
+          result = "ResultSet" },
+        fun _ _ application ->
+            match application.arguments with
+            | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Pattern pattern ] ->
+                let results = query tBox aBox pattern
+                Ok(Expression.ResultSet results)
+            | _ -> error "Invalid call to query" None
+    )
+
+let instancesFn =
+    Fn.Fn(
+        { doc = "Find instances of a Concept."
+          examples = []
           args = "Definitions Assertions (Term | ConceptExpr)"
           result = "Seq" },
         fun _ _ application ->
             match application.arguments with
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.Term concept ] ->
                 let results =
-                    query tBox aBox (ConceptExpr.AtomicConcept concept)
+                    instances tBox aBox (ConceptExpr.AtomicConcept concept)
                     |> List.map (fun value -> Expression.Element value)
                 //aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)
             | [ Expression.Definitions tBox; Expression.Assertions aBox; Expression.ConceptExpr concept ] ->
                 let results =
-                    query tBox aBox concept |> List.map (fun value -> Expression.Element value)
+                    instances tBox aBox concept |> List.map (fun value -> Expression.Element value)
                 // aBoxToNode (Term i) aBox |> Expression.NodeLiteral)
 
                 Ok(Expression.Seq results)
-            | _ -> error "Invalid call to query" None
+            | _ -> error "Invalid call to instances" None
     )
 
 // let matchCommand =

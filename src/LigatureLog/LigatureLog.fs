@@ -150,7 +150,7 @@ type LogStore(path: Option<string>) =
         member this.Instances (arg1: Term) (arg2: ConceptExpr) : Result<Element seq, LigatureError> =
             inmem.Instances arg1 arg2
 
-        member this.Query (arg: Term) (arg_1: Pattern) : Result<Map<Slot, Element>, LigatureError> =
+        member this.Query (arg: Term) (arg_1: Pattern) : Result<ResultSet, LigatureError> =
             raise (System.NotImplementedException())
 
         member this.TableauModels(arg1: Term) : Result<Set<Assertions>, LigatureError> = inmem.TableauModels arg1
