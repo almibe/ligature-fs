@@ -135,8 +135,8 @@ let elementTokenNibbler =
         |> List.concat
         |> implode
         |> fun value ->
-            if value.StartsWith "?" then Token.Slot value
-            else if value.StartsWith "$" then Token.Variable value
+            if value.StartsWith "?" then Token.Slot value.[1..]
+            else if value.StartsWith "$" then Token.Variable value.[1..]
             else Token.Term value)
 
 let tokenNibbler =

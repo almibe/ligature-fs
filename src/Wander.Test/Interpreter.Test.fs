@@ -33,7 +33,7 @@ let tests =
 
               Expect.equal
                   (runScript "fn($value -> $value)")
-                  (Ok(Expression.Lambda([ Variable "$value" ], [ None, Expression.Variable(Variable "$value") ])))
+                  (Ok(Expression.Lambda([ Variable "value" ], [ None, Expression.Variable(Variable "value") ])))
                   ""
 
           //   testCase "run script with tuple literal"

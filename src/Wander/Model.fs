@@ -72,7 +72,7 @@ and printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
     | Expression.Element element -> printElement element
-    | Expression.Variable(Variable v) -> v
+    | Expression.Variable(Variable v) -> $"${v}"
     | Expression.Seq seq -> printSeq seq
     | Expression.Assertions n -> printAssertions n
     | Expression.Comment _ -> failwith "Not Implemented"
@@ -84,6 +84,7 @@ and printExpression (value: Expression) : string =
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Definition d -> printDefinition d
     | Expression.Unit -> "()"
+    | Expression.Slot(Slot s) -> $"?{s}"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple

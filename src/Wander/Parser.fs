@@ -89,7 +89,7 @@ let applicationNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError>
 let elementLiteralSlotNib (gaze: Gaze.Gaze<Token>) : Result<Expression, Gaze.GazeError> =
     match Gaze.next gaze with
     | Ok(Token.Term value) -> Ok(Expression.Term(Term value))
-    // | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
+    | Ok(Token.Slot value) -> Ok(Expression.Slot(Slot value))
     | Ok(Token.Literal value) ->
         Ok(
             Expression.Element

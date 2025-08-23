@@ -189,6 +189,7 @@ and executeExpression
     | Expression.Lambda _ -> failwith "Not Implemented"
     | Expression.ConceptExpr expr -> Ok(Expression.ConceptExpr expr)
     | Expression.Definitions _ -> failwith "Not Implemented"
+    | Expression.Slot slot -> Ok(Expression.Slot slot)
 
 let read (input: string) : Result<Script, LigatureError> =
     try
