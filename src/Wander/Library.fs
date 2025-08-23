@@ -107,6 +107,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "pattern", patternFn
+          Term "result-set", resultSetFn
           Term "element", elementFn
           Term "instance", instanceFn
           Term "triple", tripleFn

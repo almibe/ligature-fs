@@ -700,14 +700,13 @@ let instances (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : El
             | _ -> false)
         individuals
 
-let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet =
-    failwith "TODO"
-    // let individuals = individuals aBox
+let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet = Set.empty
+// let individuals = individuals aBox
 
-    // // let res =
-    // List.filter
-    //     (fun value ->
-    //         match isInstance tBox aBox value concept with
-    //         | Ok(Term "true") -> true
-    //         | _ -> false)
-    //     individuals
+// // let res =
+// List.filter
+//     (fun value ->
+//         match isInstance tBox aBox value concept with
+//         | Ok(Term "true") -> true
+//         | _ -> false)
+//     individuals

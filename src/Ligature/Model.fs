@@ -66,9 +66,11 @@ and [<RequireQualifiedAccessAttribute>] Definition =
     | Implies of ConceptExpr * ConceptExpr
     | Equivalent of ConceptExpr * ConceptExpr
 
-and [<RequireQualifiedAccess>] Pattern =
+and [<RequireQualifiedAccess>] PatternPart =
     | Triple of ElementPattern * TermPattern * ElementPattern
     | Instance of ElementPattern * ConceptExpr
+
+and Pattern = Set<PatternPart>
 
 and [<RequireQualifiedAccess>] TermPattern =
     | Term of Term

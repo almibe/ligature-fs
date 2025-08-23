@@ -38,19 +38,41 @@ let patternFn =
           args = "Patterns..."
           result = "Pattern" },
         fun _ _ application ->
-            let mutable res: Assertions = Set.empty
+            let mutable res: Pattern = Set.empty
 
-            List.iter
-                (fun arg ->
-                    match arg with
-                    | Expression.Assertions assertions -> res <- Set.union assertions res
-                    | Expression.Assertion assertion -> res <- Set.add assertion res
-                    | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
-                    | x -> failwith $"Invalid call to assertions: {x}")
-                application.arguments
+            // List.iter
+            //     (fun arg ->
+            //         match arg with
+            //         | Expression.Assertions assertions -> res <- Set.union assertions res
+            //         | Expression.Assertion assertion -> res <- Set.add assertion res
+            //         | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
+            //         | x -> failwith $"Invalid call to assertions: {x}")
+            //     application.arguments
 
-            Ok(Expression.Assertions res)
+            Ok(Expression.Pattern res)
     )
+
+let resultSetFn =
+    Fn.Fn(
+        { doc = "Create a result set."
+          examples = [ "result-set()" ]
+          args = "Results..."
+          result = "ResultSet" },
+        fun _ _ application ->
+            let mutable res = Set.empty
+
+            // List.iter
+            //     (fun arg ->
+            //         match arg with
+            //         | Expression.Assertions assertions -> res <- Set.union assertions res
+            //         | Expression.Assertion assertion -> res <- Set.add assertion res
+            //         | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
+            //         | x -> failwith $"Invalid call to assertions: {x}")
+            //     application.arguments
+
+            Ok(Expression.ResultSet res)
+    )
+
 
 // let unionFn =
 //     Fn.Fn(

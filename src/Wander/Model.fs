@@ -85,6 +85,9 @@ and printExpression (value: Expression) : string =
     | Expression.Definition d -> printDefinition d
     | Expression.Unit -> "()"
     | Expression.Slot(Slot s) -> $"?{s}"
+    | Expression.ResultSet rs -> printResultSet rs
+
+and printResultSet rs = "result-set()"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple
