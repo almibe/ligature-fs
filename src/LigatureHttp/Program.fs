@@ -21,21 +21,18 @@ open Suave.Successful
 let storePath = Environment.GetEnvironmentVariable "LIGATURE_HOME" + "/store"
 let store = new LogStore(Some storePath)
 
-let ws (webSocket : WebSocket) (context: HttpContext) =
+let ws (webSocket: WebSocket) (context: HttpContext) =
     socket {
         let mutable loop = true
 
         while loop do
-            let! msg = webSocket.read()
+            let! msg = webSocket.read ()
 
             match msg with
             | Text, data, true ->
                 let str = UTF8.toString data
                 let response = sprintf "response to %s" str
-                let byteResponse =
-                    response
-                    |> System.Text.Encoding.ASCII.GetBytes
-                    |> ByteSegment
+                let byteResponse = response |> System.Text.Encoding.ASCII.GetBytes |> ByteSegment
                 do! webSocket.send Text byteResponse true
 
             | Close, _, _ ->
@@ -60,9 +57,7 @@ let ws (webSocket : WebSocket) (context: HttpContext) =
 //         else
 //             failwith "TODO"
 
-let app : WebPart =
-    choose [
-        path "/ws" >=> handShake ws ]
+let app: WebPart = choose [ path "/ws" >=> handShake ws ]
 
 [<EntryPoint>]
 let main _ =

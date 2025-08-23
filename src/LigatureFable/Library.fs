@@ -8,11 +8,7 @@ open Wander.Library
 open Fable.Core
 open Fable.Core.JsInterop
 
-let runAndPrint = runWithDefaults >> printResult
-
 let printResult = printResult
-
-let printAny = printExpression
 
 let ok value = Ok value
 
@@ -165,7 +161,7 @@ let runWithFns (fns: Dictionary<string, obj -> unit>) (script: string) htmlEleme
             ))
             resFns
 
-    run resFns Map.empty script |> resultToJs
+    run resFns Map.empty script
 
 let equivalent left right = Definition.Equivalent left, right
 
@@ -186,5 +182,3 @@ let isConsistent tBox aBox : bool =
     match Ligature.Interpreter.isConsistent tBox aBox with
     | Ok value -> value
     | Error err -> failwith err.UserMessage
-
-let run script = runWithDefaults script |> resultToJs

@@ -1,4 +1,4 @@
-import { runWithFns } from "./Library.fs.js"
+import { runWithFns, printResult } from "./Library.fs.js"
 
 export type Element = {
     type: "Element",
@@ -30,3 +30,5 @@ export function element(value: string): Element {
 export function run(script: string, htmlElement, fns?: Map<string, (arg: any[]) => void>) {
     return runWithFns(fns, script, htmlElement)
 }
+
+export { printResult }
