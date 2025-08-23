@@ -291,8 +291,7 @@ let main (args: string[]) =
     if interactive then
         runRepl ()
     else
-        let dir = IO.Directory.GetCurrentDirectory()
-        let file = $"{dir}/{args[0]}"
+        let file = args[0]
         let script = System.IO.File.ReadAllText file
 
         match run fns Map.empty script with
