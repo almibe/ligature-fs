@@ -61,6 +61,15 @@ let fnFn: Fn =
             Ok(Expression.Lambda(variables, body))
     )
 
+let unitFn: Fn =
+    Fn.Fn(
+        { doc = "Create a unit value."
+          examples = [ "unit()" ]
+          args = ""
+          result = "Unit" },
+        fun _ _ _ -> Ok Expression.Unit
+    )
+
 let doFn: Fn =
     Fn.Fn(
         { doc = "Create a new scope and execute a series of expressions."

@@ -99,6 +99,7 @@ let stdFns (store: ILigatureStore) : Fns =
     Map.ofSeq
         [ Term "test-group", testGroupFn
           Term "expect-equal", expectEqualFn
+          Term "unit", unitFn
           Term "ulid", ulidFn
           Term "fn", fnFn
           Term "do", doFn
@@ -107,6 +108,7 @@ let stdFns (store: ILigatureStore) : Fns =
           Term "seq", seqFn
           Term "assertions", assertionsFn
           Term "pattern", patternFn
+          Term "result", resultFn
           Term "result-set", resultSetFn
           Term "element", elementFn
           Term "instance", instanceFn

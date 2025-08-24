@@ -10,6 +10,7 @@ type Variable = Variable of string
 
 and [<RequireQualifiedAccess>] Expression =
     | Seq of List<Expression>
+    | Result of Map<Slot, Element>
     | ResultSet of ResultSet
     | Slot of Slot
     | Term of Term
@@ -68,6 +69,10 @@ let rec printApplication (application: Application) : string =
 
     $"{name}({atts}{args})"
 
+and printResult (result: Map<Slot, Element>) =
+    Map.fold (fun state (Slot key) value -> state + " " + key + " -> " + printElement value) $"result(" result
+    + ")"
+
 and printExpression (value: Expression) : string =
     match value with
     | Expression.Term(Term value) -> value
@@ -83,11 +88,14 @@ and printExpression (value: Expression) : string =
     | Expression.Assertion _ -> "-assertion-"
     | Expression.ConceptExpr c -> printConcept c
     | Expression.Definition d -> printDefinition d
-    | Expression.Unit -> "()"
+    | Expression.Unit -> "unit()"
     | Expression.Slot(Slot s) -> $"?{s}"
     | Expression.ResultSet rs -> printResultSet rs
+    | Expression.Result result -> printResult result
+    | Expression.Pattern p -> failwith "TODO"
 
-and printResultSet rs = "result-set()"
+and printResultSet (rs: ResultSet) =
+    Set.fold (fun state value -> state + printResult value) "result-set(" rs + ")"
 
 and printSeq (tuple: List<Expression>) : string =
     Seq.fold (fun state value -> state + printExpression value + " ") "[" tuple

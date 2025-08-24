@@ -52,6 +52,28 @@ let patternFn =
             Ok(Expression.Pattern res)
     )
 
+let resultFn =
+    Fn.Fn(
+        { doc = "Create a result."
+          examples = [ "result(?a -> test)" ]
+          args = "Slot -> Value..."
+          result = "Result" },
+        fun _ _ application ->
+            let mutable res = Map.empty
+
+            // List.iter
+            //     (fun arg ->
+            //         match arg with
+            //         | Expression.Assertions assertions -> res <- Set.union assertions res
+            //         | Expression.Assertion assertion -> res <- Set.add assertion res
+            //         | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
+            //         | x -> failwith $"Invalid call to assertions: {x}")
+            //     application.arguments
+
+            Ok(Expression.Result res)
+    )
+
+
 let resultSetFn =
     Fn.Fn(
         { doc = "Create a result set."
