@@ -128,10 +128,10 @@ let stdFns (store: ILigatureStore) : Fns =
           //   Term "at-least", atLeastFn
           //   Term "at-most", atMostFn
           Term "implies", impliesFn
-          //   Term "union", unionFn
+          Term "union", unionFn
           Term "docs", docsFn
           Term "id", idFn
-          //   Term "is-empty", isEmptyFn
+          Term "is-empty", isEmptyFn
           Term "instances", instancesFn
           Term "query", queryFn
           Term "count", countFn

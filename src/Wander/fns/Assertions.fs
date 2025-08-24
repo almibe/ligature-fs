@@ -105,20 +105,19 @@ let resultSetFn =
             Ok(Expression.ResultSet res)
     )
 
-
-// let unionFn =
-//     Fn.Fn(
-//         { doc = "Combine the top two Networks on the Stack and push the resulting Network."
-//           examples = [ "{a b c} {d e f} union\n{a b c, d e f} assert-equal" ]
-//           args = "Network Network"
-//           result = "Network" },
-//         fun _ _ _ arguments ->
-//             match arguments with
-//             | [ Expression.Assertions left; Expression.Assertions right ] ->
-//                 let result = Set.union left right |> Expression.Assertions
-//                 Ok result
-//             | _ -> failwith $"Calls to union requires two ABoxes."
-//     )
+let unionFn =
+    Fn.Fn(
+        { doc = "Combine the top two Networks on the Stack and push the resulting Network."
+          examples = []
+          args = "Assertions Assertions"
+          result = "Assertions" },
+        fun _ _ arguments -> failwith "TODO"
+    // match arguments with
+    // | [ Expression.Assertions left; Expression.Assertions right ] ->
+    //     let result = Set.union left right |> Expression.Assertions
+    //     Ok result
+    // | _ -> failwith $"Calls to union requires two ABoxes."
+    )
 
 let countFn =
     Fn.Fn(
@@ -144,15 +143,6 @@ let countFn =
                 )
             | _ -> error "Illegal call to count." None
     )
-
-// let minusCommand =
-//     { Eval =
-//         fun networks local modules (arguments: Arguments) ->
-//             match arguments with
-//             | [ Any.Network(left); Any.Network(right) ] ->
-//                 let result = Set.difference left right |> Any.Network
-//                 Ok(networks, local, modules)
-//             | _ -> failwith "TODO" }
 
 let aBoxToNode (individual: Term) (aBox: Assertions) : Application = //TODO also accept a TBox and Concept to control
     { name = individual
@@ -218,60 +208,6 @@ let instancesFn =
                 Ok(Expression.Seq results)
             | _ -> error "Invalid call to instances" None
     )
-
-// let matchCommand =
-//     { Eval =
-//         fun networks local modules arguments ->
-//             match arguments with
-//             | [ Any.Tuple [ e; a; v ]; Any.Network network ] ->
-//                 let element =
-//                     match e with
-//                     | Any.Term e -> TermPattern.Term e
-//                     | Any.Slot v -> TermPattern.Slot v
-//                     | _ -> failwith "TODO"
-
-//                 let attribute =
-//                     match a with
-//                     | Any.Term e -> TermPattern.Term e
-//                     | Any.Slot v -> TermPattern.Slot v
-//                     | _ -> failwith "TODO"
-
-//                 let value =
-//                     match v with
-//                     | Any.Term e -> Value.Term e
-//                     | Any.Slot v -> Value.Slot v
-//                     | Any.Literal l -> Value.Literal l
-//                     | _ -> failwith "TODO"
-
-//                 Ok(
-//                     (Some(Any.ResultSet(singleMatch (element, attribute, value) network)),
-//                      networks,
-//                      local,
-//                      modules,
-//                      variables)
-//                 )
-//             | [ pattern; network ] ->
-//                 let pattern =
-//                     match pattern with
-//                     | Any.Network n -> n
-//                     | Any.Tuple q ->
-//                         match evalTuple networks local modules variables q with
-//                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
-
-//                 let network =
-//                     match network with
-//                     | Any.Network n -> n
-//                     | Any.Tuple q ->
-//                         match evalTuple networks local modules variables q with
-//                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
-//                         | _ -> failwith "TODO"
-//                     | _ -> failwith "TODO"
-
-//                 Ok(Some(Any.ResultSet(networkMatch pattern network)), networks, local, modules, variables)
-
-//             | _ -> failwith "TODO" }
 
 // let applyCommand =
 //     { Eval =
@@ -346,24 +282,12 @@ let instancesFn =
 //             | _ -> error "Invalid call to filter" None
 //     )
 
-// let isEmptyFn =
-//     Fn.Fn(
-//         { doc =
-//             "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
-//           examples = []
-//           args = ""
-//           result = "" },
-//         fun actions variables arguments -> failwith "TODO"
-//     // match stack with
-//     // | Any.Network cond :: tail ->
-//     //     if cond = Set.empty then
-//     //         Ok(Any.Term(Term "true") :: tail)
-//     //     else
-//     //         Ok(Any.Term(Term "false") :: tail)
-//     // | Any.Tuple q :: tail ->
-//     //     if q.IsEmpty then
-//     //         Ok(Any.Term(Term "true") :: tail)
-//     //     else
-//     //         Ok(Any.Term(Term "false") :: tail)
-//     // | _ -> error "Invalid call to is-empty" None
-//     )
+let isEmptyFn =
+    Fn.Fn(
+        { doc =
+            "Takes a Network or Tuple off the top of the Stack and pushes \"true\" if it is empty or \"false\" if not."
+          examples = []
+          args = ""
+          result = "" },
+        fun actions variables arguments -> failwith "TODO"
+    )

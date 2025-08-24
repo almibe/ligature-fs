@@ -710,7 +710,9 @@ let instances (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : El
             | _ -> false)
         individuals
 
-let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet = Set.empty
+let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet =
+
+    Set.empty
 // let individuals = individuals aBox
 
 // // let res =
@@ -720,3 +722,57 @@ let query (tBox: Definitions) (aBox: Assertions) (pattern: Pattern) : ResultSet 
 //         | Ok(Term "true") -> true
 //         | _ -> false)
 //     individuals
+
+// let matchCommand =
+//     { Eval =
+//         fun networks local modules arguments ->
+//             match arguments with
+//             | [ Any.Tuple [ e; a; v ]; Any.Network network ] ->
+//                 let element =
+//                     match e with
+//                     | Any.Term e -> TermPattern.Term e
+//                     | Any.Slot v -> TermPattern.Slot v
+//                     | _ -> failwith "TODO"
+
+//                 let attribute =
+//                     match a with
+//                     | Any.Term e -> TermPattern.Term e
+//                     | Any.Slot v -> TermPattern.Slot v
+//                     | _ -> failwith "TODO"
+
+//                 let value =
+//                     match v with
+//                     | Any.Term e -> Value.Term e
+//                     | Any.Slot v -> Value.Slot v
+//                     | Any.Literal l -> Value.Literal l
+//                     | _ -> failwith "TODO"
+
+//                 Ok(
+//                     (Some(Any.ResultSet(singleMatch (element, attribute, value) network)),
+//                      networks,
+//                      local,
+//                      modules,
+//                      variables)
+//                 )
+//             | [ pattern; network ] ->
+//                 let pattern =
+//                     match pattern with
+//                     | Any.Network n -> n
+//                     | Any.Tuple q ->
+//                         match evalTuple networks local modules variables q with
+//                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
+//                         | _ -> failwith "TODO"
+//                     | _ -> failwith "TODO"
+
+//                 let network =
+//                     match network with
+//                     | Any.Network n -> n
+//                     | Any.Tuple q ->
+//                         match evalTuple networks local modules variables q with
+//                         | Ok((Some(Any.Network n), networks, local, modules, variables)) -> n
+//                         | _ -> failwith "TODO"
+//                     | _ -> failwith "TODO"
+
+//                 Ok(Some(Any.ResultSet(networkMatch pattern network)), networks, local, modules, variables)
+
+//             | _ -> failwith "TODO" }
