@@ -5,7 +5,6 @@
 module Ligature.Interpreter
 
 open Ligature.Model
-open Core
 
 [<RequireQualifiedAccess>]
 type SimpleConcept =
@@ -688,6 +687,17 @@ let isInstance
 let expandResult (aBox: Assertions) (individual: Element) (concept: ConceptExpr) : Assertions =
 
     Set.ofList [ Assertion.Instance(individual, concept) ]
+
+let individuals (aBox: Assertions) : Element list =
+    Set.fold
+        (fun state value ->
+            match value with
+            | Assertion.Instance(individual, _) -> //TODO check for nominal concept
+                Set.add individual state
+            | Assertion.Triple(i, _, f) -> Set.add i state |> Set.add f)
+        Set.empty
+        aBox
+    |> List.ofSeq
 
 let instances (tBox: Definitions) (aBox: Assertions) (concept: ConceptExpr) : Element list =
     let individuals = individuals aBox

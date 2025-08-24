@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Compile Include="Model.fs" />
-    <Compile Include="Core.fs" />
     <Compile Include="Interpreter.fs" />
     <Compile Include="InMemoryStore.fs" />
   </ItemGroup>

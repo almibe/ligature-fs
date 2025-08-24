@@ -6,7 +6,6 @@ module Wander.Fns.Ligature
 
 open Ligature.Model
 open Ligature.Interpreter
-open Ligature.Core
 open Wander.Model
 open Wander.Interpreter
 

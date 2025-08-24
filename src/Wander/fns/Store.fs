@@ -6,8 +6,6 @@ module Wander.Fns.Store
 
 open Ligature.Model
 open Wander.Model
-open Ligature.Core
-open Wander.Interpreter
 open Ligature.Interpreter
 
 let createStoreFns (store: ILigatureStore) (baseFns: Fns) : Fns =

@@ -6,9 +6,7 @@ module Wander.Fns.Assertions
 
 open Ligature.Model
 open Wander.Model
-open Ligature.Core
 open Ligature.Interpreter
-open Wander.Interpreter
 
 let assertionsFn =
     Fn.Fn(
@@ -97,14 +95,12 @@ let resultSetFn =
         fun _ _ application ->
             let mutable res = Set.empty
 
-            // List.iter
-            //     (fun arg ->
-            //         match arg with
-            //         | Expression.Assertions assertions -> res <- Set.union assertions res
-            //         | Expression.Assertion assertion -> res <- Set.add assertion res
-            //         | Expression.Element element -> res <- Set.add (Assertion.Instance(element, ConceptExpr.Top)) res
-            //         | x -> failwith $"Invalid call to assertions: {x}")
-            //     application.arguments
+            List.iter
+                (fun arg ->
+                    match arg with
+                    | Expression.Result r -> res <- Set.add r res
+                    | x -> failwith $"Invalid call to result-set: {x}")
+                application.arguments
 
             Ok(Expression.ResultSet res)
     )

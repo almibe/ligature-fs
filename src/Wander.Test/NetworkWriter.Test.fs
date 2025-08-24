@@ -7,7 +7,6 @@ module Wander.NetworkWriter.Test
 open Expecto
 open Wander.Tokenizer
 open Wander.Model
-open Ligature.Core
 open Ligature.Model
 
 [<Tests>]
