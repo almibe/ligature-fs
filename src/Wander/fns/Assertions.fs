@@ -61,6 +61,20 @@ let resultFn =
         fun _ _ application ->
             let mutable res = Map.empty
 
+            let mutable args = application.arguments
+            let mutable cont = true
+
+            while cont do
+                match args with
+                | [] -> cont <- false
+                | Expression.Slot key :: Expression.Term(Term "->") :: Expression.Element value :: tail ->
+                    res <- Map.add key value res
+                    args <- tail
+                | Expression.Slot key :: Expression.Term(Term "->") :: Expression.Term value :: tail ->
+                    res <- Map.add key (termToElement value) res
+                    args <- tail
+                | _ -> failwith "TODO"
+
             // List.iter
             //     (fun arg ->
             //         match arg with

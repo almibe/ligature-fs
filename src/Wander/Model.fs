@@ -18,6 +18,7 @@ and [<RequireQualifiedAccess>] Expression =
     | Variable of Variable
     | Assertion of Assertion
     | Assertions of Assertions
+    | PatternPart of PatternPart
     | Pattern of Pattern
     | Comment of string
     | VariableApplication of VariableApplication
